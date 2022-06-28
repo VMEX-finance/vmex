@@ -22,4 +22,21 @@ mapping (uint256 => Bond) public bonds;
 
 VMEXLendVault.sol
 
-ERC4626 vault where LPs can supply assets to be eventually loaned out
+ERC4626 vault where LPs can supply assets to be loaned out.
+
+Standard ERC4626 except for the existence of these functions
+
+```js
+
+uint256 public loaned;
+
+loan(uint256 amount) public onlyBond;
+/* loans funds out to msg.sender, increases value of loaned */
+
+repay(uint256 amount) public;
+/* calls ERC20(token).transferFrom(msg.sender, amount), decreases value of loaned */
+
+```
+
+All functions to compute the price per full share or vice versa should consider the balance held in the vault to be `ERC20(token).balanceOf(address(this)).add(loaned)`
+  
