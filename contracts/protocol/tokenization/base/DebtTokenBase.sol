@@ -1,73 +1,53 @@
-// SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.10;
+// SPDX-License-Identifier: agpl-3.0
+pragma solidity 0.6.12;
 
-import {Context} from '../../../dependencies/openzeppelin/contracts/Context.sol';
-import {Errors} from '../../libraries/helpers/Errors.sol';
-import {VersionedInitializable} from '../../libraries/aave-upgradeability/VersionedInitializable.sol';
+import {ILendingPool} from '../../../interfaces/ILendingPool.sol';
 import {ICreditDelegationToken} from '../../../interfaces/ICreditDelegationToken.sol';
-import {EIP712Base} from './EIP712Base.sol';
+import {
+  VersionedInitializable
+} from '../../libraries/aave-upgradeability/VersionedInitializable.sol';
+import {IncentivizedERC20} from '../IncentivizedERC20.sol';
+import {Errors} from '../../libraries/helpers/Errors.sol';
 
 /**
  * @title DebtTokenBase
- * @author Aave
  * @notice Base contract for different types of debt tokens, like StableDebtToken or VariableDebtToken
+ * @author Aave
  */
+
 abstract contract DebtTokenBase is
+  IncentivizedERC20('DEBTTOKEN_IMPL', 'DEBTTOKEN_IMPL', 0),
   VersionedInitializable,
-  EIP712Base,
-  Context,
   ICreditDelegationToken
 {
-  // Map of borrow allowances (delegator => delegatee => borrowAllowanceAmount)
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
 
-  // Credit Delegation Typehash
-  bytes32 public constant DELEGATION_WITH_SIG_TYPEHASH =
-    keccak256('DelegationWithSig(address delegatee,uint256 value,uint256 nonce,uint256 deadline)');
-
-  address internal _underlyingAsset;
+  /**
+   * @dev Only lending pool can call functions marked by this modifier
+   **/
+  modifier onlyLendingPool {
+    require(_msgSender() == address(_getLendingPool()), Errors.CT_CALLER_MUST_BE_LENDING_POOL);
+    _;
+  }
 
   /**
-   * @dev Constructor.
-   */
-  constructor() EIP712Base() {
-    // Intentionally left blank
-  }
-
-  /// @inheritdoc ICreditDelegationToken
+   * @dev delegates borrowing power to a user on the specific debt token
+   * @param delegatee the address receiving the delegated borrowing power
+   * @param amount the maximum amount being delegated. Delegation will still
+   * respect the liquidation constraints (even if delegated, a delegatee cannot
+   * force a delegator HF to go below 1)
+   **/
   function approveDelegation(address delegatee, uint256 amount) external override {
-    _approveDelegation(_msgSender(), delegatee, amount);
+    _borrowAllowances[_msgSender()][delegatee] = amount;
+    emit BorrowAllowanceDelegated(_msgSender(), delegatee, _getUnderlyingAssetAddress(), amount);
   }
 
-  /// @inheritdoc ICreditDelegationToken
-  function delegationWithSig(
-    address delegator,
-    address delegatee,
-    uint256 value,
-    uint256 deadline,
-    uint8 v,
-    bytes32 r,
-    bytes32 s
-  ) external {
-    require(delegator != address(0), Errors.ZERO_ADDRESS_NOT_VALID);
-    //solium-disable-next-line
-    require(block.timestamp <= deadline, Errors.INVALID_EXPIRATION);
-    uint256 currentValidNonce = _nonces[delegator];
-    bytes32 digest = keccak256(
-      abi.encodePacked(
-        '\x19\x01',
-        DOMAIN_SEPARATOR(),
-        keccak256(
-          abi.encode(DELEGATION_WITH_SIG_TYPEHASH, delegatee, value, currentValidNonce, deadline)
-        )
-      )
-    );
-    require(delegator == ecrecover(digest, v, r, s), Errors.INVALID_SIGNATURE);
-    _nonces[delegator] = currentValidNonce + 1;
-    _approveDelegation(delegator, delegatee, value);
-  }
-
-  /// @inheritdoc ICreditDelegationToken
+  /**
+   * @dev returns the borrow allowance of the user
+   * @param fromUser The user to giving allowance
+   * @param toUser The user to give allowance to
+   * @return the current allowance of toUser
+   **/
   function borrowAllowance(address fromUser, address toUser)
     external
     view
@@ -78,35 +58,80 @@ abstract contract DebtTokenBase is
   }
 
   /**
-   * @notice Updates the borrow allowance of a user on the specific debt token.
-   * @param delegator The address delegating the borrowing power
-   * @param delegatee The address receiving the delegated borrowing power
-   * @param amount The allowance amount being delegated.
+   * @dev Being non transferrable, the debt token does not implement any of the
+   * standard ERC20 functions for transfer and allowance.
    **/
-  function _approveDelegation(
-    address delegator,
-    address delegatee,
-    uint256 amount
-  ) internal {
-    _borrowAllowances[delegator][delegatee] = amount;
-    emit BorrowAllowanceDelegated(delegator, delegatee, _underlyingAsset, amount);
+  function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+    recipient;
+    amount;
+    revert('TRANSFER_NOT_SUPPORTED');
   }
 
-  /**
-   * @notice Decreases the borrow allowance of a user on the specific debt token.
-   * @param delegator The address delegating the borrowing power
-   * @param delegatee The address receiving the delegated borrowing power
-   * @param amount The amount to subtract from the current allowance
-   **/
+  function allowance(address owner, address spender)
+    public
+    view
+    virtual
+    override
+    returns (uint256)
+  {
+    owner;
+    spender;
+    revert('ALLOWANCE_NOT_SUPPORTED');
+  }
+
+  function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    spender;
+    amount;
+    revert('APPROVAL_NOT_SUPPORTED');
+  }
+
+  function transferFrom(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) public virtual override returns (bool) {
+    sender;
+    recipient;
+    amount;
+    revert('TRANSFER_NOT_SUPPORTED');
+  }
+
+  function increaseAllowance(address spender, uint256 addedValue)
+    public
+    virtual
+    override
+    returns (bool)
+  {
+    spender;
+    addedValue;
+    revert('ALLOWANCE_NOT_SUPPORTED');
+  }
+
+  function decreaseAllowance(address spender, uint256 subtractedValue)
+    public
+    virtual
+    override
+    returns (bool)
+  {
+    spender;
+    subtractedValue;
+    revert('ALLOWANCE_NOT_SUPPORTED');
+  }
+
   function _decreaseBorrowAllowance(
     address delegator,
     address delegatee,
     uint256 amount
   ) internal {
-    uint256 newAllowance = _borrowAllowances[delegator][delegatee] - amount;
+    uint256 newAllowance =
+      _borrowAllowances[delegator][delegatee].sub(amount, Errors.BORROW_ALLOWANCE_NOT_ENOUGH);
 
     _borrowAllowances[delegator][delegatee] = newAllowance;
 
-    emit BorrowAllowanceDelegated(delegator, delegatee, _underlyingAsset, newAllowance);
+    emit BorrowAllowanceDelegated(delegator, delegatee, _getUnderlyingAssetAddress(), newAllowance);
   }
+
+  function _getUnderlyingAssetAddress() internal view virtual returns (address);
+
+  function _getLendingPool() internal view virtual returns (ILendingPool);
 }

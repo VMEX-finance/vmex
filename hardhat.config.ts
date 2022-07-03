@@ -1,54 +1,93 @@
 import path from 'path';
+import fs from 'fs';
 import { HardhatUserConfig } from 'hardhat/types';
 // @ts-ignore
 import { accounts } from './test-wallets.js';
-import { COVERAGE_CHAINID, HARDHAT_CHAINID } from './helpers/constants';
-import { buildForkConfig } from './helper-hardhat-config';
+import {
+  eAvalancheNetwork,
+  eEthereumNetwork,
+  eNetwork,
+  ePolygonNetwork,
+  eXDaiNetwork,
+} from './helpers/types';
+import { BUIDLEREVM_CHAINID, COVERAGE_CHAINID } from './helpers/buidler-constants';
+import {
+  NETWORKS_RPC_URL,
+  NETWORKS_DEFAULT_GAS,
+  BLOCK_TO_FORK,
+  buildForkConfig,
+} from './helper-hardhat-config';
 
 require('dotenv').config();
 
 import '@nomiclabs/hardhat-ethers';
-import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-waffle';
+import 'temp-hardhat-etherscan';
 import 'hardhat-gas-reporter';
-import '@typechain/hardhat';
-import '@typechain/ethers-v5';
-import 'hardhat-deploy';
+import 'hardhat-typechain';
 import '@tenderly/hardhat-tenderly';
 import 'solidity-coverage';
-import 'hardhat-contract-sizer';
-import 'hardhat-dependency-compiler';
-import { DEFAULT_NAMED_ACCOUNTS } from '@aave/deploy-v3';
+import { fork } from 'child_process';
 
-const DEFAULT_BLOCK_GAS_LIMIT = 12450000;
-const HARDFORK = 'london';
+const SKIP_LOAD = process.env.SKIP_LOAD === 'true';
+const DEFAULT_BLOCK_GAS_LIMIT = 8000000;
+const DEFAULT_GAS_MUL = 5;
+const HARDFORK = 'istanbul';
+const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || '';
+const MNEMONIC_PATH = "m/44'/60'/0'/0";
+const MNEMONIC = process.env.MNEMONIC || '';
+const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === 'true';
 
-const hardhatConfig: HardhatUserConfig = {
-  gasReporter: {
-    enabled: true,
+// Prevent to load scripts before compilation and typechain
+if (!SKIP_LOAD) {
+  ['misc', 'migrations', 'dev', 'full', 'verifications', 'deployments', 'helpers'].forEach(
+    (folder) => {
+      const tasksPath = path.join(__dirname, 'tasks', folder);
+      fs.readdirSync(tasksPath)
+        .filter((pth) => pth.includes('.ts'))
+        .forEach((task) => {
+          require(`${tasksPath}/${task}`);
+        });
+    }
+  );
+}
+
+require(`${path.join(__dirname, 'tasks/misc')}/set-bre.ts`);
+
+const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
+  url: NETWORKS_RPC_URL[networkName],
+  hardfork: HARDFORK,
+  blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
+  gasMultiplier: DEFAULT_GAS_MUL,
+  gasPrice: NETWORKS_DEFAULT_GAS[networkName],
+  chainId: networkId,
+  accounts: {
+    mnemonic: MNEMONIC,
+    path: MNEMONIC_PATH,
+    initialIndex: 0,
+    count: 20,
   },
-  contractSizer: {
-    alphaSort: true,
-    runOnCompile: false,
-    disambiguatePaths: false,
-  },
+});
+
+let forkMode;
+
+const buidlerConfig: HardhatUserConfig = {
   solidity: {
-    // Docs for the compiler https://docs.soliditylang.org/en/v0.8.10/using-the-compiler.html
-    version: '0.8.10',
+    version: '0.6.12',
     settings: {
-      optimizer: {
-        enabled: true,
-        runs: 100000,
-      },
-      evmVersion: 'london',
+      optimizer: { enabled: true, runs: 200 },
+      evmVersion: 'istanbul',
     },
   },
   typechain: {
     outDir: 'types',
     target: 'ethers-v5',
   },
+  etherscan: {
+    apiKey: ETHERSCAN_KEY,
+  },
   mocha: {
     timeout: 0,
-    bail: false,
   },
   tenderly: {
     project: process.env.TENDERLY_PROJECT || '',
@@ -59,23 +98,40 @@ const hardhatConfig: HardhatUserConfig = {
     coverage: {
       url: 'http://localhost:8555',
       chainId: COVERAGE_CHAINID,
-      throwOnTransactionFailures: true,
-      throwOnCallFailures: true,
     },
+    kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, 42),
+    ropsten: getCommonNetworkConfig(eEthereumNetwork.ropsten, 3),
+    main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
+    tenderly: getCommonNetworkConfig(eEthereumNetwork.tenderly, 3030),
+    matic: getCommonNetworkConfig(ePolygonNetwork.matic, 137),
+    mumbai: getCommonNetworkConfig(ePolygonNetwork.mumbai, 80001),
+    xdai: getCommonNetworkConfig(eXDaiNetwork.xdai, 100),
+    avalanche: getCommonNetworkConfig(eAvalancheNetwork.avalanche, 43114),
+    fuji: getCommonNetworkConfig(eAvalancheNetwork.fuji, 43113),
     hardhat: {
-      hardfork: HARDFORK,
+      hardfork: 'berlin',
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gas: DEFAULT_BLOCK_GAS_LIMIT,
       gasPrice: 8000000000,
-      chainId: HARDHAT_CHAINID,
+      allowUnlimitedContractSize: UNLIMITED_BYTECODE_SIZE,
+      chainId: BUIDLEREVM_CHAINID,
       throwOnTransactionFailures: true,
       throwOnCallFailures: true,
-      forking: buildForkConfig(),
-      allowUnlimitedContractSize: true,
       accounts: accounts.map(({ secretKey, balance }: { secretKey: string; balance: string }) => ({
         privateKey: secretKey,
         balance,
       })),
+      forking: buildForkConfig(),
+    },
+    buidlerevm_docker: {
+      hardfork: 'berlin',
+      blockGasLimit: 9500000,
+      gas: 9500000,
+      gasPrice: 8000000000,
+      chainId: BUIDLEREVM_CHAINID,
+      throwOnTransactionFailures: true,
+      throwOnCallFailures: true,
+      url: 'http://localhost:8545',
     },
     ganache: {
       url: 'http://ganache:8545',
@@ -87,17 +143,6 @@ const hardhatConfig: HardhatUserConfig = {
       },
     },
   },
-  namedAccounts: {
-    ...DEFAULT_NAMED_ACCOUNTS,
-  },
-  external: {
-    contracts: [
-      {
-        artifacts: './temp-artifacts',
-        deploy: 'node_modules/@aave/deploy-v3/dist/deploy',
-      },
-    ],
-  },
 };
 
-export default hardhatConfig;
+export default buidlerConfig;

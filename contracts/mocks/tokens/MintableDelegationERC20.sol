@@ -1,26 +1,25 @@
-// SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.10;
+// SPDX-License-Identifier: agpl-3.0
+pragma solidity 0.6.12;
 
 import {ERC20} from '../../dependencies/openzeppelin/contracts/ERC20.sol';
-import {IDelegationToken} from '../../interfaces/IDelegationToken.sol';
 
 /**
- * @title MintableDelegationERC20
- * @dev ERC20 minting logic with delegation
+ * @title ERC20Mintable
+ * @dev ERC20 minting logic
  */
-contract MintableDelegationERC20 is IDelegationToken, ERC20 {
+contract MintableDelegationERC20 is ERC20 {
   address public delegatee;
 
   constructor(
     string memory name,
     string memory symbol,
     uint8 decimals
-  ) ERC20(name, symbol) {
+  ) public ERC20(name, symbol) {
     _setupDecimals(decimals);
   }
 
   /**
-   * @dev Function to mint tokens
+   * @dev Function to mint tokensp
    * @param value The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
@@ -29,7 +28,7 @@ contract MintableDelegationERC20 is IDelegationToken, ERC20 {
     return true;
   }
 
-  function delegate(address delegateeAddress) external override {
+  function delegate(address delegateeAddress) external {
     delegatee = delegateeAddress;
   }
 }

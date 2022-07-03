@@ -40,3 +40,4 @@ repay(uint256 amount) public;
 
 All functions to compute the price per full share or vice versa should consider the balance held in the vault to be `ERC20(token).balanceOf(address(this)).add(loaned)`
   
+
