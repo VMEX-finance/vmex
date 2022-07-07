@@ -73,7 +73,7 @@ let forkMode;
 
 const buidlerConfig: HardhatUserConfig = {
   solidity: {
-    version: '0.6.12',
+    version: '0.8.0',
     settings: {
       optimizer: { enabled: true, runs: 200 },
       evmVersion: 'istanbul',
