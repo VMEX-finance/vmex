@@ -20,7 +20,9 @@ contract LendingPoolStorage {
 
     ILendingPoolAddressesProvider internal _addressesProvider;
 
-    mapping(address => DataTypes.ReserveData) internal _reserves;
+    // asset address to tranche number to reserve data
+    mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        internal _reserves;
     mapping(address => DataTypes.UserConfigurationMap) internal _usersConfig;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
@@ -35,4 +37,6 @@ contract LendingPoolStorage {
     uint256 internal _flashLoanPremiumTotal;
 
     uint256 internal _maxNumberOfReserves;
+
+    mapping(uint256 => DataTypes.Tranche) internal tranches;
 }

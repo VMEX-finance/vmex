@@ -185,7 +185,8 @@ library ReserveLogic {
         address aTokenAddress,
         address stableDebtTokenAddress,
         address variableDebtTokenAddress,
-        address interestRateStrategyAddress
+        address interestRateStrategyAddress,
+        uint8 tranche
     ) external {
         require(
             reserve.aTokenAddress == address(0),
@@ -198,6 +199,7 @@ library ReserveLogic {
         reserve.stableDebtTokenAddress = stableDebtTokenAddress;
         reserve.variableDebtTokenAddress = variableDebtTokenAddress;
         reserve.interestRateStrategyAddress = interestRateStrategyAddress;
+        reserve.tranche = tranche;
     }
 
     struct UpdateInterestRatesLocalVars {
