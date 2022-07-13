@@ -25,7 +25,16 @@ library DataTypes {
         address interestRateStrategyAddress;
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
+        uint8 tranche;
     }
+
+    struct Tranche {
+        uint8 riskLevel;
+        uint256 variableBorrowRateMultiplier;
+        uint256 stableBorrowRateMultiplier;
+    }
+
+    uint8 constant NUM_TRANCHES = 3;
 
     struct ReserveConfigurationMap {
         //bit 0-15: LTV

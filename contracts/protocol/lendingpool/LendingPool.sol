@@ -124,11 +124,12 @@ contract LendingPool is
      **/
     function deposit(
         address asset,
+        uint8 tranche,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
     ) external override whenNotPaused {
-        DataTypes.ReserveData storage reserve = _reserves[asset];
+        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         ValidationLogic.validateDeposit(reserve, amount);
 
@@ -147,7 +148,14 @@ contract LendingPool is
             emit ReserveUsedAsCollateralEnabled(asset, onBehalfOf);
         }
 
-        emit Deposit(asset, msg.sender, onBehalfOf, amount, referralCode);
+        emit Deposit(
+            asset,
+            tranche,
+            msg.sender,
+            onBehalfOf,
+            amount,
+            referralCode
+        );
     }
 
     /**
@@ -874,15 +882,19 @@ contract LendingPool is
         address aTokenAddress,
         address stableDebtAddress,
         address variableDebtAddress,
-        address interestRateStrategyAddress
+        address interestRateStrategyAddress,
+        uint8 tranche
     ) external override onlyLendingPoolConfigurator {
         require(Address.isContract(asset), Errors.LP_NOT_CONTRACT);
-        _reserves[asset].init(
+        _reserves[asset][tranche].init(
             aTokenAddress,
             stableDebtAddress,
             variableDebtAddress,
-            interestRateStrategyAddress
+            interestRateStrategyAddress,
+            tranche
         );
+
+        // TODO: update for tranches
         _addReserveToList(asset);
     }
 

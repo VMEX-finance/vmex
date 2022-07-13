@@ -17,6 +17,7 @@ interface ILendingPool {
      **/
     event Deposit(
         address indexed reserve,
+        uint8 tranche,
         address user,
         address indexed onBehalfOf,
         uint256 amount,
@@ -358,7 +359,8 @@ interface ILendingPool {
         address aTokenAddress,
         address stableDebtAddress,
         address variableDebtAddress,
-        address interestRateStrategyAddress
+        address interestRateStrategyAddress,
+        uint8 tranche
     ) external;
 
     function setReserveInterestRateStrategyAddress(
