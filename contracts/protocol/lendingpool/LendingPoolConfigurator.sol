@@ -95,77 +95,98 @@ contract LendingPoolConfigurator is
     function _initReserve(ILendingPool pool, InitReserveInput calldata input)
         internal
     {
-        address aTokenProxyAddress =
-            _initTokenWithProxy(
-                input.aTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableAToken.initialize.selector,
-                    pool,
-                    input.treasury,
-                    input.underlyingAsset,
-                    IAaveIncentivesController(input.incentivesController),
-                    input.underlyingAssetDecimals,
-                    input.aTokenName,
-                    input.aTokenSymbol,
-                    input.params
-                )
+        for (uint8 tranche = 0; tranche < DataTypes.NUM_TRANCHES; tranche++) {
+            address aTokenProxyAddress =
+                _initTokenWithProxy(
+                    input.aTokenImpl,
+                    abi.encodeWithSelector(
+                        IInitializableAToken.initialize.selector,
+                        pool,
+                        input.treasury,
+                        input.underlyingAsset,
+                        IAaveIncentivesController(input.incentivesController),
+                        input.underlyingAssetDecimals,
+                        string.concat(
+                            input.aTokenName,
+                            string(abi.encodePacked(tranche))
+                        ),
+                        string.concat(
+                            input.aTokenSymbol,
+                            string(abi.encodePacked(tranche))
+                        ),
+                        input.params
+                    )
+                );
+
+            address stableDebtTokenProxyAddress =
+                _initTokenWithProxy(
+                    input.stableDebtTokenImpl,
+                    abi.encodeWithSelector(
+                        IInitializableDebtToken.initialize.selector,
+                        pool,
+                        input.underlyingAsset,
+                        IAaveIncentivesController(input.incentivesController),
+                        input.underlyingAssetDecimals,
+                        string.concat(
+                            input.stableDebtTokenName,
+                            string(abi.encodePacked(tranche))
+                        ),
+                        string.concat(
+                            input.stableDebtTokenSymbol,
+                            string(abi.encodePacked(tranche))
+                        ),
+                        input.params
+                    )
+                );
+
+            address variableDebtTokenProxyAddress =
+                _initTokenWithProxy(
+                    input.variableDebtTokenImpl,
+                    abi.encodeWithSelector(
+                        IInitializableDebtToken.initialize.selector,
+                        pool,
+                        input.underlyingAsset,
+                        IAaveIncentivesController(input.incentivesController),
+                        input.underlyingAssetDecimals,
+                        string.concat(
+                            input.variableDebtTokenName,
+                            string(abi.encodePacked(tranche))
+                        ),
+                        string.concat(
+                            input.variableDebtTokenSymbol,
+                            string(abi.encodePacked(tranche))
+                        ),
+                        input.params
+                    )
+                );
+
+            pool.initReserve(
+                input.underlyingAsset,
+                aTokenProxyAddress,
+                stableDebtTokenProxyAddress,
+                variableDebtTokenProxyAddress,
+                input.interestRateStrategyAddress,
+                tranche
             );
 
-        address stableDebtTokenProxyAddress =
-            _initTokenWithProxy(
-                input.stableDebtTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableDebtToken.initialize.selector,
-                    pool,
-                    input.underlyingAsset,
-                    IAaveIncentivesController(input.incentivesController),
-                    input.underlyingAssetDecimals,
-                    input.stableDebtTokenName,
-                    input.stableDebtTokenSymbol,
-                    input.params
-                )
+            DataTypes.ReserveConfigurationMap memory currentConfig =
+                pool.getConfiguration(input.underlyingAsset);
+
+            currentConfig.setDecimals(input.underlyingAssetDecimals);
+
+            currentConfig.setActive(true);
+            currentConfig.setFrozen(false);
+
+            pool.setConfiguration(input.underlyingAsset, currentConfig.data);
+
+            emit ReserveInitialized(
+                input.underlyingAsset,
+                aTokenProxyAddress,
+                stableDebtTokenProxyAddress,
+                variableDebtTokenProxyAddress,
+                input.interestRateStrategyAddress
             );
-
-        address variableDebtTokenProxyAddress =
-            _initTokenWithProxy(
-                input.variableDebtTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableDebtToken.initialize.selector,
-                    pool,
-                    input.underlyingAsset,
-                    IAaveIncentivesController(input.incentivesController),
-                    input.underlyingAssetDecimals,
-                    input.variableDebtTokenName,
-                    input.variableDebtTokenSymbol,
-                    input.params
-                )
-            );
-
-        pool.initReserve(
-            input.underlyingAsset,
-            aTokenProxyAddress,
-            stableDebtTokenProxyAddress,
-            variableDebtTokenProxyAddress,
-            input.interestRateStrategyAddress
-        );
-
-        DataTypes.ReserveConfigurationMap memory currentConfig =
-            pool.getConfiguration(input.underlyingAsset);
-
-        currentConfig.setDecimals(input.underlyingAssetDecimals);
-
-        currentConfig.setActive(true);
-        currentConfig.setFrozen(false);
-
-        pool.setConfiguration(input.underlyingAsset, currentConfig.data);
-
-        emit ReserveInitialized(
-            input.underlyingAsset,
-            aTokenProxyAddress,
-            stableDebtTokenProxyAddress,
-            variableDebtTokenProxyAddress,
-            input.interestRateStrategyAddress
-        );
+        }
     }
 
     /**
