@@ -537,7 +537,7 @@ contract LendingPool is
         address debtToken;
     }
 
-    /**
+    /** remove flash loans for now
      * @dev Allows smartcontracts to access the liquidity of the pool within one transaction,
      * as long as the amount taken plus a fee is returned.
      * IMPORTANT There are security concerns for developers of flashloan receiver contracts that must be kept into consideration.
@@ -553,7 +553,7 @@ contract LendingPool is
      * @param params Variadic packed params to pass to the receiver as extra information
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
-     **/
+     
     function flashLoan(
         address receiverAddress,
         address[] calldata assets,
@@ -653,19 +653,20 @@ contract LendingPool is
             );
         }
     }
+    **/
 
     /**
      * @dev Returns the state and configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
      **/
-    function getReserveData(address asset)
+    function getReserveData(address asset, uint8 tranche)
         external
         view
         override
         returns (DataTypes.ReserveData memory)
     {
-        return _reserves[asset];
+        return _reserves[asset][tranche];
     }
 
     /**
@@ -718,13 +719,13 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The configuration of the reserve
      **/
-    function getConfiguration(address asset)
+    function getConfiguration(address asset, uint8 tranche)
         external
         view
         override
         returns (DataTypes.ReserveConfigurationMap memory)
     {
-        return _reserves[asset].configuration;
+        return _reserves[asset][tranche].configuration;
     }
 
     /**
@@ -746,14 +747,14 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve's normalized income
      */
-    function getReserveNormalizedIncome(address asset)
+    function getReserveNormalizedIncome(address asset, uint8 tranche)
         external
         view
         virtual
         override
         returns (uint256)
     {
-        return _reserves[asset].getNormalizedIncome();
+        return _reserves[asset][tranche].getNormalizedIncome();
     }
 
     /**
@@ -761,13 +762,13 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve normalized variable debt
      */
-    function getReserveNormalizedVariableDebt(address asset)
+    function getReserveNormalizedVariableDebt(address asset, uint8 tranche)
         external
         view
         override
         returns (uint256)
     {
-        return _reserves[asset].getNormalizedDebt();
+        return _reserves[asset][tranche].getNormalizedDebt();
     }
 
     /**
@@ -843,6 +844,7 @@ contract LendingPool is
      */
     function finalizeTransfer(
         address asset,
+        uint8 tranche,
         address from,
         address to,
         uint256 amount,
@@ -850,7 +852,7 @@ contract LendingPool is
         uint256 balanceToBefore
     ) external override whenNotPaused {
         require(
-            msg.sender == _reserves[asset].aTokenAddress,
+            msg.sender == _reserves[asset][tranche].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
         );
 
@@ -863,7 +865,7 @@ contract LendingPool is
             _addressesProvider.getPriceOracle()
         );
 
-        uint256 reserveId = _reserves[asset].id;
+        uint256 reserveId = _reserves[asset][tranche].id;
 
         if (from != to) {
             if (balanceFromBefore.sub(amount) == 0) {
@@ -921,9 +923,11 @@ contract LendingPool is
      **/
     function setReserveInterestRateStrategyAddress(
         address asset,
+        uint8 tranche,
         address rateStrategyAddress
     ) external override onlyLendingPoolConfigurator {
-        _reserves[asset].interestRateStrategyAddress = rateStrategyAddress;
+        _reserves[asset][tranche]
+            .interestRateStrategyAddress = rateStrategyAddress;
     }
 
     /**
@@ -932,12 +936,12 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @param configuration The new configuration bitmap
      **/
-    function setConfiguration(address asset, uint256 configuration)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        _reserves[asset].configuration.data = configuration;
+    function setConfiguration(
+        address asset,
+        uint8 tranche,
+        uint256 configuration
+    ) external override onlyLendingPoolConfigurator {
+        _reserves[asset][tranche].configuration.data = configuration;
     }
 
     /**
@@ -1059,7 +1063,7 @@ contract LendingPool is
         );
     }
 
-    function _addReserveToList(address asset) internal {
+    function _addReserveToList(address asset, uint8 tranche) internal {
         uint256 reservesCount = _reservesCount;
 
         require(
@@ -1068,10 +1072,10 @@ contract LendingPool is
         );
 
         bool reserveAlreadyAdded =
-            _reserves[asset].id != 0 || _reservesList[0] == asset;
+            _reserves[asset][tranche].id != 0 || _reservesList[0] == asset;
 
         if (!reserveAlreadyAdded) {
-            _reserves[asset].id = uint8(reservesCount);
+            _reserves[asset][tranche].id = uint8(reservesCount);
             _reservesList[reservesCount] = asset;
 
             _reservesCount = reservesCount + 1;

@@ -520,7 +520,8 @@ library ValidationLogic {
      */
     function validateTransfer(
         address from,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
