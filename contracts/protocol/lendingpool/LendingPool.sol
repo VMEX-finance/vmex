@@ -912,7 +912,7 @@ contract LendingPool is
         );
 
         // TODO: update for tranches
-        _addReserveToList(asset);
+        _addReserveToList(asset, tranche);
     }
 
     /**
