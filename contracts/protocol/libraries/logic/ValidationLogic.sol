@@ -67,9 +67,11 @@ library ValidationLogic {
      */
     function validateWithdraw(
         address reserveAddress,
+        uint8 tranche,
         uint256 amount,
         uint256 userBalance,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
@@ -82,12 +84,13 @@ library ValidationLogic {
         );
 
         (bool isActive, , , ) =
-            reservesData[reserveAddress].configuration.getFlags();
+            reservesData[reserveAddress][tranche].configuration.getFlags();
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         require(
             GenericLogic.balanceDecreaseAllowed(
                 reserveAddress,
+                tranche,
                 msg.sender,
                 amount,
                 reservesData,
@@ -137,7 +140,8 @@ library ValidationLogic {
         uint256 amountInETH,
         uint256 interestRateMode,
         uint256 maxStableLoanPercent,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
@@ -392,7 +396,8 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         address reserveAddress,
         bool useAsCollateral,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
@@ -410,6 +415,7 @@ library ValidationLogic {
             useAsCollateral ||
                 GenericLogic.balanceDecreaseAllowed(
                     reserveAddress,
+                    reserve.tranche,
                     msg.sender,
                     underlyingBalance,
                     reservesData,

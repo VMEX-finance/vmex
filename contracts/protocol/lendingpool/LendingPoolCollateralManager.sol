@@ -99,14 +99,17 @@ contract LendingPoolCollateralManager is
      **/
     function liquidationCall(
         address collateralAsset,
+        uint8 collateralAssetTranche,
         address debtAsset,
+        uint8 debtAssetTranche,
         address user,
         uint256 debtToCover,
         bool receiveAToken
     ) external override returns (uint256, string memory) {
         DataTypes.ReserveData storage collateralReserve =
-            _reserves[collateralAsset];
-        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset];
+            _reserves[collateralAsset][collateralAssetTranche];
+        DataTypes.ReserveData storage debtReserve =
+            _reserves[debtAsset][debtAssetTranche];
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user];
 
         LiquidationCallLocalVars memory vars;
