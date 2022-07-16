@@ -196,6 +196,7 @@ interface ILendingPool {
      **/
     function deposit(
         address asset,
+        uint8 tranche,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
@@ -214,6 +215,7 @@ interface ILendingPool {
      **/
     function withdraw(
         address asset,
+        address tranche,
         uint256 amount,
         address to
     ) external returns (uint256);
@@ -235,6 +237,7 @@ interface ILendingPool {
      **/
     function borrow(
         address asset,
+        uint8 tranche,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
@@ -255,6 +258,7 @@ interface ILendingPool {
      **/
     function repay(
         address asset,
+        uint8 tranche,
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
@@ -265,7 +269,11 @@ interface ILendingPool {
      * @param asset The address of the underlying asset borrowed
      * @param rateMode The rate mode that the user wants to swap to
      **/
-    function swapBorrowRateMode(address asset, uint256 rateMode) external;
+    function swapBorrowRateMode(
+        address asset,
+        uint8 tranche,
+        uint256 rateMode
+    ) external;
 
     /**
      * @dev Rebalances the stable interest rate of a user to the current stable rate defined on the reserve.
@@ -276,15 +284,22 @@ interface ILendingPool {
      * @param asset The address of the underlying asset borrowed
      * @param user The address of the user to be rebalanced
      **/
-    function rebalanceStableBorrowRate(address asset, address user) external;
+    function rebalanceStableBorrowRate(
+        address asset,
+        uint8 tranche,
+        address user
+    ) external;
 
     /**
      * @dev Allows depositors to enable/disable a specific deposited asset as collateral
      * @param asset The address of the underlying asset deposited
      * @param useAsCollateral `true` if the user wants to use the deposit as collateral, `false` otherwise
      **/
-    function setUserUseReserveAsCollateral(address asset, bool useAsCollateral)
-        external;
+    function setUserUseReserveAsCollateral(
+        address asset,
+        uint8 tranche,
+        bool useAsCollateral
+    ) external;
 
     /**
      * @dev Function to liquidate a non-healthy position collateral-wise, with Health Factor below 1
@@ -299,7 +314,9 @@ interface ILendingPool {
      **/
     function liquidationCall(
         address collateralAsset,
+        uint8 collateralAssetTranche,
         address debtAsset,
+        uint8 debtAssetTranche,
         address user,
         uint256 debtToCover,
         bool receiveAToken

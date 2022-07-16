@@ -171,10 +171,11 @@ contract LendingPool is
      **/
     function withdraw(
         address asset,
+        uint8 tranche,
         uint256 amount,
         address to
     ) external override whenNotPaused returns (uint256) {
-        DataTypes.ReserveData storage reserve = _reserves[asset];
+        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         address aToken = reserve.aTokenAddress;
 
@@ -188,6 +189,7 @@ contract LendingPool is
 
         ValidationLogic.validateWithdraw(
             asset,
+            tranche,
             amountToWithdraw,
             userBalance,
             _reserves,
@@ -235,16 +237,22 @@ contract LendingPool is
      **/
     function borrow(
         address asset,
+        uint8 tranche,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
         address onBehalfOf
     ) external override whenNotPaused {
-        DataTypes.ReserveData storage reserve = _reserves[asset];
+        // TODO (steven): user does not pass in tranche to borrow from
+        // contract decides tranche to borrow from based on user's collateral
+        // if users's collateral is more risky, then withdraw from high risk tranche
+
+        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         _executeBorrow(
             ExecuteBorrowParams(
                 asset,
+                tranche,
                 msg.sender,
                 onBehalfOf,
                 amount,
@@ -270,11 +278,12 @@ contract LendingPool is
      **/
     function repay(
         address asset,
+        uint8 tranche,
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
     ) external override whenNotPaused returns (uint256) {
-        DataTypes.ReserveData storage reserve = _reserves[asset];
+        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         (uint256 stableDebt, uint256 variableDebt) =
             Helpers.getUserCurrentDebt(onBehalfOf, reserve);
@@ -336,12 +345,12 @@ contract LendingPool is
      * @param asset The address of the underlying asset borrowed
      * @param rateMode The rate mode that the user wants to swap to
      **/
-    function swapBorrowRateMode(address asset, uint256 rateMode)
-        external
-        override
-        whenNotPaused
-    {
-        DataTypes.ReserveData storage reserve = _reserves[asset];
+    function swapBorrowRateMode(
+        address asset,
+        uint8 tranche,
+        uint256 rateMode
+    ) external override whenNotPaused {
+        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         (uint256 stableDebt, uint256 variableDebt) =
             Helpers.getUserCurrentDebt(msg.sender, reserve);
@@ -398,12 +407,12 @@ contract LendingPool is
      * @param asset The address of the underlying asset borrowed
      * @param user The address of the user to be rebalanced
      **/
-    function rebalanceStableBorrowRate(address asset, address user)
-        external
-        override
-        whenNotPaused
-    {
-        DataTypes.ReserveData storage reserve = _reserves[asset];
+    function rebalanceStableBorrowRate(
+        address asset,
+        uint8 tranche,
+        address user
+    ) external override whenNotPaused {
+        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
         IERC20 variableDebtToken = IERC20(reserve.variableDebtTokenAddress);
@@ -439,12 +448,13 @@ contract LendingPool is
      * @param asset The address of the underlying asset deposited
      * @param useAsCollateral `true` if the user wants to use the deposit as collateral, `false` otherwise
      **/
-    function setUserUseReserveAsCollateral(address asset, bool useAsCollateral)
-        external
-        override
-        whenNotPaused
-    {
-        DataTypes.ReserveData storage reserve = _reserves[asset];
+    function setUserUseReserveAsCollateral(
+        address asset,
+        uint8 tranche,
+        bool useAsCollateral
+    ) external override whenNotPaused {
+        // always deposit collateral into lowest risk tranche
+        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         ValidationLogic.validateSetUseReserveAsCollateral(
             reserve,
@@ -482,7 +492,9 @@ contract LendingPool is
      **/
     function liquidationCall(
         address collateralAsset,
+        uint8 collateralAssetTranche,
         address debtAsset,
+        uint8 debtAssetTranche,
         address user,
         uint256 debtToCover,
         bool receiveAToken
@@ -496,7 +508,9 @@ contract LendingPool is
                 abi.encodeWithSignature(
                     "liquidationCall(address,address,address,uint256,bool)",
                     collateralAsset,
+                    collateralAssetTranche,
                     debtAsset,
+                    debtAssetTranche,
                     user,
                     debtToCover,
                     receiveAToken
@@ -549,6 +563,7 @@ contract LendingPool is
         bytes calldata params,
         uint16 referralCode
     ) external override whenNotPaused {
+        revert("Flashloans not currently supported by VMEX.");
         FlashLoanLocalVars memory vars;
 
         ValidationLogic.validateFlashloan(assets, amounts);
@@ -941,6 +956,7 @@ contract LendingPool is
 
     struct ExecuteBorrowParams {
         address asset;
+        uint8 tranche;
         address user;
         address onBehalfOf;
         uint256 amount;
@@ -951,7 +967,8 @@ contract LendingPool is
     }
 
     function _executeBorrow(ExecuteBorrowParams memory vars) internal {
-        DataTypes.ReserveData storage reserve = _reserves[vars.asset];
+        DataTypes.ReserveData storage reserve =
+            _reserves[vars.asset][vars.tranche];
         DataTypes.UserConfigurationMap storage userConfig =
             _usersConfig[vars.onBehalfOf];
 
@@ -963,6 +980,7 @@ contract LendingPool is
                 .mul(vars.amount)
                 .div(10**reserve.configuration.getDecimals());
 
+        // TODO: make sure this works with tranches
         ValidationLogic.validateBorrow(
             vars.asset,
             reserve,

@@ -55,9 +55,11 @@ library GenericLogic {
      **/
     function balanceDecreaseAllowed(
         address asset,
+        uint8 tranche,
         address user,
         uint256 amount,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap calldata userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
@@ -65,14 +67,16 @@ library GenericLogic {
     ) external view returns (bool) {
         if (
             !userConfig.isBorrowingAny() ||
-            !userConfig.isUsingAsCollateral(reservesData[asset].id)
+            !userConfig.isUsingAsCollateral(reservesData[asset][tranche].id)
         ) {
             return true;
         }
 
         balanceDecreaseAllowedLocalVars memory vars;
 
-        (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[asset]
+        (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[asset][
+            tranche
+        ]
             .configuration
             .getParams();
 
@@ -165,7 +169,8 @@ library GenericLogic {
      **/
     function calculateUserAccountData(
         address user,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap memory userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
@@ -192,8 +197,12 @@ library GenericLogic {
             }
 
             vars.currentReserveAddress = reserves[vars.i];
+            uint8 currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData storage currentReserve =
-                reservesData[vars.currentReserveAddress];
+                reservesData[vars.currentReserveAddress][currentTranche];
+
+            // if this fails, come up with better solution than modulo
+            assert(currentReserve.tranche == currentTranche);
 
             (
                 vars.ltv,
