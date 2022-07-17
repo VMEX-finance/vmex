@@ -23,6 +23,7 @@ interface ILendingPoolConfigurator {
 
     struct UpdateATokenInput {
         address asset;
+        uint8 tranche;
         address treasury;
         address incentivesController;
         string name;
@@ -33,6 +34,7 @@ interface ILendingPoolConfigurator {
 
     struct UpdateDebtTokenInput {
         address asset;
+        uint8 tranche;
         address incentivesController;
         string name;
         string symbol;

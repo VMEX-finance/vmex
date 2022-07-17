@@ -34,6 +34,11 @@ library DataTypes {
         uint256 stableBorrowRateMultiplier;
     }
 
+    // struct ReserveId {
+    //     address asset;
+    //     uint8 tranche;
+    // }
+
     uint8 constant NUM_TRANCHES = 3;
 
     struct ReserveConfigurationMap {

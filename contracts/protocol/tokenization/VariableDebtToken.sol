@@ -23,6 +23,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
     ILendingPool internal _pool;
     address internal _underlyingAsset;
+    uint8 _tranche;
     IAaveIncentivesController internal _incentivesController;
 
     /**
@@ -37,6 +38,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
+        uint8 tranche,
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,
@@ -49,6 +51,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
         _pool = pool;
         _underlyingAsset = underlyingAsset;
+        _tranche = tranche;
         _incentivesController = incentivesController;
 
         emit Initialized(
@@ -89,7 +92,10 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
         return
             scaledBalance.rayMul(
-                _pool.getReserveNormalizedVariableDebt(_underlyingAsset)
+                _pool.getReserveNormalizedVariableDebt(
+                    _underlyingAsset,
+                    _tranche
+                )
             );
     }
 
@@ -167,7 +173,10 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     function totalSupply() public view virtual override returns (uint256) {
         return
             super.totalSupply().rayMul(
-                _pool.getReserveNormalizedVariableDebt(_underlyingAsset)
+                _pool.getReserveNormalizedVariableDebt(
+                    _underlyingAsset,
+                    _tranche
+                )
             );
     }
 
