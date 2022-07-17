@@ -141,6 +141,7 @@ library GenericLogic {
     }
 
     struct CalculateUserAccountDataVars {
+        uint8 currentTranche;
         uint256 reserveUnitPrice;
         uint256 tokenUnit;
         uint256 compoundedLiquidityBalance;
@@ -159,6 +160,7 @@ library GenericLogic {
         address currentReserveAddress;
         bool usageAsCollateralEnabled;
         bool userUsesReserveAsCollateral;
+        uint256 liquidityBalanceETH;
     }
 
     /**
@@ -202,12 +204,12 @@ library GenericLogic {
             }
 
             vars.currentReserveAddress = reserves[vars.i];
-            uint8 currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
+            vars.currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData storage currentReserve =
-                reservesData[vars.currentReserveAddress][currentTranche];
+                reservesData[vars.currentReserveAddress][vars.currentTranche];
 
             // if this fails, come up with better solution than modulo
-            assert(currentReserve.tranche == currentTranche);
+            assert(currentReserve.tranche == vars.currentTranche);
 
             (
                 vars.ltv,
@@ -232,21 +234,20 @@ library GenericLogic {
                 )
                     .balanceOf(user);
 
-                uint256 liquidityBalanceETH =
-                    vars
-                        .reserveUnitPrice
-                        .mul(vars.compoundedLiquidityBalance)
-                        .div(vars.tokenUnit);
+                vars.liquidityBalanceETH = vars
+                    .reserveUnitPrice
+                    .mul(vars.compoundedLiquidityBalance)
+                    .div(vars.tokenUnit);
 
                 vars.totalCollateralInETH = vars.totalCollateralInETH.add(
-                    liquidityBalanceETH
+                    vars.liquidityBalanceETH
                 );
 
                 vars.avgLtv = vars.avgLtv.add(
-                    liquidityBalanceETH.mul(vars.ltv)
+                    vars.liquidityBalanceETH.mul(vars.ltv)
                 );
                 vars.avgLiquidationThreshold = vars.avgLiquidationThreshold.add(
-                    liquidityBalanceETH.mul(vars.liquidationThreshold)
+                    vars.liquidityBalanceETH.mul(vars.liquidationThreshold)
                 );
             }
 
