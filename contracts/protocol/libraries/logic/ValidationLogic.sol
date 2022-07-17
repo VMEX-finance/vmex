@@ -89,10 +89,12 @@ library ValidationLogic {
 
         require(
             GenericLogic.balanceDecreaseAllowed(
-                reserveAddress,
-                tranche,
-                msg.sender,
-                amount,
+                GenericLogic.balanceDecreaseAllowedParameters(
+                    reserveAddress,
+                    tranche,
+                    msg.sender,
+                    amount
+                ),
                 reservesData,
                 userConfig,
                 reserves,
@@ -414,10 +416,12 @@ library ValidationLogic {
         require(
             useAsCollateral ||
                 GenericLogic.balanceDecreaseAllowed(
-                    reserveAddress,
-                    reserve.tranche,
-                    msg.sender,
-                    underlyingBalance,
+                    GenericLogic.balanceDecreaseAllowedParameters(
+                        reserveAddress,
+                        reserve.tranche,
+                        msg.sender,
+                        underlyingBalance
+                    ),
                     reservesData,
                     userConfig,
                     reserves,

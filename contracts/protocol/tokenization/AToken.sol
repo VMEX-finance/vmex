@@ -52,6 +52,7 @@ contract AToken is
     ILendingPool internal _pool;
     address internal _treasury;
     address internal _underlyingAsset;
+    uint8 internal _tranche;
     IAaveIncentivesController internal _incentivesController;
 
     modifier onlyLendingPool {
@@ -80,6 +81,7 @@ contract AToken is
         ILendingPool pool,
         address treasury,
         address underlyingAsset,
+        uint8 tranche,
         IAaveIncentivesController incentivesController,
         uint8 aTokenDecimals,
         string calldata aTokenName,
@@ -111,6 +113,7 @@ contract AToken is
         _treasury = treasury;
         _underlyingAsset = underlyingAsset;
         _incentivesController = incentivesController;
+        _tranche = tranche;
 
         emit Initialized(
             underlyingAsset,
@@ -232,7 +235,7 @@ contract AToken is
     {
         return
             super.balanceOf(user).rayMul(
-                _pool.getReserveNormalizedIncome(_underlyingAsset)
+                _pool.getReserveNormalizedIncome(_underlyingAsset, _tranche)
             );
     }
 
@@ -286,7 +289,7 @@ contract AToken is
 
         return
             currentSupplyScaled.rayMul(
-                _pool.getReserveNormalizedIncome(_underlyingAsset)
+                _pool.getReserveNormalizedIncome(_underlyingAsset, _tranche)
             );
     }
 
@@ -440,7 +443,8 @@ contract AToken is
         address underlyingAsset = _underlyingAsset;
         ILendingPool pool = _pool;
 
-        uint256 index = pool.getReserveNormalizedIncome(underlyingAsset);
+        uint256 index =
+            pool.getReserveNormalizedIncome(underlyingAsset, _tranche);
 
         uint256 fromBalanceBefore = super.balanceOf(from).rayMul(index);
         uint256 toBalanceBefore = super.balanceOf(to).rayMul(index);
@@ -450,6 +454,7 @@ contract AToken is
         if (validate) {
             pool.finalizeTransfer(
                 underlyingAsset,
+                _tranche,
                 from,
                 to,
                 amount,

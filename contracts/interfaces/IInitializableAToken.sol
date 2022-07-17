@@ -46,6 +46,7 @@ interface IInitializableAToken {
         ILendingPool pool,
         address treasury,
         address underlyingAsset,
+        uint8 tranche,
         IAaveIncentivesController incentivesController,
         uint8 aTokenDecimals,
         string calldata aTokenName,

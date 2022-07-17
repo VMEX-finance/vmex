@@ -41,12 +41,19 @@ library GenericLogic {
         bool reserveUsageAsCollateralEnabled;
     }
 
+    //  * @param asset The address of the underlying asset of the reserve
+    //  * @param user The address of the user
+    //  * @param amount The amount to decrease
+    struct balanceDecreaseAllowedParameters {
+        address asset;
+        uint8 tranche;
+        address user;
+        uint256 amount;
+    }
+
     /**
      * @dev Checks if a specific balance decrease is allowed
      * (i.e. doesn't bring the user borrow position health factor under HEALTH_FACTOR_LIQUIDATION_THRESHOLD)
-     * @param asset The address of the underlying asset of the reserve
-     * @param user The address of the user
-     * @param amount The amount to decrease
      * @param reservesData The data of all the reserves
      * @param userConfig The user configuration
      * @param reserves The list of all the active reserves
@@ -54,10 +61,7 @@ library GenericLogic {
      * @return true if the decrease of the balance is allowed
      **/
     function balanceDecreaseAllowed(
-        address asset,
-        uint8 tranche,
-        address user,
-        uint256 amount,
+        balanceDecreaseAllowedParameters calldata params,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap calldata userConfig,
@@ -67,16 +71,18 @@ library GenericLogic {
     ) external view returns (bool) {
         if (
             !userConfig.isBorrowingAny() ||
-            !userConfig.isUsingAsCollateral(reservesData[asset][tranche].id)
+            !userConfig.isUsingAsCollateral(
+                reservesData[params.asset][params.tranche].id
+            )
         ) {
             return true;
         }
 
         balanceDecreaseAllowedLocalVars memory vars;
 
-        (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[asset][
-            tranche
-        ]
+        (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[
+            params.asset
+        ][params.tranche]
             .configuration
             .getParams();
 
@@ -91,7 +97,7 @@ library GenericLogic {
             vars.avgLiquidationThreshold,
 
         ) = calculateUserAccountData(
-            user,
+            params.user,
             reservesData,
             userConfig,
             reserves,
@@ -104,8 +110,8 @@ library GenericLogic {
         }
 
         vars.amountToDecreaseInETH = IPriceOracleGetter(oracle)
-            .getAssetPrice(asset)
-            .mul(amount)
+            .getAssetPrice(params.asset)
+            .mul(params.amount)
             .div(10**vars.decimals);
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
@@ -123,15 +129,14 @@ library GenericLogic {
             .sub(vars.amountToDecreaseInETH.mul(vars.liquidationThreshold))
             .div(vars.collateralBalanceAfterDecrease);
 
-        uint256 healthFactorAfterDecrease =
-            calculateHealthFactorFromBalances(
-                vars.collateralBalanceAfterDecrease,
-                vars.totalDebtInETH,
-                vars.liquidationThresholdAfterDecrease
-            );
+        vars.healthFactorAfterDecrease = calculateHealthFactorFromBalances(
+            vars.collateralBalanceAfterDecrease,
+            vars.totalDebtInETH,
+            vars.liquidationThresholdAfterDecrease
+        );
 
         return
-            healthFactorAfterDecrease >=
+            vars.healthFactorAfterDecrease >=
             GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD;
     }
 
