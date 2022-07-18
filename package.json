@@ -20,7 +20,7 @@
     "hardhat:avalanche": "hardhat --network avalanche",
     "compile": "SKIP_LOAD=true hardhat compile",
     "console:fork": "FORK=main hardhat console",
-    "test": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/*.spec.ts",
+    "test": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/atoken-transfer.spec.ts",
     "test-amm": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-amm/*.spec.ts",
     "test-amm-scenarios": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-amm/__setup.spec.ts test-suites/test-amm/scenario.spec.ts",
     "test-scenarios": "npm run compile && npx hardhat test test-suites/test-aave/__setup.spec.ts test-suites/test-aave/scenario.spec.ts",

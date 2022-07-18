@@ -61,8 +61,10 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
         return _simulateEOA;
     }
 
+    //TODO: TRANCHES NEED TO BE USED HERE
     function executeOperation(
         address[] memory assets,
+        uint8[] memory tranches,
         uint256[] memory amounts,
         uint256[] memory premiums,
         address initiator,
