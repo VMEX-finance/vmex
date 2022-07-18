@@ -15,6 +15,7 @@ import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 interface IFlashLoanReceiver {
     function executeOperation(
         address[] calldata assets,
+        uint8[] calldata tranches,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
