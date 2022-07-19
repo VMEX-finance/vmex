@@ -1079,7 +1079,7 @@ contract LendingPool is
         );
 
         bool reserveAlreadyAdded =
-            _reserves[asset][tranche].id != 0 || _reservesList[0] == asset;
+            _reserves[asset][tranche].id != 0 || _reservesList[0] == asset; //should this be _reservesList[reservesCount] == asset
 
         if (!reserveAlreadyAdded) {
             _reserves[asset][tranche].id = uint8(reservesCount);

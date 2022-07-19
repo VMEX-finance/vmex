@@ -32,6 +32,8 @@ import {
     ILendingPoolConfigurator
 } from "../../interfaces/ILendingPoolConfigurator.sol";
 
+import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
+
 /**
  * @title LendingPoolConfigurator contract
  * @author Aave
@@ -107,8 +109,18 @@ contract LendingPoolConfigurator is
                         tranche,
                         IAaveIncentivesController(input.incentivesController),
                         input.underlyingAssetDecimals,
-                        abi.encodePacked(input.aTokenName, tranche),
-                        abi.encodePacked(input.aTokenSymbol, tranche),
+                        string(
+                            abi.encodePacked(
+                                input.aTokenName,
+                                Strings.toString(tranche)
+                            )
+                        ), //,//abi.encodePacked(input.aTokenName, tranche),string(abi.encodePacked(input.aTokenName, tranche+48))
+                        string(
+                            abi.encodePacked(
+                                input.aTokenSymbol,
+                                Strings.toString(tranche)
+                            )
+                        ), //string(abi.encodePacked(input.aTokenSymbol, tranche+48)) , //+48 is used to convert tranche 0 to ascii value 0 which is number 48
                         input.params
                     )
                 );
@@ -123,8 +135,18 @@ contract LendingPoolConfigurator is
                         tranche,
                         IAaveIncentivesController(input.incentivesController),
                         input.underlyingAssetDecimals,
-                        abi.encodePacked(input.stableDebtTokenName, tranche),
-                        abi.encodePacked(input.stableDebtTokenSymbol, tranche),
+                        string(
+                            abi.encodePacked(
+                                input.stableDebtTokenName,
+                                Strings.toString(tranche)
+                            )
+                        ), //abi.encodePacked(input.stableDebtTokenName, tranche),
+                        string(
+                            abi.encodePacked(
+                                input.stableDebtTokenSymbol,
+                                Strings.toString(tranche)
+                            )
+                        ), //abi.encodePacked(input.stableDebtTokenSymbol, tranche),
                         input.params
                     )
                 );
@@ -139,11 +161,18 @@ contract LendingPoolConfigurator is
                         tranche,
                         IAaveIncentivesController(input.incentivesController),
                         input.underlyingAssetDecimals,
-                        abi.encodePacked(input.variableDebtTokenName, tranche),
-                        abi.encodePacked(
-                            input.variableDebtTokenSymbol,
-                            tranche
-                        ),
+                        string(
+                            abi.encodePacked(
+                                input.variableDebtTokenName,
+                                Strings.toString(tranche)
+                            )
+                        ), //abi.encodePacked(input.variableDebtTokenName, tranche),
+                        string(
+                            abi.encodePacked(
+                                input.variableDebtTokenSymbol,
+                                Strings.toString(tranche)
+                            )
+                        ), //abi.encodePacked(input.variableDebtTokenSymbol,tranche),
                         input.params
                     )
                 );

@@ -43,18 +43,18 @@ import {
   MockStableDebtTokenFactory,
   MockVariableDebtTokenFactory,
   MockUniswapV2Router02Factory,
-  // ParaSwapLiquiditySwapAdapterFactory,
+  ParaSwapLiquiditySwapAdapterFactory,
   PriceOracleFactory,
   ReserveLogicFactory,
   SelfdestructTransferFactory,
   StableDebtTokenFactory,
-  // UniswapLiquiditySwapAdapterFactory,
-  // UniswapRepayAdapterFactory,
+  UniswapLiquiditySwapAdapterFactory,
+  UniswapRepayAdapterFactory,
   VariableDebtTokenFactory,
   WalletBalanceProviderFactory,
   WETH9MockedFactory,
   WETHGatewayFactory,
-  // FlashLiquidationAdapterFactory,
+  FlashLiquidationAdapterFactory,
   UiPoolDataProviderV2Factory,
   UiPoolDataProviderV2V3Factory,
   UiIncentiveDataProviderV2V3,
@@ -447,6 +447,7 @@ export const deployStableDebtToken = async (
   await instance.initialize(
     args[0],
     args[1],
+    0, //set tranche to zero for now
     args[2],
     "18",
     args[3],
@@ -471,6 +472,7 @@ export const deployVariableDebtToken = async (
   await instance.initialize(
     args[0],
     args[1],
+    0, //set tranche to zero for now
     args[2],
     "18",
     args[3],
@@ -524,8 +526,11 @@ export const deployGenericAToken = async (
 
   await instance.initialize(
     poolAddress,
-    treasuryAddress,
-    underlyingAssetAddress,
+    {
+      treasury: treasuryAddress,
+      underlyingAsset: underlyingAssetAddress,
+      tranche: 0,
+    }, //set tranche to zero for now
     incentivesController,
     "18",
     name,
@@ -571,8 +576,11 @@ export const deployDelegationAwareAToken = async (
 
   await instance.initialize(
     pool,
-    treasuryAddress,
-    underlyingAssetAddress,
+    {
+      treasury: treasuryAddress,
+      underlyingAsset: underlyingAssetAddress,
+      tranche: 0,
+    }, //set tranche to zero for now
     incentivesController,
     "18",
     name,
@@ -710,6 +718,7 @@ export const deployMockStableDebtToken = async (
   await instance.initialize(
     args[0],
     args[1],
+    0,
     args[2],
     "18",
     args[3],
@@ -749,6 +758,7 @@ export const deployMockVariableDebtToken = async (
   await instance.initialize(
     args[0],
     args[1],
+    0,
     args[2],
     "18",
     args[3],
@@ -780,8 +790,7 @@ export const deployMockAToken = async (
 
   await instance.initialize(
     args[0],
-    args[2],
-    args[1],
+    { treasury: args[2], underlyingAsset: args[1], tranche: 0 }, //set tranche to zero for now
     args[3],
     "18",
     args[4],
