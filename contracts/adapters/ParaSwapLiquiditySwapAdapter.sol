@@ -18,6 +18,8 @@ import {
 } from "../dependencies/openzeppelin/contracts/ReentrancyGuard.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
+
 /**
  * @title ParaSwapLiquiditySwapAdapter
  * @notice Adapter to swap liquidity using ParaSwap.
@@ -36,43 +38,21 @@ contract ParaSwapLiquiditySwapAdapter is
         // This is only required to initialize BaseParaSwapSellAdapter
     }
 
-    /**
-     * @dev Swaps the received reserve amount from the flash loan into the asset specified in the params.
-     * The received funds from the swap are then deposited into the protocol on behalf of the user.
-     * The user should give this contract allowance to pull the ATokens in order to withdraw the underlying asset and repay the flash loan.
-     * @param assets Address of the underlying asset to be swapped from
-     * @param amounts Amount of the flash loan i.e. maximum amount to swap
-     * @param premiums Fee of the flash loan
-     * @param initiator Account that initiated the flash loan
-     * @param params Additional variadic field to include extra params. Expected parameters:
-     *   address assetToSwapTo Address of the underlying asset to be swapped to and deposited
-     *   uint256 minAmountToReceive Min amount to be received from the swap
-     *   uint256 swapAllBalanceOffset Set to offset of fromAmount in Augustus calldata if wanting to swap all balance, otherwise 0
-     *   bytes swapCalldata Calldata for ParaSwap's AugustusSwapper contract
-     *   address augustus Address of ParaSwap's AugustusSwapper contract
-     *   PermitSignature permitParams Struct containing the permit signatures, set to all zeroes if not used
-     */
-    function executeOperation(
-        address[] calldata assets,
-        uint8[] calldata tranches,
-        uint256[] calldata amounts,
-        uint256[] calldata premiums,
-        address initiator,
-        bytes calldata params
-    ) external override nonReentrant returns (bool) {
-        require(
-            msg.sender == address(LENDING_POOL),
-            "CALLER_MUST_BE_LENDING_POOL"
-        );
-        require(
-            assets.length == 1 && amounts.length == 1 && premiums.length == 1,
-            "FLASHLOAN_MULTIPLE_ASSETS_NOT_SUPPORTED"
-        );
+    struct executeOperationVars {
+        IERC20Detailed assetToSwapTo;
+        uint8 assetToSwapToTranche;
+        uint256 minAmountToReceive;
+        uint256 swapAllBalanceOffset;
+        bytes swapCalldata;
+        IParaSwapAugustus augustus;
+        PermitSignature permitParams;
+    }
 
-        uint256 flashLoanAmount = amounts[0];
-        uint256 premium = premiums[0];
-        address initiatorLocal = initiator;
-        IERC20Detailed assetToSwapFrom = IERC20Detailed(assets[0]);
+    function _decodeParams(bytes memory params)
+        internal
+        pure
+        returns (executeOperationVars memory)
+    {
         (
             IERC20Detailed assetToSwapTo,
             uint8 assetToSwapToTranche,
@@ -95,19 +75,58 @@ contract ParaSwapLiquiditySwapAdapter is
                 )
             );
 
+        return
+            executeOperationVars(
+                assetToSwapTo,
+                assetToSwapToTranche,
+                minAmountToReceive,
+                swapAllBalanceOffset,
+                swapCalldata,
+                augustus,
+                permitParams
+            );
+    }
+
+    /**
+     * @dev Swaps the received reserve amount from the flash loan into the asset specified in the params.
+     * The received funds from the swap are then deposited into the protocol on behalf of the user.
+     * The user should give this contract allowance to pull the ATokens in order to withdraw the underlying asset and repay the flash loan.
+     * @param assets Address of the underlying asset to be swapped from
+     * @param amounts Amount of the flash loan i.e. maximum amount to swap
+     * @param premiums Fee of the flash loan
+     * @param initiator Account that initiated the flash loan
+     * @param params Additional variadic field to include extra params. Expected parameters:
+     *   address assetToSwapTo Address of the underlying asset to be swapped to and deposited
+     *   uint256 minAmountToReceive Min amount to be received from the swap
+     *   uint256 swapAllBalanceOffset Set to offset of fromAmount in Augustus calldata if wanting to swap all balance, otherwise 0
+     *   bytes swapCalldata Calldata for ParaSwap's AugustusSwapper contract
+     *   address augustus Address of ParaSwap's AugustusSwapper contract
+     *   PermitSignature permitParams Struct containing the permit signatures, set to all zeroes if not used
+     */
+    function executeOperation(
+        DataTypes.TrancheAddress[] calldata assets,
+        uint256[] calldata amounts,
+        uint256[] calldata premiums,
+        address initiator,
+        bytes calldata params
+    ) external override nonReentrant returns (bool) {
+        require(
+            msg.sender == address(LENDING_POOL),
+            "CALLER_MUST_BE_LENDING_POOL"
+        );
+        require(
+            assets.length == 1 && amounts.length == 1 && premiums.length == 1,
+            "FLASHLOAN_MULTIPLE_ASSETS_NOT_SUPPORTED"
+        );
+
+        // executeOperationVars memory vars = _decodeParams(params);
+
         _swapLiquidity(
-            swapAllBalanceOffset,
-            swapCalldata,
-            augustus,
-            permitParams,
-            flashLoanAmount,
-            premium,
-            initiatorLocal,
-            assetToSwapFrom,
-            tranches[0],
-            assetToSwapTo,
-            assetToSwapToTranche,
-            minAmountToReceive
+            _decodeParams(params),
+            amounts[0],
+            premiums[0],
+            initiator,
+            assets[0]
         );
 
         return true;
@@ -127,10 +146,8 @@ contract ParaSwapLiquiditySwapAdapter is
      * @param permitParams Struct containing the permit signatures, set to all zeroes if not used
      */
     function swapAndDeposit(
-        IERC20Detailed assetToSwapFrom,
-        uint8 assetToSwapFromTranche,
-        IERC20Detailed assetToSwapTo,
-        uint8 assetToSwapToTranche,
+        DataTypes.TrancheAddress memory assetToSwapFrom,
+        DataTypes.TrancheAddress memory assetToSwapTo,
         uint256 amountToSwap,
         uint256 minAmountToReceive,
         uint256 swapAllBalanceOffset,
@@ -141,8 +158,9 @@ contract ParaSwapLiquiditySwapAdapter is
         IERC20WithPermit aToken =
             IERC20WithPermit(
                 _getReserveData(
-                    address(assetToSwapFrom),
-                    assetToSwapFromTranche
+                    address(assetToSwapFrom.asset),
+                    assetToSwapFrom
+                        .tranche
                 )
                     .aTokenAddress
             );
@@ -154,8 +172,8 @@ contract ParaSwapLiquiditySwapAdapter is
         }
 
         _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
-            assetToSwapFromTranche,
+            address(assetToSwapFrom.asset),
+            assetToSwapFrom.tranche,
             aToken,
             msg.sender,
             amountToSwap,
@@ -167,17 +185,20 @@ contract ParaSwapLiquiditySwapAdapter is
                 swapAllBalanceOffset,
                 swapCalldata,
                 augustus,
-                assetToSwapFrom,
-                assetToSwapTo,
+                IERC20Detailed(assetToSwapFrom.asset),
+                IERC20Detailed(assetToSwapTo.asset),
                 amountToSwap,
                 minAmountToReceive
             );
 
-        assetToSwapTo.approve(address(LENDING_POOL), 0);
-        assetToSwapTo.approve(address(LENDING_POOL), amountReceived);
+        IERC20Detailed(assetToSwapTo.asset).approve(address(LENDING_POOL), 0);
+        IERC20Detailed(assetToSwapTo.asset).approve(
+            address(LENDING_POOL),
+            amountReceived
+        );
         LENDING_POOL.deposit(
-            address(assetToSwapTo),
-            assetToSwapToTranche,
+            address(assetToSwapTo.asset),
+            assetToSwapTo.tranche,
             amountReceived,
             msg.sender,
             0
@@ -186,43 +207,31 @@ contract ParaSwapLiquiditySwapAdapter is
 
     /**
      * @dev Swaps an amount of an asset to another and deposits the funds on behalf of the initiator.
-     * @param swapAllBalanceOffset Set to offset of fromAmount in Augustus calldata if wanting to swap all balance, otherwise 0
-     * @param swapCalldata Calldata for ParaSwap's AugustusSwapper contract
-     * @param augustus Address of ParaSwap's AugustusSwapper contract
-     * @param permitParams Struct containing the permit signatures, set to all zeroes if not used
+     * @param vars vars data
      * @param flashLoanAmount Amount of the flash loan i.e. maximum amount to swap
      * @param premium Fee of the flash loan
      * @param initiator Account that initiated the flash loan
-     * @param assetToSwapFrom Address of the underyling asset to be swapped from
-     * @param assetToSwapTo Address of the underlying asset to be swapped to and deposited
-     * @param minAmountToReceive Min amount to be received from the swap
      */
     function _swapLiquidity(
-        uint256 swapAllBalanceOffset,
-        bytes memory swapCalldata,
-        IParaSwapAugustus augustus,
-        PermitSignature memory permitParams,
+        executeOperationVars memory vars,
         uint256 flashLoanAmount,
         uint256 premium,
         address initiator,
-        IERC20Detailed assetToSwapFrom,
-        uint8 assetToSwapFromTranche,
-        IERC20Detailed assetToSwapTo,
-        uint8 assetToSwapToTranche,
-        uint256 minAmountToReceive
+        DataTypes.TrancheAddress memory assetToSwapFrom
     ) internal {
         IERC20WithPermit aToken =
             IERC20WithPermit(
                 _getReserveData(
-                    address(assetToSwapFrom),
-                    assetToSwapFromTranche
+                    address(assetToSwapFrom.asset),
+                    assetToSwapFrom
+                        .tranche
                 )
                     .aTokenAddress
             );
         uint256 amountToSwap = flashLoanAmount;
 
         uint256 balance = aToken.balanceOf(initiator);
-        if (swapAllBalanceOffset != 0) {
+        if (vars.swapAllBalanceOffset != 0) {
             uint256 balanceToSwap = balance.sub(premium);
             require(
                 balanceToSwap <= amountToSwap,
@@ -238,37 +247,37 @@ contract ParaSwapLiquiditySwapAdapter is
 
         uint256 amountReceived =
             _sellOnParaSwap(
-                swapAllBalanceOffset,
-                swapCalldata,
-                augustus,
-                assetToSwapFrom,
-                assetToSwapTo,
+                vars.swapAllBalanceOffset,
+                vars.swapCalldata,
+                vars.augustus,
+                IERC20Detailed(assetToSwapFrom.asset),
+                vars.assetToSwapTo,
                 amountToSwap,
-                minAmountToReceive
+                vars.minAmountToReceive
             );
 
-        assetToSwapTo.approve(address(LENDING_POOL), 0);
-        assetToSwapTo.approve(address(LENDING_POOL), amountReceived);
+        vars.assetToSwapTo.approve(address(LENDING_POOL), 0);
+        vars.assetToSwapTo.approve(address(LENDING_POOL), amountReceived);
         LENDING_POOL.deposit(
-            address(assetToSwapTo),
-            assetToSwapToTranche,
+            address(vars.assetToSwapTo),
+            vars.assetToSwapToTranche,
             amountReceived,
             initiator,
             0
         );
 
         _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
-            assetToSwapFromTranche,
+            address(assetToSwapFrom.asset),
+            assetToSwapFrom.tranche,
             aToken,
             initiator,
             amountToSwap.add(premium),
-            permitParams
+            vars.permitParams
         );
 
         // Repay flash loan
-        assetToSwapFrom.approve(address(LENDING_POOL), 0);
-        assetToSwapFrom.approve(
+        IERC20Detailed(assetToSwapFrom.asset).approve(address(LENDING_POOL), 0);
+        IERC20Detailed(assetToSwapFrom.asset).approve(
             address(LENDING_POOL),
             flashLoanAmount.add(premium)
         );

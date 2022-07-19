@@ -530,6 +530,7 @@ contract LendingPool is
         address oracle;
         uint256 i;
         address currentAsset;
+        uint8 currentTranche;
         address currentATokenAddress;
         uint256 currentAmount;
         uint256 currentPremium;
@@ -537,7 +538,7 @@ contract LendingPool is
         address debtToken;
     }
 
-    /** remove flash loans for now
+    /**
      * @dev Allows smartcontracts to access the liquidity of the pool within one transaction,
      * as long as the amount taken plus a fee is returned.
      * IMPORTANT There are security concerns for developers of flashloan receiver contracts that must be kept into consideration.
@@ -553,10 +554,10 @@ contract LendingPool is
      * @param params Variadic packed params to pass to the receiver as extra information
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
-     
+     **/
     function flashLoan(
         address receiverAddress,
-        address[] calldata assets,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata modes,
         address onBehalfOf,
@@ -574,7 +575,10 @@ contract LendingPool is
         vars.receiver = IFlashLoanReceiver(receiverAddress);
 
         for (vars.i = 0; vars.i < assets.length; vars.i++) {
-            aTokenAddresses[vars.i] = _reserves[assets[vars.i]].aTokenAddress;
+            aTokenAddresses[vars.i] = _reserves[assets[vars.i].asset][
+                assets[vars.i].tranche
+            ]
+                .aTokenAddress;
 
             premiums[vars.i] = amounts[vars.i].mul(_flashLoanPremiumTotal).div(
                 10000
@@ -598,7 +602,8 @@ contract LendingPool is
         );
 
         for (vars.i = 0; vars.i < assets.length; vars.i++) {
-            vars.currentAsset = assets[vars.i];
+            vars.currentAsset = assets[vars.i].asset;
+            vars.currentTranche = assets[vars.i].tranche;
             vars.currentAmount = amounts[vars.i];
             vars.currentPremium = premiums[vars.i];
             vars.currentATokenAddress = aTokenAddresses[vars.i];
@@ -610,12 +615,14 @@ contract LendingPool is
                 DataTypes.InterestRateMode(modes[vars.i]) ==
                 DataTypes.InterestRateMode.NONE
             ) {
-                _reserves[vars.currentAsset].updateState();
-                _reserves[vars.currentAsset].cumulateToLiquidityIndex(
+                _reserves[vars.currentAsset][vars.currentTranche].updateState();
+                _reserves[vars.currentAsset][vars.currentTranche]
+                    .cumulateToLiquidityIndex(
                     IERC20(vars.currentATokenAddress).totalSupply(),
                     vars.currentPremium
                 );
-                _reserves[vars.currentAsset].updateInterestRates(
+                _reserves[vars.currentAsset][vars.currentTranche]
+                    .updateInterestRates(
                     vars.currentAsset,
                     vars.currentATokenAddress,
                     vars.currentAmountPlusPremium,
@@ -633,6 +640,7 @@ contract LendingPool is
                 _executeBorrow(
                     ExecuteBorrowParams(
                         vars.currentAsset,
+                        vars.currentTranche,
                         msg.sender,
                         onBehalfOf,
                         vars.currentAmount,
@@ -653,7 +661,6 @@ contract LendingPool is
             );
         }
     }
-    **/
 
     /**
      * @dev Returns the state and configuration of the reserve
