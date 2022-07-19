@@ -438,7 +438,7 @@ library ValidationLogic {
      * @param amounts The amounts for each asset being borrowed
      **/
     function validateFlashloan(
-        address[] memory assets,
+        DataTypes.TrancheAddress[] memory assets,
         uint256[] memory amounts
     ) internal pure {
         require(

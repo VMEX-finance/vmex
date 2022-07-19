@@ -8,6 +8,7 @@ import {
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 /**
  * @title UniswapLiquiditySwapAdapter
@@ -60,8 +61,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
      *   bytes32[] s List of s param for the permit signature
      */
     function executeOperation(
-        address[] calldata assets,
-        uint8[] calldata tranches,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -91,8 +91,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
         for (uint256 i = 0; i < assets.length; i++) {
             _swapLiquidity(
-                assets[i],
-                tranches[i],
+                assets[i].asset,
+                assets[i].tranche,
                 decodedParams.assetToSwapToList[i],
                 decodedParams.assetToSwapToListTranche[i],
                 amounts[i],
@@ -141,10 +141,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
      * @param useEthPath true if the swap needs to occur using ETH in the routing, false otherwise
      */
     function swapAndDeposit(
-        address[] calldata assetToSwapFromList,
-        uint8[] calldata assetToSwapFromListTranche,
-        address[] calldata assetToSwapToList,
-        uint8[] calldata assetToSwapToListTranche,
+        DataTypes.TrancheAddress[] calldata assetToSwapFromList,
+        DataTypes.TrancheAddress[] calldata assetToSwapToList,
         uint256[] calldata amountToSwapList,
         uint256[] calldata minAmountsToReceive,
         PermitSignature[] calldata permitParams,
@@ -162,8 +160,10 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
         for (vars.i = 0; vars.i < assetToSwapFromList.length; vars.i++) {
             vars.aToken = _getReserveData(
-                assetToSwapFromList[vars.i],
-                assetToSwapFromListTranche[vars.i]
+                assetToSwapFromList[vars.i]
+                    .asset,
+                assetToSwapFromList[vars.i]
+                    .tranche
             )
                 .aTokenAddress;
 
@@ -176,8 +176,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
                 : amountToSwapList[vars.i];
 
             _pullAToken(
-                assetToSwapFromList[vars.i],
-                assetToSwapFromListTranche[vars.i],
+                assetToSwapFromList[vars.i].asset,
+                assetToSwapFromList[vars.i].tranche,
                 vars.aToken,
                 msg.sender,
                 vars.amountToSwap,
@@ -185,22 +185,25 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
             );
 
             vars.receivedAmount = _swapExactTokensForTokens(
-                assetToSwapFromList[vars.i],
-                assetToSwapToList[vars.i],
+                assetToSwapFromList[vars.i].asset,
+                assetToSwapToList[vars.i].asset,
                 vars.amountToSwap,
                 minAmountsToReceive[vars.i],
                 useEthPath[vars.i]
             );
 
             // Deposit new reserve
-            IERC20(assetToSwapToList[vars.i]).approve(address(LENDING_POOL), 0);
-            IERC20(assetToSwapToList[vars.i]).approve(
+            IERC20(assetToSwapToList[vars.i].asset).approve(
+                address(LENDING_POOL),
+                0
+            );
+            IERC20(assetToSwapToList[vars.i].asset).approve(
                 address(LENDING_POOL),
                 vars.receivedAmount
             );
             LENDING_POOL.deposit(
-                assetToSwapToList[vars.i],
-                assetToSwapToListTranche[vars.i],
+                assetToSwapToList[vars.i].asset,
+                assetToSwapToList[vars.i].tranche,
                 vars.receivedAmount,
                 msg.sender,
                 0
