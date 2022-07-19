@@ -46,7 +46,7 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
 
     const name = await aDai.name();
 
-    expect(name).to.be.equal("Aave interest bearing DAI");
+    expect(name).to.be.equal("Aave interest bearing DAI0"); //change tests for tranche
 
     const fromBalance = await aDai.balanceOf(users[0].address);
     const toBalance = await aDai.balanceOf(users[1].address);
@@ -61,7 +61,7 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
     );
   });
 
-  it("User 0 deposits 1 WETH and user 1 tries to borrow the WETH with the received DAI as collateral", async () => {
+  it("User 0 deposits 1 WETH and user 1 tries to borrow the WETH with the received aDAI as collateral", async () => {
     const { users, pool, weth, helpersContract } = testEnv;
     const userAddress = await pool.signer.getAddress();
 
@@ -82,6 +82,10 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
         userAddress,
         "0"
       );
+    const userConfig = await testEnv.helpersContract.getUserConfig(
+      users[1].address
+    );
+    console.log(userConfig);
     await pool
       .connect(users[1].signer)
       .borrow(
@@ -92,6 +96,16 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
         AAVE_REFERRAL,
         users[1].address
       );
+
+    console.log(
+      "After borrow ",
+      weth.address,
+      0,
+      ethers.utils.parseEther("0.1"),
+      RateMode.Stable,
+      AAVE_REFERRAL,
+      users[1].address
+    );
 
     const userReserveData = await helpersContract.getUserReserveData(
       weth.address,

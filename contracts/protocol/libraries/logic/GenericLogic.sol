@@ -12,6 +12,7 @@ import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {DataTypes} from "../types/DataTypes.sol";
+import {Errors} from "../helpers/Errors.sol";
 
 /**
  * @title GenericLogic library
@@ -194,10 +195,11 @@ library GenericLogic {
         )
     {
         CalculateUserAccountDataVars memory vars;
-
+        require(!userConfig.isEmpty(), "userConfig is empty");
         if (userConfig.isEmpty()) {
             return (0, 0, 0, 0, type(uint256).max);
         }
+        // assert(reservesCount == reserves.length);
         for (vars.i = 0; vars.i < reservesCount; vars.i++) {
             if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
                 continue;

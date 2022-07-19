@@ -17,8 +17,11 @@ import {
     UserConfiguration
 } from "../protocol/libraries/configuration/UserConfiguration.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
+import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
+import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 
 contract AaveProtocolDataProvider {
+    using SafeMath for uint256;
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using UserConfiguration for DataTypes.UserConfigurationMap;
 
@@ -80,6 +83,119 @@ contract AaveProtocolDataProvider {
             });
         }
         return aTokens;
+    }
+
+    struct CalculateUserAccountDataVars {
+        uint8 currentTranche;
+        uint256 reserveUnitPrice;
+        uint256 tokenUnit;
+        uint256 compoundedLiquidityBalance;
+        uint256 compoundedBorrowBalance;
+        uint256 decimals;
+        uint256 ltv;
+        uint256 liquidationThreshold;
+        uint256 i;
+        uint256 healthFactor;
+        uint256 totalCollateralInETH;
+        uint256 totalDebtInETH;
+        uint256 avgLtv;
+        uint256 avgLiquidationThreshold;
+        uint256 reservesLength;
+        bool healthFactorBelowThreshold;
+        address currentReserveAddress;
+        bool usageAsCollateralEnabled;
+        bool userUsesReserveAsCollateral;
+        uint256 liquidityBalanceETH;
+    }
+
+    struct getUserConfigRet {
+        bool isCollateral;
+        string symbol;
+        uint8 tranche;
+        uint256 balance;
+    }
+
+    function getUserConfig(address user)
+        external
+        view
+        returns (getUserConfigRet[] memory)
+    {
+        ILendingPool pool = ILendingPool(ADDRESSES_PROVIDER.getLendingPool());
+        DataTypes.UserConfigurationMap memory userConfig =
+            pool.getUserConfiguration(user);
+        address[] memory reserves = pool.getReservesList();
+
+        CalculateUserAccountDataVars memory vars;
+        require(!userConfig.isEmpty(), "userConfig is empty");
+        uint256 numCollat = 0;
+        getUserConfigRet[] memory ret = new getUserConfigRet[](reserves.length);
+        // assert(reservesCount == reserves.length);
+        for (vars.i = 0; vars.i < reserves.length; vars.i++) {
+            if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
+                continue;
+            }
+
+            vars.currentReserveAddress = reserves[vars.i];
+            vars.currentTranche = uint8((vars.i + 2) % DataTypes.NUM_TRANCHES);
+            DataTypes.ReserveData memory currentReserve =
+                pool.getReserveData(
+                    vars.currentReserveAddress,
+                    vars.currentTranche
+                );
+
+            // if this fails, come up with better solution than modulo
+            assert(currentReserve.tranche == vars.currentTranche);
+
+            (vars.ltv, vars.liquidationThreshold, , vars.decimals, ) = (
+                1,
+                2,
+                3,
+                4,
+                5
+            );
+
+            vars.tokenUnit = 10**vars.decimals;
+            vars.reserveUnitPrice = 500;
+
+            ret[vars.i] = (
+                getUserConfigRet(
+                    userConfig.isUsingAsCollateral(vars.i),
+                    IERC20Detailed(currentReserve.aTokenAddress).symbol(),
+                    vars.currentTranche,
+                    IERC20(currentReserve.aTokenAddress).balanceOf(user)
+                )
+            );
+
+            if (
+                vars.liquidationThreshold != 0 &&
+                userConfig.isUsingAsCollateral(vars.i)
+            ) {
+                numCollat += 1;
+                vars.compoundedLiquidityBalance = IERC20(
+                    currentReserve
+                        .aTokenAddress
+                )
+                    .balanceOf(user);
+
+                vars.liquidityBalanceETH = vars
+                    .reserveUnitPrice
+                    .mul(vars.compoundedLiquidityBalance)
+                    .div(vars.tokenUnit);
+
+                vars.totalCollateralInETH = vars.totalCollateralInETH.add(
+                    vars.liquidityBalanceETH
+                );
+
+                vars.avgLtv = vars.avgLtv.add(
+                    vars.liquidityBalanceETH.mul(vars.ltv)
+                );
+                vars.avgLiquidationThreshold = vars.avgLiquidationThreshold.add(
+                    vars.liquidityBalanceETH.mul(vars.liquidationThreshold)
+                );
+            }
+        }
+
+        return ret;
     }
 
     function getReserveConfigurationData(address asset, uint8 tranche)
