@@ -211,7 +211,10 @@ library GenericLogic {
                 reservesData[vars.currentReserveAddress][vars.currentTranche];
 
             // if this fails, come up with better solution than modulo
-            assert(currentReserve.tranche == vars.currentTranche);
+            require(
+                currentReserve.tranche == vars.currentTranche,
+                "calculateUserAccountData tranche does not line up"
+            );
 
             (
                 vars.ltv,

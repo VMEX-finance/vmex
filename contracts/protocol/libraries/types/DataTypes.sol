@@ -39,7 +39,7 @@ library DataTypes {
         uint256 stableBorrowRateMultiplier;
     }
 
-    // struct ReserveId {
+    // struct AssetTranche {
     //     address asset;
     //     uint8 tranche;
     // }
