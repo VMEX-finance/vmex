@@ -530,6 +530,7 @@ contract LendingPool is
         address oracle;
         uint256 i;
         address currentAsset;
+        uint8 currentTranche;
         address currentATokenAddress;
         uint256 currentAmount;
         uint256 currentPremium;
@@ -556,14 +557,13 @@ contract LendingPool is
      **/
     function flashLoan(
         address receiverAddress,
-        address[] calldata assets,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata modes,
         address onBehalfOf,
         bytes calldata params,
         uint16 referralCode
     ) external override whenNotPaused {
-        revert("Flashloans not currently supported by VMEX.");
         FlashLoanLocalVars memory vars;
 
         ValidationLogic.validateFlashloan(assets, amounts);
@@ -574,7 +574,10 @@ contract LendingPool is
         vars.receiver = IFlashLoanReceiver(receiverAddress);
 
         for (vars.i = 0; vars.i < assets.length; vars.i++) {
-            aTokenAddresses[vars.i] = _reserves[assets[vars.i]].aTokenAddress;
+            aTokenAddresses[vars.i] = _reserves[assets[vars.i].asset][
+                assets[vars.i].tranche
+            ]
+                .aTokenAddress;
 
             premiums[vars.i] = amounts[vars.i].mul(_flashLoanPremiumTotal).div(
                 10000
@@ -598,7 +601,8 @@ contract LendingPool is
         );
 
         for (vars.i = 0; vars.i < assets.length; vars.i++) {
-            vars.currentAsset = assets[vars.i];
+            vars.currentAsset = assets[vars.i].asset;
+            vars.currentTranche = assets[vars.i].tranche;
             vars.currentAmount = amounts[vars.i];
             vars.currentPremium = premiums[vars.i];
             vars.currentATokenAddress = aTokenAddresses[vars.i];
@@ -610,12 +614,14 @@ contract LendingPool is
                 DataTypes.InterestRateMode(modes[vars.i]) ==
                 DataTypes.InterestRateMode.NONE
             ) {
-                _reserves[vars.currentAsset].updateState();
-                _reserves[vars.currentAsset].cumulateToLiquidityIndex(
+                _reserves[vars.currentAsset][vars.currentTranche].updateState();
+                _reserves[vars.currentAsset][vars.currentTranche]
+                    .cumulateToLiquidityIndex(
                     IERC20(vars.currentATokenAddress).totalSupply(),
                     vars.currentPremium
                 );
-                _reserves[vars.currentAsset].updateInterestRates(
+                _reserves[vars.currentAsset][vars.currentTranche]
+                    .updateInterestRates(
                     vars.currentAsset,
                     vars.currentATokenAddress,
                     vars.currentAmountPlusPremium,
@@ -633,6 +639,7 @@ contract LendingPool is
                 _executeBorrow(
                     ExecuteBorrowParams(
                         vars.currentAsset,
+                        vars.currentTranche,
                         msg.sender,
                         onBehalfOf,
                         vars.currentAmount,
@@ -659,13 +666,13 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
      **/
-    function getReserveData(address asset)
+    function getReserveData(address asset, uint8 tranche)
         external
         view
         override
         returns (DataTypes.ReserveData memory)
     {
-        return _reserves[asset];
+        return _reserves[asset][tranche];
     }
 
     /**
@@ -718,13 +725,13 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The configuration of the reserve
      **/
-    function getConfiguration(address asset)
+    function getConfiguration(address asset, uint8 tranche)
         external
         view
         override
         returns (DataTypes.ReserveConfigurationMap memory)
     {
-        return _reserves[asset].configuration;
+        return _reserves[asset][tranche].configuration;
     }
 
     /**
@@ -746,14 +753,14 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve's normalized income
      */
-    function getReserveNormalizedIncome(address asset)
+    function getReserveNormalizedIncome(address asset, uint8 tranche)
         external
         view
         virtual
         override
         returns (uint256)
     {
-        return _reserves[asset].getNormalizedIncome();
+        return _reserves[asset][tranche].getNormalizedIncome();
     }
 
     /**
@@ -761,13 +768,13 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve normalized variable debt
      */
-    function getReserveNormalizedVariableDebt(address asset)
+    function getReserveNormalizedVariableDebt(address asset, uint8 tranche)
         external
         view
         override
         returns (uint256)
     {
-        return _reserves[asset].getNormalizedDebt();
+        return _reserves[asset][tranche].getNormalizedDebt();
     }
 
     /**
@@ -843,6 +850,7 @@ contract LendingPool is
      */
     function finalizeTransfer(
         address asset,
+        uint8 tranche,
         address from,
         address to,
         uint256 amount,
@@ -850,7 +858,7 @@ contract LendingPool is
         uint256 balanceToBefore
     ) external override whenNotPaused {
         require(
-            msg.sender == _reserves[asset].aTokenAddress,
+            msg.sender == _reserves[asset][tranche].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
         );
 
@@ -863,7 +871,7 @@ contract LendingPool is
             _addressesProvider.getPriceOracle()
         );
 
-        uint256 reserveId = _reserves[asset].id;
+        uint256 reserveId = _reserves[asset][tranche].id;
 
         if (from != to) {
             if (balanceFromBefore.sub(amount) == 0) {
@@ -910,7 +918,7 @@ contract LendingPool is
         );
 
         // TODO: update for tranches
-        _addReserveToList(asset);
+        _addReserveToList(asset, tranche);
     }
 
     /**
@@ -921,9 +929,11 @@ contract LendingPool is
      **/
     function setReserveInterestRateStrategyAddress(
         address asset,
+        uint8 tranche,
         address rateStrategyAddress
     ) external override onlyLendingPoolConfigurator {
-        _reserves[asset].interestRateStrategyAddress = rateStrategyAddress;
+        _reserves[asset][tranche]
+            .interestRateStrategyAddress = rateStrategyAddress;
     }
 
     /**
@@ -932,12 +942,12 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @param configuration The new configuration bitmap
      **/
-    function setConfiguration(address asset, uint256 configuration)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        _reserves[asset].configuration.data = configuration;
+    function setConfiguration(
+        address asset,
+        uint8 tranche,
+        uint256 configuration
+    ) external override onlyLendingPoolConfigurator {
+        _reserves[asset][tranche].configuration.data = configuration;
     }
 
     /**
@@ -1059,7 +1069,7 @@ contract LendingPool is
         );
     }
 
-    function _addReserveToList(address asset) internal {
+    function _addReserveToList(address asset, uint8 tranche) internal {
         uint256 reservesCount = _reservesCount;
 
         require(
@@ -1067,12 +1077,15 @@ contract LendingPool is
             Errors.LP_NO_MORE_RESERVES_ALLOWED
         );
 
-        bool reserveAlreadyAdded =
-            _reserves[asset].id != 0 || _reservesList[0] == asset;
+        bool reserveAlreadyAdded = _reserves[asset][tranche].id != 0;
 
         if (!reserveAlreadyAdded) {
-            _reserves[asset].id = uint8(reservesCount);
-            _reservesList[reservesCount] = asset;
+            uint8 id = uint8(reservesCount); // uint8(reservesCount / 3 * 3) + tranche;
+            require(_reservesList[id] == address(0), "Calculated ID wrong.");
+
+            _reserves[asset][tranche].id = id;
+            _reservesList[id] = asset;
+            require(id % 3 == tranche, "Tranche does not match ID");
 
             _reservesCount = reservesCount + 1;
         }

@@ -3,6 +3,11 @@ pragma solidity >=0.8.0;
 
 library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
+
+    struct TrancheAddress {
+        uint8 tranche;
+        address asset;
+    }
     struct ReserveData {
         //stores the reserve configuration
         ReserveConfigurationMap configuration;
@@ -33,6 +38,11 @@ library DataTypes {
         uint256 variableBorrowRateMultiplier;
         uint256 stableBorrowRateMultiplier;
     }
+
+    // struct AssetTranche {
+    //     address asset;
+    //     uint8 tranche;
+    // }
 
     uint8 constant NUM_TRANCHES = 3;
 

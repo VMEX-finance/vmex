@@ -8,6 +8,7 @@ import {
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 /**
  * @title UniswapLiquiditySwapAdapter
@@ -27,6 +28,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
     struct SwapParams {
         address[] assetToSwapToList;
+        uint8[] assetToSwapToListTranche;
         uint256[] minAmountsToReceive;
         bool[] swapAllBalance;
         PermitParams permitParams;
@@ -59,7 +61,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
      *   bytes32[] s List of s param for the permit signature
      */
     function executeOperation(
-        address[] calldata assets,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -74,6 +76,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
         require(
             assets.length == decodedParams.assetToSwapToList.length &&
+                assets.length ==
+                decodedParams.assetToSwapToListTranche.length &&
                 assets.length == decodedParams.minAmountsToReceive.length &&
                 assets.length == decodedParams.swapAllBalance.length &&
                 assets.length == decodedParams.permitParams.amount.length &&
@@ -87,8 +91,10 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
         for (uint256 i = 0; i < assets.length; i++) {
             _swapLiquidity(
-                assets[i],
+                assets[i].asset,
+                assets[i].tranche,
                 decodedParams.assetToSwapToList[i],
+                decodedParams.assetToSwapToListTranche[i],
                 amounts[i],
                 premiums[i],
                 initiator,
@@ -135,8 +141,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
      * @param useEthPath true if the swap needs to occur using ETH in the routing, false otherwise
      */
     function swapAndDeposit(
-        address[] calldata assetToSwapFromList,
-        address[] calldata assetToSwapToList,
+        DataTypes.TrancheAddress[] calldata assetToSwapFromList,
+        DataTypes.TrancheAddress[] calldata assetToSwapToList,
         uint256[] calldata amountToSwapList,
         uint256[] calldata minAmountsToReceive,
         PermitSignature[] calldata permitParams,
@@ -153,7 +159,12 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
         SwapAndDepositLocalVars memory vars;
 
         for (vars.i = 0; vars.i < assetToSwapFromList.length; vars.i++) {
-            vars.aToken = _getReserveData(assetToSwapFromList[vars.i])
+            vars.aToken = _getReserveData(
+                assetToSwapFromList[vars.i]
+                    .asset,
+                assetToSwapFromList[vars.i]
+                    .tranche
+            )
                 .aTokenAddress;
 
             vars.aTokenInitiatorBalance = IERC20(vars.aToken).balanceOf(
@@ -165,7 +176,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
                 : amountToSwapList[vars.i];
 
             _pullAToken(
-                assetToSwapFromList[vars.i],
+                assetToSwapFromList[vars.i].asset,
+                assetToSwapFromList[vars.i].tranche,
                 vars.aToken,
                 msg.sender,
                 vars.amountToSwap,
@@ -173,21 +185,25 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
             );
 
             vars.receivedAmount = _swapExactTokensForTokens(
-                assetToSwapFromList[vars.i],
-                assetToSwapToList[vars.i],
+                assetToSwapFromList[vars.i].asset,
+                assetToSwapToList[vars.i].asset,
                 vars.amountToSwap,
                 minAmountsToReceive[vars.i],
                 useEthPath[vars.i]
             );
 
             // Deposit new reserve
-            IERC20(assetToSwapToList[vars.i]).approve(address(LENDING_POOL), 0);
-            IERC20(assetToSwapToList[vars.i]).approve(
+            IERC20(assetToSwapToList[vars.i].asset).approve(
+                address(LENDING_POOL),
+                0
+            );
+            IERC20(assetToSwapToList[vars.i].asset).approve(
                 address(LENDING_POOL),
                 vars.receivedAmount
             );
             LENDING_POOL.deposit(
-                assetToSwapToList[vars.i],
+                assetToSwapToList[vars.i].asset,
+                assetToSwapToList[vars.i].tranche,
                 vars.receivedAmount,
                 msg.sender,
                 0
@@ -218,7 +234,9 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
     function _swapLiquidity(
         address assetFrom,
+        uint8 assetFromTranche,
         address assetTo,
+        uint8 assetToTranche,
         uint256 amount,
         uint256 premium,
         address initiator,
@@ -229,7 +247,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
     ) internal {
         SwapLiquidityLocalVars memory vars;
 
-        vars.aToken = _getReserveData(assetFrom).aTokenAddress;
+        vars.aToken = _getReserveData(assetFrom, assetFromTranche)
+            .aTokenAddress;
 
         vars.aTokenInitiatorBalance = IERC20(vars.aToken).balanceOf(initiator);
         vars.amountToSwap = swapAllBalance &&
@@ -248,13 +267,20 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
         // Deposit new reserve
         IERC20(assetTo).approve(address(LENDING_POOL), 0);
         IERC20(assetTo).approve(address(LENDING_POOL), vars.receivedAmount);
-        LENDING_POOL.deposit(assetTo, vars.receivedAmount, initiator, 0);
+        LENDING_POOL.deposit(
+            assetTo,
+            assetToTranche,
+            vars.receivedAmount,
+            initiator,
+            0
+        );
 
         vars.flashLoanDebt = amount.add(premium);
         vars.amountToPull = vars.amountToSwap.add(premium);
 
         _pullAToken(
             assetFrom,
+            assetFromTranche,
             vars.aToken,
             initiator,
             vars.amountToPull,
@@ -287,6 +313,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
     {
         (
             address[] memory assetToSwapToList,
+            uint8[] memory assetToSwapToListTranche,
             uint256[] memory minAmountsToReceive,
             bool[] memory swapAllBalance,
             uint256[] memory permitAmount,
@@ -300,6 +327,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
                 params,
                 (
                     address[],
+                    uint8[],
                     uint256[],
                     bool[],
                     uint256[],
@@ -314,6 +342,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
         return
             SwapParams(
                 assetToSwapToList,
+                assetToSwapToListTranche,
                 minAmountsToReceive,
                 swapAllBalance,
                 PermitParams(permitAmount, deadline, v, r, s),

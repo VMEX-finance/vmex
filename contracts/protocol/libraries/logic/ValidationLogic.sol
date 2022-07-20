@@ -89,10 +89,12 @@ library ValidationLogic {
 
         require(
             GenericLogic.balanceDecreaseAllowed(
-                reserveAddress,
-                tranche,
-                msg.sender,
-                amount,
+                GenericLogic.balanceDecreaseAllowedParameters(
+                    reserveAddress,
+                    tranche,
+                    msg.sender,
+                    amount
+                ),
                 reservesData,
                 userConfig,
                 reserves,
@@ -414,10 +416,12 @@ library ValidationLogic {
         require(
             useAsCollateral ||
                 GenericLogic.balanceDecreaseAllowed(
-                    reserveAddress,
-                    reserve.tranche,
-                    msg.sender,
-                    underlyingBalance,
+                    GenericLogic.balanceDecreaseAllowedParameters(
+                        reserveAddress,
+                        reserve.tranche,
+                        msg.sender,
+                        underlyingBalance
+                    ),
                     reservesData,
                     userConfig,
                     reserves,
@@ -434,7 +438,7 @@ library ValidationLogic {
      * @param amounts The amounts for each asset being borrowed
      **/
     function validateFlashloan(
-        address[] memory assets,
+        DataTypes.TrancheAddress[] memory assets,
         uint256[] memory amounts
     ) internal pure {
         require(
@@ -520,7 +524,8 @@ library ValidationLogic {
      */
     function validateTransfer(
         address from,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
