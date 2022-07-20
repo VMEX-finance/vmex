@@ -17,8 +17,11 @@ import {
     UserConfiguration
 } from "../protocol/libraries/configuration/UserConfiguration.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
+import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
+import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 
 contract AaveProtocolDataProvider {
+    using SafeMath for uint256;
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using UserConfiguration for DataTypes.UserConfigurationMap;
 
@@ -68,8 +71,12 @@ contract AaveProtocolDataProvider {
         address[] memory reserves = pool.getReservesList();
         TokenData[] memory aTokens = new TokenData[](reserves.length);
         for (uint256 i = 0; i < reserves.length; i++) {
+            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory reserveData =
-                pool.getReserveData(reserves[i]);
+                pool.getReserveData(reserves[i], tranche);
+
+            assert(reserveData.tranche == tranche);
+
             aTokens[i] = TokenData({
                 symbol: IERC20Detailed(reserveData.aTokenAddress).symbol(),
                 tokenAddress: reserveData.aTokenAddress
@@ -78,7 +85,30 @@ contract AaveProtocolDataProvider {
         return aTokens;
     }
 
-    function getReserveConfigurationData(address asset)
+    struct CalculateUserAccountDataVars {
+        uint8 currentTranche;
+        uint256 reserveUnitPrice;
+        uint256 tokenUnit;
+        uint256 compoundedLiquidityBalance;
+        uint256 compoundedBorrowBalance;
+        uint256 decimals;
+        uint256 ltv;
+        uint256 liquidationThreshold;
+        uint256 i;
+        uint256 healthFactor;
+        uint256 totalCollateralInETH;
+        uint256 totalDebtInETH;
+        uint256 avgLtv;
+        uint256 avgLiquidationThreshold;
+        uint256 reservesLength;
+        bool healthFactorBelowThreshold;
+        address currentReserveAddress;
+        bool usageAsCollateralEnabled;
+        bool userUsesReserveAsCollateral;
+        uint256 liquidityBalanceETH;
+    }
+
+    function getReserveConfigurationData(address asset, uint8 tranche)
         external
         view
         returns (
@@ -96,7 +126,8 @@ contract AaveProtocolDataProvider {
     {
         DataTypes.ReserveConfigurationMap memory configuration =
             ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getConfiguration(
-                asset
+                asset,
+                tranche
             );
 
         (
@@ -117,7 +148,7 @@ contract AaveProtocolDataProvider {
         usageAsCollateralEnabled = liquidationThreshold > 0;
     }
 
-    function getReserveData(address asset)
+    function getReserveData(address asset, uint8 tranche)
         external
         view
         returns (
@@ -135,7 +166,8 @@ contract AaveProtocolDataProvider {
     {
         DataTypes.ReserveData memory reserve =
             ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getReserveData(
-                asset
+                asset,
+                tranche
             );
 
         return (
@@ -153,7 +185,11 @@ contract AaveProtocolDataProvider {
         );
     }
 
-    function getUserReserveData(address asset, address user)
+    function getUserReserveData(
+        address asset,
+        uint8 tranche,
+        address user
+    )
         external
         view
         returns (
@@ -170,7 +206,8 @@ contract AaveProtocolDataProvider {
     {
         DataTypes.ReserveData memory reserve =
             ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getReserveData(
-                asset
+                asset,
+                tranche
             );
 
         DataTypes.UserConfigurationMap memory userConfig =
@@ -199,7 +236,7 @@ contract AaveProtocolDataProvider {
         usageAsCollateralEnabled = userConfig.isUsingAsCollateral(reserve.id);
     }
 
-    function getReserveTokensAddresses(address asset)
+    function getReserveTokensAddresses(address asset, uint8 tranche)
         external
         view
         returns (
@@ -210,7 +247,8 @@ contract AaveProtocolDataProvider {
     {
         DataTypes.ReserveData memory reserve =
             ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getReserveData(
-                asset
+                asset,
+                tranche
             );
 
         return (

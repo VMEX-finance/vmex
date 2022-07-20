@@ -79,12 +79,12 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
      * @dev Get the aToken associated to the asset
      * @return address of the aToken
      */
-    function _getReserveData(address asset)
+    function _getReserveData(address asset, uint8 tranche)
         internal
         view
         returns (DataTypes.ReserveData memory)
     {
-        return LENDING_POOL.getReserveData(asset);
+        return LENDING_POOL.getReserveData(asset, tranche);
     }
 
     /**
@@ -97,6 +97,7 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
      */
     function _pullATokenAndWithdraw(
         address reserve,
+        uint8 tranche,
         IERC20WithPermit reserveAToken,
         address user,
         uint256 amount,
@@ -120,7 +121,8 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
 
         // withdraw reserve
         require(
-            LENDING_POOL.withdraw(reserve, amount, address(this)) == amount,
+            LENDING_POOL.withdraw(reserve, tranche, amount, address(this)) ==
+                amount,
             "UNEXPECTED_AMOUNT_WITHDRAWN"
         );
     }

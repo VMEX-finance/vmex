@@ -215,7 +215,7 @@ interface ILendingPool {
      **/
     function withdraw(
         address asset,
-        address tranche,
+        uint8 tranche,
         uint256 amount,
         address to
     ) external returns (uint256);
@@ -341,7 +341,7 @@ interface ILendingPool {
      **/
     function flashLoan(
         address receiverAddress,
-        address[] calldata assets,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata modes,
         address onBehalfOf,
@@ -382,17 +382,22 @@ interface ILendingPool {
 
     function setReserveInterestRateStrategyAddress(
         address reserve,
+        uint8 tranche,
         address rateStrategyAddress
     ) external;
 
-    function setConfiguration(address reserve, uint256 configuration) external;
+    function setConfiguration(
+        address reserve,
+        uint8 tranche,
+        uint256 configuration
+    ) external;
 
     /**
      * @dev Returns the configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
      * @return The configuration of the reserve
      **/
-    function getConfiguration(address asset)
+    function getConfiguration(address asset, uint8 tranche)
         external
         view
         returns (DataTypes.ReserveConfigurationMap memory);
@@ -412,7 +417,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve's normalized income
      */
-    function getReserveNormalizedIncome(address asset)
+    function getReserveNormalizedIncome(address asset, uint8 tranche)
         external
         view
         returns (uint256);
@@ -422,7 +427,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve normalized variable debt
      */
-    function getReserveNormalizedVariableDebt(address asset)
+    function getReserveNormalizedVariableDebt(address asset, uint8 tranche)
         external
         view
         returns (uint256);
@@ -432,13 +437,14 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
      **/
-    function getReserveData(address asset)
+    function getReserveData(address asset, uint8 tranche)
         external
         view
         returns (DataTypes.ReserveData memory);
 
     function finalizeTransfer(
         address asset,
+        uint8 tranche,
         address from,
         address to,
         uint256 amount,

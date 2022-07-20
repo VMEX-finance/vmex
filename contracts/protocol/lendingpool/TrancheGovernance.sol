@@ -12,10 +12,10 @@ contract TrancheGovernance is LendingPoolStorage {
 
     /**
      * @dev Creates or edits a tranche
-     * @param trancheKey 0-255 id of tranche, decided by governance
-     * @param _riskLevel
-     * @param _variableBorrowRateMultiplier
-     * @param _stableBorrowRateMultiplier
+     * @param trancheId 0-255 id of tranche, decided by governance
+     * @param _riskLevel 0, 1, or 2 for low, medium, and high risk? @Steven verify this
+     * @param _variableBorrowRateMultiplier tranche specific variable rate multiplier
+     * @param _stableBorrowRateMultiplier tranche specific variable rate multiplier
      **/
     function editTranche(
         uint8 trancheId,
@@ -28,17 +28,5 @@ contract TrancheGovernance is LendingPoolStorage {
             variableBorrowRateMultiplier: _variableBorrowRateMultiplier,
             stableBorrowRateMultiplier: _stableBorrowRateMultiplier
         });
-    }
-
-    function associateAssetToTranche(address asset, uint8 trancheId)
-        public
-        onlyGovernance
-    {
-        // 0 means uninitialized, reserved for default tranches
-        assert(tranches[trancheId].riskLevel != 0);
-
-        DataTypes.ReserveData storage reserve = _reserves[asset];
-
-        reserve.tranche = tranches[trancheId];
     }
 }
