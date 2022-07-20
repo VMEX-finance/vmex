@@ -1078,12 +1078,15 @@ contract LendingPool is
             Errors.LP_NO_MORE_RESERVES_ALLOWED
         );
 
-        bool reserveAlreadyAdded =
-            _reserves[asset][tranche].id != 0 || _reservesList[0] == asset; //should this be _reservesList[reservesCount] == asset
+        bool reserveAlreadyAdded = _reserves[asset][tranche].id != 0;
 
         if (!reserveAlreadyAdded) {
-            _reserves[asset][tranche].id = uint8(reservesCount);
-            _reservesList[reservesCount] = asset;
+            uint8 id = uint8(reservesCount); // uint8(reservesCount / 3 * 3) + tranche;
+            require(_reservesList[id] == address(0), "Calculated ID wrong.");
+
+            _reserves[asset][tranche].id = id;
+            _reservesList[id] = asset;
+            require(id % 3 == tranche, "Tranche does not match ID");
 
             _reservesCount = reservesCount + 1;
         }

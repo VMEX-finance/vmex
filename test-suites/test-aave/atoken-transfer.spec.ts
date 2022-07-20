@@ -82,10 +82,6 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
         userAddress,
         "0"
       );
-    const userConfig = await testEnv.helpersContract.getUserConfig(
-      users[1].address
-    );
-    console.log(userConfig);
     await pool
       .connect(users[1].signer)
       .borrow(
