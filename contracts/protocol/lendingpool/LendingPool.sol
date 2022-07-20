@@ -564,7 +564,6 @@ contract LendingPool is
         bytes calldata params,
         uint16 referralCode
     ) external override whenNotPaused {
-        revert("Flashloans not currently supported by VMEX.");
         FlashLoanLocalVars memory vars;
 
         ValidationLogic.validateFlashloan(assets, amounts);
