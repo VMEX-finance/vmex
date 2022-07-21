@@ -1,6 +1,6 @@
 {
-  "title": "LendingPool: withdraw",
-  "description": "withdraw function.",
+  "title": "LendingPool: tranche",
+  "description": "Test tranche separations.",
   "stories": [
     {
       "description": "User 0 Deposits 1000 DAI in an empty reserve",
