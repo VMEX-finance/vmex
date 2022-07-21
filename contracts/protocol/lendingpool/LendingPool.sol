@@ -816,13 +816,13 @@ contract LendingPool is
     /**
      * @dev Returns the percentage of available liquidity that can be borrowed at once at stable rate
      */
-    function MAX_STABLE_RATE_BORROW_SIZE_PERCENT()
-        public
-        view
-        returns (uint256)
-    {
-        return _maxStableRateBorrowSizePercent;
-    }
+    // function MAX_STABLE_RATE_BORROW_SIZE_PERCENT()
+    //     public
+    //     view
+    //     returns (uint256)
+    // {
+    //     return _maxStableRateBorrowSizePercent;
+    // }
 
     /**
      * @dev Returns the fee on flash loans
@@ -834,9 +834,9 @@ contract LendingPool is
     /**
      * @dev Returns the maximum number of reserves supported to be listed in this LendingPool
      */
-    function MAX_NUMBER_RESERVES() public view returns (uint256) {
-        return _maxNumberOfReserves;
-    }
+    // function MAX_NUMBER_RESERVES() public view returns (uint256) {
+    //     return _maxNumberOfReserves;
+    // }
 
     /**
      * @dev Validates and finalizes an aToken transfer
