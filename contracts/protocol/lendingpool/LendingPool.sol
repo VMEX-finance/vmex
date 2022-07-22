@@ -227,6 +227,7 @@ contract LendingPool is
      * - E.g. User borrows 100 USDC passing as `onBehalfOf` his own address, receiving the 100 USDC in his wallet
      *   and 100 stable/variable debt tokens, depending on the `interestRateMode`
      * @param asset The address of the underlying asset to borrow
+     * @param collateralAsset the collateralAsset determines the tranche you borrow out of, you can't choose what tranche you borrow out of
      * @param amount The amount to be borrowed
      * @param interestRateMode The interest rate mode at which the user wants to borrow: 1 for Stable, 2 for Variable
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
@@ -237,7 +238,7 @@ contract LendingPool is
      **/
     function borrow(
         address asset,
-        uint8 tranche,
+        address collateralAsset,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
