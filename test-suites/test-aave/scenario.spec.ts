@@ -1,14 +1,19 @@
-import { configuration as actionsConfiguration } from './helpers/actions';
-import { configuration as calculationsConfiguration } from './helpers/utils/calculations';
+import { configuration as actionsConfiguration } from "./helpers/actions";
+import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 
-import fs from 'fs';
-import BigNumber from 'bignumber.js';
-import { makeSuite } from './helpers/make-suite';
-import { getReservesConfigByPool } from '../../helpers/configuration';
-import { AavePools, iAavePoolAssets, IReserveParams } from '../../helpers/types';
-import { executeStory } from './helpers/scenario-engine';
+import fs from "fs";
+import BigNumber from "bignumber.js";
+import { makeSuite } from "./helpers/make-suite";
+import { getReservesConfigByPool } from "../../helpers/configuration";
+import {
+  AavePools,
+  iAavePoolAssets,
+  IReserveParams,
+} from "../../helpers/types";
+import { executeStory } from "./helpers/scenario-engine";
 
-const scenarioFolder = './test-suites/test-aave/helpers/scenarios/';
+//pending tests: test borrow, then disable asset as collateral, this will probably decrease HF below threshold and will revert
+const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/tranches/";
 
 const selectedScenarios: string[] = [];
 
@@ -18,24 +23,30 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
   const scenario = require(`./helpers/scenarios/${file}`);
 
   makeSuite(scenario.title, async (testEnv) => {
-    before('Initializing configuration', async () => {
+    before("Initializing configuration", async () => {
       // Sets BigNumber for this suite, instead of globally
-      BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
+      BigNumber.config({
+        DECIMAL_PLACES: 0,
+        ROUNDING_MODE: BigNumber.ROUND_DOWN,
+      });
 
       actionsConfiguration.skipIntegrityCheck = false; //set this to true to execute solidity-coverage
 
-      calculationsConfiguration.reservesParams = <iAavePoolAssets<IReserveParams>>(
-        getReservesConfigByPool(AavePools.proto)
-      );
+      calculationsConfiguration.reservesParams = <
+        iAavePoolAssets<IReserveParams>
+      >getReservesConfigByPool(AavePools.proto);
     });
-    after('Reset', () => {
+    after("Reset", () => {
       // Reset BigNumber
-      BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
+      BigNumber.config({
+        DECIMAL_PLACES: 20,
+        ROUNDING_MODE: BigNumber.ROUND_HALF_UP,
+      });
     });
 
     for (const story of scenario.stories) {
       it(story.description, async function () {
-        // Retry the test scenarios up to 4 times if an error happens, due erratic HEVM network errors 
+        // Retry the test scenarios up to 4 times if an error happens, due erratic HEVM network errors
         this.retries(4);
         await executeStory(story, testEnv);
       });
