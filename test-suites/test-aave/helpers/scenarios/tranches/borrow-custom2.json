@@ -3,7 +3,7 @@
     "description": "Test cases for the borrow function, stable mode.",
     "stories": [
       {
-        "description": "User 0 deposits 300 DAI (risk 0) in all three tranches",
+        "description": "User 1 deposits 1 WETH (risk 1) as collateral in tranche 0 and should not be able to set as collateral. ",
         "actions": [
           {
             "name": "mint",
@@ -51,12 +51,7 @@
               "user": "0"
             },
             "expected": "success"
-          }
-        ]
-      },
-      {
-        "description": "user 1 deposits 1 WETH (risk 1) as collateral in tranche 2 and borrows 100 DAI at stable rate. Tries to borrow from tranches 0 and 1 (revert) ",
-        "actions": [
+          },
           {
             "name": "mint",
             "args": {
@@ -78,7 +73,19 @@
             "name": "deposit",
             "args": {
               "reserve": "WETH",
-              "tranche": "2",  
+              "tranche": "0",  
+              "isCollateral": "true",
+              "amount": "1",
+              "user": "1"
+            },
+            "expected": "revert"
+          },
+          {
+            "name": "deposit",
+            "args": {
+              "reserve": "WETH",
+              "tranche": "0",  
+              "isCollateral": "false",
               "amount": "1",
               "user": "1"
             },
@@ -88,12 +95,11 @@
             "name": "setUseAsCollateral",
             "args": {
               "reserve": "WETH",
-              "tranche": "2",
               "useAsCollateral" : "true",
               "amount": "1",
               "user": "1"
             },
-            "expected": "success"
+            "expected": "revert"
           },
           {
             "name": "borrow",
@@ -111,19 +117,14 @@
             "name": "borrow",
             "args": {
               "reserve": "DAI",
-              "tranche": "1",
+              "tranche": "0",
               "amount": "100",
               "borrowRateMode": "stable",
               "user": "1",
               "timeTravel": "365"
             },
             "expected": "revert"
-          }
-        ]
-      },
-      {
-        "description": "user 1 deposits 1 WETH (risk 1) as collateral in tranche 2 and borrows 100 DAI at stable rate. ",
-        "actions": [
+          },
           {
             "name": "borrow",
             "args": {
@@ -134,11 +135,11 @@
               "user": "1",
               "timeTravel": "365"
             },
-            "expected": "success"
+            "expected": "revert"
           }
         ]
       }
-
+      
     ]
   }
   
