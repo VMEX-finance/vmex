@@ -200,6 +200,8 @@ contract LendingPoolConfigurator is
                 currentConfig.data
             );
 
+            pool.setAssetRisk(input.underlyingAsset, input.risk); //initialize all asset risks
+
             emit ReserveInitialized(
                 input.underlyingAsset,
                 aTokenProxyAddress,
@@ -565,6 +567,16 @@ contract LendingPoolConfigurator is
         pool.setConfiguration(asset, tranche, currentConfig.data);
 
         emit ReserveFactorChanged(asset, reserveFactor);
+    }
+
+    /**
+     * @dev Sets the interest rate strategy of a reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @param risk The new risk of the asset
+     **/
+    function setAssetRisk(address asset, uint8 risk) external onlyPoolAdmin {
+        pool.setAssetRisk(asset, risk);
+        emit AssetRiskChanged(asset, risk);
     }
 
     /**

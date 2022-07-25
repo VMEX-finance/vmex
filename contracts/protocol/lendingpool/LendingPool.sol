@@ -932,6 +932,21 @@ contract LendingPool is
      * @dev Updates the address of the interest rate strategy contract
      * - Only callable by the LendingPoolConfigurator contract
      * @param asset The address of the underlying asset of the reserve
+     * @param risk The risk of the asset
+     **/
+    function setAssetRisk(address asset, uint8 risk)
+        external
+        override
+        onlyLendingPoolConfigurator
+    {
+        //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
+        collateralRisk[asset] = risk;
+    }
+
+    /**
+     * @dev Updates the address of the interest rate strategy contract
+     * - Only callable by the LendingPoolConfigurator contract
+     * @param asset The address of the underlying asset of the reserve
      * @param rateStrategyAddress The address of the interest rate strategy contract
      **/
     function setReserveInterestRateStrategyAddress(

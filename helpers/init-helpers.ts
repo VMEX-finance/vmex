@@ -70,6 +70,7 @@ export const initReservesByHelper = async (
     stableDebtTokenName: string;
     stableDebtTokenSymbol: string;
     params: string;
+    risk: BigNumberish;
   }[] = [];
 
   let strategyRates: [
@@ -93,7 +94,7 @@ export const initReservesByHelper = async (
       );
       continue;
     }
-    const { strategy, aTokenImpl, reserveDecimals } = params;
+    const { strategy, aTokenImpl, reserveDecimals, risk, isLendable } = params;
     const {
       optimalUtilizationRate,
       baseVariableBorrowRate,
@@ -154,6 +155,7 @@ export const initReservesByHelper = async (
       stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
+      risk: risk,
     });
   }
 
