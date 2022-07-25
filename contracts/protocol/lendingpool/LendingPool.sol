@@ -254,7 +254,7 @@ contract LendingPool is
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         _executeBorrow(
-            ExecuteBorrowParams(
+            DataTypes.ExecuteBorrowParams(
                 asset,
                 tranche,
                 msg.sender,
@@ -642,7 +642,7 @@ contract LendingPool is
                 // If the user chose to not return the funds, the system checks if there is enough collateral and
                 // eventually opens a debt position
                 _executeBorrow(
-                    ExecuteBorrowParams(
+                    DataTypes.ExecuteBorrowParams(
                         vars.currentAsset,
                         vars.currentTranche,
                         msg.sender,
@@ -709,15 +709,15 @@ contract LendingPool is
             ltv,
             currentLiquidationThreshold,
             healthFactor
-        ) = (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
-        // GenericLogic.calculateUserAccountData(
-        //     DataTypes.AcctTranche(user,tranche),
-        //     _reserves,
-        //     _usersConfig[user],
-        //     _reservesList,
-        //     _reservesCount,
-        //     _addressesProvider.getPriceOracle()
-        // );
+        ) = GenericLogic.calculateUserAccountData(
+            DataTypes.AcctTranche(user, tranche),
+            _reserves,
+            _usersConfig[user],
+            _reservesList,
+            _reservesCount,
+            _addressesProvider.getPriceOracle()
+        );
+        // (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
         availableBorrowsETH = GenericLogic.calculateAvailableBorrowsETH(
             totalCollateralETH,
@@ -971,19 +971,9 @@ contract LendingPool is
         }
     }
 
-    struct ExecuteBorrowParams {
-        address asset;
-        uint8 tranche; //tranche the user wants to borrow out of
-        address user;
-        address onBehalfOf;
-        uint256 amount;
-        uint256 interestRateMode;
-        address aTokenAddress;
-        uint16 referralCode;
-        bool releaseUnderlying;
-    }
-
-    function _executeBorrow(ExecuteBorrowParams memory vars) internal {
+    function _executeBorrow(DataTypes.ExecuteBorrowParams memory vars)
+        internal
+    {
         DataTypes.ReserveData storage reserve =
             _reserves[vars.asset][vars.tranche];
         DataTypes.UserConfigurationMap storage userConfig =
@@ -999,13 +989,9 @@ contract LendingPool is
 
         // TODO: make sure this works with tranches
         ValidationLogic.validateBorrow(
-            vars.asset,
-            vars.tranche,
+            vars,
             reserve,
-            vars.onBehalfOf,
-            vars.amount,
             amountInETH,
-            vars.interestRateMode,
             _maxStableRateBorrowSizePercent,
             _reserves,
             userConfig,

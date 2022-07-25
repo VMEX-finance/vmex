@@ -94,17 +94,19 @@ library GenericLogic {
         (
             vars.totalCollateralInETH,
             vars.totalDebtInETH,
-            // ,
-            vars.avgLiquidationThreshold //,
-        ) = (uint256(14), uint256(14), uint256(14));
-        // calculateUserAccountData(
-        //     DataTypes.AcctTranche(params.user,params.tranche),
-        //     reservesData,
-        //     userConfig,
-        //     reserves,
-        //     reservesCount,
-        //     oracle
-        // );
+            ,
+            vars.avgLiquidationThreshold,
+
+        ) = calculateUserAccountData(
+            DataTypes.AcctTranche(params.user, params.tranche),
+            reservesData,
+            userConfig,
+            reserves,
+            reservesCount,
+            oracle
+        );
+
+        // (uint256(14), uint256(14), uint256(14));
 
         if (vars.totalDebtInETH == 0) {
             return true;
