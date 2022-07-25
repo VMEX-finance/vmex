@@ -114,15 +114,15 @@ contract LendingPoolCollateralManager is
 
         LiquidationCallLocalVars memory vars;
 
-        // (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
-        //     DataTypes.AcctTranche(user,tranche),
-        //     _reserves,
-        //     userConfig,
-        //     _reservesList,
-        //     _reservesCount,
-        //     _addressesProvider.getPriceOracle()
-        // );
-        vars.healthFactor = 2;
+        (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
+            DataTypes.AcctTranche(user, tranche),
+            _reserves,
+            userConfig,
+            _reservesList,
+            _reservesCount,
+            _addressesProvider.getPriceOracle()
+        );
+        // vars.healthFactor = 2;
 
         (vars.userStableDebt, vars.userVariableDebt) = Helpers
             .getUserCurrentDebt(user, debtReserve);

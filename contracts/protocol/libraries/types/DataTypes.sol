@@ -70,4 +70,16 @@ library DataTypes {
         address user;
         uint8 tranche;
     }
+
+    struct ExecuteBorrowParams {
+        address asset;
+        uint8 tranche; //tranche the user wants to borrow out of
+        address user;
+        address onBehalfOf;
+        uint256 amount;
+        uint256 interestRateMode;
+        address aTokenAddress;
+        uint16 referralCode;
+        bool releaseUnderlying;
+    }
 }
