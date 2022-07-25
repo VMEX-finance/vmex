@@ -251,10 +251,6 @@ contract LendingPool is
         uint16 referralCode,
         address onBehalfOf
     ) external override whenNotPaused {
-        // TODO (steven): user does not pass in tranche to borrow from
-        // contract decides tranche to borrow from based on user's collateral
-        // if users's collateral is more risky, then withdraw from high risk tranche
-
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         _executeBorrow(
@@ -461,19 +457,17 @@ contract LendingPool is
         uint8 tranche,
         bool useAsCollateral
     ) external override whenNotPaused {
-        if (useAsCollateral == true) {
-            require(collateralRisk[asset] <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
-        }
-
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         ValidationLogic.validateSetUseReserveAsCollateral(
             reserve,
+            tranche,
             asset,
             useAsCollateral,
             _reserves,
             _usersConfig[msg.sender],
             _reservesList,
+            collateralRisk,
             _reservesCount,
             _addressesProvider.getPriceOracle()
         );
@@ -687,7 +681,7 @@ contract LendingPool is
     }
 
     /**
-     * @dev Returns the user account data across all the reserves
+     * @dev Returns the user account data across all the reserves in a specific tranche
      * @param user The address of the user
      * @return totalCollateralETH the total collateral in ETH of the user
      * @return totalDebtETH the total debt in ETH of the user
@@ -696,7 +690,7 @@ contract LendingPool is
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user)
+    function getUserAccountData(address user, uint8 tranche)
         external
         view
         override
@@ -715,14 +709,15 @@ contract LendingPool is
             ltv,
             currentLiquidationThreshold,
             healthFactor
-        ) = GenericLogic.calculateUserAccountData(
-            user,
-            _reserves,
-            _usersConfig[user],
-            _reservesList,
-            _reservesCount,
-            _addressesProvider.getPriceOracle()
-        );
+        ) = (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
+        // GenericLogic.calculateUserAccountData(
+        //     DataTypes.AcctTranche(user,tranche),
+        //     _reserves,
+        //     _usersConfig[user],
+        //     _reservesList,
+        //     _reservesCount,
+        //     _addressesProvider.getPriceOracle()
+        // );
 
         availableBorrowsETH = GenericLogic.calculateAvailableBorrowsETH(
             totalCollateralETH,
@@ -875,6 +870,7 @@ contract LendingPool is
 
         ValidationLogic.validateTransfer(
             from,
+            tranche,
             _reserves,
             _usersConfig[from],
             _reservesList,
@@ -977,7 +973,7 @@ contract LendingPool is
 
     struct ExecuteBorrowParams {
         address asset;
-        uint8 tranche;
+        uint8 tranche; //tranche the user wants to borrow out of
         address user;
         address onBehalfOf;
         uint256 amount;
@@ -1004,6 +1000,7 @@ contract LendingPool is
         // TODO: make sure this works with tranches
         ValidationLogic.validateBorrow(
             vars.asset,
+            vars.tranche,
             reserve,
             vars.onBehalfOf,
             vars.amount,

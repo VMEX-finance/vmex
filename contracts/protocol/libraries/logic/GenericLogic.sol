@@ -94,17 +94,17 @@ library GenericLogic {
         (
             vars.totalCollateralInETH,
             vars.totalDebtInETH,
-            ,
-            vars.avgLiquidationThreshold,
-
-        ) = calculateUserAccountData(
-            params.user,
-            reservesData,
-            userConfig,
-            reserves,
-            reservesCount,
-            oracle
-        );
+            // ,
+            vars.avgLiquidationThreshold //,
+        ) = (uint256(14), uint256(14), uint256(14));
+        // calculateUserAccountData(
+        //     DataTypes.AcctTranche(params.user,params.tranche),
+        //     reservesData,
+        //     userConfig,
+        //     reserves,
+        //     reservesCount,
+        //     oracle
+        // );
 
         if (vars.totalDebtInETH == 0) {
             return true;
@@ -168,7 +168,7 @@ library GenericLogic {
      * @dev Calculates the user data across the reserves.
      * this includes the total liquidity/collateral/borrow balances in ETH,
      * the average Loan To Value, the average Liquidation Ratio, and the Health factor.
-     * @param user The address of the user
+     * @param actTranche The address of the user and tranche
      * @param reservesData Data of all the reserves
      * @param userConfig The configuration of the user
      * @param reserves The list of the available reserves
@@ -176,7 +176,7 @@ library GenericLogic {
      * @return The total collateral and total debt of the user in ETH, the avg ltv, liquidation threshold and the HF
      **/
     function calculateUserAccountData(
-        address user,
+        DataTypes.AcctTranche memory actTranche,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap memory userConfig,
@@ -200,19 +200,23 @@ library GenericLogic {
             return (0, 0, 0, 0, type(uint256).max);
         }
         // assert(reservesCount == reserves.length);
-        for (vars.i = 0; vars.i < reservesCount; vars.i++) {
+        for (
+            vars.i = actTranche.tranche;
+            vars.i < reservesCount;
+            vars.i += DataTypes.NUM_TRANCHES
+        ) {
             if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
                 continue;
             }
 
             vars.currentReserveAddress = reserves[vars.i];
-            vars.currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
+            // vars.currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData storage currentReserve =
-                reservesData[vars.currentReserveAddress][vars.currentTranche];
+                reservesData[vars.currentReserveAddress][actTranche.tranche];
 
             // if this fails, come up with better solution than modulo
             require(
-                currentReserve.tranche == vars.currentTranche,
+                currentReserve.tranche == actTranche.tranche,
                 "calculateUserAccountData tranche does not line up"
             );
 
@@ -237,7 +241,7 @@ library GenericLogic {
                     currentReserve
                         .aTokenAddress
                 )
-                    .balanceOf(user);
+                    .balanceOf(actTranche.user);
 
                 vars.liquidityBalanceETH = vars
                     .reserveUnitPrice
@@ -261,10 +265,10 @@ library GenericLogic {
                     currentReserve
                         .stableDebtTokenAddress
                 )
-                    .balanceOf(user);
+                    .balanceOf(actTranche.user);
                 vars.compoundedBorrowBalance = vars.compoundedBorrowBalance.add(
                     IERC20(currentReserve.variableDebtTokenAddress).balanceOf(
-                        user
+                        actTranche.user
                     )
                 );
 

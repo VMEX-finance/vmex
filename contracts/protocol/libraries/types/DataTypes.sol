@@ -65,4 +65,9 @@ library DataTypes {
     }
 
     enum InterestRateMode {NONE, STABLE, VARIABLE}
+
+    struct AcctTranche {
+        address user;
+        uint8 tranche;
+    }
 }

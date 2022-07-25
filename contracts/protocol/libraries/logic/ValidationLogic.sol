@@ -136,6 +136,7 @@ library ValidationLogic {
 
     function validateBorrow(
         address asset,
+        uint8 tranche,
         DataTypes.ReserveData storage reserve,
         address userAddress,
         uint256 amount,
@@ -177,14 +178,15 @@ library ValidationLogic {
             vars.currentLtv,
             vars.currentLiquidationThreshold,
             vars.healthFactor
-        ) = GenericLogic.calculateUserAccountData(
-            userAddress,
-            reservesData,
-            userConfig,
-            reserves,
-            reservesCount,
-            oracle
-        );
+        ) = (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
+        // GenericLogic.calculateUserAccountData(
+        //     DataTypes.AcctTranche(userAddress,tranche),
+        //     reservesData,
+        //     userConfig,
+        //     reserves,
+        //     reservesCount,
+        //     oracle
+        // );
 
         require(
             vars.userCollateralBalanceETH > 0,
@@ -396,15 +398,20 @@ library ValidationLogic {
      */
     function validateSetUseReserveAsCollateral(
         DataTypes.ReserveData storage reserve,
+        uint8 tranche,
         address reserveAddress,
         bool useAsCollateral,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
+        mapping(address => uint8) storage collateralRisk,
         uint256 reservesCount,
         address oracle
     ) external view {
+        if (useAsCollateral == true) {
+            require(collateralRisk[reserveAddress] <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+        }
         uint256 underlyingBalance =
             IERC20(reserve.aTokenAddress).balanceOf(msg.sender);
 
@@ -524,6 +531,7 @@ library ValidationLogic {
      */
     function validateTransfer(
         address from,
+        uint8 tranche,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
@@ -531,16 +539,16 @@ library ValidationLogic {
         uint256 reservesCount,
         address oracle
     ) internal view {
-        (, , , , uint256 healthFactor) =
-            GenericLogic.calculateUserAccountData(
-                from,
-                reservesData,
-                userConfig,
-                reserves,
-                reservesCount,
-                oracle
-            );
-
+        // (, , , , uint256 healthFactor) =
+        //     GenericLogic.calculateUserAccountData(
+        //         DataTypes.AcctTranche(from,tranche),
+        //         reservesData,
+        //         userConfig,
+        //         reserves,
+        //         reservesCount,
+        //         oracle
+        //     );
+        uint256 healthFactor = 1;
         require(
             healthFactor >= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
             Errors.VL_TRANSFER_NOT_ALLOWED
