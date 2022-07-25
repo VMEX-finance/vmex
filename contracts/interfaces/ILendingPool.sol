@@ -360,7 +360,7 @@ interface ILendingPool {
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user)
+    function getUserAccountData(address user, uint8 tranche)
         external
         view
         returns (

@@ -26,6 +26,7 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
+            "isCollateral": "true",
             "amount": "1000",
             "user": "0"
           },
@@ -100,6 +101,7 @@
           "name": "deposit",
           "args": {
             "reserve": "USDC",
+            "isCollateral": "true",
             "amount": "1000",
             "user": "0"
           },
@@ -174,6 +176,7 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
+            "isCollateral": "true",
             "amount": "1",
             "user": "0"
           },
@@ -233,6 +236,7 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
+            "isCollateral": "true",
             "amount": "1000",
             "user": "0"
           },
@@ -242,6 +246,7 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
+            "isCollateral": "true",
             "amount": "1000",
             "user": "1"
           },
@@ -294,6 +299,7 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
+            "isCollateral": "true",
             "tranche": "0",
             "amount": "1000",
             "user": "0"
@@ -321,6 +327,7 @@
           "name": "deposit",
           "args": {
             "reserve": "USDC",
+            "isCollateral": "true",
             "amount": "1000",
             "tranche": "1",
             "user": "1"
@@ -348,6 +355,7 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
+            "isCollateral": "true",
             "tranche": "2",
             "amount": "1",
             "user": "1"
@@ -448,6 +456,7 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
+            "isCollateral": "true",
             "tranche": "1",
             "amount": "1000",
             "user": "0"
@@ -475,6 +484,7 @@
           "name": "deposit",
           "args": {
             "reserve": "USDC",
+            "isCollateral": "true",
             "amount": "1000",
             "user": "1"
           },
@@ -502,6 +512,7 @@
           "args": {
             "reserve": "WETH",
             "amount": "1",
+            "isCollateral": "true",
             "user": "1"
           },
           "expected": "success"
