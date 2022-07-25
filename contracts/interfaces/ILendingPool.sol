@@ -197,6 +197,7 @@ interface ILendingPool {
     function deposit(
         address asset,
         uint8 tranche,
+        bool isCollateral,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode

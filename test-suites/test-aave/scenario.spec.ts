@@ -12,7 +12,6 @@ import {
 } from "../../helpers/types";
 import { executeStory } from "./helpers/scenario-engine";
 
-//pending tests: test borrow, then disable asset as collateral, this will probably decrease HF below threshold and will revert
 const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/tranches/";
 
 const selectedScenarios: string[] = [];
@@ -20,7 +19,7 @@ const selectedScenarios: string[] = [];
 fs.readdirSync(scenarioFolder).forEach((file) => {
   if (selectedScenarios.length > 0 && !selectedScenarios.includes(file)) return;
 
-  const scenario = require(`./helpers/scenarios/${file}`);
+  const scenario = require(`./helpers/scenarios/tranches/${file}`);
 
   makeSuite(scenario.title, async (testEnv) => {
     before("Initializing configuration", async () => {

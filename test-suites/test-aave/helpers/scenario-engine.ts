@@ -100,7 +100,12 @@ const executeAction = async (
 
     case "deposit":
       {
-        const { amount, sendValue, onBehalfOf: onBehalfOfIndex } = action.args;
+        const {
+          amount,
+          isCollateral,
+          sendValue,
+          onBehalfOf: onBehalfOfIndex,
+        } = action.args;
         const onBehalfOf = onBehalfOfIndex
           ? users[parseInt(onBehalfOfIndex)].address
           : user.address;
@@ -108,10 +113,15 @@ const executeAction = async (
         if (!amount || amount === "") {
           throw `Invalid amount to deposit into the ${reserve} reserve`;
         }
+        var myCol = isCollateral === "true";
+        if (isCollateral === "") {
+          myCol = false; //if unspecified then assume false
+        }
 
         await deposit(
           reserve,
           myTranche,
+          myCol,
           amount,
           user,
           onBehalfOf,

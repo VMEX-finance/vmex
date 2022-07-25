@@ -51,6 +51,7 @@ contract WETHGateway is IWETHGateway, Ownable {
         ILendingPool(lendingPool).deposit(
             address(WETH),
             tranche,
+            false,
             msg.value,
             onBehalfOf,
             referralCode
