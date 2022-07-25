@@ -178,6 +178,7 @@ export const approve = async (
 export const deposit = async (
   reserveSymbol: string,
   tranche: string,
+  isCollateral: boolean,
   amount: string,
   sender: SignerWithAddress,
   onBehalfOf: tEthereumAddress,
@@ -211,7 +212,15 @@ export const deposit = async (
     const txResult = await waitForTx(
       await pool
         .connect(sender.signer)
-        .deposit(reserve, tranche, amountToDeposit, onBehalfOf, "0", txOptions)
+        .deposit(
+          reserve,
+          tranche,
+          isCollateral,
+          amountToDeposit,
+          onBehalfOf,
+          "0",
+          txOptions
+        )
     );
 
     const {

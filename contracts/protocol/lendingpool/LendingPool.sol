@@ -115,6 +115,7 @@ contract LendingPool is
      * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
      * - E.g. User deposits 100 USDC and gets in return 100 aUSDC
      * @param asset The address of the underlying asset to deposit
+     * @param isCollateral we want to give users the option of whether their asset can be set as collateral when they first deposit
      * @param amount The amount to be deposited
      * @param onBehalfOf The address that will receive the aTokens, same as msg.sender if the user
      *   wants to receive them on his own wallet, or a different address if the beneficiary of aTokens
@@ -125,6 +126,7 @@ contract LendingPool is
     function deposit(
         address asset,
         uint8 tranche,
+        bool isCollateral,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
@@ -144,7 +146,13 @@ contract LendingPool is
             IAToken(aToken).mint(onBehalfOf, amount, reserve.liquidityIndex);
 
         if (isFirstDeposit) {
-            _usersConfig[onBehalfOf].setUsingAsCollateral(reserve.id, true);
+            if (isCollateral == true) {
+                require(collateralRisk[asset] <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+            }
+            _usersConfig[onBehalfOf].setUsingAsCollateral(
+                reserve.id,
+                isCollateral
+            );
             emit ReserveUsedAsCollateralEnabled(asset, onBehalfOf);
         }
 
@@ -227,7 +235,6 @@ contract LendingPool is
      * - E.g. User borrows 100 USDC passing as `onBehalfOf` his own address, receiving the 100 USDC in his wallet
      *   and 100 stable/variable debt tokens, depending on the `interestRateMode`
      * @param asset The address of the underlying asset to borrow
-     * @param collateralAsset the collateralAsset determines the tranche you borrow out of, you can't choose what tranche you borrow out of
      * @param amount The amount to be borrowed
      * @param interestRateMode The interest rate mode at which the user wants to borrow: 1 for Stable, 2 for Variable
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
@@ -238,7 +245,7 @@ contract LendingPool is
      **/
     function borrow(
         address asset,
-        address collateralAsset,
+        uint8 tranche,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
@@ -454,7 +461,10 @@ contract LendingPool is
         uint8 tranche,
         bool useAsCollateral
     ) external override whenNotPaused {
-        // always deposit collateral into lowest risk tranche
+        if (useAsCollateral == true) {
+            require(collateralRisk[asset] <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+        }
+
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         ValidationLogic.validateSetUseReserveAsCollateral(
@@ -1082,11 +1092,11 @@ contract LendingPool is
 
         if (!reserveAlreadyAdded) {
             uint8 id = uint8(reservesCount); // uint8(reservesCount / 3 * 3) + tranche;
-            require(_reservesList[id] == address(0), "Calculated ID wrong.");
+            // require(_reservesList[id] == address(0), "Calculated ID wrong.");
 
             _reserves[asset][tranche].id = id;
             _reservesList[id] = asset;
-            require(id % 3 == tranche, "Tranche does not match ID");
+            // require(id % 3 == tranche, "Tranche does not match ID");
 
             _reservesCount = reservesCount + 1;
         }

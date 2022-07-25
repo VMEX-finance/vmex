@@ -204,6 +204,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
             LENDING_POOL.deposit(
                 assetToSwapToList[vars.i].asset,
                 assetToSwapToList[vars.i].tranche,
+                false,
                 vars.receivedAmount,
                 msg.sender,
                 0
@@ -270,6 +271,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
         LENDING_POOL.deposit(
             assetTo,
             assetToTranche,
+            false,
             vars.receivedAmount,
             initiator,
             0

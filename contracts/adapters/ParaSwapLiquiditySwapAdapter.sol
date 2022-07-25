@@ -199,6 +199,7 @@ contract ParaSwapLiquiditySwapAdapter is
         LENDING_POOL.deposit(
             address(assetToSwapTo.asset),
             assetToSwapTo.tranche,
+            false,
             amountReceived,
             msg.sender,
             0
@@ -261,6 +262,7 @@ contract ParaSwapLiquiditySwapAdapter is
         LENDING_POOL.deposit(
             address(vars.assetToSwapTo),
             vars.assetToSwapToTranche,
+            false,
             amountReceived,
             initiator,
             0
