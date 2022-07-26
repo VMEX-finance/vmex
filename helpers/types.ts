@@ -61,6 +61,7 @@ export enum eContractid {
   LendingPoolAddressesProviderRegistry = "LendingPoolAddressesProviderRegistry",
   LendingPoolParametersProvider = "LendingPoolParametersProvider",
   LendingPoolConfigurator = "LendingPoolConfigurator",
+  DepositWithdrawLogic = "DepositWithdrawLogic",
   ValidationLogic = "ValidationLogic",
   ReserveLogic = "ReserveLogic",
   GenericLogic = "GenericLogic",
