@@ -245,6 +245,42 @@ export const deployValidationLogic = async (
   );
 };
 
+export const deployDepositWithdrawLogic = async (
+  reserveLogic: Contract,
+  genericLogic: Contract,
+  validationLogic: Contract,
+  verify?: boolean
+) => {
+  const depositWithdrawLogicArtifact = await readArtifact(
+    eContractid.DepositWithdrawLogic
+  );
+
+  const linkedValidationLogicByteCode = linkBytecode(
+    depositWithdrawLogicArtifact,
+    {
+      [eContractid.ReserveLogic]: reserveLogic.address,
+      [eContractid.GenericLogic]: genericLogic.address,
+      [eContractid.ValidationLogic]: validationLogic.address,
+    }
+  );
+
+  const depositWithdrawLogicFactory = await DRE.ethers.getContractFactory(
+    depositWithdrawLogicArtifact.abi,
+    linkedValidationLogicByteCode
+  );
+
+  const depositWithdrawLogic = await (
+    await depositWithdrawLogicFactory.connect(await getFirstSigner()).deploy()
+  ).deployed();
+
+  return withSaveAndVerify(
+    depositWithdrawLogic,
+    eContractid.DepositWithdrawLogic,
+    [],
+    verify
+  );
+};
+
 export const deployAaveLibraries = async (
   verify?: boolean
 ): Promise<LendingPoolLibraryAddresses> => {
@@ -253,6 +289,12 @@ export const deployAaveLibraries = async (
   const validationLogic = await deployValidationLogic(
     reserveLogic,
     genericLogic,
+    verify
+  );
+  const depositWithdrawLogic = await deployDepositWithdrawLogic(
+    reserveLogic,
+    genericLogic,
+    validationLogic,
     verify
   );
 
@@ -267,9 +309,11 @@ export const deployAaveLibraries = async (
   //
   // libPath example: contracts/libraries/logic/GenericLogic.sol
   // libName example: GenericLogic
+  // f1f6c0540507d7a73571ad55dbacf4a67d
   return {
     ["__$de8c0cf1a7d7c36c802af9a64fb9d86036$__"]: validationLogic.address,
     ["__$22cd43a9dda9ce44e9b92ba393b88fb9ac$__"]: reserveLogic.address,
+    ["__$f1f6c0540507d7a73571ad55dbacf4a67d$__"]: depositWithdrawLogic.address,
   };
 };
 

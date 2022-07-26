@@ -37,6 +37,10 @@ import {
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
+import {
+    DepositWithdrawLogic
+} from "../libraries/logic/DepositWithdrawLogic.sol";
+
 /**
  * @title LendingPool contract
  * @dev Main point of interaction with an Aave protocol's market
@@ -53,6 +57,8 @@ import {LendingPoolStorage} from "./LendingPoolStorage.sol";
  * - All admin functions are callable by the LendingPoolConfigurator contract defined also in the
  *   LendingPoolAddressesProvider
  * @author Aave
+
+ * New function: TransferTranche
  **/
 contract LendingPool is
     VersionedInitializable,
@@ -66,6 +72,7 @@ contract LendingPool is
     using ReserveLogic for *;
     using UserConfiguration for *;
     using ReserveConfiguration for *;
+    using DepositWithdrawLogic for DataTypes.ReserveData;
 
     uint256 public constant LENDINGPOOL_REVISION = 0x2;
 
@@ -130,38 +137,16 @@ contract LendingPool is
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
-    ) external override whenNotPaused {
-        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
-
-        ValidationLogic.validateDeposit(reserve, amount);
-
-        address aToken = reserve.aTokenAddress;
-
-        reserve.updateState();
-        reserve.updateInterestRates(asset, aToken, amount, 0);
-
-        IERC20(asset).safeTransferFrom(msg.sender, aToken, amount);
-
-        bool isFirstDeposit =
-            IAToken(aToken).mint(onBehalfOf, amount, reserve.liquidityIndex);
-
-        if (isFirstDeposit) {
-            if (isCollateral == true) {
-                require(collateralRisk[asset] <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
-            }
-            _usersConfig[onBehalfOf].setUsingAsCollateral(
-                reserve.id,
-                isCollateral
-            );
-            emit ReserveUsedAsCollateralEnabled(asset, onBehalfOf);
-        }
-
-        emit Deposit(
+    ) public override whenNotPaused {
+        //changed scope to public so transferTranche can call it
+        _reserves[asset][tranche]._deposit(
+            collateralRisk[asset],
             asset,
             tranche,
-            msg.sender,
-            onBehalfOf,
+            isCollateral,
             amount,
+            onBehalfOf,
+            _usersConfig[onBehalfOf],
             referralCode
         );
     }
@@ -182,50 +167,40 @@ contract LendingPool is
         uint8 tranche,
         uint256 amount,
         address to
-    ) external override whenNotPaused returns (uint256) {
-        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
+    ) public override whenNotPaused returns (uint256) {
+        return
+            DepositWithdrawLogic._withdraw(
+                _reserves,
+                _usersConfig[msg.sender],
+                _reservesList,
+                _reservesCount,
+                _addressesProvider.getPriceOracle(),
+                asset,
+                tranche,
+                amount,
+                to
+            );
+    }
 
-        address aToken = reserve.aTokenAddress;
-
-        uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
-
-        uint256 amountToWithdraw = amount;
-
-        if (amount == type(uint256).max) {
-            amountToWithdraw = userBalance;
-        }
-
-        ValidationLogic.validateWithdraw(
-            asset,
-            tranche,
-            amountToWithdraw,
-            userBalance,
-            _reserves,
-            _usersConfig[msg.sender],
-            _reservesList,
-            _reservesCount,
-            _addressesProvider.getPriceOracle()
-        );
-
-        reserve.updateState();
-
-        reserve.updateInterestRates(asset, aToken, 0, amountToWithdraw);
-
-        if (amountToWithdraw == userBalance) {
-            _usersConfig[msg.sender].setUsingAsCollateral(reserve.id, false);
-            emit ReserveUsedAsCollateralDisabled(asset, msg.sender);
-        }
-
-        IAToken(aToken).burn(
-            msg.sender,
-            to,
-            amountToWithdraw,
-            reserve.liquidityIndex
-        );
-
-        emit Withdraw(asset, msg.sender, to, amountToWithdraw);
-
-        return amountToWithdraw;
+    /**
+     * @dev Transfers an `amount` of underlying asset from the reserve, burning the equivalent aTokens owned in that tranche, then depositing in destination tranche
+     * E.g. User has 100 aUSDC, calls transferTranche() and receives 100 USDC, burning the 100 aUSDC, and transfers that to another tranche in one transaction
+     * @param asset The address of the underlying asset to transfer
+     * @param originTranche The tranche of the underlying asset to transfer from
+     * @param asset The tranche of the underlying asset to transfer to
+     * @param amount The underlying amount to be transfer
+     *   - Send the value type(uint256).max in order to withdraw the whole aToken balance
+     * @param isCollateral boolean of whether the asset should be set as collateral in destination tranche
+     **/
+    function transferTranche(
+        address asset,
+        uint8 originTranche,
+        uint8 destinationTranche,
+        uint256 amount,
+        bool isCollateral
+    ) external whenNotPaused {
+        withdraw(asset, originTranche, amount, msg.sender);
+        deposit(asset, destinationTranche, isCollateral, amount, msg.sender, 0); //no referral code
     }
 
     /**
@@ -467,7 +442,7 @@ contract LendingPool is
             _reserves,
             _usersConfig[msg.sender],
             _reservesList,
-            collateralRisk,
+            collateralRisk[asset],
             _reservesCount,
             _addressesProvider.getPriceOracle()
         );

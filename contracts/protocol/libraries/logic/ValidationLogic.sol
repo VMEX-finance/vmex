@@ -55,6 +55,19 @@ library ValidationLogic {
     }
 
     /**
+     * @dev Validates risk of collateral is lower than tranche
+     */
+    function validateCollateralRisk(
+        bool isCollateral,
+        uint8 risk,
+        uint8 tranche
+    ) public pure {
+        if (isCollateral == true) {
+            require(risk <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+        }
+    }
+
+    /**
      * @dev Validates a withdraw action
      * @param reserveAddress The address of the reserve
      * @param amount The amount to be withdrawn
@@ -392,13 +405,11 @@ library ValidationLogic {
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
-        mapping(address => uint8) storage collateralRisk,
+        uint8 risk,
         uint256 reservesCount,
         address oracle
     ) external view {
-        if (useAsCollateral == true) {
-            require(collateralRisk[reserveAddress] <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
-        }
+        validateCollateralRisk(useAsCollateral, risk, tranche);
         uint256 underlyingBalance =
             IERC20(reserve.aTokenAddress).balanceOf(msg.sender);
 
