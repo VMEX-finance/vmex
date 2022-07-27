@@ -102,94 +102,94 @@ library DepositWithdrawLogic {
         );
     }
 
-    /**
-     * @dev Emitted on setUserUseReserveAsCollateral()
-     * @param reserve The address of the underlying asset of the reserve
-     * @param user The address of the user enabling the usage as collateral
-     **/
-    event ReserveUsedAsCollateralDisabled(
-        address indexed reserve,
-        address indexed user
-    );
+    // /**
+    //  * @dev Emitted on setUserUseReserveAsCollateral()
+    //  * @param reserve The address of the underlying asset of the reserve
+    //  * @param user The address of the user enabling the usage as collateral
+    //  **/
+    // event ReserveUsedAsCollateralDisabled(
+    //     address indexed reserve,
+    //     address indexed user
+    // );
 
-    /**
-     * @dev Emitted on withdraw()
-     * @param reserve The address of the underlyng asset being withdrawn
-     * @param user The address initiating the withdrawal, owner of aTokens
-     * @param to Address that will receive the underlying
-     * @param amount The amount to be withdrawn
-     **/
-    event Withdraw(
-        address indexed reserve,
-        address indexed user,
-        address indexed to,
-        uint256 amount
-    );
+    // /**
+    //  * @dev Emitted on withdraw()
+    //  * @param reserve The address of the underlyng asset being withdrawn
+    //  * @param user The address initiating the withdrawal, owner of aTokens
+    //  * @param to Address that will receive the underlying
+    //  * @param amount The amount to be withdrawn
+    //  **/
+    // event Withdraw(
+    //     address indexed reserve,
+    //     address indexed user,
+    //     address indexed to,
+    //     uint256 amount
+    // );
 
-    /**
-     * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent aTokens owned
-     * E.g. User has 100 aUSDC, calls withdraw() and receives 100 USDC, burning the 100 aUSDC
-     * @param asset The address of the underlying asset to withdraw
-     * @param amount The underlying amount to be withdrawn
-     *   - Send the value type(uint256).max in order to withdraw the whole aToken balance
-     * @param to Address that will receive the underlying, same as msg.sender if the user
-     *   wants to receive it on his own wallet, or a different address if the beneficiary is a
-     *   different wallet
-     * @return The final amount withdrawn
-     **/
-    function _withdraw(
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
-            storage _reserves,
-        DataTypes.UserConfigurationMap storage user,
-        mapping(uint256 => address) storage _reservesList,
-        uint256 _reservesCount,
-        address oracle,
-        address asset,
-        uint8 tranche,
-        uint256 amount,
-        address to
-    ) public returns (uint256) {
-        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
-        address aToken = reserve.aTokenAddress;
+    // /**
+    //  * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent aTokens owned
+    //  * E.g. User has 100 aUSDC, calls withdraw() and receives 100 USDC, burning the 100 aUSDC
+    //  * @param asset The address of the underlying asset to withdraw
+    //  * @param amount The underlying amount to be withdrawn
+    //  *   - Send the value type(uint256).max in order to withdraw the whole aToken balance
+    //  * @param to Address that will receive the underlying, same as msg.sender if the user
+    //  *   wants to receive it on his own wallet, or a different address if the beneficiary is a
+    //  *   different wallet
+    //  * @return The final amount withdrawn
+    //  **/
+    // function _withdraw(
+    //     mapping(address => mapping(uint8 => DataTypes.ReserveData))
+    //         storage _reserves,
+    //     DataTypes.UserConfigurationMap storage user,
+    //     mapping(uint256 => address) storage _reservesList,
+    //     uint256 _reservesCount,
+    //     address oracle,
+    //     address asset,
+    //     uint8 tranche,
+    //     uint256 amount,
+    //     address to
+    // ) public returns (uint256) {
+    //     DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
+    //     address aToken = reserve.aTokenAddress;
 
-        uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
+    //     uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
 
-        uint256 amountToWithdraw = amount;
+    //     uint256 amountToWithdraw = amount;
 
-        if (amount == type(uint256).max) {
-            amountToWithdraw = userBalance;
-        }
+    //     if (amount == type(uint256).max) {
+    //         amountToWithdraw = userBalance;
+    //     }
 
-        ValidationLogic.validateWithdraw(
-            asset,
-            tranche,
-            amountToWithdraw,
-            userBalance,
-            _reserves,
-            user,
-            _reservesList,
-            _reservesCount,
-            oracle
-        );
+    //     ValidationLogic.validateWithdraw(
+    //         asset,
+    //         tranche,
+    //         amountToWithdraw,
+    //         userBalance,
+    //         _reserves,
+    //         user,
+    //         _reservesList,
+    //         _reservesCount,
+    //         oracle
+    //     );
 
-        reserve.updateState();
+    //     reserve.updateState();
 
-        reserve.updateInterestRates(asset, aToken, 0, amountToWithdraw);
+    //     reserve.updateInterestRates(asset, aToken, 0, amountToWithdraw);
 
-        if (amountToWithdraw == userBalance) {
-            user.setUsingAsCollateral(reserve.id, false);
-            emit ReserveUsedAsCollateralDisabled(asset, msg.sender);
-        }
+    //     if (amountToWithdraw == userBalance) {
+    //         user.setUsingAsCollateral(reserve.id, false);
+    //         emit ReserveUsedAsCollateralDisabled(asset, msg.sender);
+    //     }
 
-        IAToken(aToken).burn(
-            msg.sender,
-            to,
-            amountToWithdraw,
-            reserve.liquidityIndex
-        );
+    //     IAToken(aToken).burn(
+    //         msg.sender,
+    //         to,
+    //         amountToWithdraw,
+    //         reserve.liquidityIndex
+    //     );
 
-        emit Withdraw(asset, msg.sender, to, amountToWithdraw);
+    //     emit Withdraw(asset, msg.sender, to, amountToWithdraw);
 
-        return amountToWithdraw;
-    }
+    //     return amountToWithdraw;
+    // }
 }
