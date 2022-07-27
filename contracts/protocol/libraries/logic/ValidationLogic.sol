@@ -63,7 +63,7 @@ library ValidationLogic {
         uint8 tranche
     ) public pure {
         if (isCollateral == true) {
-            require(risk <= tranche); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+            require(risk <= tranche, "Risk is too high to set as collateral"); //only allow user to set asset as collateral if risk of asset is lower than the tranche
         }
     }
 
