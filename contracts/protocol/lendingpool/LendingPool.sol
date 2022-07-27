@@ -920,6 +920,10 @@ contract LendingPool is
         collateralRisk[asset] = risk;
     }
 
+    function getAssetRisk(address asset) external view returns (uint8) {
+        return collateralRisk[asset];
+    }
+
     /**
      * @dev Updates the address of the interest rate strategy contract
      * - Only callable by the LendingPoolConfigurator contract

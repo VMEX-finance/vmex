@@ -208,6 +208,9 @@ export const deposit = async (
     txOptions.value = await convertToCurrencyDecimals(reserve, sendValue);
   }
 
+  const risk = await pool.getAssetRisk(reserve);
+  console.log(reserve + " risk: " + risk + ". Tranche: " + tranche);
+
   if (expectedResult === "success") {
     const txResult = await waitForTx(
       await pool
@@ -268,7 +271,15 @@ export const deposit = async (
     await expect(
       pool
         .connect(sender.signer)
-        .deposit(reserve, tranche, amountToDeposit, onBehalfOf, "0", txOptions),
+        .deposit(
+          reserve,
+          tranche,
+          isCollateral,
+          amountToDeposit,
+          onBehalfOf,
+          "0",
+          txOptions
+        ),
       revertMessage
     ).to.be.reverted;
   }
