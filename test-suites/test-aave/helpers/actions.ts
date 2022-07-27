@@ -208,6 +208,9 @@ export const deposit = async (
     txOptions.value = await convertToCurrencyDecimals(reserve, sendValue);
   }
 
+  const risk = await pool.getAssetRisk(reserve);
+  console.log(reserve + " risk: " + risk + ". Tranche: " + tranche);
+
   if (expectedResult === "success") {
     const txResult = await waitForTx(
       await pool
