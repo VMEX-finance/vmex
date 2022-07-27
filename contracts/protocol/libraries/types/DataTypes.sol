@@ -82,4 +82,13 @@ library DataTypes {
         uint16 referralCode;
         bool releaseUnderlying;
     }
+
+    struct WithdrawParams {
+        uint256 _reservesCount;
+        address oracle;
+        address asset;
+        uint8 tranche;
+        uint256 amount;
+        address to;
+    }
 }

@@ -168,61 +168,20 @@ contract LendingPool is
         uint256 amount,
         address to
     ) public override whenNotPaused returns (uint256) {
-        DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
-
-        address aToken = reserve.aTokenAddress;
-
-        uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
-
-        uint256 amountToWithdraw = amount;
-
-        if (amount == type(uint256).max) {
-            amountToWithdraw = userBalance;
-        }
-
-        ValidationLogic.validateWithdraw(
-            asset,
-            tranche,
-            amountToWithdraw,
-            userBalance,
-            _reserves,
-            _usersConfig[msg.sender],
-            _reservesList,
-            _reservesCount,
-            _addressesProvider.getPriceOracle()
-        );
-
-        reserve.updateState();
-
-        reserve.updateInterestRates(asset, aToken, 0, amountToWithdraw);
-
-        if (amountToWithdraw == userBalance) {
-            _usersConfig[msg.sender].setUsingAsCollateral(reserve.id, false);
-            emit ReserveUsedAsCollateralDisabled(asset, msg.sender);
-        }
-
-        IAToken(aToken).burn(
-            msg.sender,
-            to,
-            amountToWithdraw,
-            reserve.liquidityIndex
-        );
-
-        emit Withdraw(asset, msg.sender, to, amountToWithdraw);
-
-        return amountToWithdraw;
-        // return
-        //     DepositWithdrawLogic._withdraw(
-        //         _reserves,
-        //         _usersConfig[msg.sender],
-        //         _reservesList,
-        //         _reservesCount,
-        //         _addressesProvider.getPriceOracle(),
-        //         asset,
-        //         tranche,
-        //         amount,
-        //         to
-        //     );
+        return
+            DepositWithdrawLogic._withdraw(
+                _reserves,
+                _usersConfig[msg.sender],
+                _reservesList,
+                DataTypes.WithdrawParams(
+                    _reservesCount,
+                    _addressesProvider.getPriceOracle(),
+                    asset,
+                    tranche,
+                    amount,
+                    to
+                )
+            );
     }
 
     /**
