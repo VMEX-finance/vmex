@@ -96,8 +96,13 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
             reserveData.underlyingAsset = reserves[i];
 
             // reserve current state
+            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData =
-                lendingPool.getReserveData(reserveData.underlyingAsset);
+                lendingPool.getReserveData(
+                    reserveData.underlyingAsset,
+                    tranche
+                );
+            assert(baseData.tranche == tranche);
             reserveData.liquidityIndex = baseData.liquidityIndex;
             reserveData.variableBorrowIndex = baseData.variableBorrowIndex;
             reserveData.liquidityRate = baseData.currentLiquidityRate;
@@ -219,8 +224,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
             new UserReserveData[](user != address(0) ? reserves.length : 0);
 
         for (uint256 i = 0; i < reserves.length; i++) {
+            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData =
-                lendingPool.getReserveData(reserves[i]);
+                lendingPool.getReserveData(reserves[i], tranche);
+            assert(baseData.tranche == tranche);
             // incentives
             if (address(0) != address(incentivesController)) {
                 userReservesData[i]
@@ -309,8 +316,13 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
             reserveData.underlyingAsset = reserves[i];
 
             // reserve current state
+            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData =
-                lendingPool.getReserveData(reserveData.underlyingAsset);
+                lendingPool.getReserveData(
+                    reserveData.underlyingAsset,
+                    tranche
+                );
+            assert(baseData.tranche == tranche);
             reserveData.liquidityIndex = baseData.liquidityIndex;
             reserveData.variableBorrowIndex = baseData.variableBorrowIndex;
             reserveData.liquidityRate = baseData.currentLiquidityRate;

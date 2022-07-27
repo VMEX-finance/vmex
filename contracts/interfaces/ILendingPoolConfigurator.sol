@@ -19,10 +19,12 @@ interface ILendingPoolConfigurator {
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
         bytes params;
+        uint8 risk; //risk level for collateral
     }
 
     struct UpdateATokenInput {
         address asset;
+        uint8 tranche;
         address treasury;
         address incentivesController;
         string name;
@@ -33,6 +35,7 @@ interface ILendingPoolConfigurator {
 
     struct UpdateDebtTokenInput {
         address asset;
+        uint8 tranche;
         address incentivesController;
         string name;
         string symbol;
@@ -145,6 +148,13 @@ interface ILendingPoolConfigurator {
         address indexed asset,
         address strategy
     );
+
+    /**
+     * @dev Emitted when a asset risk is updated
+     * @param asset The address of the underlying asset of the reserve
+     * @param risk The new risk of an asset
+     **/
+    event AssetRiskChanged(address indexed asset, uint8 risk);
 
     /**
      * @dev Emitted when an aToken implementation is upgraded
