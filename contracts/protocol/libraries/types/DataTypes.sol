@@ -3,6 +3,11 @@ pragma solidity >=0.8.0;
 
 library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
+
+    struct TrancheAddress {
+        uint8 tranche;
+        address asset;
+    }
     struct ReserveData {
         //stores the reserve configuration
         ReserveConfigurationMap configuration;
@@ -34,6 +39,11 @@ library DataTypes {
         uint256 stableBorrowRateMultiplier;
     }
 
+    // struct AssetTranche {
+    //     address asset;
+    //     uint8 tranche;
+    // }
+
     uint8 constant NUM_TRANCHES = 3;
 
     struct ReserveConfigurationMap {
@@ -55,4 +65,30 @@ library DataTypes {
     }
 
     enum InterestRateMode {NONE, STABLE, VARIABLE}
+
+    struct AcctTranche {
+        address user;
+        uint8 tranche;
+    }
+
+    struct ExecuteBorrowParams {
+        address asset;
+        uint8 tranche; //tranche the user wants to borrow out of
+        address user;
+        address onBehalfOf;
+        uint256 amount;
+        uint256 interestRateMode;
+        address aTokenAddress;
+        uint16 referralCode;
+        bool releaseUnderlying;
+    }
+
+    struct WithdrawParams {
+        uint256 _reservesCount;
+        address oracle;
+        address asset;
+        uint8 tranche;
+        uint256 amount;
+        address to;
+    }
 }

@@ -100,25 +100,29 @@ contract LendingPoolCollateralManager is
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
+        uint8 tranche,
+        // uint8 debtAssetTranche, //this would actually be the same tranche as the collateral (you can only borrow from the same tranche that your collateral is in)
         address user,
         uint256 debtToCover,
         bool receiveAToken
     ) external override returns (uint256, string memory) {
         DataTypes.ReserveData storage collateralReserve =
-            _reserves[collateralAsset];
-        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset];
+            _reserves[collateralAsset][tranche];
+        DataTypes.ReserveData storage debtReserve =
+            _reserves[debtAsset][tranche];
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user];
 
         LiquidationCallLocalVars memory vars;
 
         (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
-            user,
+            DataTypes.AcctTranche(user, tranche),
             _reserves,
             userConfig,
             _reservesList,
             _reservesCount,
             _addressesProvider.getPriceOracle()
         );
+        // vars.healthFactor = 2;
 
         (vars.userStableDebt, vars.userVariableDebt) = Helpers
             .getUserCurrentDebt(user, debtReserve);

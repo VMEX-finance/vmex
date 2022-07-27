@@ -5,6 +5,7 @@ import {
     ILendingPoolAddressesProvider
 } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
+import {DataTypes} from "../../protocol/libraries/types/DataTypes.sol";
 
 /**
  * @title IFlashLoanReceiver interface
@@ -14,7 +15,7 @@ import {ILendingPool} from "../../interfaces/ILendingPool.sol";
  **/
 interface IFlashLoanReceiver {
     function executeOperation(
-        address[] calldata assets,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,

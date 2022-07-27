@@ -295,12 +295,12 @@ abstract contract BaseUniswapAdapter is
      * @dev Get the aToken associated to the asset
      * @return address of the aToken
      */
-    function _getReserveData(address asset)
+    function _getReserveData(address asset, uint8 tranche)
         internal
         view
         returns (DataTypes.ReserveData memory)
     {
-        return LENDING_POOL.getReserveData(asset);
+        return LENDING_POOL.getReserveData(asset, tranche);
     }
 
     /**
@@ -313,6 +313,7 @@ abstract contract BaseUniswapAdapter is
      */
     function _pullAToken(
         address reserve,
+        uint8 tranche,
         address reserveAToken,
         address user,
         uint256 amount,
@@ -334,7 +335,7 @@ abstract contract BaseUniswapAdapter is
         IERC20(reserveAToken).safeTransferFrom(user, address(this), amount);
 
         // withdraw reserve
-        LENDING_POOL.withdraw(reserve, amount, address(this));
+        LENDING_POOL.withdraw(reserve, tranche, amount, address(this));
     }
 
     /**

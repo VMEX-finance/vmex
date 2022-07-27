@@ -22,6 +22,8 @@ export const strategyBUSD: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
+  risk: 0,
+  isLendable: true,
 };
 
 export const strategyDAI: IReserveParams = {
@@ -34,6 +36,8 @@ export const strategyDAI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
+  risk: 0,
+  isLendable: true,
 };
 
 export const strategySUSD: IReserveParams = {
@@ -46,6 +50,8 @@ export const strategySUSD: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 0,
+  isLendable: true,
 };
 
 export const strategyTUSD: IReserveParams = {
@@ -58,6 +64,8 @@ export const strategyTUSD: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
+  risk: 0,
+  isLendable: true,
 };
 
 export const strategyUSDC: IReserveParams = {
@@ -70,6 +78,8 @@ export const strategyUSDC: IReserveParams = {
   reserveDecimals: '6',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
+  risk: 0,
+  isLendable: true,
 };
 
 export const strategyUSDT: IReserveParams = {
@@ -82,6 +92,8 @@ export const strategyUSDT: IReserveParams = {
   reserveDecimals: '6',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
+  risk: 0,
+  isLendable: true,
 };
 
 export const strategyAAVE: IReserveParams = {
@@ -94,6 +106,8 @@ export const strategyAAVE: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '0',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyBAT: IReserveParams = {
@@ -106,6 +120,8 @@ export const strategyBAT: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyENJ: IReserveParams = {
@@ -118,6 +134,8 @@ export const strategyENJ: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyWETH: IReserveParams = {
@@ -130,6 +148,8 @@ export const strategyWETH: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyKNC: IReserveParams = {
@@ -142,6 +162,8 @@ export const strategyKNC: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyLINK: IReserveParams = {
@@ -154,6 +176,8 @@ export const strategyLINK: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyMANA: IReserveParams = {
@@ -166,6 +190,8 @@ export const strategyMANA: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyMKR: IReserveParams = {
@@ -178,6 +204,8 @@ export const strategyMKR: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyREN: IReserveParams = {
@@ -190,6 +218,8 @@ export const strategyREN: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategySNX: IReserveParams = {
@@ -202,6 +232,8 @@ export const strategySNX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
+  risk: 1,
+  isLendable: true,
 };
 
 // Invalid borrow rates in params currently, replaced with snx params
@@ -215,6 +247,8 @@ export const strategyUNI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.DelegationAwareAToken,
   reserveFactor: '2000',
+  risk: 1,
+  isLendable: true,
 };
 
 export const strategyWBTC: IReserveParams = {
@@ -227,6 +261,8 @@ export const strategyWBTC: IReserveParams = {
   reserveDecimals: '8',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 0,
+  isLendable: true,
 };
 
 export const strategyYFI: IReserveParams = {
@@ -239,6 +275,8 @@ export const strategyYFI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 2,
+  isLendable: true,
 };
 
 export const strategyZRX: IReserveParams = {
@@ -251,6 +289,8 @@ export const strategyZRX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
+  risk: 2,
+  isLendable: true,
 };
 
 export const strategyXSUSHI: IReserveParams = {
@@ -263,4 +303,6 @@ export const strategyXSUSHI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
+  risk: 2,
+  isLendable: true,
 };
