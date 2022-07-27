@@ -174,6 +174,25 @@ const executeAction = async (
         );
       }
       break;
+    case "transfer":
+      {
+        const { amount, originTranche, destTranche } = action.args;
+
+        if (!amount || amount === "") {
+          throw `Invalid amount to withdraw from the ${reserve} reserve`;
+        }
+
+        await withdraw(
+          reserve,
+          myTranche,
+          amount,
+          user,
+          expected,
+          testEnv,
+          revertMessage
+        );
+      }
+      break;
     case "borrow":
       {
         const { amount, timeTravel, onBehalfOf: onBehalfOfIndex } = action.args;

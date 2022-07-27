@@ -268,7 +268,15 @@ export const deposit = async (
     await expect(
       pool
         .connect(sender.signer)
-        .deposit(reserve, tranche, amountToDeposit, onBehalfOf, "0", txOptions),
+        .deposit(
+          reserve,
+          tranche,
+          isCollateral,
+          amountToDeposit,
+          onBehalfOf,
+          "0",
+          txOptions
+        ),
       revertMessage
     ).to.be.reverted;
   }
@@ -307,6 +315,85 @@ export const withdraw = async (
       await pool
         .connect(user.signer)
         .withdraw(reserve, tranche, amountToWithdraw, user.address)
+    );
+
+    const {
+      reserveData: reserveDataAfter,
+      userData: userDataAfter,
+      timestamp,
+    } = await getContractsData(reserve, tranche, user.address, testEnv);
+
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+
+    const expectedReserveData = calcExpectedReserveDataAfterWithdraw(
+      amountToWithdraw,
+      reserveDataBefore,
+      userDataBefore,
+      txTimestamp
+    );
+
+    const expectedUserData = calcExpectedUserDataAfterWithdraw(
+      amountToWithdraw,
+      reserveDataBefore,
+      expectedReserveData,
+      userDataBefore,
+      txTimestamp,
+      timestamp,
+      txCost
+    );
+
+    expectEqual(reserveDataAfter, expectedReserveData);
+    expectEqual(userDataAfter, expectedUserData);
+
+    // truffleAssert.eventEmitted(txResult, "Redeem", (ev: any) => {
+    //   const {_from, _value} = ev;
+    //   return (
+    //     _from === user && new BigNumber(_value).isEqualTo(actualAmountRedeemed)
+    //   );
+    // });
+  } else if (expectedResult === "revert") {
+    await expect(
+      pool
+        .connect(user.signer)
+        .withdraw(reserve, tranche, amountToWithdraw, user.address),
+      revertMessage
+    ).to.be.reverted;
+  }
+};
+
+export const transfer = async (
+  reserveSymbol: string,
+  tranche: string,
+  amount: string,
+  user: SignerWithAddress,
+  expectedResult: string,
+  testEnv: TestEnv,
+  revertMessage?: string
+) => {
+  const { pool } = testEnv;
+
+  const {
+    aTokenInstance,
+    reserve,
+    userData: userDataBefore,
+    reserveData: reserveDataBefore,
+  } = await getDataBeforeAction(reserveSymbol, tranche, user.address, testEnv);
+
+  let amountToWithdraw = "0";
+
+  if (amount !== "-1") {
+    amountToWithdraw = (
+      await convertToCurrencyDecimals(reserve, amount)
+    ).toString();
+  } else {
+    amountToWithdraw = MAX_UINT_AMOUNT;
+  }
+
+  if (expectedResult === "success") {
+    const txResult = await waitForTx(
+      await pool
+        .connect(user.signer)
+        .transferTranche(reserve, tranche, amountToWithdraw, user.address)
     );
 
     const {
