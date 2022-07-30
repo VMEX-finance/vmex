@@ -84,12 +84,14 @@ library DepositWithdrawLogic {
         IERC20(asset).safeTransferFrom(msg.sender, aToken, amount); //msg.sender should still be the user, not the contract
 
         bool isFirstDeposit =
-            IAToken(aToken).mint(onBehalfOf, amount, self.liquidityIndex);
+            IAToken(aToken).mint(onBehalfOf, amount, self.liquidityIndex); //this also considers if it is a first deposit into a tranche, not just a specific asset
 
         if (isFirstDeposit) {
             ValidationLogic.validateCollateralRisk(isCollateral, risk, tranche);
             user.setUsingAsCollateral(self.id, isCollateral);
-            emit ReserveUsedAsCollateralEnabled(asset, onBehalfOf);
+            if (isCollateral) {
+                emit ReserveUsedAsCollateralEnabled(asset, onBehalfOf);
+            }
         }
 
         emit Deposit(
