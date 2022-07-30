@@ -74,7 +74,7 @@ export const calcExpectedUserDataAfterDeposit = (
   console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&     " + isCollateral);
 
   if (userDataBeforeAction.currentATokenBalance.eq(0)) {
-    expectedUserData.usageAsCollateralEnabled = true;
+    expectedUserData.usageAsCollateralEnabled = isCollateral === true;
   } else {
     expectedUserData.usageAsCollateralEnabled =
       userDataBeforeAction.usageAsCollateralEnabled;
