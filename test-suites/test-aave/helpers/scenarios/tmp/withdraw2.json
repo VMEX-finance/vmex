@@ -1,0 +1,120 @@
+{
+    "title": "LendingPool: Withdraw test 2",
+    "description": "Test cases for the withdraw function",
+    "stories": [
+      {
+        "description": "User 0 deposits 300 DAI (risk 0) in all three tranches",
+        "actions": [
+          {
+            "name": "mint",
+            "args": {
+              "reserve": "DAI",
+              "amount": "1000",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "approve",
+            "args": {
+              "reserve": "DAI",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "deposit",
+            "args": {
+              "reserve": "DAI",
+              "tranche": "0",
+              "amount": "300",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "deposit",
+            "args": {
+              "reserve": "DAI",
+              "tranche": "1",
+              "amount": "300",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "deposit",
+            "args": {
+              "reserve": "DAI",
+              "tranche": "2",
+              "amount": "300",
+              "user": "0"
+            },
+            "expected": "success"
+          }
+        ]
+      },
+      {
+        "description": "user 0 withdraws 400 from tranche 0",
+        "actions": [
+          {
+            "name": "withdraw",
+            "args": {
+                "reserve": "DAI",
+                "tranche": "0",
+                "amount": "400",
+                "user": "0"
+            },
+            "expected": "revert"
+          }
+        ]
+      },
+      {
+        "description": "user 0 withdraws 300 from tranche 0",
+        "actions": [
+          {
+            "name": "withdraw",
+            "args": {
+                "reserve": "DAI",
+                "tranche": "0",
+                "amount": "300",
+                "user": "0"
+            },
+            "expected": "success"
+          }
+        ]
+      },
+      {
+        "description": "user 0 withdraws 300 from tranche 1",
+        "actions": [
+          {
+            "name": "withdraw",
+            "args": {
+                "reserve": "DAI",
+                "tranche": "1",
+                "amount": "300",
+                "user": "0"
+            },
+            "expected": "success"
+          }
+        ]
+      },
+      {
+        "description": "user 0 withdraws 300 from tranche 2",
+        "actions": [
+          {
+            "name": "withdraw",
+            "args": {
+                "reserve": "DAI",
+                "tranche": "2",
+                "amount": "300",
+                "user": "0"
+            },
+            "expected": "success"
+          }
+        ]
+      }
+
+    ]
+  }
+  

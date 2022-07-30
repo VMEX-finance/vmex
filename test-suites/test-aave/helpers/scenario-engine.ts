@@ -5,6 +5,7 @@ import {
   deposit,
   borrow,
   withdraw,
+  transfer,
   repay,
   setUseAsCollateral,
   swapBorrowRateMode,
@@ -91,7 +92,7 @@ const executeAction = async (
         throw `Invalid amount of ${reserve} to mint`;
       }
 
-      await mint(reserve, amount, user);
+      await mint(reserve, amount, user, testEnv);
       break;
 
     case "approve":
@@ -115,7 +116,7 @@ const executeAction = async (
         }
         var myCol = isCollateral === "true";
         if (isCollateral === "") {
-          myCol = false; //if unspecified then assume false
+          myCol = true; //if unspecified then assume false
         }
 
         await deposit(
@@ -176,16 +177,23 @@ const executeAction = async (
       break;
     case "transfer":
       {
-        const { amount, originTranche, destTranche } = action.args;
+        const { amount, originTranche, isCollateral, destTranche } =
+          action.args;
 
         if (!amount || amount === "") {
           throw `Invalid amount to withdraw from the ${reserve} reserve`;
         }
+        var myCol = isCollateral === "true";
+        if (isCollateral === "") {
+          myCol = false; //if unspecified then assume false
+        }
 
-        await withdraw(
+        await transfer(
           reserve,
-          myTranche,
+          originTranche,
+          destTranche,
           amount,
+          myCol,
           user,
           expected,
           testEnv,
