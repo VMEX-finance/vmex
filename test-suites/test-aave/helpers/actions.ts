@@ -243,6 +243,8 @@ export const deposit = async (
       userDataBefore.currentATokenBalance
   );
 
+  console.log("isCollateral: " + isCollateral);
+
   // const risk = await pool.getAssetRisk(reserve);
   // console.log(reserve + " risk: " + risk + ". Tranche: " + tranche);
 
@@ -444,7 +446,7 @@ export const transfer = async (
     reserveData: reserveDataBeforeDest,
   } = await getDataBeforeAction(
     reserveSymbol,
-    originTranche,
+    destinationTranche,
     user.address,
     testEnv
   );
@@ -546,6 +548,7 @@ export const transfer = async (
       userDataBeforeDest,
       txTimestamp,
       timestampDest,
+      isCollateral,
       txCost
     );
 
