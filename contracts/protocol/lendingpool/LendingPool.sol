@@ -474,9 +474,8 @@ contract LendingPool is
      **/
     function liquidationCall(
         address collateralAsset,
-        uint8 collateralAssetTranche,
         address debtAsset,
-        uint8 debtAssetTranche,
+        uint8 tranche,
         address user,
         uint256 debtToCover,
         bool receiveAToken
@@ -488,11 +487,10 @@ contract LendingPool is
         (bool success, bytes memory result) =
             collateralManager.delegatecall(
                 abi.encodeWithSignature(
-                    "liquidationCall(address,address,address,uint256,bool)",
+                    "liquidationCall(address,address,uint8,address,uint256,bool)",
                     collateralAsset,
-                    collateralAssetTranche,
                     debtAsset,
-                    debtAssetTranche,
+                    tranche,
                     user,
                     debtToCover,
                     receiveAToken

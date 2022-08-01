@@ -315,9 +315,8 @@ interface ILendingPool {
      **/
     function liquidationCall(
         address collateralAsset,
-        uint8 collateralAssetTranche,
         address debtAsset,
-        uint8 debtAssetTranche,
+        uint8 tranche,
         address user,
         uint256 debtToCover,
         bool receiveAToken
