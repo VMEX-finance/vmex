@@ -222,6 +222,8 @@ makeSuite(
         .div(2)
         .toFixed(0);
 
+      console.log("Before liquidation call");
+
       const tx = await pool.liquidationCall(
         weth.address,
         dai.address,
@@ -230,6 +232,8 @@ makeSuite(
         amountToLiquidate,
         true
       );
+
+      console.log("after liquidation call");
 
       const userReserveDataAfter = await helpersContract.getUserReserveData(
         dai.address,
@@ -280,9 +284,13 @@ makeSuite(
         return;
       }
 
+      console.log("Before ethers call");
+
       const txTimestamp = new BigNumber(
         (await DRE.ethers.provider.getBlock(tx.blockNumber)).timestamp
       );
+
+      console.log("after ethers call");
 
       const variableDebtBeforeTx = calcExpectedVariableDebtTokenBalance(
         daiReserveDataBefore,
@@ -290,10 +298,14 @@ makeSuite(
         txTimestamp
       );
 
+      console.log("after calcExpectedVariableDebtTokenBalance call");
+
       expect(userGlobalDataAfter.healthFactor.toString()).to.be.bignumber.gt(
         oneEther.toFixed(0),
         "Invalid health factor"
       );
+
+      console.log("after 1");
 
       expect(
         userReserveDataAfter.currentVariableDebt.toString()
@@ -301,6 +313,8 @@ makeSuite(
         new BigNumber(variableDebtBeforeTx).minus(amountToLiquidate).toFixed(0),
         "Invalid user borrow balance after liquidation"
       );
+
+      console.log("after 2");
 
       expect(
         daiReserveDataAfter.availableLiquidity.toString()
@@ -311,17 +325,23 @@ makeSuite(
         "Invalid principal available liquidity"
       );
 
+      console.log("after 3");
+
       //the liquidity index of the principal reserve needs to be bigger than the index before
       expect(daiReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
         daiReserveDataBefore.liquidityIndex.toString(),
         "Invalid liquidity index"
       );
 
+      console.log("after 4");
+
       //the principal APY after a liquidation needs to be lower than the APY before
       expect(daiReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
         daiReserveDataBefore.liquidityRate.toString(),
         "Invalid liquidity APY"
       );
+
+      console.log("after 5");
 
       expect(
         ethReserveDataAfter.availableLiquidity.toString()
@@ -332,15 +352,19 @@ makeSuite(
         "Invalid collateral available liquidity"
       );
 
+      console.log("after 6");
+
       expect(
         (
           await helpersContract.getUserReserveData(
             weth.address,
-            deployer.address,
-            "1"
+            "1",
+            deployer.address
           )
         ).usageAsCollateralEnabled
       ).to.be.true;
+
+      console.log("after 7");
     });
 
     it("User 3 deposits 1000 USDC, user 4 1 WETH, user 4 borrows - drops HF, liquidates the borrow", async () => {
