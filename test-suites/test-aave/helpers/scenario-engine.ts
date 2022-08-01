@@ -115,8 +115,8 @@ const executeAction = async (
           throw `Invalid amount to deposit into the ${reserve} reserve`;
         }
         var myCol = isCollateral === "true";
-        if (isCollateral === "") {
-          myCol = true; //if unspecified then assume false
+        if (!isCollateral || isCollateral === "") {
+          myCol = false; //if unspecified then assume false
         }
 
         await deposit(

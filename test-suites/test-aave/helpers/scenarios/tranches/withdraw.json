@@ -144,6 +144,7 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
+            "isCollateral": "false",
             "amount": "1",
             "user": "0"
           },
@@ -239,13 +240,14 @@
     },
     {
       "description": "Users 0 deposits 1000 DAI, user 1 Deposit 1000 USDC and 1 WETH, borrows 100 DAI. User 1 tries to withdraw all the USDC",
-      "actions": [
+      "actions": [  
         {
           "name": "deposit",
           "args": {
             "reserve": "DAI",
             "amount": "1000",
-            "user": "0"
+            "user": "0",
+            "tranche": "1"
           },
           "expected": "success"
         },
@@ -271,7 +273,9 @@
           "args": {
             "reserve": "USDC",
             "amount": "1000",
-            "user": "1"
+            "user": "1",
+            "tranche": "1",
+            "isCollateral": "true"
           },
           "expected": "success"
         },
@@ -297,7 +301,20 @@
           "args": {
             "reserve": "WETH",
             "amount": "1",
-            "user": "1"
+            "user": "1",
+            "tranche": "0",
+            "isCollateral": "true"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "deposit",
+          "args": {
+            "reserve": "WETH",
+            "amount": "1",
+            "user": "1",
+            "tranche": "1",
+            "isCollateral": "true"
           },
           "expected": "success"
         },
@@ -307,6 +324,7 @@
             "reserve": "DAI",
             "amount": "100",
             "user": "1",
+            "tranche": "1",
             "borrowRateMode": "stable"
           },
           "expected": "success"
@@ -316,6 +334,7 @@
           "args": {
             "reserve": "USDC",
             "amount": "-1",
+            "tranche": "1",
             "user": "1"
           },
           "expected": "success"
@@ -330,6 +349,7 @@
           "args": {
             "reserve": "WETH",
             "amount": "0.05",
+            "tranche": "1",
             "user": "1"
           },
           "expected": "success"

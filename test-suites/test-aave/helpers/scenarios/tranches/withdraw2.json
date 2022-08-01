@@ -1,5 +1,5 @@
 {
-    "title": "LendingPool: Withdraw test 2",
+    "title": "LendingPool: custom Withdraw test 2",
     "description": "Test cases for the withdraw function",
     "stories": [
       {
