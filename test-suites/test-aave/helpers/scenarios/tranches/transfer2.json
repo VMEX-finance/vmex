@@ -55,6 +55,23 @@
         ]
       },
       {
+        "description": "user 0 transfers 400 dai from tranche 2 to tranche 1 (revert)",
+        "actions": [
+          {
+            "name": "transfer",
+            "args": {
+                "reserve": "DAI",
+                "originTranche": "2",
+                "destTranche": "1",
+                "isCollateral": "true", 
+                "amount": "400",
+                "user": "0"
+            },
+            "expected": "revert"
+        }
+        ]
+      },
+      {
         "description": "user 0 transfers 300 dai from tranche 2 to tranche 1. isCollateral parameter shouldn't affect anything since it only works if it's the first deposit in a reserve",
         "actions": [
           {
@@ -89,7 +106,7 @@
         ]
       },
       {
-        "description": "user 0 transfers 000 dai from tranche 0 to tranche 2. isCollateral parameter will make a difference now",
+        "description": "user 0 transfers 900 dai from tranche 0 to tranche 2. isCollateral parameter will make a difference now",
         "actions": [
             {
                 "name": "transfer",

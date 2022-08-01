@@ -3,13 +3,13 @@
   "description": "Test cases for the borrow function, stable mode.",
   "stories": [
     {
-      "description": "User 0 deposits 300 DAI (risk 0) in all three tranches",
+      "description": "User 0 deposits 1000 DAI (risk 0) in all three tranches",
       "actions": [
         {
           "name": "mint",
           "args": {
             "reserve": "DAI",
-            "amount": "1000",
+            "amount": "3000",
             "user": "0"
           },
           "expected": "success"
@@ -27,7 +27,7 @@
           "args": {
             "reserve": "DAI",
             "tranche": "0",
-            "amount": "300",
+            "amount": "100",
             "user": "0"
           },
           "expected": "success"
@@ -37,7 +37,7 @@
           "args": {
             "reserve": "DAI",
             "tranche": "1",
-            "amount": "300",
+            "amount": "1000",
             "user": "0"
           },
           "expected": "success"
@@ -47,7 +47,7 @@
           "args": {
             "reserve": "DAI",
             "tranche": "2",
-            "amount": "300",
+            "amount": "1000",
             "user": "0"
           },
           "expected": "success"
@@ -94,7 +94,12 @@
             "user": "1"
           },
           "expected": "success"
-        },
+        }
+      ]
+    },
+    {
+      "description": "user 1 borrows 100 DAI at stable rate from wrong tranches (revert). ",
+      "actions": [
         {
           "name": "borrow",
           "args": {
@@ -139,14 +144,14 @@
       ]
     },
     {
-      "description": "user 0 tries to withdraw all 300 in tranche 2 (revert). ",
+      "description": "user 0 tries to withdraw all 1000 in tranche 2 (revert). ",
       "actions": [
         {
           "name": "withdraw",
           "args": {
             "reserve": "DAI",
             "tranche": "2",
-            "amount": "300",
+            "amount": "1000",
             "user": "0"
           },
           "expected": "revert"
@@ -154,14 +159,14 @@
       ]
     },
     {
-      "description": "user 0 tries to withdraw 200 in tranche 2 (success). ",
+      "description": "user 0 tries to withdraw 400 in tranche 2 (success). ",
       "actions": [
         {
           "name": "withdraw",
           "args": {
             "reserve": "DAI",
             "tranche": "2",
-            "amount": "200",
+            "amount": "400",
             "user": "0"
           },
           "expected": "success"
@@ -169,14 +174,14 @@
       ]
     },
     {
-      "description": "user 0 tries to withdraw 300 in tranche 1 (success). ",
+      "description": "user 0 tries to withdraw 1000 in tranche 1 (success). ",
       "actions": [
         {
           "name": "withdraw",
           "args": {
             "reserve": "DAI",
             "tranche": "1",
-            "amount": "300",
+            "amount": "1000",
             "user": "0"
           },
           "expected": "success"

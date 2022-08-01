@@ -670,6 +670,19 @@ export const borrow = async (
 
   const amountToBorrow = await convertToCurrencyDecimals(reserve, amount);
 
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+  console.log("Borrow from " + tranche);
+  console.log("Before tx: reserve: " + reserveDataBefore.totalLiquidity);
+  console.log(
+    "Before tx: user: " +
+      userDataBefore.walletBalance +
+      ", atoken: " +
+      userDataBefore.currentATokenBalance +
+      ", stable debt: " +
+      userDataBefore.currentStableDebt
+  );
+
   if (expectedResult === "success") {
     const txResult = await waitForTx(
       await pool
@@ -725,6 +738,18 @@ export const borrow = async (
       txTimestamp,
       timestamp
     );
+
+    console.log("After borrow: reserve: " + reserveDataAfter.totalLiquidity);
+    console.log(
+      "After borrow: user: " +
+        userDataAfter.walletBalance +
+        ", atoken: " +
+        userDataAfter.currentATokenBalance +
+        ", stable debt: " +
+        userDataAfter.currentStableDebt
+    );
+
+    console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);

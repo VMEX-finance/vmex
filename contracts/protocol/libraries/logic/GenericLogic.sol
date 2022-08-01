@@ -197,7 +197,7 @@ library GenericLogic {
         )
     {
         CalculateUserAccountDataVars memory vars;
-        require(!userConfig.isEmpty(), "userConfig is empty");
+        // require(!userConfig.isEmpty(), "userConfig is empty");
         if (userConfig.isEmpty()) {
             return (0, 0, 0, 0, type(uint256).max);
         }
