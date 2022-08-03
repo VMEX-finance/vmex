@@ -71,6 +71,14 @@ library DataTypes {
         uint8 tranche;
     }
 
+    struct DepositVars {
+        address asset;
+        uint8 tranche;
+        uint8 risk;
+        bool allowHigherTranche;
+        bool isLendable;
+    }
+
     struct ExecuteBorrowParams {
         address asset;
         uint8 tranche; //tranche the user wants to borrow out of
@@ -81,6 +89,8 @@ library DataTypes {
         address aTokenAddress;
         uint16 referralCode;
         bool releaseUnderlying;
+        uint256 _maxStableRateBorrowSizePercent;
+        uint256 _reservesCount;
     }
 
     struct WithdrawParams {
@@ -90,5 +100,10 @@ library DataTypes {
         uint8 tranche;
         uint256 amount;
         address to;
+    }
+
+    struct ValidateSetUseReserveAsCollateralParams {
+        uint8 risk;
+        bool allowHigherTranche;
     }
 }
