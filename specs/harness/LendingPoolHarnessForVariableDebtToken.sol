@@ -1,4 +1,5 @@
-pragma solidity 0.6.12;
+// pragma solidity 0.6.12;
+pragma solidity >=0.8.0;
 pragma experimental ABIEncoderV2;
 
 import {ILendingPool} from '../../contracts/interfaces/ILendingPool.sol';
@@ -12,6 +13,7 @@ import {DataTypes} from '../../contracts/protocol/libraries/types/DataTypes.sol'
 Certora: Harness that delegates calls to the original LendingPool.
 Used for the verification of the VariableDebtToken contract.
 */
+//I don't think this file is actually used
 contract LendingPoolHarnessForVariableDebtToken is ILendingPool {
   LendingPool private originalPool;
 
@@ -66,11 +68,12 @@ contract LendingPoolHarnessForVariableDebtToken is ILendingPool {
   function liquidationCall(
     address collateral,
     address asset,
+    uint8 tranche,
     address user,
     uint256 debtToCover,
     bool receiveAToken
   ) external override {
-    originalPool.liquidationCall(collateral, asset, user, debtToCover, receiveAToken);
+    originalPool.liquidationCall(collateral, asset,tranche, user, debtToCover, receiveAToken);
   }
 
   function getReservesList() external view override returns (address[] memory) {
