@@ -139,16 +139,30 @@ contract LendingPool is
         uint16 referralCode
     ) public override whenNotPaused {
         //changed scope to public so transferTranche can call it
-        _reserves[asset][tranche]._deposit(
-            collateralRisk[asset],
-            asset,
-            tranche,
-            isCollateral,
-            amount,
-            onBehalfOf,
-            _usersConfig[onBehalfOf],
-            referralCode
-        );
+        if (isLendable[asset]) {
+            _reserves[asset][tranche]._deposit(
+                collateralRisk[asset],
+                asset,
+                tranche,
+                isCollateral,
+                amount,
+                onBehalfOf,
+                _usersConfig[onBehalfOf],
+                referralCode
+            );
+        } else {
+            //not lendable
+            _reserves[asset][tranche]._deposit(
+                collateralRisk[asset],
+                asset,
+                tranche,
+                true, //must be collateral
+                amount,
+                onBehalfOf,
+                _usersConfig[onBehalfOf],
+                referralCode
+            );
+        }
     }
 
     /**
@@ -228,6 +242,7 @@ contract LendingPool is
         uint16 referralCode,
         address onBehalfOf
     ) external override whenNotPaused {
+        require(isLendable[asset], "cannot borrow asset that is not lendable");
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         _executeBorrow(
@@ -331,6 +346,7 @@ contract LendingPool is
         uint8 tranche,
         uint256 rateMode
     ) external override whenNotPaused {
+        require(isLendable[asset], "cannot swap asset that is not lendable");
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         (uint256 stableDebt, uint256 variableDebt) =
@@ -393,6 +409,7 @@ contract LendingPool is
         uint8 tranche,
         address user
     ) external override whenNotPaused {
+        require(isLendable[asset], "cannot borrow asset that is not lendable");
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
@@ -434,6 +451,10 @@ contract LendingPool is
         uint8 tranche,
         bool useAsCollateral
     ) external override whenNotPaused {
+        require(
+            isLendable[asset],
+            "nonlendable assets must be set as collateral"
+        );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         ValidationLogic.validateSetUseReserveAsCollateral(
@@ -554,6 +575,10 @@ contract LendingPool is
         vars.receiver = IFlashLoanReceiver(receiverAddress);
 
         for (vars.i = 0; vars.i < assets.length; vars.i++) {
+            require(
+                isLendable[assets[vars.i].asset],
+                "cannot borrow asset that is not lendable"
+            );
             aTokenAddresses[vars.i] = _reserves[assets[vars.i].asset][
                 assets[vars.i].tranche
             ]

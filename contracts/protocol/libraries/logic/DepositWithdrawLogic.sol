@@ -78,6 +78,7 @@ library DepositWithdrawLogic {
 
         address aToken = self.aTokenAddress;
 
+        //these will simply not be used for collateral vault
         self.updateState();
         self.updateInterestRates(asset, aToken, amount, 0);
 
