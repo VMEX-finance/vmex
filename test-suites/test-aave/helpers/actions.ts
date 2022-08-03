@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { BigNumberish } from "ethers";
 
 import {
   calcExpectedReserveDataAfterBorrow,
@@ -145,17 +146,40 @@ export const configuration: ActionsConfig = <ActionsConfig>{};
 export const mint = async (
   reserveSymbol: string,
   amount: string,
-  user: SignerWithAddress
+  user: SignerWithAddress,
+  testEnv: TestEnv
 ) => {
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
 
   const token = await getMintableERC20(reserve);
+
+  const {
+    aTokenInstance: _,
+    reserve: reserveDest,
+    userData: userDataBefore,
+    reserveData: reserveDataBeforeDest,
+  } = await getDataBeforeAction(reserveSymbol, "0", user.address, testEnv);
+
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+  console.log("Mint " + amount + " to " + user);
+  console.log("Before mint: " + userDataBefore.walletBalance);
 
   await waitForTx(
     await token
       .connect(user.signer)
       .mint(await convertToCurrencyDecimals(reserve, amount))
   );
+
+  const {
+    reserveData: reserveDataAfter,
+    userData: userDataAfter,
+    timestamp,
+  } = await getContractsData(reserve, "0", user.address, testEnv);
+
+  console.log("After mint: " + userDataAfter.walletBalance);
+
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 };
 
 export const approve = async (
@@ -208,8 +232,21 @@ export const deposit = async (
     txOptions.value = await convertToCurrencyDecimals(reserve, sendValue);
   }
 
-  const risk = await pool.getAssetRisk(reserve);
-  console.log(reserve + " risk: " + risk + ". Tranche: " + tranche);
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+  console.log("Deposit into " + tranche);
+  console.log("Before tx: origin reserve: " + reserveDataBefore.totalLiquidity);
+  console.log(
+    "Before tx: origin user: " +
+      userDataBefore.walletBalance +
+      ", atoken: " +
+      userDataBefore.currentATokenBalance
+  );
+
+  console.log("isCollateral: " + isCollateral);
+
+  // const risk = await pool.getAssetRisk(reserve);
+  // console.log(reserve + " risk: " + risk + ". Tranche: " + tranche);
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(
@@ -253,8 +290,21 @@ export const deposit = async (
       userDataBefore,
       txTimestamp,
       timestamp,
+      isCollateral,
       txCost
     );
+
+    console.log(
+      "After deposit: origin reserve: " + reserveDataAfter.totalLiquidity
+    );
+    console.log(
+      "After depost: origin user: " +
+        userDataAfter.walletBalance +
+        ", atoken: " +
+        userDataAfter.currentATokenBalance
+    );
+
+    console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserReserveData);
@@ -364,6 +414,194 @@ export const withdraw = async (
   }
 };
 
+export const transfer = async (
+  reserveSymbol: string,
+  originTranche: string,
+  destinationTranche: string,
+  amount: string,
+  isCollateral: boolean,
+  user: SignerWithAddress,
+  expectedResult: string,
+  testEnv: TestEnv,
+  revertMessage?: string
+) => {
+  const { pool } = testEnv;
+
+  const {
+    aTokenInstance,
+    reserve,
+    userData: userDataBefore,
+    reserveData: reserveDataBefore,
+  } = await getDataBeforeAction(
+    reserveSymbol,
+    originTranche,
+    user.address,
+    testEnv
+  );
+
+  const {
+    aTokenInstance: _,
+    reserve: reserveDest,
+    userData: userDataBeforeDest,
+    reserveData: reserveDataBeforeDest,
+  } = await getDataBeforeAction(
+    reserveSymbol,
+    destinationTranche,
+    user.address,
+    testEnv
+  );
+
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+  console.log("Transfer from " + originTranche + " to " + destinationTranche);
+  console.log("Before tx: origin reserve: " + reserveDataBefore.totalLiquidity);
+  console.log(
+    "Before tx: origin user: " +
+      userDataBefore.walletBalance +
+      ", atoken: " +
+      userDataBefore.currentATokenBalance
+  );
+
+  console.log(
+    "Before tx: dest reserve: " + reserveDataBeforeDest.totalLiquidity
+  );
+  console.log(
+    "Before tx: dest user: " +
+      userDataBeforeDest.walletBalance +
+      ", atoken: " +
+      userDataBeforeDest.currentATokenBalance
+  );
+
+  let amountToWithdraw = "0";
+
+  if (amount !== "-1") {
+    amountToWithdraw = (
+      await convertToCurrencyDecimals(reserve, amount)
+    ).toString();
+  } else {
+    amountToWithdraw = MAX_UINT_AMOUNT;
+  }
+
+  if (expectedResult === "success") {
+    const txResult = await waitForTx(
+      await pool
+        .connect(user.signer)
+        .transferTranche(
+          reserve,
+          originTranche,
+          destinationTranche,
+          amountToWithdraw,
+          isCollateral
+        )
+    );
+
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+
+    //checking withdraw worked
+
+    const {
+      reserveData: reserveDataAfter,
+      userData: userDataAfter,
+      timestamp,
+    } = await getContractsData(reserve, originTranche, user.address, testEnv);
+
+    const expectedReserveData = calcExpectedReserveDataAfterWithdraw(
+      amountToWithdraw,
+      reserveDataBefore,
+      userDataBefore,
+      txTimestamp
+    );
+
+    const expectedUserData = calcExpectedUserDataAfterWithdraw(
+      amountToWithdraw,
+      reserveDataBefore,
+      expectedReserveData,
+      userDataBefore,
+      txTimestamp,
+      timestamp,
+      txCost
+    );
+
+    //checking deposit worked
+
+    const {
+      reserveData: reserveDataAfterDest,
+      userData: userDataAfterDest,
+      timestamp: timestampDest,
+    } = await getContractsData(
+      reserveDest,
+      destinationTranche,
+      user.address,
+      testEnv
+    );
+
+    const expectedReserveDataDest = calcExpectedReserveDataAfterDeposit(
+      amountToWithdraw,
+      reserveDataBeforeDest,
+      txTimestamp
+    );
+
+    const expectedUserReserveDataDest = calcExpectedUserDataAfterDeposit(
+      amountToWithdraw,
+      reserveDataBeforeDest,
+      expectedReserveDataDest,
+      userDataBeforeDest,
+      txTimestamp,
+      timestampDest,
+      isCollateral,
+      txCost
+    );
+
+    console.log("After tx: origin reserve: " + reserveDataAfter.totalLiquidity);
+    console.log(
+      "After tx: origin user: " +
+        userDataAfter.walletBalance +
+        ", atoken: " +
+        userDataAfter.currentATokenBalance
+    );
+
+    console.log(
+      "After tx: dest reserve: " + reserveDataAfterDest.totalLiquidity
+    );
+    console.log(
+      "After tx: dest user: " +
+        userDataAfterDest.walletBalance +
+        ", atoken: " +
+        userDataAfterDest.currentATokenBalance
+    );
+
+    console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+    expectEqual(reserveDataAfter, expectedReserveData);
+    // expectEqual(userDataAfter, expectedUserData);
+    //user data contains walletBalance which should not be compared between the two since there shouldn't be a difference in walletBalance but deposit or withdraw expects to change that.
+    //walletBalance is total balance across all tranches. But atoken balance should be the tranche specific atoken
+
+    expectEqual(reserveDataAfterDest, expectedReserveDataDest);
+    // expectEqual(userDataAfterDest, expectedUserReserveDataDest);
+
+    // truffleAssert.eventEmitted(txResult, "Redeem", (ev: any) => {
+    //   const {_from, _value} = ev;
+    //   return (
+    //     _from === user && new BigNumber(_value).isEqualTo(actualAmountRedeemed)
+    //   );
+    // });
+  } else if (expectedResult === "revert") {
+    await expect(
+      pool
+        .connect(user.signer)
+        .transferTranche(
+          reserve,
+          originTranche,
+          destinationTranche,
+          amountToWithdraw,
+          isCollateral
+        ),
+      revertMessage
+    ).to.be.reverted;
+  }
+};
+
 export const delegateBorrowAllowance = async (
   reserve: string,
   tranche: string,
@@ -432,6 +670,19 @@ export const borrow = async (
 
   const amountToBorrow = await convertToCurrencyDecimals(reserve, amount);
 
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+  console.log("Borrow from " + tranche);
+  console.log("Before tx: reserve: " + reserveDataBefore.totalLiquidity);
+  console.log(
+    "Before tx: user: " +
+      userDataBefore.walletBalance +
+      ", atoken: " +
+      userDataBefore.currentATokenBalance +
+      ", stable debt: " +
+      userDataBefore.currentStableDebt
+  );
+
   if (expectedResult === "success") {
     const txResult = await waitForTx(
       await pool
@@ -487,6 +738,18 @@ export const borrow = async (
       txTimestamp,
       timestamp
     );
+
+    console.log("After borrow: reserve: " + reserveDataAfter.totalLiquidity);
+    console.log(
+      "After borrow: user: " +
+        userDataAfter.walletBalance +
+        ", atoken: " +
+        userDataAfter.currentATokenBalance +
+        ", stable debt: " +
+        userDataAfter.currentStableDebt
+    );
+
+    console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);

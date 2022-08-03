@@ -28,9 +28,8 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
 
     struct LiquidationParams {
         address collateralAsset;
-        uint8 collateralTranche;
         address borrowedAsset;
-        uint8 borrowedTranche;
+        uint8 tranche;
         address user;
         uint256 debtToCover;
         bool useEthPath;
@@ -129,9 +128,8 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         // Liquidate the user position and release the underlying collateral
         LENDING_POOL.liquidationCall(
             decodedParams.collateralAsset,
-            decodedParams.collateralTranche,
             decodedParams.borrowedAsset,
-            decodedParams.borrowedTranche,
+            decodedParams.tranche,
             decodedParams.user,
             decodedParams.debtToCover,
             false
@@ -203,24 +201,22 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
     {
         (
             address collateralAsset,
-            uint8 collateralTranche,
             address borrowedAsset,
-            uint8 borrowedTranche,
+            uint8 tranche,
             address user,
             uint256 debtToCover,
             bool useEthPath
         ) =
             abi.decode(
                 params,
-                (address, uint8, address, uint8, address, uint256, bool)
+                (address, address, uint8, address, uint256, bool)
             );
 
         return
             LiquidationParams(
                 collateralAsset,
-                collateralTranche,
                 borrowedAsset,
-                borrowedTranche,
+                tranche,
                 user,
                 debtToCover,
                 useEthPath
