@@ -1,11 +1,8 @@
-import BigNumber from 'bignumber.js';
 import {
-  oneEther,
   oneRay,
-  RAY,
   ZERO_ADDRESS,
   MOCK_CHAINLINK_AGGREGATORS_PRICES,
-  oneUsd,
+  oneEther,
 } from '../../helpers/constants';
 import { ICommonConfiguration, eEthereumNetwork } from '../../helpers/types';
 
@@ -15,10 +12,10 @@ import { ICommonConfiguration, eEthereumNetwork } from '../../helpers/types';
 
 export const CommonsConfig: ICommonConfiguration = {
   MarketId: 'Commons',
-  ATokenNamePrefix: 'Aave AMM Market',
-  StableDebtTokenNamePrefix: 'Aave AMM Market stable debt',
-  VariableDebtTokenNamePrefix: 'Aave AMM Market variable debt',
-  SymbolPrefix: 'Amm',
+  ATokenNamePrefix: 'Aave interest bearing',
+  StableDebtTokenNamePrefix: 'Aave stable debt bearing',
+  VariableDebtTokenNamePrefix: 'Aave variable debt bearing',
+  SymbolPrefix: '',
   ProviderId: 0, // Overriden in index.ts
   OracleQuoteCurrency: 'ETH',
   OracleQuoteUnit: oneEther.toString(),
@@ -48,61 +45,58 @@ export const CommonsConfig: ICommonConfiguration = {
     DAI: {
       borrowRate: oneRay.multipliedBy(0.039).toFixed(),
     },
+    TUSD: {
+      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
+    },
     USDC: {
       borrowRate: oneRay.multipliedBy(0.039).toFixed(),
+    },
+    SUSD: {
+      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
     },
     USDT: {
       borrowRate: oneRay.multipliedBy(0.035).toFixed(),
     },
+    BAT: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
+    AAVE: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
+    LINK: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
+    KNC: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
+    MKR: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
+    MANA: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
     WBTC: {
       borrowRate: oneRay.multipliedBy(0.03).toFixed(),
     },
-    UniDAIWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
+    ZRX: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
     },
-    UniWBTCWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
+    SNX: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
     },
-    UniAAVEWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
+    YFI: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
     },
-    UniBATWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
+    REN: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
     },
-    UniDAIUSDC: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
+    UNI: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
     },
-    UniCRVWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
+    ENJ: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
     },
-    UniLINKWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    UniMKRWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    UniRENWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    UniSNXWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    UniUNIWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    UniUSDCWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    UniWBTCUSDC: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    UniYFIWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    BptWBTCWETH: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-    BptBALWETH: {
+    BUSD: {
       borrowRate: oneRay.multipliedBy(0.05).toFixed(),
     },
   },
@@ -153,10 +147,10 @@ export const CommonsConfig: ICommonConfiguration = {
   LendingRateOracle: {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
-    [eEthereumNetwork.buidlerevm]: '', // Updated to match Kovan deployment
-    [eEthereumNetwork.kovan]: '0xd00Bd28FAdDa9d5658D1D4e0c151973146C7A533', //'0xE48F95873855bfd97BF89572DDf5cBC44D9c545b'
+    [eEthereumNetwork.buidlerevm]: '',
+    [eEthereumNetwork.kovan]: '', //'0xdCde9Bb6a49e37fA433990832AB541AE2d4FEB4a',
     [eEthereumNetwork.ropsten]: '0x05dcca805a6562c1bdd0423768754acb6993241b',
-    [eEthereumNetwork.main]: '', //'0x8A32f49FFbA88aba6EFF96F45D8BD1D4b3f35c7D',  // Need to re-deploy because of onlyOwner
+    [eEthereumNetwork.main]: '', //'0x8A32f49FFbA88aba6EFF96F45D8BD1D4b3f35c7D',
     [eEthereumNetwork.tenderly]: '0x8A32f49FFbA88aba6EFF96F45D8BD1D4b3f35c7D',
   },
   LendingPoolCollateralManager: {
@@ -172,7 +166,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.kovan]: '0x36eB31800aa67a9c50df1d56EE01981A6E14Cce5',
+    [eEthereumNetwork.kovan]: '',
     [eEthereumNetwork.ropsten]: '',
     [eEthereumNetwork.main]: '',
     [eEthereumNetwork.tenderly]: '',
@@ -181,7 +175,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.kovan]: '0x78142De7a1930412E9e50dEB3b80dB284c2dFa3A',
+    [eEthereumNetwork.kovan]: '',
     [eEthereumNetwork.ropsten]: '',
     [eEthereumNetwork.main]: '',
     [eEthereumNetwork.tenderly]: '',
@@ -190,7 +184,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.kovan]: '0x1c4A1cC35A477aa1cF35DF671d93ACc04d8131E0',
+    [eEthereumNetwork.kovan]: '',
     [eEthereumNetwork.ropsten]: '',
     [eEthereumNetwork.main]: '',
     [eEthereumNetwork.tenderly]: '',
@@ -208,9 +202,9 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.kovan]: '0x8fb777d67e9945e2c01936e319057f9d41d559e6', // Need to re-deploy because of onlyOwner
+    [eEthereumNetwork.kovan]: '', //'0xB8bE51E6563BB312Cbb2aa26e352516c25c26ac1',
     [eEthereumNetwork.ropsten]: ZERO_ADDRESS,
-    [eEthereumNetwork.main]: '', //'0xA50ba011c48153De246E5192C8f9258A2ba79Ca9',  // Need to re-deploy because of onlyOwner
+    [eEthereumNetwork.main]: '', //'0xA50ba011c48153De246E5192C8f9258A2ba79Ca9',
     [eEthereumNetwork.tenderly]: '0xA50ba011c48153De246E5192C8f9258A2ba79Ca9',
   },
   FallbackOracle: {
@@ -227,74 +221,94 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: {},
     [eEthereumNetwork.buidlerevm]: {},
     [eEthereumNetwork.kovan]: {
+      AAVE: '0xd04647B7CB523bb9f26730E9B6dE1174db7591Ad',
+      BAT: '0x0e4fcEC26c9f85c3D714370c98f43C4E02Fc35Ae',
+      BUSD: '0xbF7A18ea5DE0501f7559144e702b29c55b055CcB',
+      DAI: '0x22B58f1EbEDfCA50feF632bD73368b2FdA96D541',
+      ENJ: '0xfaDbe2ee798889F02d1d39eDaD98Eff4c7fe95D4',
+      KNC: '0xb8E8130d244CFd13a75D6B9Aee029B1C33c808A7',
+      LINK: '0x3Af8C569ab77af5230596Acf0E8c2F9351d24C38',
+      MANA: '0x1b93D8E109cfeDcBb3Cc74eD761DE286d5771511',
+      MKR: '0x0B156192e04bAD92B6C1C13cf8739d14D78D5701',
+      REN: '0xF1939BECE7708382b5fb5e559f630CB8B39a10ee',
+      SNX: '0xF9A76ae7a1075Fe7d646b06fF05Bd48b9FA5582e',
+      SUSD: '0xb343e7a1aF578FA35632435243D814e7497622f7',
+      TUSD: '0x7aeCF1c19661d12E962b69eBC8f6b2E63a55C660',
+      UNI: '0x17756515f112429471F86f98D5052aCB6C47f6ee',
+      USDC: '0x64EaC61A2DFda2c3Fa04eED49AA33D021AeC8838',
       USDT: '0x0bF499444525a23E7Bb61997539725cA2e928138',
       WBTC: '0xF7904a295A029a3aBDFFB6F12755974a958C7C25',
-      USDC: '0x64EaC61A2DFda2c3Fa04eED49AA33D021AeC8838',
-      DAI: '0x22B58f1EbEDfCA50feF632bD73368b2FdA96D541',
-      UniDAIWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F', // Mock oracles
-      UniWBTCWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniAAVEWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniBATWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniDAIUSDC: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniCRVWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniLINKWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniMKRWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniRENWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniSNXWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniUNIWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniUSDCWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniWBTCUSDC: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      UniYFIWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      BptWBTCWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
-      BptBALWETH: '0x5699302154A020FB1DE2B1d39f4c73785A235d8F',
+      YFI: '0xC5d1B1DEb2992738C0273408ac43e1e906086B6C',
+      ZRX: '0xBc3f28Ccc21E9b5856E81E6372aFf57307E2E883',
       USD: '0x9326BFA02ADD2366b30bacB125260Af641031331',
     },
-    [eEthereumNetwork.ropsten]: {},
+    [eEthereumNetwork.ropsten]: {
+      AAVE: ZERO_ADDRESS,
+      BAT: '0xafd8186c962daf599f171b8600f3e19af7b52c92',
+      BUSD: '0x0A32D96Ff131cd5c3E0E5AAB645BF009Eda61564',
+      DAI: '0x64b8e49baded7bfb2fd5a9235b2440c0ee02971b',
+      ENJ: ZERO_ADDRESS,
+      KNC: '0x19d97ceb36624a31d827032d8216dd2eb15e9845',
+      LINK: '0xb8c99b98913bE2ca4899CdcaF33a3e519C20EeEc',
+      MANA: '0xDab909dedB72573c626481fC98CEE1152b81DEC2',
+      MKR: '0x811B1f727F8F4aE899774B568d2e72916D91F392',
+      REN: ZERO_ADDRESS,
+      SNX: '0xA95674a8Ed9aa9D2E445eb0024a9aa05ab44f6bf',
+      SUSD: '0xe054b4aee7ac7645642dd52f1c892ff0128c98f0',
+      TUSD: '0x523ac85618df56e940534443125ef16daf785620',
+      UNI: ZERO_ADDRESS,
+      USDC: '0xe1480303dde539e2c241bdc527649f37c9cbef7d',
+      USDT: '0xc08fe0c4d97ccda6b40649c6da621761b628c288',
+      WBTC: '0x5b8B87A0abA4be247e660B0e0143bB30Cdf566AF',
+      YFI: ZERO_ADDRESS,
+      ZRX: '0x1d0052e4ae5b4ae4563cbac50edc3627ca0460d7',
+      USD: '0x8468b2bDCE073A157E560AA4D9CcF6dB1DB98507',
+    },
     [eEthereumNetwork.main]: {
+      AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
+      BAT: '0x0d16d4528239e9ee52fa531af613AcdB23D88c94',
+      BUSD: '0x614715d2Af89E6EC99A233818275142cE88d1Cfd',
+      DAI: '0x773616E4d11A78F511299002da57A0a94577F1f4',
+      ENJ: '0x24D9aB51950F3d62E9144fdC2f3135DAA6Ce8D1B',
+      KNC: '0x656c0544eF4C98A6a98491833A89204Abb045d6b',
+      LINK: '0xDC530D9457755926550b59e8ECcdaE7624181557',
+      MANA: '0x82A44D92D6c329826dc557c5E1Be6ebeC5D5FeB9',
+      MKR: '0x24551a8Fb2A7211A25a17B1481f043A8a8adC7f2',
+      REN: '0x3147D7203354Dc06D9fd350c7a2437bcA92387a4',
+      SNX: '0x79291A9d692Df95334B1a0B3B4AE6bC606782f8c',
+      SUSD: '0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757',
+      TUSD: '0x3886BA987236181D98F2401c507Fb8BeA7871dF2',
+      UNI: '0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e',
+      USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
       USDT: '0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46',
       WBTC: '0xdeb288F737066589598e9214E782fa5A8eD689e8',
-      USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
-      DAI: '0x773616E4d11A78F511299002da57A0a94577F1f4',
-      UniDAIWETH: '0x66a6b87a18db78086acda75b7720dc47cdabcc05',
-      UniWBTCWETH: '0x7004BB6F2013F13C54899309cCa029B49707E547',
-      UniAAVEWETH: '0xB525547968610395B60085bDc8033FFeaEaa5F64',
-      UniBATWETH: '0xB394D8a1CE721630Cbea8Ec110DCEf0D283EDE3a',
-      UniDAIUSDC: '0x3B148Fa5E8297DB64262442052b227328730EA81',
-      UniCRVWETH: '0x10F7078e2f29802D2AC78045F61A69aE0883535A',
-      UniLINKWETH: '0x30adCEfA5d483284FD79E1eFd54ED3e0A8eaA632',
-      UniMKRWETH: '0xEBF4A448ff3D835F8FA883941a3E9D5E74B40B5E',
-      UniRENWETH: '0xe2f7C06906A9dB063C28EB5c71B6Ab454e5222dD',
-      UniSNXWETH: '0x29bfee7E90572Abf1088a58a145a10D051b78E46',
-      UniUNIWETH: '0xC2E93e8121237A885A00627975eB06C7BF9808d6',
-      UniUSDCWETH: '0x71c4a2173CE3620982DC8A7D870297533360Da4E',
-      UniWBTCUSDC: '0x11f4ba2227F21Dc2A9F0b0e6Ea740369d580a212',
-      UniYFIWETH: '0x664223b8Bb0934aE0970e601F452f75AaCe9Aa2A',
-      BptWBTCWETH: '0x4CA8D8fC2b4fCe8A2dcB71Da884bba042d48E067',
-      BptBALWETH: '0x2e4e78936b100be6Ef85BCEf7FB25bC770B02B85',
-      USD: '0x9326BFA02ADD2366b30bacB125260Af641031331',
+      YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
+      ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
+      USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+      xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
     },
     [eEthereumNetwork.tenderly]: {
+      AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
+      BAT: '0x0d16d4528239e9ee52fa531af613AcdB23D88c94',
+      BUSD: '0x614715d2Af89E6EC99A233818275142cE88d1Cfd',
+      DAI: '0x773616E4d11A78F511299002da57A0a94577F1f4',
+      ENJ: '0x24D9aB51950F3d62E9144fdC2f3135DAA6Ce8D1B',
+      KNC: '0x656c0544eF4C98A6a98491833A89204Abb045d6b',
+      LINK: '0xDC530D9457755926550b59e8ECcdaE7624181557',
+      MANA: '0x82A44D92D6c329826dc557c5E1Be6ebeC5D5FeB9',
+      MKR: '0x24551a8Fb2A7211A25a17B1481f043A8a8adC7f2',
+      REN: '0x3147D7203354Dc06D9fd350c7a2437bcA92387a4',
+      SNX: '0x79291A9d692Df95334B1a0B3B4AE6bC606782f8c',
+      SUSD: '0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757',
+      TUSD: '0x3886BA987236181D98F2401c507Fb8BeA7871dF2',
+      UNI: '0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e',
+      USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
       USDT: '0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46',
       WBTC: '0xdeb288F737066589598e9214E782fa5A8eD689e8',
-      USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
-      DAI: '0x773616E4d11A78F511299002da57A0a94577F1f4',
-      UniDAIWETH: '0x66a6b87a18db78086acda75b7720dc47cdabcc05',
-      UniWBTCWETH: '0x7004BB6F2013F13C54899309cCa029B49707E547',
-      UniAAVEWETH: '0xB525547968610395B60085bDc8033FFeaEaa5F64',
-      UniBATWETH: '0xB394D8a1CE721630Cbea8Ec110DCEf0D283EDE3a',
-      UniDAIUSDC: '0x3B148Fa5E8297DB64262442052b227328730EA81',
-      UniCRVWETH: '0x10F7078e2f29802D2AC78045F61A69aE0883535A',
-      UniLINKWETH: '0x30adCEfA5d483284FD79E1eFd54ED3e0A8eaA632',
-      UniMKRWETH: '0xEBF4A448ff3D835F8FA883941a3E9D5E74B40B5E',
-      UniRENWETH: '0xe2f7C06906A9dB063C28EB5c71B6Ab454e5222dD',
-      UniSNXWETH: '0x29bfee7E90572Abf1088a58a145a10D051b78E46',
-      UniUNIWETH: '0xC2E93e8121237A885A00627975eB06C7BF9808d6',
-      UniUSDCWETH: '0x71c4a2173CE3620982DC8A7D870297533360Da4E',
-      UniWBTCUSDC: '0x11f4ba2227F21Dc2A9F0b0e6Ea740369d580a212',
-      UniYFIWETH: '0x664223b8Bb0934aE0970e601F452f75AaCe9Aa2A',
-      BptWBTCWETH: '0x4CA8D8fC2b4fCe8A2dcB71Da884bba042d48E067',
-      BptBALWETH: '0x2e4e78936b100be6Ef85BCEf7FB25bC770B02B85',
-      USD: '0x9326BFA02ADD2366b30bacB125260Af641031331',
+      YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
+      ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
+      USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+      xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
     },
   },
   ReserveAssets: {
