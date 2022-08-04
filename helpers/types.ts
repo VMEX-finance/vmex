@@ -389,6 +389,7 @@ export interface IReserveParams
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   isLendable: boolean; //is the asset lendable
+  allowedHigherTranche: boolean;
 }
 
 export interface IInterestRateStrategyParams {

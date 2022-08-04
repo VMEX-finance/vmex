@@ -201,6 +201,11 @@ contract LendingPoolConfigurator is
             );
 
             pool.setAssetRisk(input.underlyingAsset, input.risk); //initialize all asset risks
+            pool.setAssetLendable(input.underlyingAsset, input.isLendable); //initialize all asset isLendable
+            pool.setAssetAllowedHigherTranche(
+                input.underlyingAsset,
+                input.allowHigherTranche
+            ); //initialize all asset isAllowedHigherTranche
 
             emit ReserveInitialized(
                 input.underlyingAsset,

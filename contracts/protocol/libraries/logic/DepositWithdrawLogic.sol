@@ -21,6 +21,9 @@ import {DataTypes} from "../types/DataTypes.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {ValidationLogic} from "./ValidationLogic.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
+import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
+import {IStableDebtToken} from "../../../interfaces/IStableDebtToken.sol";
+import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 
 /**
  * @title DepositWithdrawLogic library
@@ -65,9 +68,7 @@ library DepositWithdrawLogic {
 
     function _deposit(
         DataTypes.ReserveData storage self,
-        uint8 risk,
-        address asset,
-        uint8 tranche,
+        DataTypes.DepositVars memory vars,
         bool isCollateral,
         uint256 amount,
         address onBehalfOf,
@@ -78,25 +79,37 @@ library DepositWithdrawLogic {
 
         address aToken = self.aTokenAddress;
 
-        self.updateState();
-        self.updateInterestRates(asset, aToken, amount, 0);
+        if (vars.isLendable) {
+            //these will simply not be used for collateral vault
+            self.updateState();
+            self.updateInterestRates(vars.asset, aToken, amount, 0);
+        }
 
-        IERC20(asset).safeTransferFrom(msg.sender, aToken, amount); //msg.sender should still be the user, not the contract
+        IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, amount); //msg.sender should still be the user, not the contract
 
         bool isFirstDeposit =
             IAToken(aToken).mint(onBehalfOf, amount, self.liquidityIndex); //this also considers if it is a first deposit into a tranche, not just a specific asset
 
         if (isFirstDeposit) {
-            ValidationLogic.validateCollateralRisk(isCollateral, risk, tranche);
+            if (!vars.isLendable) {
+                //non lendable assets must be collateral
+                isCollateral = true;
+            }
+            ValidationLogic.validateCollateralRisk(
+                isCollateral,
+                vars.risk,
+                vars.tranche,
+                vars.allowHigherTranche
+            );
             user.setUsingAsCollateral(self.id, isCollateral);
             if (isCollateral) {
-                emit ReserveUsedAsCollateralEnabled(asset, onBehalfOf);
+                emit ReserveUsedAsCollateralEnabled(vars.asset, onBehalfOf);
             }
         }
 
         emit Deposit(
-            asset,
-            tranche,
+            vars.asset,
+            vars.tranche,
             msg.sender,
             onBehalfOf,
             amount,
@@ -178,5 +191,118 @@ library DepositWithdrawLogic {
         emit Withdraw(vars.asset, msg.sender, vars.to, amountToWithdraw);
 
         return amountToWithdraw;
+    }
+
+    /**
+     * @dev Emitted on borrow() and flashLoan() when debt needs to be opened
+     * @param reserve The address of the underlying asset being borrowed
+     * @param user The address of the user initiating the borrow(), receiving the funds on borrow() or just
+     * initiator of the transaction on flashLoan()
+     * @param onBehalfOf The address that will be getting the debt
+     * @param amount The amount borrowed out
+     * @param borrowRateMode The rate mode: 1 for Stable, 2 for Variable
+     * @param borrowRate The numeric rate at which the user has borrowed
+     * @param referral The referral code used
+     **/
+    event Borrow(
+        address indexed reserve,
+        address user,
+        address indexed onBehalfOf,
+        uint256 amount,
+        uint256 borrowRateMode,
+        uint256 borrowRate,
+        uint16 indexed referral
+    );
+
+    function _borrowHelper(
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage _reserves,
+        mapping(uint256 => address) storage _reservesList,
+        DataTypes.UserConfigurationMap storage userConfig,
+        address oracle,
+        DataTypes.ExecuteBorrowParams memory vars
+    ) public {
+        DataTypes.ReserveData storage reserve =
+            _reserves[vars.asset][vars.tranche];
+        uint256 amountInETH =
+            IPriceOracleGetter(oracle)
+                .getAssetPrice(vars.asset)
+                .mul(vars.amount)
+                .div(10**reserve.configuration.getDecimals());
+
+        // TODO: make sure this works with tranches
+        ValidationLogic.validateBorrow(
+            vars,
+            reserve,
+            amountInETH,
+            vars._maxStableRateBorrowSizePercent,
+            _reserves,
+            userConfig,
+            _reservesList,
+            vars._reservesCount,
+            oracle
+        );
+
+        reserve.updateState();
+
+        uint256 currentStableRate = 0;
+
+        bool isFirstBorrowing = false;
+        if (
+            DataTypes.InterestRateMode(vars.interestRateMode) ==
+            DataTypes.InterestRateMode.STABLE
+        ) {
+            currentStableRate = reserve.currentStableBorrowRate;
+
+            isFirstBorrowing = IStableDebtToken(reserve.stableDebtTokenAddress)
+                .mint(
+                vars.user,
+                vars.onBehalfOf,
+                vars.amount,
+                currentStableRate
+            );
+        } else {
+            isFirstBorrowing = IVariableDebtToken(
+                reserve
+                    .variableDebtTokenAddress
+            )
+                .mint(
+                vars.user,
+                vars.onBehalfOf,
+                vars.amount,
+                reserve.variableBorrowIndex
+            );
+        }
+
+        if (isFirstBorrowing) {
+            userConfig.setBorrowing(reserve.id, true);
+        }
+
+        reserve.updateInterestRates(
+            vars.asset,
+            vars.aTokenAddress,
+            0,
+            vars.releaseUnderlying ? vars.amount : 0
+        );
+
+        if (vars.releaseUnderlying) {
+            IAToken(vars.aTokenAddress).transferUnderlyingTo(
+                vars.user,
+                vars.amount
+            );
+        }
+
+        emit Borrow(
+            vars.asset,
+            vars.user,
+            vars.onBehalfOf,
+            vars.amount,
+            vars.interestRateMode,
+            DataTypes.InterestRateMode(vars.interestRateMode) ==
+                DataTypes.InterestRateMode.STABLE
+                ? currentStableRate
+                : reserve.currentVariableBorrowRate,
+            vars.referralCode
+        );
     }
 }
