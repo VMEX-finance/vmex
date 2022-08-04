@@ -24,6 +24,7 @@ export const strategyBUSD: IReserveParams = {
   reserveFactor: '1000',
   risk: 0,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyDAI: IReserveParams = {
@@ -38,6 +39,7 @@ export const strategyDAI: IReserveParams = {
   reserveFactor: '1000',
   risk: 0,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategySUSD: IReserveParams = {
@@ -52,6 +54,7 @@ export const strategySUSD: IReserveParams = {
   reserveFactor: '2000',
   risk: 0,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyTUSD: IReserveParams = {
@@ -66,6 +69,7 @@ export const strategyTUSD: IReserveParams = {
   reserveFactor: '1000',
   risk: 0,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyUSDC: IReserveParams = {
@@ -80,6 +84,7 @@ export const strategyUSDC: IReserveParams = {
   reserveFactor: '1000',
   risk: 0,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyUSDT: IReserveParams = {
@@ -94,6 +99,7 @@ export const strategyUSDT: IReserveParams = {
   reserveFactor: '1000',
   risk: 0,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyAAVE: IReserveParams = {
@@ -108,6 +114,7 @@ export const strategyAAVE: IReserveParams = {
   reserveFactor: '0',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyBAT: IReserveParams = {
@@ -122,6 +129,7 @@ export const strategyBAT: IReserveParams = {
   reserveFactor: '2000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyENJ: IReserveParams = {
@@ -136,6 +144,7 @@ export const strategyENJ: IReserveParams = {
   reserveFactor: '2000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyWETH: IReserveParams = {
@@ -150,6 +159,7 @@ export const strategyWETH: IReserveParams = {
   reserveFactor: '1000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyKNC: IReserveParams = {
@@ -164,6 +174,7 @@ export const strategyKNC: IReserveParams = {
   reserveFactor: '2000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyLINK: IReserveParams = {
@@ -178,6 +189,7 @@ export const strategyLINK: IReserveParams = {
   reserveFactor: '2000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyMANA: IReserveParams = {
@@ -192,6 +204,7 @@ export const strategyMANA: IReserveParams = {
   reserveFactor: '3500',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyMKR: IReserveParams = {
@@ -206,6 +219,7 @@ export const strategyMKR: IReserveParams = {
   reserveFactor: '2000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyREN: IReserveParams = {
@@ -220,6 +234,7 @@ export const strategyREN: IReserveParams = {
   reserveFactor: '2000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategySNX: IReserveParams = {
@@ -234,6 +249,7 @@ export const strategySNX: IReserveParams = {
   reserveFactor: '3500',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 // Invalid borrow rates in params currently, replaced with snx params
@@ -249,6 +265,7 @@ export const strategyUNI: IReserveParams = {
   reserveFactor: '2000',
   risk: 1,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyWBTC: IReserveParams = {
@@ -263,6 +280,7 @@ export const strategyWBTC: IReserveParams = {
   reserveFactor: '2000',
   risk: 0,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyYFI: IReserveParams = {
@@ -277,6 +295,7 @@ export const strategyYFI: IReserveParams = {
   reserveFactor: '2000',
   risk: 2,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyZRX: IReserveParams = {
@@ -291,6 +310,7 @@ export const strategyZRX: IReserveParams = {
   reserveFactor: '2000',
   risk: 2,
   isLendable: true,
+  allowedHigherTranche: true
 };
 
 export const strategyXSUSHI: IReserveParams = {
@@ -305,4 +325,5 @@ export const strategyXSUSHI: IReserveParams = {
   reserveFactor: '3500',
   risk: 2,
   isLendable: true,
+  allowedHigherTranche: true
 };
