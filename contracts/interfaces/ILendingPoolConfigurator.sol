@@ -20,6 +20,8 @@ interface ILendingPoolConfigurator {
         string stableDebtTokenSymbol;
         bytes params;
         uint8 risk; //risk level for collateral
+        bool isLendable;
+        bool allowHigherTranche;
     }
 
     struct UpdateATokenInput {

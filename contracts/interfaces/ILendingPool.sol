@@ -39,27 +39,6 @@ interface ILendingPool {
     );
 
     /**
-     * @dev Emitted on borrow() and flashLoan() when debt needs to be opened
-     * @param reserve The address of the underlying asset being borrowed
-     * @param user The address of the user initiating the borrow(), receiving the funds on borrow() or just
-     * initiator of the transaction on flashLoan()
-     * @param onBehalfOf The address that will be getting the debt
-     * @param amount The amount borrowed out
-     * @param borrowRateMode The rate mode: 1 for Stable, 2 for Variable
-     * @param borrowRate The numeric rate at which the user has borrowed
-     * @param referral The referral code used
-     **/
-    event Borrow(
-        address indexed reserve,
-        address user,
-        address indexed onBehalfOf,
-        uint256 amount,
-        uint256 borrowRateMode,
-        uint256 borrowRate,
-        uint16 indexed referral
-    );
-
-    /**
      * @dev Emitted on repay()
      * @param reserve The address of the underlying asset of the reserve
      * @param user The beneficiary of the repayment, getting his debt reduced
@@ -387,6 +366,13 @@ interface ILendingPool {
      * @param risk The risk of the asset
      **/
     function setAssetRisk(address asset, uint8 risk) external;
+
+    function setAssetLendable(address asset, bool _isLendable) external;
+
+    function setAssetAllowedHigherTranche(
+        address asset,
+        bool _allowedHigherTranche
+    ) external;
 
     function setReserveInterestRateStrategyAddress(
         address reserve,
