@@ -168,6 +168,13 @@ export const initReservesByHelper = async (
       isLendable: isLendable,
       allowHigherTranche: allowedHigherTranche,
     });
+
+    console.log(
+      "Underlying asset address for ",
+      symbol,
+      ": ",
+      tokenAddresses[symbol]
+    );
   }
 
   // Deploy init reserves per chunks
