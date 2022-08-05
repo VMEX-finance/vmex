@@ -22,6 +22,8 @@ const GWEI = 1000 * 1000 * 1000;
 
 export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined => {
   let forkMode;
+  console.log("$$$$$$$$$$$$ process.env.FORK ",process.env.FORK);
+  console.log("$$$$$$$$$$$$ FORK ",FORK);
   if (FORK) {
     forkMode = {
       url: NETWORKS_RPC_URL[FORK],
@@ -30,6 +32,7 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
       forkMode.blockNumber = FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK];
     }
   }
+  // console.log("$$$$$$$$$$$$ ",forkMode.url);
   return forkMode;
 };
 
