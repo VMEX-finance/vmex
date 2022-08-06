@@ -24,7 +24,7 @@ const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy(
 
 await lendingPoolConfig.connect(emergency).setPoolPause(false)
 
-await lendingPool.connect(signer).deposit(DAI.address, 0, true, ethers.utils.parseUnits('100'), await signer.getAddress(), '0'); //revert since no DAI
+// await lendingPool.connect(signer).deposit(DAI.address, 0, true, ethers.utils.parseUnits('100'), await signer.getAddress(), '0'); //revert since no DAI
 
 const { ethers, waffle} = require("hardhat"); //gets waffle provider
 
@@ -34,11 +34,34 @@ await provider.getBalance(signer.address) //gets the ETH balance of signer
 
 await DAI.balanceOf(signer.address) //gets the DAI balance of signer
 
-const WETH = await contractGetters.getIErc20Detailed("0x6B175474E89094C44Da98b954EedeAC495271d0F");
 
-await (await ethers.getSigners())[1]
+// 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+//try uniswap
 
-0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+const WETHabi = [
+    "function allowance(address owner, address spender) external view returns (uint256 remaining)",
+    "function approve(address spender, uint256 value) external returns (bool success)",
+    "function balanceOf(address owner) external view returns (uint256 balance)",
+    "function decimals() external view returns (uint8 decimalPlaces)",
+    "function name() external view returns (string memory tokenName)",
+    "function symbol() external view returns (string memory tokenSymbol)",
+    "function totalSupply() external view returns (uint256 totalTokensIssued)",
+    "function transfer(address to, uint256 value) external returns (bool success)",
+    "function transferFrom(address from, address to, uint256 value) external returns (bool success)",
+    "function deposit() public payable",
+    "function withdraw(uint wad) public"
+];
+
+const myWETH = new ethers.Contract(WETHadd,WETHabi)
+
+const options = {value: ethers.utils.parseEther("1.0")}
+
+await myWETH.connect(signer).deposit(options);
+await myWETH.connect(signer).balanceOf(signer.address);
+await myWETH.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("1.0"))
+
+await lendingPool.connect(signer).deposit(myWETH.address, 1, true, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
 
 }
 
