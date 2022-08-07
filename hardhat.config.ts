@@ -123,6 +123,12 @@ const buidlerConfig: HardhatUserConfig = {
       })),
       forking: buildForkConfig(),
     },
+    localhost: {
+      url: "http://localhost:8545",
+      chainId: 31337,
+      forking: buildForkConfig(),
+      timeout: 150000,
+    },
     buidlerevm_docker: {
       hardfork: 'berlin',
       blockGasLimit: 9500000,
