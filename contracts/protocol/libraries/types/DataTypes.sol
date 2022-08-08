@@ -16,7 +16,7 @@ library DataTypes {
         //variable borrow index. Expressed in ray
         uint128 variableBorrowIndex;
         //the current supply rate. Expressed in ray
-        uint128 currentLiquidityRate;
+        uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY
         //the current variable borrow rate. Expressed in ray
         uint128 currentVariableBorrowRate;
         //the current stable borrow rate. Expressed in ray

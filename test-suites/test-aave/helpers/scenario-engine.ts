@@ -50,7 +50,7 @@ const executeAction = async (
   let myTranche = tranche;
   if (!tranche || tranche === "") {
     // compatibility with old aave tests
-    myTranche = "0";
+    myTranche = "1";
   }
 
   if (!name || name === "") {
@@ -116,7 +116,7 @@ const executeAction = async (
         }
         var myCol = isCollateral === "true";
         if (!isCollateral || isCollateral === "") {
-          myCol = false; //if unspecified then assume false
+          myCol = true; //if unspecified then assume true
         }
 
         await deposit(
@@ -158,7 +158,7 @@ const executeAction = async (
 
     case "withdraw":
       {
-        const { amount } = action.args;
+        const { amount, timeTravel } = action.args;
 
         if (!amount || amount === "") {
           throw `Invalid amount to withdraw from the ${reserve} reserve`;
@@ -171,6 +171,7 @@ const executeAction = async (
           user,
           expected,
           testEnv,
+          timeTravel,
           revertMessage
         );
       }

@@ -2,4 +2,5 @@ node_modules/
 .node_modules/
 artifacts/
 cache/
-types/
+types/*
+!contracts/protocol/libraries/types/
