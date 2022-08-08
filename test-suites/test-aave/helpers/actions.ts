@@ -162,7 +162,7 @@ export const mint = async (
 
   console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
-  console.log("Mint " + amount + " to " + user);
+  console.log("Mint " + amount + " to " + user.address);
   console.log("Before mint: " + userDataBefore.walletBalance);
 
   await waitForTx(
@@ -342,6 +342,7 @@ export const withdraw = async (
   user: SignerWithAddress,
   expectedResult: string,
   testEnv: TestEnv,
+  timeTravel: string,
   revertMessage?: string
 ) => {
   const { pool } = testEnv;
@@ -352,6 +353,19 @@ export const withdraw = async (
     userData: userDataBefore,
     reserveData: reserveDataBefore,
   } = await getDataBeforeAction(reserveSymbol, tranche, user.address, testEnv);
+
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+  console.log("Withdraw from " + tranche);
+  console.log("Before tx: reserve: " + reserveDataBefore.totalLiquidity);
+  console.log(
+    "Before tx: user: " +
+      userDataBefore.walletBalance +
+      ", atoken: " +
+      userDataBefore.currentATokenBalance +
+      ", stable debt: " +
+      userDataBefore.currentStableDebt
+  );
 
   let amountToWithdraw = "0";
 
@@ -370,13 +384,22 @@ export const withdraw = async (
         .withdraw(reserve, tranche, amountToWithdraw, user.address)
     );
 
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+
+    if (timeTravel) {
+      const secondsToTravel = new BigNumber(timeTravel)
+        .multipliedBy(ONE_YEAR)
+        .div(365)
+        .toNumber();
+
+      await advanceTimeAndBlock(secondsToTravel);
+    }
+
     const {
       reserveData: reserveDataAfter,
       userData: userDataAfter,
       timestamp,
     } = await getContractsData(reserve, tranche, user.address, testEnv);
-
-    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
     const expectedReserveData = calcExpectedReserveDataAfterWithdraw(
       amountToWithdraw,
@@ -394,6 +417,18 @@ export const withdraw = async (
       timestamp,
       txCost
     );
+
+    console.log("After withdraw: reserve: " + reserveDataAfter.totalLiquidity);
+    console.log(
+      "After withdraw: user: " +
+        userDataAfter.walletBalance +
+        ", atoken: " +
+        userDataAfter.currentATokenBalance +
+        ", stable debt: " +
+        userDataAfter.currentStableDebt
+    );
+
+    console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
@@ -809,6 +844,19 @@ export const repay = async (
   const { reserveData: reserveDataBefore, userData: userDataBefore } =
     await getContractsData(reserve, tranche, onBehalfOf.address, testEnv);
 
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+
+  console.log("Repay in " + tranche);
+  console.log("Before tx: reserve: " + reserveDataBefore.totalLiquidity);
+  console.log(
+    "Before tx: user: " +
+      userDataBefore.walletBalance +
+      ", atoken: " +
+      userDataBefore.currentATokenBalance +
+      ", stable debt: " +
+      userDataBefore.currentStableDebt
+  );
+
   let amountToRepay = "0";
 
   if (amount !== "-1") {
@@ -869,6 +917,18 @@ export const repay = async (
       txTimestamp,
       timestamp
     );
+
+    console.log("After repay: reserve: " + reserveDataAfter.totalLiquidity);
+    console.log(
+      "After repay: user: " +
+        userDataAfter.walletBalance +
+        ", atoken: " +
+        userDataAfter.currentATokenBalance +
+        ", stable debt: " +
+        userDataAfter.currentStableDebt
+    );
+
+    console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);

@@ -12,7 +12,7 @@ contract TrancheGovernance is LendingPoolStorage {
 
     /**
      * @dev Creates or edits a tranche
-     * @param trancheId 0-255 id of tranche, decided by governance
+     * @param trancheId 0-255 id of tranche, decided by governance. If every asset in a tranche is multplied by the same multiplier, then this should just be the same as _riskLevel
      * @param _riskLevel 0, 1, or 2 for low, medium, and high risk? @Steven verify this
      * @param _variableBorrowRateMultiplier tranche specific variable rate multiplier
      * @param _stableBorrowRateMultiplier tranche specific variable rate multiplier
