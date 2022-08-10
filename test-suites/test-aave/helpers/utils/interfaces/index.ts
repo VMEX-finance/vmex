@@ -38,3 +38,9 @@ export interface ReserveData {
   liquidityRate: BigNumber;
   [key: string]: BigNumber | string;
 }
+
+export interface TrancheMultiplier {
+  liquidityRateMultiplier: BigNumber;
+   variableBorrowRateMultiplier: BigNumber;
+   stableBorrowRateMultiplier: BigNumber;
+}
