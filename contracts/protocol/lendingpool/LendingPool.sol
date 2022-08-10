@@ -146,7 +146,8 @@ contract LendingPool is
                 tranche,
                 collateralRisk[asset],
                 isAllowedCollateralInHigherTranches[asset],
-                isLendable[asset]
+                isLendable[asset],
+                trancheMultipliers[tranche]
             );
         }
         {
@@ -189,7 +190,8 @@ contract LendingPool is
                     asset,
                     tranche,
                     amount,
-                    to
+                    to,
+                    trancheMultipliers[tranche]
                 )
             );
     }
@@ -258,7 +260,8 @@ contract LendingPool is
                 referralCode,
                 true,
                 _maxStableRateBorrowSizePercent,
-                _reservesCount
+                _reservesCount,
+                trancheMultipliers[tranche]
             );
         }
 
@@ -337,7 +340,13 @@ contract LendingPool is
         }
 
         address aToken = reserve.aTokenAddress;
-        reserve.updateInterestRates(asset, aToken, paybackAmount, 0);
+        reserve.updateInterestRates(
+            trancheMultipliers[tranche],
+            asset,
+            aToken,
+            paybackAmount,
+            0
+        );
 
         if (stableDebt.add(variableDebt).sub(paybackAmount) == 0) {
             _usersConfig[onBehalfOf].setBorrowing(reserve.id, false);
@@ -406,7 +415,13 @@ contract LendingPool is
             );
         }
 
-        reserve.updateInterestRates(asset, reserve.aTokenAddress, 0, 0);
+        reserve.updateInterestRates(
+            trancheMultipliers[tranche],
+            asset,
+            reserve.aTokenAddress,
+            0,
+            0
+        );
 
         emit Swap(asset, msg.sender, rateMode);
     }
@@ -452,7 +467,13 @@ contract LendingPool is
             reserve.currentStableBorrowRate
         );
 
-        reserve.updateInterestRates(asset, aTokenAddress, 0, 0);
+        reserve.updateInterestRates(
+            trancheMultipliers[tranche],
+            asset,
+            aTokenAddress,
+            0,
+            0
+        );
 
         emit RebalanceStableBorrowRate(asset, user);
     }
@@ -485,7 +506,6 @@ contract LendingPool is
         {
             ValidationLogic.validateSetUseReserveAsCollateral(
                 reserve,
-                tranche,
                 asset,
                 useAsCollateral,
                 _reserves,
@@ -591,100 +611,33 @@ contract LendingPool is
         bytes calldata params,
         uint16 referralCode
     ) external override whenNotPaused {
-        FlashLoanLocalVars memory vars;
+        DataTypes.UserConfigurationMap storage userConfig =
+            _usersConfig[onBehalfOf];
+        DataTypes.flashLoanVars memory callvars;
 
-        ValidationLogic.validateFlashloan(assets, amounts);
-
-        address[] memory aTokenAddresses = new address[](assets.length);
-        uint256[] memory premiums = new uint256[](assets.length);
-
-        vars.receiver = IFlashLoanReceiver(receiverAddress);
-
-        for (vars.i = 0; vars.i < assets.length; vars.i++) {
-            require(
-                isLendable[assets[vars.i].asset],
-                "cannot borrow asset that is not lendable"
-            );
-            aTokenAddresses[vars.i] = _reserves[assets[vars.i].asset][
-                assets[vars.i].tranche
-            ]
-                .aTokenAddress;
-
-            premiums[vars.i] = amounts[vars.i].mul(_flashLoanPremiumTotal).div(
-                10000
-            );
-
-            IAToken(aTokenAddresses[vars.i]).transferUnderlyingTo(
+        {
+            callvars = DataTypes.flashLoanVars(
                 receiverAddress,
-                amounts[vars.i]
-            );
-        }
-
-        require(
-            vars.receiver.executeOperation(
                 assets,
                 amounts,
-                premiums,
-                msg.sender,
-                params
-            ),
-            Errors.LP_INVALID_FLASH_LOAN_EXECUTOR_RETURN
-        );
-
-        for (vars.i = 0; vars.i < assets.length; vars.i++) {
-            vars.currentAsset = assets[vars.i].asset;
-            vars.currentTranche = assets[vars.i].tranche;
-            vars.currentAmount = amounts[vars.i];
-            vars.currentPremium = premiums[vars.i];
-            vars.currentATokenAddress = aTokenAddresses[vars.i];
-            vars.currentAmountPlusPremium = vars.currentAmount.add(
-                vars.currentPremium
-            );
-
-            if (
-                DataTypes.InterestRateMode(modes[vars.i]) ==
-                DataTypes.InterestRateMode.NONE
-            ) {
-                _reserves[vars.currentAsset][vars.currentTranche].updateState();
-                _reserves[vars.currentAsset][vars.currentTranche]
-                    .cumulateToLiquidityIndex(
-                    IERC20(vars.currentATokenAddress).totalSupply(),
-                    vars.currentPremium
-                );
-                _reserves[vars.currentAsset][vars.currentTranche]
-                    .updateInterestRates(
-                    vars.currentAsset,
-                    vars.currentATokenAddress,
-                    vars.currentAmountPlusPremium,
-                    0
-                );
-
-                IERC20(vars.currentAsset).safeTransferFrom(
-                    receiverAddress,
-                    vars.currentATokenAddress,
-                    vars.currentAmountPlusPremium
-                );
-            } else {
-                // If the user chose to not return the funds, the system checks if there is enough collateral and
-                // eventually opens a debt position
-                borrow(
-                    vars.currentAsset,
-                    vars.currentTranche,
-                    vars.currentAmount,
-                    modes[vars.i],
-                    referralCode,
-                    onBehalfOf
-                );
-            }
-            emit FlashLoan(
-                receiverAddress,
-                msg.sender,
-                vars.currentAsset,
-                vars.currentAmount,
-                vars.currentPremium,
-                referralCode
+                modes,
+                onBehalfOf,
+                params,
+                referralCode,
+                _flashLoanPremiumTotal,
+                _addressesProvider.getPriceOracle(),
+                _maxStableRateBorrowSizePercent,
+                _reservesCount
             );
         }
+        DepositWithdrawLogic._flashLoan(
+            callvars,
+            isLendable,
+            _reserves,
+            trancheMultipliers,
+            _reservesList,
+            userConfig
+        );
     }
 
     /**
@@ -1058,5 +1011,37 @@ contract LendingPool is
 
             _reservesCount = reservesCount + 1;
         }
+    }
+
+    /**
+     * @dev Creates or edits a tranche
+     * @param tranche 0, 1, or 2 for low, medium, and high risk? @Steven verify this
+     * @param _variableBorrowRateMultiplier tranche specific variable rate multiplier
+     * @param _stableBorrowRateMultiplier tranche specific variable rate multiplier
+     **/
+    function editTrancheMultiplier(
+        uint8 tranche,
+        uint256 _liquidityRateMultiplier,
+        uint256 _variableBorrowRateMultiplier,
+        uint256 _stableBorrowRateMultiplier
+    ) external override onlyLendingPoolConfigurator {
+        trancheMultipliers[tranche] = DataTypes.TrancheMultiplier({
+            liquidityRateMultiplier: _liquidityRateMultiplier,
+            variableBorrowRateMultiplier: _variableBorrowRateMultiplier,
+            stableBorrowRateMultiplier: _stableBorrowRateMultiplier
+        });
+    }
+
+    /**
+     * @dev gets tranche multiplier
+     * @param tranche 0, 1, or 2 for low, medium, and high risk? @Steven verify this
+     **/
+    function getTrancheMultiplier(uint8 tranche)
+        external
+        view
+        override
+        returns (DataTypes.TrancheMultiplier memory)
+    {
+        return trancheMultipliers[tranche];
     }
 }

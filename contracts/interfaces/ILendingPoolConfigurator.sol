@@ -2,6 +2,13 @@
 pragma solidity >=0.8.0;
 
 interface ILendingPoolConfigurator {
+    struct InitMultiplierInput {
+        uint8 tranche;
+        uint256 _liquidityRateMultiplier;
+        uint256 _variableBorrowRateMultiplier;
+        uint256 _stableBorrowRateMultiplier;
+    }
+
     struct InitReserveInput {
         address aTokenImpl;
         address stableDebtTokenImpl;
