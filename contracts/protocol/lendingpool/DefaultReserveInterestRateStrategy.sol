@@ -12,6 +12,7 @@ import {
 } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingRateOracle} from "../../interfaces/ILendingRateOracle.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 /**
  * @title DefaultReserveInterestRateStrategy contract
@@ -122,6 +123,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
      **/
     function calculateInterestRates(
         address reserve,
+        DataTypes.TrancheMultiplier memory multiplier,
         address aToken,
         uint256 liquidityAdded,
         uint256 liquidityTaken,
@@ -148,6 +150,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         return
             calculateInterestRates(
                 reserve,
+                multiplier,
                 availableLiquidity,
                 totalStableDebt,
                 totalVariableDebt,
@@ -178,6 +181,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
      **/
     function calculateInterestRates(
         address reserve,
+        DataTypes.TrancheMultiplier memory multiplier,
         uint256 availableLiquidity,
         uint256 totalStableDebt,
         uint256 totalVariableDebt,
@@ -245,6 +249,17 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         )
             .rayMul(vars.utilizationRate)
             .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor));
+
+        vars.currentLiquidityRate = vars.currentLiquidityRate.rayMul(
+            multiplier.liquidityRateMultiplier
+        );
+
+        vars.currentStableBorrowRate = vars.currentStableBorrowRate.rayMul(
+            multiplier.stableBorrowRateMultiplier
+        );
+        vars.currentVariableBorrowRate = vars.currentVariableBorrowRate.rayMul(
+            multiplier.variableBorrowRateMultiplier
+        );
 
         return (
             vars.currentLiquidityRate,

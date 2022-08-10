@@ -409,7 +409,6 @@ library ValidationLogic {
      */
     function validateSetUseReserveAsCollateral(
         DataTypes.ReserveData storage reserve,
-        uint8 tranche,
         address reserveAddress,
         bool useAsCollateral,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
