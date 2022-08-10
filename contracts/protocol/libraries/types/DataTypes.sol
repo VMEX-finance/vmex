@@ -16,7 +16,7 @@ library DataTypes {
         //variable borrow index. Expressed in ray
         uint128 variableBorrowIndex;
         //the current supply rate. Expressed in ray
-        uint128 currentLiquidityRate;
+        uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY
         //the current variable borrow rate. Expressed in ray
         uint128 currentVariableBorrowRate;
         //the current stable borrow rate. Expressed in ray
@@ -33,8 +33,8 @@ library DataTypes {
         uint8 tranche;
     }
 
-    struct Tranche {
-        uint8 riskLevel;
+    struct TrancheMultiplier {
+        uint256 liquidityRateMultiplier;
         uint256 variableBorrowRateMultiplier;
         uint256 stableBorrowRateMultiplier;
     }
@@ -71,6 +71,15 @@ library DataTypes {
         uint8 tranche;
     }
 
+    struct DepositVars {
+        address asset;
+        uint8 tranche;
+        uint8 risk;
+        bool allowHigherTranche;
+        bool isLendable;
+        TrancheMultiplier t;
+    }
+
     struct ExecuteBorrowParams {
         address asset;
         uint8 tranche; //tranche the user wants to borrow out of
@@ -81,6 +90,9 @@ library DataTypes {
         address aTokenAddress;
         uint16 referralCode;
         bool releaseUnderlying;
+        uint256 _maxStableRateBorrowSizePercent;
+        uint256 _reservesCount;
+        TrancheMultiplier t;
     }
 
     struct WithdrawParams {
@@ -90,5 +102,33 @@ library DataTypes {
         uint8 tranche;
         uint256 amount;
         address to;
+        TrancheMultiplier t;
+    }
+
+    struct ValidateSetUseReserveAsCollateralParams {
+        uint8 risk;
+        bool allowHigherTranche;
+    }
+
+    struct calculateInterestRatesVars {
+        address reserve;
+        address aToken;
+        uint256 liquidityAdded;
+        uint256 liquidityTaken;
+        uint256 reserveFactor;
+    }
+
+    struct flashLoanVars {
+        address receiverAddress;
+        DataTypes.TrancheAddress[] assets;
+        uint256[] amounts;
+        uint256[] modes;
+        address onBehalfOf;
+        bytes params;
+        uint16 referralCode;
+        uint256 _flashLoanPremiumTotal;
+        address oracle;
+        uint256 _maxStableRateBorrowSizePercent;
+        uint256 _reservesCount;
     }
 }

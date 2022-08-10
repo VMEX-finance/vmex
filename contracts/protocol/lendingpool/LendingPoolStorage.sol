@@ -30,6 +30,8 @@ contract LendingPoolStorage {
     //asset address to boolean value representing if that address is lendable, or if it should just be a collateral vault
     mapping(address => bool) internal isLendable;
 
+    mapping(address => bool) internal isAllowedCollateralInHigherTranches;
+
     // the list of the available reserves, structured as a mapping for gas savings reasons
     mapping(uint256 => address) internal _reservesList;
 
@@ -43,5 +45,5 @@ contract LendingPoolStorage {
 
     uint256 internal _maxNumberOfReserves;
 
-    mapping(uint256 => DataTypes.Tranche) internal tranches;
+    mapping(uint256 => DataTypes.TrancheMultiplier) internal trancheMultipliers;
 }

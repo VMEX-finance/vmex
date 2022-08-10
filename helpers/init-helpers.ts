@@ -20,6 +20,8 @@ import {
 import { BigNumberish } from "ethers";
 import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
+import BigNumber from "bignumber.js";
+import { oneRay } from './constants';
 
 export const getATokenExtraParams = async (
   aTokenName: string,
@@ -45,6 +47,42 @@ export const initReservesByHelper = async (
   poolName: ConfigNames,
   verify: boolean
 ) => {
+  const configurator = await getLendingPoolConfiguratorProxy();
+
+  let initTrancheMultiplierParams: {
+    tranche: string;
+    _liquidityRateMultiplier: string;
+    _variableBorrowRateMultiplier: string;
+    _stableBorrowRateMultiplier: string;
+  }[] = [
+    {
+      tranche: "0",
+      _liquidityRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
+    },
+    {
+      tranche: "1",
+      _liquidityRateMultiplier: new BigNumber(1.03).multipliedBy(oneRay).toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1.05).multipliedBy(oneRay).toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1.05).multipliedBy(oneRay).toFixed(),
+    },
+    {
+      tranche: "2",
+      _liquidityRateMultiplier: new BigNumber(1.06).multipliedBy(oneRay).toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1.1).multipliedBy(oneRay).toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1.1).multipliedBy(oneRay).toFixed(),
+    },
+];
+
+  //setup tranche 
+  const tx0 = await waitForTx(
+    await configurator.initTrancheMultipliers(initTrancheMultiplierParams)
+  );
+
+  console.log('setup tranche multipliers');
+  console.log("    * gasUsed", tx0.gasUsed.toString());
+  
   const addressProvider = await getLendingPoolAddressesProvider();
 
   // CHUNK CONFIGURATION
@@ -71,6 +109,8 @@ export const initReservesByHelper = async (
     stableDebtTokenSymbol: string;
     params: string;
     risk: BigNumberish;
+    isLendable: boolean;
+    allowHigherTranche: boolean;
   }[] = [];
 
   let strategyRates: [
@@ -94,7 +134,14 @@ export const initReservesByHelper = async (
       );
       continue;
     }
-    const { strategy, aTokenImpl, reserveDecimals, risk, isLendable } = params;
+    const {
+      strategy,
+      aTokenImpl,
+      reserveDecimals,
+      risk,
+      isLendable,
+      allowedHigherTranche,
+    } = params;
     const {
       optimalUtilizationRate,
       baseVariableBorrowRate,
@@ -156,14 +203,23 @@ export const initReservesByHelper = async (
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
       risk: risk,
+      isLendable: isLendable,
+      allowHigherTranche: allowedHigherTranche,
     });
+
+    console.log(
+      "Underlying asset address for ",
+      symbol,
+      ": ",
+      tokenAddresses[symbol]
+    );
   }
 
   // Deploy init reserves per chunks
   const chunkedSymbols = chunk(reserveSymbols, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
-  const configurator = await getLendingPoolConfiguratorProxy();
+  
 
   console.log(
     `- Reserves initialization in ${chunkedInitInputParams.length} txs`

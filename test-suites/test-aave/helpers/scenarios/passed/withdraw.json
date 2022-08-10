@@ -34,6 +34,38 @@
       ]
     },
     {
+      "description": "User 0 Deposits 1000 DAI in an empty reserve",
+      "actions": [
+        {
+          "name": "mint",
+          "args": {
+            "reserve": "DAI",
+            "amount": "1000",
+            "user": "0"
+          },
+          "expected": "success"
+        },
+        {
+          "name": "approve",
+          "args": {
+            "reserve": "DAI",
+            "user": "0"
+          },
+          "expected": "success"
+        },
+        {
+          "name": "deposit",
+          "args": {
+            "reserve": "DAI",
+            "amount": "1000",
+            "user": "0",
+            "timeTravel": "365"
+          },
+          "expected": "success"
+        }
+      ]
+    },
+    {
       "description": "User 0 withdraws half of the deposited DAI",
       "actions": [
         {
