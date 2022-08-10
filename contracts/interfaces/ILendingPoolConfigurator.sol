@@ -2,6 +2,13 @@
 pragma solidity >=0.8.0;
 
 interface ILendingPoolConfigurator {
+    struct InitMultiplierInput {
+        uint8 tranche;
+        uint256 _liquidityRateMultiplier;
+        uint256 _variableBorrowRateMultiplier;
+        uint256 _stableBorrowRateMultiplier;
+    }
+
     struct InitReserveInput {
         address aTokenImpl;
         address stableDebtTokenImpl;
@@ -20,6 +27,8 @@ interface ILendingPoolConfigurator {
         string stableDebtTokenSymbol;
         bytes params;
         uint8 risk; //risk level for collateral
+        bool isLendable;
+        bool allowHigherTranche;
     }
 
     struct UpdateATokenInput {

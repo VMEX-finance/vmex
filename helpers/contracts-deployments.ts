@@ -98,8 +98,13 @@ export const deployUiPoolDataProviderV2 = async (
   chainlinkAggregatorProxy: string,
   chainlinkEthUsdAggregatorProxy: string,
   verify?: boolean
-) =>
-  withSaveAndVerify(
+) => {
+  console.log("aggregator: ", chainlinkAggregatorProxy);
+  console.log(
+    "chainlinkEthUsdAggregatorProxy: ",
+    chainlinkEthUsdAggregatorProxy
+  );
+  return withSaveAndVerify(
     await new UiPoolDataProviderV2Factory(await getFirstSigner()).deploy(
       chainlinkAggregatorProxy,
       chainlinkEthUsdAggregatorProxy
@@ -108,6 +113,7 @@ export const deployUiPoolDataProviderV2 = async (
     [chainlinkAggregatorProxy, chainlinkEthUsdAggregatorProxy],
     verify
   );
+};
 
 export const deployUiPoolDataProviderV2V3 = async (
   chainlinkAggregatorProxy: string,

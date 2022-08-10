@@ -60,10 +60,21 @@ library ValidationLogic {
     function validateCollateralRisk(
         bool isCollateral,
         uint8 risk,
-        uint8 tranche
+        uint8 tranche,
+        bool allowHigherTranche
     ) public pure {
         if (isCollateral == true) {
-            require(risk <= tranche, "Risk is too high to set as collateral"); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+            if (allowHigherTranche) {
+                require(
+                    risk <= tranche,
+                    "Risk is too high to set as collateral"
+                ); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+            } else {
+                require(
+                    risk == tranche,
+                    "Risk is not equal to collateral tranche"
+                );
+            }
         }
     }
 
@@ -398,18 +409,15 @@ library ValidationLogic {
      */
     function validateSetUseReserveAsCollateral(
         DataTypes.ReserveData storage reserve,
-        uint8 tranche,
         address reserveAddress,
         bool useAsCollateral,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
-        uint8 risk,
         uint256 reservesCount,
         address oracle
     ) external view {
-        validateCollateralRisk(useAsCollateral, risk, tranche);
         uint256 underlyingBalance =
             IERC20(reserve.aTokenAddress).balanceOf(msg.sender);
 
