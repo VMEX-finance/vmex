@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 /**
  * @title IReserveInterestRateStrategyInterface interface
@@ -13,6 +14,7 @@ interface IReserveInterestRateStrategy {
 
     function calculateInterestRates(
         address reserve,
+        DataTypes.TrancheMultiplier memory multiplier,
         uint256 availableLiquidity,
         uint256 totalStableDebt,
         uint256 totalVariableDebt,
@@ -29,6 +31,7 @@ interface IReserveInterestRateStrategy {
 
     function calculateInterestRates(
         address reserve,
+        DataTypes.TrancheMultiplier memory multiplier,
         address aToken,
         uint256 liquidityAdded,
         uint256 liquidityTaken,

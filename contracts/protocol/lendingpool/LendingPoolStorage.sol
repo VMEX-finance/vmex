@@ -45,5 +45,5 @@ contract LendingPoolStorage {
 
     uint256 internal _maxNumberOfReserves;
 
-    mapping(uint256 => DataTypes.Tranche) internal tranches;
+    mapping(uint256 => DataTypes.TrancheMultiplier) internal trancheMultipliers;
 }
