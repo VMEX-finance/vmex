@@ -81,6 +81,36 @@ contract LendingPoolConfigurator is
         pool = ILendingPool(addressesProvider.getLendingPool());
     }
 
+    //TODO: call this function in the setup
+    function initTrancheMultipliers(InitMultiplierInput[] calldata input)
+        external
+        onlyPoolAdmin
+    {
+        for (uint8 i = 0; i < input.length; i++) {
+            pool.editTrancheMultiplier(
+                input[i].tranche,
+                input[i]._liquidityRateMultiplier,
+                input[i]._variableBorrowRateMultiplier,
+                input[i]._stableBorrowRateMultiplier
+            );
+        }
+    }
+
+    //note that _liquidityRateMultiplier, _variableBorrowRateMultiplier, _stableBorrowRateMultiplier and are in ray. So a multiplier of 1.1 will be 1.1 * ray
+    function updateTrancheMultipliers(
+        uint8 tranche,
+        uint256 _liquidityRateMultiplier,
+        uint256 _variableBorrowRateMultiplier,
+        uint256 _stableBorrowRateMultiplier
+    ) external onlyPoolAdmin {
+        pool.editTrancheMultiplier(
+            tranche,
+            _liquidityRateMultiplier,
+            _variableBorrowRateMultiplier,
+            _stableBorrowRateMultiplier
+        );
+    }
+
     /**
      * @dev Initializes reserves in batch
      **/
@@ -363,6 +393,26 @@ contract LendingPoolConfigurator is
         pool.setConfiguration(asset, tranche, currentConfig.data);
 
         emit BorrowingEnabledOnReserve(asset, stableBorrowRateEnabled);
+    }
+
+    /**
+     * @dev Creates or edits a tranche
+     * @param tranche 0, 1, or 2 for low, medium, and high risk? @Steven verify this
+     * @param _variableBorrowRateMultiplier tranche specific variable rate multiplier
+     * @param _stableBorrowRateMultiplier tranche specific variable rate multiplier
+     **/
+    function editTranche(
+        uint8 tranche,
+        uint256 _liquidityRateMultiplier,
+        uint256 _variableBorrowRateMultiplier,
+        uint256 _stableBorrowRateMultiplier
+    ) public onlyPoolAdmin {
+        pool.editTrancheMultiplier(
+            tranche,
+            _liquidityRateMultiplier,
+            _variableBorrowRateMultiplier,
+            _stableBorrowRateMultiplier
+        );
     }
 
     /**

@@ -221,46 +221,65 @@ library ReserveLogic {
      **/
     function updateInterestRates(
         DataTypes.ReserveData storage reserve,
+        DataTypes.TrancheMultiplier memory multiplier,
         address reserveAddress,
         address aTokenAddress,
         uint256 liquidityAdded,
         uint256 liquidityTaken
     ) internal {
         UpdateInterestRatesLocalVars memory vars;
+        {
+            vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
 
-        vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
+            (vars.totalStableDebt, vars.avgStableRate) = IStableDebtToken(
+                vars
+                    .stableDebtTokenAddress
+            )
+                .getTotalSupplyAndAvgRate();
+        }
+        
+        {
+            //calculates the total variable debt locally using the scaled total supply instead
+            //of totalSupply(), as it's noticeably cheaper. Also, the index has been
+            //updated by the previous updateState() call
+            vars.totalVariableDebt = IVariableDebtToken(
+                reserve
+                    .variableDebtTokenAddress
+            )
+                .scaledTotalSupply()
+                .rayMul(reserve.variableBorrowIndex);
+        }
 
-        (vars.totalStableDebt, vars.avgStableRate) = IStableDebtToken(
-            vars
-                .stableDebtTokenAddress
-        )
-            .getTotalSupplyAndAvgRate();
-
-        //calculates the total variable debt locally using the scaled total supply instead
-        //of totalSupply(), as it's noticeably cheaper. Also, the index has been
-        //updated by the previous updateState() call
-        vars.totalVariableDebt = IVariableDebtToken(
-            reserve
-                .variableDebtTokenAddress
-        )
-            .scaledTotalSupply()
-            .rayMul(reserve.variableBorrowIndex);
-
-        (
+        DataTypes.calculateInterestRatesVars memory calvars;
+        {
+            calvars = DataTypes.calculateInterestRatesVars(
+                reserveAddress,
+                aTokenAddress,
+                liquidityAdded,
+                liquidityTaken,
+                reserve.configuration.getReserveFactor()
+            );
+        }
+        {
+            (
             vars.newLiquidityRate,
             vars.newStableRate,
             vars.newVariableRate
-        ) = IReserveInterestRateStrategy(reserve.interestRateStrategyAddress)
-            .calculateInterestRates(
-            reserveAddress,
-            aTokenAddress,
-            liquidityAdded,
-            liquidityTaken,
-            vars.totalStableDebt,
-            vars.totalVariableDebt,
-            vars.avgStableRate,
-            reserve.configuration.getReserveFactor()
-        );
+            ) = IReserveInterestRateStrategy(reserve.interestRateStrategyAddress)
+                .calculateInterestRates(
+                calvars.reserve,
+                multiplier,
+                calvars.aToken,
+                calvars.liquidityAdded,
+                calvars.liquidityTaken,
+                vars.totalStableDebt,
+                vars.totalVariableDebt,
+                vars.avgStableRate,
+                calvars.reserveFactor
+            );
+        }
+        
+        
         require(
             vars.newLiquidityRate <= type(uint128).max,
             Errors.RL_LIQUIDITY_RATE_OVERFLOW
