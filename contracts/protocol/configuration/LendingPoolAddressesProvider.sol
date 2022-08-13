@@ -33,6 +33,7 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant LENDING_POOL_COLLATERAL_MANAGER =
         "COLLATERAL_MANAGER";
     bytes32 private constant PRICE_ORACLE = "PRICE_ORACLE";
+    bytes32 private constant CURVE_PRICE_ORACLE = "CURVE_PRICE_ORACLE";
     bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
 
     constructor(string memory marketId) public {
@@ -201,9 +202,23 @@ contract LendingPoolAddressesProvider is
         return getAddress(PRICE_ORACLE);
     }
 
+    //custom oracle to get price of curve LP tokens
+    function getCurvePriceOracle() external view override returns (address) {
+        return getAddress(CURVE_PRICE_ORACLE);
+    }
+
     function setPriceOracle(address priceOracle) external override onlyOwner {
         _addresses[PRICE_ORACLE] = priceOracle;
         emit PriceOracleUpdated(priceOracle);
+    }
+
+    function setCurvePriceOracle(address priceOracle)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[CURVE_PRICE_ORACLE] = priceOracle;
+        emit CurvePriceOracleUpdated(priceOracle);
     }
 
     function getLendingRateOracle() external view override returns (address) {

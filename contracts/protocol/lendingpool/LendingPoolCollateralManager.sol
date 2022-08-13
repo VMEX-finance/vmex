@@ -335,6 +335,7 @@ contract LendingPoolCollateralManager is
 
         AvailableCollateralToLiquidateLocalVars memory vars;
 
+        //CURVE TODO anywhere with getAssetPrice: check if asset is CURVE, if so, use a different oracle for the CurveOracleV2, and use the Curve provider oracle to get the necessary information to the CurveOracleV2 oracle
         vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
         vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
 
