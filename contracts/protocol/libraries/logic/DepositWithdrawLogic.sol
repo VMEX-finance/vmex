@@ -85,7 +85,7 @@ library DepositWithdrawLogic {
         if (vars.isLendable) {
             //these will simply not be used for collateral vault, and even if it is, it won't change anything
             self.updateState();
-            self.updateInterestRates(vars.t,vars.asset, aToken, amount, 0);
+            self.updateInterestRates(vars.t, vars.asset, aToken, amount, 0);
         }
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, amount); //msg.sender should still be the user, not the contract
@@ -177,7 +177,13 @@ library DepositWithdrawLogic {
 
         reserve.updateState();
 
-        reserve.updateInterestRates(vars.t, vars.asset, aToken, 0, amountToWithdraw);
+        reserve.updateInterestRates(
+            vars.t,
+            vars.asset,
+            aToken,
+            0,
+            amountToWithdraw
+        );
 
         if (amountToWithdraw == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
@@ -310,7 +316,6 @@ library DepositWithdrawLogic {
         );
     }
 
-
     struct FlashLoanLocalVars {
         IFlashLoanReceiver receiver;
         address oracle;
@@ -341,12 +346,14 @@ library DepositWithdrawLogic {
         uint256 premium,
         uint16 referralCode
     );
-    
+
     function _flashLoan(
         DataTypes.flashLoanVars memory callvars,
-        mapping(address => bool) storage isLendable,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData)) storage _reserves,
-        mapping(uint256 => DataTypes.TrancheMultiplier) storage trancheMultipliers,
+        mapping(address => DataTypes.AssetData) storage assetDatas,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage _reserves,
+        mapping(uint256 => DataTypes.TrancheMultiplier)
+            storage trancheMultipliers,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.UserConfigurationMap storage userConfig
     ) external {
@@ -354,14 +361,15 @@ library DepositWithdrawLogic {
 
         ValidationLogic.validateFlashloan(callvars.assets, callvars.amounts);
 
-        address[] memory aTokenAddresses = new address[](callvars.assets.length);
+        address[] memory aTokenAddresses =
+            new address[](callvars.assets.length);
         uint256[] memory premiums = new uint256[](callvars.assets.length);
 
         vars.receiver = IFlashLoanReceiver(callvars.receiverAddress);
 
         for (vars.i = 0; vars.i < callvars.assets.length; vars.i++) {
             require(
-                isLendable[callvars.assets[vars.i].asset],
+                assetDatas[callvars.assets[vars.i].asset].isLendable,
                 "cannot borrow asset that is not lendable"
             );
             aTokenAddresses[vars.i] = _reserves[callvars.assets[vars.i].asset][
@@ -369,9 +377,9 @@ library DepositWithdrawLogic {
             ]
                 .aTokenAddress;
 
-            premiums[vars.i] = callvars.amounts[vars.i].mul(callvars._flashLoanPremiumTotal).div(
-                10000
-            );
+            premiums[vars.i] = callvars.amounts[vars.i]
+                .mul(callvars._flashLoanPremiumTotal)
+                .div(10000);
 
             IAToken(aTokenAddresses[vars.i]).transferUnderlyingTo(
                 callvars.receiverAddress,
@@ -412,7 +420,7 @@ library DepositWithdrawLogic {
                 );
                 _reserves[vars.currentAsset][vars.currentTranche]
                     .updateInterestRates(
-                        trancheMultipliers[vars.currentTranche],
+                    trancheMultipliers[vars.currentTranche],
                     vars.currentAsset,
                     vars.currentATokenAddress,
                     vars.currentAmountPlusPremium,
@@ -449,7 +457,13 @@ library DepositWithdrawLogic {
                     );
                 }
 
-                _borrowHelper(_reserves, _reservesList, userConfig, callvars.oracle, borrowvars);
+                _borrowHelper(
+                    _reserves,
+                    _reservesList,
+                    userConfig,
+                    callvars.oracle,
+                    borrowvars
+                );
             }
             emit FlashLoan(
                 callvars.receiverAddress,

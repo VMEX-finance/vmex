@@ -112,6 +112,7 @@ library GenericLogic {
             return true;
         }
 
+        //here, need to check if the reserve is a curve reserve. If so
         vars.amountToDecreaseInETH = IPriceOracleGetter(oracle)
             .getAssetPrice(params.asset)
             .mul(params.amount)

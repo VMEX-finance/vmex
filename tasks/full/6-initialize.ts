@@ -73,6 +73,11 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
 
       const treasuryAddress = await getTreasuryAddress(poolConfig);
 
+      //Curve TODO: also call helper function that initializes reserves for Curve tokens
+      //Also add Curve provider to our aave address provider so we can get_registry to have access to function that converts lp token address to pool address
+
+      //CURVE TODO: Also deploy CurveOracleV2 contract and add that contract to the aave address provider
+
       await initReservesByHelper(
         ReservesConfig,
         reserveAssets,

@@ -144,9 +144,9 @@ contract LendingPool is
             vars = DataTypes.DepositVars(
                 asset,
                 tranche,
-                collateralRisk[asset],
-                isAllowedCollateralInHigherTranches[asset],
-                isLendable[asset],
+                assetDatas[asset].collateralRisk,
+                assetDatas[asset].isAllowedCollateralInHigherTranches,
+                assetDatas[asset].isLendable,
                 trancheMultipliers[tranche]
             );
         }
@@ -240,7 +240,10 @@ contract LendingPool is
         uint16 referralCode,
         address onBehalfOf
     ) public override whenNotPaused {
-        require(isLendable[asset], "cannot borrow asset that is not lendable");
+        require(
+            assetDatas[asset].isLendable,
+            "cannot borrow asset that is not lendable"
+        );
         DataTypes.ReserveData storage reserve;
         DataTypes.ExecuteBorrowParams memory vars;
 
@@ -371,7 +374,10 @@ contract LendingPool is
         uint8 tranche,
         uint256 rateMode
     ) external override whenNotPaused {
-        require(isLendable[asset], "cannot swap asset that is not lendable");
+        require(
+            assetDatas[asset].isLendable,
+            "cannot swap asset that is not lendable"
+        );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         (uint256 stableDebt, uint256 variableDebt) =
@@ -440,7 +446,10 @@ contract LendingPool is
         uint8 tranche,
         address user
     ) external override whenNotPaused {
-        require(isLendable[asset], "cannot borrow asset that is not lendable");
+        require(
+            assetDatas[asset].isLendable,
+            "cannot borrow asset that is not lendable"
+        );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
@@ -489,7 +498,7 @@ contract LendingPool is
         bool useAsCollateral
     ) external override whenNotPaused {
         require(
-            isLendable[asset],
+            assetDatas[asset].isLendable,
             "nonlendable assets must be set as collateral"
         );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
@@ -497,9 +506,9 @@ contract LendingPool is
         {
             ValidationLogic.validateCollateralRisk(
                 useAsCollateral,
-                collateralRisk[asset],
+                assetDatas[asset].collateralRisk,
                 tranche,
-                isAllowedCollateralInHigherTranches[asset]
+                assetDatas[asset].isAllowedCollateralInHigherTranches
             );
         }
 
@@ -632,7 +641,7 @@ contract LendingPool is
         }
         DepositWithdrawLogic._flashLoan(
             callvars,
-            isLendable,
+            assetDatas,
             _reserves,
             trancheMultipliers,
             _reservesList,
@@ -914,7 +923,7 @@ contract LendingPool is
         onlyLendingPoolConfigurator
     {
         //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
-        collateralRisk[asset] = risk;
+        assetDatas[asset].collateralRisk = risk;
     }
 
     /**
@@ -928,7 +937,7 @@ contract LendingPool is
         override
         onlyLendingPoolConfigurator
     {
-        isLendable[asset] = _isLendable;
+        assetDatas[asset].isLendable = _isLendable;
     }
 
     /**
@@ -941,11 +950,12 @@ contract LendingPool is
         address asset,
         bool _allowedHigherTranche
     ) external override onlyLendingPoolConfigurator {
-        isAllowedCollateralInHigherTranches[asset] = _allowedHigherTranche;
+        assetDatas[asset]
+            .isAllowedCollateralInHigherTranches = _allowedHigherTranche;
     }
 
     function getAssetRisk(address asset) external view returns (uint8) {
-        return collateralRisk[asset];
+        return assetDatas[asset].collateralRisk;
     }
 
     /**
