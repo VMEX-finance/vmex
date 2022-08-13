@@ -2,12 +2,13 @@
 pragma solidity >=0.8.0;
 
 import {ICurvePool} from "./interfaces/ICurvePoolV1.sol";
+import {ICurveOracle} from "./interfaces/ICurveOracle.sol";
 import {vMath} from "./libs/vMath.sol";
 
 //used for all curveV1 tokens, no need to redeploy
-contract CurveOracleV1 {
+contract CurveOracleV1 is ICurveOracle {
     //where total supply is the total supply of the LP token in the pools calculated using the virtual price
-    function get_v1_price(address curve_pool, uint256[] memory prices)
+    function get_price(address curve_pool, uint256[] memory prices)
         external
         view
         returns (uint256)
