@@ -330,14 +330,64 @@ contract LendingPoolCollateralManager is
     ) internal view returns (uint256, uint256) {
         uint256 collateralAmount = 0;
         uint256 debtAmountNeeded = 0;
-        IPriceOracleGetter oracle =
-            IPriceOracleGetter(_addressesProvider.getPriceOracle());
 
         AvailableCollateralToLiquidateLocalVars memory vars;
 
+        {
+            address oracleAddress;
+
+            if (
+                assetDatas[collateralAsset].assetType ==
+                DataTypes.ReserveAssetType.AAVE
+            ) {
+                oracleAddress = _addressesProvider.getPriceOracle();
+            } else if (
+                assetDatas[collateralAsset].assetType ==
+                DataTypes.ReserveAssetType.CURVE
+            ) {
+                oracleAddress = _addressesProvider.getCurvePriceOracle();
+            }
+
+            IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
+            vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
+
+            if (
+                assetDatas[debtAsset].assetType ==
+                DataTypes.ReserveAssetType.AAVE
+            ) {
+                oracleAddress = _addressesProvider.getPriceOracle();
+            } else if (
+                assetDatas[debtAsset].assetType ==
+                DataTypes.ReserveAssetType.CURVE
+            ) {
+                oracleAddress = _addressesProvider.getCurvePriceOracle();
+            }
+
+            oracle = IPriceOracleGetter(oracleAddress);
+            vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        }
+
         //CURVE TODO anywhere with getAssetPrice: check if asset is CURVE, if so, use a different oracle for the CurveOracleV2, and use the Curve provider oracle to get the necessary information to the CurveOracleV2 oracle
-        vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
-        vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        // Use this if stack too deep?
+        // if(assetDatas[collateralAsset].assetType == DataTypes.ReserveAssetType.AAVE){
+        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getPriceOracle());
+        //     vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
+        // }
+        // else if(assetDatas[collateralAsset].assetType == DataTypes.ReserveAssetType.CURVE){
+        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getCurvePriceOracle());
+        //     vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
+        // }
+
+        // if(assetDatas[debtAsset].assetType == DataTypes.ReserveAssetType.AAVE){
+        //     //debt reserve should never be CURVE if all curve pools are not lendable
+        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getPriceOracle());
+        //     vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        // }
+        // else if(assetDatas[debtAsset].assetType == DataTypes.ReserveAssetType.CURVE){
+        //     //debt reserve should never be CURVE if all curve pools are not lendable
+        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getCurvePriceOracle());
+        //     vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        // }
 
         (
             ,
