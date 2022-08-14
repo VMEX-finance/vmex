@@ -4,10 +4,10 @@ import { Interface } from "@ethersproject/abi";
 
 export class LendingTransaction extends BaseTransactionClass {
     
-    asset: string;
-    tranche: number;
-    amount: BigNumberish;
-    to: string;
+    asset?: string;
+    tranche?: number;
+    amount?: BigNumberish;
+    to?: string;
     isCollateral: boolean = false;
     referralCode: string | number = '0'
 
