@@ -9,6 +9,8 @@
   "scripts": {
     "run-env": "npm i && tail -f /dev/null",
     "hardhat": "hardhat",
+    "build": "tsc",
+    "scripts:priceFeed": "hardhat run scripts/test-priceFeed.ts",
     "hardhat:kovan": "hardhat --network kovan",
     "hardhat:tenderly-main": "hardhat --network tenderlyMain",
     "hardhat:ropsten": "hardhat --network ropsten",
@@ -175,6 +177,7 @@
   "license": "AGPLv3",
   "dependencies": {
     "axios-curlirize": "^1.3.7",
+    "hardhat-deploy": "^0.11.12",
     "lodash": "^4.17.21",
     "tmp-promise": "^3.0.2"
   },
