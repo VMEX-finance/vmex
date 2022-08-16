@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TOKEN_PRICE = void 0;
+exports.TOKEN = exports.TOKEN_PRICE = void 0;
 exports.TOKEN_PRICE = {
     AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
     BAT: '0x0d16d4528239e9ee52fa531af613AcdB23D88c94',
@@ -24,7 +24,7 @@ exports.TOKEN_PRICE = {
     USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
 };
-const TOKEN = {
+exports.TOKEN = {
     ['AAVE']: {
         address: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
         decimals: "18",
@@ -83,15 +83,15 @@ const TOKEN = {
     },
     ['USDC']: {
         address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        decimals: "6"
+        decimals: "18"
     },
     ['USDT']: {
         address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-        decimals: "6"
+        decimals: "18"
     },
     ['WBTC']: {
         address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-        decimals: "8"
+        decimals: "18"
     },
     ['YFI']: {
         address: "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
@@ -100,6 +100,10 @@ const TOKEN = {
     ['ZRX']: {
         address: "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
         decimals: "18"
+    },
+    ['USD']: {
+        address: "",
+        decimals: "8"
     },
     ['xSUSHI']: {
         address: "0xF256CC7847E919FAc9B808cC216cAc87CCF2f47a",
