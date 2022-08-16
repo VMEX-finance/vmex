@@ -17,6 +17,7 @@ require("temp-hardhat-etherscan");
 require("hardhat-gas-reporter");
 require("hardhat-typechain");
 require("@tenderly/hardhat-tenderly");
+require("hardhat-deploy");
 require("solidity-coverage");
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true';
 const DEFAULT_BLOCK_GAS_LIMIT = 8000000;
@@ -96,6 +97,7 @@ const buidlerConfig = {
             gas: DEFAULT_BLOCK_GAS_LIMIT,
             gasPrice: 8000000000,
             allowUnlimitedContractSize: UNLIMITED_BYTECODE_SIZE,
+            saveDeployments: true,
             chainId: buidler_constants_1.BUIDLEREVM_CHAINID,
             throwOnTransactionFailures: true,
             throwOnCallFailures: true,
@@ -108,6 +110,7 @@ const buidlerConfig = {
         localhost: {
             url: "http://localhost:8545",
             chainId: 31337,
+            saveDeployments: true,
             forking: (0, helper_hardhat_config_1.buildForkConfig)(),
             timeout: 150000,
         },
