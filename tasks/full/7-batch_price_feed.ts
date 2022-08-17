@@ -11,12 +11,6 @@ task(
       throw new Error("INVALID_CHAIN_ID");
     }
     const network = localBRE.network.name;
-
-    let PriceFeed = await localBRE.ethers.getContractFactory("BatchPriceFeed");
-    const priceFeed = await PriceFeed.deploy();
-    await priceFeed.deployed();
-
-    console.log(`Deployed Batch PriceFeed Contract to ${priceFeed.address}`);
   } catch (err) {
     console.error(err);
     exit(1);
