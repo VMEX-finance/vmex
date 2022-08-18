@@ -13,6 +13,9 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {Errors} from "../helpers/Errors.sol";
+import {
+    ILendingPoolAddressesProvider
+} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 
 /**
  * @title GenericLogic library
@@ -185,7 +188,8 @@ library GenericLogic {
         DataTypes.UserConfigurationMap memory userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     )
         internal
         view
@@ -232,9 +236,12 @@ library GenericLogic {
             ) = currentReserve.configuration.getParams();
 
             vars.tokenUnit = 10**vars.decimals;
-            vars.reserveUnitPrice = IPriceOracleGetter(oracle).getAssetPrice(
-                vars.currentReserveAddress
-            );
+            vars.reserveUnitPrice = IPriceOracleGetter(
+                _addressesProvider.getPriceOracle(
+                    assetDatas[vars.currentReserveAddress].assetType
+                )
+            )
+                .getAssetPrice(vars.currentReserveAddress);
 
             if (
                 vars.liquidationThreshold != 0 &&

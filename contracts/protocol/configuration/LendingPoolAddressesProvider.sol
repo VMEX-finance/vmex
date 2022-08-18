@@ -10,6 +10,7 @@ import {InitializableImmutableAdminUpgradeabilityProxy} from '../libraries/aave-
 import {
     ILendingPoolAddressesProvider
 } from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 /**
  * @title LendingPoolAddressesProvider contract
@@ -32,7 +33,7 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant EMERGENCY_ADMIN = "EMERGENCY_ADMIN";
     bytes32 private constant LENDING_POOL_COLLATERAL_MANAGER =
         "COLLATERAL_MANAGER";
-    bytes32 private constant PRICE_ORACLE = "PRICE_ORACLE";
+    bytes32 private constant AAVE_PRICE_ORACLE = "AAVE_PRICE_ORACLE";
     bytes32 private constant CURVE_PRICE_ORACLE = "CURVE_PRICE_ORACLE";
     bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
 
@@ -200,12 +201,26 @@ contract LendingPoolAddressesProvider is
         emit EmergencyAdminUpdated(emergencyAdmin);
     }
 
-    function getPriceOracle() external view override returns (address) {
-        return getAddress(PRICE_ORACLE);
+    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+        external
+        view
+        returns (address)
+    {
+        if (assetType == DataTypes.ReserveAssetType.AAVE) {
+            return getAavePriceOracle();
+        } else if (assetType == DataTypes.ReserveAssetType.CURVE) {
+            return getCurvePriceOracle();
+        }
+        require(false, "error determining oracle address");
+        return address(0);
+    }
+
+    function getAavePriceOracle() public view override returns (address) {
+        return getAddress(AAVE_PRICE_ORACLE);
     }
 
     //custom oracle to get price of curve LP tokens
-    function getCurvePriceOracle() external view override returns (address) {
+    function getCurvePriceOracle() public view override returns (address) {
         return getAddress(CURVE_PRICE_ORACLE);
     }
 
@@ -219,8 +234,12 @@ contract LendingPoolAddressesProvider is
         return getAddress(CURVE_ADDRESS_PROVIDER);
     }
 
-    function setPriceOracle(address priceOracle) external override onlyOwner {
-        _addresses[PRICE_ORACLE] = priceOracle;
+    function setAavePriceOracle(address priceOracle)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[AAVE_PRICE_ORACLE] = priceOracle;
         emit PriceOracleUpdated(priceOracle);
     }
 

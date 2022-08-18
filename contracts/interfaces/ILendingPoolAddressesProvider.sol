@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
+
 /**
  * @title LendingPoolAddressesProvider contract
  * @dev Main registry of addresses part of or connected to the protocol, including permissioned roles
@@ -52,13 +54,18 @@ interface ILendingPoolAddressesProvider {
 
     function setEmergencyAdmin(address admin) external;
 
-    function getPriceOracle() external view returns (address);
+    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+        external
+        view
+        returns (address);
+
+    function getAavePriceOracle() external view returns (address);
 
     function getCurvePriceOracle() external view returns (address);
 
     function getCurveAddressProvider() external view returns (address);
 
-    function setPriceOracle(address priceOracle) external;
+    function setAavePriceOracle(address priceOracle) external;
 
     function setCurveAddressProvider(address addressProvider) external;
 
