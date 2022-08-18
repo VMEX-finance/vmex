@@ -27,6 +27,10 @@ import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 import {
     IFlashLoanReceiver
 } from "../../../flashloan/interfaces/IFlashLoanReceiver.sol";
+import {
+    ILendingPoolAddressesProvider
+} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {GenericLogic} from "./GenericLogic.sol";
 
 /**
  * @title DepositWithdrawLogic library
@@ -228,18 +232,23 @@ library DepositWithdrawLogic {
             storage _reserves,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.UserConfigurationMap storage userConfig,
-        address oracle,
+        mapping(address => DataTypes.AssetData) storage assetDatas,
+        ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) public {
         DataTypes.ReserveData storage reserve =
             _reserves[vars.asset][vars.tranche];
+
+        address oracleAddress =
+            _addressesProvider.getPriceOracle(assetDatas[vars.asset].assetType);
+
+        //Curve TODO: make sure the units are consistent
         uint256 amountInETH =
-            IPriceOracleGetter(oracle)
+            IPriceOracleGetter(oracleAddress)
                 .getAssetPrice(vars.asset)
                 .mul(vars.amount)
                 .div(10**reserve.configuration.getDecimals());
 
-        // TODO: make sure this works with tranches
         ValidationLogic.validateBorrow(
             vars,
             reserve,
@@ -249,7 +258,7 @@ library DepositWithdrawLogic {
             userConfig,
             _reservesList,
             vars._reservesCount,
-            oracle
+            oracleAddress
         );
 
         reserve.updateState();
@@ -355,7 +364,8 @@ library DepositWithdrawLogic {
         mapping(uint256 => DataTypes.TrancheMultiplier)
             storage trancheMultipliers,
         mapping(uint256 => address) storage _reservesList,
-        DataTypes.UserConfigurationMap storage userConfig
+        DataTypes.UserConfigurationMap storage userConfig,
+        ILendingPoolAddressesProvider _addressesprovider
     ) external {
         FlashLoanLocalVars memory vars;
 
@@ -461,7 +471,8 @@ library DepositWithdrawLogic {
                     _reserves,
                     _reservesList,
                     userConfig,
-                    callvars.oracle,
+                    assetDatas,
+                    _addressesprovider,
                     borrowvars
                 );
             }

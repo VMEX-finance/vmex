@@ -120,7 +120,8 @@ contract LendingPoolCollateralManager is
             userConfig,
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle()
+            _addressesProvider,
+            assetDatas
         );
         // vars.healthFactor = 2;
 
@@ -334,61 +335,21 @@ contract LendingPoolCollateralManager is
         AvailableCollateralToLiquidateLocalVars memory vars;
 
         {
-            address oracleAddress;
-
-            if (
-                assetDatas[collateralAsset].assetType ==
-                DataTypes.ReserveAssetType.AAVE
-            ) {
-                oracleAddress = _addressesProvider.getPriceOracle();
-            } else if (
-                assetDatas[collateralAsset].assetType ==
-                DataTypes.ReserveAssetType.CURVE
-            ) {
-                oracleAddress = _addressesProvider.getCurvePriceOracle();
-            }
+            address oracleAddress =
+                _addressesProvider.getPriceOracle(
+                    assetDatas[collateralAsset].assetType
+                );
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
-            if (
-                assetDatas[debtAsset].assetType ==
-                DataTypes.ReserveAssetType.AAVE
-            ) {
-                oracleAddress = _addressesProvider.getPriceOracle();
-            } else if (
-                assetDatas[debtAsset].assetType ==
-                DataTypes.ReserveAssetType.CURVE
-            ) {
-                oracleAddress = _addressesProvider.getCurvePriceOracle();
-            }
+            oracleAddress = _addressesProvider.getPriceOracle(
+                assetDatas[debtAsset].assetType
+            );
 
             oracle = IPriceOracleGetter(oracleAddress);
             vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
         }
-
-        //CURVE TODO anywhere with getAssetPrice: check if asset is CURVE, if so, use a different oracle for the CurveOracleV2, and use the Curve provider oracle to get the necessary information to the CurveOracleV2 oracle
-        // Use this if stack too deep?
-        // if(assetDatas[collateralAsset].assetType == DataTypes.ReserveAssetType.AAVE){
-        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getPriceOracle());
-        //     vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
-        // }
-        // else if(assetDatas[collateralAsset].assetType == DataTypes.ReserveAssetType.CURVE){
-        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getCurvePriceOracle());
-        //     vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
-        // }
-
-        // if(assetDatas[debtAsset].assetType == DataTypes.ReserveAssetType.AAVE){
-        //     //debt reserve should never be CURVE if all curve pools are not lendable
-        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getPriceOracle());
-        //     vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
-        // }
-        // else if(assetDatas[debtAsset].assetType == DataTypes.ReserveAssetType.CURVE){
-        //     //debt reserve should never be CURVE if all curve pools are not lendable
-        //     IPriceOracleGetter oracle = IPriceOracleGetter(_addressesProvider.getCurvePriceOracle());
-        //     vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
-        // }
-
         (
             ,
             ,

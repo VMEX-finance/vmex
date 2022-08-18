@@ -98,7 +98,7 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
         uint256[] memory prices = new uint256[](num_coins);
 
         IPriceOracleGetter aave_oracle =
-            IPriceOracleGetter(_addressesProvider.getPriceOracle());
+            IPriceOracleGetter(_addressesProvider.getAavePriceOracle());
 
         for (uint256 i = 0; i < num_coins; i++) {
             address underlying = registry.get_underlying_coins(pool)[i];

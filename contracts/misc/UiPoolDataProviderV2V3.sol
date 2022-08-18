@@ -84,7 +84,7 @@ contract UiPoolDataProviderV2V3 is IUiPoolDataProviderV3 {
         override
         returns (AggregatedReserveData[] memory, BaseCurrencyInfo memory)
     {
-        IAaveOracle oracle = IAaveOracle(provider.getPriceOracle());
+        IAaveOracle oracle = IAaveOracle(provider.getAavePriceOracle());
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
         address[] memory reserves = lendingPool.getReservesList();
         AggregatedReserveData[] memory reservesData =

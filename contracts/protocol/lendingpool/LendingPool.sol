@@ -186,7 +186,9 @@ contract LendingPool is
                 _reservesList,
                 DataTypes.WithdrawParams(
                     _reservesCount,
-                    _addressesProvider.getPriceOracle(),
+                    _addressesProvider.getPriceOracle(
+                        assetDatas[asset].assetType
+                    ),
                     asset,
                     tranche,
                     amount,
@@ -271,13 +273,12 @@ contract LendingPool is
         DataTypes.UserConfigurationMap storage userConfig =
             _usersConfig[onBehalfOf];
 
-        address oracle = _addressesProvider.getPriceOracle();
-
         DepositWithdrawLogic._borrowHelper(
             _reserves,
             _reservesList,
             userConfig,
-            oracle,
+            assetDatas,
+            _addressesProvider,
             vars
         );
     }
@@ -521,7 +522,7 @@ contract LendingPool is
                 _usersConfig[msg.sender],
                 _reservesList,
                 _reservesCount,
-                _addressesProvider.getPriceOracle()
+                _addressesProvider.getPriceOracle(assetDatas[asset].assetType)
             );
         }
 
@@ -634,7 +635,7 @@ contract LendingPool is
                 params,
                 referralCode,
                 _flashLoanPremiumTotal,
-                _addressesProvider.getPriceOracle(),
+                _addressesProvider.getAavePriceOracle(), //TODO: For now we are assuming that the assets we are flashloaning are not lendable so it would always be this oracle. Also this isn't even used lol
                 _maxStableRateBorrowSizePercent,
                 _reservesCount
             );
@@ -645,7 +646,8 @@ contract LendingPool is
             _reserves,
             trancheMultipliers,
             _reservesList,
-            userConfig
+            userConfig,
+            _addressesProvider
         );
     }
 
@@ -698,7 +700,8 @@ contract LendingPool is
             _usersConfig[user],
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle()
+            _addressesProvider,
+            assetDatas
         );
         // (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
@@ -858,7 +861,7 @@ contract LendingPool is
             _usersConfig[from],
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle()
+            _addressesProvider.getPriceOracle(assetDatas[asset].assetType)
         );
 
         uint256 reserveId = _reserves[asset][tranche].id;
