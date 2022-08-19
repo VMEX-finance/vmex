@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   deployLendingPoolCollateralManager,
+  deployCurveOracle,
   deployWalletBalancerProvider,
   authorizeWETHGateway,
   deployUiPoolDataProviderV2,
@@ -73,10 +74,27 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
 
       const treasuryAddress = await getTreasuryAddress(poolConfig);
 
-      //Curve TODO: also call helper function that initializes reserves for Curve tokens
       //Also add Curve provider to our aave address provider so we can get_registry to have access to function that converts lp token address to pool address
+      await waitForTx(
+        await addressesProvider.setCurveAddressProvider(
+          "0x0000000022D53366457F9d5E68Ec105046FC4383"
+        ) //this will always be address provider for curve
+      );
+      //Also deploy CurveOracleV2 contract and add that contract to the aave address provider
+      const curveOracle = await deployCurveOracle(verify);
 
-      //CURVE TODO: Also deploy CurveOracleV2 contract and add that contract to the aave address provider
+      if (!notFalsyOrZeroAddress(curveOracle.address)) {
+        //bad address
+        throw "deploying curve oracle error, address is falsy or zero";
+      } else {
+        console.log("Curve oracle deployed at ", curveOracle.address);
+      }
+
+      await waitForTx(
+        await addressesProvider.setCurvePriceOracle(curveOracle.address)
+      );
+
+      //TODO: deploy the other LP token contracts
 
       await initReservesByHelper(
         ReservesConfig,

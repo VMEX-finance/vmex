@@ -37,8 +37,7 @@ export const getATokenExtraParams = async (
 //Curve TODO: create another initReserves that initializes the curve v2
 //called by aave:fork mainnet setup where they know the addresses of the tokens.
 // initializes more reserves that are not lendable, have no stable and variable debt, no interest rate strategy, governance needs to give them a risk
-
-export const initReservesByHelper = async (
+export const initCurveReservesByHelper = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
   aTokenNamePrefix: string,
@@ -53,6 +52,163 @@ export const initReservesByHelper = async (
 ) => {
   const configurator = await getLendingPoolConfiguratorProxy();
 
+  const addressProvider = await getLendingPoolAddressesProvider();
+
+  // CHUNK CONFIGURATION
+  const initChunks = 1;
+
+  // Initialize variables for future reserves initialization
+  let reserveSymbols: string[] = [];
+
+  let initInputParams: {
+    aTokenImpl: string;
+    stableDebtTokenImpl: string;
+    variableDebtTokenImpl: string;
+    underlyingAssetDecimals: BigNumberish;
+    interestRateStrategyAddress: string;
+    underlyingAsset: string;
+    treasury: string;
+    incentivesController: string;
+    underlyingAssetName: string;
+    aTokenName: string;
+    aTokenSymbol: string;
+    variableDebtTokenName: string;
+    variableDebtTokenSymbol: string;
+    stableDebtTokenName: string;
+    stableDebtTokenSymbol: string;
+    params: string;
+    risk: BigNumberish;
+    isLendable: boolean;
+    allowHigherTranche: boolean;
+  }[] = [];
+
+  let strategyRates: [
+    string, // addresses provider
+    string,
+    string,
+    string,
+    string,
+    string,
+    string
+  ];
+  let rateStrategies: Record<string, typeof strategyRates> = {};
+  let strategyAddresses: Record<string, tEthereumAddress> = {};
+
+  const reserves = Object.entries(reservesParams);
+
+  for (let [symbol, params] of reserves) {
+    if (!tokenAddresses[symbol]) {
+      console.log(
+        `- Skipping init of ${symbol} due token address is not set at markets config`
+      );
+      continue;
+    }
+    const {
+      strategy,
+      aTokenImpl,
+      reserveDecimals,
+      risk,
+      isLendable,
+      allowedHigherTranche,
+    } = params;
+    const {
+      optimalUtilizationRate,
+      baseVariableBorrowRate,
+      variableRateSlope1,
+      variableRateSlope2,
+      stableRateSlope1,
+      stableRateSlope2,
+    } = strategy;
+    if (!strategyAddresses[strategy.name]) {
+      // Strategy does not exist, create a new one
+      rateStrategies[strategy.name] = [
+        addressProvider.address,
+        optimalUtilizationRate,
+        baseVariableBorrowRate,
+        variableRateSlope1,
+        variableRateSlope2,
+        stableRateSlope1,
+        stableRateSlope2,
+      ];
+      strategyAddresses[strategy.name] = await deployRateStrategy(
+        strategy.name,
+        rateStrategies[strategy.name],
+        verify
+      );
+
+      // This causes the last strategy to be printed twice, once under "DefaultReserveInterestRateStrategy"
+      // and once under the actual `strategyASSET` key.
+      rawInsertContractAddressInDb(
+        strategy.name,
+        strategyAddresses[strategy.name]
+      );
+    }
+    // Prepare input parameters
+    reserveSymbols.push(symbol);
+    initInputParams.push({
+      aTokenImpl: await getContractAddressWithJsonFallback(
+        aTokenImpl,
+        poolName
+      ),
+      stableDebtTokenImpl: await getContractAddressWithJsonFallback(
+        eContractid.StableDebtToken,
+        poolName
+      ),
+      variableDebtTokenImpl: await getContractAddressWithJsonFallback(
+        eContractid.VariableDebtToken,
+        poolName
+      ),
+      underlyingAssetDecimals: reserveDecimals,
+      interestRateStrategyAddress: strategyAddresses[strategy.name],
+      underlyingAsset: tokenAddresses[symbol],
+      treasury: treasuryAddress,
+      incentivesController: incentivesController,
+      underlyingAssetName: symbol,
+      aTokenName: `${aTokenNamePrefix} ${symbol}`,
+      aTokenSymbol: `a${symbolPrefix}${symbol}`,
+      variableDebtTokenName: `${variableDebtTokenNamePrefix} ${symbolPrefix}${symbol}`,
+      variableDebtTokenSymbol: `variableDebt${symbolPrefix}${symbol}`,
+      stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
+      stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
+      params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
+      risk: risk,
+      isLendable: isLendable,
+      allowHigherTranche: allowedHigherTranche,
+    });
+
+    console.log(
+      "Underlying asset address for ",
+      symbol,
+      ": ",
+      tokenAddresses[symbol]
+    );
+  }
+
+  // Deploy init reserves per chunks
+  const chunkedSymbols = chunk(reserveSymbols, initChunks);
+  const chunkedInitInputParams = chunk(initInputParams, initChunks);
+
+  console.log(
+    `- Reserves initialization in ${chunkedInitInputParams.length} txs`
+  );
+  for (
+    let chunkIndex = 0;
+    chunkIndex < chunkedInitInputParams.length;
+    chunkIndex++
+  ) {
+    const tx3 = await waitForTx(
+      await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
+    );
+
+    console.log(
+      `  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`
+    );
+    console.log("    * gasUsed", tx3.gasUsed.toString());
+  }
+};
+
+export const initTrancheMultiplier = async () => {
+  const configurator = await getLendingPoolConfiguratorProxy();
   let initTrancheMultiplierParams: {
     tranche: string;
     _liquidityRateMultiplier: string;
@@ -102,6 +258,24 @@ export const initReservesByHelper = async (
 
   console.log("setup tranche multipliers");
   console.log("    * gasUsed", tx0.gasUsed.toString());
+};
+
+export const initReservesByHelper = async (
+  reservesParams: iMultiPoolsAssets<IReserveParams>,
+  tokenAddresses: { [symbol: string]: tEthereumAddress },
+  aTokenNamePrefix: string,
+  stableDebtTokenNamePrefix: string,
+  variableDebtTokenNamePrefix: string,
+  symbolPrefix: string,
+  admin: tEthereumAddress,
+  treasuryAddress: tEthereumAddress,
+  incentivesController: tEthereumAddress,
+  poolName: ConfigNames,
+  verify: boolean
+) => {
+  initTrancheMultiplier();
+
+  const configurator = await getLendingPoolConfiguratorProxy();
 
   const addressProvider = await getLendingPoolAddressesProvider();
 

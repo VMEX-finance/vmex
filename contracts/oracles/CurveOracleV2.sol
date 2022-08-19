@@ -10,6 +10,7 @@ contract CurveOracleV2 is ICurveOracle {
     function get_price(address curve_pool, uint256[] memory prices)
         external
         view
+        override
         returns (uint256)
     {
         uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price();

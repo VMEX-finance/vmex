@@ -52,7 +52,7 @@ abstract contract BaseUniswapAdapter is
         IUniswapV2Router02 uniswapRouter,
         address wethAddress
     ) FlashLoanReceiverBase(addressesProvider) {
-        ORACLE = IPriceOracleGetter(addressesProvider.getPriceOracle());
+        ORACLE = IPriceOracleGetter(addressesProvider.getAavePriceOracle());
         UNISWAP_ROUTER = uniswapRouter;
         WETH_ADDRESS = wethAddress;
     }

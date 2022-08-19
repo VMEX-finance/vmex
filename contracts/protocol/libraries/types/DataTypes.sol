@@ -103,7 +103,6 @@ library DataTypes {
 
     struct WithdrawParams {
         uint256 _reservesCount;
-        address oracle;
         address asset;
         uint8 tranche;
         uint256 amount;

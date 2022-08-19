@@ -53,6 +53,7 @@ library GenericLogic {
         uint8 tranche;
         address user;
         uint256 amount;
+        ILendingPoolAddressesProvider _addressesProvider;
     }
 
     /**
@@ -61,7 +62,6 @@ library GenericLogic {
      * @param reservesData The data of all the reserves
      * @param userConfig The user configuration
      * @param reserves The list of all the active reserves
-     * @param oracle The address of the oracle contract
      * @return true if the decrease of the balance is allowed
      **/
     function balanceDecreaseAllowed(
@@ -71,7 +71,7 @@ library GenericLogic {
         DataTypes.UserConfigurationMap calldata userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view returns (bool) {
         if (
             !userConfig.isBorrowingAny() ||
@@ -106,7 +106,8 @@ library GenericLogic {
             userConfig,
             reserves,
             reservesCount,
-            oracle
+            params._addressesProvider,
+            assetDatas
         );
 
         // (uint256(14), uint256(14), uint256(14));
@@ -116,7 +117,11 @@ library GenericLogic {
         }
 
         //here, need to check if the reserve is a curve reserve. If so
-        vars.amountToDecreaseInETH = IPriceOracleGetter(oracle)
+        vars.amountToDecreaseInETH = IPriceOracleGetter(
+            params._addressesProvider.getPriceOracle(
+                assetDatas[params.asset].assetType
+            )
+        )
             .getAssetPrice(params.asset)
             .mul(params.amount)
             .div(10**vars.decimals);
@@ -168,6 +173,9 @@ library GenericLogic {
         bool usageAsCollateralEnabled;
         bool userUsesReserveAsCollateral;
         uint256 liquidityBalanceETH;
+        address oracle;
+        address user;
+        uint8 tranche;
     }
 
     /**
@@ -178,7 +186,7 @@ library GenericLogic {
      * @param reservesData Data of all the reserves
      * @param userConfig The configuration of the user
      * @param reserves The list of the available reserves
-     * @param oracle The price oracle address
+     * @param _addressesProvider The price oracle address
      * @return The total collateral and total debt of the user in ETH, the avg ltv, liquidation threshold and the HF
      **/
     function calculateUserAccountData(
@@ -202,13 +210,20 @@ library GenericLogic {
         )
     {
         CalculateUserAccountDataVars memory vars;
+        {
+            vars.oracle = _addressesProvider.getPriceOracle(
+                assetDatas[vars.currentReserveAddress].assetType
+            );
+            vars.user = actTranche.user;
+            vars.tranche = actTranche.tranche;
+        }
         // require(!userConfig.isEmpty(), "userConfig is empty");
         if (userConfig.isEmpty()) {
             return (0, 0, 0, 0, type(uint256).max);
         }
         // assert(reservesCount == reserves.length);
         for (
-            vars.i = actTranche.tranche;
+            vars.i = vars.tranche;
             vars.i < reservesCount;
             vars.i += DataTypes.NUM_TRANCHES
         ) {
@@ -219,11 +234,11 @@ library GenericLogic {
             vars.currentReserveAddress = reserves[vars.i];
             // vars.currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData storage currentReserve =
-                reservesData[vars.currentReserveAddress][actTranche.tranche];
+                reservesData[vars.currentReserveAddress][vars.tranche];
 
             // if this fails, come up with better solution than modulo
             require(
-                currentReserve.tranche == actTranche.tranche,
+                currentReserve.tranche == vars.tranche,
                 "calculateUserAccountData tranche does not line up"
             );
 
@@ -236,11 +251,7 @@ library GenericLogic {
             ) = currentReserve.configuration.getParams();
 
             vars.tokenUnit = 10**vars.decimals;
-            vars.reserveUnitPrice = IPriceOracleGetter(
-                _addressesProvider.getPriceOracle(
-                    assetDatas[vars.currentReserveAddress].assetType
-                )
-            )
+            vars.reserveUnitPrice = IPriceOracleGetter(vars.oracle)
                 .getAssetPrice(vars.currentReserveAddress);
 
             if (
@@ -251,7 +262,7 @@ library GenericLogic {
                     currentReserve
                         .aTokenAddress
                 )
-                    .balanceOf(actTranche.user);
+                    .balanceOf(vars.user);
 
                 vars.liquidityBalanceETH = vars
                     .reserveUnitPrice
@@ -275,10 +286,10 @@ library GenericLogic {
                     currentReserve
                         .stableDebtTokenAddress
                 )
-                    .balanceOf(actTranche.user);
+                    .balanceOf(vars.user);
                 vars.compoundedBorrowBalance = vars.compoundedBorrowBalance.add(
                     IERC20(currentReserve.variableDebtTokenAddress).balanceOf(
-                        actTranche.user
+                        vars.user
                     )
                 );
 
