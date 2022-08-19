@@ -6,6 +6,7 @@ import {
   rateStrategyStableThree,
   rateStrategyWETH,
   rateStrategyAAVE,
+  rateStrategyCurve,
   rateStrategyVolatileOne,
   rateStrategyVolatileTwo,
   rateStrategyVolatileThree,
@@ -325,5 +326,20 @@ export const strategyXSUSHI: IReserveParams = {
   reserveFactor: '3500',
   risk: 2,
   isLendable: true,
+  allowedHigherTranche: true
+};
+
+export const strategyCurveLPToken: IReserveParams = {
+  strategy: rateStrategyCurve,
+  baseLTVAsCollateral: '0',
+  liquidationThreshold: '4500',//change
+  liquidationBonus: '11500', //change
+  borrowingEnabled: false,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18', //this is the important information
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '0',
+  risk: 2,
+  isLendable: false,
   allowedHigherTranche: true
 };
