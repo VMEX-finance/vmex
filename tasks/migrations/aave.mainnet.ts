@@ -52,9 +52,6 @@ task("aave:mainnet", "Deploy development enviroment")
       await DRE.run("verify:tokens", { pool: POOL_NAME });
     }
 
-    console.log("9. Deploy Batch Price Feed");
-    await DRE.run("dev:batch-price-feed", { all: true, pool: POOL_NAME });
-
     if (usingTenderly()) {
       const postDeployHead = DRE.tenderlyNetwork.getHead();
       const postDeployFork = DRE.tenderlyNetwork.getFork();

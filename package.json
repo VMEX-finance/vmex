@@ -11,6 +11,7 @@
     "hardhat": "hardhat",
     "build": "tsc",
     "scripts:priceFeed": "hardhat run scripts/test-priceFeed.ts",
+    "scripts:userBalance": "hardhat run scripts/test-userBalance.ts",
     "hardhat:kovan": "hardhat --network kovan",
     "hardhat:tenderly-main": "hardhat --network tenderlyMain",
     "hardhat:ropsten": "hardhat --network ropsten",
