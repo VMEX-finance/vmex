@@ -1,4 +1,4 @@
-import { TOKEN_PRICE, TOKEN } from "../dist/src.ts/constants";
+import { TOKEN_PRICE_CONTRACTS, TOKEN } from "../dist/src.ts/constants";
 import BatchPriceArtifact from "../artifacts/contracts/analytics/BatchPriceFeed.sol/BatchPriceFeed.json"
 import hre from 'hardhat';
 const { ethers, artifacts } = hre;
@@ -50,7 +50,7 @@ async function getPriceFeeds(){
     
 
     let contractFactory = new ethers.ContractFactory(BatchPriceArtifact.abi, BatchPriceArtifact.bytecode)
-    let data = await provider.call({ data: contractFactory.getDeployTransaction(_tokens).data });
+    let data = await provider.call({ data: contractFactory.getDeployTransaction(Object.values(TOKEN_PRICE_CONTRACTS)).data });
     let [ethPrices, usdPrices] = await new ethers.utils.AbiCoder().decode(["int256[]", "int256[]"], data)
     console.log(await ethPrices, usdPrices)
 }
