@@ -204,6 +204,7 @@ contract LendingPoolAddressesProvider is
     function getPriceOracle(DataTypes.ReserveAssetType assetType)
         external
         view
+        override
         returns (address)
     {
         if (assetType == DataTypes.ReserveAssetType.AAVE) {

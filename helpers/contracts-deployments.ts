@@ -26,6 +26,7 @@ import {
   AaveOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   DelegationAwareATokenFactory,
+  CurveOracleV2Factory,
   InitializableAdminUpgradeabilityProxyFactory,
   LendingPoolAddressesProviderFactory,
   LendingPoolAddressesProviderRegistryFactory,
@@ -396,6 +397,22 @@ export const deployLendingPoolCollateralManager = async (verify?: boolean) => {
   return withSaveAndVerify(
     collateralManagerImpl,
     eContractid.LendingPoolCollateralManager,
+    [],
+    verify
+  );
+};
+
+export const deployCurveOracle = async (verify?: boolean) => {
+  const curveOracleImpl = await new CurveOracleV2Factory(
+    await getFirstSigner()
+  ).deploy();
+  await insertContractAddressInDb(
+    eContractid.curveOracleImpl,
+    curveOracleImpl.address
+  );
+  return withSaveAndVerify(
+    curveOracleImpl,
+    eContractid.curveOracleImpl,
     [],
     verify
   );

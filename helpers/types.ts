@@ -55,6 +55,7 @@ export enum AavePools {
 
 export enum eContractid {
   Example = "Example",
+  curveOracleImpl = "curveOracleImpl",
   LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
   MintableERC20 = "MintableERC20",
   MintableDelegationERC20 = "MintableDelegationERC20",
@@ -261,6 +262,7 @@ export interface iAssetBase<T> {
   STAKE: T;
   xSUSHI: T;
   WAVAX: T;
+  Tricrypto2: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -290,6 +292,7 @@ export type iAavePoolAssets<T> = Pick<
   | "REN"
   | "ENJ"
   | "xSUSHI"
+  | "Tricrypto2"
 >;
 
 export type iLpPoolAssets<T> = Pick<

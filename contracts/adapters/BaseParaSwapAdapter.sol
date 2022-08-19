@@ -52,7 +52,7 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
     constructor(ILendingPoolAddressesProvider addressesProvider)
         FlashLoanReceiverBase(addressesProvider)
     {
-        ORACLE = IPriceOracleGetter(addressesProvider.getPriceOracle());
+        ORACLE = IPriceOracleGetter(addressesProvider.getAavePriceOracle()); //TODO: this should consider Curve?
     }
 
     /**

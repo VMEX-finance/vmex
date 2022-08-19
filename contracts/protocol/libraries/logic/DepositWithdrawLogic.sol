@@ -153,7 +153,9 @@ library DepositWithdrawLogic {
             storage _reserves,
         DataTypes.UserConfigurationMap storage user,
         mapping(uint256 => address) storage _reservesList,
-        DataTypes.WithdrawParams memory vars
+        DataTypes.WithdrawParams memory vars,
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) public returns (uint256) {
         DataTypes.ReserveData storage reserve =
             _reserves[vars.asset][vars.tranche];
@@ -161,35 +163,28 @@ library DepositWithdrawLogic {
 
         uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
 
-        uint256 amountToWithdraw = vars.amount;
-
         if (vars.amount == type(uint256).max) {
-            amountToWithdraw = userBalance;
+            vars.amount = userBalance; //amount to withdraw
         }
 
         ValidationLogic.validateWithdraw(
             vars.asset,
             vars.tranche,
-            amountToWithdraw,
+            vars.amount,
             userBalance,
             _reserves,
             user,
             _reservesList,
             vars._reservesCount,
-            vars.oracle
+            _addressesProvider,
+            assetDatas
         );
 
         reserve.updateState();
 
-        reserve.updateInterestRates(
-            vars.t,
-            vars.asset,
-            aToken,
-            0,
-            amountToWithdraw
-        );
+        reserve.updateInterestRates(vars.t, vars.asset, aToken, 0, vars.amount);
 
-        if (amountToWithdraw == userBalance) {
+        if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
             emit ReserveUsedAsCollateralDisabled(vars.asset, msg.sender);
         }
@@ -197,13 +192,13 @@ library DepositWithdrawLogic {
         IAToken(aToken).burn(
             msg.sender,
             vars.to,
-            amountToWithdraw,
+            vars.amount,
             reserve.liquidityIndex
         );
 
-        emit Withdraw(vars.asset, msg.sender, vars.to, amountToWithdraw);
+        emit Withdraw(vars.asset, msg.sender, vars.to, vars.amount);
 
-        return amountToWithdraw;
+        return vars.amount;
     }
 
     /**
@@ -239,15 +234,20 @@ library DepositWithdrawLogic {
         DataTypes.ReserveData storage reserve =
             _reserves[vars.asset][vars.tranche];
 
-        address oracleAddress =
-            _addressesProvider.getPriceOracle(assetDatas[vars.asset].assetType);
+        //The mocks are in ETH, but when deploying to mainnet we probably want to convert to USD
+        //This is really amount in WEI. getAssetPrice gets the asset price in wei
+        //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
 
-        //Curve TODO: make sure the units are consistent
-        uint256 amountInETH =
-            IPriceOracleGetter(oracleAddress)
+            uint256 amountInETH //if we change the address of the oracle to give the price in usd, it should still work
+         =
+            IPriceOracleGetter(
+                _addressesProvider.getPriceOracle(
+                    assetDatas[vars.asset].assetType
+                )
+            )
                 .getAssetPrice(vars.asset)
                 .mul(vars.amount)
-                .div(10**reserve.configuration.getDecimals());
+                .div(10**reserve.configuration.getDecimals()); //lp token decimals are 18, like ETH
 
         ValidationLogic.validateBorrow(
             vars,
@@ -258,7 +258,8 @@ library DepositWithdrawLogic {
             userConfig,
             _reservesList,
             vars._reservesCount,
-            oracleAddress
+            _addressesProvider,
+            assetDatas
         );
 
         reserve.updateState();

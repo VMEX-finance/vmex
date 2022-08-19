@@ -25,7 +25,7 @@ contract ConvexOracleV2 {
         address convex_lp,
         address curve_lp
     ) external view returns (uint256) {
-        uint256 curve_lp_price = curve_oracle.get_v2_price(curve_pool, prices); //returns 1e36 scaled uint
+        uint256 curve_lp_price = curve_oracle.get_price(curve_pool, prices); //returns 1e36 scaled uint
         //	uint256 curve_supply = IERC20(curve_lp).totalSupply();
         //	uint256 convex_supply = IERC20(convex_lp).totalSupply();
 

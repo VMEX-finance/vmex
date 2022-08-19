@@ -20,6 +20,9 @@ import {
     IReserveInterestRateStrategy
 } from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {DataTypes} from "../types/DataTypes.sol";
+import {
+    ILendingPoolAddressesProvider
+} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 
 /**
  * @title ReserveLogic library
@@ -87,7 +90,7 @@ library ValidationLogic {
      * @param userConfig The user configuration
      * @param reserves The addresses of the reserves
      * @param reservesCount The number of reserves
-     * @param oracle The price oracle
+     * @param _addressesProvider The price oracle
      */
     function validateWithdraw(
         address reserveAddress,
@@ -99,7 +102,8 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
@@ -117,13 +121,14 @@ library ValidationLogic {
                     reserveAddress,
                     tranche,
                     msg.sender,
-                    amount
+                    amount,
+                    _addressesProvider
                 ),
                 reservesData,
                 userConfig,
                 reserves,
                 reservesCount,
-                oracle
+                assetDatas
             ),
             Errors.VL_TRANSFER_NOT_ALLOWED
         );
@@ -153,7 +158,8 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view {
         ValidateBorrowLocalVars memory vars;
 
@@ -191,7 +197,8 @@ library ValidationLogic {
             userConfig,
             reserves,
             reservesCount,
-            oracle
+            _addressesProvider,
+            assetDatas
         );
 
         //(uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
@@ -405,7 +412,7 @@ library ValidationLogic {
      * @param reservesData The data of all the reserves
      * @param userConfig The state of the user for the specific reserve
      * @param reserves The addresses of all the active reserves
-     * @param oracle The price oracle
+     * @param _addressesProvider The price oracle
      */
     function validateSetUseReserveAsCollateral(
         DataTypes.ReserveData storage reserve,
@@ -416,7 +423,8 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view {
         uint256 underlyingBalance =
             IERC20(reserve.aTokenAddress).balanceOf(msg.sender);
@@ -433,13 +441,14 @@ library ValidationLogic {
                         reserveAddress,
                         reserve.tranche,
                         msg.sender,
-                        underlyingBalance
+                        underlyingBalance,
+                        _addressesProvider
                     ),
                     reservesData,
                     userConfig,
                     reserves,
                     reservesCount,
-                    oracle
+                    assetDatas
                 ),
             Errors.VL_DEPOSIT_ALREADY_IN_USE
         );
@@ -533,7 +542,7 @@ library ValidationLogic {
      * @param reservesData The state of all the reserves
      * @param userConfig The state of the user for the specific reserve
      * @param reserves The addresses of all the active reserves
-     * @param oracle The price oracle
+     * @param _addressesProvider The price oracle
      */
     function validateTransfer(
         address from,
@@ -543,7 +552,8 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) internal view {
         (, , , , uint256 healthFactor) =
             GenericLogic.calculateUserAccountData(
@@ -552,7 +562,8 @@ library ValidationLogic {
                 userConfig,
                 reserves,
                 reservesCount,
-                oracle
+                _addressesProvider,
+                assetDatas
             );
         // uint256 healthFactor = 1;
         require(

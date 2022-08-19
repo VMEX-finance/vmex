@@ -186,15 +186,14 @@ contract LendingPool is
                 _reservesList,
                 DataTypes.WithdrawParams(
                     _reservesCount,
-                    _addressesProvider.getPriceOracle(
-                        assetDatas[asset].assetType
-                    ),
                     asset,
                     tranche,
                     amount,
                     to,
                     trancheMultipliers[tranche]
-                )
+                ),
+                _addressesProvider,
+                assetDatas
             );
     }
 
@@ -522,7 +521,8 @@ contract LendingPool is
                 _usersConfig[msg.sender],
                 _reservesList,
                 _reservesCount,
-                _addressesProvider.getPriceOracle(assetDatas[asset].assetType)
+                _addressesProvider,
+                assetDatas
             );
         }
 
@@ -861,7 +861,8 @@ contract LendingPool is
             _usersConfig[from],
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle(assetDatas[asset].assetType)
+            _addressesProvider,
+            assetDatas
         );
 
         uint256 reserveId = _reserves[asset][tranche].id;
