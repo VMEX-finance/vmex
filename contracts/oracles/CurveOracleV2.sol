@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 import {ICurvePool} from "./interfaces/ICurvePoolV1.sol";
 import {ICurveOracle} from "./interfaces/ICurveOracle.sol";
 import {vMath} from "./libs/vMath.sol";
-import {FixedPointMathLib} from "./libs/FixedPointMathLib.sol";
 
 contract CurveOracleV2 is ICurveOracle {
     function get_price(address curve_pool, uint256[] memory prices)

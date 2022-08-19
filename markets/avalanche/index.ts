@@ -24,6 +24,7 @@ import {
   strategyYFI,
   strategyXSUSHI,
   strategyENJ,
+  strategyCurveLPToken,
 } from './reservesConfigs';
 
 // ----------------
@@ -56,6 +57,7 @@ export const AaveConfig: IAaveConfiguration = {
     YFI: strategyYFI,
     ZRX: strategyZRX,
     xSUSHI: strategyXSUSHI,
+    Tricrypto2: strategyCurveLPToken, //Curve TODO: add other curve lp tokens
   },
   ReserveAssets: {
     [eEthereumNetwork.buidlerevm]: {},
@@ -82,6 +84,7 @@ export const AaveConfig: IAaveConfiguration = {
       WETH: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
       YFI: '0xb7c325266ec274fEb1354021D27FA3E3379D840d',
       ZRX: '0xD0d76886cF8D952ca26177EB7CfDf83bad08C00C',
+      //add Tricrypto2
     },
     [eEthereumNetwork.ropsten]: {
       AAVE: '',
@@ -104,6 +107,7 @@ export const AaveConfig: IAaveConfiguration = {
       WETH: '0xc778417e063141139fce010982780140aa0cd5ab',
       YFI: ZERO_ADDRESS,
       ZRX: '0x02d7055704EfF050323A2E5ee4ba05DB2A588959',
+      //add Tricrypto2
     },
     [eEthereumNetwork.main]: {
       AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
@@ -127,6 +131,7 @@ export const AaveConfig: IAaveConfiguration = {
       YFI: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
       ZRX: '0xE41d2489571d322189246DaFA5ebDe1F4699F498',
       xSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
+      Tricrypto2: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
@@ -150,6 +155,7 @@ export const AaveConfig: IAaveConfiguration = {
       YFI: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
       ZRX: '0xE41d2489571d322189246DaFA5ebDe1F4699F498',
       xSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
+      Tricrypto2: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
     },
   },
 };

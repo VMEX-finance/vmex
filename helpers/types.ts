@@ -56,6 +56,7 @@ export enum AavePools {
 export enum eContractid {
   Example = "Example",
   curveOracleImpl = "curveOracleImpl",
+  vMath = "vMath",
   LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
   MintableERC20 = "MintableERC20",
   MintableDelegationERC20 = "MintableDelegationERC20",
