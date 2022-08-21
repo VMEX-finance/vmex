@@ -231,7 +231,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
       STAKE: mockTokens.STAKE.address,
       xSUSHI: mockTokens.xSUSHI.address,
       WAVAX: mockTokens.WAVAX.address,
-      // Tricrypto2: TODO
+      Tricrypto2: mockTokens.Tricrypto2.address,
     },
     fallbackOracle
   );
@@ -380,7 +380,7 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    await rawBRE.run("aave:mainnet", { skipRegistry: true });
+    // await rawBRE.run("aave:mainnet", { skipRegistry: true });
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer, secondaryWallet);
