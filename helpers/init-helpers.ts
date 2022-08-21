@@ -251,6 +251,15 @@ export const initReservesByHelper = async (
     chunkIndex < chunkedInitInputParams.length;
     chunkIndex++
   ) {
+    if (chunkedSymbols[chunkIndex].join(", ") === "Tricrypto2") {
+      console.log(
+        "Tricrypto2 configuration: ",
+        chunkedInitInputParams[chunkIndex]
+      );
+    }
+    if (chunkedSymbols[chunkIndex].join(", ") === "USDC") {
+      console.log("USDC configuration: ", chunkedInitInputParams[chunkIndex]);
+    }
     const tx3 = await waitForTx(
       await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
     );
