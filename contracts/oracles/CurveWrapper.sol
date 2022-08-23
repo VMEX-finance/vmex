@@ -7,13 +7,12 @@ import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {AaveOracle} from "../misc/AaveOracle.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {ICurveOracle} from "./interfaces/ICurveOracle.sol";
-import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
-import {ICurveAddressProvider} from "./interfaces/ICurveAddressProvider.sol";
-import {ICurveRegistry} from "./interfaces/ICurveRegistry.sol";
+
+// import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
+// import {ICurveAddressProvider} from "./interfaces/ICurveAddressProvider.sol";
+// import {ICurveRegistry} from "./interfaces/ICurveRegistry.sol";
 
 /// @title AaveOracle
 /// @author Aave
@@ -38,9 +37,13 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
     IPriceOracleGetter private _fallbackOracle;
     address public immutable BASE_CURRENCY;
     uint256 public immutable BASE_CURRENCY_UNIT;
+    mapping(address => address) internal lpTokenToPool;
+    mapping(address => uint256) internal numCoins; //pool address to number of coins
+    //underlyingCoins[tricrypto2 pool add][0] gets the address of the first underlying coin
+    mapping(address => mapping(uint256 => address)) internal underlyingCoins;
 
     /// @notice Constructor
-    /// @param addressProvider The address of the address provider
+    /// @param addressProvider The address of the vmex address provider (not the curve address provider)
     /// @param fallbackOracle The address of the fallback oracle to use if the data of an
     ///        aggregator is not consistent
     /// @param baseCurrency the base currency used for the price quotes. If USD is used, base currency is 0x0
@@ -55,11 +58,30 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
         _setFallbackOracle(fallbackOracle);
         BASE_CURRENCY = baseCurrency;
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
+        initializeMappings();
+
         emit BaseCurrencySet(baseCurrency, baseCurrencyUnit);
     }
 
     function setAddressProvider(address addressProvider) external onlyOwner {
         _addressesProvider = ILendingPoolAddressesProvider(addressProvider);
+    }
+
+    function initializeMappings() internal {
+        //Tricrypto2
+        lpTokenToPool[
+            0xc4AD29ba4B3c580e6D59105FFf484999997675Ff
+        ] = 0xD51a44d3FaE010294C616388b506AcdA1bfAAE46; //Tricrypto2
+        numCoins[0xD51a44d3FaE010294C616388b506AcdA1bfAAE46] = 3; //3 coins in tricrypto2
+        underlyingCoins[0xD51a44d3FaE010294C616388b506AcdA1bfAAE46][
+            0
+        ] = 0xdAC17F958D2ee523a2206206994597C13D831ec7; //first underlying coin is USDT
+        underlyingCoins[0xD51a44d3FaE010294C616388b506AcdA1bfAAE46][
+            1
+        ] = 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599; //first underlying coin is WBTC
+        underlyingCoins[0xD51a44d3FaE010294C616388b506AcdA1bfAAE46][
+            2
+        ] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; //first underlying coin is WETH
     }
 
     /// @notice Sets the fallbackOracle
@@ -85,30 +107,32 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
             return BASE_CURRENCY_UNIT;
         }
         //need to import the curve address provider interface X
-        ICurveAddressProvider provider =
-            ICurveAddressProvider(_addressesProvider.getCurveAddressProvider());
+        // ICurveAddressProvider provider =
+        //     ICurveAddressProvider(_addressesProvider.getCurveAddressProvider());
         //need to import the registry interface Y
-        ICurveRegistry registry = provider.get_registry(); //registry contains the addresses for the pools
+        // ICurveRegistry registry = ICurveRegistry(provider.get_registry()); //registry contains the addresses for the pools
 
-        address pool = registry.get_pool_from_lp_token(asset); //asset is the LP token
+        address pool = lpTokenToPool[asset]; //asset is the LP token
 
         //TODO: check if we should use underlying or not. [0] is not underlying, [1] includes underlying
-        uint256 num_coins = registry.get_n_coins(pool)[1]; //this might be an array of 2 instead of a tuple
+        uint256 num_coins = numCoins[pool];
 
         uint256[] memory prices = new uint256[](num_coins);
 
-        IPriceOracleGetter aave_oracle =
-            IPriceOracleGetter(_addressesProvider.getAavePriceOracle());
+        IPriceOracleGetter aave_oracle = IPriceOracleGetter(
+            _addressesProvider.getAavePriceOracle()
+        );
 
         for (uint256 i = 0; i < num_coins; i++) {
-            address underlying = registry.get_underlying_coins(pool)[i];
+            address underlying = underlyingCoins[pool][i];
             require(underlying != address(0), "underlying token is null");
             prices[i] = aave_oracle.getAssetPrice(underlying);
             require(prices[i] > 0, "aave oracle encountered an error");
         }
 
-        ICurveOracle oracle =
-            ICurveOracle(_addressesProvider.getCurvePriceOracle());
+        ICurveOracle oracle = ICurveOracle(
+            _addressesProvider.getCurvePriceOracle()
+        );
 
         uint256 price = oracle.get_price(pool, prices);
         //TODO: incorporate backup oracles here?

@@ -55,7 +55,8 @@ export enum AavePools {
 
 export enum eContractid {
   Example = "Example",
-  curveOracleImpl = "curveOracleImpl",
+  curveOracle = "curveOracle",
+  curveWrapper = "curveWrapper",
   vMath = "vMath",
   LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
   MintableERC20 = "MintableERC20",
@@ -393,7 +394,6 @@ export interface IReserveParams
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   isLendable: boolean; //is the asset lendable
-  allowedHigherTranche: boolean;
 }
 
 export interface IInterestRateStrategyParams {
@@ -423,6 +423,8 @@ export interface IReserveCollateralParams {
   liquidationThreshold: string;
   liquidationBonus: string;
   risk: BigNumberish; //risk of asset, can only be set as collateral in tranches higher than this risk
+  assetType: BigNumberish;
+  allowedHigherTranche: boolean;
 }
 export interface IMarketRates {
   borrowRate: string;

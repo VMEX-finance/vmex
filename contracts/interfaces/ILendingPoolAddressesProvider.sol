@@ -19,6 +19,7 @@ interface ILendingPoolAddressesProvider {
     event LendingPoolCollateralManagerUpdated(address indexed newAddress);
     event PriceOracleUpdated(address indexed newAddress);
     event CurvePriceOracleUpdated(address indexed newAddress);
+    event CurvePriceOracleWrapperUpdated(address indexed newAddress);
     event CurveAddressProviderUpdated(address indexed newAddress);
     event LendingRateOracleUpdated(address indexed newAddress);
     event ProxyCreated(bytes32 id, address indexed newAddress);
@@ -63,6 +64,8 @@ interface ILendingPoolAddressesProvider {
 
     function getCurvePriceOracle() external view returns (address);
 
+    function getCurvePriceOracleWrapper() external view returns (address);
+
     function getCurveAddressProvider() external view returns (address);
 
     function setAavePriceOracle(address priceOracle) external;
@@ -70,6 +73,8 @@ interface ILendingPoolAddressesProvider {
     function setCurveAddressProvider(address addressProvider) external;
 
     function setCurvePriceOracle(address priceOracle) external;
+
+    function setCurvePriceOracleWrapper(address priceOracle) external;
 
     function getLendingRateOracle() external view returns (address);
 
