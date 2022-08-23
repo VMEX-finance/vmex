@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    SafeMath
-} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
@@ -13,9 +11,7 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {Errors} from "../helpers/Errors.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 
 /**
  * @title GenericLogic library
@@ -86,9 +82,7 @@ library GenericLogic {
 
         (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[
             params.asset
-        ][params.tranche]
-            .configuration
-            .getParams();
+        ][params.tranche].configuration.getParams();
 
         if (vars.liquidationThreshold == 0) {
             return true;
@@ -121,10 +115,7 @@ library GenericLogic {
             params._addressesProvider.getPriceOracle(
                 assetDatas[params.asset].assetType
             )
-        )
-            .getAssetPrice(params.asset)
-            .mul(params.amount)
-            .div(10**vars.decimals);
+        ).getAssetPrice(params.asset).mul(params.amount).div(10**vars.decimals);
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
             vars.amountToDecreaseInETH
@@ -211,12 +202,10 @@ library GenericLogic {
     {
         CalculateUserAccountDataVars memory vars;
         {
-            vars.oracle = _addressesProvider.getPriceOracle(
-                assetDatas[vars.currentReserveAddress].assetType
-            );
             vars.user = actTranche.user;
             vars.tranche = actTranche.tranche;
         }
+
         // require(!userConfig.isEmpty(), "userConfig is empty");
         if (userConfig.isEmpty()) {
             return (0, 0, 0, 0, type(uint256).max);
@@ -233,8 +222,15 @@ library GenericLogic {
 
             vars.currentReserveAddress = reserves[vars.i];
             // vars.currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
-            DataTypes.ReserveData storage currentReserve =
-                reservesData[vars.currentReserveAddress][vars.tranche];
+            DataTypes.ReserveData storage currentReserve = reservesData[
+                vars.currentReserveAddress
+            ][vars.tranche];
+
+            {
+                vars.oracle = _addressesProvider.getPriceOracle(
+                    assetDatas[vars.currentReserveAddress].assetType
+                );
+            }
 
             // if this fails, come up with better solution than modulo
             require(
@@ -259,10 +255,8 @@ library GenericLogic {
                 userConfig.isUsingAsCollateral(vars.i)
             ) {
                 vars.compoundedLiquidityBalance = IERC20(
-                    currentReserve
-                        .aTokenAddress
-                )
-                    .balanceOf(vars.user);
+                    currentReserve.aTokenAddress
+                ).balanceOf(vars.user);
 
                 vars.liquidityBalanceETH = vars
                     .reserveUnitPrice
@@ -283,10 +277,8 @@ library GenericLogic {
 
             if (userConfig.isBorrowing(vars.i)) {
                 vars.compoundedBorrowBalance = IERC20(
-                    currentReserve
-                        .stableDebtTokenAddress
-                )
-                    .balanceOf(vars.user);
+                    currentReserve.stableDebtTokenAddress
+                ).balanceOf(vars.user);
                 vars.compoundedBorrowBalance = vars.compoundedBorrowBalance.add(
                     IERC20(currentReserve.variableDebtTokenAddress).balanceOf(
                         vars.user

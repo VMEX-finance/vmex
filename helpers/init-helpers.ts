@@ -135,6 +135,7 @@ export const initReservesByHelper = async (
     risk: BigNumberish;
     isLendable: boolean;
     allowHigherTranche: boolean;
+    assetType: BigNumberish;
   }[] = [];
 
   let strategyRates: [
@@ -165,6 +166,7 @@ export const initReservesByHelper = async (
       risk,
       isLendable,
       allowedHigherTranche,
+      assetType,
     } = params;
     const {
       optimalUtilizationRate,
@@ -229,6 +231,7 @@ export const initReservesByHelper = async (
       risk: risk,
       isLendable: isLendable,
       allowHigherTranche: allowedHigherTranche,
+      assetType: assetType,
     });
 
     console.log(

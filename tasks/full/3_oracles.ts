@@ -3,6 +3,7 @@ import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   deployAaveOracle,
   deployCurveOracle,
+  deployCurveOracleWrapper,
   deployLendingRateOracle,
 } from "../../helpers/contracts-deployments";
 import { setInitialMarketRatesInRatesOracleByHelper } from "../../helpers/oracles-helpers";
@@ -137,6 +138,31 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       await waitForTx(
         await addressesProvider.setCurvePriceOracle(curveOracle.address)
+      );
+
+      //Also deploy CurveOracleV2 wrapper contract and add that contract to the aave address provider
+      const curveOracleWrapper = await deployCurveOracleWrapper(
+        addressesProvider.address,
+        aaveOracle.address, //TODO: there is no fallback oracle for the curve oracles
+        await getQuoteCurrency(poolConfig),
+        poolConfig.OracleQuoteUnit,
+        verify
+      );
+
+      if (!notFalsyOrZeroAddress(curveOracleWrapper.address)) {
+        //bad address
+        throw "deploying curve oracle wrapper error, address is falsy or zero";
+      } else {
+        console.log(
+          "Curve oracle wrapper deployed at ",
+          curveOracleWrapper.address
+        );
+      }
+
+      await waitForTx(
+        await addressesProvider.setCurvePriceOracleWrapper(
+          curveOracleWrapper.address
+        )
       );
 
       //TODO: deploy the other LP token contracts

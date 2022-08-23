@@ -27,6 +27,7 @@ import {
   DefaultReserveInterestRateStrategyFactory,
   DelegationAwareATokenFactory,
   CurveOracleV2Factory,
+  CurveWrapperFactory,
   VMathFactory,
   InitializableAdminUpgradeabilityProxyFactory,
   LendingPoolAddressesProviderFactory,
@@ -429,12 +430,34 @@ export const deployCurveOracle = async (verify?: boolean) => {
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
-    eContractid.curveOracleImpl,
+    eContractid.curveOracle,
     curveOracleImpl.address
   );
   return withSaveAndVerify(
     curveOracleImpl,
-    eContractid.curveOracleImpl,
+    eContractid.curveOracle,
+    [],
+    verify
+  );
+};
+
+export const deployCurveOracleWrapper = async (
+  addressProvider: tEthereumAddress,
+  fallbackOracle: tEthereumAddress,
+  baseCurrency: tEthereumAddress,
+  baseCurrencyUnit: string,
+  verify?: boolean
+) => {
+  const curveOracleWrapper = await new CurveWrapperFactory(
+    await getFirstSigner()
+  ).deploy(addressProvider, fallbackOracle, baseCurrency, baseCurrencyUnit);
+  await insertContractAddressInDb(
+    eContractid.curveWrapper,
+    curveOracleWrapper.address
+  );
+  return withSaveAndVerify(
+    curveOracleWrapper,
+    eContractid.curveWrapper,
     [],
     verify
   );
