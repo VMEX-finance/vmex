@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    ILendingPoolAddressesProvider
-} from "./ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "./ILendingPoolAddressesProvider.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 interface ILendingPool {
@@ -363,15 +361,14 @@ interface ILendingPool {
      * @dev Updates the address of the interest rate strategy contract
      * - Only callable by the LendingPoolConfigurator contract
      * @param asset The address of the underlying asset of the reserve
-     * @param risk The risk of the asset
+     * @param _risk The risk of the asset
      **/
-    function setAssetRisk(address asset, uint8 risk) external;
-
-    function setAssetLendable(address asset, bool _isLendable) external;
-
-    function setAssetAllowedHigherTranche(
+    function setAssetData(
         address asset,
-        bool _allowedHigherTranche
+        uint8 _risk,
+        bool _isLendable,
+        bool _allowedHigherTranche,
+        uint8 _assetType
     ) external;
 
     function setReserveInterestRateStrategyAddress(
@@ -447,6 +444,11 @@ interface ILendingPool {
     ) external;
 
     function getReservesList() external view returns (address[] memory);
+
+    function getAssetData(address asset)
+        external
+        view
+        returns (DataTypes.AssetData memory);
 
     function getAddressesProvider()
         external

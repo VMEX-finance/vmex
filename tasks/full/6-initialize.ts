@@ -65,7 +65,7 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
       const testHelpers = await getAaveProtocolDataProvider();
 
       const admin = await addressesProvider.getPoolAdmin();
-      const oracle = await addressesProvider.getPriceOracle();
+      // const oracle = await addressesProvider.getPriceOracle();
 
       if (!reserveAssets) {
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";

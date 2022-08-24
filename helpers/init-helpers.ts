@@ -21,7 +21,7 @@ import { BigNumberish } from "ethers";
 import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
 import BigNumber from "bignumber.js";
-import { oneRay } from './constants';
+import { oneRay } from "./constants";
 
 export const getATokenExtraParams = async (
   aTokenName: string,
@@ -34,6 +34,62 @@ export const getATokenExtraParams = async (
   }
 };
 
+export const initTrancheMultiplier = async () => {
+  const configurator = await getLendingPoolConfiguratorProxy();
+  let initTrancheMultiplierParams: {
+    tranche: string;
+    _liquidityRateMultiplier: string;
+    _variableBorrowRateMultiplier: string;
+    _stableBorrowRateMultiplier: string;
+  }[] = [
+    {
+      tranche: "0",
+      _liquidityRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+    },
+    {
+      tranche: "1",
+      _liquidityRateMultiplier: new BigNumber(1.03)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1.05)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1.05)
+        .multipliedBy(oneRay)
+        .toFixed(),
+    },
+    {
+      tranche: "2",
+      _liquidityRateMultiplier: new BigNumber(1.06)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1.1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1.1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+    },
+  ];
+
+  //setup tranche
+  const tx0 = await waitForTx(
+    await configurator.initTrancheMultipliers(initTrancheMultiplierParams)
+  );
+
+  console.log("setup tranche multipliers");
+  console.log("    * gasUsed", tx0.gasUsed.toString());
+};
+
+//create another initReserves that initializes the curve v2, or just use this.
+//called by aave:fork mainnet setup where they know the addresses of the tokens.
+// initializes more reserves that are not lendable, have no stable and variable debt, no interest rate strategy, governance needs to give them a risk
 export const initReservesByHelper = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
@@ -47,42 +103,10 @@ export const initReservesByHelper = async (
   poolName: ConfigNames,
   verify: boolean
 ) => {
+  initTrancheMultiplier();
+
   const configurator = await getLendingPoolConfiguratorProxy();
 
-  let initTrancheMultiplierParams: {
-    tranche: string;
-    _liquidityRateMultiplier: string;
-    _variableBorrowRateMultiplier: string;
-    _stableBorrowRateMultiplier: string;
-  }[] = [
-    {
-      tranche: "0",
-      _liquidityRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
-      _variableBorrowRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
-      _stableBorrowRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
-    },
-    {
-      tranche: "1",
-      _liquidityRateMultiplier: new BigNumber(1.03).multipliedBy(oneRay).toFixed(),
-      _variableBorrowRateMultiplier: new BigNumber(1.05).multipliedBy(oneRay).toFixed(),
-      _stableBorrowRateMultiplier: new BigNumber(1.05).multipliedBy(oneRay).toFixed(),
-    },
-    {
-      tranche: "2",
-      _liquidityRateMultiplier: new BigNumber(1.06).multipliedBy(oneRay).toFixed(),
-      _variableBorrowRateMultiplier: new BigNumber(1.1).multipliedBy(oneRay).toFixed(),
-      _stableBorrowRateMultiplier: new BigNumber(1.1).multipliedBy(oneRay).toFixed(),
-    },
-];
-
-  //setup tranche 
-  const tx0 = await waitForTx(
-    await configurator.initTrancheMultipliers(initTrancheMultiplierParams)
-  );
-
-  console.log('setup tranche multipliers');
-  console.log("    * gasUsed", tx0.gasUsed.toString());
-  
   const addressProvider = await getLendingPoolAddressesProvider();
 
   // CHUNK CONFIGURATION
@@ -111,6 +135,7 @@ export const initReservesByHelper = async (
     risk: BigNumberish;
     isLendable: boolean;
     allowHigherTranche: boolean;
+    assetType: BigNumberish;
   }[] = [];
 
   let strategyRates: [
@@ -141,6 +166,7 @@ export const initReservesByHelper = async (
       risk,
       isLendable,
       allowedHigherTranche,
+      assetType,
     } = params;
     const {
       optimalUtilizationRate,
@@ -205,6 +231,7 @@ export const initReservesByHelper = async (
       risk: risk,
       isLendable: isLendable,
       allowHigherTranche: allowedHigherTranche,
+      assetType: assetType,
     });
 
     console.log(
@@ -219,8 +246,6 @@ export const initReservesByHelper = async (
   const chunkedSymbols = chunk(reserveSymbols, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
-  
-
   console.log(
     `- Reserves initialization in ${chunkedInitInputParams.length} txs`
   );
@@ -229,6 +254,15 @@ export const initReservesByHelper = async (
     chunkIndex < chunkedInitInputParams.length;
     chunkIndex++
   ) {
+    if (chunkedSymbols[chunkIndex].join(", ") === "Tricrypto2") {
+      console.log(
+        "Tricrypto2 configuration: ",
+        chunkedInitInputParams[chunkIndex]
+      );
+    }
+    if (chunkedSymbols[chunkIndex].join(", ") === "USDC") {
+      console.log("USDC configuration: ", chunkedInitInputParams[chunkIndex]);
+    }
     const tx3 = await waitForTx(
       await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
     );

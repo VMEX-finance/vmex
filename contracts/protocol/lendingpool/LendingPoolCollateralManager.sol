@@ -120,7 +120,8 @@ contract LendingPoolCollateralManager is
             userConfig,
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle()
+            _addressesProvider,
+            assetDatas
         );
         // vars.healthFactor = 2;
 
@@ -330,14 +331,25 @@ contract LendingPoolCollateralManager is
     ) internal view returns (uint256, uint256) {
         uint256 collateralAmount = 0;
         uint256 debtAmountNeeded = 0;
-        IPriceOracleGetter oracle =
-            IPriceOracleGetter(_addressesProvider.getPriceOracle());
 
         AvailableCollateralToLiquidateLocalVars memory vars;
 
-        vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
-        vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        {
+            address oracleAddress =
+                _addressesProvider.getPriceOracle(
+                    assetDatas[collateralAsset].assetType
+                );
 
+            IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
+            vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
+
+            oracleAddress = _addressesProvider.getPriceOracle(
+                assetDatas[debtAsset].assetType
+            );
+
+            oracle = IPriceOracleGetter(oracleAddress);
+            vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        }
         (
             ,
             ,

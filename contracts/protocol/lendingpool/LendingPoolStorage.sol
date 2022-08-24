@@ -25,16 +25,22 @@ contract LendingPoolStorage {
         internal _reserves;
     mapping(address => DataTypes.UserConfigurationMap) internal _usersConfig;
 
-    //asset address to risk level of that asset when it is used as collateral
-    mapping(address => uint8) internal collateralRisk;
-    //asset address to boolean value representing if that address is lendable, or if it should just be a collateral vault
-    mapping(address => bool) internal isLendable;
+    //combine these together into struct
+    // {
+    //     //asset address to risk level of that asset when it is used as collateral
+    // mapping(address => uint8) internal collateralRisk;
+    //     //asset address to boolean value representing if that address is lendable, or if it should just be a collateral vault
+    //     mapping(address => bool) internal isLendable;
 
-    mapping(address => bool) internal isAllowedCollateralInHigherTranches;
+    //     mapping(address => bool) internal isAllowedCollateralInHigherTranches;
+
+    //
+    // }
+
+    mapping(address => DataTypes.AssetData) internal assetDatas;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
     mapping(uint256 => address) internal _reservesList;
-
     uint256 internal _reservesCount;
 
     bool internal _paused;
