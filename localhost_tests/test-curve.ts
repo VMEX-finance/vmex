@@ -17,6 +17,20 @@ async function main () {
 // Load the first signer
 var signer = await contractGetters.getFirstSigner();
 
+const emergency = (await ethers.getSigners())[1]
+
+
+/************************************************************************************/
+/****************** unpause lending pools **********************/ 
+/************************************************************************************/
+const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
+
+await lendingPoolConfig.connect(emergency).setPoolPause(false)
+
+
+/************************************************************************************/
+/****************** give WETH to users **********************/ 
+/************************************************************************************/
 const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
 const WETHabi = [
     "function allowance(address owner, address spender) external view returns (uint256 remaining)",
@@ -36,10 +50,25 @@ const myWETH = new ethers.Contract(WETHadd,WETHabi)
 
 var options = {value: ethers.utils.parseEther("1.0")}
 
+//give signer 1 WETH so he can get LP tokens
 await myWETH.connect(signer).deposit(options);
 await myWETH.connect(signer).balanceOf(signer.address);
 
-// testing curve lp tokens
+
+//emergency deposits 100 WETH to pool to provide liquidity
+var options = {value: ethers.utils.parseEther("100.0")}
+
+await myWETH.connect(emergency).deposit(options);
+await myWETH.connect(emergency).balanceOf(signer.address);
+await myWETH.connect(emergency).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
+
+await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
+
+
+/************************************************************************************/
+/******************  get LP tokens **********************/ 
+/************************************************************************************/
+
 var options2 = {value: ethers.utils.parseEther("1.0"), gasLimit: 8000000}
 var triCryptoDepositAdd = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" //0xD51a44d3FaE010294C616388b506AcdA1bfAAE46 this is the address given on curve.fi/contracts
 var triCryptoDepositAbi = [
@@ -77,26 +106,25 @@ var CurveToken = new ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
 await CurveToken.connect(signer).balanceOf(signer.address)
 await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("1.0"))
 
-
-const emergency = (await ethers.getSigners())[1]
-
-const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-
-await lendingPoolConfig.connect(emergency).setPoolPause(false)
-
 // await lendingPoolConfig.connect(signer).unfreezeReserve(CurveToken.address, 2)
 // await lendingPoolConfig.connect(signer).activateReserve(CurveToken.address, 2)
 
 
 
+/************************************************************************************/
+/****************** deposit curve LP token to pool and then borrow WETH  **********************/ 
+/************************************************************************************/
 await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
 
-const usdtadd = '0xdAC17F958D2ee523a2206206994597C13D831ec7'
-var amount = await contractHelpers.convertToCurrencyDecimals(usdtadd,'500')
-await lendingPool.connect(signer).borrow(usdtadd, 2, 500000000, 1, '0', await signer.getAddress()); //borrow 500 USDT from tranche 2, 1 means stable rate
+await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("0.01"), 1, '0', await signer.getAddress()); //borrow 500 USDT from tranche 2, 1 means stable rate
 
-// var emergency = (await ethers.getSigners())[1]
-// await lendingPool.connect(emergency).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('1'), await emergency.getAddress(), '0'); 
+/************************************************************************************/
+/****************** debugging  **********************/ 
+/************************************************************************************/
+
+var atokenAdd = await lendingPool.getReserveData(myWETH.address,2) //
+atokenAdd = atokenAdd.aTokenAddress
+await myWETH.connect(signer).balanceOf(atokenAdd)
 
 await lendingPool.connect(signer).getReserveData(CurveToken.address, 2)
 
@@ -104,6 +132,10 @@ var dataProv = await contractGetters.getAaveProtocolDataProvider()
 
 await dataProv.getReserveData(CurveToken.address,2)
 await dataProv.getUserReserveData(CurveToken.address,2,signer.address)
+
+await dataProv.getReserveData(myWETH.address,2)
+
+await dataProv.getUserReserveData(myWETH.address,2,emergency.address)
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
