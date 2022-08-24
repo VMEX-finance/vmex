@@ -1,28 +1,20 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    SafeMath
-} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
 import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
-import {
-    SafeERC20
-} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {UserConfiguration} from "../configuration/UserConfiguration.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {Helpers} from "../helpers/Helpers.sol";
-import {
-    IReserveInterestRateStrategy
-} from "../../../interfaces/IReserveInterestRateStrategy.sol";
+import {IReserveInterestRateStrategy} from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 
 /**
  * @title ReserveLogic library
@@ -111,8 +103,9 @@ library ValidationLogic {
             Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
 
-        (bool isActive, , , ) =
-            reservesData[reserveAddress][tranche].configuration.getFlags();
+        (bool isActive, , , ) = reservesData[reserveAddress][tranche]
+            .configuration
+            .getFlags();
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         require(
@@ -252,14 +245,15 @@ library ValidationLogic {
                 Errors.VL_COLLATERAL_SAME_AS_BORROWING_CURRENCY
             );
 
-            vars.availableLiquidity = IERC20(exvars.asset).balanceOf(
+            vars.availableLiquidity = IERC20(exvars.asset).balanceOf( //asset is the asset we are trying to borrow
                 reserve.aTokenAddress
             );
 
             //calculate the max available loan size in stable rate mode as a percentage of the
             //available liquidity
-            uint256 maxLoanSizeStable =
-                vars.availableLiquidity.percentMul(maxStableLoanPercent);
+            uint256 maxLoanSizeStable = vars.availableLiquidity.percentMul(
+                maxStableLoanPercent
+            );
 
             require(
                 exvars.amount <= maxLoanSizeStable,
@@ -321,8 +315,9 @@ library ValidationLogic {
         uint256 variableDebt,
         DataTypes.InterestRateMode currentRateMode
     ) external view {
-        (bool isActive, bool isFrozen, , bool stableRateEnabled) =
-            reserve.configuration.getFlags();
+        (bool isActive, bool isFrozen, , bool stableRateEnabled) = reserve
+            .configuration
+            .getFlags();
 
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
         require(!isFrozen, Errors.VL_RESERVE_FROZEN);
@@ -375,25 +370,24 @@ library ValidationLogic {
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         //if the usage ratio is below 95%, no rebalances are needed
-        uint256 totalDebt =
-            stableDebtToken
-                .totalSupply()
-                .add(variableDebtToken.totalSupply())
-                .wadToRay();
-        uint256 availableLiquidity =
-            IERC20(reserveAddress).balanceOf(aTokenAddress).wadToRay();
-        uint256 usageRatio =
-            totalDebt == 0
-                ? 0
-                : totalDebt.rayDiv(availableLiquidity.add(totalDebt));
+        uint256 totalDebt = stableDebtToken
+            .totalSupply()
+            .add(variableDebtToken.totalSupply())
+            .wadToRay();
+        uint256 availableLiquidity = IERC20(reserveAddress)
+            .balanceOf(aTokenAddress)
+            .wadToRay();
+        uint256 usageRatio = totalDebt == 0
+            ? 0
+            : totalDebt.rayDiv(availableLiquidity.add(totalDebt));
 
         //if the liquidity rate is below REBALANCE_UP_THRESHOLD of the max variable APR at 95% usage,
         //then we allow rebalancing of the stable rate positions.
 
         uint256 currentLiquidityRate = reserve.currentLiquidityRate;
-        uint256 maxVariableBorrowRate =
-            IReserveInterestRateStrategy(reserve.interestRateStrategyAddress)
-                .getMaxVariableBorrowRate();
+        uint256 maxVariableBorrowRate = IReserveInterestRateStrategy(
+            reserve.interestRateStrategyAddress
+        ).getMaxVariableBorrowRate();
 
         require(
             usageRatio >= REBALANCE_UP_USAGE_RATIO_THRESHOLD &&
@@ -426,8 +420,9 @@ library ValidationLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view {
-        uint256 underlyingBalance =
-            IERC20(reserve.aTokenAddress).balanceOf(msg.sender);
+        uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
+            msg.sender
+        );
 
         require(
             underlyingBalance > 0,
@@ -507,9 +502,11 @@ library ValidationLogic {
             );
         }
 
-        bool isCollateralEnabled =
-            collateralReserve.configuration.getLiquidationThreshold() > 0 &&
-                userConfig.isUsingAsCollateral(collateralReserve.id);
+        bool isCollateralEnabled = collateralReserve
+            .configuration
+            .getLiquidationThreshold() >
+            0 &&
+            userConfig.isUsingAsCollateral(collateralReserve.id);
 
         //if collateral isn't enabled as collateral by user, it cannot be liquidated
         if (!isCollateralEnabled) {
@@ -555,16 +552,15 @@ library ValidationLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         mapping(address => DataTypes.AssetData) storage assetDatas
     ) internal view {
-        (, , , , uint256 healthFactor) =
-            GenericLogic.calculateUserAccountData(
-                DataTypes.AcctTranche(from, tranche),
-                reservesData,
-                userConfig,
-                reserves,
-                reservesCount,
-                _addressesProvider,
-                assetDatas
-            );
+        (, , , , uint256 healthFactor) = GenericLogic.calculateUserAccountData(
+            DataTypes.AcctTranche(from, tranche),
+            reservesData,
+            userConfig,
+            reserves,
+            reservesCount,
+            _addressesProvider,
+            assetDatas
+        );
         // uint256 healthFactor = 1;
         require(
             healthFactor >= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,

@@ -55,13 +55,13 @@ const WETHabi = [
 
 const myWETH = new ethers.Contract(WETHadd,WETHabi)
 
-var options = {value: ethers.utils.parseEther("1.0")}
+var options = {value: ethers.utils.parseEther("100.0")}
 
 await myWETH.connect(signer).deposit(options);
 await myWETH.connect(signer).balanceOf(signer.address);
-await myWETH.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("1.0"))
+await myWETH.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
 
-await lendingPool.connect(signer).deposit(myWETH.address, 1, true, ethers.utils.parseUnits('0.5'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(myWETH.address, 2, true, ethers.utils.parseUnits('100'), await signer.getAddress(), '0'); 
 
 
 // testing curve lp tokens
