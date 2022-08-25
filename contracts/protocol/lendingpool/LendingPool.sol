@@ -3,24 +3,16 @@ pragma solidity >=0.8.0;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
-import {
-    SafeERC20
-} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
-import {
-    IFlashLoanReceiver
-} from "../../flashloan/interfaces/IFlashLoanReceiver.sol";
+import {IFlashLoanReceiver} from "../../flashloan/interfaces/IFlashLoanReceiver.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {IStableDebtToken} from "../../interfaces/IStableDebtToken.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
-import {
-    VersionedInitializable
-} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
+import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
@@ -28,18 +20,12 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
-import {
-    ReserveConfiguration
-} from "../libraries/configuration/ReserveConfiguration.sol";
-import {
-    UserConfiguration
-} from "../libraries/configuration/UserConfiguration.sol";
+import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
+import {UserConfiguration} from "../libraries/configuration/UserConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
-import {
-    DepositWithdrawLogic
-} from "../libraries/logic/DepositWithdrawLogic.sol";
+import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
 
 /**
  * @title LendingPool contract
@@ -144,9 +130,9 @@ contract LendingPool is
             vars = DataTypes.DepositVars(
                 asset,
                 tranche,
-                collateralRisk[asset],
-                isAllowedCollateralInHigherTranches[asset],
-                isLendable[asset],
+                assetDatas[asset].collateralRisk,
+                assetDatas[asset].isAllowedCollateralInHigherTranches,
+                assetDatas[asset].isLendable,
                 trancheMultipliers[tranche]
             );
         }
@@ -186,13 +172,14 @@ contract LendingPool is
                 _reservesList,
                 DataTypes.WithdrawParams(
                     _reservesCount,
-                    _addressesProvider.getPriceOracle(),
                     asset,
                     tranche,
                     amount,
                     to,
                     trancheMultipliers[tranche]
-                )
+                ),
+                _addressesProvider,
+                assetDatas
             );
     }
 
@@ -240,7 +227,10 @@ contract LendingPool is
         uint16 referralCode,
         address onBehalfOf
     ) public override whenNotPaused {
-        require(isLendable[asset], "cannot borrow asset that is not lendable");
+        require(
+            assetDatas[asset].isLendable,
+            "cannot borrow asset that is not lendable"
+        );
         DataTypes.ReserveData storage reserve;
         DataTypes.ExecuteBorrowParams memory vars;
 
@@ -265,16 +255,16 @@ contract LendingPool is
             );
         }
 
-        DataTypes.UserConfigurationMap storage userConfig =
-            _usersConfig[onBehalfOf];
-
-        address oracle = _addressesProvider.getPriceOracle();
+        DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
+            onBehalfOf
+        ];
 
         DepositWithdrawLogic._borrowHelper(
             _reserves,
             _reservesList,
             userConfig,
-            oracle,
+            assetDatas,
+            _addressesProvider,
             vars
         );
     }
@@ -300,11 +290,13 @@ contract LendingPool is
     ) external override whenNotPaused returns (uint256) {
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
-        (uint256 stableDebt, uint256 variableDebt) =
-            Helpers.getUserCurrentDebt(onBehalfOf, reserve);
+        (uint256 stableDebt, uint256 variableDebt) = Helpers.getUserCurrentDebt(
+            onBehalfOf,
+            reserve
+        );
 
-        DataTypes.InterestRateMode interestRateMode =
-            DataTypes.InterestRateMode(rateMode);
+        DataTypes.InterestRateMode interestRateMode = DataTypes
+            .InterestRateMode(rateMode);
 
         ValidationLogic.validateRepay(
             reserve,
@@ -315,10 +307,10 @@ contract LendingPool is
             variableDebt
         );
 
-        uint256 paybackAmount =
-            interestRateMode == DataTypes.InterestRateMode.STABLE
-                ? stableDebt
-                : variableDebt;
+        uint256 paybackAmount = interestRateMode ==
+            DataTypes.InterestRateMode.STABLE
+            ? stableDebt
+            : variableDebt;
 
         if (amount < paybackAmount) {
             paybackAmount = amount;
@@ -371,14 +363,19 @@ contract LendingPool is
         uint8 tranche,
         uint256 rateMode
     ) external override whenNotPaused {
-        require(isLendable[asset], "cannot swap asset that is not lendable");
+        require(
+            assetDatas[asset].isLendable,
+            "cannot swap asset that is not lendable"
+        );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
-        (uint256 stableDebt, uint256 variableDebt) =
-            Helpers.getUserCurrentDebt(msg.sender, reserve);
+        (uint256 stableDebt, uint256 variableDebt) = Helpers.getUserCurrentDebt(
+            msg.sender,
+            reserve
+        );
 
-        DataTypes.InterestRateMode interestRateMode =
-            DataTypes.InterestRateMode(rateMode);
+        DataTypes.InterestRateMode interestRateMode = DataTypes
+            .InterestRateMode(rateMode);
 
         ValidationLogic.validateSwapRateMode(
             reserve,
@@ -440,7 +437,10 @@ contract LendingPool is
         uint8 tranche,
         address user
     ) external override whenNotPaused {
-        require(isLendable[asset], "cannot borrow asset that is not lendable");
+        require(
+            assetDatas[asset].isLendable,
+            "cannot borrow asset that is not lendable"
+        );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
 
         IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
@@ -489,7 +489,7 @@ contract LendingPool is
         bool useAsCollateral
     ) external override whenNotPaused {
         require(
-            isLendable[asset],
+            assetDatas[asset].isLendable,
             "nonlendable assets must be set as collateral"
         );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
@@ -497,9 +497,9 @@ contract LendingPool is
         {
             ValidationLogic.validateCollateralRisk(
                 useAsCollateral,
-                collateralRisk[asset],
+                assetDatas[asset].collateralRisk,
                 tranche,
-                isAllowedCollateralInHigherTranches[asset]
+                assetDatas[asset].isAllowedCollateralInHigherTranches
             );
         }
 
@@ -512,7 +512,8 @@ contract LendingPool is
                 _usersConfig[msg.sender],
                 _reservesList,
                 _reservesCount,
-                _addressesProvider.getPriceOracle()
+                _addressesProvider,
+                assetDatas
             );
         }
 
@@ -547,27 +548,28 @@ contract LendingPool is
         uint256 debtToCover,
         bool receiveAToken
     ) external override whenNotPaused {
-        address collateralManager =
-            _addressesProvider.getLendingPoolCollateralManager();
+        address collateralManager = _addressesProvider
+            .getLendingPoolCollateralManager();
 
         //solium-disable-next-line
-        (bool success, bytes memory result) =
-            collateralManager.delegatecall(
-                abi.encodeWithSignature(
-                    "liquidationCall(address,address,uint8,address,uint256,bool)",
-                    collateralAsset,
-                    debtAsset,
-                    tranche,
-                    user,
-                    debtToCover,
-                    receiveAToken
-                )
-            );
+        (bool success, bytes memory result) = collateralManager.delegatecall(
+            abi.encodeWithSignature(
+                "liquidationCall(address,address,uint8,address,uint256,bool)",
+                collateralAsset,
+                debtAsset,
+                tranche,
+                user,
+                debtToCover,
+                receiveAToken
+            )
+        );
 
         require(success, Errors.LP_LIQUIDATION_CALL_FAILED);
 
-        (uint256 returnCode, string memory returnMessage) =
-            abi.decode(result, (uint256, string));
+        (uint256 returnCode, string memory returnMessage) = abi.decode(
+            result,
+            (uint256, string)
+        );
 
         require(returnCode == 0, string(abi.encodePacked(returnMessage)));
     }
@@ -611,8 +613,9 @@ contract LendingPool is
         bytes calldata params,
         uint16 referralCode
     ) external override whenNotPaused {
-        DataTypes.UserConfigurationMap storage userConfig =
-            _usersConfig[onBehalfOf];
+        DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
+            onBehalfOf
+        ];
         DataTypes.flashLoanVars memory callvars;
 
         {
@@ -625,18 +628,19 @@ contract LendingPool is
                 params,
                 referralCode,
                 _flashLoanPremiumTotal,
-                _addressesProvider.getPriceOracle(),
+                _addressesProvider.getAavePriceOracle(), //TODO: For now we are assuming that the assets we are flashloaning are not lendable so it would always be this oracle. Also this isn't even used lol
                 _maxStableRateBorrowSizePercent,
                 _reservesCount
             );
         }
         DepositWithdrawLogic._flashLoan(
             callvars,
-            isLendable,
+            assetDatas,
             _reserves,
             trancheMultipliers,
             _reservesList,
-            userConfig
+            userConfig,
+            _addressesProvider
         );
     }
 
@@ -652,6 +656,15 @@ contract LendingPool is
         returns (DataTypes.ReserveData memory)
     {
         return _reserves[asset][tranche];
+    }
+
+    function getAssetData(address asset)
+        external
+        view
+        override
+        returns (DataTypes.AssetData memory)
+    {
+        return assetDatas[asset];
     }
 
     /**
@@ -689,7 +702,8 @@ contract LendingPool is
             _usersConfig[user],
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle()
+            _addressesProvider,
+            assetDatas
         );
         // (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
@@ -849,22 +863,24 @@ contract LendingPool is
             _usersConfig[from],
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle()
+            _addressesProvider,
+            assetDatas
         );
 
         uint256 reserveId = _reserves[asset][tranche].id;
 
         if (from != to) {
             if (balanceFromBefore.sub(amount) == 0) {
-                DataTypes.UserConfigurationMap storage fromConfig =
-                    _usersConfig[from];
+                DataTypes.UserConfigurationMap
+                    storage fromConfig = _usersConfig[from];
                 fromConfig.setUsingAsCollateral(reserveId, false);
                 emit ReserveUsedAsCollateralDisabled(asset, from);
             }
 
             if (balanceToBefore == 0 && amount != 0) {
-                DataTypes.UserConfigurationMap storage toConfig =
-                    _usersConfig[to];
+                DataTypes.UserConfigurationMap storage toConfig = _usersConfig[
+                    to
+                ];
                 toConfig.setUsingAsCollateral(reserveId, true);
                 emit ReserveUsedAsCollateralEnabled(asset, to);
             }
@@ -906,46 +922,25 @@ contract LendingPool is
      * @dev Updates the address of the interest rate strategy contract
      * - Only callable by the LendingPoolConfigurator contract
      * @param asset The address of the underlying asset of the reserve
-     * @param risk The risk of the asset
+     * @param _risk The risk of the asset
      **/
-    function setAssetRisk(address asset, uint8 risk)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
-        collateralRisk[asset] = risk;
-    }
-
-    /**
-     * @dev Updates the address of the interest rate strategy contract
-     * - Only callable by the LendingPoolConfigurator contract
-     * @param asset The address of the underlying asset of the reserve
-     * @param _isLendable If asset is lendable
-     **/
-    function setAssetLendable(address asset, bool _isLendable)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        isLendable[asset] = _isLendable;
-    }
-
-    /**
-     * @dev Updates the address of the interest rate strategy contract
-     * - Only callable by the LendingPoolConfigurator contract
-     * @param asset The address of the underlying asset of the reserve
-     * @param _allowedHigherTranche If asset is allowedHigherTranche
-     **/
-    function setAssetAllowedHigherTranche(
+    function setAssetData(
         address asset,
-        bool _allowedHigherTranche
+        uint8 _risk,
+        bool _isLendable,
+        bool _allowedHigherTranche,
+        uint8 _assetType
     ) external override onlyLendingPoolConfigurator {
-        isAllowedCollateralInHigherTranches[asset] = _allowedHigherTranche;
+        //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
+        assetDatas[asset].collateralRisk = _risk;
+        assetDatas[asset].isLendable = _isLendable;
+        assetDatas[asset]
+            .isAllowedCollateralInHigherTranches = _allowedHigherTranche;
+        assetDatas[asset].assetType = DataTypes.ReserveAssetType(_assetType);
     }
 
     function getAssetRisk(address asset) external view returns (uint8) {
-        return collateralRisk[asset];
+        return assetDatas[asset].collateralRisk;
     }
 
     /**

@@ -26,6 +26,9 @@ import {
   AaveOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   DelegationAwareATokenFactory,
+  CurveOracleV2Factory,
+  CurveWrapperFactory,
+  VMathFactory,
   InitializableAdminUpgradeabilityProxyFactory,
   LendingPoolAddressesProviderFactory,
   LendingPoolAddressesProviderRegistryFactory,
@@ -74,6 +77,7 @@ import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
 import { readArtifact as buidlerReadArtifact } from "@nomiclabs/buidler/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendingPoolLibraryAddresses } from "../types/LendingPoolFactory";
+import { CurveOracleV2LibraryAddresses } from "../types/CurveOracleV2Factory";
 import { UiPoolDataProvider } from "../types";
 import { eNetwork } from "./types";
 
@@ -396,6 +400,64 @@ export const deployLendingPoolCollateralManager = async (verify?: boolean) => {
   return withSaveAndVerify(
     collateralManagerImpl,
     eContractid.LendingPoolCollateralManager,
+    [],
+    verify
+  );
+};
+
+export const deployvMath = async (verify?: boolean) =>
+  withSaveAndVerify(
+    await new VMathFactory(await getFirstSigner()).deploy(),
+    eContractid.vMath,
+    [],
+    verify
+  );
+
+export const deployCurveLibraries = async (
+  verify?: boolean
+): Promise<CurveOracleV2LibraryAddresses> => {
+  const vMath = await deployvMath(verify);
+
+  return {
+    ["__$fc961522ee25e21dc45bf9241cf35e1d80$__"]: vMath.address,
+  };
+};
+
+export const deployCurveOracle = async (verify?: boolean) => {
+  const libraries = await deployCurveLibraries(verify);
+  const curveOracleImpl = await new CurveOracleV2Factory(
+    libraries,
+    await getFirstSigner()
+  ).deploy();
+  await insertContractAddressInDb(
+    eContractid.curveOracle,
+    curveOracleImpl.address
+  );
+  return withSaveAndVerify(
+    curveOracleImpl,
+    eContractid.curveOracle,
+    [],
+    verify
+  );
+};
+
+export const deployCurveOracleWrapper = async (
+  addressProvider: tEthereumAddress,
+  fallbackOracle: tEthereumAddress,
+  baseCurrency: tEthereumAddress,
+  baseCurrencyUnit: string,
+  verify?: boolean
+) => {
+  const curveOracleWrapper = await new CurveWrapperFactory(
+    await getFirstSigner()
+  ).deploy(addressProvider, fallbackOracle, baseCurrency, baseCurrencyUnit);
+  await insertContractAddressInDb(
+    eContractid.curveWrapper,
+    curveOracleWrapper.address
+  );
+  return withSaveAndVerify(
+    curveOracleWrapper,
+    eContractid.curveWrapper,
     [],
     verify
   );

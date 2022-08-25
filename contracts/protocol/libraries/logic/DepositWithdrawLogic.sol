@@ -1,22 +1,16 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    SafeMath
-} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
-import {
-    SafeERC20
-} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {UserConfiguration} from "../configuration/UserConfiguration.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {Helpers} from "../helpers/Helpers.sol";
-import {
-    IReserveInterestRateStrategy
-} from "../../../interfaces/IReserveInterestRateStrategy.sol";
+import {IReserveInterestRateStrategy} from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {ValidationLogic} from "./ValidationLogic.sol";
@@ -24,9 +18,9 @@ import {IAToken} from "../../../interfaces/IAToken.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {IStableDebtToken} from "../../../interfaces/IStableDebtToken.sol";
 import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
-import {
-    IFlashLoanReceiver
-} from "../../../flashloan/interfaces/IFlashLoanReceiver.sol";
+import {IFlashLoanReceiver} from "../../../flashloan/interfaces/IFlashLoanReceiver.sol";
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {GenericLogic} from "./GenericLogic.sol";
 
 /**
  * @title DepositWithdrawLogic library
@@ -85,13 +79,16 @@ library DepositWithdrawLogic {
         if (vars.isLendable) {
             //these will simply not be used for collateral vault, and even if it is, it won't change anything
             self.updateState();
-            self.updateInterestRates(vars.t,vars.asset, aToken, amount, 0);
+            self.updateInterestRates(vars.t, vars.asset, aToken, amount, 0);
         }
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, amount); //msg.sender should still be the user, not the contract
 
-        bool isFirstDeposit =
-            IAToken(aToken).mint(onBehalfOf, amount, self.liquidityIndex); //this also considers if it is a first deposit into a tranche, not just a specific asset
+        bool isFirstDeposit = IAToken(aToken).mint(
+            onBehalfOf,
+            amount,
+            self.liquidityIndex
+        ); //this also considers if it is a first deposit into a tranche, not just a specific asset
 
         if (isFirstDeposit) {
             if (!vars.isLendable) {
@@ -149,37 +146,39 @@ library DepositWithdrawLogic {
             storage _reserves,
         DataTypes.UserConfigurationMap storage user,
         mapping(uint256 => address) storage _reservesList,
-        DataTypes.WithdrawParams memory vars
+        DataTypes.WithdrawParams memory vars,
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) public returns (uint256) {
-        DataTypes.ReserveData storage reserve =
-            _reserves[vars.asset][vars.tranche];
+        DataTypes.ReserveData storage reserve = _reserves[vars.asset][
+            vars.tranche
+        ];
         address aToken = reserve.aTokenAddress;
 
         uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
 
-        uint256 amountToWithdraw = vars.amount;
-
         if (vars.amount == type(uint256).max) {
-            amountToWithdraw = userBalance;
+            vars.amount = userBalance; //amount to withdraw
         }
 
         ValidationLogic.validateWithdraw(
             vars.asset,
             vars.tranche,
-            amountToWithdraw,
+            vars.amount,
             userBalance,
             _reserves,
             user,
             _reservesList,
             vars._reservesCount,
-            vars.oracle
+            _addressesProvider,
+            assetDatas
         );
 
         reserve.updateState();
 
-        reserve.updateInterestRates(vars.t, vars.asset, aToken, 0, amountToWithdraw);
+        reserve.updateInterestRates(vars.t, vars.asset, aToken, 0, vars.amount);
 
-        if (amountToWithdraw == userBalance) {
+        if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
             emit ReserveUsedAsCollateralDisabled(vars.asset, msg.sender);
         }
@@ -187,13 +186,13 @@ library DepositWithdrawLogic {
         IAToken(aToken).burn(
             msg.sender,
             vars.to,
-            amountToWithdraw,
+            vars.amount,
             reserve.liquidityIndex
         );
 
-        emit Withdraw(vars.asset, msg.sender, vars.to, amountToWithdraw);
+        emit Withdraw(vars.asset, msg.sender, vars.to, vars.amount);
 
-        return amountToWithdraw;
+        return vars.amount;
     }
 
     /**
@@ -222,18 +221,26 @@ library DepositWithdrawLogic {
             storage _reserves,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.UserConfigurationMap storage userConfig,
-        address oracle,
+        mapping(address => DataTypes.AssetData) storage assetDatas,
+        ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) public {
-        DataTypes.ReserveData storage reserve =
-            _reserves[vars.asset][vars.tranche];
-        uint256 amountInETH =
-            IPriceOracleGetter(oracle)
-                .getAssetPrice(vars.asset)
-                .mul(vars.amount)
-                .div(10**reserve.configuration.getDecimals());
+        DataTypes.ReserveData storage reserve = _reserves[vars.asset][
+            vars.tranche
+        ];
 
-        // TODO: make sure this works with tranches
+        //The mocks are in ETH, but when deploying to mainnet we probably want to convert to USD
+        //This is really amount in WEI. getAssetPrice gets the asset price in wei
+        //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
+
+        uint256 amountInETH = IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
+                _addressesProvider.getPriceOracle(
+                    assetDatas[vars.asset].assetType
+                )
+            ).getAssetPrice(vars.asset).mul(vars.amount).div(
+                    10**reserve.configuration.getDecimals()
+                ); //lp token decimals are 18, like ETH
+
         ValidationLogic.validateBorrow(
             vars,
             reserve,
@@ -243,7 +250,8 @@ library DepositWithdrawLogic {
             userConfig,
             _reservesList,
             vars._reservesCount,
-            oracle
+            _addressesProvider,
+            assetDatas
         );
 
         reserve.updateState();
@@ -259,22 +267,20 @@ library DepositWithdrawLogic {
 
             isFirstBorrowing = IStableDebtToken(reserve.stableDebtTokenAddress)
                 .mint(
-                vars.user,
-                vars.onBehalfOf,
-                vars.amount,
-                currentStableRate
-            );
+                    vars.user,
+                    vars.onBehalfOf,
+                    vars.amount,
+                    currentStableRate
+                );
         } else {
             isFirstBorrowing = IVariableDebtToken(
-                reserve
-                    .variableDebtTokenAddress
-            )
-                .mint(
-                vars.user,
-                vars.onBehalfOf,
-                vars.amount,
-                reserve.variableBorrowIndex
-            );
+                reserve.variableDebtTokenAddress
+            ).mint(
+                    vars.user,
+                    vars.onBehalfOf,
+                    vars.amount,
+                    reserve.variableBorrowIndex
+                );
         }
 
         if (isFirstBorrowing) {
@@ -310,7 +316,6 @@ library DepositWithdrawLogic {
         );
     }
 
-
     struct FlashLoanLocalVars {
         IFlashLoanReceiver receiver;
         address oracle;
@@ -341,37 +346,42 @@ library DepositWithdrawLogic {
         uint256 premium,
         uint16 referralCode
     );
-    
+
     function _flashLoan(
         DataTypes.flashLoanVars memory callvars,
-        mapping(address => bool) storage isLendable,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData)) storage _reserves,
-        mapping(uint256 => DataTypes.TrancheMultiplier) storage trancheMultipliers,
+        mapping(address => DataTypes.AssetData) storage assetDatas,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage _reserves,
+        mapping(uint256 => DataTypes.TrancheMultiplier)
+            storage trancheMultipliers,
         mapping(uint256 => address) storage _reservesList,
-        DataTypes.UserConfigurationMap storage userConfig
+        DataTypes.UserConfigurationMap storage userConfig,
+        ILendingPoolAddressesProvider _addressesprovider
     ) external {
         FlashLoanLocalVars memory vars;
 
         ValidationLogic.validateFlashloan(callvars.assets, callvars.amounts);
 
-        address[] memory aTokenAddresses = new address[](callvars.assets.length);
+        address[] memory aTokenAddresses = new address[](
+            callvars.assets.length
+        );
         uint256[] memory premiums = new uint256[](callvars.assets.length);
 
         vars.receiver = IFlashLoanReceiver(callvars.receiverAddress);
 
         for (vars.i = 0; vars.i < callvars.assets.length; vars.i++) {
             require(
-                isLendable[callvars.assets[vars.i].asset],
+                assetDatas[callvars.assets[vars.i].asset].isLendable,
                 "cannot borrow asset that is not lendable"
             );
             aTokenAddresses[vars.i] = _reserves[callvars.assets[vars.i].asset][
                 callvars.assets[vars.i].tranche
-            ]
-                .aTokenAddress;
+            ].aTokenAddress;
 
-            premiums[vars.i] = callvars.amounts[vars.i].mul(callvars._flashLoanPremiumTotal).div(
-                10000
-            );
+            premiums[vars.i] = callvars
+                .amounts[vars.i]
+                .mul(callvars._flashLoanPremiumTotal)
+                .div(10000);
 
             IAToken(aTokenAddresses[vars.i]).transferUnderlyingTo(
                 callvars.receiverAddress,
@@ -407,17 +417,17 @@ library DepositWithdrawLogic {
                 _reserves[vars.currentAsset][vars.currentTranche].updateState();
                 _reserves[vars.currentAsset][vars.currentTranche]
                     .cumulateToLiquidityIndex(
-                    IERC20(vars.currentATokenAddress).totalSupply(),
-                    vars.currentPremium
-                );
+                        IERC20(vars.currentATokenAddress).totalSupply(),
+                        vars.currentPremium
+                    );
                 _reserves[vars.currentAsset][vars.currentTranche]
                     .updateInterestRates(
                         trancheMultipliers[vars.currentTranche],
-                    vars.currentAsset,
-                    vars.currentATokenAddress,
-                    vars.currentAmountPlusPremium,
-                    0
-                );
+                        vars.currentAsset,
+                        vars.currentATokenAddress,
+                        vars.currentAmountPlusPremium,
+                        0
+                    );
 
                 IERC20(vars.currentAsset).safeTransferFrom(
                     callvars.receiverAddress,
@@ -449,7 +459,14 @@ library DepositWithdrawLogic {
                     );
                 }
 
-                _borrowHelper(_reserves, _reservesList, userConfig, callvars.oracle, borrowvars);
+                _borrowHelper(
+                    _reserves,
+                    _reservesList,
+                    userConfig,
+                    assetDatas,
+                    _addressesprovider,
+                    borrowvars
+                );
             }
             emit FlashLoan(
                 callvars.receiverAddress,

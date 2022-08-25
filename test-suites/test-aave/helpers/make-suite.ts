@@ -177,12 +177,13 @@ export async function initializeMakeSuite() {
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
 
-  testEnv.uniswapLiquiditySwapAdapter = await getUniswapLiquiditySwapAdapter();
-  testEnv.uniswapRepayAdapter = await getUniswapRepayAdapter();
-  testEnv.flashLiquidationAdapter = await getFlashLiquidationAdapter();
+  //CURVE TODO: these are not deployed when running mainnet fork in localhost
+  // testEnv.uniswapLiquiditySwapAdapter = await getUniswapLiquiditySwapAdapter();
+  // testEnv.uniswapRepayAdapter = await getUniswapRepayAdapter();
+  // testEnv.flashLiquidationAdapter = await getFlashLiquidationAdapter();
 
-  testEnv.paraswapLiquiditySwapAdapter =
-    await getParaSwapLiquiditySwapAdapter();
+  // testEnv.paraswapLiquiditySwapAdapter =
+  //   await getParaSwapLiquiditySwapAdapter();
 }
 
 const setSnapshot = async () => {

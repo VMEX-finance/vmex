@@ -14,7 +14,8 @@ import _ from "lodash";
 
     let data = await provider.call({ data: contractFactory.getDeployTransaction(_wallet, Object.values(TOKEN_ADDR_MAINNET)).data});
     let [balances] = await new ethers.utils.AbiCoder().decode(["uint256[]"], data)
-    console.log(balances)
+    const _balances = balances.map((bal) => ethers.utils.formatUnits(bal, 18))
+    console.log(_balances) 
 
 })().catch((err) => {
     console.error(err)

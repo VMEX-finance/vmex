@@ -12,9 +12,9 @@ import { ICommonConfiguration, eEthereumNetwork } from '../../helpers/types';
 
 export const CommonsConfig: ICommonConfiguration = {
   MarketId: 'Commons',
-  ATokenNamePrefix: 'Aave interest bearing',
-  StableDebtTokenNamePrefix: 'Aave stable debt bearing',
-  VariableDebtTokenNamePrefix: 'Aave variable debt bearing',
+  ATokenNamePrefix: 'Vmex interest bearing',
+  StableDebtTokenNamePrefix: 'Vmex stable debt bearing',
+  VariableDebtTokenNamePrefix: 'Vmex variable debt bearing',
   SymbolPrefix: '',
   ProviderId: 0, // Overriden in index.ts
   OracleQuoteCurrency: 'ETH',
@@ -286,6 +286,7 @@ export const CommonsConfig: ICommonConfiguration = {
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
       xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
+      Tricrypto2: ZERO_ADDRESS, //this should not be used
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
@@ -309,6 +310,7 @@ export const CommonsConfig: ICommonConfiguration = {
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
       xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
+      Tricrypto2: ZERO_ADDRESS, //this should not be used
     },
   },
   ReserveAssets: {
