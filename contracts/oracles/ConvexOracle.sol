@@ -22,8 +22,11 @@ contract ConvexOracle {
         uint256 curve_supply = IERC20(curve_lp).totalSupply();
         uint256 convex_supply = IERC20(convex_lp).totalSupply();
 
-        uint256 convex_price =
-            calculate_convex_price(curve_lp_price, curve_supply, convex_supply);
+        uint256 convex_price = calculate_convex_price(
+            curve_lp_price,
+            curve_supply,
+            convex_supply
+        );
 
         return convex_price;
     }

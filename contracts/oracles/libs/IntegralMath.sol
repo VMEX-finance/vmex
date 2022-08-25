@@ -91,7 +91,9 @@ library IntegralMath {
      * @dev Compute the nearest integer to the quotient of `n` and `d` (or `n / d`)
      */
     function roundDiv(uint256 n, uint256 d) internal pure returns (uint256) {
-        unchecked {return n / d + (n % d) / (d - d / 2);}
+        unchecked {
+            return n / d + (n % d) / (d - d / 2);
+        }
     }
 
     /**

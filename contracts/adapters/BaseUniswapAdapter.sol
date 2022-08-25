@@ -4,21 +4,15 @@ pragma solidity >=0.8.0;
 import {PercentageMath} from "../protocol/libraries/math/PercentageMath.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
-import {
-    IERC20Detailed
-} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 import {IERC20WithPermit} from "../interfaces/IERC20WithPermit.sol";
-import {
-    FlashLoanReceiverBase
-} from "../flashloan/base/FlashLoanReceiverBase.sol";
+import {FlashLoanReceiverBase} from "../flashloan/base/FlashLoanReceiverBase.sol";
 import {IBaseUniswapAdapter} from "./interfaces/IBaseUniswapAdapter.sol";
 
 /**
@@ -83,8 +77,11 @@ abstract contract BaseUniswapAdapter is
             address[] memory
         )
     {
-        AmountCalc memory results =
-            _getAmountsOutData(reserveIn, reserveOut, amountIn);
+        AmountCalc memory results = _getAmountsOutData(
+            reserveIn,
+            reserveOut,
+            amountIn
+        );
 
         return (
             results.calculatedAmount,
@@ -121,8 +118,11 @@ abstract contract BaseUniswapAdapter is
             address[] memory
         )
     {
-        AmountCalc memory results =
-            _getAmountsInData(reserveIn, reserveOut, amountOut);
+        AmountCalc memory results = _getAmountsInData(
+            reserveIn,
+            reserveOut,
+            amountOut
+        );
 
         return (
             results.calculatedAmount,
@@ -154,11 +154,10 @@ abstract contract BaseUniswapAdapter is
         uint256 fromAssetPrice = _getPrice(assetToSwapFrom);
         uint256 toAssetPrice = _getPrice(assetToSwapTo);
 
-        uint256 expectedMinAmountOut =
-            amountToSwap
-                .mul(fromAssetPrice.mul(10**toAssetDecimals))
-                .div(toAssetPrice.mul(10**fromAssetDecimals))
-                .percentMul(
+        uint256 expectedMinAmountOut = amountToSwap
+            .mul(fromAssetPrice.mul(10**toAssetDecimals))
+            .div(toAssetPrice.mul(10**fromAssetDecimals))
+            .percentMul(
                 PercentageMath.PERCENTAGE_FACTOR.sub(MAX_SLIPPAGE_PERCENT)
             );
 
@@ -182,14 +181,13 @@ abstract contract BaseUniswapAdapter is
             path[0] = assetToSwapFrom;
             path[1] = assetToSwapTo;
         }
-        uint256[] memory amounts =
-            UNISWAP_ROUTER.swapExactTokensForTokens(
-                amountToSwap,
-                minAmountOut,
-                path,
-                address(this),
-                block.timestamp
-            );
+        uint256[] memory amounts = UNISWAP_ROUTER.swapExactTokensForTokens(
+            amountToSwap,
+            minAmountOut,
+            path,
+            address(this),
+            block.timestamp
+        );
 
         emit Swapped(
             assetToSwapFrom,
@@ -223,11 +221,10 @@ abstract contract BaseUniswapAdapter is
         uint256 fromAssetPrice = _getPrice(assetToSwapFrom);
         uint256 toAssetPrice = _getPrice(assetToSwapTo);
 
-        uint256 expectedMaxAmountToSwap =
-            amountToReceive
-                .mul(toAssetPrice.mul(10**fromAssetDecimals))
-                .div(fromAssetPrice.mul(10**toAssetDecimals))
-                .percentMul(
+        uint256 expectedMaxAmountToSwap = amountToReceive
+            .mul(toAssetPrice.mul(10**fromAssetDecimals))
+            .div(fromAssetPrice.mul(10**toAssetDecimals))
+            .percentMul(
                 PercentageMath.PERCENTAGE_FACTOR.add(MAX_SLIPPAGE_PERCENT)
             );
 
@@ -255,14 +252,13 @@ abstract contract BaseUniswapAdapter is
             path[1] = assetToSwapTo;
         }
 
-        uint256[] memory amounts =
-            UNISWAP_ROUTER.swapTokensForExactTokens(
-                amountToReceive,
-                maxAmountToSwap,
-                path,
-                address(this),
-                block.timestamp
-            );
+        uint256[] memory amounts = UNISWAP_ROUTER.swapTokensForExactTokens(
+            amountToReceive,
+            maxAmountToSwap,
+            path,
+            address(this),
+            block.timestamp
+        );
 
         emit Swapped(
             assetToSwapFrom,
@@ -392,8 +388,9 @@ abstract contract BaseUniswapAdapter is
         uint256 amountIn
     ) internal view returns (AmountCalc memory) {
         // Subtract flash loan fee
-        uint256 finalAmountIn =
-            amountIn.sub(amountIn.mul(FLASHLOAN_PREMIUM_TOTAL).div(10000));
+        uint256 finalAmountIn = amountIn.sub(
+            amountIn.mul(FLASHLOAN_PREMIUM_TOTAL).div(10000)
+        );
 
         if (reserveIn == reserveOut) {
             uint256 reserveDecimals = _getDecimals(reserveIn);
@@ -451,10 +448,10 @@ abstract contract BaseUniswapAdapter is
         uint256 reserveInDecimals = _getDecimals(reserveIn);
         uint256 reserveOutDecimals = _getDecimals(reserveOut);
 
-        uint256 outPerInPrice =
-            finalAmountIn.mul(10**18).mul(10**reserveOutDecimals).div(
-                bestAmountOut.mul(10**reserveInDecimals)
-            );
+        uint256 outPerInPrice = finalAmountIn
+            .mul(10**18)
+            .mul(10**reserveOutDecimals)
+            .div(bestAmountOut.mul(10**reserveInDecimals));
 
         return
             AmountCalc(
@@ -488,10 +485,9 @@ abstract contract BaseUniswapAdapter is
     ) internal view returns (AmountCalc memory) {
         if (reserveIn == reserveOut) {
             // Add flash loan fee
-            uint256 amountIn =
-                amountOut.add(
-                    amountOut.mul(FLASHLOAN_PREMIUM_TOTAL).div(10000)
-                );
+            uint256 amountIn = amountOut.add(
+                amountOut.mul(FLASHLOAN_PREMIUM_TOTAL).div(10000)
+            );
             uint256 reserveDecimals = _getDecimals(reserveIn);
             address[] memory path = new address[](1);
             path[0] = reserveIn;
@@ -506,20 +502,23 @@ abstract contract BaseUniswapAdapter is
                 );
         }
 
-        (uint256[] memory amounts, address[] memory path) =
-            _getAmountsInAndPath(reserveIn, reserveOut, amountOut);
+        (
+            uint256[] memory amounts,
+            address[] memory path
+        ) = _getAmountsInAndPath(reserveIn, reserveOut, amountOut);
 
         // Add flash loan fee
-        uint256 finalAmountIn =
-            amounts[0].add(amounts[0].mul(FLASHLOAN_PREMIUM_TOTAL).div(10000));
+        uint256 finalAmountIn = amounts[0].add(
+            amounts[0].mul(FLASHLOAN_PREMIUM_TOTAL).div(10000)
+        );
 
         uint256 reserveInDecimals = _getDecimals(reserveIn);
         uint256 reserveOutDecimals = _getDecimals(reserveOut);
 
-        uint256 inPerOutPrice =
-            amountOut.mul(10**18).mul(10**reserveInDecimals).div(
-                finalAmountIn.mul(10**reserveOutDecimals)
-            );
+        uint256 inPerOutPrice = amountOut
+            .mul(10**18)
+            .mul(10**reserveInDecimals)
+            .div(finalAmountIn.mul(10**reserveOutDecimals));
 
         return
             AmountCalc(

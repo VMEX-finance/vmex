@@ -3,20 +3,14 @@ pragma solidity >=0.8.0;
 
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
-import {
-    IERC20Detailed
-} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 import {IERC20WithPermit} from "../interfaces/IERC20WithPermit.sol";
-import {
-    FlashLoanReceiverBase
-} from "../flashloan/base/FlashLoanReceiverBase.sol";
+import {FlashLoanReceiverBase} from "../flashloan/base/FlashLoanReceiverBase.sol";
 
 /**
  * @title BaseParaSwapAdapter

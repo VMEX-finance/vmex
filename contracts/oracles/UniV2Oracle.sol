@@ -20,14 +20,13 @@ contract UniV2Oracle {
         uint256 total_supply = token.totalSupply();
         (uint256 reserve0, uint256 reserve1, ) = token.getReserves();
 
-        uint256 lp_price =
-            calculate_lp_token_price(
-                total_supply,
-                prices[0],
-                prices[1],
-                reserve0,
-                reserve1
-            );
+        uint256 lp_price = calculate_lp_token_price(
+            total_supply,
+            prices[0],
+            prices[1],
+            reserve0,
+            reserve1
+        );
 
         return lp_price;
     }

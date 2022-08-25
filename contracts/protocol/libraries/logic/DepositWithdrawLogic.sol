@@ -1,22 +1,16 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    SafeMath
-} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
-import {
-    SafeERC20
-} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {UserConfiguration} from "../configuration/UserConfiguration.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {Helpers} from "../helpers/Helpers.sol";
-import {
-    IReserveInterestRateStrategy
-} from "../../../interfaces/IReserveInterestRateStrategy.sol";
+import {IReserveInterestRateStrategy} from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {ValidationLogic} from "./ValidationLogic.sol";
@@ -24,12 +18,8 @@ import {IAToken} from "../../../interfaces/IAToken.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {IStableDebtToken} from "../../../interfaces/IStableDebtToken.sol";
 import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
-import {
-    IFlashLoanReceiver
-} from "../../../flashloan/interfaces/IFlashLoanReceiver.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {IFlashLoanReceiver} from "../../../flashloan/interfaces/IFlashLoanReceiver.sol";
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {GenericLogic} from "./GenericLogic.sol";
 
 /**
@@ -94,8 +84,11 @@ library DepositWithdrawLogic {
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, amount); //msg.sender should still be the user, not the contract
 
-        bool isFirstDeposit =
-            IAToken(aToken).mint(onBehalfOf, amount, self.liquidityIndex); //this also considers if it is a first deposit into a tranche, not just a specific asset
+        bool isFirstDeposit = IAToken(aToken).mint(
+            onBehalfOf,
+            amount,
+            self.liquidityIndex
+        ); //this also considers if it is a first deposit into a tranche, not just a specific asset
 
         if (isFirstDeposit) {
             if (!vars.isLendable) {
@@ -157,8 +150,9 @@ library DepositWithdrawLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         mapping(address => DataTypes.AssetData) storage assetDatas
     ) public returns (uint256) {
-        DataTypes.ReserveData storage reserve =
-            _reserves[vars.asset][vars.tranche];
+        DataTypes.ReserveData storage reserve = _reserves[vars.asset][
+            vars.tranche
+        ];
         address aToken = reserve.aTokenAddress;
 
         uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
@@ -231,23 +225,21 @@ library DepositWithdrawLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) public {
-        DataTypes.ReserveData storage reserve =
-            _reserves[vars.asset][vars.tranche];
+        DataTypes.ReserveData storage reserve = _reserves[vars.asset][
+            vars.tranche
+        ];
 
         //The mocks are in ETH, but when deploying to mainnet we probably want to convert to USD
         //This is really amount in WEI. getAssetPrice gets the asset price in wei
         //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
 
-            uint256 amountInETH //if we change the address of the oracle to give the price in usd, it should still work
-         =
-            IPriceOracleGetter(
+        uint256 amountInETH = IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
                 _addressesProvider.getPriceOracle(
                     assetDatas[vars.asset].assetType
                 )
-            )
-                .getAssetPrice(vars.asset)
-                .mul(vars.amount)
-                .div(10**reserve.configuration.getDecimals()); //lp token decimals are 18, like ETH
+            ).getAssetPrice(vars.asset).mul(vars.amount).div(
+                    10**reserve.configuration.getDecimals()
+                ); //lp token decimals are 18, like ETH
 
         ValidationLogic.validateBorrow(
             vars,
@@ -275,22 +267,20 @@ library DepositWithdrawLogic {
 
             isFirstBorrowing = IStableDebtToken(reserve.stableDebtTokenAddress)
                 .mint(
-                vars.user,
-                vars.onBehalfOf,
-                vars.amount,
-                currentStableRate
-            );
+                    vars.user,
+                    vars.onBehalfOf,
+                    vars.amount,
+                    currentStableRate
+                );
         } else {
             isFirstBorrowing = IVariableDebtToken(
-                reserve
-                    .variableDebtTokenAddress
-            )
-                .mint(
-                vars.user,
-                vars.onBehalfOf,
-                vars.amount,
-                reserve.variableBorrowIndex
-            );
+                reserve.variableDebtTokenAddress
+            ).mint(
+                    vars.user,
+                    vars.onBehalfOf,
+                    vars.amount,
+                    reserve.variableBorrowIndex
+                );
         }
 
         if (isFirstBorrowing) {
@@ -372,8 +362,9 @@ library DepositWithdrawLogic {
 
         ValidationLogic.validateFlashloan(callvars.assets, callvars.amounts);
 
-        address[] memory aTokenAddresses =
-            new address[](callvars.assets.length);
+        address[] memory aTokenAddresses = new address[](
+            callvars.assets.length
+        );
         uint256[] memory premiums = new uint256[](callvars.assets.length);
 
         vars.receiver = IFlashLoanReceiver(callvars.receiverAddress);
@@ -385,10 +376,10 @@ library DepositWithdrawLogic {
             );
             aTokenAddresses[vars.i] = _reserves[callvars.assets[vars.i].asset][
                 callvars.assets[vars.i].tranche
-            ]
-                .aTokenAddress;
+            ].aTokenAddress;
 
-            premiums[vars.i] = callvars.amounts[vars.i]
+            premiums[vars.i] = callvars
+                .amounts[vars.i]
                 .mul(callvars._flashLoanPremiumTotal)
                 .div(10000);
 
@@ -426,17 +417,17 @@ library DepositWithdrawLogic {
                 _reserves[vars.currentAsset][vars.currentTranche].updateState();
                 _reserves[vars.currentAsset][vars.currentTranche]
                     .cumulateToLiquidityIndex(
-                    IERC20(vars.currentATokenAddress).totalSupply(),
-                    vars.currentPremium
-                );
+                        IERC20(vars.currentATokenAddress).totalSupply(),
+                        vars.currentPremium
+                    );
                 _reserves[vars.currentAsset][vars.currentTranche]
                     .updateInterestRates(
-                    trancheMultipliers[vars.currentTranche],
-                    vars.currentAsset,
-                    vars.currentATokenAddress,
-                    vars.currentAmountPlusPremium,
-                    0
-                );
+                        trancheMultipliers[vars.currentTranche],
+                        vars.currentAsset,
+                        vars.currentATokenAddress,
+                        vars.currentAmountPlusPremium,
+                        0
+                    );
 
                 IERC20(vars.currentAsset).safeTransferFrom(
                     callvars.receiverAddress,

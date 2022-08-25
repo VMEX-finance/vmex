@@ -4,7 +4,10 @@ pragma solidity >=0.8.0;
 library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
 
-    enum ReserveAssetType {AAVE, CURVE} //update with other possible types of the underlying asset
+    enum ReserveAssetType {
+        AAVE,
+        CURVE
+    } //update with other possible types of the underlying asset
     //AAVE is the original assets in the aave protocol
     //CURVE is the new LP tokens we are providing support for
 
@@ -70,7 +73,11 @@ library DataTypes {
         uint256 data;
     }
 
-    enum InterestRateMode {NONE, STABLE, VARIABLE}
+    enum InterestRateMode {
+        NONE,
+        STABLE,
+        VARIABLE
+    }
 
     struct AcctTranche {
         address user;
