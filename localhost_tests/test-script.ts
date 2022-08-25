@@ -3,24 +3,24 @@ async function main () {
     // Our code will go here
 
     // Load the HRE into helpers to access signers
-    run("set-DRE")
+    await run("set-DRE")
 
     // Import getters to instance any Aave contract
     const contractGetters = require('./helpers/contracts-getters');
 
 
 // Load the first signer
-const signer = await contractGetters.getFirstSigner();
+var signer = await contractGetters.getFirstSigner();
 
 // Lending pool instance
-const lendingPool = await contractGetters.getLendingPool("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9");
+const lendingPool = await contractGetters.getLendingPool();
 
 // ERC20 token DAI Mainnet instance
 const DAI = await contractGetters.getIErc20Detailed("0x6B175474E89094C44Da98b954EedeAC495271d0F");
 
-const emergency = (await ethers.getSigners())[1]
+var emergency = (await ethers.getSigners())[1]
 
-const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy("0xCc87B5A13D78a49b1fd46a113a82BE3F9d0463F2")
+const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
 
 await lendingPoolConfig.connect(emergency).setPoolPause(false)
 
@@ -55,13 +55,28 @@ const WETHabi = [
 
 const myWETH = new ethers.Contract(WETHadd,WETHabi)
 
-const options = {value: ethers.utils.parseEther("1.0")}
+var options = {value: ethers.utils.parseEther("100.0")}
 
 await myWETH.connect(signer).deposit(options);
 await myWETH.connect(signer).balanceOf(signer.address);
-await myWETH.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("1.0"))
+await myWETH.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
 
-await lendingPool.connect(signer).deposit(myWETH.address, 1, true, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(myWETH.address, 2, true, ethers.utils.parseUnits('100'), await signer.getAddress(), '0'); 
+
+
+// testing curve lp tokens
+var options2 = {value: ethers.utils.parseEther("1.0"), gasLimit: 8000000}
+const triCryptoDepositAdd = "0x3993d34e7e99Abf6B6f367309975d1360222D446"
+const triCryptoDepositAbi = [
+    "function add_liquidity(uint256[] _amounts,uint256 _min_mint_amount, address _receiver) external payable returns (uint256)"
+]
+
+const triCryptoDeposit = new ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
+
+var amounts = [ethers.utils.parseEther("0"),ethers.utils.parseEther("0"),ethers.utils.parseEther("1.0")]
+
+await myWETH.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEther("1.0"))
+await triCryptoDeposit.connect(signer).add_liquidity(amounts,ethers.utils.parseEther("1.0"),signer.address,options2)
 
 }
 

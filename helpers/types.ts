@@ -55,6 +55,9 @@ export enum AavePools {
 
 export enum eContractid {
   Example = "Example",
+  curveOracle = "curveOracle",
+  curveWrapper = "curveWrapper",
+  vMath = "vMath",
   LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
   MintableERC20 = "MintableERC20",
   MintableDelegationERC20 = "MintableDelegationERC20",
@@ -261,6 +264,7 @@ export interface iAssetBase<T> {
   STAKE: T;
   xSUSHI: T;
   WAVAX: T;
+  Tricrypto2: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -290,6 +294,7 @@ export type iAavePoolAssets<T> = Pick<
   | "REN"
   | "ENJ"
   | "xSUSHI"
+  | "Tricrypto2"
 >;
 
 export type iLpPoolAssets<T> = Pick<
@@ -389,7 +394,6 @@ export interface IReserveParams
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   isLendable: boolean; //is the asset lendable
-  allowedHigherTranche: boolean;
 }
 
 export interface IInterestRateStrategyParams {
@@ -419,6 +423,8 @@ export interface IReserveCollateralParams {
   liquidationThreshold: string;
   liquidationBonus: string;
   risk: BigNumberish; //risk of asset, can only be set as collateral in tranches higher than this risk
+  assetType: BigNumberish;
+  allowedHigherTranche: boolean;
 }
 export interface IMarketRates {
   borrowRate: string;

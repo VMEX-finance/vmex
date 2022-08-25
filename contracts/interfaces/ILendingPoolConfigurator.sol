@@ -29,6 +29,7 @@ interface ILendingPoolConfigurator {
         uint8 risk; //risk level for collateral
         bool isLendable;
         bool allowHigherTranche;
+        uint8 assetType;
     }
 
     struct UpdateATokenInput {
@@ -161,9 +162,15 @@ interface ILendingPoolConfigurator {
     /**
      * @dev Emitted when a asset risk is updated
      * @param asset The address of the underlying asset of the reserve
-     * @param risk The new risk of an asset
+     * @param _risk The new risk of an asset
      **/
-    event AssetRiskChanged(address indexed asset, uint8 risk);
+    event AssetDataChanged(
+        address indexed asset,
+        uint8 _risk,
+        bool _isLendable,
+        bool _allowedHigherTranche,
+        uint8 _assetType
+    );
 
     /**
      * @dev Emitted when an aToken implementation is upgraded

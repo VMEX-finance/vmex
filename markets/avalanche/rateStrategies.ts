@@ -57,6 +57,17 @@ export const rateStrategyAAVE: IInterestRateStrategyParams = {
   stableRateSlope2: '0',
 }
 
+// AAVE
+export const rateStrategyCurve: IInterestRateStrategyParams = {
+  name: "rateStrategyCurve",
+  optimalUtilizationRate: new BigNumber(1).multipliedBy(oneRay).toFixed(),
+  baseVariableBorrowRate: '0',
+  variableRateSlope1: '0',
+  variableRateSlope2: '0',
+  stableRateSlope1: '0',
+  stableRateSlope2: '0',
+}
+
 // BAT ENJ LINK MANA MKR REN YFI ZRX
 export const rateStrategyVolatileOne: IInterestRateStrategyParams = {
   name: "rateStrategyVolatileOne",

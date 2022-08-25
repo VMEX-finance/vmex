@@ -4,6 +4,20 @@ pragma solidity >=0.8.0;
 library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
 
+    enum ReserveAssetType {
+        AAVE,
+        CURVE
+    } //update with other possible types of the underlying asset
+    //AAVE is the original assets in the aave protocol
+    //CURVE is the new LP tokens we are providing support for
+
+    struct AssetData {
+        uint8 collateralRisk;
+        bool isLendable;
+        bool isAllowedCollateralInHigherTranches;
+        ReserveAssetType assetType;
+    }
+
     struct TrancheAddress {
         uint8 tranche;
         address asset;
@@ -12,25 +26,25 @@ library DataTypes {
         //stores the reserve configuration
         ReserveConfigurationMap configuration;
         //the liquidity index. Expressed in ray
-        uint128 liquidityIndex;
+        uint128 liquidityIndex; //not used for nonlendable assets
         //variable borrow index. Expressed in ray
-        uint128 variableBorrowIndex;
+        uint128 variableBorrowIndex; //not used for nonlendable assets
         //the current supply rate. Expressed in ray
-        uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY
+        uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY //not used for nonlendable assets
         //the current variable borrow rate. Expressed in ray
-        uint128 currentVariableBorrowRate;
+        uint128 currentVariableBorrowRate; //not used for nonlendable assets
         //the current stable borrow rate. Expressed in ray
-        uint128 currentStableBorrowRate;
+        uint128 currentStableBorrowRate; //not used for nonlendable assets
         uint40 lastUpdateTimestamp;
         //tokens addresses
         address aTokenAddress;
-        address stableDebtTokenAddress;
-        address variableDebtTokenAddress;
+        address stableDebtTokenAddress; //not used for nonlendable assets
+        address variableDebtTokenAddress; //not used for nonlendable assets
         //address of the interest rate strategy
-        address interestRateStrategyAddress;
+        address interestRateStrategyAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
-        uint8 tranche;
+        uint8 tranche; //I think this will be used for nonlendable assets, cause your collateral only asset can be placed in higher tranche if necessary
     }
 
     struct TrancheMultiplier {
@@ -38,11 +52,6 @@ library DataTypes {
         uint256 variableBorrowRateMultiplier;
         uint256 stableBorrowRateMultiplier;
     }
-
-    // struct AssetTranche {
-    //     address asset;
-    //     uint8 tranche;
-    // }
 
     uint8 constant NUM_TRANCHES = 3;
 
@@ -64,7 +73,11 @@ library DataTypes {
         uint256 data;
     }
 
-    enum InterestRateMode {NONE, STABLE, VARIABLE}
+    enum InterestRateMode {
+        NONE,
+        STABLE,
+        VARIABLE
+    }
 
     struct AcctTranche {
         address user;
@@ -97,7 +110,6 @@ library DataTypes {
 
     struct WithdrawParams {
         uint256 _reservesCount;
-        address oracle;
         address asset;
         uint8 tranche;
         uint256 amount;
