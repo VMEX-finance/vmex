@@ -26,10 +26,11 @@ library OracleLibrary {
             secondAgos[0] = period;
             secondAgos[1] = 0;
 
-            (int56[] memory tickCumulatives, ) =
-                IUniswapV3Pool(pool).observe(secondAgos);
-            int56 tickCumulativesDelta =
-                tickCumulatives[1] - tickCumulatives[0];
+            (int56[] memory tickCumulatives, ) = IUniswapV3Pool(pool).observe(
+                secondAgos
+            );
+            int56 tickCumulativesDelta = tickCumulatives[1] -
+                tickCumulatives[0];
 
             timeWeightedAverageTick = int24(
                 tickCumulativesDelta / int56(uint56(period))
@@ -65,8 +66,11 @@ library OracleLibrary {
                     ? FullMath.mulDiv(ratioX192, baseAmount, 1 << 192)
                     : FullMath.mulDiv(1 << 192, baseAmount, ratioX192);
             } else {
-                uint256 ratioX128 =
-                    FullMath.mulDiv(sqrtRatioX96, sqrtRatioX96, 1 << 64);
+                uint256 ratioX128 = FullMath.mulDiv(
+                    sqrtRatioX96,
+                    sqrtRatioX96,
+                    1 << 64
+                );
                 quoteAmount = baseToken < quoteToken
                     ? FullMath.mulDiv(ratioX128, baseAmount, 1 << 128)
                     : FullMath.mulDiv(1 << 128, baseAmount, ratioX128);
@@ -83,12 +87,23 @@ library OracleLibrary {
         returns (uint32)
     {
         unchecked {
-            (, , uint16 observationIndex, uint16 observationCardinality, , , ) =
-                IUniswapV3Pool(pool).slot0();
+            (
+                ,
+                ,
+                uint16 observationIndex,
+                uint16 observationCardinality,
+                ,
+                ,
+
+            ) = IUniswapV3Pool(pool).slot0();
             require(observationCardinality > 0, "NI");
 
-            (uint32 observationTimestamp, , , bool initialized) =
-                IUniswapV3Pool(pool).observations(
+            (
+                uint32 observationTimestamp,
+                ,
+                ,
+                bool initialized
+            ) = IUniswapV3Pool(pool).observations(
                     (observationIndex + 1) % observationCardinality
                 );
 

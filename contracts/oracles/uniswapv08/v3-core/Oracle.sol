@@ -198,8 +198,11 @@ library Oracle {
 
                 atOrAfter = self[(i + 1) % cardinality];
 
-                bool targetAtOrAfter =
-                    lte(time, beforeOrAt.blockTimestamp, target);
+                bool targetAtOrAfter = lte(
+                    time,
+                    beforeOrAt.blockTimestamp,
+                    target
+                );
 
                 // check if we've found the answer!
                 if (
@@ -310,8 +313,10 @@ library Oracle {
 
             uint32 target = time - secondsAgo;
 
-            (Observation memory beforeOrAt, Observation memory atOrAfter) =
-                getSurroundingObservations(
+            (
+                Observation memory beforeOrAt,
+                Observation memory atOrAfter
+            ) = getSurroundingObservations(
                     self,
                     time,
                     target,
@@ -335,8 +340,8 @@ library Oracle {
                 );
             } else {
                 // we're in the middle
-                uint32 observationTimeDelta =
-                    atOrAfter.blockTimestamp - beforeOrAt.blockTimestamp;
+                uint32 observationTimeDelta = atOrAfter.blockTimestamp -
+                    beforeOrAt.blockTimestamp;
                 uint32 targetDelta = target - beforeOrAt.blockTimestamp;
                 return (
                     beforeOrAt.tickCumulative +

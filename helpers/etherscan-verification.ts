@@ -65,7 +65,7 @@ export const verifyEtherscanContract = async (
       relatedSources: true,
     };
     await runTaskWithRetry("verify", params, times, msDelay, cleanup);
-  } catch (error) {}
+  } catch (error: any) {}
 };
 
 export const runTaskWithRetry = async (

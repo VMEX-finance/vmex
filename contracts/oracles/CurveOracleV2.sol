@@ -14,12 +14,11 @@ contract CurveOracleV2 is ICurveOracle {
     {
         uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price();
 
-        uint256 lp_price =
-            calculate_v2_token_price(
-                uint8(prices.length),
-                virtual_price,
-                prices
-            );
+        uint256 lp_price = calculate_v2_token_price(
+            uint8(prices.length),
+            virtual_price,
+            prices
+        );
 
         return lp_price;
     }
