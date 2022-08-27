@@ -82,6 +82,21 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
         underlyingCoins[0xD51a44d3FaE010294C616388b506AcdA1bfAAE46][
             2
         ] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; //first underlying coin is WETH
+
+        //3pool
+        lpTokenToPool[
+            0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490
+        ] = 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
+        numCoins[0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7] = 3; //3 coins in tricrypto2
+        underlyingCoins[0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7][
+            0
+        ] = 0x6B175474E89094C44Da98b954EedeAC495271d0F; //first underlying coin is DAI
+        underlyingCoins[0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7][
+            1
+        ] = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; //first underlying coin is USDC
+        underlyingCoins[0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7][
+            2
+        ] = 0xdAC17F958D2ee523a2206206994597C13D831ec7; //first underlying coin is USDT
     }
 
     /// @notice Sets the fallbackOracle

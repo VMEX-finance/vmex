@@ -287,6 +287,7 @@ export const CommonsConfig: ICommonConfiguration = {
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
       xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
       Tricrypto2: ZERO_ADDRESS, //this should not be used
+      ThreePool: ZERO_ADDRESS, //this should not be used
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
@@ -311,6 +312,7 @@ export const CommonsConfig: ICommonConfiguration = {
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
       xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
       Tricrypto2: ZERO_ADDRESS, //this should not be used
+      ThreePool: ZERO_ADDRESS, //this should not be used
     },
   },
   ReserveAssets: {
