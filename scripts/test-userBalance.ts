@@ -12,9 +12,9 @@ import _ from "lodash";
 
     let contractFactory = new ethers.ContractFactory(UserTokenBalance.abi, UserTokenBalance.bytecode)
 
-    let data = await provider.call({ data: contractFactory.getDeployTransaction(_wallet, Object.values(TOKEN_ADDR_MAINNET)).data});
-    let [balances] = await new ethers.utils.AbiCoder().decode(["uint256[]"], data)
-    const _balances = balances.map((bal) => ethers.utils.formatUnits(bal, 18))
+    let data = await provider.call({ data: contractFactory.getDeployTransaction(_wallet).data});
+    let [balances, names] = await new ethers.utils.AbiCoder().decode(["uint256[]", "string[20]"], data)
+    const _balances = _.zipObject(names, balances.map((bal) => ethers.utils.formatUnits(bal, 18)))
     console.log(_balances) 
 
 })().catch((err) => {
