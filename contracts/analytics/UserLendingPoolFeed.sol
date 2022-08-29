@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 import {ILendingPool} from "../interfaces/ILendingPool.sol";
+import {Constants} from "./libraries/Constants.sol";
 
 contract UserLendingPoolFeed {
     /**
