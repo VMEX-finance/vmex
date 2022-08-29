@@ -233,6 +233,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
       WAVAX: mockTokens.WAVAX.address,
       Tricrypto2: mockTokens.Tricrypto2.address,
       ThreePool: mockTokens.ThreePool.address,
+      StethEth: mockTokens.StethEth.address,
     },
     fallbackOracle
   );
