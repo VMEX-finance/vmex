@@ -57,8 +57,9 @@ export const AaveConfig: IAaveConfiguration = {
     YFI: strategyYFI,
     ZRX: strategyZRX,
     xSUSHI: strategyXSUSHI,
-    Tricrypto2: strategyCurveLPToken, //Curve TODO: add other curve lp tokens
-    ThreePool: strategyCurveLPToken,
+    Tricrypto2: strategyCurveLPToken, //Curve TODO: add other curve lp tokens, modify custom strategies
+    ThreePool: strategyCurveLPToken, 
+    StethEth: strategyCurveLPToken, 
   },
   ReserveAssets: {
     [eEthereumNetwork.buidlerevm]: {},
@@ -134,6 +135,7 @@ export const AaveConfig: IAaveConfiguration = {
       xSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
       Tricrypto2: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
 ThreePool: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+StethEth: '0x06325440D014e39736583c165C2963BA99fAf14E',
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
@@ -159,6 +161,7 @@ ThreePool: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
       xSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
       Tricrypto2: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
 ThreePool: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+StethEth: '0x06325440D014e39736583c165C2963BA99fAf14E',
     },
   },
 };

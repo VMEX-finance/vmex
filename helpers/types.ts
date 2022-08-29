@@ -266,6 +266,7 @@ export interface iAssetBase<T> {
   WAVAX: T;
   Tricrypto2: T;
   ThreePool: T;
+  StethEth: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -297,6 +298,7 @@ export type iAavePoolAssets<T> = Pick<
   | "xSUSHI"
   | "Tricrypto2"
   | "ThreePool"
+  | "StethEth"
 >;
 
 export type iLpPoolAssets<T> = Pick<

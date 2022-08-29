@@ -97,6 +97,18 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
         underlyingCoins[0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7][
             2
         ] = 0xdAC17F958D2ee523a2206206994597C13D831ec7; //first underlying coin is USDT
+
+        //StethEth
+        lpTokenToPool[
+            0x06325440D014e39736583c165C2963BA99fAf14E
+        ] = 0xDC24316b9AE028F1497c275EB9192a3Ea0f67022;
+        numCoins[0xDC24316b9AE028F1497c275EB9192a3Ea0f67022] = 2; //2 coins in StethEth
+        underlyingCoins[0xDC24316b9AE028F1497c275EB9192a3Ea0f67022][
+            0
+        ] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; //first underlying coin is WETH
+        underlyingCoins[0xDC24316b9AE028F1497c275EB9192a3Ea0f67022][
+            1
+        ] = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84; //first underlying coin is Steth
     }
 
     /// @notice Sets the fallbackOracle
