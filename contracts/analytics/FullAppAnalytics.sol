@@ -6,9 +6,9 @@ import {IUiPoolDataProviderV3} from "../misc/interfaces/IUiPoolDataProviderV3.so
 import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 
 struct AggregatedPoolData {
-    // IUiPoolDataProviderV2.AggregatedReserveData[] reserveData;
-    // IUiPoolDataProviderV2.UserReserveData[] userData;
-    // IUiPoolDataProviderV2.BaseCurrencyInfo baseCurrencyInfo;
+    IUiPoolDataProviderV3.AggregatedReserveData[] reserveData;
+    IUiPoolDataProviderV3.UserReserveData[] userData;
+    IUiPoolDataProviderV3.BaseCurrencyInfo baseCurrencyInfo;
     address[] reservesList;
 }
 
@@ -16,21 +16,25 @@ contract FullAppAnalytics {
     IUiPoolDataProviderV3 dataProvider;
 
     constructor(address pool, address user) {
-        // AggregatedPoolData memory returnData;
+        AggregatedPoolData memory returnData;
+        uint8 integer;
         // scopes, calls to contracts use 9 stack items
-        // {
-        //     (returnData.reserveData, returnData.baseCurrencyInfo) = dataProvider.getReservesData(ILendingPoolAddressesProvider(pool));
-        // }
-        // {
-        //     returnData.userData = dataProvider.getUserReservesData(ILendingPoolAddressesProvider(pool), user);
-        // }
-        // {
-        // returnData.reservesList = dataProvider.getReservesList(ILendingPoolAddressesProvider(pool));
-        // }
-        address returnData = dataProvider.getReservesList(
-            ILendingPoolAddressesProvider(pool)
-        )[0];
-        // );
+        {
+            (returnData.reserveData, returnData.baseCurrencyInfo) = dataProvider
+                .getReservesData(ILendingPoolAddressesProvider(pool));
+        }
+        {
+            (returnData.userData, integer) = dataProvider.getUserReservesData(
+                ILendingPoolAddressesProvider(pool),
+                user
+            );
+        }
+        {
+            (returnData.reservesList) = dataProvider.getReservesList(
+                ILendingPoolAddressesProvider(pool)
+            );
+        }
+
         bytes memory _data = abi.encode(returnData);
         assembly {
             return(add(0x20, _data), mload(_data))
