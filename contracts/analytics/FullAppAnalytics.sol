@@ -27,14 +27,15 @@ contract FullAppAnalytics {
         // {
         // returnData.reservesList = dataProvider.getReservesList(ILendingPoolAddressesProvider(pool));
         // }
-        AggregatedPoolData memory returnData = AggregatedPoolData(
-            dataProvider.getReservesList(ILendingPoolAddressesProvider(pool))
-        );
+        address returnData = dataProvider.getReservesList(
+            ILendingPoolAddressesProvider(pool)
+        )[0];
+        // );
         bytes memory _data = abi.encode(returnData);
         assembly {
             return(add(0x20, _data), mload(_data))
         }
     }
 
-    function getType() public view returns (AggregatedPoolData memory) {}
+    function getType() public view returns (address) {}
 }
