@@ -42,6 +42,9 @@ export declare enum AavePools {
 }
 export declare enum eContractid {
     Example = "Example",
+    curveOracle = "curveOracle",
+    curveWrapper = "curveWrapper",
+    vMath = "vMath",
     LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
     MintableERC20 = "MintableERC20",
     MintableDelegationERC20 = "MintableDelegationERC20",
@@ -227,10 +230,11 @@ export interface iAssetBase<T> {
     STAKE: T;
     xSUSHI: T;
     WAVAX: T;
+    Tricrypto2: T;
 }
 export declare type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
 export declare type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
-export declare type iAavePoolAssets<T> = Pick<iAssetsWithoutUSD<T>, "DAI" | "TUSD" | "USDC" | "USDT" | "SUSD" | "AAVE" | "BAT" | "MKR" | "LINK" | "KNC" | "WBTC" | "MANA" | "ZRX" | "SNX" | "BUSD" | "WETH" | "YFI" | "UNI" | "REN" | "ENJ" | "xSUSHI">;
+export declare type iAavePoolAssets<T> = Pick<iAssetsWithoutUSD<T>, "DAI" | "TUSD" | "USDC" | "USDT" | "SUSD" | "AAVE" | "BAT" | "MKR" | "LINK" | "KNC" | "WBTC" | "MANA" | "ZRX" | "SNX" | "BUSD" | "WETH" | "YFI" | "UNI" | "REN" | "ENJ" | "xSUSHI" | "Tricrypto2">;
 export declare type iLpPoolAssets<T> = Pick<iAssetsWithoutUSD<T>, "DAI" | "USDC" | "USDT" | "WBTC" | "WETH" | "UniDAIWETH" | "UniWBTCWETH" | "UniAAVEWETH" | "UniBATWETH" | "UniDAIUSDC" | "UniCRVWETH" | "UniLINKWETH" | "UniMKRWETH" | "UniRENWETH" | "UniSNXWETH" | "UniUNIWETH" | "UniUSDCWETH" | "UniWBTCUSDC" | "UniYFIWETH" | "BptWBTCWETH" | "BptBALWETH">;
 export declare type iMaticPoolAssets<T> = Pick<iAssetsWithoutUSD<T>, "DAI" | "USDC" | "USDT" | "WBTC" | "WETH" | "WMATIC" | "AAVE">;
 export declare type iXDAIPoolAssets<T> = Pick<iAssetsWithoutUSD<T>, "DAI" | "USDC" | "USDT" | "WBTC" | "WETH" | "STAKE">;
@@ -286,7 +290,6 @@ export interface IReserveParams extends IReserveBorrowParams, IReserveCollateral
     reserveFactor: string;
     strategy: IInterestRateStrategyParams;
     isLendable: boolean;
-    allowedHigherTranche: boolean;
 }
 export interface IInterestRateStrategyParams {
     name: string;
@@ -307,6 +310,8 @@ export interface IReserveCollateralParams {
     liquidationThreshold: string;
     liquidationBonus: string;
     risk: BigNumberish;
+    assetType: BigNumberish;
+    allowedHigherTranche: boolean;
 }
 export interface IMarketRates {
     borrowRate: string;

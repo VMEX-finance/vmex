@@ -1,5 +1,6 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import { ContractFactory, ethers, providers } from "ethers";
+import { deployments } from "./constants";
 import { formatUnits } from "@ethersproject/units";
 import _ from "lodash";
 
@@ -19,11 +20,14 @@ export async function getUserTokenBalances(signer: Signer) {
 async function userTrancheReserveData(signer: Signer, tranche: number) {
     if (!signer.provider) return { response: { data: null }};
     let contractFactory = new ContractFactory(TrancheReserveData.abi, TrancheReserveData.bytecode);
-    let _data = await signer.provider.call({data: contractFactory.getDeployTransaction("0xda24DebbEcECe2270a5Ff889AEfC71Dcf4B8A3D5", tranche).data});
-    const [ address, tData ] = await new ethers.utils.AbiCoder().decode(["string[20]", "uint128[7][]"], _data);
+    let _data = await signer.provider.call({data: contractFactory.getDeployTransaction(deployments["LendingPool"]["hardhat"]["address"], tranche).data});
+    const [ address, tData, categoryNames ] = await new ethers.utils.AbiCoder().decode(["string[20]", "uint128[7][]", "string[7]"], _data);
+    const labeledData = _.map(tData, (d) => {
+        return _.zipObject(categoryNames, d)
+    })
     return {
         response: {
-            data: _.zipObject(address, tData)
+            data: _.zipObject(address, labeledData)
         }
     }
 }

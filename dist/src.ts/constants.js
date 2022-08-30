@@ -1,6 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TOKEN = exports.TOKEN_ADDR_MAINNET = exports.TOKEN_PRICE_CONTRACTS = exports.TOKEN_PRICE = void 0;
+exports.deployments = exports.TOKEN = exports.TOKEN_ADDR_MAINNET = exports.TOKEN_PRICE_CONTRACTS = exports.TOKEN_PRICE = void 0;
 exports.TOKEN_PRICE = {
     AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
     BAT: '0x0d16d4528239e9ee52fa531af613AcdB23D88c94',
@@ -174,3 +177,5 @@ exports.TOKEN = {
         decimals: "18"
     }
 };
+const deployed_contracts_json_1 = __importDefault(require("../deployed-contracts.json"));
+exports.deployments = deployed_contracts_json_1.default;
