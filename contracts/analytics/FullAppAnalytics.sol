@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 import {AnalyticsUtilities} from "./libraries/AnalyticsUtilities.sol";
 import {Constants} from "./libraries/Constants.sol";
-import {IUiPoolDataProviderV2} from "../misc/interfaces/IUiPoolDataProviderV2.sol";
+import {IUiPoolDataProviderV3} from "../misc/interfaces/IUiPoolDataProviderV3.sol";
 import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 
 struct AggregatedPoolData {
@@ -13,7 +13,7 @@ struct AggregatedPoolData {
 }
 
 contract FullAppAnalytics {
-    IUiPoolDataProviderV2 dataProvider;
+    IUiPoolDataProviderV3 dataProvider;
 
     constructor(address pool, address user) {
         // AggregatedPoolData memory returnData;
