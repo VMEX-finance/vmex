@@ -65,7 +65,7 @@ exports.NETWORKS_DEFAULT_GAS = {
     [types_1.eAvalancheNetwork.fuji]: 85 * GWEI,
 };
 exports.BLOCK_TO_FORK = {
-    [types_1.eEthereumNetwork.main]: 12406069,
+    [types_1.eEthereumNetwork.main]: 15373013,
     [types_1.eEthereumNetwork.kovan]: undefined,
     [types_1.eEthereumNetwork.ropsten]: undefined,
     [types_1.eEthereumNetwork.coverage]: undefined,

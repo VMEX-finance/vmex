@@ -179,3 +179,7 @@ export const TOKEN: Token<typeof TOKEN_PRICE> = {
         decimals: "18"
     }
 }
+
+import Deployments from "../deployed-contracts.json";
+export const deployments = Deployments;
+

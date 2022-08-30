@@ -46,6 +46,9 @@ var AavePools;
 var eContractid;
 (function (eContractid) {
     eContractid["Example"] = "Example";
+    eContractid["curveOracle"] = "curveOracle";
+    eContractid["curveWrapper"] = "curveWrapper";
+    eContractid["vMath"] = "vMath";
     eContractid["LendingPoolAddressesProvider"] = "LendingPoolAddressesProvider";
     eContractid["MintableERC20"] = "MintableERC20";
     eContractid["MintableDelegationERC20"] = "MintableDelegationERC20";

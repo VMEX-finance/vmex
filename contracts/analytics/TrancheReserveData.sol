@@ -12,6 +12,15 @@ contract TrancheReserveData {
     constructor(address pool, uint8 tranche) {
         address[20] memory tokens = Constants.token();
         string[20] memory tokenNames = Constants.tokenNames();
+        string[7] memory categoryNames = [
+            "liquidityIndex",
+            "variableBorrowIndex",
+            "currentLiquidityRate",
+            "currentVariableBorrowRate",
+            "lastUpdateTimestamp",
+            "id",
+            "tranche"
+        ];
         uint128[7][] memory data = new uint128[7][](20);
         for (uint8 i; i < tokens.length; i++) {
             DataTypes.ReserveData memory returnData = ILendingPool(pool)
@@ -30,7 +39,7 @@ contract TrancheReserveData {
         // ILendingPool(pool).getReserveData(asset, tranche)
         // address[] memory list = ILendingPool(pool).getReservesList();
 
-        bytes memory _data = abi.encode(tokenNames, data);
+        bytes memory _data = abi.encode(tokenNames, data, categoryNames);
         assembly {
             return(add(0x20, _data), mload(_data))
         }
