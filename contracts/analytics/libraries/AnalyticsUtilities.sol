@@ -6,6 +6,8 @@ import {Constants} from "./Constants.sol";
 import {UserBalances, UserAccountData} from "../types/AnalyticsDataTypes.sol";
 import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {IAaveOracle} from "../../misc/interfaces/IAaveOracle.sol";
 
 library AnalyticsUtilities {
     function getSupportedAssetData(address pool)
@@ -23,6 +25,28 @@ library AnalyticsUtilities {
         }
 
         return returnData;
+    }
+
+    function getAggregatedReserveData(ILendingPoolAddressesProvider provider)
+        internal
+        view
+        returns (uint256)
+    {
+        ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
+        IAaveOracle oracle = IAaveOracle(provider.getAavePriceOracle());
+        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory returnData = new address[](reserves.length);
+        for (uint8 i = 0; i < reserves.length; i++) {
+            uint8 tranche = (i % 3);
+            DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
+                reserves[i],
+                tranche
+            );
+
+            returnData;
+        }
+        // address[20] memory _tokens = Constants.token();
+        return reserves.length;
     }
 
     function getReserveAssetAddresses(address pool)
