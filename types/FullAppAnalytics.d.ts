@@ -46,22 +46,22 @@ export class FullAppAnalytics extends Contract {
 
   functions: {
     getType(overrides?: CallOverrides): Promise<{
-      0: string;
+      0: BigNumber;
     }>;
 
     "getType()"(overrides?: CallOverrides): Promise<{
-      0: string;
+      0: BigNumber;
     }>;
   };
 
-  getType(overrides?: CallOverrides): Promise<string>;
+  getType(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "getType()"(overrides?: CallOverrides): Promise<string>;
+  "getType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    getType(overrides?: CallOverrides): Promise<string>;
+    getType(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getType()"(overrides?: CallOverrides): Promise<string>;
+    "getType()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
