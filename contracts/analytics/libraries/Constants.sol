@@ -2,14 +2,14 @@
 pragma solidity >=0.8.0;
 
 library Constants {
-    function token() internal pure returns (address[20] memory) {
-        address[20] memory tokens = [
+    function token() internal pure returns (address[22] memory) {
+        address[22] memory tokens = [
             0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,
             0x0D8775F648430679A709E98d2b0Cb6250d2887EF,
             0x4Fabb145d64652a948d72533023f6E7A623C7C53,
             0x6B175474E89094C44Da98b954EedeAC495271d0F,
             0xF629cBd94d3791C9250152BD8dfBDF380E2a3B9c,
-            0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202,
+            0xdd974D5C2e2928deA5F71b9825b8b646686BD200,
             0x514910771AF9Ca656af840dff83E8264EcF986CA,
             0x0F5D2fB29fb7d3CFeE444a200298f468908cC942,
             0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
@@ -21,15 +21,17 @@ library Constants {
             0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
             0xdAC17F958D2ee523a2206206994597C13D831ec7,
             0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599,
+            0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
             0xE41d2489571d322189246DaFA5ebDe1F4699F498,
-            0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272
+            0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272,
+            0xc4AD29ba4B3c580e6D59105FFf484999997675Ff
         ];
         return tokens;
     }
 
-    function tokenNames() internal pure returns (string[20] memory) {
-        string[20] memory data = [
+    function tokenNames() internal pure returns (string[22] memory) {
+        string[22] memory data = [
             "AAVE",
             "BAT",
             "BUSD",
@@ -47,9 +49,11 @@ library Constants {
             "USDC",
             "USDT",
             "WBTC",
+            "WETH",
             "YFI",
             "ZRX",
-            "xSUSHI"
+            "xSUSHI",
+            "crv3crypto"
         ];
         return data;
     }

@@ -38,3 +38,7 @@ struct ApiDataType {
     address[] reserveList;
     // TokenReserveData[20] tokenReserveData;
 }
+
+struct AggregatedData {
+    TokenReserveData[] reserveData;
+}

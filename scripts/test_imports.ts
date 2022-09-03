@@ -15,8 +15,8 @@ import _ from "lodash";
     });
 
     
-    const _iface = new ethers.utils.Interface(FullAppAnalytics.abi);
-    let _data = await _iface.decodeFunctionResult("getType", data)
-    // const _data = await new ethers.utils.AbiCoder().decode(["address"], data)
-    console.log(_data['0'])
+    const _data = await new ethers.utils.AbiCoder().decode(["string[22]"], data)
+    // const _iface = new ethers.utils.Interface(FullAppAnalytics.abi);
+    // let _data = await _iface.decodeFunctionResult("getType", data)
+    console.log(_.uniq(_data['0']))
 })()
