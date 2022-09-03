@@ -13,6 +13,8 @@ export { BatchPriceFeedFactory } from "./BatchPriceFeedFactory";
 export type { BatchPriceFeed } from "./BatchPriceFeed";
 export { FullAppAnalyticsFactory } from "./FullAppAnalyticsFactory";
 export type { FullAppAnalytics } from "./FullAppAnalytics";
+export { TokenReserveDataFactory } from "./TokenReserveDataFactory";
+export type { TokenReserveData } from "./TokenReserveData";
 export { TrancheReserveDataFactory } from "./TrancheReserveDataFactory";
 export type { TrancheReserveData } from "./TrancheReserveData";
 export { UserLendingPoolFeedFactory } from "./UserLendingPoolFeedFactory";
