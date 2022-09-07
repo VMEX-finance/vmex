@@ -75,6 +75,8 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   WAVAX: oneEther.multipliedBy("0.006051936629").toFixed(),
   USD: "5848466240000000",
   Tricrypto2: oneEther.toFixed(), //this should not be used, just placed here to compile
+  ThreePool: oneEther.toFixed(), //this should not be used, just placed here to compile
+  StethEth: oneEther.toFixed(), //this should not be used, just placed here to compile
 };
 
 export const chainlinkAggregatorProxy = {
