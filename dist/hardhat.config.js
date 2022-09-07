@@ -111,6 +111,7 @@ const buidlerConfig = {
             url: "http://localhost:8545",
             chainId: 31337,
             saveDeployments: true,
+            gasPrice: 8000000000,
             forking: (0, helper_hardhat_config_1.buildForkConfig)(),
             timeout: 150000,
         },

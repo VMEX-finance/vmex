@@ -8,11 +8,8 @@ struct TokenInfo {
 
 struct TokenData {
     string symbol;
-    uint256 userBalance;
-    uint256 usdPrice;
-    uint256 ethPrice;
-    DataTypes.AssetData assetData;
     DataTypes.ReserveData reserveData;
+    DataTypes.AssetData assetData;
 }
 
 struct AggregateData {

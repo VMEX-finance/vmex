@@ -53,7 +53,7 @@ exports.NETWORKS_RPC_URL = {
 exports.NETWORKS_DEFAULT_GAS = {
     [types_1.eEthereumNetwork.kovan]: 3 * GWEI,
     [types_1.eEthereumNetwork.ropsten]: 65 * GWEI,
-    [types_1.eEthereumNetwork.main]: 65 * GWEI,
+    [types_1.eEthereumNetwork.main]: 8000000000,
     [types_1.eEthereumNetwork.coverage]: 65 * GWEI,
     [types_1.eEthereumNetwork.hardhat]: 65 * GWEI,
     [types_1.eEthereumNetwork.buidlerevm]: 65 * GWEI,
