@@ -28,6 +28,21 @@ export const strategyBUSD: IReserveParams = {
   allowedHigherTranche: true,
   assetType: 0, //0 is enum for Aave
 };
+export const strategyFrax: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 2,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, //this is since there is a chainlink aggregator for STETH
+};
 
 export const strategyDAI: IReserveParams = {
   strategy: rateStrategyStableTwo,
@@ -350,9 +365,25 @@ export const strategyXSUSHI: IReserveParams = {
   assetType: 0,
 };
 
+export const strategySTETH: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 2,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, //this is since there is a chainlink aggregator for STETH
+};
+
 export const strategyCurveLPToken: IReserveParams = {
   strategy: rateStrategyCurve,
-  baseLTVAsCollateral: '0',
+  baseLTVAsCollateral: '2500', //change
   liquidationThreshold: '4500',//change
   liquidationBonus: '11500', //change
   borrowingEnabled: false,
@@ -365,3 +396,4 @@ export const strategyCurveLPToken: IReserveParams = {
   allowedHigherTranche: true,
   assetType: 1, //1 is enum for Curve
 };
+
