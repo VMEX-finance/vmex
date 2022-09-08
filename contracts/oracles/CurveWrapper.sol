@@ -170,12 +170,20 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
 
         uint256[] memory prices = new uint256[](num_coins);
 
-        IPriceOracleGetter aave_oracle = IPriceOracleGetter(
-            _addressesProvider.getAavePriceOracle()
-        );
-
         for (uint256 i = 0; i < num_coins; i++) {
             address underlying = underlyingCoins[pool][i];
+            IPriceOracleGetter aave_oracle;
+            if (underlying == 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490) {
+                //this is the only underlying in our supported assets that is a curve token instead of aave token
+                aave_oracle = IPriceOracleGetter(
+                    _addressesProvider.getCurvePriceOracle()
+                );
+            } else {
+                aave_oracle = IPriceOracleGetter(
+                    _addressesProvider.getAavePriceOracle()
+                );
+            }
+
             require(underlying != address(0), "underlying token is null");
             prices[i] = aave_oracle.getAssetPrice(underlying);
             require(prices[i] > 0, "aave oracle encountered an error");
