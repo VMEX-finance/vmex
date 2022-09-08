@@ -89,7 +89,7 @@ await USDC.connect(signer).balanceOf(signer.address)
 /************************************************************************************/
 /******************  get LP tokens **********************/ 
 /************************************************************************************/
-var triCryptoDepositAdd = "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2" 
+var triCryptoDepositAdd = "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2"
 var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/fraxUSDC.json").toString()
 
 var triCryptoDeposit = new ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
@@ -128,23 +128,49 @@ var CurveTokenAddabi = [
 
 var CurveToken = new ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
 await CurveToken.connect(signer).balanceOf(signer.address)
-await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("1.0"))
+await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100000.0"))
 
 // await lendingPoolConfig.connect(signer).unfreezeReserve(CurveToken.address, 2)
 // await lendingPoolConfig.connect(signer).activateReserve(CurveToken.address, 2)
 
+/************************************************************************************/
+/****************** test get price oracle  **********************/ 
+/************************************************************************************/
+var addressesProvider = await contractGetters.getLendingPoolAddressesProvider()
+
+var ad = await lendingPool.getAssetData(CurveToken.address)
+var oracleadd = await addressesProvider.getPriceOracle(ad.assetType)
+var oracleabi = [
+    "function getAssetPrice(address asset) public view returns (uint256)",
+    "function getFallbackOracle() external view returns (address)"
+]
+
+var oracle = new ethers.Contract(oracleadd,oracleabi)
+await oracle.connect(signer).getFallbackOracle();
+await oracle.connect(signer).getAssetPrice(CurveToken.address);
 
 
+var ad = await lendingPool.getAssetData('0x853d955aCEf822Db058eb8505911ED77F175b99e') //FRAX address
+var oracleadd = await addressesProvider.getPriceOracle(ad.assetType)
+var oracleabi = [
+    "function getAssetPrice(address asset) public view returns (uint256)",
+    "function getFallbackOracle() external view returns (address)"
+]
+
+var oracle = new ethers.Contract(oracleadd,oracleabi)
+await oracle.connect(signer).getFallbackOracle();
+await oracle.connect(signer).getAssetPrice('0x853d955aCEf822Db058eb8505911ED77F175b99e');
 /************************************************************************************/
 /****************** deposit curve LP token to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('0.5'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('900'), await signer.getAddress(), '0'); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
 var dataProv = await contractGetters.getAaveProtocolDataProvider()
 
 await dataProv.getReserveData(CurveToken.address,2)
+await dataProv.getReserveData(WETHadd,2)
 await dataProv.getUserReserveData(CurveToken.address,2,signer.address)
 
 await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
