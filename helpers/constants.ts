@@ -77,6 +77,10 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   Tricrypto2: oneEther.toFixed(), //this should not be used, just placed here to compile
   ThreePool: oneEther.toFixed(), //this should not be used, just placed here to compile
   StethEth: oneEther.toFixed(), //this should not be used, just placed here to compile
+  Steth: oneEther.toFixed(), //this should not be used, just placed here to compile
+  FraxUSDC: oneEther.toFixed(), //this should not be used, just placed here to compile
+  Frax3Crv: oneEther.toFixed(), //this should not be used, just placed here to compile
+  Frax: oneEther.multipliedBy("0.00367714136416").toFixed(), //this should not be used, just placed here to compile
 };
 
 export const chainlinkAggregatorProxy = {

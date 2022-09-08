@@ -361,9 +361,25 @@ export const strategySTETH: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   risk: 2,
-  isLendable: true,
+  isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, //this is since there is a chainlink aggregator for STETH
+};
+
+export const strategyFrax: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 2,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, //this is since there is a chainlink aggregator for Frax
 };
 
 export const strategyCurveLPToken: IReserveParams = {
