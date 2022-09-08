@@ -6,6 +6,7 @@ async function main () {
 
     // Load the HRE into helpers to access signers
     await run("set-DRE")
+    const fs = require('fs');
 
     // Import getters to instance any Aave contract
     const contractGetters = require('./helpers/contracts-getters');
@@ -71,10 +72,7 @@ await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.ut
 
 var options2 = {value: ethers.utils.parseEther("1.0"), gasLimit: 8000000}
 var triCryptoDepositAdd = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" //0xD51a44d3FaE010294C616388b506AcdA1bfAAE46 this is the address given on curve.fi/contracts
-var triCryptoDepositAbi = [
-    "function add_liquidity(uint256[3] _amounts,uint256 _min_mint_amount) external",
-    "function calc_token_amount(uint256[3] _amounts,bool deposit) external view"
-]
+var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/stethEth.json").toString()
 
 var triCryptoDeposit = new ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
@@ -116,8 +114,11 @@ await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseE
 /************************************************************************************/
 await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
 
+await lendingPool.connect(signer).getUserAccountData(signer.address,2)
+
 await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("0.01"), 1, '0', await signer.getAddress()); //borrow 500 USDT from tranche 2, 1 means stable rate
 
+await triCryptoDeposit.connect(signer).get_balances()
 /************************************************************************************/
 /****************** debugging  **********************/ 
 /************************************************************************************/

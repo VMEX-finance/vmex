@@ -267,6 +267,10 @@ export interface iAssetBase<T> {
   Tricrypto2: T;
   ThreePool: T;
   StethEth: T;
+  Steth: T;
+  FraxUSDC: T;
+  Frax3Crv: T;
+  Frax: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -299,6 +303,10 @@ export type iAavePoolAssets<T> = Pick<
   | "Tricrypto2"
   | "ThreePool"
   | "StethEth"
+  | "Steth"
+  | "FraxUSDC"
+  | "Frax3Crv"
+  | "Frax"
 >;
 
 export type iLpPoolAssets<T> = Pick<

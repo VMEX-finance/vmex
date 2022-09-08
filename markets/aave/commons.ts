@@ -290,6 +290,9 @@ export const CommonsConfig: ICommonConfiguration = {
       ThreePool: ZERO_ADDRESS, //this should not be used
       StethEth: ZERO_ADDRESS, //this should not be used
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
+      FraxUSDC: ZERO_ADDRESS, //this should not be used
+      Frax3Crv: ZERO_ADDRESS, //this should not be used
+      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
@@ -316,6 +319,10 @@ export const CommonsConfig: ICommonConfiguration = {
       Tricrypto2: ZERO_ADDRESS, //this should not be used
       ThreePool: ZERO_ADDRESS, //this should not be used
       StethEth: ZERO_ADDRESS, //this should not be used
+      Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
+      FraxUSDC: ZERO_ADDRESS, //this should not be used
+      Frax3Crv: ZERO_ADDRESS, //this should not be used
+      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
     },
   },
   ReserveAssets: {
