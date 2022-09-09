@@ -125,7 +125,7 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
         //frax3crv
         lpTokenToPool[
             0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B
-        ] = 0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B;
+        ] = 0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B; //same pool and token addresses
         numCoins[0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B] = 2; //2 coins in frax + 3crv
         underlyingCoins[0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B][
             0
@@ -176,7 +176,7 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
             if (underlying == 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490) {
                 //this is the only underlying in our supported assets that is a curve token instead of aave token
                 aave_oracle = IPriceOracleGetter(
-                    _addressesProvider.getCurvePriceOracle()
+                    _addressesProvider.getCurvePriceOracleWrapper()
                 );
             } else {
                 aave_oracle = IPriceOracleGetter(
