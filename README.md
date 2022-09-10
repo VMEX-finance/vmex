@@ -26,3 +26,39 @@ x = registry.get_lp_token(registry.pool_list(i)) //this converts the pool addres
 registry.get_pool_from_lp_token(x) //this converts lp token address to pool address (1 to 1 mapping between pool address and lp token address I think).
 
 localhost addresses (I think this changes every deployment but double check)
+
+VMEX supported assets
+
+BUSD (L&B only)
+DAI (L&B + Collateral)
+LINK (L&B + Collateral)
+MANA (L&B + Collateral)
+MKR (L&B + Collateral)
+REN (L&B + Collateral)
+SNX (L&B + Collateral)
+SUSD (L&B only)
+UNI (L&B + Collateral)
+USDC (L&B + Collateral)
+USDT (L&B + Collateral)
+WBTC (L&B + Collateral)
+YFI (L&B + Collateral)
+ZRX (L&B + Collateral)
+xSUSHI (L&B + Collateral)
+
+Our special assets
+FRAX (L&B only)
+Steth (L&B + Collateral)
+
+BAL (L&B + Collateral)
+CRV (Collateral)
+CVX (Collateral)
+BADGER (L&B + Collateral)
+LDO (L&B + Collateral)
+ALCX (L&B + Collateral)
+1inch (L&B + Collateral)
+
+Tricrypto2 Curve LP (Collateral only)
+ThreePool Curve LP (Collateral only)
+StethEth Curve LP (Collateral only)
+FraxUSDC Curve LP (Collateral only)
+Frax3Crv Curve LP (Collateral only)
