@@ -350,6 +350,150 @@ export const strategyXSUSHI: IReserveParams = {
   assetType: 0,
 };
 
+export const strategySTETH: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 2,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, //this is since there is a chainlink aggregator for STETH
+};
+
+export const strategyFrax: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 2,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, //this is since there is a chainlink aggregator for Frax
+};
+
+export const strategyBAL: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18', //checked
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyCRV: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyCVX: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyBADGER: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyLDO: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyALCX: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyOneinch: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
 export const strategyCurveLPToken: IReserveParams = {
   strategy: rateStrategyCurve,
   baseLTVAsCollateral: '2500', //change
@@ -365,3 +509,4 @@ export const strategyCurveLPToken: IReserveParams = {
   allowedHigherTranche: true,
   assetType: 1, //1 is enum for Curve
 };
+
