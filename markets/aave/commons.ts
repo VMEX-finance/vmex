@@ -281,12 +281,25 @@ export const CommonsConfig: ICommonConfiguration = {
       UNI: '0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e',
       USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
       USDT: '0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46',
-      WBTC: '0xdeb288F737066589598e9214E782fa5A8eD689e8',
+      WBTC: '0xa338e0492b2f944e9f8c0653d3ad1484f2657a37',
       YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
       xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
       Tricrypto2: ZERO_ADDRESS, //this should not be used
+      ThreePool: ZERO_ADDRESS, //this should not be used
+      StethEth: ZERO_ADDRESS, //this should not be used
+      Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
+      FraxUSDC: ZERO_ADDRESS, //this should not be used
+      Frax3Crv: ZERO_ADDRESS, //this should not be used
+      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      BAL: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
+      CRV: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
+      CVX: '0xC9CbF687f43176B302F03f5e58470b77D07c61c6',
+      BADGER: '0x58921ac140522867bf50b9e009599da0ca4a2379',
+      LDO: '0x4e844125952d32acdf339be976c98e22f6f318db',
+      ALCX: '0x194a9aaf2e0b67c35915cd01101585a33fe25caa',
+      Oneinch: '0x72afaecf99c9d9c8215ff44c77b94b99c28741e8',
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
@@ -305,12 +318,18 @@ export const CommonsConfig: ICommonConfiguration = {
       UNI: '0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e',
       USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
       USDT: '0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46',
-      WBTC: '0xdeb288F737066589598e9214E782fa5A8eD689e8',
+      WBTC: '0xa338e0492b2f944e9f8c0653d3ad1484f2657a37',
       YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
       xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
       Tricrypto2: ZERO_ADDRESS, //this should not be used
+      ThreePool: ZERO_ADDRESS, //this should not be used
+      StethEth: ZERO_ADDRESS, //this should not be used
+      Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
+      FraxUSDC: ZERO_ADDRESS, //this should not be used
+      Frax3Crv: ZERO_ADDRESS, //this should not be used
+      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
     },
   },
   ReserveAssets: {

@@ -232,6 +232,11 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
       xSUSHI: mockTokens.xSUSHI.address,
       WAVAX: mockTokens.WAVAX.address,
       Tricrypto2: mockTokens.Tricrypto2.address,
+      ThreePool: mockTokens.ThreePool.address,
+      StethEth: mockTokens.StethEth.address,
+      Steth: mockTokens.Steth.address,
+      FraxUSDC: mockTokens.FraxUSDC.address,
+      Frax3Crv: mockTokens.Frax3Crv.address,
     },
     fallbackOracle
   );
