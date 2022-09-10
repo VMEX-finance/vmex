@@ -33,6 +33,6 @@ contract CurveOracleV2 is ICurveOracle {
     ) internal pure returns (uint256) {
         uint256 product = vMath.product(prices);
         uint256 geo_mean = vMath.geometric_mean(n, product);
-        return n * virtual_price * geo_mean;
+        return (n * virtual_price * geo_mean) / 10**18; //since virtual price has 18 decimals
     }
 }
