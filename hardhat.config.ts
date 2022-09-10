@@ -26,6 +26,7 @@ import 'temp-hardhat-etherscan';
 import 'hardhat-gas-reporter';
 import 'hardhat-typechain';
 import '@tenderly/hardhat-tenderly';
+import "hardhat-deploy";
 import 'solidity-coverage';
 import { fork } from 'child_process';
 
@@ -114,6 +115,7 @@ const buidlerConfig: HardhatUserConfig = {
       gas: DEFAULT_BLOCK_GAS_LIMIT,
       gasPrice: 8000000000,
       allowUnlimitedContractSize: UNLIMITED_BYTECODE_SIZE,
+      saveDeployments: true,
       chainId: BUIDLEREVM_CHAINID,
       throwOnTransactionFailures: true,
       throwOnCallFailures: true,
@@ -122,6 +124,13 @@ const buidlerConfig: HardhatUserConfig = {
         balance,
       })),
       forking: buildForkConfig(),
+    },
+    localhost: {
+      url: "http://localhost:8545",
+      chainId: 31337,
+      saveDeployments: true,
+      forking: buildForkConfig(),
+      timeout: 150000,
     },
     buidlerevm_docker: {
       hardfork: 'berlin',

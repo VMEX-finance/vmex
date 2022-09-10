@@ -7,9 +7,8 @@ import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
 // prettier-ignore
 import {InitializableImmutableAdminUpgradeabilityProxy} from '../libraries/aave-upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol';
 
-import {
-    ILendingPoolAddressesProvider
-} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 /**
  * @title LendingPoolAddressesProvider contract
@@ -32,8 +31,13 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant EMERGENCY_ADMIN = "EMERGENCY_ADMIN";
     bytes32 private constant LENDING_POOL_COLLATERAL_MANAGER =
         "COLLATERAL_MANAGER";
-    bytes32 private constant PRICE_ORACLE = "PRICE_ORACLE";
+    bytes32 private constant AAVE_PRICE_ORACLE = "AAVE_PRICE_ORACLE";
+    bytes32 private constant CURVE_PRICE_ORACLE = "CURVE_PRICE_ORACLE";
+    bytes32 private constant CURVE_PRICE_ORACLE_WRAPPER =
+        "CURVE_PRICE_ORACLE_WRAPPER";
     bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
+
+    bytes32 private constant CURVE_ADDRESS_PROVIDER = "CURVE_ADDRESS_PROVIDER";
 
     constructor(string memory marketId) public {
         _setMarketId(marketId);
@@ -197,13 +201,84 @@ contract LendingPoolAddressesProvider is
         emit EmergencyAdminUpdated(emergencyAdmin);
     }
 
-    function getPriceOracle() external view override returns (address) {
-        return getAddress(PRICE_ORACLE);
+    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+        external
+        view
+        override
+        returns (address)
+    {
+        if (assetType == DataTypes.ReserveAssetType.AAVE) {
+            return getAavePriceOracle();
+        } else if (assetType == DataTypes.ReserveAssetType.CURVE) {
+            return getCurvePriceOracleWrapper();
+        }
+        require(false, "error determining oracle address");
+        return address(0);
     }
 
-    function setPriceOracle(address priceOracle) external override onlyOwner {
-        _addresses[PRICE_ORACLE] = priceOracle;
+    function getAavePriceOracle() public view override returns (address) {
+        return getAddress(AAVE_PRICE_ORACLE);
+    }
+
+    //custom oracle to get price of curve LP tokens
+    function getCurvePriceOracleWrapper()
+        public
+        view
+        override
+        returns (address)
+    {
+        return getAddress(CURVE_PRICE_ORACLE_WRAPPER);
+    }
+
+    //custom oracle to get price of curve LP tokens
+    function getCurvePriceOracle() public view override returns (address) {
+        return getAddress(CURVE_PRICE_ORACLE);
+    }
+
+    //custom address provider for Curve tokens
+    function getCurveAddressProvider()
+        external
+        view
+        override
+        returns (address)
+    {
+        return getAddress(CURVE_ADDRESS_PROVIDER);
+    }
+
+    function setAavePriceOracle(address priceOracle)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[AAVE_PRICE_ORACLE] = priceOracle;
         emit PriceOracleUpdated(priceOracle);
+    }
+
+    function setCurvePriceOracle(address priceOracle)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[CURVE_PRICE_ORACLE] = priceOracle;
+        emit CurvePriceOracleUpdated(priceOracle);
+    }
+
+    function setCurvePriceOracleWrapper(address priceOracle)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[CURVE_PRICE_ORACLE_WRAPPER] = priceOracle;
+        emit CurvePriceOracleWrapperUpdated(priceOracle);
+    }
+
+    function setCurveAddressProvider(address addressProvider)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
+        emit CurveAddressProviderUpdated(addressProvider);
     }
 
     function getLendingRateOracle() external view override returns (address) {
@@ -231,10 +306,13 @@ contract LendingPoolAddressesProvider is
     function _updateImpl(bytes32 id, address newAddress) internal {
         address payable proxyAddress = payable(_addresses[id]);
 
-        InitializableImmutableAdminUpgradeabilityProxy proxy =
-            InitializableImmutableAdminUpgradeabilityProxy(proxyAddress);
-        bytes memory params =
-            abi.encodeWithSignature("initialize(address)", address(this));
+        InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
+                proxyAddress
+            );
+        bytes memory params = abi.encodeWithSignature(
+            "initialize(address)",
+            address(this)
+        );
 
         if (proxyAddress == address(0)) {
             proxy = new InitializableImmutableAdminUpgradeabilityProxy(

@@ -1,37 +1,25 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    SafeMath
-} from "../../dependencies/openzeppelin/contracts//SafeMath.sol";
+import {SafeMath} from "../../dependencies/openzeppelin/contracts//SafeMath.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts//IERC20.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {IStableDebtToken} from "../../interfaces/IStableDebtToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
-import {
-    ILendingPoolCollateralManager
-} from "../../interfaces/ILendingPoolCollateralManager.sol";
-import {
-    VersionedInitializable
-} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
+import {ILendingPoolCollateralManager} from "../../interfaces/ILendingPoolCollateralManager.sol";
+import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
-import {
-    SafeERC20
-} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
 import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {
-    UserConfiguration
-} from "../libraries/configuration/UserConfiguration.sol";
-import {
-    ReserveConfiguration
-} from "../libraries/configuration/ReserveConfiguration.sol";
+import {UserConfiguration} from "../libraries/configuration/UserConfiguration.sol";
+import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
 /**
@@ -100,38 +88,45 @@ contract LendingPoolCollateralManager is
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
+        uint8 tranche,
+        // uint8 debtAssetTranche, //this would actually be the same tranche as the collateral (you can only borrow from the same tranche that your collateral is in)
         address user,
         uint256 debtToCover,
         bool receiveAToken
     ) external override returns (uint256, string memory) {
-        DataTypes.ReserveData storage collateralReserve =
-            _reserves[collateralAsset];
-        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset];
+        DataTypes.ReserveData storage collateralReserve = _reserves[
+            collateralAsset
+        ][tranche];
+        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset][
+            tranche
+        ];
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user];
 
         LiquidationCallLocalVars memory vars;
 
         (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
-            user,
+            DataTypes.AcctTranche(user, tranche),
             _reserves,
             userConfig,
             _reservesList,
             _reservesCount,
-            _addressesProvider.getPriceOracle()
+            _addressesProvider,
+            assetDatas
         );
+        // vars.healthFactor = 2;
 
         (vars.userStableDebt, vars.userVariableDebt) = Helpers
             .getUserCurrentDebt(user, debtReserve);
 
         (vars.errorCode, vars.errorMsg) = ValidationLogic
             .validateLiquidationCall(
-            collateralReserve,
-            debtReserve,
-            userConfig,
-            vars.healthFactor,
-            vars.userStableDebt,
-            vars.userVariableDebt
-        );
+                collateralReserve,
+                debtReserve,
+                userConfig,
+                vars.healthFactor,
+                vars.userStableDebt,
+                vars.userVariableDebt
+            );
 
         if (
             Errors.CollateralManagerErrors(vars.errorCode) !=
@@ -176,10 +171,8 @@ contract LendingPoolCollateralManager is
         // If the liquidator reclaims the underlying asset, we make sure there is enough available liquidity in the
         // collateral reserve
         if (!receiveAToken) {
-            uint256 currentAvailableCollateral =
-                IERC20(collateralAsset).balanceOf(
-                    address(vars.collateralAtoken)
-                );
+            uint256 currentAvailableCollateral = IERC20(collateralAsset)
+                .balanceOf(address(vars.collateralAtoken));
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
                 return (
                     uint256(
@@ -214,6 +207,7 @@ contract LendingPoolCollateralManager is
         }
 
         debtReserve.updateInterestRates(
+            trancheMultipliers[tranche],
             debtAsset,
             debtReserve.aTokenAddress,
             vars.actualDebtToLiquidate,
@@ -230,8 +224,8 @@ contract LendingPoolCollateralManager is
             );
 
             if (vars.liquidatorPreviousATokenBalance == 0) {
-                DataTypes.UserConfigurationMap storage liquidatorConfig =
-                    _usersConfig[msg.sender];
+                DataTypes.UserConfigurationMap
+                    storage liquidatorConfig = _usersConfig[msg.sender];
                 liquidatorConfig.setUsingAsCollateral(
                     collateralReserve.id,
                     true
@@ -244,6 +238,7 @@ contract LendingPoolCollateralManager is
         } else {
             collateralReserve.updateState();
             collateralReserve.updateInterestRates(
+                trancheMultipliers[tranche],
                 collateralAsset,
                 address(vars.collateralAtoken),
                 0,
@@ -324,14 +319,24 @@ contract LendingPoolCollateralManager is
     ) internal view returns (uint256, uint256) {
         uint256 collateralAmount = 0;
         uint256 debtAmountNeeded = 0;
-        IPriceOracleGetter oracle =
-            IPriceOracleGetter(_addressesProvider.getPriceOracle());
 
         AvailableCollateralToLiquidateLocalVars memory vars;
 
-        vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
-        vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        {
+            address oracleAddress = _addressesProvider.getPriceOracle(
+                assetDatas[collateralAsset].assetType
+            );
 
+            IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
+            vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
+
+            oracleAddress = _addressesProvider.getPriceOracle(
+                assetDatas[debtAsset].assetType
+            );
+
+            oracle = IPriceOracleGetter(oracleAddress);
+            vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
+        }
         (
             ,
             ,

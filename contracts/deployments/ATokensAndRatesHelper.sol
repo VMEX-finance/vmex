@@ -14,6 +14,7 @@ import {
 } from "../protocol/lendingpool/DefaultReserveInterestRateStrategy.sol";
 import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
 import {StringLib} from "./StringLib.sol";
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 contract ATokensAndRatesHelper is Ownable {
     address payable private pool;
@@ -75,23 +76,32 @@ contract ATokensAndRatesHelper is Ownable {
         LendingPoolConfigurator configurator =
             LendingPoolConfigurator(poolConfigurator);
         for (uint256 i = 0; i < inputParams.length; i++) {
-            configurator.configureReserveAsCollateral(
-                inputParams[i].asset,
-                inputParams[i].baseLTV,
-                inputParams[i].liquidationThreshold,
-                inputParams[i].liquidationBonus
-            );
-
-            if (inputParams[i].borrowingEnabled) {
-                configurator.enableBorrowingOnReserve(
+            for (
+                uint8 tranche = 0;
+                tranche < DataTypes.NUM_TRANCHES;
+                tranche++
+            ) {
+                configurator.configureReserveAsCollateral(
                     inputParams[i].asset,
-                    inputParams[i].stableBorrowingEnabled
+                    tranche,
+                    inputParams[i].baseLTV,
+                    inputParams[i].liquidationThreshold,
+                    inputParams[i].liquidationBonus
+                );
+
+                if (inputParams[i].borrowingEnabled) {
+                    configurator.enableBorrowingOnReserve(
+                        inputParams[i].asset,
+                        tranche,
+                        inputParams[i].stableBorrowingEnabled
+                    );
+                }
+                configurator.setReserveFactor(
+                    inputParams[i].asset,
+                    tranche,
+                    inputParams[i].reserveFactor
                 );
             }
-            configurator.setReserveFactor(
-                inputParams[i].asset,
-                inputParams[i].reserveFactor
-            );
         }
     }
 }

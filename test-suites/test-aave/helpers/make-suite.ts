@@ -1,5 +1,5 @@
-import { evmRevert, evmSnapshot, DRE } from '../../../helpers/misc-utils';
-import { Signer } from 'ethers';
+import { evmRevert, evmSnapshot, DRE } from "../../../helpers/misc-utils";
+import { Signer } from "ethers";
 import {
   getLendingPool,
   getLendingPoolAddressesProvider,
@@ -15,33 +15,37 @@ import {
   getUniswapRepayAdapter,
   getFlashLiquidationAdapter,
   getParaSwapLiquiditySwapAdapter,
-} from '../../../helpers/contracts-getters';
-import { eEthereumNetwork, eNetwork, tEthereumAddress } from '../../../helpers/types';
-import { LendingPool } from '../../../types/LendingPool';
-import { AaveProtocolDataProvider } from '../../../types/AaveProtocolDataProvider';
-import { MintableERC20 } from '../../../types/MintableERC20';
-import { AToken } from '../../../types/AToken';
-import { LendingPoolConfigurator } from '../../../types/LendingPoolConfigurator';
+} from "../../../helpers/contracts-getters";
+import {
+  eEthereumNetwork,
+  eNetwork,
+  tEthereumAddress,
+} from "../../../helpers/types";
+import { LendingPool } from "../../../types/LendingPool";
+import { AaveProtocolDataProvider } from "../../../types/AaveProtocolDataProvider";
+import { MintableERC20 } from "../../../types/MintableERC20";
+import { AToken } from "../../../types/AToken";
+import { LendingPoolConfigurator } from "../../../types/LendingPoolConfigurator";
 
-import chai from 'chai';
+import chai from "chai";
 // @ts-ignore
-import bignumberChai from 'chai-bignumber';
-import { almostEqual } from './almost-equal';
-import { PriceOracle } from '../../../types/PriceOracle';
-import { LendingPoolAddressesProvider } from '../../../types/LendingPoolAddressesProvider';
-import { LendingPoolAddressesProviderRegistry } from '../../../types/LendingPoolAddressesProviderRegistry';
-import { getEthersSigners } from '../../../helpers/contracts-helpers';
-import { UniswapLiquiditySwapAdapter } from '../../../types/UniswapLiquiditySwapAdapter';
-import { UniswapRepayAdapter } from '../../../types/UniswapRepayAdapter';
-import { ParaSwapLiquiditySwapAdapter } from '../../../types/ParaSwapLiquiditySwapAdapter';
-import { getParamPerNetwork } from '../../../helpers/contracts-helpers';
-import { WETH9Mocked } from '../../../types/WETH9Mocked';
-import { WETHGateway } from '../../../types/WETHGateway';
-import { solidity } from 'ethereum-waffle';
-import { AaveConfig } from '../../../markets/aave';
-import { FlashLiquidationAdapter } from '../../../types';
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { usingTenderly } from '../../../helpers/tenderly-utils';
+import bignumberChai from "chai-bignumber";
+import { almostEqual } from "./almost-equal";
+import { PriceOracle } from "../../../types/PriceOracle";
+import { LendingPoolAddressesProvider } from "../../../types/LendingPoolAddressesProvider";
+import { LendingPoolAddressesProviderRegistry } from "../../../types/LendingPoolAddressesProviderRegistry";
+import { getEthersSigners } from "../../../helpers/contracts-helpers";
+import { UniswapLiquiditySwapAdapter } from "../../../types/UniswapLiquiditySwapAdapter";
+import { UniswapRepayAdapter } from "../../../types/UniswapRepayAdapter";
+import { ParaSwapLiquiditySwapAdapter } from "../../../types/ParaSwapLiquiditySwapAdapter";
+import { getParamPerNetwork } from "../../../helpers/contracts-helpers";
+import { WETH9Mocked } from "../../../types/WETH9Mocked";
+import { WETHGateway } from "../../../types/WETHGateway";
+import { solidity } from "ethereum-waffle";
+import { AaveConfig } from "../../../markets/aave";
+import { FlashLiquidationAdapter } from "../../../types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { usingTenderly } from "../../../helpers/tenderly-utils";
 
 chai.use(bignumberChai());
 chai.use(almostEqual());
@@ -73,7 +77,7 @@ export interface TestEnv {
   paraswapLiquiditySwapAdapter: ParaSwapLiquiditySwapAdapter;
 }
 
-let buidlerevmSnapshotId: string = '0x1';
+let buidlerevmSnapshotId: string = "0x1";
 const setBuidlerevmSnapshotId = (id: string) => {
   buidlerevmSnapshotId = id;
 };
@@ -122,7 +126,10 @@ export async function initializeMakeSuite() {
 
   if (process.env.FORK) {
     testEnv.registry = await getLendingPoolAddressesProviderRegistry(
-      getParamPerNetwork(AaveConfig.ProviderRegistry, process.env.FORK as eNetwork)
+      getParamPerNetwork(
+        AaveConfig.ProviderRegistry,
+        process.env.FORK as eNetwork
+      )
     );
   } else {
     testEnv.registry = await getLendingPoolAddressesProviderRegistry();
@@ -132,17 +139,28 @@ export async function initializeMakeSuite() {
   testEnv.helpersContract = await getAaveProtocolDataProvider();
 
   const allTokens = await testEnv.helpersContract.getAllATokens();
-  const aDaiAddress = allTokens.find((aToken) => aToken.symbol === 'aDAI')?.tokenAddress;
+  const aDaiAddress = allTokens.find(
+    (aToken) => aToken.symbol === "aDAI0"
+  )?.tokenAddress; //choose tranche
 
-  const aWEthAddress = allTokens.find((aToken) => aToken.symbol === 'aWETH')?.tokenAddress;
+  const aWEthAddress = allTokens.find(
+    (aToken) => aToken.symbol === "aWETH0"
+  )?.tokenAddress;
 
   const reservesTokens = await testEnv.helpersContract.getAllReservesTokens();
 
-  const daiAddress = reservesTokens.find((token) => token.symbol === 'DAI')?.tokenAddress;
-  const usdcAddress = reservesTokens.find((token) => token.symbol === 'USDC')?.tokenAddress;
-  const aaveAddress = reservesTokens.find((token) => token.symbol === 'AAVE')?.tokenAddress;
-  const wethAddress = reservesTokens.find((token) => token.symbol === 'WETH')?.tokenAddress;
-
+  const daiAddress = reservesTokens.find(
+    (token) => token.symbol === "DAI"
+  )?.tokenAddress;
+  const usdcAddress = reservesTokens.find(
+    (token) => token.symbol === "USDC"
+  )?.tokenAddress;
+  const aaveAddress = reservesTokens.find(
+    (token) => token.symbol === "AAVE"
+  )?.tokenAddress;
+  const wethAddress = reservesTokens.find(
+    (token) => token.symbol === "WETH"
+  )?.tokenAddress;
   if (!aDaiAddress || !aWEthAddress) {
     process.exit(1);
   }
@@ -159,17 +177,19 @@ export async function initializeMakeSuite() {
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
 
-  testEnv.uniswapLiquiditySwapAdapter = await getUniswapLiquiditySwapAdapter();
-  testEnv.uniswapRepayAdapter = await getUniswapRepayAdapter();
-  testEnv.flashLiquidationAdapter = await getFlashLiquidationAdapter();
+  //CURVE TODO: these are not deployed when running mainnet fork in localhost
+  // testEnv.uniswapLiquiditySwapAdapter = await getUniswapLiquiditySwapAdapter();
+  // testEnv.uniswapRepayAdapter = await getUniswapRepayAdapter();
+  // testEnv.flashLiquidationAdapter = await getFlashLiquidationAdapter();
 
-  testEnv.paraswapLiquiditySwapAdapter = await getParaSwapLiquiditySwapAdapter();
+  // testEnv.paraswapLiquiditySwapAdapter =
+  //   await getParaSwapLiquiditySwapAdapter();
 }
 
 const setSnapshot = async () => {
   const hre = DRE as HardhatRuntimeEnvironment;
   if (usingTenderly()) {
-    setBuidlerevmSnapshotId((await hre.tenderlyNetwork.getHead()) || '0x1');
+    setBuidlerevmSnapshotId((await hre.tenderlyNetwork.getHead()) || "0x1");
     return;
   }
   setBuidlerevmSnapshotId(await evmSnapshot());

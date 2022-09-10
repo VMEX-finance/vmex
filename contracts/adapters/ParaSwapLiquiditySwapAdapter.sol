@@ -18,6 +18,8 @@ import {
 } from "../dependencies/openzeppelin/contracts/ReentrancyGuard.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
+
 /**
  * @title ParaSwapLiquiditySwapAdapter
  * @notice Adapter to swap liquidity using ParaSwap.
@@ -34,6 +36,55 @@ contract ParaSwapLiquiditySwapAdapter is
         IParaSwapAugustusRegistry augustusRegistry
     ) BaseParaSwapSellAdapter(addressesProvider, augustusRegistry) {
         // This is only required to initialize BaseParaSwapSellAdapter
+    }
+
+    struct executeOperationVars {
+        IERC20Detailed assetToSwapTo;
+        uint8 assetToSwapToTranche;
+        uint256 minAmountToReceive;
+        uint256 swapAllBalanceOffset;
+        bytes swapCalldata;
+        IParaSwapAugustus augustus;
+        PermitSignature permitParams;
+    }
+
+    function _decodeParams(bytes memory params)
+        internal
+        pure
+        returns (executeOperationVars memory)
+    {
+        (
+            IERC20Detailed assetToSwapTo,
+            uint8 assetToSwapToTranche,
+            uint256 minAmountToReceive,
+            uint256 swapAllBalanceOffset,
+            bytes memory swapCalldata,
+            IParaSwapAugustus augustus,
+            PermitSignature memory permitParams
+        ) =
+            abi.decode(
+                params,
+                (
+                    IERC20Detailed,
+                    uint8,
+                    uint256,
+                    uint256,
+                    bytes,
+                    IParaSwapAugustus,
+                    PermitSignature
+                )
+            );
+
+        return
+            executeOperationVars(
+                assetToSwapTo,
+                assetToSwapToTranche,
+                minAmountToReceive,
+                swapAllBalanceOffset,
+                swapCalldata,
+                augustus,
+                permitParams
+            );
     }
 
     /**
@@ -53,7 +104,7 @@ contract ParaSwapLiquiditySwapAdapter is
      *   PermitSignature permitParams Struct containing the permit signatures, set to all zeroes if not used
      */
     function executeOperation(
-        address[] calldata assets,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -68,41 +119,14 @@ contract ParaSwapLiquiditySwapAdapter is
             "FLASHLOAN_MULTIPLE_ASSETS_NOT_SUPPORTED"
         );
 
-        uint256 flashLoanAmount = amounts[0];
-        uint256 premium = premiums[0];
-        address initiatorLocal = initiator;
-        IERC20Detailed assetToSwapFrom = IERC20Detailed(assets[0]);
-        (
-            IERC20Detailed assetToSwapTo,
-            uint256 minAmountToReceive,
-            uint256 swapAllBalanceOffset,
-            bytes memory swapCalldata,
-            IParaSwapAugustus augustus,
-            PermitSignature memory permitParams
-        ) =
-            abi.decode(
-                params,
-                (
-                    IERC20Detailed,
-                    uint256,
-                    uint256,
-                    bytes,
-                    IParaSwapAugustus,
-                    PermitSignature
-                )
-            );
+        // executeOperationVars memory vars = _decodeParams(params);
 
         _swapLiquidity(
-            swapAllBalanceOffset,
-            swapCalldata,
-            augustus,
-            permitParams,
-            flashLoanAmount,
-            premium,
-            initiatorLocal,
-            assetToSwapFrom,
-            assetToSwapTo,
-            minAmountToReceive
+            _decodeParams(params),
+            amounts[0],
+            premiums[0],
+            initiator,
+            assets[0]
         );
 
         return true;
@@ -122,8 +146,8 @@ contract ParaSwapLiquiditySwapAdapter is
      * @param permitParams Struct containing the permit signatures, set to all zeroes if not used
      */
     function swapAndDeposit(
-        IERC20Detailed assetToSwapFrom,
-        IERC20Detailed assetToSwapTo,
+        DataTypes.TrancheAddress memory assetToSwapFrom,
+        DataTypes.TrancheAddress memory assetToSwapTo,
         uint256 amountToSwap,
         uint256 minAmountToReceive,
         uint256 swapAllBalanceOffset,
@@ -133,7 +157,12 @@ contract ParaSwapLiquiditySwapAdapter is
     ) external nonReentrant {
         IERC20WithPermit aToken =
             IERC20WithPermit(
-                _getReserveData(address(assetToSwapFrom)).aTokenAddress
+                _getReserveData(
+                    address(assetToSwapFrom.asset),
+                    assetToSwapFrom
+                        .tranche
+                )
+                    .aTokenAddress
             );
 
         if (swapAllBalanceOffset != 0) {
@@ -143,7 +172,8 @@ contract ParaSwapLiquiditySwapAdapter is
         }
 
         _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
+            address(assetToSwapFrom.asset),
+            assetToSwapFrom.tranche,
             aToken,
             msg.sender,
             amountToSwap,
@@ -155,16 +185,21 @@ contract ParaSwapLiquiditySwapAdapter is
                 swapAllBalanceOffset,
                 swapCalldata,
                 augustus,
-                assetToSwapFrom,
-                assetToSwapTo,
+                IERC20Detailed(assetToSwapFrom.asset),
+                IERC20Detailed(assetToSwapTo.asset),
                 amountToSwap,
                 minAmountToReceive
             );
 
-        assetToSwapTo.approve(address(LENDING_POOL), 0);
-        assetToSwapTo.approve(address(LENDING_POOL), amountReceived);
+        IERC20Detailed(assetToSwapTo.asset).approve(address(LENDING_POOL), 0);
+        IERC20Detailed(assetToSwapTo.asset).approve(
+            address(LENDING_POOL),
+            amountReceived
+        );
         LENDING_POOL.deposit(
-            address(assetToSwapTo),
+            address(assetToSwapTo.asset),
+            assetToSwapTo.tranche,
+            false,
             amountReceived,
             msg.sender,
             0
@@ -173,37 +208,31 @@ contract ParaSwapLiquiditySwapAdapter is
 
     /**
      * @dev Swaps an amount of an asset to another and deposits the funds on behalf of the initiator.
-     * @param swapAllBalanceOffset Set to offset of fromAmount in Augustus calldata if wanting to swap all balance, otherwise 0
-     * @param swapCalldata Calldata for ParaSwap's AugustusSwapper contract
-     * @param augustus Address of ParaSwap's AugustusSwapper contract
-     * @param permitParams Struct containing the permit signatures, set to all zeroes if not used
+     * @param vars vars data
      * @param flashLoanAmount Amount of the flash loan i.e. maximum amount to swap
      * @param premium Fee of the flash loan
      * @param initiator Account that initiated the flash loan
-     * @param assetToSwapFrom Address of the underyling asset to be swapped from
-     * @param assetToSwapTo Address of the underlying asset to be swapped to and deposited
-     * @param minAmountToReceive Min amount to be received from the swap
      */
     function _swapLiquidity(
-        uint256 swapAllBalanceOffset,
-        bytes memory swapCalldata,
-        IParaSwapAugustus augustus,
-        PermitSignature memory permitParams,
+        executeOperationVars memory vars,
         uint256 flashLoanAmount,
         uint256 premium,
         address initiator,
-        IERC20Detailed assetToSwapFrom,
-        IERC20Detailed assetToSwapTo,
-        uint256 minAmountToReceive
+        DataTypes.TrancheAddress memory assetToSwapFrom
     ) internal {
         IERC20WithPermit aToken =
             IERC20WithPermit(
-                _getReserveData(address(assetToSwapFrom)).aTokenAddress
+                _getReserveData(
+                    address(assetToSwapFrom.asset),
+                    assetToSwapFrom
+                        .tranche
+                )
+                    .aTokenAddress
             );
         uint256 amountToSwap = flashLoanAmount;
 
         uint256 balance = aToken.balanceOf(initiator);
-        if (swapAllBalanceOffset != 0) {
+        if (vars.swapAllBalanceOffset != 0) {
             uint256 balanceToSwap = balance.sub(premium);
             require(
                 balanceToSwap <= amountToSwap,
@@ -219,35 +248,38 @@ contract ParaSwapLiquiditySwapAdapter is
 
         uint256 amountReceived =
             _sellOnParaSwap(
-                swapAllBalanceOffset,
-                swapCalldata,
-                augustus,
-                assetToSwapFrom,
-                assetToSwapTo,
+                vars.swapAllBalanceOffset,
+                vars.swapCalldata,
+                vars.augustus,
+                IERC20Detailed(assetToSwapFrom.asset),
+                vars.assetToSwapTo,
                 amountToSwap,
-                minAmountToReceive
+                vars.minAmountToReceive
             );
 
-        assetToSwapTo.approve(address(LENDING_POOL), 0);
-        assetToSwapTo.approve(address(LENDING_POOL), amountReceived);
+        vars.assetToSwapTo.approve(address(LENDING_POOL), 0);
+        vars.assetToSwapTo.approve(address(LENDING_POOL), amountReceived);
         LENDING_POOL.deposit(
-            address(assetToSwapTo),
+            address(vars.assetToSwapTo),
+            vars.assetToSwapToTranche,
+            false,
             amountReceived,
             initiator,
             0
         );
 
         _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
+            address(assetToSwapFrom.asset),
+            assetToSwapFrom.tranche,
             aToken,
             initiator,
             amountToSwap.add(premium),
-            permitParams
+            vars.permitParams
         );
 
         // Repay flash loan
-        assetToSwapFrom.approve(address(LENDING_POOL), 0);
-        assetToSwapFrom.approve(
+        IERC20Detailed(assetToSwapFrom.asset).approve(address(LENDING_POOL), 0);
+        IERC20Detailed(assetToSwapFrom.asset).approve(
             address(LENDING_POOL),
             flashLoanAmount.add(premium)
         );

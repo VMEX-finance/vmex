@@ -4,31 +4,92 @@ import {
   iMultiPoolsAssets,
   IReserveParams,
   tEthereumAddress,
-} from './types';
-import { AaveProtocolDataProvider } from '../types/AaveProtocolDataProvider';
-import { chunk, getDb, waitForTx } from './misc-utils';
+} from "./types";
+import { AaveProtocolDataProvider } from "../types/AaveProtocolDataProvider";
+import { chunk, getDb, waitForTx } from "./misc-utils";
 import {
   getAToken,
   getATokensAndRatesHelper,
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
-} from './contracts-getters';
+} from "./contracts-getters";
 import {
   getContractAddressWithJsonFallback,
   rawInsertContractAddressInDb,
-} from './contracts-helpers';
-import { BigNumberish } from 'ethers';
-import { ConfigNames } from './configuration';
-import { deployRateStrategy } from './contracts-deployments';
+} from "./contracts-helpers";
+import { BigNumberish } from "ethers";
+import { ConfigNames } from "./configuration";
+import { deployRateStrategy } from "./contracts-deployments";
+import BigNumber from "bignumber.js";
+import { oneRay } from "./constants";
 
-export const getATokenExtraParams = async (aTokenName: string, tokenAddress: tEthereumAddress) => {
+export const getATokenExtraParams = async (
+  aTokenName: string,
+  tokenAddress: tEthereumAddress
+) => {
   console.log(aTokenName);
   switch (aTokenName) {
     default:
-      return '0x10';
+      return "0x10";
   }
 };
 
+export const initTrancheMultiplier = async () => {
+  const configurator = await getLendingPoolConfiguratorProxy();
+  let initTrancheMultiplierParams: {
+    tranche: string;
+    _liquidityRateMultiplier: string;
+    _variableBorrowRateMultiplier: string;
+    _stableBorrowRateMultiplier: string;
+  }[] = [
+    {
+      tranche: "0",
+      _liquidityRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+    },
+    {
+      tranche: "1",
+      _liquidityRateMultiplier: new BigNumber(1.03)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1.05)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1.05)
+        .multipliedBy(oneRay)
+        .toFixed(),
+    },
+    {
+      tranche: "2",
+      _liquidityRateMultiplier: new BigNumber(1.06)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _variableBorrowRateMultiplier: new BigNumber(1.1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+      _stableBorrowRateMultiplier: new BigNumber(1.1)
+        .multipliedBy(oneRay)
+        .toFixed(),
+    },
+  ];
+
+  //setup tranche
+  const tx0 = await waitForTx(
+    await configurator.initTrancheMultipliers(initTrancheMultiplierParams)
+  );
+
+  console.log("setup tranche multipliers");
+  console.log("    * gasUsed", tx0.gasUsed.toString());
+};
+
+//create another initReserves that initializes the curve v2, or just use this.
+//called by aave:fork mainnet setup where they know the addresses of the tokens.
+// initializes more reserves that are not lendable, have no stable and variable debt, no interest rate strategy, governance needs to give them a risk
 export const initReservesByHelper = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
@@ -42,6 +103,10 @@ export const initReservesByHelper = async (
   poolName: ConfigNames,
   verify: boolean
 ) => {
+  initTrancheMultiplier();
+
+  const configurator = await getLendingPoolConfiguratorProxy();
+
   const addressProvider = await getLendingPoolAddressesProvider();
 
   // CHUNK CONFIGURATION
@@ -67,6 +132,10 @@ export const initReservesByHelper = async (
     stableDebtTokenName: string;
     stableDebtTokenSymbol: string;
     params: string;
+    risk: BigNumberish;
+    isLendable: boolean;
+    allowHigherTranche: boolean;
+    assetType: BigNumberish;
   }[] = [];
 
   let strategyRates: [
@@ -85,10 +154,20 @@ export const initReservesByHelper = async (
 
   for (let [symbol, params] of reserves) {
     if (!tokenAddresses[symbol]) {
-      console.log(`- Skipping init of ${symbol} due token address is not set at markets config`);
+      console.log(
+        `- Skipping init of ${symbol} due token address is not set at markets config`
+      );
       continue;
     }
-    const { strategy, aTokenImpl, reserveDecimals } = params;
+    const {
+      strategy,
+      aTokenImpl,
+      reserveDecimals,
+      risk,
+      isLendable,
+      allowedHigherTranche,
+      assetType,
+    } = params;
     const {
       optimalUtilizationRate,
       baseVariableBorrowRate,
@@ -116,12 +195,18 @@ export const initReservesByHelper = async (
 
       // This causes the last strategy to be printed twice, once under "DefaultReserveInterestRateStrategy"
       // and once under the actual `strategyASSET` key.
-      rawInsertContractAddressInDb(strategy.name, strategyAddresses[strategy.name]);
+      rawInsertContractAddressInDb(
+        strategy.name,
+        strategyAddresses[strategy.name]
+      );
     }
     // Prepare input parameters
     reserveSymbols.push(symbol);
     initInputParams.push({
-      aTokenImpl: await getContractAddressWithJsonFallback(aTokenImpl, poolName),
+      aTokenImpl: await getContractAddressWithJsonFallback(
+        aTokenImpl,
+        poolName
+      ),
       stableDebtTokenImpl: await getContractAddressWithJsonFallback(
         eContractid.StableDebtToken,
         poolName
@@ -143,23 +228,40 @@ export const initReservesByHelper = async (
       stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
+      risk: risk,
+      isLendable: isLendable,
+      allowHigherTranche: allowedHigherTranche,
+      assetType: assetType,
     });
+
+    console.log(
+      "Underlying asset address for ",
+      symbol,
+      ": ",
+      tokenAddresses[symbol]
+    );
   }
 
   // Deploy init reserves per chunks
   const chunkedSymbols = chunk(reserveSymbols, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
-  const configurator = await getLendingPoolConfiguratorProxy();
-
-  console.log(`- Reserves initialization in ${chunkedInitInputParams.length} txs`);
-  for (let chunkIndex = 0; chunkIndex < chunkedInitInputParams.length; chunkIndex++) {
+  console.log(
+    `- Reserves initialization in ${chunkedInitInputParams.length} txs`
+  );
+  for (
+    let chunkIndex = 0;
+    chunkIndex < chunkedInitInputParams.length;
+    chunkIndex++
+  ) {
     const tx3 = await waitForTx(
       await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
     );
 
-    console.log(`  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(', ')}`);
-    console.log('    * gasUsed', tx3.gasUsed.toString());
+    console.log(
+      `  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`
+    );
+    console.log("    * gasUsed", tx3.gasUsed.toString());
   }
 };
 
@@ -171,17 +273,19 @@ export const getPairsTokenAggregator = (
 ): [string[], string[]] => {
   const { ETH, USD, WETH, ...assetsAddressesWithoutEth } = allAssetsAddresses;
 
-  const pairs = Object.entries(assetsAddressesWithoutEth).map(([tokenSymbol, tokenAddress]) => {
-    if (tokenSymbol !== 'WETH' && tokenSymbol !== 'ETH') {
-      const aggregatorAddressIndex = Object.keys(aggregatorsAddresses).findIndex(
-        (value) => value === tokenSymbol
-      );
-      const [, aggregatorAddress] = (
-        Object.entries(aggregatorsAddresses) as [string, tEthereumAddress][]
-      )[aggregatorAddressIndex];
-      return [tokenAddress, aggregatorAddress];
+  const pairs = Object.entries(assetsAddressesWithoutEth).map(
+    ([tokenSymbol, tokenAddress]) => {
+      if (tokenSymbol !== "WETH" && tokenSymbol !== "ETH") {
+        const aggregatorAddressIndex = Object.keys(
+          aggregatorsAddresses
+        ).findIndex((value) => value === tokenSymbol);
+        const [, aggregatorAddress] = (
+          Object.entries(aggregatorsAddresses) as [string, tEthereumAddress][]
+        )[aggregatorAddressIndex];
+        return [tokenAddress, aggregatorAddress];
+      }
     }
-  }) as [string, string][];
+  ) as [string, string][];
 
   const mappedPairs = pairs.map(([asset]) => asset);
   const mappedAggregators = pairs.map(([, source]) => source);
@@ -227,20 +331,21 @@ export const configureReservesByHelper = async (
       );
       continue;
     }
-    if (baseLTVAsCollateral === '-1') continue;
+    if (baseLTVAsCollateral === "-1") continue;
 
     const assetAddressIndex = Object.keys(tokenAddresses).findIndex(
       (value) => value === assetSymbol
     );
-    const [, tokenAddress] = (Object.entries(tokenAddresses) as [string, string][])[
-      assetAddressIndex
-    ];
-    const { usageAsCollateralEnabled: alreadyEnabled } = await helpers.getReserveConfigurationData(
-      tokenAddress
-    );
+    const [, tokenAddress] = (
+      Object.entries(tokenAddresses) as [string, string][]
+    )[assetAddressIndex];
+    const { usageAsCollateralEnabled: alreadyEnabled } =
+      await helpers.getReserveConfigurationData(tokenAddress, 0);
 
     if (alreadyEnabled) {
-      console.log(`- Reserve ${assetSymbol} is already enabled as collateral, skipping`);
+      console.log(
+        `- Reserve ${assetSymbol} is already enabled as collateral, skipping`
+      );
       continue;
     }
     // Push data
@@ -260,7 +365,9 @@ export const configureReservesByHelper = async (
   }
   if (tokens.length) {
     // Set aTokenAndRatesDeployer as temporal admin
-    await waitForTx(await addressProvider.setPoolAdmin(atokenAndRatesDeployer.address));
+    await waitForTx(
+      await addressProvider.setPoolAdmin(atokenAndRatesDeployer.address)
+    );
 
     // Deploy init per chunks
     const enableChunks = 20;
@@ -268,11 +375,17 @@ export const configureReservesByHelper = async (
     const chunkedInputParams = chunk(inputParams, enableChunks);
 
     console.log(`- Configure reserves in ${chunkedInputParams.length} txs`);
-    for (let chunkIndex = 0; chunkIndex < chunkedInputParams.length; chunkIndex++) {
+    for (
+      let chunkIndex = 0;
+      chunkIndex < chunkedInputParams.length;
+      chunkIndex++
+    ) {
       await waitForTx(
-        await atokenAndRatesDeployer.configureReserves(chunkedInputParams[chunkIndex])
+        await atokenAndRatesDeployer.configureReserves(
+          chunkedInputParams[chunkIndex]
+        )
       );
-      console.log(`  - Init for: ${chunkedSymbols[chunkIndex].join(', ')}`);
+      console.log(`  - Init for: ${chunkedSymbols[chunkIndex].join(", ")}`);
     }
     // Set deployer back as admin
     await waitForTx(await addressProvider.setPoolAdmin(admin));
@@ -286,7 +399,10 @@ const getAddressById = async (
   (await getDb().get(`${id}.${network}`).value())?.address || undefined;
 
 // Function deprecated
-const isErc20SymbolCorrect = async (token: tEthereumAddress, symbol: string) => {
+const isErc20SymbolCorrect = async (
+  token: tEthereumAddress,
+  symbol: string
+) => {
   const erc20 = await getAToken(token); // using aToken for ERC20 interface
   const erc20Symbol = await erc20.symbol();
   return symbol === erc20Symbol;

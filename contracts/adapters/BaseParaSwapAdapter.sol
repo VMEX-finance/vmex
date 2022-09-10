@@ -3,20 +3,14 @@ pragma solidity >=0.8.0;
 
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
-import {
-    IERC20Detailed
-} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 import {IERC20WithPermit} from "../interfaces/IERC20WithPermit.sol";
-import {
-    FlashLoanReceiverBase
-} from "../flashloan/base/FlashLoanReceiverBase.sol";
+import {FlashLoanReceiverBase} from "../flashloan/base/FlashLoanReceiverBase.sol";
 
 /**
  * @title BaseParaSwapAdapter
@@ -52,7 +46,7 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
     constructor(ILendingPoolAddressesProvider addressesProvider)
         FlashLoanReceiverBase(addressesProvider)
     {
-        ORACLE = IPriceOracleGetter(addressesProvider.getPriceOracle());
+        ORACLE = IPriceOracleGetter(addressesProvider.getAavePriceOracle()); //TODO: this should consider Curve?
     }
 
     /**
@@ -79,12 +73,12 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
      * @dev Get the aToken associated to the asset
      * @return address of the aToken
      */
-    function _getReserveData(address asset)
+    function _getReserveData(address asset, uint8 tranche)
         internal
         view
         returns (DataTypes.ReserveData memory)
     {
-        return LENDING_POOL.getReserveData(asset);
+        return LENDING_POOL.getReserveData(asset, tranche);
     }
 
     /**
@@ -97,6 +91,7 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
      */
     function _pullATokenAndWithdraw(
         address reserve,
+        uint8 tranche,
         IERC20WithPermit reserveAToken,
         address user,
         uint256 amount,
@@ -120,7 +115,8 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
 
         // withdraw reserve
         require(
-            LENDING_POOL.withdraw(reserve, amount, address(this)) == amount,
+            LENDING_POOL.withdraw(reserve, tranche, amount, address(this)) ==
+                amount,
             "UNEXPECTED_AMOUNT_WITHDRAWN"
         );
     }
