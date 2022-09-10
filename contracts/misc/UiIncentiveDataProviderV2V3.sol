@@ -73,8 +73,10 @@ contract UiIncentiveDataProviderV2V3 is IUiIncentiveDataProviderV3 {
                 reservesIncentiveData[i];
             reserveIncentiveData.underlyingAsset = reserves[i];
 
+            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData =
-                lendingPool.getReserveData(reserves[i]);
+                lendingPool.getReserveData(reserves[i], tranche);
+            assert(baseData.tranche == tranche);
 
             try
                 IAToken(baseData.aTokenAddress).getIncentivesController()
@@ -323,8 +325,10 @@ contract UiIncentiveDataProviderV2V3 is IUiIncentiveDataProviderV3 {
             );
 
         for (uint256 i = 0; i < reserves.length; i++) {
+            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData =
-                lendingPool.getReserveData(reserves[i]);
+                lendingPool.getReserveData(reserves[i], tranche);
+            assert(baseData.tranche == tranche);
 
             // user reserve data
             userReservesIncentivesData[i].underlyingAsset = reserves[i];

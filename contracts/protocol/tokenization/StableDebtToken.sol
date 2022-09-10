@@ -45,6 +45,7 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
+        uint8 tranche,
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,

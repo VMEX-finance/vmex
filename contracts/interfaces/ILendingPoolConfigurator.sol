@@ -2,6 +2,13 @@
 pragma solidity >=0.8.0;
 
 interface ILendingPoolConfigurator {
+    struct InitMultiplierInput {
+        uint8 tranche;
+        uint256 _liquidityRateMultiplier;
+        uint256 _variableBorrowRateMultiplier;
+        uint256 _stableBorrowRateMultiplier;
+    }
+
     struct InitReserveInput {
         address aTokenImpl;
         address stableDebtTokenImpl;
@@ -19,10 +26,15 @@ interface ILendingPoolConfigurator {
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
         bytes params;
+        uint8 risk; //risk level for collateral
+        bool isLendable;
+        bool allowHigherTranche;
+        uint8 assetType;
     }
 
     struct UpdateATokenInput {
         address asset;
+        uint8 tranche;
         address treasury;
         address incentivesController;
         string name;
@@ -33,6 +45,7 @@ interface ILendingPoolConfigurator {
 
     struct UpdateDebtTokenInput {
         address asset;
+        uint8 tranche;
         address incentivesController;
         string name;
         string symbol;
@@ -144,6 +157,19 @@ interface ILendingPoolConfigurator {
     event ReserveInterestRateStrategyChanged(
         address indexed asset,
         address strategy
+    );
+
+    /**
+     * @dev Emitted when a asset risk is updated
+     * @param asset The address of the underlying asset of the reserve
+     * @param _risk The new risk of an asset
+     **/
+    event AssetDataChanged(
+        address indexed asset,
+        uint8 _risk,
+        bool _isLendable,
+        bool _allowedHigherTranche,
+        uint8 _assetType
     );
 
     /**

@@ -29,6 +29,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
     struct LiquidationParams {
         address collateralAsset;
         address borrowedAsset;
+        uint8 tranche;
         address user;
         uint256 debtToCover;
         bool useEthPath;
@@ -67,7 +68,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
      *   bool useEthPath Use WETH as connector path between the collateralAsset and borrowedAsset at Uniswap
      */
     function executeOperation(
-        address[] calldata assets,
+        DataTypes.TrancheAddress[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -81,53 +82,35 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         LiquidationParams memory decodedParams = _decodeParams(params);
 
         require(
-            assets.length == 1 && assets[0] == decodedParams.borrowedAsset,
+            assets.length == 1 &&
+                assets[0].asset == decodedParams.borrowedAsset,
             "INCONSISTENT_PARAMS"
         );
 
-        _liquidateAndSwap(
-            decodedParams.collateralAsset,
-            decodedParams.borrowedAsset,
-            decodedParams.user,
-            decodedParams.debtToCover,
-            decodedParams.useEthPath,
-            amounts[0],
-            premiums[0],
-            initiator
-        );
+        _liquidateAndSwap(decodedParams, amounts[0], premiums[0], initiator);
 
         return true;
     }
 
     /**
      * @dev
-     * @param collateralAsset The collateral asset to release and will be exchanged to pay the flash loan premium
-     * @param borrowedAsset The asset that must be covered
-     * @param user The user address with a Health Factor below 1
-     * @param debtToCover The amount of debt to coverage, can be max(-1) to liquidate all possible debt
-     * @param useEthPath true if the swap needs to occur using ETH in the routing, false otherwise
+     * @param decodedParams Contains info like The collateral asset to release and will be exchanged to pay the flash loan premium
      * @param flashBorrowedAmount Amount of asset requested at the flash loan to liquidate the user position
      * @param premium Fee of the requested flash loan
      * @param initiator Address of the caller
      */
     function _liquidateAndSwap(
-        address collateralAsset,
-        address borrowedAsset,
-        address user,
-        uint256 debtToCover,
-        bool useEthPath,
+        LiquidationParams memory decodedParams,
         uint256 flashBorrowedAmount,
         uint256 premium,
         address initiator
     ) internal {
         LiquidationCallLocalVars memory vars;
-        vars.initCollateralBalance = IERC20(collateralAsset).balanceOf(
-            address(this)
-        );
-        if (collateralAsset != borrowedAsset) {
-            vars.initFlashBorrowedBalance = IERC20(borrowedAsset).balanceOf(
-                address(this)
-            );
+        vars.initCollateralBalance = IERC20(decodedParams.collateralAsset)
+            .balanceOf(address(this));
+        if (decodedParams.collateralAsset != decodedParams.borrowedAsset) {
+            vars.initFlashBorrowedBalance = IERC20(decodedParams.borrowedAsset)
+                .balanceOf(address(this));
 
             // Track leftover balance to rescue funds in case of external transfers into this contract
             vars.borrowedAssetLeftovers = vars.initFlashBorrowedBalance.sub(
@@ -137,30 +120,34 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         vars.flashLoanDebt = flashBorrowedAmount.add(premium);
 
         // Approve LendingPool to use debt token for liquidation
-        IERC20(borrowedAsset).approve(address(LENDING_POOL), debtToCover);
+        IERC20(decodedParams.borrowedAsset).approve(
+            address(LENDING_POOL),
+            decodedParams.debtToCover
+        );
 
         // Liquidate the user position and release the underlying collateral
         LENDING_POOL.liquidationCall(
-            collateralAsset,
-            borrowedAsset,
-            user,
-            debtToCover,
+            decodedParams.collateralAsset,
+            decodedParams.borrowedAsset,
+            decodedParams.tranche,
+            decodedParams.user,
+            decodedParams.debtToCover,
             false
         );
 
         // Discover the liquidated tokens
         uint256 collateralBalanceAfter =
-            IERC20(collateralAsset).balanceOf(address(this));
+            IERC20(decodedParams.collateralAsset).balanceOf(address(this));
 
         // Track only collateral released, not current asset balance of the contract
         vars.diffCollateralBalance = collateralBalanceAfter.sub(
             vars.initCollateralBalance
         );
 
-        if (collateralAsset != borrowedAsset) {
+        if (decodedParams.collateralAsset != decodedParams.borrowedAsset) {
             // Discover flash loan balance after the liquidation
             uint256 flashBorrowedAssetAfter =
-                IERC20(borrowedAsset).balanceOf(address(this));
+                IERC20(decodedParams.borrowedAsset).balanceOf(address(this));
 
             // Use only flash loan borrowed assets, not current asset balance of the contract
             vars.diffFlashBorrowedBalance = flashBorrowedAssetAfter.sub(
@@ -169,11 +156,11 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
 
             // Swap released collateral into the debt asset, to repay the flash loan
             vars.soldAmount = _swapTokensForExactTokens(
-                collateralAsset,
-                borrowedAsset,
+                decodedParams.collateralAsset,
+                decodedParams.borrowedAsset,
                 vars.diffCollateralBalance,
                 vars.flashLoanDebt.sub(vars.diffFlashBorrowedBalance),
-                useEthPath
+                decodedParams.useEthPath
             );
             vars.remainingTokens = vars.diffCollateralBalance.sub(
                 vars.soldAmount
@@ -183,14 +170,17 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         }
 
         // Allow repay of flash loan
-        IERC20(borrowedAsset).approve(
+        IERC20(decodedParams.borrowedAsset).approve(
             address(LENDING_POOL),
             vars.flashLoanDebt
         );
 
         // Transfer remaining tokens to initiator
         if (vars.remainingTokens > 0) {
-            IERC20(collateralAsset).transfer(initiator, vars.remainingTokens);
+            IERC20(decodedParams.collateralAsset).transfer(
+                initiator,
+                vars.remainingTokens
+            );
         }
     }
 
@@ -212,15 +202,21 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         (
             address collateralAsset,
             address borrowedAsset,
+            uint8 tranche,
             address user,
             uint256 debtToCover,
             bool useEthPath
-        ) = abi.decode(params, (address, address, address, uint256, bool));
+        ) =
+            abi.decode(
+                params,
+                (address, address, uint8, address, uint256, bool)
+            );
 
         return
             LiquidationParams(
                 collateralAsset,
                 borrowedAsset,
+                tranche,
                 user,
                 debtToCover,
                 useEthPath

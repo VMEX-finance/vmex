@@ -57,6 +57,17 @@ export const rateStrategyAAVE: IInterestRateStrategyParams = {
   stableRateSlope2: '0',
 }
 
+// AAVE
+export const rateStrategyCurve: IInterestRateStrategyParams = {
+  name: "rateStrategyCurve",
+  optimalUtilizationRate: new BigNumber(1).multipliedBy(oneRay).toFixed(),
+  baseVariableBorrowRate: '0',
+  variableRateSlope1: '0',
+  variableRateSlope2: '0',
+  stableRateSlope1: '0',
+  stableRateSlope2: '0',
+}
+
 // BAT ENJ LINK MANA MKR REN YFI ZRX
 export const rateStrategyVolatileOne: IInterestRateStrategyParams = {
   name: "rateStrategyVolatileOne",
@@ -89,3 +100,17 @@ export const rateStrategyVolatileThree: IInterestRateStrategyParams = {
   stableRateSlope1: new BigNumber(0.1).multipliedBy(oneRay).toFixed(),
   stableRateSlope2: new BigNumber(3).multipliedBy(oneRay).toFixed(),
 }
+
+
+export const rateStrategyVolatileFour: IInterestRateStrategyParams = {
+  name: "rateStrategyVolatileFour",
+  optimalUtilizationRate: new BigNumber(0.45).multipliedBy(oneRay).toFixed(),
+  baseVariableBorrowRate: '0',
+  variableRateSlope1: new BigNumber(0.07).multipliedBy(oneRay).toFixed(),
+  variableRateSlope2: new BigNumber(3).multipliedBy(oneRay).toFixed(),
+  stableRateSlope1: '0',
+  stableRateSlope2: '0',
+}
+
+
+

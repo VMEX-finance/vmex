@@ -1,25 +1,20 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    SafeMath
-} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
 import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
-import {
-    SafeERC20
-} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {UserConfiguration} from "../configuration/UserConfiguration.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {Helpers} from "../helpers/Helpers.sol";
-import {
-    IReserveInterestRateStrategy
-} from "../../../interfaces/IReserveInterestRateStrategy.sol";
+import {IReserveInterestRateStrategy} from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {DataTypes} from "../types/DataTypes.sol";
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 
 /**
  * @title ReserveLogic library
@@ -55,6 +50,30 @@ library ValidationLogic {
     }
 
     /**
+     * @dev Validates risk of collateral is lower than tranche
+     */
+    function validateCollateralRisk(
+        bool isCollateral,
+        uint8 risk,
+        uint8 tranche,
+        bool allowHigherTranche
+    ) public pure {
+        if (isCollateral == true) {
+            if (allowHigherTranche) {
+                require(
+                    risk <= tranche,
+                    "Risk is too high to set as collateral"
+                ); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+            } else {
+                require(
+                    risk == tranche,
+                    "Risk is not equal to collateral tranche"
+                );
+            }
+        }
+    }
+
+    /**
      * @dev Validates a withdraw action
      * @param reserveAddress The address of the reserve
      * @param amount The amount to be withdrawn
@@ -63,17 +82,20 @@ library ValidationLogic {
      * @param userConfig The user configuration
      * @param reserves The addresses of the reserves
      * @param reservesCount The number of reserves
-     * @param oracle The price oracle
+     * @param _addressesProvider The price oracle
      */
     function validateWithdraw(
         address reserveAddress,
+        uint8 tranche,
         uint256 amount,
         uint256 userBalance,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
@@ -81,20 +103,25 @@ library ValidationLogic {
             Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
 
-        (bool isActive, , , ) =
-            reservesData[reserveAddress].configuration.getFlags();
+        (bool isActive, , , ) = reservesData[reserveAddress][tranche]
+            .configuration
+            .getFlags();
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         require(
             GenericLogic.balanceDecreaseAllowed(
-                reserveAddress,
-                msg.sender,
-                amount,
+                GenericLogic.balanceDecreaseAllowedParameters(
+                    reserveAddress,
+                    tranche,
+                    msg.sender,
+                    amount,
+                    _addressesProvider
+                ),
                 reservesData,
                 userConfig,
                 reserves,
                 reservesCount,
-                oracle
+                assetDatas
             ),
             Errors.VL_TRANSFER_NOT_ALLOWED
         );
@@ -114,34 +141,18 @@ library ValidationLogic {
         bool stableRateBorrowingEnabled;
     }
 
-    /**
-     * @dev Validates a borrow action
-     * @param asset The address of the asset to borrow
-     * @param reserve The reserve state from which the user is borrowing
-     * @param userAddress The address of the user
-     * @param amount The amount to be borrowed
-     * @param amountInETH The amount to be borrowed, in ETH
-     * @param interestRateMode The interest rate mode at which the user is borrowing
-     * @param maxStableLoanPercent The max amount of the liquidity that can be borrowed at stable rate, in percentage
-     * @param reservesData The state of all the reserves
-     * @param userConfig The state of the user for the specific reserve
-     * @param reserves The addresses of all the active reserves
-     * @param oracle The price oracle
-     */
-
     function validateBorrow(
-        address asset,
+        DataTypes.ExecuteBorrowParams memory exvars,
         DataTypes.ReserveData storage reserve,
-        address userAddress,
-        uint256 amount,
         uint256 amountInETH,
-        uint256 interestRateMode,
         uint256 maxStableLoanPercent,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view {
         ValidateBorrowLocalVars memory vars;
 
@@ -154,14 +165,16 @@ library ValidationLogic {
 
         require(vars.isActive, Errors.VL_NO_ACTIVE_RESERVE);
         require(!vars.isFrozen, Errors.VL_RESERVE_FROZEN);
-        require(amount != 0, Errors.VL_INVALID_AMOUNT);
+        require(exvars.amount != 0, Errors.VL_INVALID_AMOUNT);
 
         require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
 
         //validate interest rate mode
         require(
-            uint256(DataTypes.InterestRateMode.VARIABLE) == interestRateMode ||
-                uint256(DataTypes.InterestRateMode.STABLE) == interestRateMode,
+            uint256(DataTypes.InterestRateMode.VARIABLE) ==
+                exvars.interestRateMode ||
+                uint256(DataTypes.InterestRateMode.STABLE) ==
+                exvars.interestRateMode,
             Errors.VL_INVALID_INTEREST_RATE_MODE_SELECTED
         );
 
@@ -172,13 +185,16 @@ library ValidationLogic {
             vars.currentLiquidationThreshold,
             vars.healthFactor
         ) = GenericLogic.calculateUserAccountData(
-            userAddress,
+            DataTypes.AcctTranche(exvars.user, exvars.tranche),
             reservesData,
             userConfig,
             reserves,
             reservesCount,
-            oracle
+            _addressesProvider,
+            assetDatas
         );
+
+        //(uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
         require(
             vars.userCollateralBalanceETH > 0,
@@ -210,7 +226,10 @@ library ValidationLogic {
          * 3. Users will be able to borrow only a portion of the total available liquidity
          **/
 
-        if (interestRateMode == uint256(DataTypes.InterestRateMode.STABLE)) {
+        if (
+            exvars.interestRateMode ==
+            uint256(DataTypes.InterestRateMode.STABLE)
+        ) {
             //check if the borrow mode is stable and if stable rate borrowing is enabled on this reserve
 
             require(
@@ -221,22 +240,23 @@ library ValidationLogic {
             require(
                 !userConfig.isUsingAsCollateral(reserve.id) ||
                     reserve.configuration.getLtv() == 0 ||
-                    amount >
-                    IERC20(reserve.aTokenAddress).balanceOf(userAddress),
+                    exvars.amount >
+                    IERC20(reserve.aTokenAddress).balanceOf(exvars.user),
                 Errors.VL_COLLATERAL_SAME_AS_BORROWING_CURRENCY
             );
 
-            vars.availableLiquidity = IERC20(asset).balanceOf(
+            vars.availableLiquidity = IERC20(exvars.asset).balanceOf( //asset is the asset we are trying to borrow
                 reserve.aTokenAddress
             );
 
             //calculate the max available loan size in stable rate mode as a percentage of the
             //available liquidity
-            uint256 maxLoanSizeStable =
-                vars.availableLiquidity.percentMul(maxStableLoanPercent);
+            uint256 maxLoanSizeStable = vars.availableLiquidity.percentMul(
+                maxStableLoanPercent
+            );
 
             require(
-                amount <= maxLoanSizeStable,
+                exvars.amount <= maxLoanSizeStable,
                 Errors.VL_AMOUNT_BIGGER_THAN_MAX_LOAN_SIZE_STABLE
             );
         }
@@ -295,8 +315,9 @@ library ValidationLogic {
         uint256 variableDebt,
         DataTypes.InterestRateMode currentRateMode
     ) external view {
-        (bool isActive, bool isFrozen, , bool stableRateEnabled) =
-            reserve.configuration.getFlags();
+        (bool isActive, bool isFrozen, , bool stableRateEnabled) = reserve
+            .configuration
+            .getFlags();
 
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
         require(!isFrozen, Errors.VL_RESERVE_FROZEN);
@@ -349,25 +370,24 @@ library ValidationLogic {
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         //if the usage ratio is below 95%, no rebalances are needed
-        uint256 totalDebt =
-            stableDebtToken
-                .totalSupply()
-                .add(variableDebtToken.totalSupply())
-                .wadToRay();
-        uint256 availableLiquidity =
-            IERC20(reserveAddress).balanceOf(aTokenAddress).wadToRay();
-        uint256 usageRatio =
-            totalDebt == 0
-                ? 0
-                : totalDebt.rayDiv(availableLiquidity.add(totalDebt));
+        uint256 totalDebt = stableDebtToken
+            .totalSupply()
+            .add(variableDebtToken.totalSupply())
+            .wadToRay();
+        uint256 availableLiquidity = IERC20(reserveAddress)
+            .balanceOf(aTokenAddress)
+            .wadToRay();
+        uint256 usageRatio = totalDebt == 0
+            ? 0
+            : totalDebt.rayDiv(availableLiquidity.add(totalDebt));
 
         //if the liquidity rate is below REBALANCE_UP_THRESHOLD of the max variable APR at 95% usage,
         //then we allow rebalancing of the stable rate positions.
 
         uint256 currentLiquidityRate = reserve.currentLiquidityRate;
-        uint256 maxVariableBorrowRate =
-            IReserveInterestRateStrategy(reserve.interestRateStrategyAddress)
-                .getMaxVariableBorrowRate();
+        uint256 maxVariableBorrowRate = IReserveInterestRateStrategy(
+            reserve.interestRateStrategyAddress
+        ).getMaxVariableBorrowRate();
 
         require(
             usageRatio >= REBALANCE_UP_USAGE_RATIO_THRESHOLD &&
@@ -386,20 +406,23 @@ library ValidationLogic {
      * @param reservesData The data of all the reserves
      * @param userConfig The state of the user for the specific reserve
      * @param reserves The addresses of all the active reserves
-     * @param oracle The price oracle
+     * @param _addressesProvider The price oracle
      */
     function validateSetUseReserveAsCollateral(
         DataTypes.ReserveData storage reserve,
         address reserveAddress,
         bool useAsCollateral,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external view {
-        uint256 underlyingBalance =
-            IERC20(reserve.aTokenAddress).balanceOf(msg.sender);
+        uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
+            msg.sender
+        );
 
         require(
             underlyingBalance > 0,
@@ -409,14 +432,18 @@ library ValidationLogic {
         require(
             useAsCollateral ||
                 GenericLogic.balanceDecreaseAllowed(
-                    reserveAddress,
-                    msg.sender,
-                    underlyingBalance,
+                    GenericLogic.balanceDecreaseAllowedParameters(
+                        reserveAddress,
+                        reserve.tranche,
+                        msg.sender,
+                        underlyingBalance,
+                        _addressesProvider
+                    ),
                     reservesData,
                     userConfig,
                     reserves,
                     reservesCount,
-                    oracle
+                    assetDatas
                 ),
             Errors.VL_DEPOSIT_ALREADY_IN_USE
         );
@@ -428,7 +455,7 @@ library ValidationLogic {
      * @param amounts The amounts for each asset being borrowed
      **/
     function validateFlashloan(
-        address[] memory assets,
+        DataTypes.TrancheAddress[] memory assets,
         uint256[] memory amounts
     ) internal pure {
         require(
@@ -475,9 +502,11 @@ library ValidationLogic {
             );
         }
 
-        bool isCollateralEnabled =
-            collateralReserve.configuration.getLiquidationThreshold() > 0 &&
-                userConfig.isUsingAsCollateral(collateralReserve.id);
+        bool isCollateralEnabled = collateralReserve
+            .configuration
+            .getLiquidationThreshold() >
+            0 &&
+            userConfig.isUsingAsCollateral(collateralReserve.id);
 
         //if collateral isn't enabled as collateral by user, it cannot be liquidated
         if (!isCollateralEnabled) {
@@ -510,26 +539,29 @@ library ValidationLogic {
      * @param reservesData The state of all the reserves
      * @param userConfig The state of the user for the specific reserve
      * @param reserves The addresses of all the active reserves
-     * @param oracle The price oracle
+     * @param _addressesProvider The price oracle
      */
     function validateTransfer(
         address from,
-        mapping(address => DataTypes.ReserveData) storage reservesData,
+        uint8 tranche,
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        address oracle
+        ILendingPoolAddressesProvider _addressesProvider,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) internal view {
-        (, , , , uint256 healthFactor) =
-            GenericLogic.calculateUserAccountData(
-                from,
-                reservesData,
-                userConfig,
-                reserves,
-                reservesCount,
-                oracle
-            );
-
+        (, , , , uint256 healthFactor) = GenericLogic.calculateUserAccountData(
+            DataTypes.AcctTranche(from, tranche),
+            reservesData,
+            userConfig,
+            reserves,
+            reservesCount,
+            _addressesProvider,
+            assetDatas
+        );
+        // uint256 healthFactor = 1;
         require(
             healthFactor >= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
             Errors.VL_TRANSFER_NOT_ALLOWED

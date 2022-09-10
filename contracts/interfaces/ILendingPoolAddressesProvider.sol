@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
+
 /**
  * @title LendingPoolAddressesProvider contract
  * @dev Main registry of addresses part of or connected to the protocol, including permissioned roles
@@ -16,6 +18,9 @@ interface ILendingPoolAddressesProvider {
     event LendingPoolConfiguratorUpdated(address indexed newAddress);
     event LendingPoolCollateralManagerUpdated(address indexed newAddress);
     event PriceOracleUpdated(address indexed newAddress);
+    event CurvePriceOracleUpdated(address indexed newAddress);
+    event CurvePriceOracleWrapperUpdated(address indexed newAddress);
+    event CurveAddressProviderUpdated(address indexed newAddress);
     event LendingRateOracleUpdated(address indexed newAddress);
     event ProxyCreated(bytes32 id, address indexed newAddress);
     event AddressSet(bytes32 id, address indexed newAddress, bool hasProxy);
@@ -50,9 +55,26 @@ interface ILendingPoolAddressesProvider {
 
     function setEmergencyAdmin(address admin) external;
 
-    function getPriceOracle() external view returns (address);
+    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+        external
+        view
+        returns (address);
 
-    function setPriceOracle(address priceOracle) external;
+    function getAavePriceOracle() external view returns (address);
+
+    function getCurvePriceOracle() external view returns (address);
+
+    function getCurvePriceOracleWrapper() external view returns (address);
+
+    function getCurveAddressProvider() external view returns (address);
+
+    function setAavePriceOracle(address priceOracle) external;
+
+    function setCurveAddressProvider(address addressProvider) external;
+
+    function setCurvePriceOracle(address priceOracle) external;
+
+    function setCurvePriceOracleWrapper(address priceOracle) external;
 
     function getLendingRateOracle() external view returns (address);
 

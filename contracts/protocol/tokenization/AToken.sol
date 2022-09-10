@@ -52,6 +52,7 @@ contract AToken is
     ILendingPool internal _pool;
     address internal _treasury;
     address internal _underlyingAsset;
+    uint8 internal _tranche;
     IAaveIncentivesController internal _incentivesController;
 
     modifier onlyLendingPool {
@@ -69,8 +70,7 @@ contract AToken is
     /**
      * @dev Initializes the aToken
      * @param pool The address of the lending pool where this aToken will be used
-     * @param treasury The address of the Aave treasury, receiving the fees on this aToken
-     * @param underlyingAsset The address of the underlying asset of this aToken (E.g. WETH for aWETH)
+     * @param vars Stores treasury vars to fix stack too deep
      * @param incentivesController The smart contract managing potential incentives distribution
      * @param aTokenDecimals The decimals of the aToken, same as the underlying asset's
      * @param aTokenName The name of the aToken
@@ -78,8 +78,7 @@ contract AToken is
      */
     function initialize(
         ILendingPool pool,
-        address treasury,
-        address underlyingAsset,
+        InitializeTreasuryVars memory vars,
         IAaveIncentivesController incentivesController,
         uint8 aTokenDecimals,
         string calldata aTokenName,
@@ -108,14 +107,15 @@ contract AToken is
         _setDecimals(aTokenDecimals);
 
         _pool = pool;
-        _treasury = treasury;
-        _underlyingAsset = underlyingAsset;
+        _treasury = vars.treasury;
+        _underlyingAsset = vars.underlyingAsset;
         _incentivesController = incentivesController;
+        _tranche = vars.tranche;
 
         emit Initialized(
-            underlyingAsset,
+            vars.underlyingAsset,
             address(pool),
-            treasury,
+            vars.treasury,
             address(incentivesController),
             aTokenDecimals,
             aTokenName,
@@ -232,7 +232,7 @@ contract AToken is
     {
         return
             super.balanceOf(user).rayMul(
-                _pool.getReserveNormalizedIncome(_underlyingAsset)
+                _pool.getReserveNormalizedIncome(_underlyingAsset, _tranche)
             );
     }
 
@@ -286,7 +286,7 @@ contract AToken is
 
         return
             currentSupplyScaled.rayMul(
-                _pool.getReserveNormalizedIncome(_underlyingAsset)
+                _pool.getReserveNormalizedIncome(_underlyingAsset, _tranche)
             );
     }
 
@@ -440,7 +440,8 @@ contract AToken is
         address underlyingAsset = _underlyingAsset;
         ILendingPool pool = _pool;
 
-        uint256 index = pool.getReserveNormalizedIncome(underlyingAsset);
+        uint256 index =
+            pool.getReserveNormalizedIncome(underlyingAsset, _tranche);
 
         uint256 fromBalanceBefore = super.balanceOf(from).rayMul(index);
         uint256 toBalanceBefore = super.balanceOf(to).rayMul(index);
@@ -450,6 +451,7 @@ contract AToken is
         if (validate) {
             pool.finalizeTransfer(
                 underlyingAsset,
+                _tranche,
                 from,
                 to,
                 amount,
