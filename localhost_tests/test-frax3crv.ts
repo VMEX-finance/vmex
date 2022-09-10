@@ -80,7 +80,7 @@ const path = [myWETH.address, USDC.address];
 const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
 
-var options = {value: ethers.utils.parseEther("1.0")}
+var options = {value: ethers.utils.parseEther("1000.0")}
 
 await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("1000.0"), path, signer.address, deadline,options)
 
@@ -96,9 +96,9 @@ var triCryptoDeposit = new ethers.Contract(triCryptoDepositAdd,triCryptoDepositA
 
 await triCryptoDeposit.connect(signer).get_virtual_price()
 
-var amounts = [ethers.utils.parseEther("1.0"),ethers.utils.parseEther("0")]
+var amounts = [ethers.utils.parseEther("1000.0"),ethers.utils.parseEther("0")]
 
-await USDC.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEther("1.0"))
+await USDC.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEther("100000.0"))
 
 
 // var options2 = {gasLimit: ethers.utils.parseEther("1.0")}
@@ -107,7 +107,7 @@ await USDC.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEt
 
 // await triCryptoDeposit.connect(signer).lp_token(options2)
 // await triCryptoDeposit.connect(signer).calc_token_amount(amounts,true)
-var minOut= ethers.utils.parseEther("0.5")
+var minOut= ethers.utils.parseEther("100")
 await triCryptoDeposit.connect(signer).add_liquidity(amounts,minOut)
 
 var CurveTokenAdd = "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B"
@@ -162,7 +162,7 @@ await oracle.connect(signer).getAssetPrice('0x853d955aCEf822Db058eb8505911ED77F1
 /************************************************************************************/
 /****************** deposit curve LP token to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('0.8'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('900'), await signer.getAddress(), '0'); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 

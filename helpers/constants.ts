@@ -81,6 +81,13 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   FraxUSDC: oneEther.toFixed(), //this should not be used, just placed here to compile
   Frax3Crv: oneEther.toFixed(), //this should not be used, just placed here to compile
   Frax: oneEther.multipliedBy("0.00367714136416").toFixed(), //this should not be used, just placed here to compile
+  BAL: oneEther.multipliedBy("0.00443515").toFixed(), //this should not be used, just placed here to compile
+  CRV: oneEther.multipliedBy("0.0007007323").toFixed(), //this should not be used, just placed here to compile
+  CVX: oneEther.multipliedBy("0.00325699").toFixed(), //this should not be used, just placed here to compile
+  BADGER: oneEther.multipliedBy("0.002689352").toFixed(), //this should not be used, just placed here to compile
+  LDO: oneEther.multipliedBy("0.0011974251").toFixed(), //this should not be used, just placed here to compile
+  ALCX: oneEther.multipliedBy("0.0011974251").toFixed(), //this should not be used, just placed here to compile
+  Oneinch: oneEther.multipliedBy("0.0011974251").toFixed(), //this should not be used, just placed here to compile
 };
 
 export const chainlinkAggregatorProxy = {
