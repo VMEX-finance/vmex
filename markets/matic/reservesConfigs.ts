@@ -28,21 +28,6 @@ export const strategyBUSD: IReserveParams = {
   allowedHigherTranche: true,
   assetType: 0, //0 is enum for Aave
 };
-export const strategyFrax: IReserveParams = {
-  strategy: rateStrategyVolatileFour,
-  baseLTVAsCollateral: '2500',
-  liquidationThreshold: '4500',
-  liquidationBonus: '11500',
-  borrowingEnabled: true,
-  stableBorrowRateEnabled: false,
-  reserveDecimals: '18',
-  aTokenImpl: eContractid.AToken,
-  reserveFactor: '3500',
-  risk: 2,
-  isLendable: false,
-  allowedHigherTranche: true,
-  assetType: 0, //this is since there is a chainlink aggregator for STETH
-};
 
 export const strategyDAI: IReserveParams = {
   strategy: rateStrategyStableTwo,
@@ -379,6 +364,134 @@ export const strategySTETH: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, //this is since there is a chainlink aggregator for STETH
+};
+
+export const strategyFrax: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 2,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, //this is since there is a chainlink aggregator for Frax
+};
+
+export const strategyBAL: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18', //checked
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyCRV: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyCVX: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyBADGER: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyLDO: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyALCX: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
+};
+
+export const strategyOneinch: IReserveParams = {
+  strategy: rateStrategyVolatileFour,
+  baseLTVAsCollateral: '2500',
+  liquidationThreshold: '4500',
+  liquidationBonus: '11500',
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: '3500',
+  risk: 1,
+  isLendable: false,
+  allowedHigherTranche: true,
+  assetType: 0, 
 };
 
 export const strategyCurveLPToken: IReserveParams = {

@@ -293,6 +293,13 @@ export const CommonsConfig: ICommonConfiguration = {
       FraxUSDC: ZERO_ADDRESS, //this should not be used
       Frax3Crv: ZERO_ADDRESS, //this should not be used
       Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      BAL: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
+      CRV: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
+      CVX: '0xC9CbF687f43176B302F03f5e58470b77D07c61c6',
+      BADGER: '0x58921ac140522867bf50b9e009599da0ca4a2379',
+      LDO: '0x4e844125952d32acdf339be976c98e22f6f318db',
+      ALCX: '0x194a9aaf2e0b67c35915cd01101585a33fe25caa',
+      Oneinch: '0x72afaecf99c9d9c8215ff44c77b94b99c28741e8',
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
