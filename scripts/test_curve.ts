@@ -21,18 +21,17 @@ const WETHabi = [
 ( async () => {
     const [ signer ] = await ethers.getSigners();
     const address = await signer.getAddress();
-    // give signer WETH tokens with ether;
-
-    const WETHContract = new ethers.Contract(WETHadd, WETHabi);
-    var options = { value: ethers.utils.parseEther("100.0")};
+    const WETHContract = new ethers.Contract(WETHadd, WETHabi, signer);
+    const LendingPool = new ethers.Contract(deployments.LendingPool.hardhat.address, ILendingPool.abi, signer);
     
-    await WETHContract.connect(signer).deposit(options);
-    // let balance = await (WETHContract.connect(signer)).balanceOf(address)
-    // console.log(`balance of WETH in signer account: ${balance}`);
+    // deposit ETH to recieve Wrapped ETH
+    var options = { value: ethers.utils.parseEther("10.0"), gasLimit: "8000000" };
+    await WETHContract.deposit(options);
+    const balance = await WETHContract.balanceOf(address);
+    console.log(`users WETH balance ${ethers.utils.formatUnits(balance, 18)}`)
 
-    const LendingPool = new ethers.Contract(deployments.LendingPool.hardhat.address, ILendingPool.abi);
-    await LendingPool.connect(signer).deposit(WETHadd, 0, false, ethers.utils.parseUnits('100'), address, '0');    
-    // deposit WETH tokens
+    // deposit wrapped eth to the lending vault
+    await LendingPool.deposit(WETHadd, 0, false, ethers.utils.parseUnits('5', 18), address, '0', { gasLimit: "8000000"});
 
     
     // give user tricrypto2 tokens
