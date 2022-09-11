@@ -27,6 +27,9 @@ export const strategyBUSD: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0, //0 is enum for Aave
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyDAI: IReserveParams = {
@@ -43,6 +46,9 @@ export const strategyDAI: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000', //1 (for testing)
+  hasStrategy: false,
 };
 
 export const strategySUSD: IReserveParams = {
@@ -59,6 +65,9 @@ export const strategySUSD: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyTUSD: IReserveParams = {
@@ -75,6 +84,9 @@ export const strategyTUSD: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyUSDC: IReserveParams = {
@@ -91,6 +103,9 @@ export const strategyUSDC: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //a lot, 10^24 /10^6
+  hasStrategy: false,
 };
 
 export const strategyUSDT: IReserveParams = {
@@ -107,6 +122,9 @@ export const strategyUSDT: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyAAVE: IReserveParams = {
@@ -123,6 +141,9 @@ export const strategyAAVE: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyBAT: IReserveParams = {
@@ -139,6 +160,9 @@ export const strategyBAT: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyENJ: IReserveParams = {
@@ -155,6 +179,9 @@ export const strategyENJ: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyWETH: IReserveParams = {
@@ -171,6 +198,9 @@ export const strategyWETH: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyKNC: IReserveParams = {
@@ -187,6 +217,9 @@ export const strategyKNC: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyLINK: IReserveParams = {
@@ -203,6 +236,9 @@ export const strategyLINK: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyMANA: IReserveParams = {
@@ -219,6 +255,9 @@ export const strategyMANA: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyMKR: IReserveParams = {
@@ -235,6 +274,9 @@ export const strategyMKR: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyREN: IReserveParams = {
@@ -251,6 +293,9 @@ export const strategyREN: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategySNX: IReserveParams = {
@@ -267,6 +312,9 @@ export const strategySNX: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 // Invalid borrow rates in params currently, replaced with snx params
@@ -284,6 +332,9 @@ export const strategyUNI: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyWBTC: IReserveParams = {
@@ -300,6 +351,9 @@ export const strategyWBTC: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyYFI: IReserveParams = {
@@ -316,6 +370,9 @@ export const strategyYFI: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyZRX: IReserveParams = {
@@ -332,6 +389,9 @@ export const strategyZRX: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyXSUSHI: IReserveParams = {
@@ -348,6 +408,9 @@ export const strategyXSUSHI: IReserveParams = {
   isLendable: true,
   allowedHigherTranche: true,
   assetType: 0,
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategySTETH: IReserveParams = {
@@ -364,6 +427,9 @@ export const strategySTETH: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, //this is since there is a chainlink aggregator for STETH
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyFrax: IReserveParams = {
@@ -380,6 +446,9 @@ export const strategyFrax: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, //this is since there is a chainlink aggregator for Frax
+  canBeCollateral: false, //frax can't be collateral
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyBAL: IReserveParams = {
@@ -396,6 +465,9 @@ export const strategyBAL: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, 
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyCRV: IReserveParams = {
@@ -412,6 +484,9 @@ export const strategyCRV: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, 
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: true,
 };
 
 export const strategyCVX: IReserveParams = {
@@ -428,6 +503,9 @@ export const strategyCVX: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, 
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: true,
 };
 
 export const strategyBADGER: IReserveParams = {
@@ -444,6 +522,9 @@ export const strategyBADGER: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, 
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyLDO: IReserveParams = {
@@ -460,6 +541,9 @@ export const strategyLDO: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, 
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyALCX: IReserveParams = {
@@ -476,6 +560,9 @@ export const strategyALCX: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, 
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyOneinch: IReserveParams = {
@@ -492,6 +579,9 @@ export const strategyOneinch: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 0, 
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: false,
 };
 
 export const strategyCurveLPToken: IReserveParams = {
@@ -508,5 +598,8 @@ export const strategyCurveLPToken: IReserveParams = {
   isLendable: false,
   allowedHigherTranche: true,
   assetType: 1, //1 is enum for Curve
+  canBeCollateral: true,
+  collateralCap: '1000000000000000000000000', //1,000,000
+  hasStrategy: true,
 };
 

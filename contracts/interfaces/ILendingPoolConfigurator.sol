@@ -32,7 +32,7 @@ interface ILendingPoolConfigurator {
         uint8 assetType;
         bool canBeCollateral;
         uint256 collateralCap;
-        bool optInStrategy;
+        bool hasStrategy;
     }
 
     struct UpdateATokenInput {
@@ -175,7 +175,7 @@ interface ILendingPoolConfigurator {
         uint8 _assetType,
         bool _canBeCollateral,
         uint256 _collateralCap,
-        bool _optInStrategy
+        bool _hasStrategy
     );
 
     /**

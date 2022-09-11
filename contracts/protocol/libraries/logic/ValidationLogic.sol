@@ -418,10 +418,11 @@ library ValidationLogic {
                         "Risk is not equal to collateral tranche"
                     );
                 }
-                require(
-                    underlyingBalance <= assetData.collateralCap,
-                    "Collateral amount exceeds collateral cap"
-                );
+                //allow them to turn on collateral, but only a certain amount will be counted
+                // require(
+                //     underlyingBalance <= assetData.collateralCap,
+                //     "Collateral amount exceeds collateral cap"
+                // );
             }
         }
 

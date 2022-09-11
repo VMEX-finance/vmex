@@ -108,7 +108,6 @@ contract LendingPool is
      * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
      * - E.g. User deposits 100 USDC and gets in return 100 aUSDC
      * @param asset The address of the underlying asset to deposit
-     * @param isCollateral we want to give users the option of whether their asset can be set as collateral when they first deposit
      * @param amount The amount to be deposited
      * @param onBehalfOf The address that will receive the aTokens, same as msg.sender if the user
      *   wants to receive them on his own wallet, or a different address if the beneficiary of aTokens
@@ -117,9 +116,10 @@ contract LendingPool is
      *   0 if the action is executed directly by the user, without any middle-man
      **/
     function deposit(
+        //allowing collateral changes here opens up possibility of attack where someone can try to change the collateral status of someone else, but this can only be done for the initial deposit
+        //confusing interface where users can choose their isCollateral but it only matters for the first deposit
         address asset,
         uint8 tranche,
-        bool isCollateral,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
@@ -136,20 +136,13 @@ contract LendingPool is
                 trancheMultipliers[tranche],
                 _reservesCount,
                 address(_addressesProvider),
-                isCollateral,
                 amount,
                 onBehalfOf,
                 referralCode
             );
         }
         {
-            _reserves[asset][tranche]._deposit(
-                vars,
-                _usersConfig[onBehalfOf],
-                _reserves,
-                _reservesList,
-                assetDatas
-            );
+            _reserves[asset][tranche]._deposit(vars, _usersConfig[onBehalfOf]);
         }
     }
 
@@ -196,17 +189,15 @@ contract LendingPool is
      * @param asset The tranche of the underlying asset to transfer to
      * @param amount The underlying amount to be transfer
      *   - Send the value type(uint256).max in order to withdraw the whole aToken balance
-     * @param isCollateral boolean of whether the asset should be set as collateral in destination tranche
      **/
     function transferTranche(
         address asset,
         uint8 originTranche,
         uint8 destinationTranche,
-        uint256 amount,
-        bool isCollateral
+        uint256 amount
     ) external whenNotPaused {
         withdraw(asset, originTranche, amount, msg.sender);
-        deposit(asset, destinationTranche, isCollateral, amount, msg.sender, 0); //no referral code
+        deposit(asset, destinationTranche, amount, msg.sender, 0); //no referral code
     }
 
     /**
@@ -928,7 +919,7 @@ contract LendingPool is
         uint8 _assetType,
         bool _canBeCollateral,
         uint256 _collateralCap,
-        bool _optInStrategy
+        bool _hasStrategy
     ) external override onlyLendingPoolConfigurator {
         //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
         assetDatas[asset].collateralRisk = _risk;
@@ -938,7 +929,7 @@ contract LendingPool is
         assetDatas[asset].assetType = DataTypes.ReserveAssetType(_assetType);
         assetDatas[asset].canBeCollateral = _canBeCollateral;
         assetDatas[asset].collateralCap = _collateralCap;
-        assetDatas[asset].optInStrategy = _optInStrategy;
+        assetDatas[asset].hasStrategy = _hasStrategy;
     }
 
     function getAssetRisk(address asset) external view returns (uint8) {
