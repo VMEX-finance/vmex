@@ -219,7 +219,7 @@ contract LendingPoolConfigurator is
                 input.assetType,
                 input.canBeCollateral,
                 input.collateralCap,
-                input.optInStrategy
+                input.hasStrategy
             ); //initialize all asset risks
 
             emit ReserveInitialized(
@@ -622,7 +622,7 @@ contract LendingPoolConfigurator is
         uint8 _assetType,
         bool _canBeCollateral,
         uint256 _collateralCap,
-        bool _optInStrategy
+        bool _hasStrategy
     ) external onlyPoolAdmin {
         pool.setAssetData(
             asset,
@@ -632,7 +632,7 @@ contract LendingPoolConfigurator is
             _assetType,
             _canBeCollateral,
             _collateralCap,
-            _optInStrategy
+            _hasStrategy
         );
         emit AssetDataChanged(
             asset,
@@ -642,7 +642,7 @@ contract LendingPoolConfigurator is
             _assetType,
             _canBeCollateral,
             _collateralCap,
-            _optInStrategy
+            _hasStrategy
         );
     }
 

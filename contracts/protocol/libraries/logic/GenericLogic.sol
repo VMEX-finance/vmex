@@ -263,6 +263,15 @@ library GenericLogic {
                     .mul(vars.compoundedLiquidityBalance)
                     .div(vars.tokenUnit);
 
+                if (
+                    vars.liquidityBalanceETH >
+                    assetDatas[vars.currentReserveAddress].collateralCap
+                ) {
+                    vars.liquidityBalanceETH = assetDatas[
+                        vars.currentReserveAddress
+                    ].collateralCap;
+                }
+
                 vars.totalCollateralInETH = vars.totalCollateralInETH.add(
                     vars.liquidityBalanceETH
                 );

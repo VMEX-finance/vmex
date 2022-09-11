@@ -66,11 +66,7 @@ library DepositWithdrawLogic {
     function _deposit(
         DataTypes.ReserveData storage self,
         DataTypes.DepositVars memory vars,
-        DataTypes.UserConfigurationMap storage user,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
-            storage _reserves,
-        mapping(uint256 => address) storage _reservesList,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        DataTypes.UserConfigurationMap storage user
     ) external {
         ValidationLogic.validateDeposit(self, vars.amount);
 
@@ -97,31 +93,7 @@ library DepositWithdrawLogic {
         ); //this also considers if it is a first deposit into a tranche, not just a specific asset
 
         if (isFirstDeposit) {
-            if (!vars.isLendable) {
-                //non lendable assets must be collateral
-                vars.isCollateral = true;
-            }
-            {
-                ValidationLogic.validateSetUseReserveAsCollateral(
-                    self,
-                    vars.asset,
-                    vars.isCollateral,
-                    _reserves,
-                    user,
-                    _reservesList,
-                    vars._reservesCount,
-                    ILendingPoolAddressesProvider(vars._addressesProvider),
-                    assetDatas
-                );
-            }
-
-            user.setUsingAsCollateral(self.id, vars.isCollateral);
-            if (vars.isCollateral) {
-                emit ReserveUsedAsCollateralEnabled(
-                    vars.asset,
-                    vars.onBehalfOf
-                );
-            }
+            user.setUsingAsCollateral(self.id, false); //default collateral is false
         }
 
         emit Deposit(
