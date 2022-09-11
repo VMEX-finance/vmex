@@ -133,17 +133,22 @@ contract LendingPool is
                 assetDatas[asset].collateralRisk,
                 assetDatas[asset].isAllowedCollateralInHigherTranches,
                 assetDatas[asset].isLendable,
-                trancheMultipliers[tranche]
+                trancheMultipliers[tranche],
+                _reservesCount,
+                address(_addressesProvider),
+                isCollateral,
+                amount,
+                onBehalfOf,
+                referralCode
             );
         }
         {
             _reserves[asset][tranche]._deposit(
                 vars,
-                isCollateral,
-                amount,
-                onBehalfOf,
                 _usersConfig[onBehalfOf],
-                referralCode
+                _reserves,
+                _reservesList,
+                assetDatas
             );
         }
     }
@@ -493,15 +498,6 @@ contract LendingPool is
             "nonlendable assets must be set as collateral"
         );
         DataTypes.ReserveData storage reserve = _reserves[asset][tranche];
-
-        {
-            ValidationLogic.validateCollateralRisk(
-                useAsCollateral,
-                assetDatas[asset].collateralRisk,
-                tranche,
-                assetDatas[asset].isAllowedCollateralInHigherTranches
-            );
-        }
 
         {
             ValidationLogic.validateSetUseReserveAsCollateral(
@@ -929,7 +925,10 @@ contract LendingPool is
         uint8 _risk,
         bool _isLendable,
         bool _allowedHigherTranche,
-        uint8 _assetType
+        uint8 _assetType,
+        bool _canBeCollateral,
+        uint256 _collateralCap,
+        bool _optInStrategy
     ) external override onlyLendingPoolConfigurator {
         //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
         assetDatas[asset].collateralRisk = _risk;
@@ -937,6 +936,9 @@ contract LendingPool is
         assetDatas[asset]
             .isAllowedCollateralInHigherTranches = _allowedHigherTranche;
         assetDatas[asset].assetType = DataTypes.ReserveAssetType(_assetType);
+        assetDatas[asset].canBeCollateral = _canBeCollateral;
+        assetDatas[asset].collateralCap = _collateralCap;
+        assetDatas[asset].optInStrategy = _optInStrategy;
     }
 
     function getAssetRisk(address asset) external view returns (uint8) {

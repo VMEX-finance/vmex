@@ -66,44 +66,61 @@ library DepositWithdrawLogic {
     function _deposit(
         DataTypes.ReserveData storage self,
         DataTypes.DepositVars memory vars,
-        bool isCollateral,
-        uint256 amount,
-        address onBehalfOf,
         DataTypes.UserConfigurationMap storage user,
-        uint16 referralCode
+        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+            storage _reserves,
+        mapping(uint256 => address) storage _reservesList,
+        mapping(address => DataTypes.AssetData) storage assetDatas
     ) external {
-        ValidationLogic.validateDeposit(self, amount);
+        ValidationLogic.validateDeposit(self, vars.amount);
 
         address aToken = self.aTokenAddress;
 
         if (vars.isLendable) {
             //these will simply not be used for collateral vault, and even if it is, it won't change anything
             self.updateState();
-            self.updateInterestRates(vars.t, vars.asset, aToken, amount, 0);
+            self.updateInterestRates(
+                vars.t,
+                vars.asset,
+                aToken,
+                vars.amount,
+                0
+            );
         }
 
-        IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, amount); //msg.sender should still be the user, not the contract
+        IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
 
         bool isFirstDeposit = IAToken(aToken).mint(
-            onBehalfOf,
-            amount,
+            vars.onBehalfOf,
+            vars.amount,
             self.liquidityIndex
         ); //this also considers if it is a first deposit into a tranche, not just a specific asset
 
         if (isFirstDeposit) {
             if (!vars.isLendable) {
                 //non lendable assets must be collateral
-                isCollateral = true;
+                vars.isCollateral = true;
             }
-            ValidationLogic.validateCollateralRisk(
-                isCollateral,
-                vars.risk,
-                vars.tranche,
-                vars.allowHigherTranche
-            );
-            user.setUsingAsCollateral(self.id, isCollateral);
-            if (isCollateral) {
-                emit ReserveUsedAsCollateralEnabled(vars.asset, onBehalfOf);
+            {
+                ValidationLogic.validateSetUseReserveAsCollateral(
+                    self,
+                    vars.asset,
+                    vars.isCollateral,
+                    _reserves,
+                    user,
+                    _reservesList,
+                    vars._reservesCount,
+                    ILendingPoolAddressesProvider(vars._addressesProvider),
+                    assetDatas
+                );
+            }
+
+            user.setUsingAsCollateral(self.id, vars.isCollateral);
+            if (vars.isCollateral) {
+                emit ReserveUsedAsCollateralEnabled(
+                    vars.asset,
+                    vars.onBehalfOf
+                );
             }
         }
 
@@ -111,9 +128,9 @@ library DepositWithdrawLogic {
             vars.asset,
             vars.tranche,
             msg.sender,
-            onBehalfOf,
-            amount,
-            referralCode
+            vars.onBehalfOf,
+            vars.amount,
+            vars.referralCode
         );
     }
 
@@ -234,12 +251,10 @@ library DepositWithdrawLogic {
         //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
 
         uint256 amountInETH = IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
-                _addressesProvider.getPriceOracle(
-                    assetDatas[vars.asset].assetType
-                )
-            ).getAssetPrice(vars.asset).mul(vars.amount).div(
-                    10**reserve.configuration.getDecimals()
-                ); //lp token decimals are 18, like ETH
+            _addressesProvider.getPriceOracle(assetDatas[vars.asset].assetType)
+        ).getAssetPrice(vars.asset).mul(vars.amount).div(
+                10**reserve.configuration.getDecimals()
+            ); //lp token decimals are 18, like ETH
 
         ValidationLogic.validateBorrow(
             vars,

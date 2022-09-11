@@ -368,7 +368,10 @@ interface ILendingPool {
         uint8 _risk,
         bool _isLendable,
         bool _allowedHigherTranche,
-        uint8 _assetType
+        uint8 _assetType,
+        bool _canBeCollateral,
+        uint256 _collateralCap,
+        bool _optInStrategy
     ) external;
 
     function setReserveInterestRateStrategyAddress(
