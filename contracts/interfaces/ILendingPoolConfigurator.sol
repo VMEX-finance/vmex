@@ -30,6 +30,9 @@ interface ILendingPoolConfigurator {
         bool isLendable;
         bool allowHigherTranche;
         uint8 assetType;
+        bool canBeCollateral;
+        uint256 collateralCap;
+        bool optInStrategy;
     }
 
     struct UpdateATokenInput {
@@ -169,7 +172,10 @@ interface ILendingPoolConfigurator {
         uint8 _risk,
         bool _isLendable,
         bool _allowedHigherTranche,
-        uint8 _assetType
+        uint8 _assetType,
+        bool _canBeCollateral,
+        uint256 _collateralCap,
+        bool _optInStrategy
     );
 
     /**
