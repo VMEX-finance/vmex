@@ -87,10 +87,10 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
 await lendingPool.connect(signer).deposit(USDC.address, 2, ethers.utils.parseUnits('1000'), await signer.getAddress(), '0'); 
-await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true);  //should fail since frax can't be collateral
 
-await lendingPool.connect(signer).getUserAccountData(signer.address,2)
+// await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
-await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+// await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
 
-await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress()); //revert expected
+// await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress()); //revert expected
