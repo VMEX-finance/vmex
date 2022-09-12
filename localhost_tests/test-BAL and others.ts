@@ -59,7 +59,7 @@ await myWETH.connect(emergency).deposit(options);
 await myWETH.connect(emergency).balanceOf(signer.address);
 await myWETH.connect(emergency).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
 
-await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
+await lendingPool.connect(emergency).deposit(myWETH.address, 2, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
 
 /************************************************************************************/
 /******************  Uniswap ETH for BAL?  **********************/ 
@@ -86,7 +86,8 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(USDC.address, 2, true, ethers.utils.parseUnits('800'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(USDC.address, 2, ethers.utils.parseUnits('800'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
@@ -121,7 +122,8 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(USDC.address, 2, true, ethers.utils.parseUnits('801'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(USDC.address, 2, ethers.utils.parseUnits('801'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
@@ -158,7 +160,8 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(USDC.address, 2, true, ethers.utils.parseUnits('.0001'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(USDC.address, 2, ethers.utils.parseUnits('.0001'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
@@ -193,7 +196,8 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(USDC.address, 2, true, ethers.utils.parseUnits('803'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(USDC.address, 2, ethers.utils.parseUnits('803'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
@@ -228,7 +232,8 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(USDC.address, 2, true, ethers.utils.parseUnits('804'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(USDC.address, 2,ethers.utils.parseUnits('804'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
@@ -264,7 +269,8 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(USDC.address, 2, true, ethers.utils.parseUnits('0.000000000001'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(USDC.address, 2, ethers.utils.parseUnits('0.000000000001'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
@@ -300,7 +306,8 @@ await USDC.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(USDC.address, 2, true, ethers.utils.parseUnits('805'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(USDC.address, 2, ethers.utils.parseUnits('805'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 

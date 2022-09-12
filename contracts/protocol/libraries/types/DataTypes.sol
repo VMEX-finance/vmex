@@ -16,6 +16,9 @@ library DataTypes {
         bool isLendable;
         bool isAllowedCollateralInHigherTranches;
         ReserveAssetType assetType;
+        bool canBeCollateral;
+        uint256 collateralCap; //per tranche of the asset
+        bool hasStrategy;
     }
 
     struct TrancheAddress {
@@ -91,6 +94,11 @@ library DataTypes {
         bool allowHigherTranche;
         bool isLendable;
         TrancheMultiplier t;
+        uint256 _reservesCount;
+        address _addressesProvider;
+        uint256 amount;
+        address onBehalfOf;
+        uint16 referralCode;
     }
 
     struct ExecuteBorrowParams {

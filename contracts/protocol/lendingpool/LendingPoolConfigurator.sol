@@ -216,7 +216,10 @@ contract LendingPoolConfigurator is
                 input.risk,
                 input.isLendable,
                 input.allowHigherTranche,
-                input.assetType
+                input.assetType,
+                input.canBeCollateral,
+                input.collateralCap,
+                input.hasStrategy
             ); //initialize all asset risks
 
             emit ReserveInitialized(
@@ -616,21 +619,30 @@ contract LendingPoolConfigurator is
         uint8 _risk,
         bool _isLendable,
         bool _allowedHigherTranche,
-        uint8 _assetType
+        uint8 _assetType,
+        bool _canBeCollateral,
+        uint256 _collateralCap,
+        bool _hasStrategy
     ) external onlyPoolAdmin {
         pool.setAssetData(
             asset,
             _risk,
             _isLendable,
             _allowedHigherTranche,
-            _assetType
+            _assetType,
+            _canBeCollateral,
+            _collateralCap,
+            _hasStrategy
         );
         emit AssetDataChanged(
             asset,
             _risk,
             _isLendable,
             _allowedHigherTranche,
-            _assetType
+            _assetType,
+            _canBeCollateral,
+            _collateralCap,
+            _hasStrategy
         );
     }
 

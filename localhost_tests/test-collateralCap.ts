@@ -1,7 +1,13 @@
 
+const fs = require('fs');
+
+// const DAI = new Token(
+//     '',
+//     "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+//     18
+// );
 
     // Load the HRE into helpers to access signers
-    const fs = require('fs');
     await run("set-DRE")
 
     // Import getters to instance any Aave contract
@@ -42,6 +48,9 @@ const WETHabi = [
     "function deposit() public payable",
     "function withdraw(uint wad) public"
 ];
+const DAIadd = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+const DAI_ABI = fs.readFileSync("./localhost_tests/DAI_ABI.json").toString()
+const DAI = new ethers.Contract(DAIadd,DAI_ABI)
 
 const myWETH = new ethers.Contract(WETHadd,WETHabi)
 
@@ -61,36 +70,47 @@ await myWETH.connect(emergency).approve(lendingPool.address,ethers.utils.parseEt
 
 await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
 
+
 /************************************************************************************/
-/******************  Uniswap ETH for Steth  **********************/ 
+/******************  Uniswap ETH for DAI  **********************/ 
 /************************************************************************************/
-const Stethadd = "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
-const StethABI = fs.readFileSync("./localhost_tests/DAI_ABI.json").toString()
-const Steth = new ethers.Contract(Stethadd,StethABI)
 
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
 const UNISWAP_ROUTER_ABI = fs.readFileSync("./localhost_tests/uniswapAbi.json").toString()
 const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
 
-const path = [myWETH.address, Steth.address];
+const path = [myWETH.address, DAI.address];
 const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
+//emergency deposits 100 WETH to pool to provide liquidity
+var options = {value: ethers.utils.parseEther("1000.0")}
 
-var options = {value: ethers.utils.parseEther("1.0")}
+await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("1000000.0"), path, signer.address, deadline,options)
 
-await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("1.0"), path, signer.address, deadline,options)
+await DAI.connect(signer).balanceOf(signer.address)
+await DAI.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100000000000000"))
 
-await Steth.connect(signer).balanceOf(signer.address)
-await Steth.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("1.0"))
+const { ethers, waffle} = require("hardhat"); //gets waffle provider
+
+const provider = waffle.provider;
+
+await provider.getBalance(signer.address) //gets the ETH balance of signer
 
 /************************************************************************************/
-/****************** deposit steth to pool and then borrow WETH  **********************/ 
+/****************** deposit too much DAI  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(Steth.address, 2, ethers.utils.parseUnits('0.5'), await signer.getAddress(), '0'); 
-await lendingPool.connect(signer).setUserUseReserveAsCollateral(Steth.address, 2, true); 
+
+
+await lendingPool.connect(signer).deposit(DAI.address, 2,  ethers.utils.parseUnits('500'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(DAI.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
-await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+await lendingPool.connect(signer).deposit(DAI.address, 2,  ethers.utils.parseUnits('2000'), await signer.getAddress(), '0'); 
 
-await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress()); //revert expected
+await lendingPool.connect(signer).getUserAccountData(signer.address,2)
+
+var dataProv = await contractGetters.getAaveProtocolDataProvider()
+
+await dataProv.getReserveData(DAI.address,2)
+await dataProv.getUserReserveData(DAI.address,2,signer.address)

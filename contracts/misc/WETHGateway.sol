@@ -7,12 +7,8 @@ import {IWETH} from "./interfaces/IWETH.sol";
 import {IWETHGateway} from "./interfaces/IWETHGateway.sol";
 import {ILendingPool} from "../interfaces/ILendingPool.sol";
 import {IAToken} from "../interfaces/IAToken.sol";
-import {
-    ReserveConfiguration
-} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
-import {
-    UserConfiguration
-} from "../protocol/libraries/configuration/UserConfiguration.sol";
+import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
+import {UserConfiguration} from "../protocol/libraries/configuration/UserConfiguration.sol";
 import {Helpers} from "../protocol/libraries/helpers/Helpers.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
@@ -51,7 +47,6 @@ contract WETHGateway is IWETHGateway, Ownable {
         ILendingPool(lendingPool).deposit(
             address(WETH),
             tranche,
-            false,
             msg.value,
             onBehalfOf,
             referralCode
@@ -70,12 +65,11 @@ contract WETHGateway is IWETHGateway, Ownable {
         uint256 amount,
         address to
     ) external override {
-        IAToken aWETH =
-            IAToken(
-                ILendingPool(lendingPool)
-                    .getReserveData(address(WETH), tranche)
-                    .aTokenAddress
-            );
+        IAToken aWETH = IAToken(
+            ILendingPool(lendingPool)
+                .getReserveData(address(WETH), tranche)
+                .aTokenAddress
+        );
         uint256 userBalance = aWETH.balanceOf(msg.sender);
         uint256 amountToWithdraw = amount;
 
@@ -108,17 +102,16 @@ contract WETHGateway is IWETHGateway, Ownable {
         uint256 rateMode,
         address onBehalfOf
     ) external payable override {
-        (uint256 stableDebt, uint256 variableDebt) =
-            Helpers.getUserCurrentDebtMemory(
+        (uint256 stableDebt, uint256 variableDebt) = Helpers
+            .getUserCurrentDebtMemory(
                 onBehalfOf,
                 ILendingPool(lendingPool).getReserveData(address(WETH), tranche)
             );
 
-        uint256 paybackAmount =
-            DataTypes.InterestRateMode(rateMode) ==
-                DataTypes.InterestRateMode.STABLE
-                ? stableDebt
-                : variableDebt;
+        uint256 paybackAmount = DataTypes.InterestRateMode(rateMode) ==
+            DataTypes.InterestRateMode.STABLE
+            ? stableDebt
+            : variableDebt;
 
         if (amount < paybackAmount) {
             paybackAmount = amount;

@@ -136,6 +136,9 @@ export const initReservesByHelper = async (
     isLendable: boolean;
     allowHigherTranche: boolean;
     assetType: BigNumberish;
+    canBeCollateral: boolean;
+    collateralCap: string; //1,000,000
+    hasStrategy: boolean;
   }[] = [];
 
   let strategyRates: [
@@ -167,6 +170,9 @@ export const initReservesByHelper = async (
       isLendable,
       allowedHigherTranche,
       assetType,
+      canBeCollateral,
+      collateralCap, //1,000,000
+      hasStrategy,
     } = params;
     const {
       optimalUtilizationRate,
@@ -232,6 +238,9 @@ export const initReservesByHelper = async (
       isLendable: isLendable,
       allowHigherTranche: allowedHigherTranche,
       assetType: assetType,
+      canBeCollateral: canBeCollateral,
+      collateralCap: collateralCap, //1,000,000
+      hasStrategy: hasStrategy,
     });
 
     console.log(
