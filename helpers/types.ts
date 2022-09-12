@@ -420,6 +420,9 @@ export interface IReserveParams
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   isLendable: boolean; //is the asset lendable
+  canBeCollateral: boolean; //can the asset be collateral
+  collateralCap: string;
+  hasStrategy: boolean; //whether the asset has a strategy
 }
 
 export interface IInterestRateStrategyParams {

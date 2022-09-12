@@ -73,7 +73,7 @@ await myWETH.connect(emergency).deposit(options);
 await myWETH.connect(emergency).balanceOf(signer.address);
 await myWETH.connect(emergency).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
 
-await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
+await lendingPool.connect(emergency).deposit(myWETH.address, 2, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
 
 
 /************************************************************************************/
@@ -88,9 +88,9 @@ const path = [myWETH.address, DAI.address];
 const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
 //emergency deposits 100 WETH to pool to provide liquidity
-var options = {value: ethers.utils.parseEther("1.0")}
+var options = {value: ethers.utils.parseEther("1000.0")}
 
-await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("1.0"), path, signer.address, deadline,options)
+await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("1000000.0"), path, signer.address, deadline,options)
 
 await DAI.connect(signer).balanceOf(signer.address)
 
@@ -140,7 +140,8 @@ await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseE
 /************************************************************************************/
 /****************** deposit curve LP token to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(CurveToken.address, 2, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 

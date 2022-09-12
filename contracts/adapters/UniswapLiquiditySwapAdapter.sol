@@ -2,9 +2,7 @@
 pragma solidity >=0.8.0;
 
 import {BaseUniswapAdapter} from "./BaseUniswapAdapter.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
@@ -160,12 +158,9 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
         for (vars.i = 0; vars.i < assetToSwapFromList.length; vars.i++) {
             vars.aToken = _getReserveData(
-                assetToSwapFromList[vars.i]
-                    .asset,
-                assetToSwapFromList[vars.i]
-                    .tranche
-            )
-                .aTokenAddress;
+                assetToSwapFromList[vars.i].asset,
+                assetToSwapFromList[vars.i].tranche
+            ).aTokenAddress;
 
             vars.aTokenInitiatorBalance = IERC20(vars.aToken).balanceOf(
                 msg.sender
@@ -204,7 +199,6 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
             LENDING_POOL.deposit(
                 assetToSwapToList[vars.i].asset,
                 assetToSwapToList[vars.i].tranche,
-                false,
                 vars.receivedAmount,
                 msg.sender,
                 0
@@ -271,7 +265,6 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
         LENDING_POOL.deposit(
             assetTo,
             assetToTranche,
-            false,
             vars.receivedAmount,
             initiator,
             0
@@ -324,8 +317,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
             bytes32[] memory r,
             bytes32[] memory s,
             bool[] memory useEthPath
-        ) =
-            abi.decode(
+        ) = abi.decode(
                 params,
                 (
                     address[],

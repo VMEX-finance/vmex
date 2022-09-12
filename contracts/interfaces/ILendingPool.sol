@@ -174,7 +174,6 @@ interface ILendingPool {
     function deposit(
         address asset,
         uint8 tranche,
-        bool isCollateral,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
@@ -368,7 +367,10 @@ interface ILendingPool {
         uint8 _risk,
         bool _isLendable,
         bool _allowedHigherTranche,
-        uint8 _assetType
+        uint8 _assetType,
+        bool _canBeCollateral,
+        uint256 _collateralCap,
+        bool _hasStrategy
     ) external;
 
     function setReserveInterestRateStrategyAddress(
