@@ -9,6 +9,8 @@ export { UniswapLiquiditySwapAdapterFactory } from "./UniswapLiquiditySwapAdapte
 export type { UniswapLiquiditySwapAdapter } from "./UniswapLiquiditySwapAdapter";
 export { UniswapRepayAdapterFactory } from "./UniswapRepayAdapterFactory";
 export type { UniswapRepayAdapter } from "./UniswapRepayAdapter";
+export { AnalyticsUtilitiesFactory } from "./AnalyticsUtilitiesFactory";
+export type { AnalyticsUtilities } from "./AnalyticsUtilities";
 export { GetTokenReserveDataFactory } from "./GetTokenReserveDataFactory";
 export type { GetTokenReserveData } from "./GetTokenReserveData";
 export { GetTrancheOverviewDataFactory } from "./GetTrancheOverviewDataFactory";

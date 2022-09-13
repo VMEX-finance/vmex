@@ -1,30 +1,23 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-// import UserTokenBalance from "../artifacts/contracts/analytics/UserTokenBalance.sol/UserTokenBalance.json";
-// import TrancheReserveData from "../artifacts/contracts/analytics/TrancheReserveData.sol/TrancheReserveData.json";
-// import { TOKEN_ADDR_MAINNET } from "./constants";
-// export async function getUserTokenBalances(signer: Signer) {
-//     if (!signer.provider) return { response: { balances: null }}
-//     let contractFactory = new ContractFactory(UserTokenBalance.abi, UserTokenBalance.bytecode);
-//     let data = await signer.provider.call({ data: contractFactory.getDeployTransaction(await signer.getAddress(), Object.values(TOKEN_ADDR_MAINNET)).data});
-//     let [ balances] = await new ethers.utils.AbiCoder().decode(["uint256[]"], data);
-//     const _balances = balances.map((bal) => formatUnits(bal, 18))
-//     const format_response = _.zipObject(Object.keys(TOKEN_ADDR_MAINNET), _balances)
-//     return { response: { format_response }}
-// }
-// async function userTrancheReserveData(signer: Signer, tranche: number) {
-//     if (!signer.provider) return { response: { data: null }};
-//     let contractFactory = new ContractFactory(TrancheReserveData.abi, TrancheReserveData.bytecode);
-//     let _data = await signer.provider.call({data: contractFactory.getDeployTransaction(deployments["LendingPool"]["hardhat"]["address"], tranche).data});
-//     const [ address, tData, categoryNames ] = await new ethers.utils.AbiCoder().decode(["string[20]", "uint128[7][]", "string[7]"], _data);
-//     const labeledData = _.map(tData, (d) => {
-//         return _.zipObject(categoryNames, d)
-//     })
-//     return {
-//         response: {
-//             data: _.zipObject(address, labeledData)
-//         }
-//     }
-// }
-// async function tokenTrancheData() {
-// }
+exports.getTokenReserveData = void 0;
+const contracts_1 = require("@ethersproject/contracts");
+const abi_1 = require("@ethersproject/abi");
+const constants_1 = require("./constants");
+const TokenReserveData_json_1 = __importDefault(require("../artifacts/contracts/analytics/queries/getUserTokenData.sol/TokenReserveData.json"));
+async function getTokenReserveData(signer) {
+    // const provider = new JsonRpcProvider('http://127.0.0.1:8545');
+    // const signer = signer.connect(provider);
+    var _a;
+    let contractFactory = new contracts_1.ContractFactory(TokenReserveData_json_1.default.abi, TokenReserveData_json_1.default.bytecode);
+    let data = await ((_a = signer.provider) === null || _a === void 0 ? void 0 : _a.call({
+        data: contractFactory.getDeployTransaction(constants_1.deployments.LendingPoolAddressesProvider.localhost.address, await signer.getAddress()).data
+    }));
+    const iface = new abi_1.Interface(TokenReserveData_json_1.default.abi);
+    const returnData = await iface.decodeFunctionResult("getType", data);
+    return returnData['0'];
+}
+exports.getTokenReserveData = getTokenReserveData;
