@@ -4,6 +4,11 @@ pragma solidity >=0.8.0;
 library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
 
+    struct Snapshot {
+        uint256 SSnap; //most recent snapshot
+        uint256 accruedEarnings; //total cvxCRV accumulated from previous deposits
+    }
+
     enum ReserveAssetType {
         AAVE,
         CURVE
