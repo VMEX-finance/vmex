@@ -145,6 +145,10 @@ library DepositWithdrawLogic {
         address aToken = reserve.aTokenAddress;
 
         uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
+        //balanceOf actually multiplies the atokens that the user has by the liquidity index.
+        //User A deposits 1000 DAI at the liquidity index of 1.1. He is actually minted 1000/1.1 = 909 scaled aTokens. But when he checks his balance, he finds 909 *1.1 = 1000
+        //User B deposits another amount into the same pool. The liquidity index is now 1.2. User A now checks 909*1.2 = 1090.9, so he gets "interest" despite his scaled aTokens remaining the same
+        //liquidityIndex is not 1 to 1 with pool amount. So there are additional funds left in pool in above case.
 
         if (vars.amount == type(uint256).max) {
             vars.amount = userBalance; //amount to withdraw

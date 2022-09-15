@@ -46,4 +46,10 @@ contract LendingPoolStorage {
     uint256 internal _maxNumberOfReserves;
 
     mapping(uint256 => DataTypes.TrancheMultiplier) internal trancheMultipliers;
+
+    //mapping between address of underlying token the strategy snapshot is -> user address and their snapshot for SCVX (accurredEarnings is for amount in cvxCRV vcTokens)
+    mapping(address => mapping(address => DataTypes.Snapshot)) snapshots;
+
+    //[underlying token strategy that current snapshot is monitoring rewards for][reward token address]
+    mapping(address => mapping(address => uint256)) Scurrent;
 }
