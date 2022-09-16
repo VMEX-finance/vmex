@@ -109,6 +109,30 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
         underlyingCoins[0xDC24316b9AE028F1497c275EB9192a3Ea0f67022][
             1
         ] = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84; //first underlying coin is Steth
+
+        //fraxusdc
+        lpTokenToPool[
+            0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC
+        ] = 0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2;
+        numCoins[0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2] = 2; //2 coins in fraxusdc
+        underlyingCoins[0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2][
+            0
+        ] = 0x853d955aCEf822Db058eb8505911ED77F175b99e; //first underlying coin is frax
+        underlyingCoins[0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2][
+            1
+        ] = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; //first underlying coin is usdc
+
+        //frax3crv
+        lpTokenToPool[
+            0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B
+        ] = 0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B; //same pool and token addresses
+        numCoins[0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B] = 2; //2 coins in frax + 3crv
+        underlyingCoins[0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B][
+            0
+        ] = 0x853d955aCEf822Db058eb8505911ED77F175b99e; //first underlying coin is frax
+        underlyingCoins[0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B][
+            1
+        ] = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490; //first underlying coin is 3crv
     }
 
     /// @notice Sets the fallbackOracle
@@ -146,12 +170,20 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
 
         uint256[] memory prices = new uint256[](num_coins);
 
-        IPriceOracleGetter aave_oracle = IPriceOracleGetter(
-            _addressesProvider.getAavePriceOracle()
-        );
-
         for (uint256 i = 0; i < num_coins; i++) {
             address underlying = underlyingCoins[pool][i];
+            IPriceOracleGetter aave_oracle;
+            if (underlying == 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490) {
+                //this is the only underlying in our supported assets that is a curve token instead of aave token
+                aave_oracle = IPriceOracleGetter(
+                    _addressesProvider.getCurvePriceOracleWrapper()
+                );
+            } else {
+                aave_oracle = IPriceOracleGetter(
+                    _addressesProvider.getAavePriceOracle()
+                );
+            }
+
             require(underlying != address(0), "underlying token is null");
             prices[i] = aave_oracle.getAssetPrice(underlying);
             require(prices[i] > 0, "aave oracle encountered an error");
