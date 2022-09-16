@@ -76,7 +76,9 @@ await myWETH.connect(emergency).approve(lendingPool.address,ethers.utils.parseEt
 await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
 
 
-
+/************************************************************************************/
+/******************  Uniswap ETH for DAI  **********************/ 
+/************************************************************************************/
 
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
 const UNISWAP_ROUTER_ABI = fs.readFileSync("./localhost_tests/uniswapAbi.json").toString()

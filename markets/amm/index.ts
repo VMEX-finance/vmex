@@ -1,3 +1,4 @@
+import { addListener } from 'process';
 import { oneRay, ZERO_ADDRESS } from '../../helpers/constants';
 import { IAaveConfiguration, eEthereumNetwork } from '../../helpers/types';
 
@@ -25,6 +26,15 @@ import {
   strategyXSUSHI,
   strategyENJ,
   strategyCurveLPToken,
+  strategySTETH,
+  strategyFrax,
+  strategyBAL,
+  strategyCRV,
+  strategyALCX,
+  strategyBADGER,
+  strategyCVX,
+  strategyLDO,
+  strategyOneinch
 } from './reservesConfigs';
 
 // ----------------
@@ -60,6 +70,17 @@ export const AaveConfig: IAaveConfiguration = {
     Tricrypto2: strategyCurveLPToken, //Curve TODO: add other curve lp tokens, modify custom strategies
     ThreePool: strategyCurveLPToken, 
     StethEth: strategyCurveLPToken, 
+    Steth: strategySTETH, //Change strategy
+    FraxUSDC: strategyCurveLPToken, 
+    Frax3Crv: strategyCurveLPToken, 
+    Frax: strategyFrax, 
+    BAL: strategyBAL,
+    CRV: strategyCRV,
+    CVX: strategyCVX,
+    BADGER: strategyBADGER,
+    LDO: strategyLDO,
+    ALCX: strategyALCX,
+    Oneinch: strategyOneinch,
   },
   ReserveAssets: {
     [eEthereumNetwork.buidlerevm]: {},
@@ -136,6 +157,17 @@ export const AaveConfig: IAaveConfiguration = {
       Tricrypto2: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
 ThreePool: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
 StethEth: '0x06325440D014e39736583c165C2963BA99fAf14E',
+Steth: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+FraxUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
+Frax3Crv: '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',
+Frax: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
+CRV: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+CVX: '0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B',
+BADGER: '0x3472A5A71965499acd81997a54BBA8D852C6E53d',
+LDO: '0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32',
+ALCX: '0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF',
+Oneinch: '0x111111111117dC0aa78b770fA6A738034120C302',
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
@@ -162,6 +194,10 @@ StethEth: '0x06325440D014e39736583c165C2963BA99fAf14E',
       Tricrypto2: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
 ThreePool: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
 StethEth: '0x06325440D014e39736583c165C2963BA99fAf14E',
+Steth: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+FraxUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
+Frax3Crv: '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',
+Frax: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
     },
   },
 };
