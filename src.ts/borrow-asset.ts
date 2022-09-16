@@ -15,7 +15,8 @@ export async function borrow(params: {
     referer?: number;
 }) {
     const LendingPool = new ethers.Contract(deployments.LendingPool.localhost.address, ILendingPool.abi);
-    if (LendingPool.paused()) throw new Error("Lending Poll is paused, assets cannot be borrowed");
+    if (LendingPool.paused()) throw new Error("Lending Pool is paused, assets cannot be borrowed");
 
     // TODO: finish logic for borrowing asset
 }
+
