@@ -4,11 +4,6 @@ pragma solidity >=0.8.0;
 library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
 
-    struct Snapshot {
-        uint256 SSnap; //most recent snapshot
-        uint256 accruedEarnings; //total cvxCRV accumulated from previous deposits
-    }
-
     enum ReserveAssetType {
         AAVE,
         CURVE
@@ -17,13 +12,14 @@ library DataTypes {
     //CURVE is the new LP tokens we are providing support for
 
     struct AssetData {
-        uint8 collateralRisk;
-        bool isLendable;
-        bool isAllowedCollateralInHigherTranches;
-        ReserveAssetType assetType;
-        bool canBeCollateral;
-        uint256 collateralCap; //per tranche of the asset
-        bool hasStrategy;
+        uint8 collateralRisk; //this is a property of the asset. The asset has the same underlying risk as collateral regardless of what tranche it is in
+        bool isAllowedCollateralInHigherTranches; //this is a property of the asset. It can't be "allowed as collateral in higher tranches" in some tranches but not in others, logical inconsistency
+        ReserveAssetType assetType; //this is asset property
+    }
+
+    struct Tranches {
+        uint8 trancheid;
+        uint16 numAssets;
     }
 
     struct TrancheAddress {
@@ -52,7 +48,22 @@ library DataTypes {
         address interestRateStrategyAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
-        uint8 tranche; //I think this will be used for nonlendable assets, cause your collateral only asset can be placed in higher tranche if necessary
+        //maybe consider
+        uint8 trancheId;
+        uint8 trancheRisk;
+        //trancheid and trancheRisk?
+        //since we will keep adding more tranches but they might not necessarily have increasing risks
+        //tranches of the same trancheid will be pooled together as collateral
+        //assets can only be set as collateral in tranches that have a trancheRisk >= assetRisk
+
+        //these can be considered to be put in reserveData instead, cause different reserves of the same asset can have different values of this property
+        //bit 58: borrowing is enabled does the same thing as this
+        bool isLendable; //ex: in lowest risk tranche we might not want a riskier asset to be lendable or collateral, but if someone creates a really high risk tranche then they can set this to true
+        bool canBeCollateral;
+        uint256 collateralCap; //this can definitely be different per tranche
+        bool hasStrategy; //this might be put as a property of a reserve rather than property of the asset since USDC might have a tranche that has a strategy, but unlikely to happen
+        bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
+        uint256 governanceSetInterestRate;
     }
 
     struct TrancheMultiplier {
@@ -95,9 +106,6 @@ library DataTypes {
     struct DepositVars {
         address asset;
         uint8 tranche;
-        uint8 risk;
-        bool allowHigherTranche;
-        bool isLendable;
         TrancheMultiplier t;
         uint256 _reservesCount;
         address _addressesProvider;

@@ -19,23 +19,12 @@ contract LendingPoolStorage {
         internal _reserves;
     mapping(address => DataTypes.UserConfigurationMap) internal _usersConfig;
 
-    //combine these together into struct
-    // {
-    //     //asset address to risk level of that asset when it is used as collateral
-    // mapping(address => uint8) internal collateralRisk;
-    //     //asset address to boolean value representing if that address is lendable, or if it should just be a collateral vault
-    //     mapping(address => bool) internal isLendable;
-
-    //     mapping(address => bool) internal isAllowedCollateralInHigherTranches;
-
-    //
-    // }
-
     mapping(address => DataTypes.AssetData) internal assetDatas;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
-    mapping(uint256 => address) internal _reservesList;
-    uint256 internal _reservesCount;
+    //TODO: change this to be a different list per tranche
+    mapping(uint8 => mapping(uint256 => address)) internal _reservesList; //tranche id -> array of available reserves
+    mapping(uint8 => uint256) internal _reservesCount; //tranche id -> number of reserves per that tranche
 
     bool internal _paused;
 
@@ -46,10 +35,4 @@ contract LendingPoolStorage {
     uint256 internal _maxNumberOfReserves;
 
     mapping(uint256 => DataTypes.TrancheMultiplier) internal trancheMultipliers;
-
-    //mapping between address of underlying token the strategy snapshot is -> user address and their snapshot for SCVX (accurredEarnings is for amount in cvxCRV vcTokens)
-    mapping(address => mapping(address => DataTypes.Snapshot)) snapshots;
-
-    //[underlying token strategy that current snapshot is monitoring rewards for][reward token address]
-    mapping(address => mapping(address => uint256)) Scurrent;
 }
