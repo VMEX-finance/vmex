@@ -66,23 +66,18 @@ library DepositWithdrawLogic {
     function _deposit(
         DataTypes.ReserveData storage self,
         DataTypes.DepositVars memory vars,
-        DataTypes.UserConfigurationMap storage user
+        DataTypes.UserConfigurationMap storage user,
+        DataTypes.AssetData storage assetData
     ) external {
         ValidationLogic.validateDeposit(self, vars.amount);
 
         address aToken = self.aTokenAddress;
 
-        if (vars.isLendable) {
-            //these will simply not be used for collateral vault, and even if it is, it won't change anything
-            self.updateState();
-            self.updateInterestRates(
-                vars.t,
-                vars.asset,
-                aToken,
-                vars.amount,
-                0
-            );
-        }
+        // if (assetData.isLendable) {
+        //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
+        self.updateState();
+        self.updateInterestRates(vars.t, vars.asset, aToken, vars.amount, 0);
+        // }
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
 

@@ -101,7 +101,7 @@ contract LendingPool is
         _addressesProvider = provider;
         _maxStableRateBorrowSizePercent = 2500;
         _flashLoanPremiumTotal = 9;
-        _maxNumberOfReserves = 128;
+        _maxNumberOfReserves = 128; //increase
     }
 
     /**
@@ -130,9 +130,6 @@ contract LendingPool is
             vars = DataTypes.DepositVars(
                 asset,
                 tranche,
-                assetDatas[asset].collateralRisk,
-                assetDatas[asset].isAllowedCollateralInHigherTranches,
-                assetDatas[asset].isLendable,
                 trancheMultipliers[tranche],
                 _reservesCount,
                 address(_addressesProvider),
@@ -142,7 +139,11 @@ contract LendingPool is
             );
         }
         {
-            _reserves[asset][tranche]._deposit(vars, _usersConfig[onBehalfOf]);
+            _reserves[asset][tranche]._deposit(
+                vars,
+                _usersConfig[onBehalfOf],
+                assetDatas[asset]
+            );
         }
     }
 
@@ -198,37 +199,6 @@ contract LendingPool is
     ) external whenNotPaused {
         withdraw(asset, originTranche, amount, msg.sender);
         deposit(asset, destinationTranche, amount, msg.sender, 0); //no referral code
-    }
-
-    function withdrawStrategyUnderlying(
-        //not including tranche, assuming that these strategies only are in one
-        address underlying, //address of the underlying asset that the strategy belongs to (ex: CVX)
-        address rewardToken, //address of reward token (ex: cvxCRV)
-        uint256 amount, //amount you want to withdraw
-        uint256 onBehalfOf //in case you want to give the tokens to a different address
-    ) external whenNotPaused {
-        //find total amount the user owns across the pool and strategy
-        //determine their share using their aTokens/total minted aTokens. Should use a different name though, vcTokens.
-    }
-
-    function withdrawStrategyReward(
-        //not including tranche, assuming that these strategies only are in one
-        address underlying, //address of the underlying asset that the strategy belongs to (ex: CVX)
-        address rewardToken, //address of reward token (ex: cvxCRV)
-        uint256 amount, //amount you want to withdraw
-        uint256 onBehalfOf //in case you want to give the tokens to a different address
-    ) external whenNotPaused {
-        uint256 currentS = //check that accruedEarnings is init to zero
-
-        //we will continue using atoken address, even though some of them are 1 to 1, when withdrawing it will just have to look into the strategy contract too
-        //issue: aTokens are calculated in weird way. Not the expected vault way.
-        snapshots[underlying][onBehalfOf].accruedEarnings += IERC20(
-            currentReserve.aTokenAddress
-        ).balanceOf(msg.sender);
-        snapshots[underlying][onBehalfOf].SSnap = Scurrent[underlying][
-            rewardToken
-        ];
-        require(amount < snapshots[underlying][onBehalfOf].accruedEarnings);
     }
 
     /**

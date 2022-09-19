@@ -2,14 +2,10 @@
 pragma solidity >=0.8.0;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {
-    IReserveInterestRateStrategy
-} from "../../interfaces/IReserveInterestRateStrategy.sol";
+import {IReserveInterestRateStrategy} from "../../interfaces/IReserveInterestRateStrategy.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingRateOracle} from "../../interfaces/ILendingRateOracle.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
@@ -210,14 +206,13 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         vars.currentStableBorrowRate = ILendingRateOracle(
             addressesProvider.getLendingRateOracle()
-        )
-            .getMarketBorrowRate(reserve);
+        ).getMarketBorrowRate(reserve);
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
-            uint256 excessUtilizationRateRatio =
-                vars.utilizationRate.sub(OPTIMAL_UTILIZATION_RATE).rayDiv(
-                    EXCESS_UTILIZATION_RATE
-                );
+            uint256 excessUtilizationRateRatio = vars
+                .utilizationRate
+                .sub(OPTIMAL_UTILIZATION_RATE)
+                .rayDiv(EXCESS_UTILIZATION_RATE);
 
             vars.currentStableBorrowRate = vars
                 .currentStableBorrowRate
@@ -243,12 +238,12 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         vars.currentLiquidityRate = _getOverallBorrowRate(
             totalStableDebt,
             totalVariableDebt,
-            vars
-                .currentVariableBorrowRate,
+            vars.currentVariableBorrowRate,
             averageStableBorrowRate
-        )
-            .rayMul(vars.utilizationRate)
-            .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor));
+        ) //this is the weighted average rate that people are borrowing at (considering stable and variable)
+        .rayMul(vars.utilizationRate).percentMul( //this is percentage of pool being borrowed.
+                PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor)
+            ); //if this last part wasn't here, once everyone repays and all deposits are withdrawn, there should be zero left in pool. Now, reserveFactor*liquidity is left in pool
 
         vars.currentLiquidityRate = vars.currentLiquidityRate.rayMul(
             multiplier.liquidityRateMultiplier
@@ -286,16 +281,17 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         if (totalDebt == 0) return 0;
 
-        uint256 weightedVariableRate =
-            totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
+        uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(
+            currentVariableBorrowRate
+        );
 
-        uint256 weightedStableRate =
-            totalStableDebt.wadToRay().rayMul(currentAverageStableBorrowRate);
+        uint256 weightedStableRate = totalStableDebt.wadToRay().rayMul(
+            currentAverageStableBorrowRate
+        );
 
-        uint256 overallBorrowRate =
-            weightedVariableRate.add(weightedStableRate).rayDiv(
-                totalDebt.wadToRay()
-            );
+        uint256 overallBorrowRate = weightedVariableRate
+            .add(weightedStableRate)
+            .rayDiv(totalDebt.wadToRay());
 
         return overallBorrowRate;
     }
