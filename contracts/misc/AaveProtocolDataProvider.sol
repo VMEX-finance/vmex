@@ -1,21 +1,13 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    IERC20Detailed
-} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../interfaces/ILendingPool.sol";
 import {IStableDebtToken} from "../interfaces/IStableDebtToken.sol";
 import {IVariableDebtToken} from "../interfaces/IVariableDebtToken.sol";
-import {
-    ReserveConfiguration
-} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
-import {
-    UserConfiguration
-} from "../protocol/libraries/configuration/UserConfiguration.sol";
+import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
+import {UserConfiguration} from "../protocol/libraries/configuration/UserConfiguration.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
@@ -71,11 +63,13 @@ contract AaveProtocolDataProvider {
         address[] memory reserves = pool.getReservesList();
         TokenData[] memory aTokens = new TokenData[](reserves.length);
         for (uint256 i = 0; i < reserves.length; i++) {
-            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
-            DataTypes.ReserveData memory reserveData =
-                pool.getReserveData(reserves[i], tranche);
+            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            DataTypes.ReserveData memory reserveData = pool.getReserveData(
+                reserves[i],
+                trancheId
+            );
 
-            assert(reserveData.tranche == tranche);
+            assert(reserveData.trancheId == trancheId);
 
             aTokens[i] = TokenData({
                 symbol: IERC20Detailed(reserveData.aTokenAddress).symbol(),
@@ -108,7 +102,7 @@ contract AaveProtocolDataProvider {
         uint256 liquidityBalanceETH;
     }
 
-    function getReserveConfigurationData(address asset, uint8 tranche)
+    function getReserveConfigurationData(address asset, uint8 trancheId)
         external
         view
         returns (
@@ -124,11 +118,9 @@ contract AaveProtocolDataProvider {
             bool isFrozen
         )
     {
-        DataTypes.ReserveConfigurationMap memory configuration =
-            ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getConfiguration(
-                asset,
-                tranche
-            );
+        DataTypes.ReserveConfigurationMap memory configuration = ILendingPool(
+            ADDRESSES_PROVIDER.getLendingPool()
+        ).getConfiguration(asset, trancheId);
 
         (
             ltv,
@@ -148,7 +140,7 @@ contract AaveProtocolDataProvider {
         usageAsCollateralEnabled = liquidationThreshold > 0;
     }
 
-    function getReserveData(address asset, uint8 tranche)
+    function getReserveData(address asset, uint8 trancheId)
         external
         view
         returns (
@@ -164,11 +156,9 @@ contract AaveProtocolDataProvider {
             uint40 lastUpdateTimestamp
         )
     {
-        DataTypes.ReserveData memory reserve =
-            ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getReserveData(
-                asset,
-                tranche
-            );
+        DataTypes.ReserveData memory reserve = ILendingPool(
+            ADDRESSES_PROVIDER.getLendingPool()
+        ).getReserveData(asset, trancheId);
 
         return (
             IERC20Detailed(asset).balanceOf(reserve.aTokenAddress),
@@ -187,7 +177,7 @@ contract AaveProtocolDataProvider {
 
     function getUserReserveData(
         address asset,
-        uint8 tranche,
+        uint8 trancheId,
         address user
     )
         external
@@ -204,15 +194,13 @@ contract AaveProtocolDataProvider {
             bool usageAsCollateralEnabled
         )
     {
-        DataTypes.ReserveData memory reserve =
-            ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getReserveData(
-                asset,
-                tranche
-            );
+        DataTypes.ReserveData memory reserve = ILendingPool(
+            ADDRESSES_PROVIDER.getLendingPool()
+        ).getReserveData(asset, trancheId);
 
-        DataTypes.UserConfigurationMap memory userConfig =
-            ILendingPool(ADDRESSES_PROVIDER.getLendingPool())
-                .getUserConfiguration(user);
+        DataTypes.UserConfigurationMap memory userConfig = ILendingPool(
+            ADDRESSES_PROVIDER.getLendingPool()
+        ).getUserConfiguration(user);
 
         currentATokenBalance = IERC20Detailed(reserve.aTokenAddress).balanceOf(
             user
@@ -224,10 +212,8 @@ contract AaveProtocolDataProvider {
         principalStableDebt = IStableDebtToken(reserve.stableDebtTokenAddress)
             .principalBalanceOf(user);
         scaledVariableDebt = IVariableDebtToken(
-            reserve
-                .variableDebtTokenAddress
-        )
-            .scaledBalanceOf(user);
+            reserve.variableDebtTokenAddress
+        ).scaledBalanceOf(user);
         liquidityRate = reserve.currentLiquidityRate;
         stableBorrowRate = IStableDebtToken(reserve.stableDebtTokenAddress)
             .getUserStableRate(user);
@@ -236,7 +222,7 @@ contract AaveProtocolDataProvider {
         usageAsCollateralEnabled = userConfig.isUsingAsCollateral(reserve.id);
     }
 
-    function getReserveTokensAddresses(address asset, uint8 tranche)
+    function getReserveTokensAddresses(address asset, uint8 trancheId)
         external
         view
         returns (
@@ -245,11 +231,9 @@ contract AaveProtocolDataProvider {
             address variableDebtTokenAddress
         )
     {
-        DataTypes.ReserveData memory reserve =
-            ILendingPool(ADDRESSES_PROVIDER.getLendingPool()).getReserveData(
-                asset,
-                tranche
-            );
+        DataTypes.ReserveData memory reserve = ILendingPool(
+            ADDRESSES_PROVIDER.getLendingPool()
+        ).getReserveData(asset, trancheId);
 
         return (
             reserve.aTokenAddress,

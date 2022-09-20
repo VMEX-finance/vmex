@@ -168,28 +168,39 @@ library ReserveLogic {
      * @dev Initializes a reserve
      * @param reserve The reserve object
      * @param aTokenAddress The address of the overlying atoken contract
-     * @param interestRateStrategyAddress The address of the interest rate strategy contract
      **/
     function init(
         DataTypes.ReserveData storage reserve,
         address aTokenAddress,
         address stableDebtTokenAddress,
         address variableDebtTokenAddress,
-        address interestRateStrategyAddress,
-        uint8 tranche
+        DataTypes.InitReserveInput memory input
     ) external {
         require(
             reserve.aTokenAddress == address(0),
             Errors.RL_RESERVE_ALREADY_INITIALIZED
         );
-
-        reserve.liquidityIndex = uint128(WadRayMath.ray());
-        reserve.variableBorrowIndex = uint128(WadRayMath.ray());
-        reserve.aTokenAddress = aTokenAddress;
-        reserve.stableDebtTokenAddress = stableDebtTokenAddress;
-        reserve.variableDebtTokenAddress = variableDebtTokenAddress;
-        reserve.interestRateStrategyAddress = interestRateStrategyAddress;
-        reserve.tranche = tranche;
+        {
+            reserve.liquidityIndex = uint128(WadRayMath.ray());
+            reserve.variableBorrowIndex = uint128(WadRayMath.ray());
+            reserve.aTokenAddress = aTokenAddress;
+            reserve.stableDebtTokenAddress = stableDebtTokenAddress;
+            reserve.variableDebtTokenAddress = variableDebtTokenAddress;
+        }
+        {
+            reserve.interestRateStrategyAddress = input.interestRateStrategyAddress;
+            reserve.trancheId = input.trancheId;
+            reserve.trancheRisk = input.trancheRisk;
+            reserve.canBeCollateral = input.canBeCollateral;
+        }
+        {
+            reserve.collateralCap = input.collateralCap;
+            reserve.hasStrategy = input.hasStrategy;
+            reserve.usingGovernanceSetInterestRate = input.usingGovernanceSetInterestRate;
+            reserve.governanceSetInterestRate = input.governanceSetInterestRate;
+        }
+        
+        
     }
 
     struct UpdateInterestRatesLocalVars {
