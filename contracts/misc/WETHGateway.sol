@@ -39,14 +39,14 @@ contract WETHGateway is IWETHGateway, Ownable {
      **/
     function depositETH(
         address lendingPool,
-        uint8 tranche,
+        uint8 trancheId,
         address onBehalfOf,
         uint16 referralCode
     ) external payable override {
         WETH.deposit{value: msg.value}();
         ILendingPool(lendingPool).deposit(
             address(WETH),
-            tranche,
+            trancheId,
             msg.value,
             onBehalfOf,
             referralCode
@@ -61,13 +61,13 @@ contract WETHGateway is IWETHGateway, Ownable {
      */
     function withdrawETH(
         address lendingPool,
-        uint8 tranche,
+        uint8 trancheId,
         uint256 amount,
         address to
     ) external override {
         IAToken aWETH = IAToken(
             ILendingPool(lendingPool)
-                .getReserveData(address(WETH), tranche)
+                .getReserveData(address(WETH), trancheId)
                 .aTokenAddress
         );
         uint256 userBalance = aWETH.balanceOf(msg.sender);
@@ -80,7 +80,7 @@ contract WETHGateway is IWETHGateway, Ownable {
         aWETH.transferFrom(msg.sender, address(this), amountToWithdraw);
         ILendingPool(lendingPool).withdraw(
             address(WETH),
-            tranche,
+            trancheId,
             amountToWithdraw,
             address(this)
         );
@@ -97,7 +97,7 @@ contract WETHGateway is IWETHGateway, Ownable {
      */
     function repayETH(
         address lendingPool,
-        uint8 tranche,
+        uint8 trancheId,
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
@@ -105,7 +105,10 @@ contract WETHGateway is IWETHGateway, Ownable {
         (uint256 stableDebt, uint256 variableDebt) = Helpers
             .getUserCurrentDebtMemory(
                 onBehalfOf,
-                ILendingPool(lendingPool).getReserveData(address(WETH), tranche)
+                ILendingPool(lendingPool).getReserveData(
+                    address(WETH),
+                    trancheId
+                )
             );
 
         uint256 paybackAmount = DataTypes.InterestRateMode(rateMode) ==
@@ -123,7 +126,7 @@ contract WETHGateway is IWETHGateway, Ownable {
         WETH.deposit{value: paybackAmount}();
         ILendingPool(lendingPool).repay(
             address(WETH),
-            tranche,
+            trancheId,
             msg.value,
             rateMode,
             onBehalfOf
@@ -143,14 +146,14 @@ contract WETHGateway is IWETHGateway, Ownable {
      */
     function borrowETH(
         address lendingPool,
-        uint8 tranche,
+        uint8 trancheId,
         uint256 amount,
         uint256 interesRateMode,
         uint16 referralCode
     ) external override {
         ILendingPool(lendingPool).borrow(
             address(WETH),
-            tranche,
+            trancheId,
             amount,
             interesRateMode,
             referralCode,

@@ -85,12 +85,12 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
             reserveData.underlyingAsset = reserves[i];
 
             // reserve current state
-            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
+            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserveData.underlyingAsset,
-                tranche
+                trancheId
             );
-            assert(baseData.tranche == tranche);
+            assert(baseData.trancheId == trancheId);
             reserveData.liquidityIndex = baseData.liquidityIndex;
             reserveData.variableBorrowIndex = baseData.variableBorrowIndex;
             reserveData.liquidityRate = baseData.currentLiquidityRate;
@@ -206,12 +206,12 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
         );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
+            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
-                tranche
+                trancheId
             );
-            assert(baseData.tranche == tranche);
+            assert(baseData.trancheId == trancheId);
 
             // user reserve data
             userReservesData[i].underlyingAsset = reserves[i];

@@ -149,7 +149,7 @@ contract ParaSwapLiquiditySwapAdapter is
         IERC20WithPermit aToken = IERC20WithPermit(
             _getReserveData(
                 address(assetToSwapFrom.asset),
-                assetToSwapFrom.tranche
+                assetToSwapFrom.trancheId
             ).aTokenAddress
         );
 
@@ -161,7 +161,7 @@ contract ParaSwapLiquiditySwapAdapter is
 
         _pullATokenAndWithdraw(
             address(assetToSwapFrom.asset),
-            assetToSwapFrom.tranche,
+            assetToSwapFrom.trancheId,
             aToken,
             msg.sender,
             amountToSwap,
@@ -185,7 +185,7 @@ contract ParaSwapLiquiditySwapAdapter is
         );
         LENDING_POOL.deposit(
             address(assetToSwapTo.asset),
-            assetToSwapTo.tranche,
+            assetToSwapTo.trancheId,
             amountReceived,
             msg.sender,
             0
@@ -209,7 +209,7 @@ contract ParaSwapLiquiditySwapAdapter is
         IERC20WithPermit aToken = IERC20WithPermit(
             _getReserveData(
                 address(assetToSwapFrom.asset),
-                assetToSwapFrom.tranche
+                assetToSwapFrom.trancheId
             ).aTokenAddress
         );
         uint256 amountToSwap = flashLoanAmount;
@@ -251,7 +251,7 @@ contract ParaSwapLiquiditySwapAdapter is
 
         _pullATokenAndWithdraw(
             address(assetToSwapFrom.asset),
-            assetToSwapFrom.tranche,
+            assetToSwapFrom.trancheId,
             aToken,
             initiator,
             amountToSwap.add(premium),
