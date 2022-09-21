@@ -188,7 +188,8 @@ library ReserveLogic {
             reserve.variableDebtTokenAddress = variableDebtTokenAddress;
         }
         {
-            reserve.interestRateStrategyAddress = input.interestRateStrategyAddress;
+            reserve.interestRateStrategyAddress = input
+                .interestRateStrategyAddress;
             reserve.trancheId = input.trancheId;
             reserve.trancheRisk = input.trancheRisk;
             reserve.canBeCollateral = input.canBeCollateral;
@@ -196,11 +197,10 @@ library ReserveLogic {
         {
             reserve.collateralCap = input.collateralCap;
             reserve.hasStrategy = input.hasStrategy;
-            reserve.usingGovernanceSetInterestRate = input.usingGovernanceSetInterestRate;
+            reserve.usingGovernanceSetInterestRate = input
+                .usingGovernanceSetInterestRate;
             reserve.governanceSetInterestRate = input.governanceSetInterestRate;
         }
-        
-        
     }
 
     struct UpdateInterestRatesLocalVars {
@@ -222,7 +222,6 @@ library ReserveLogic {
      **/
     function updateInterestRates(
         DataTypes.ReserveData storage reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
         address reserveAddress,
         address aTokenAddress,
         uint256 liquidityAdded,
@@ -265,7 +264,6 @@ library ReserveLogic {
                 reserve.interestRateStrategyAddress
             ).calculateInterestRates(
                     calvars.reserve,
-                    multiplier,
                     calvars.aToken,
                     calvars.liquidityAdded,
                     calvars.liquidityTaken,

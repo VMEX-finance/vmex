@@ -93,12 +93,6 @@ library DataTypes {
         uint256 governanceSetInterestRate;
     }
 
-    struct TrancheMultiplier {
-        uint256 liquidityRateMultiplier;
-        uint256 variableBorrowRateMultiplier;
-        uint256 stableBorrowRateMultiplier;
-    }
-
     uint8 constant NUM_TRANCHES = 3;
 
     struct ReserveConfigurationMap {
@@ -133,7 +127,6 @@ library DataTypes {
     struct DepositVars {
         address asset;
         uint8 trancheId;
-        TrancheMultiplier t;
         address _addressesProvider;
         uint256 amount;
         address onBehalfOf;
@@ -152,7 +145,6 @@ library DataTypes {
         bool releaseUnderlying;
         uint256 _maxStableRateBorrowSizePercent;
         uint256 _reservesCount;
-        TrancheMultiplier t;
     }
 
     struct WithdrawParams {
@@ -161,7 +153,6 @@ library DataTypes {
         uint8 trancheId;
         uint256 amount;
         address to;
-        TrancheMultiplier t;
     }
 
     struct ValidateSetUseReserveAsCollateralParams {

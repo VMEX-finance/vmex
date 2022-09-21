@@ -130,7 +130,6 @@ contract LendingPool is
             vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
-                trancheMultipliers[trancheId],
                 address(_addressesProvider),
                 amount,
                 onBehalfOf,
@@ -172,8 +171,7 @@ contract LendingPool is
                     asset,
                     trancheId,
                     amount,
-                    to,
-                    trancheMultipliers[trancheId]
+                    to
                 ),
                 _addressesProvider,
                 assetDatas
@@ -241,8 +239,7 @@ contract LendingPool is
                 referralCode,
                 true,
                 _maxStableRateBorrowSizePercent,
-                _reservesCount[trancheId],
-                trancheMultipliers[trancheId]
+                _reservesCount[trancheId]
             );
         }
 
@@ -323,13 +320,7 @@ contract LendingPool is
         }
 
         address aToken = reserve.aTokenAddress;
-        reserve.updateInterestRates(
-            trancheMultipliers[trancheId],
-            asset,
-            aToken,
-            paybackAmount,
-            0
-        );
+        reserve.updateInterestRates(asset, aToken, paybackAmount, 0);
 
         if (stableDebt.add(variableDebt).sub(paybackAmount) == 0) {
             _usersConfig[onBehalfOf].setBorrowing(reserve.id, false);
@@ -399,13 +390,7 @@ contract LendingPool is
             );
         }
 
-        reserve.updateInterestRates(
-            trancheMultipliers[trancheId],
-            asset,
-            reserve.aTokenAddress,
-            0,
-            0
-        );
+        reserve.updateInterestRates(asset, reserve.aTokenAddress, 0, 0);
 
         emit Swap(asset, msg.sender, rateMode);
     }
@@ -450,13 +435,7 @@ contract LendingPool is
             reserve.currentStableBorrowRate
         );
 
-        reserve.updateInterestRates(
-            trancheMultipliers[trancheId],
-            asset,
-            aTokenAddress,
-            0,
-            0
-        );
+        reserve.updateInterestRates(asset, aTokenAddress, 0, 0);
 
         emit RebalanceStableBorrowRate(asset, user);
     }
@@ -611,7 +590,6 @@ contract LendingPool is
             callvars,
             assetDatas,
             _reserves,
-            trancheMultipliers,
             _reservesList,
             _reservesCount,
             userConfig
@@ -896,6 +874,7 @@ contract LendingPool is
             Address.isContract(input.underlyingAsset),
             Errors.LP_NOT_CONTRACT
         );
+        //considering requiring _reservesCount[trancheId] = 0, but you can add another asset to an existing tranche too.
         _reserves[input.underlyingAsset][input.trancheId].init(
             aTokenAddress,
             stableDebtAddress,
@@ -990,37 +969,5 @@ contract LendingPool is
 
             _reservesCount[trancheId] = reservesCount + 1;
         }
-    }
-
-    /**
-     * @dev Creates or edits a trancheId
-     * @param trancheId 0, 1, or 2 for low, medium, and high risk? @Steven verify this
-     * @param _variableBorrowRateMultiplier trancheId specific variable rate multiplier
-     * @param _stableBorrowRateMultiplier trancheId specific variable rate multiplier
-     **/
-    function editTrancheMultiplier(
-        uint8 trancheId,
-        uint256 _liquidityRateMultiplier,
-        uint256 _variableBorrowRateMultiplier,
-        uint256 _stableBorrowRateMultiplier
-    ) external override onlyLendingPoolConfigurator {
-        trancheMultipliers[trancheId] = DataTypes.TrancheMultiplier({
-            liquidityRateMultiplier: _liquidityRateMultiplier,
-            variableBorrowRateMultiplier: _variableBorrowRateMultiplier,
-            stableBorrowRateMultiplier: _stableBorrowRateMultiplier
-        });
-    }
-
-    /**
-     * @dev gets trancheId multiplier
-     * @param trancheId 0, 1, or 2 for low, medium, and high risk? @Steven verify this
-     **/
-    function getTrancheMultiplier(uint8 trancheId)
-        external
-        view
-        override
-        returns (DataTypes.TrancheMultiplier memory)
-    {
-        return trancheMultipliers[trancheId];
     }
 }

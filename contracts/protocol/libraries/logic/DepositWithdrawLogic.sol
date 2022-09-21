@@ -75,7 +75,7 @@ library DepositWithdrawLogic {
         // if (assetData.isLendable) {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
         self.updateState();
-        self.updateInterestRates(vars.t, vars.asset, aToken, vars.amount, 0);
+        self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
         // }
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
@@ -163,7 +163,7 @@ library DepositWithdrawLogic {
 
         reserve.updateState();
 
-        reserve.updateInterestRates(vars.t, vars.asset, aToken, 0, vars.amount);
+        reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount);
 
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
@@ -273,7 +273,6 @@ library DepositWithdrawLogic {
         }
 
         reserve.updateInterestRates(
-            vars.t,
             vars.asset,
             vars.aTokenAddress,
             0,
@@ -312,7 +311,6 @@ library DepositWithdrawLogic {
         uint256 currentPremium;
         uint256 currentAmountPlusPremium;
         address debtToken;
-
     }
 
     /**
@@ -338,8 +336,6 @@ library DepositWithdrawLogic {
         mapping(address => DataTypes.AssetData) storage assetDatas,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage _reserves,
-        mapping(uint256 => DataTypes.TrancheMultiplier)
-            storage trancheMultipliers,
         mapping(uint8 => mapping(uint256 => address)) storage _reservesList,
         mapping(uint8 => uint256) storage _reservesCount,
         DataTypes.UserConfigurationMap storage userConfig
@@ -386,13 +382,14 @@ library DepositWithdrawLogic {
             vars.currentAsset = callvars.assets[vars.i].asset;
             vars.currentTranche = callvars.assets[vars.i].trancheId;
             vars.currentAmount = callvars.amounts[vars.i];
-            vars.oracle = ILendingPoolAddressesProvider(callvars._addressesprovider);
+            vars.oracle = ILendingPoolAddressesProvider(
+                callvars._addressesprovider
+            );
             vars.currentPremium = premiums[vars.i];
             vars.currentATokenAddress = aTokenAddresses[vars.i];
             vars.currentAmountPlusPremium = vars.currentAmount.add(
                 vars.currentPremium
             );
-            
 
             if (
                 DataTypes.InterestRateMode(callvars.modes[vars.i]) ==
@@ -406,7 +403,6 @@ library DepositWithdrawLogic {
                     );
                 _reserves[vars.currentAsset][vars.currentTranche]
                     .updateInterestRates(
-                        trancheMultipliers[vars.currentTranche],
                         vars.currentAsset,
                         vars.currentATokenAddress,
                         vars.currentAmountPlusPremium,
@@ -438,13 +434,10 @@ library DepositWithdrawLogic {
                         callvars.referralCode,
                         true,
                         callvars._maxStableRateBorrowSizePercent,
-                        _reservesCount[vars.currentTranche],
-                        trancheMultipliers[vars.currentTranche]
+                        _reservesCount[vars.currentTranche]
                     );
                 }
                 {
-
-                
                     _borrowHelper(
                         _reserves,
                         _reservesList[vars.currentTranche],

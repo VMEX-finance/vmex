@@ -33,6 +33,4 @@ contract LendingPoolStorage {
     uint256 internal _flashLoanPremiumTotal;
 
     uint256 internal _maxNumberOfReserves;
-
-    mapping(uint256 => DataTypes.TrancheMultiplier) internal trancheMultipliers;
 }

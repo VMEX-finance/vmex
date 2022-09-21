@@ -34,59 +34,6 @@ export const getATokenExtraParams = async (
   }
 };
 
-export const initTrancheMultiplier = async () => {
-  const configurator = await getLendingPoolConfiguratorProxy();
-  let initTrancheMultiplierParams: {
-    tranche: string;
-    _liquidityRateMultiplier: string;
-    _variableBorrowRateMultiplier: string;
-    _stableBorrowRateMultiplier: string;
-  }[] = [
-    {
-      tranche: "0",
-      _liquidityRateMultiplier: new BigNumber(1).multipliedBy(oneRay).toFixed(),
-      _variableBorrowRateMultiplier: new BigNumber(1)
-        .multipliedBy(oneRay)
-        .toFixed(),
-      _stableBorrowRateMultiplier: new BigNumber(1)
-        .multipliedBy(oneRay)
-        .toFixed(),
-    },
-    {
-      tranche: "1",
-      _liquidityRateMultiplier: new BigNumber(1.03)
-        .multipliedBy(oneRay)
-        .toFixed(),
-      _variableBorrowRateMultiplier: new BigNumber(1.05)
-        .multipliedBy(oneRay)
-        .toFixed(),
-      _stableBorrowRateMultiplier: new BigNumber(1.05)
-        .multipliedBy(oneRay)
-        .toFixed(),
-    },
-    {
-      tranche: "2",
-      _liquidityRateMultiplier: new BigNumber(1.06)
-        .multipliedBy(oneRay)
-        .toFixed(),
-      _variableBorrowRateMultiplier: new BigNumber(1.1)
-        .multipliedBy(oneRay)
-        .toFixed(),
-      _stableBorrowRateMultiplier: new BigNumber(1.1)
-        .multipliedBy(oneRay)
-        .toFixed(),
-    },
-  ];
-
-  //setup tranche
-  const tx0 = await waitForTx(
-    await configurator.initTrancheMultipliers(initTrancheMultiplierParams)
-  );
-
-  console.log("setup tranche multipliers");
-  console.log("    * gasUsed", tx0.gasUsed.toString());
-};
-
 //create another initReserves that initializes the curve v2, or just use this.
 //called by aave:fork mainnet setup where they know the addresses of the tokens.
 // initializes more reserves that are not lendable, have no stable and variable debt, no interest rate strategy, governance needs to give them a risk
@@ -101,16 +48,12 @@ export const initReservesByHelper = async (
   treasuryAddress: tEthereumAddress,
   incentivesController: tEthereumAddress,
   poolName: ConfigNames,
+  trancheId: BigNumberish,
+  trancheRisk: BigNumberish,
   verify: boolean
 ) => {
-  initTrancheMultiplier();
-
-  const configurator = await getLendingPoolConfiguratorProxy();
-
+  // initTrancheMultiplier();
   const addressProvider = await getLendingPoolAddressesProvider();
-
-  // CHUNK CONFIGURATION
-  const initChunks = 1;
 
   // Initialize variables for future reserves initialization
   let reserveSymbols: string[] = [];
@@ -132,13 +75,16 @@ export const initReservesByHelper = async (
     stableDebtTokenName: string;
     stableDebtTokenSymbol: string;
     params: string;
+    trancheId: BigNumberish;
+    trancheRisk: BigNumberish;
     risk: BigNumberish;
-    isLendable: boolean;
     allowHigherTranche: boolean;
     assetType: BigNumberish;
     canBeCollateral: boolean;
     collateralCap: string; //1,000,000
     hasStrategy: boolean;
+    usingGovernanceSetInterestRate: boolean;
+    governanceSetInterestRate: string;
   }[] = [];
 
   let strategyRates: [
@@ -167,12 +113,13 @@ export const initReservesByHelper = async (
       aTokenImpl,
       reserveDecimals,
       risk,
-      isLendable,
       allowedHigherTranche,
       assetType,
       canBeCollateral,
       collateralCap, //1,000,000
       hasStrategy,
+      usingGovernanceSetInterestRate,
+      governanceSetInterestRate,
     } = params;
     const {
       optimalUtilizationRate,
@@ -234,13 +181,16 @@ export const initReservesByHelper = async (
       stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
+      trancheId: trancheId,
+      trancheRisk: trancheRisk,
       risk: risk,
-      isLendable: isLendable,
       allowHigherTranche: allowedHigherTranche,
       assetType: assetType,
       canBeCollateral: canBeCollateral,
       collateralCap: collateralCap, //1,000,000
       hasStrategy: hasStrategy,
+      usingGovernanceSetInterestRate: usingGovernanceSetInterestRate,
+      governanceSetInterestRate: governanceSetInterestRate,
     });
 
     console.log(
@@ -251,7 +201,10 @@ export const initReservesByHelper = async (
     );
   }
 
-  // Deploy init reserves per chunks
+  // Deploy init reserves per tranche
+  // tranche CONFIGURATION
+  const configurator = await getLendingPoolConfiguratorProxy();
+  let initChunks = 1;
   const chunkedSymbols = chunk(reserveSymbols, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
@@ -264,7 +217,9 @@ export const initReservesByHelper = async (
     chunkIndex++
   ) {
     const tx3 = await waitForTx(
-      await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
+      await configurator.initReservesForTranche(
+        chunkedInitInputParams[chunkIndex]
+      )
     );
 
     console.log(
