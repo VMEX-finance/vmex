@@ -50,6 +50,7 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         SymbolPrefix,
         ReserveAssets,
         ReservesConfig,
+        ReservesConfigTranche2,
         LendingPoolCollateralManager,
         WethGateway,
         IncentivesController,
@@ -72,7 +73,7 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
       }
 
       const treasuryAddress = await getTreasuryAddress(poolConfig);
-
+      console.log("before initReservesByHelper");
       await initReservesByHelper(
         ReservesConfig,
         reserveAssets,
@@ -84,10 +85,33 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         treasuryAddress,
         incentivesController,
         pool,
+        0, //tranche id
+        0, //tranche risk
+        verify
+      );
+      await initReservesByHelper(
+        ReservesConfigTranche2,
+        reserveAssets,
+        ATokenNamePrefix,
+        StableDebtTokenNamePrefix,
+        VariableDebtTokenNamePrefix,
+        SymbolPrefix,
+        admin,
+        treasuryAddress,
+        incentivesController,
+        pool,
+        1, //tranche id
+        1, //tranche risk
         verify
       );
       await configureReservesByHelper(
         ReservesConfig,
+        reserveAssets,
+        testHelpers,
+        admin
+      );
+      await configureReservesByHelper(
+        ReservesConfigTranche2,
         reserveAssets,
         testHelpers,
         admin

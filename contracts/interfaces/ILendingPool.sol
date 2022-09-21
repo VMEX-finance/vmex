@@ -456,16 +456,4 @@ interface ILendingPool {
     function setPause(bool val) external;
 
     function paused() external view returns (bool);
-
-    function editTrancheMultiplier(
-        uint8 trancheId,
-        uint256 _liquidityRateMultiplier,
-        uint256 _variableBorrowRateMultiplier,
-        uint256 _stableBorrowRateMultiplier
-    ) external;
-
-    function getTrancheMultiplier(uint8 trancheId)
-        external
-        view
-        returns (DataTypes.TrancheMultiplier memory);
 }

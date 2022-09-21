@@ -419,10 +419,11 @@ export interface IReserveParams
   aTokenImpl: eContractid;
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
-  isLendable: boolean; //is the asset lendable
   canBeCollateral: boolean; //can the asset be collateral
   collateralCap: string;
   hasStrategy: boolean; //whether the asset has a strategy
+  usingGovernanceSetInterestRate: boolean;
+  governanceSetInterestRate: string;
 }
 
 export interface IInterestRateStrategyParams {
@@ -575,11 +576,13 @@ export interface IBaseConfiguration {
 
 export interface ICommonConfiguration extends IBaseConfiguration {
   ReservesConfig: iMultiPoolsAssets<IReserveParams>;
+  ReservesConfigTranche2: iMultiPoolsAssets<IReserveParams>;
   Mocks: IMocksConfig;
 }
 
 export interface IAaveConfiguration extends ICommonConfiguration {
   ReservesConfig: iAavePoolAssets<IReserveParams>;
+  ReservesConfigTranche2: iAavePoolAssets<IReserveParams>;
 }
 
 export interface IAmmConfiguration extends ICommonConfiguration {

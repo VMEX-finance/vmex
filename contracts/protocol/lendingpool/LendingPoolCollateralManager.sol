@@ -211,7 +211,6 @@ contract LendingPoolCollateralManager is
         }
 
         debtReserve.updateInterestRates(
-            trancheMultipliers[trancheId],
             debtAsset,
             debtReserve.aTokenAddress,
             vars.actualDebtToLiquidate,
@@ -242,7 +241,6 @@ contract LendingPoolCollateralManager is
         } else {
             collateralReserve.updateState();
             collateralReserve.updateInterestRates(
-                trancheMultipliers[trancheId],
                 collateralAsset,
                 address(vars.collateralAtoken),
                 0,

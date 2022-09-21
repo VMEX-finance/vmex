@@ -119,7 +119,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
      **/
     function calculateInterestRates(
         address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
         address aToken,
         uint256 liquidityAdded,
         uint256 liquidityTaken,
@@ -146,7 +145,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         return
             calculateInterestRates(
                 reserve,
-                multiplier,
                 availableLiquidity,
                 totalStableDebt,
                 totalVariableDebt,
@@ -177,7 +175,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
      **/
     function calculateInterestRates(
         address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
         uint256 availableLiquidity,
         uint256 totalStableDebt,
         uint256 totalVariableDebt,
@@ -240,21 +237,9 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
             totalVariableDebt,
             vars.currentVariableBorrowRate,
             averageStableBorrowRate
-        ) //this is the weighted average rate that people are borrowing at (considering stable and variable)
-        .rayMul(vars.utilizationRate).percentMul( //this is percentage of pool being borrowed.
-                PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor)
-            ); //if this last part wasn't here, once everyone repays and all deposits are withdrawn, there should be zero left in pool. Now, reserveFactor*liquidity is left in pool
-
-        vars.currentLiquidityRate = vars.currentLiquidityRate.rayMul(
-            multiplier.liquidityRateMultiplier
-        );
-
-        vars.currentStableBorrowRate = vars.currentStableBorrowRate.rayMul(
-            multiplier.stableBorrowRateMultiplier
-        );
-        vars.currentVariableBorrowRate = vars.currentVariableBorrowRate.rayMul(
-            multiplier.variableBorrowRateMultiplier
-        );
+        ).rayMul(vars.utilizationRate).percentMul( //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
+            PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor)
+        ); //if this last part wasn't here, once everyone repays and all deposits are withdrawn, there should be zero left in pool. Now, reserveFactor*liquidity is left in pool
 
         return (
             vars.currentLiquidityRate,
