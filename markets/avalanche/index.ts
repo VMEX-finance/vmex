@@ -83,7 +83,7 @@ export const AaveConfig: IAaveConfiguration = {
     ALCX: strategyALCX,
     Oneinch: strategyOneinch,
   },
-  ReservesConfigTranche2: {
+  ReservesConfigTranche1: {
     AAVE: strategyAAVE,
     BAT: strategyBAT,
     BUSD: strategyBUSD,

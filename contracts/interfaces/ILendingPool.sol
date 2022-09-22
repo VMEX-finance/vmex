@@ -439,7 +439,10 @@ interface ILendingPool {
         uint256 balanceToBefore
     ) external;
 
-    function getReservesList() external view returns (address[] memory);
+    function getReservesList(uint8 trancheId)
+        external
+        view
+        returns (address[] memory);
 
     // function getReservesList(uint8 trancheId) external view returns (address[] memory);
 

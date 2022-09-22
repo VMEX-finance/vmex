@@ -576,13 +576,13 @@ export interface IBaseConfiguration {
 
 export interface ICommonConfiguration extends IBaseConfiguration {
   ReservesConfig: iMultiPoolsAssets<IReserveParams>;
-  ReservesConfigTranche2: iMultiPoolsAssets<IReserveParams>;
+  ReservesConfigTranche1: iMultiPoolsAssets<IReserveParams>;
   Mocks: IMocksConfig;
 }
 
 export interface IAaveConfiguration extends ICommonConfiguration {
   ReservesConfig: iAavePoolAssets<IReserveParams>;
-  ReservesConfigTranche2: iAavePoolAssets<IReserveParams>;
+  ReservesConfigTranche1: iAavePoolAssets<IReserveParams>;
 }
 
 export interface IAmmConfiguration extends ICommonConfiguration {

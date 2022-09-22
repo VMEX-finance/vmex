@@ -31,9 +31,13 @@ contract AaveProtocolDataProvider {
         ADDRESSES_PROVIDER = addressesProvider;
     }
 
-    function getAllReservesTokens() external view returns (TokenData[] memory) {
+    function getAllReservesTokens(uint8 trancheId)
+        external
+        view
+        returns (TokenData[] memory)
+    {
         ILendingPool pool = ILendingPool(ADDRESSES_PROVIDER.getLendingPool());
-        address[] memory reserves = pool.getReservesList();
+        address[] memory reserves = pool.getReservesList(trancheId);
         TokenData[] memory reservesTokens = new TokenData[](reserves.length);
         for (uint256 i = 0; i < reserves.length; i++) {
             if (reserves[i] == MKR) {
@@ -58,12 +62,16 @@ contract AaveProtocolDataProvider {
         return reservesTokens;
     }
 
-    function getAllATokens() external view returns (TokenData[] memory) {
+    function getAllATokens(uint8 trancheId)
+        external
+        view
+        returns (TokenData[] memory)
+    {
         ILendingPool pool = ILendingPool(ADDRESSES_PROVIDER.getLendingPool());
-        address[] memory reserves = pool.getReservesList();
+        address[] memory reserves = pool.getReservesList(trancheId);
         TokenData[] memory aTokens = new TokenData[](reserves.length);
         for (uint256 i = 0; i < reserves.length; i++) {
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory reserveData = pool.getReserveData(
                 reserves[i],
                 trancheId

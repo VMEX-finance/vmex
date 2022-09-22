@@ -54,17 +54,18 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
         );
     }
 
-    function getReservesList(ILendingPoolAddressesProvider provider)
-        public
-        view
-        override
-        returns (address[] memory)
-    {
+    function getReservesList(
+        ILendingPoolAddressesProvider provider,
+        uint8 trancheId
+    ) public view override returns (address[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        return lendingPool.getReservesList();
+        return lendingPool.getReservesList(trancheId);
     }
 
-    function getSimpleReservesData(ILendingPoolAddressesProvider provider)
+    function getSimpleReservesData(
+        ILendingPoolAddressesProvider provider,
+        uint8 trancheId
+    )
         public
         view
         override
@@ -75,7 +76,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
         )
     {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         AggregatedReserveData[]
             memory reservesData = new AggregatedReserveData[](reserves.length);
 
@@ -84,7 +85,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
             reserveData.underlyingAsset = reserves[i];
 
             // reserve current state
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserveData.underlyingAsset,
                 trancheId
@@ -196,10 +197,11 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     function getUserReservesData(
         ILendingPoolAddressesProvider provider,
+        uint8 trancheId,
         address user
     ) external view override returns (UserReserveData[] memory, uint256) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         DataTypes.UserConfigurationMap memory userConfig = lendingPool
             .getUserConfiguration(user);
 
@@ -208,7 +210,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
         );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId
@@ -265,6 +267,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     function getReservesData(
         ILendingPoolAddressesProvider provider,
+        uint8 trancheId,
         address user
     )
         external
@@ -277,27 +280,36 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
             IncentivesControllerData memory
         )
     {
+        DataTypes.AcctTranche memory vars;
+        {
+            vars = DataTypes.AcctTranche(user, trancheId);
+        }
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         DataTypes.UserConfigurationMap memory userConfig = lendingPool
-            .getUserConfiguration(user);
+            .getUserConfiguration(vars.user);
 
         AggregatedReserveData[]
             memory reservesData = new AggregatedReserveData[](reserves.length);
         UserReserveData[] memory userReservesData = new UserReserveData[](
-            user != address(0) ? reserves.length : 0
+            vars.user != address(0) ? reserves.length : 0
         );
 
         for (uint256 i = 0; i < reserves.length; i++) {
             AggregatedReserveData memory reserveData = reservesData[i];
-            reserveData.underlyingAsset = reserves[i];
+            {
+                reserveData.underlyingAsset = reserves[i];
+            }
 
             // reserve current state
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
-            DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
-                reserveData.underlyingAsset,
-                trancheId
-            );
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            DataTypes.ReserveData memory baseData;
+            {
+                baseData = lendingPool.getReserveData(
+                    reserveData.underlyingAsset,
+                    vars.trancheId
+                );
+            }
             assert(baseData.trancheId == trancheId);
             reserveData.liquidityIndex = baseData.liquidityIndex;
             reserveData.variableBorrowIndex = baseData.variableBorrowIndex;
@@ -390,22 +402,22 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
                 );
             }
 
-            if (user != address(0)) {
+            if (vars.user != address(0)) {
                 // incentives
                 if (address(0) != address(incentivesController)) {
                     userReservesData[i]
                         .aTokenincentivesUserIndex = incentivesController
-                        .getUserAssetData(user, reserveData.aTokenAddress);
+                        .getUserAssetData(vars.user, reserveData.aTokenAddress);
                     userReservesData[i]
                         .vTokenincentivesUserIndex = incentivesController
                         .getUserAssetData(
-                            user,
+                            vars.user,
                             reserveData.variableDebtTokenAddress
                         );
                     userReservesData[i]
                         .sTokenincentivesUserIndex = incentivesController
                         .getUserAssetData(
-                            user,
+                            vars.user,
                             reserveData.stableDebtTokenAddress
                         );
                 }
@@ -414,25 +426,25 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
                     .underlyingAsset;
                 userReservesData[i].scaledATokenBalance = IAToken(
                     reserveData.aTokenAddress
-                ).scaledBalanceOf(user);
+                ).scaledBalanceOf(vars.user);
                 userReservesData[i].usageAsCollateralEnabledOnUser = userConfig
                     .isUsingAsCollateral(i);
 
                 if (userConfig.isBorrowing(i)) {
                     userReservesData[i].scaledVariableDebt = IVariableDebtToken(
                         reserveData.variableDebtTokenAddress
-                    ).scaledBalanceOf(user);
+                    ).scaledBalanceOf(vars.user);
                     userReservesData[i].principalStableDebt = IStableDebtToken(
                         reserveData.stableDebtTokenAddress
-                    ).principalBalanceOf(user);
+                    ).principalBalanceOf(vars.user);
                     if (userReservesData[i].principalStableDebt != 0) {
                         userReservesData[i].stableBorrowRate = IStableDebtToken(
                             reserveData.stableDebtTokenAddress
-                        ).getUserStableRate(user);
+                        ).getUserStableRate(vars.user);
                         userReservesData[i]
                             .stableBorrowLastUpdateTimestamp = IStableDebtToken(
                             reserveData.stableDebtTokenAddress
-                        ).getUserLastUpdated(user);
+                        ).getUserLastUpdated(vars.user);
                     }
                 }
             }
@@ -441,10 +453,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
         IncentivesControllerData memory incentivesControllerData;
 
         if (address(0) != address(incentivesController)) {
-            if (user != address(0)) {
+            if (vars.user != address(0)) {
                 incentivesControllerData
                     .userUnclaimedRewards = incentivesController
-                    .getUserUnclaimedRewards(user);
+                    .getUserUnclaimedRewards(vars.user);
             }
             incentivesControllerData.emissionEndTimestamp = incentivesController
                 .DISTRIBUTION_END();

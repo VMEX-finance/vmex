@@ -733,16 +733,18 @@ contract LendingPool is
     /**
      * @dev Returns the list of the initialized reserves. This is just placeholder, looking at tranche 0.
      **/
-    function getReservesList()
+    function getReservesList(uint8 trancheId)
         external
         view
         override
         returns (address[] memory)
     {
-        address[] memory _activeReserves = new address[](_reservesCount[0]);
+        address[] memory _activeReserves = new address[](
+            _reservesCount[trancheId]
+        );
 
-        for (uint256 i = 0; i < _reservesCount[0]; i++) {
-            _activeReserves[i] = _reservesList[0][i];
+        for (uint256 i = 0; i < _reservesCount[trancheId]; i++) {
+            _activeReserves[i] = _reservesList[trancheId][i];
         }
         return _activeReserves;
     }

@@ -93,7 +93,7 @@ library DataTypes {
         uint256 governanceSetInterestRate;
     }
 
-    uint8 constant NUM_TRANCHES = 3;
+    // uint8 constant NUM_TRANCHES = 3;
 
     struct ReserveConfigurationMap {
         //bit 0-15: LTV

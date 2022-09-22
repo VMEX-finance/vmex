@@ -50,7 +50,7 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         SymbolPrefix,
         ReserveAssets,
         ReservesConfig,
-        ReservesConfigTranche2,
+        ReservesConfigTranche1,
         LendingPoolCollateralManager,
         WethGateway,
         IncentivesController,
@@ -89,8 +89,15 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         0, //tranche risk
         verify
       );
+      await configureReservesByHelper(
+        ReservesConfig,
+        reserveAssets,
+        testHelpers,
+        0,
+        admin
+      );
       await initReservesByHelper(
-        ReservesConfigTranche2,
+        ReservesConfigTranche1,
         reserveAssets,
         ATokenNamePrefix,
         StableDebtTokenNamePrefix,
@@ -104,16 +111,12 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         1, //tranche risk
         verify
       );
+
       await configureReservesByHelper(
-        ReservesConfig,
+        ReservesConfigTranche1,
         reserveAssets,
         testHelpers,
-        admin
-      );
-      await configureReservesByHelper(
-        ReservesConfigTranche2,
-        reserveAssets,
-        testHelpers,
+        1,
         admin
       );
 

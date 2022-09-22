@@ -384,7 +384,7 @@ export const strategyYFI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
-  risk: 2,
+  risk: 1,
   allowedHigherTranche: true,
   assetType: 0,
   canBeCollateral: true,
@@ -404,7 +404,7 @@ export const strategyZRX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
-  risk: 2,
+  risk: 1,
   allowedHigherTranche: true,
   assetType: 0,
   canBeCollateral: true,
@@ -424,7 +424,7 @@ export const strategyXSUSHI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  risk: 2,
+  risk: 1,
   allowedHigherTranche: true,
   assetType: 0,
   canBeCollateral: true,
@@ -444,7 +444,7 @@ export const strategySTETH: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  risk: 2,
+  risk: 1,
   allowedHigherTranche: true,
   assetType: 0, //this is since there is a chainlink aggregator for STETH
   canBeCollateral: true,
@@ -464,7 +464,7 @@ export const strategyFrax: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  risk: 2,
+  risk: 1,
   allowedHigherTranche: true,
   assetType: 0, //this is since there is a chainlink aggregator for Frax
   canBeCollateral: false, //frax can't be collateral
@@ -624,7 +624,7 @@ export const strategyCurveLPToken: IReserveParams = {
   reserveDecimals: '18', //this is the important information
   aTokenImpl: eContractid.AToken,
   reserveFactor: '0',
-  risk: 2,
+  risk: 1,
   allowedHigherTranche: true,
   assetType: 1, //1 is enum for Curve
   canBeCollateral: true,
