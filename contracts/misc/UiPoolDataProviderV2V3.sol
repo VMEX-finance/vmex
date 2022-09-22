@@ -58,24 +58,25 @@ contract UiPoolDataProviderV2V3 is IUiPoolDataProviderV3 {
         );
     }
 
-    function getReservesList(ILendingPoolAddressesProvider provider)
-        public
-        view
-        override
-        returns (address[] memory)
-    {
+    function getReservesList(
+        ILendingPoolAddressesProvider provider,
+        uint8 trancheId
+    ) public view override returns (address[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        return lendingPool.getReservesList();
+        return lendingPool.getReservesList(trancheId);
     }
 
-    function getReservesData(ILendingPoolAddressesProvider provider)
+    function getReservesData(
+        ILendingPoolAddressesProvider provider,
+        uint8 trancheId
+    )
         public
         view
         override
         returns (AggregatedReserveData[] memory, BaseCurrencyInfo memory)
     {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         AggregatedReserveData[]
             memory reservesData = new AggregatedReserveData[](reserves.length);
 
@@ -89,7 +90,7 @@ contract UiPoolDataProviderV2V3 is IUiPoolDataProviderV3 {
             );
 
             // reserve current state
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserveData.underlyingAsset,
                 trancheId
@@ -200,10 +201,11 @@ contract UiPoolDataProviderV2V3 is IUiPoolDataProviderV3 {
 
     function getUserReservesData(
         ILendingPoolAddressesProvider provider,
+        uint8 trancheId,
         address user
     ) external view override returns (UserReserveData[] memory, uint8) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         DataTypes.UserConfigurationMap memory userConfig = lendingPool
             .getUserConfiguration(user);
 
@@ -212,7 +214,7 @@ contract UiPoolDataProviderV2V3 is IUiPoolDataProviderV3 {
         );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId

@@ -19,6 +19,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
 
     function getFullReservesIncentiveData(
         ILendingPoolAddressesProvider provider,
+        uint8 trancheId,
         address user
     )
         external
@@ -30,27 +31,24 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
         )
     {
         return (
-            _getReservesIncentivesData(provider),
-            _getUserReservesIncentivesData(provider, user)
+            _getReservesIncentivesData(provider, trancheId),
+            _getUserReservesIncentivesData(provider, trancheId, user)
         );
     }
 
-    function getReservesIncentivesData(ILendingPoolAddressesProvider provider)
-        external
-        view
-        override
-        returns (AggregatedReserveIncentiveData[] memory)
-    {
-        return _getReservesIncentivesData(provider);
+    function getReservesIncentivesData(
+        ILendingPoolAddressesProvider provider,
+        uint8 trancheId
+    ) external view override returns (AggregatedReserveIncentiveData[] memory) {
+        return _getReservesIncentivesData(provider, trancheId);
     }
 
-    function _getReservesIncentivesData(ILendingPoolAddressesProvider provider)
-        private
-        view
-        returns (AggregatedReserveIncentiveData[] memory)
-    {
+    function _getReservesIncentivesData(
+        ILendingPoolAddressesProvider provider,
+        uint8 trancheId
+    ) private view returns (AggregatedReserveIncentiveData[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         AggregatedReserveIncentiveData[]
             memory reservesIncentiveData = new AggregatedReserveIncentiveData[](
                 reserves.length
@@ -61,7 +59,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
                 memory reserveIncentiveData = reservesIncentiveData[i];
             reserveIncentiveData.underlyingAsset = reserves[i];
 
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId
@@ -245,17 +243,19 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
 
     function getUserReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
+        uint8 trancheId,
         address user
     ) external view override returns (UserReserveIncentiveData[] memory) {
-        return _getUserReservesIncentivesData(provider, user);
+        return _getUserReservesIncentivesData(provider, trancheId, user);
     }
 
     function _getUserReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
+        uint8 trancheId,
         address user
     ) private view returns (UserReserveIncentiveData[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
 
         UserReserveIncentiveData[]
             memory userReservesIncentivesData = new UserReserveIncentiveData[](
@@ -263,7 +263,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
             );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId

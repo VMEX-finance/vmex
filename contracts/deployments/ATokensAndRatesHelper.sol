@@ -63,40 +63,34 @@ contract ATokensAndRatesHelper is Ownable {
         }
     }
 
-    function configureReserves(ConfigureReserveInput[] calldata inputParams)
-        external
-        onlyOwner
-    {
+    function configureReserves(
+        ConfigureReserveInput[] calldata inputParams,
+        uint8 trancheId
+    ) external onlyOwner {
         LendingPoolConfigurator configurator = LendingPoolConfigurator(
             poolConfigurator
         );
         for (uint256 i = 0; i < inputParams.length; i++) {
-            for (
-                uint8 trancheId = 0;
-                trancheId < DataTypes.NUM_TRANCHES;
-                trancheId++
-            ) {
-                configurator.configureReserveAsCollateral(
-                    inputParams[i].asset,
-                    trancheId,
-                    inputParams[i].baseLTV,
-                    inputParams[i].liquidationThreshold,
-                    inputParams[i].liquidationBonus
-                );
+            configurator.configureReserveAsCollateral(
+                inputParams[i].asset,
+                trancheId,
+                inputParams[i].baseLTV,
+                inputParams[i].liquidationThreshold,
+                inputParams[i].liquidationBonus
+            );
 
-                if (inputParams[i].borrowingEnabled) {
-                    configurator.enableBorrowingOnReserve(
-                        inputParams[i].asset,
-                        trancheId,
-                        inputParams[i].stableBorrowingEnabled
-                    );
-                }
-                configurator.setReserveFactor(
+            if (inputParams[i].borrowingEnabled) {
+                configurator.enableBorrowingOnReserve(
                     inputParams[i].asset,
                     trancheId,
-                    inputParams[i].reserveFactor
+                    inputParams[i].stableBorrowingEnabled
                 );
             }
+            configurator.setReserveFactor(
+                inputParams[i].asset,
+                trancheId,
+                inputParams[i].reserveFactor
+            );
         }
     }
 }

@@ -261,6 +261,7 @@ export const configureReservesByHelper = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
   helpers: AaveProtocolDataProvider,
+  trancheId: BigNumberish,
   admin: tEthereumAddress
 ) => {
   const addressProvider = await getLendingPoolAddressesProvider();
@@ -304,7 +305,7 @@ export const configureReservesByHelper = async (
       Object.entries(tokenAddresses) as [string, string][]
     )[assetAddressIndex];
     const { usageAsCollateralEnabled: alreadyEnabled } =
-      await helpers.getReserveConfigurationData(tokenAddress, 0);
+      await helpers.getReserveConfigurationData(tokenAddress, trancheId);
 
     if (alreadyEnabled) {
       console.log(
@@ -346,7 +347,8 @@ export const configureReservesByHelper = async (
     ) {
       await waitForTx(
         await atokenAndRatesDeployer.configureReserves(
-          chunkedInputParams[chunkIndex]
+          chunkedInputParams[chunkIndex],
+          trancheId
         )
       );
       console.log(`  - Init for: ${chunkedSymbols[chunkIndex].join(", ")}`);

@@ -211,17 +211,12 @@ library GenericLogic {
             return (0, 0, 0, 0, type(uint256).max);
         }
         // assert(reservesCount == reserves.length);
-        for (
-            vars.i = 0;
-            vars.i < reservesCount;
-            vars.i++
-        ) {
+        for (vars.i = 0; vars.i < reservesCount; vars.i++) {
             if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
                 continue;
             }
 
             vars.currentReserveAddress = reserves[vars.i];
-            // vars.currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData storage currentReserve = reservesData[
                 vars.currentReserveAddress
             ][vars.trancheId];
@@ -262,10 +257,7 @@ library GenericLogic {
                     .mul(vars.compoundedLiquidityBalance)
                     .div(vars.tokenUnit);
 
-                if (
-                    vars.liquidityBalanceETH >
-                    currentReserve.collateralCap
-                ) {
+                if (vars.liquidityBalanceETH > currentReserve.collateralCap) {
                     vars.liquidityBalanceETH = currentReserve.collateralCap;
                 }
 

@@ -91,7 +91,7 @@ contract WalletBalanceProvider {
             ILendingPoolAddressesProvider(provider).getLendingPool()
         );
 
-        address[] memory reserves = pool.getReservesList();
+        address[] memory reserves = pool.getReservesList(trancheId);
         address[] memory reservesWithEth = new address[](reserves.length + 1);
         for (uint256 i = 0; i < reserves.length; i++) {
             reservesWithEth[i] = reserves[i];
@@ -101,7 +101,7 @@ contract WalletBalanceProvider {
         uint256[] memory balances = new uint256[](reservesWithEth.length);
 
         for (uint256 j = 0; j < reserves.length; j++) {
-            uint8 trancheId = uint8(j % DataTypes.NUM_TRANCHES);
+            // uint8 trancheId = uint8(j % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveConfigurationMap memory configuration = pool
                 .getConfiguration(reservesWithEth[j], trancheId);
 
