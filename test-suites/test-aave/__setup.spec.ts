@@ -237,6 +237,14 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
       Steth: mockTokens.Steth.address,
       FraxUSDC: mockTokens.FraxUSDC.address,
       Frax3Crv: mockTokens.Frax3Crv.address,
+      Frax: mockTokens.Frax.address,
+      BAL: mockTokens.Frax3Crv.address,
+      CRV: mockTokens.Frax3Crv.address,
+      CVX: mockTokens.Frax3Crv.address,
+      BADGER: mockTokens.Frax3Crv.address,
+      LDO: mockTokens.Frax3Crv.address,
+      ALCX: mockTokens.Frax3Crv.address,
+      Oneinch: mockTokens.Frax3Crv.address,
     },
     fallbackOracle
   );
@@ -302,6 +310,9 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   const reservesParams = {
     ...config.ReservesConfig,
   };
+  const reservesParamsTranche1 = {
+    ...config.ReservesConfigTranche1,
+  };
 
   const testHelpers = await deployAaveProtocolDataProvider(
     addressesProvider.address
@@ -330,6 +341,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     treasuryAddress,
     ZERO_ADDRESS,
     ConfigNames.Aave,
+    0,
+    0,
     false
   );
 
@@ -337,6 +350,31 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     reservesParams,
     allReservesAddresses,
     testHelpers,
+    0,
+    admin
+  );
+
+  await initReservesByHelper(
+    reservesParamsTranche1,
+    allReservesAddresses,
+    ATokenNamePrefix,
+    StableDebtTokenNamePrefix,
+    VariableDebtTokenNamePrefix,
+    SymbolPrefix,
+    admin,
+    treasuryAddress,
+    ZERO_ADDRESS,
+    ConfigNames.Aave,
+    1,
+    1,
+    false
+  );
+
+  await configureReservesByHelper(
+    reservesParams,
+    allReservesAddresses,
+    testHelpers,
+    1,
     admin
   );
 

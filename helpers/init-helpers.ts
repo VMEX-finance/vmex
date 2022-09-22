@@ -217,9 +217,7 @@ export const initReservesByHelper = async (
     chunkIndex++
   ) {
     const tx3 = await waitForTx(
-      await configurator.initReservesForTranche(
-        chunkedInitInputParams[chunkIndex]
-      )
+      await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
     );
 
     console.log(
