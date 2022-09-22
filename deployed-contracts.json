@@ -259,7 +259,7 @@
   },
   "LendingPoolAddressesProvider": {
     "hardhat": {
-      "address": "0xD6C850aeBFDC46D7F4c207e445cC0d6B0919BDBe",
+      "address": "0x85bdE212E66e2BAE510E44Ed59116c1eC712795b",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -279,7 +279,7 @@
   },
   "ReserveLogic": {
     "hardhat": {
-      "address": "0x20Ce94F404343aD2752A2D01b43fa407db9E0D00",
+      "address": "0xF0B4ACda6D679ea22AC5C4fD1973D0d58eA10ec1",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -289,7 +289,7 @@
   },
   "GenericLogic": {
     "hardhat": {
-      "address": "0x1d80315fac6aBd3EfeEbE97dEc44461ba7556160",
+      "address": "0xE78d9772cED3eD5C595d9E438a87602eD86bfE9b",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -299,7 +299,7 @@
   },
   "ValidationLogic": {
     "hardhat": {
-      "address": "0x2D8553F9ddA85A9B3259F6Bf26911364B85556F5",
+      "address": "0xA17827A991EB72793fa437e580B084ceB25Ab0f9",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -309,7 +309,7 @@
   },
   "LendingPoolImpl": {
     "hardhat": {
-      "address": "0xd15468525c35BDBC1eD8F2e09A00F8a173437f2f"
+      "address": "0x93C1e99C8dD990D77232821f9476c308FBad47f5"
     },
     "localhost": {
       "address": "0x7e35Eaf7e8FBd7887ad538D4A38Df5BbD073814a"
@@ -317,7 +317,7 @@
   },
   "LendingPool": {
     "hardhat": {
-      "address": "0xda24DebbEcECe2270a5Ff889AEfC71Dcf4B8A3D5"
+      "address": "0x6e5d1a9C405DF46a8503893DBa99c3af5Dc1FB5A"
     },
     "localhost": {
       "address": "0xda24DebbEcECe2270a5Ff889AEfC71Dcf4B8A3D5"
@@ -325,7 +325,7 @@
   },
   "LendingPoolConfiguratorImpl": {
     "hardhat": {
-      "address": "0x3521eF8AaB0323004A6dD8b03CE890F4Ea3A13f5"
+      "address": "0xBbC60A8fAf66552554e460d55Ac0563Fb9e76c01"
     },
     "localhost": {
       "address": "0x53369fd4680FfE3DfF39Fc6DDa9CfbfD43daeA2E"
@@ -333,7 +333,7 @@
   },
   "LendingPoolConfigurator": {
     "hardhat": {
-      "address": "0xE8606b4421B6dBC318BD51c24B7e3f98dA3A4621"
+      "address": "0xCDfa18cdFEFCa96D6c79628c6ef941201b63faE4"
     },
     "localhost": {
       "address": "0xE8606b4421B6dBC318BD51c24B7e3f98dA3A4621"
@@ -341,7 +341,7 @@
   },
   "StableAndVariableTokensHelper": {
     "hardhat": {
-      "address": "0xB00cC45B4a7d3e1FEE684cFc4417998A1c183e6d",
+      "address": "0xecE50C63d1Ae02Ba306c2b2E1579d0327220196e",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -351,7 +351,7 @@
   },
   "ATokensAndRatesHelper": {
     "hardhat": {
-      "address": "0x58F132FBB86E21545A4Bace3C19f1C05d86d7A22",
+      "address": "0x0D8448C0fBB84c30395838C8b3fD64722ea94532",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -634,7 +634,7 @@
   },
   "DepositWithdrawLogic": {
     "hardhat": {
-      "address": "0x52d3b94181f8654db2530b0fEe1B19173f519C52",
+      "address": "0x8565Fb7dfB5D36b2aA00086ffc920cfF20db4F2f",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {

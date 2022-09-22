@@ -68,7 +68,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Initializes reserves in batch
      **/
-    function initReservesForTranche(DataTypes.InitReserveInput[] calldata input)
+    function batchInitReserve(DataTypes.InitReserveInput[] calldata input)
         external
         onlyPoolAdmin
     {
