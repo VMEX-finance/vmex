@@ -62,7 +62,7 @@ library ValidationLogic {
      */
     function validateWithdraw(
         address reserveAddress,
-        uint8 tranche,
+        uint8 trancheId,
         uint256 amount,
         uint256 userBalance,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
@@ -79,7 +79,7 @@ library ValidationLogic {
             Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
 
-        (bool isActive, , , ) = reservesData[reserveAddress][tranche]
+        (bool isActive, , , ) = reservesData[reserveAddress][trancheId]
             .configuration
             .getFlags();
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
@@ -88,7 +88,7 @@ library ValidationLogic {
             GenericLogic.balanceDecreaseAllowed(
                 GenericLogic.balanceDecreaseAllowedParameters(
                     reserveAddress,
-                    tranche,
+                    trancheId,
                     msg.sender,
                     amount,
                     _addressesProvider
@@ -161,7 +161,7 @@ library ValidationLogic {
             vars.currentLiquidationThreshold,
             vars.healthFactor
         ) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(exvars.user, exvars.tranche),
+            DataTypes.AcctTranche(exvars.user, exvars.trancheId),
             reservesData,
             userConfig,
             reserves,
@@ -404,18 +404,18 @@ library ValidationLogic {
             DataTypes.AssetData memory assetData = assetDatas[reserveAddress];
             if (useAsCollateral == true) {
                 require(
-                    assetData.canBeCollateral,
+                    reserve.canBeCollateral,
                     "Asset cannot be set as collateral"
                 );
                 if (assetData.isAllowedCollateralInHigherTranches) {
                     require(
-                        assetData.collateralRisk <= reserve.tranche,
+                        assetData.collateralRisk <= reserve.trancheRisk,
                         "Risk is too high to set as collateral"
-                    ); //only allow user to set asset as collateral if risk of asset is lower than the tranche
+                    ); //only allow user to set asset as collateral if risk of asset is lower than the trancheId
                 } else {
                     require(
-                        assetData.collateralRisk == reserve.tranche,
-                        "Risk is not equal to collateral tranche"
+                        assetData.collateralRisk == reserve.trancheRisk,
+                        "Risk is not equal to collateral trancheId"
                     );
                 }
                 //allow them to turn on collateral, but only a certain amount will be counted
@@ -436,7 +436,7 @@ library ValidationLogic {
                 GenericLogic.balanceDecreaseAllowed(
                     GenericLogic.balanceDecreaseAllowedParameters(
                         reserveAddress,
-                        reserve.tranche,
+                        reserve.trancheId,
                         msg.sender,
                         underlyingBalance,
                         _addressesProvider
@@ -545,7 +545,7 @@ library ValidationLogic {
      */
     function validateTransfer(
         address from,
-        uint8 tranche,
+        uint8 trancheId,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
@@ -555,7 +555,7 @@ library ValidationLogic {
         mapping(address => DataTypes.AssetData) storage assetDatas
     ) internal view {
         (, , , , uint256 healthFactor) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(from, tranche),
+            DataTypes.AcctTranche(from, trancheId),
             reservesData,
             userConfig,
             reserves,

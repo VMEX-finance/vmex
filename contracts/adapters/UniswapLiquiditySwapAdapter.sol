@@ -90,7 +90,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
         for (uint256 i = 0; i < assets.length; i++) {
             _swapLiquidity(
                 assets[i].asset,
-                assets[i].tranche,
+                assets[i].trancheId,
                 decodedParams.assetToSwapToList[i],
                 decodedParams.assetToSwapToListTranche[i],
                 amounts[i],
@@ -159,7 +159,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
         for (vars.i = 0; vars.i < assetToSwapFromList.length; vars.i++) {
             vars.aToken = _getReserveData(
                 assetToSwapFromList[vars.i].asset,
-                assetToSwapFromList[vars.i].tranche
+                assetToSwapFromList[vars.i].trancheId
             ).aTokenAddress;
 
             vars.aTokenInitiatorBalance = IERC20(vars.aToken).balanceOf(
@@ -172,7 +172,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
             _pullAToken(
                 assetToSwapFromList[vars.i].asset,
-                assetToSwapFromList[vars.i].tranche,
+                assetToSwapFromList[vars.i].trancheId,
                 vars.aToken,
                 msg.sender,
                 vars.amountToSwap,
@@ -198,7 +198,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
             );
             LENDING_POOL.deposit(
                 assetToSwapToList[vars.i].asset,
-                assetToSwapToList[vars.i].tranche,
+                assetToSwapToList[vars.i].trancheId,
                 vars.receivedAmount,
                 msg.sender,
                 0

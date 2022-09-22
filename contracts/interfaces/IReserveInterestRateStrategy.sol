@@ -14,7 +14,6 @@ interface IReserveInterestRateStrategy {
 
     function calculateInterestRates(
         address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
         uint256 availableLiquidity,
         uint256 totalStableDebt,
         uint256 totalVariableDebt,
@@ -31,7 +30,6 @@ interface IReserveInterestRateStrategy {
 
     function calculateInterestRates(
         address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
         address aToken,
         uint256 liquidityAdded,
         uint256 liquidityTaken,

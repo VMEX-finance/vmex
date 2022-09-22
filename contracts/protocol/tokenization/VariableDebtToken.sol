@@ -38,7 +38,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
-        uint8 tranche,
+        uint8 trancheId,
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,
@@ -51,7 +51,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
         _pool = pool;
         _underlyingAsset = underlyingAsset;
-        _tranche = tranche;
+        _tranche = trancheId;
         _incentivesController = incentivesController;
 
         emit Initialized(

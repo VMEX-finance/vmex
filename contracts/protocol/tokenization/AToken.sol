@@ -110,7 +110,7 @@ contract AToken is
         _treasury = vars.treasury;
         _underlyingAsset = vars.underlyingAsset;
         _incentivesController = incentivesController;
-        _tranche = vars.tranche;
+        _tranche = vars.trancheId;
 
         emit Initialized(
             vars.underlyingAsset,

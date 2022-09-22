@@ -4,14 +4,10 @@ pragma solidity >=0.8.0;
 import {Address} from "../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../interfaces/ILendingPool.sol";
 import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {
-    ReserveConfiguration
-} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
+import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 /**
@@ -86,17 +82,16 @@ contract WalletBalanceProvider {
     /**
     @dev provides balances of user wallet for all reserves available on the pool
     */
-    function getUserWalletBalances(address provider, address user)
-        external
-        view
-        returns (address[] memory, uint256[] memory)
-    {
-        ILendingPool pool =
-            ILendingPool(
-                ILendingPoolAddressesProvider(provider).getLendingPool()
-            );
+    function getUserWalletBalances(
+        address provider,
+        address user,
+        uint8 trancheId
+    ) external view returns (address[] memory, uint256[] memory) {
+        ILendingPool pool = ILendingPool(
+            ILendingPoolAddressesProvider(provider).getLendingPool()
+        );
 
-        address[] memory reserves = pool.getReservesList();
+        address[] memory reserves = pool.getReservesList(trancheId);
         address[] memory reservesWithEth = new address[](reserves.length + 1);
         for (uint256 i = 0; i < reserves.length; i++) {
             reservesWithEth[i] = reserves[i];
@@ -106,9 +101,9 @@ contract WalletBalanceProvider {
         uint256[] memory balances = new uint256[](reservesWithEth.length);
 
         for (uint256 j = 0; j < reserves.length; j++) {
-            uint8 tranche = uint8(j % DataTypes.NUM_TRANCHES);
-            DataTypes.ReserveConfigurationMap memory configuration =
-                pool.getConfiguration(reservesWithEth[j], tranche);
+            // uint8 trancheId = uint8(j % DataTypes.NUM_TRANCHES);
+            DataTypes.ReserveConfigurationMap memory configuration = pool
+                .getConfiguration(reservesWithEth[j], trancheId);
 
             (bool isActive, , , ) = configuration.getFlagsMemory();
 

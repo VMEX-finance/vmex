@@ -35,7 +35,7 @@ interface IInitializableAToken {
     struct InitializeTreasuryVars {
         address treasury;
         address underlyingAsset;
-        uint8 tranche;
+        uint8 trancheId;
     }
 
     /**

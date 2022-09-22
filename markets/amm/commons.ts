@@ -281,7 +281,7 @@ export const CommonsConfig: ICommonConfiguration = {
       UNI: '0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e',
       USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
       USDT: '0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46',
-      WBTC: '0xa338e0492b2f944e9f8c0653d3ad1484f2657a37',
+      WBTC: '0xdeb288f737066589598e9214e782fa5a8ed689e8',
       YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
@@ -318,7 +318,7 @@ export const CommonsConfig: ICommonConfiguration = {
       UNI: '0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e',
       USDC: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
       USDT: '0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46',
-      WBTC: '0xa338e0492b2f944e9f8c0653d3ad1484f2657a37',
+      WBTC: '0xdeb288f737066589598e9214e782fa5a8ed689e8',
       YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
@@ -342,6 +342,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.tenderly]: {},
   },
   ReservesConfig: {},
+  ReservesConfigTranche1: {},
   ATokenDomainSeparator: {
     [eEthereumNetwork.coverage]:
       '0x95b73a72c6ecf4ccbbba5178800023260bad8e75cdccdb8e4827a2977a37c820',
