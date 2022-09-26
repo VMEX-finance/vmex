@@ -9,7 +9,7 @@
     "noImplicitAny": false,
     "resolveJsonModule": true
   },
-  "include": ["./src.ts/*", "./test"],
+  "include": ["./src.ts/*/*", "./src.ts/*", "./test"],
   "files": [
     "./hardhat.config.ts",
     "node_modules/@nomiclabs/buidler-ethers/src/type-extensions.d.ts",
