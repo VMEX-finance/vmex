@@ -59,7 +59,7 @@ interface ILendingPoolCollateralManager {
     function liquidationCall(
         address collateral,
         address principal,
-        uint8 tranche,
+        uint8 trancheId,
         address user,
         uint256 debtToCover,
         bool receiveAToken

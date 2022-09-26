@@ -2,14 +2,10 @@
 pragma solidity >=0.8.0;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {
-    IReserveInterestRateStrategy
-} from "../../interfaces/IReserveInterestRateStrategy.sol";
+import {IReserveInterestRateStrategy} from "../../interfaces/IReserveInterestRateStrategy.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingRateOracle} from "../../interfaces/ILendingRateOracle.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
@@ -123,7 +119,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
      **/
     function calculateInterestRates(
         address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
         address aToken,
         uint256 liquidityAdded,
         uint256 liquidityTaken,
@@ -150,7 +145,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         return
             calculateInterestRates(
                 reserve,
-                multiplier,
                 availableLiquidity,
                 totalStableDebt,
                 totalVariableDebt,
@@ -181,7 +175,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
      **/
     function calculateInterestRates(
         address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
         uint256 availableLiquidity,
         uint256 totalStableDebt,
         uint256 totalVariableDebt,
@@ -210,14 +203,13 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         vars.currentStableBorrowRate = ILendingRateOracle(
             addressesProvider.getLendingRateOracle()
-        )
-            .getMarketBorrowRate(reserve);
+        ).getMarketBorrowRate(reserve);
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
-            uint256 excessUtilizationRateRatio =
-                vars.utilizationRate.sub(OPTIMAL_UTILIZATION_RATE).rayDiv(
-                    EXCESS_UTILIZATION_RATE
-                );
+            uint256 excessUtilizationRateRatio = vars
+                .utilizationRate
+                .sub(OPTIMAL_UTILIZATION_RATE)
+                .rayDiv(EXCESS_UTILIZATION_RATE);
 
             vars.currentStableBorrowRate = vars
                 .currentStableBorrowRate
@@ -243,23 +235,11 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         vars.currentLiquidityRate = _getOverallBorrowRate(
             totalStableDebt,
             totalVariableDebt,
-            vars
-                .currentVariableBorrowRate,
+            vars.currentVariableBorrowRate,
             averageStableBorrowRate
-        )
-            .rayMul(vars.utilizationRate)
-            .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor));
-
-        vars.currentLiquidityRate = vars.currentLiquidityRate.rayMul(
-            multiplier.liquidityRateMultiplier
-        );
-
-        vars.currentStableBorrowRate = vars.currentStableBorrowRate.rayMul(
-            multiplier.stableBorrowRateMultiplier
-        );
-        vars.currentVariableBorrowRate = vars.currentVariableBorrowRate.rayMul(
-            multiplier.variableBorrowRateMultiplier
-        );
+        ).rayMul(vars.utilizationRate).percentMul( //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
+            PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor)
+        ); //if this last part wasn't here, once everyone repays and all deposits are withdrawn, there should be zero left in pool. Now, reserveFactor*liquidity is left in pool
 
         return (
             vars.currentLiquidityRate,
@@ -286,16 +266,17 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         if (totalDebt == 0) return 0;
 
-        uint256 weightedVariableRate =
-            totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
+        uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(
+            currentVariableBorrowRate
+        );
 
-        uint256 weightedStableRate =
-            totalStableDebt.wadToRay().rayMul(currentAverageStableBorrowRate);
+        uint256 weightedStableRate = totalStableDebt.wadToRay().rayMul(
+            currentAverageStableBorrowRate
+        );
 
-        uint256 overallBorrowRate =
-            weightedVariableRate.add(weightedStableRate).rayDiv(
-                totalDebt.wadToRay()
-            );
+        uint256 overallBorrowRate = weightedVariableRate
+            .add(weightedStableRate)
+            .rayDiv(totalDebt.wadToRay());
 
         return overallBorrowRate;
     }

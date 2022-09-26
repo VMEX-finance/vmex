@@ -33,18 +33,18 @@
 //     }
 
 //     /**
-//      * @dev Creates or edits a tranche
-//      * @param tranche 0, 1, or 2 for low, medium, and high risk? @Steven verify this
-//      * @param _variableBorrowRateMultiplier tranche specific variable rate multiplier
-//      * @param _stableBorrowRateMultiplier tranche specific variable rate multiplier
+//      * @dev Creates or edits a trancheId
+//      * @param trancheId 0, 1, or 2 for low, medium, and high risk? @Steven verify this
+//      * @param _variableBorrowRateMultiplier trancheId specific variable rate multiplier
+//      * @param _stableBorrowRateMultiplier trancheId specific variable rate multiplier
 //      **/
 //     function editTranche(
-//         uint8 tranche,
+//         uint8 trancheId,
 //         uint256 _liquidityRateMultiplier,
 //         uint256 _variableBorrowRateMultiplier,
 //         uint256 _stableBorrowRateMultiplier
 //     ) public onlyGovernance {
-//         tranches[tranche] = DataTypes.Tranche({
+//         tranches[trancheId] = DataTypes.trancheId({
 //             liquidityRateMultiplier: _liquidityRateMultiplier,
 //             variableBorrowRateMultiplier: _variableBorrowRateMultiplier,
 //             stableBorrowRateMultiplier: _stableBorrowRateMultiplier

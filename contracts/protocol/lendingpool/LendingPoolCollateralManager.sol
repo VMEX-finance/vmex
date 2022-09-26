@@ -88,32 +88,36 @@ contract LendingPoolCollateralManager is
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
-        uint8 tranche,
-        // uint8 debtAssetTranche, //this would actually be the same tranche as the collateral (you can only borrow from the same tranche that your collateral is in)
+        uint8 trancheId,
+        // uint8 debtAssetTranche, //this would actually be the same trancheId as the collateral (you can only borrow from the same trancheId that your collateral is in)
         address user,
         uint256 debtToCover,
         bool receiveAToken
     ) external override returns (uint256, string memory) {
-        DataTypes.ReserveData storage collateralReserve = _reserves[
-            collateralAsset
-        ][tranche];
-        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset][
-            tranche
-        ];
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user];
 
         LiquidationCallLocalVars memory vars;
 
-        (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(user, tranche),
-            _reserves,
-            userConfig,
-            _reservesList,
-            _reservesCount,
-            _addressesProvider,
-            assetDatas
-        );
+        {
+            (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
+                DataTypes.AcctTranche(user, trancheId),
+                _reserves,
+                userConfig,
+                _reservesList[trancheId],
+                _reservesCount[trancheId],
+                _addressesProvider,
+                assetDatas
+            );
+        }
+
         // vars.healthFactor = 2;
+
+        DataTypes.ReserveData storage collateralReserve = _reserves[
+            collateralAsset
+        ][trancheId];
+        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset][
+            trancheId
+        ];
 
         (vars.userStableDebt, vars.userVariableDebt) = Helpers
             .getUserCurrentDebt(user, debtReserve);
@@ -207,7 +211,6 @@ contract LendingPoolCollateralManager is
         }
 
         debtReserve.updateInterestRates(
-            trancheMultipliers[tranche],
             debtAsset,
             debtReserve.aTokenAddress,
             vars.actualDebtToLiquidate,
@@ -238,7 +241,6 @@ contract LendingPoolCollateralManager is
         } else {
             collateralReserve.updateState();
             collateralReserve.updateInterestRates(
-                trancheMultipliers[tranche],
                 collateralAsset,
                 address(vars.collateralAtoken),
                 0,

@@ -14,28 +14,17 @@ contract LendingPoolStorage {
 
     ILendingPoolAddressesProvider internal _addressesProvider;
 
-    // asset address to tranche number to reserve data
+    // asset address to trancheId number to reserve data
     mapping(address => mapping(uint8 => DataTypes.ReserveData))
         internal _reserves;
     mapping(address => DataTypes.UserConfigurationMap) internal _usersConfig;
 
-    //combine these together into struct
-    // {
-    //     //asset address to risk level of that asset when it is used as collateral
-    // mapping(address => uint8) internal collateralRisk;
-    //     //asset address to boolean value representing if that address is lendable, or if it should just be a collateral vault
-    //     mapping(address => bool) internal isLendable;
-
-    //     mapping(address => bool) internal isAllowedCollateralInHigherTranches;
-
-    //
-    // }
-
     mapping(address => DataTypes.AssetData) internal assetDatas;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
-    mapping(uint256 => address) internal _reservesList;
-    uint256 internal _reservesCount;
+    //TODO: change this to be a different list per trancheId
+    mapping(uint8 => mapping(uint256 => address)) internal _reservesList; //trancheId id -> array of available reserves
+    mapping(uint8 => uint256) internal _reservesCount; //trancheId id -> number of reserves per that trancheId
 
     bool internal _paused;
 
@@ -44,6 +33,4 @@ contract LendingPoolStorage {
     uint256 internal _flashLoanPremiumTotal;
 
     uint256 internal _maxNumberOfReserves;
-
-    mapping(uint256 => DataTypes.TrancheMultiplier) internal trancheMultipliers;
 }
