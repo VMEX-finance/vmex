@@ -7,7 +7,7 @@ import _ from "lodash";
 
 async function checkWETHBalance(signer: any, address: string, provider: any) {
     console.log(signer)
-    const BalanceProvider = new ethers.Contract(deployments.WalletBalanceProvider.localhost.address, WalletBalanceProvider.abi, signer);
+    const BalanceProvider = new ethers.Contract(deployments.WalletBalanceProvider.localhost.address, WalletBalanceProvider.abi, signerw);
     const balances = await BalanceProvider.getUserWalletBalances(deployments.LendingPoolAddressesProvider.hardhat.address, address);
     console.log(balances)
 
