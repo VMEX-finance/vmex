@@ -2,20 +2,12 @@
 pragma solidity >=0.8.0;
 
 import {BaseParaSwapSellAdapter} from "./BaseParaSwapSellAdapter.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
-import {
-    IParaSwapAugustusRegistry
-} from "../interfaces/IParaSwapAugustusRegistry.sol";
-import {
-    IERC20Detailed
-} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {IParaSwapAugustusRegistry} from "../interfaces/IParaSwapAugustusRegistry.sol";
+import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {IERC20WithPermit} from "../interfaces/IERC20WithPermit.sol";
 import {IParaSwapAugustus} from "../interfaces/IParaSwapAugustus.sol";
-import {
-    ReentrancyGuard
-} from "../dependencies/openzeppelin/contracts/ReentrancyGuard.sol";
+import {ReentrancyGuard} from "../dependencies/openzeppelin/contracts/ReentrancyGuard.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
@@ -61,8 +53,7 @@ contract ParaSwapLiquiditySwapAdapter is
             bytes memory swapCalldata,
             IParaSwapAugustus augustus,
             PermitSignature memory permitParams
-        ) =
-            abi.decode(
+        ) = abi.decode(
                 params,
                 (
                     IERC20Detailed,
@@ -155,15 +146,12 @@ contract ParaSwapLiquiditySwapAdapter is
         IParaSwapAugustus augustus,
         PermitSignature calldata permitParams
     ) external nonReentrant {
-        IERC20WithPermit aToken =
-            IERC20WithPermit(
-                _getReserveData(
-                    address(assetToSwapFrom.asset),
-                    assetToSwapFrom
-                        .tranche
-                )
-                    .aTokenAddress
-            );
+        IERC20WithPermit aToken = IERC20WithPermit(
+            _getReserveData(
+                address(assetToSwapFrom.asset),
+                assetToSwapFrom.trancheId
+            ).aTokenAddress
+        );
 
         if (swapAllBalanceOffset != 0) {
             uint256 balance = aToken.balanceOf(msg.sender);
@@ -173,23 +161,22 @@ contract ParaSwapLiquiditySwapAdapter is
 
         _pullATokenAndWithdraw(
             address(assetToSwapFrom.asset),
-            assetToSwapFrom.tranche,
+            assetToSwapFrom.trancheId,
             aToken,
             msg.sender,
             amountToSwap,
             permitParams
         );
 
-        uint256 amountReceived =
-            _sellOnParaSwap(
-                swapAllBalanceOffset,
-                swapCalldata,
-                augustus,
-                IERC20Detailed(assetToSwapFrom.asset),
-                IERC20Detailed(assetToSwapTo.asset),
-                amountToSwap,
-                minAmountToReceive
-            );
+        uint256 amountReceived = _sellOnParaSwap(
+            swapAllBalanceOffset,
+            swapCalldata,
+            augustus,
+            IERC20Detailed(assetToSwapFrom.asset),
+            IERC20Detailed(assetToSwapTo.asset),
+            amountToSwap,
+            minAmountToReceive
+        );
 
         IERC20Detailed(assetToSwapTo.asset).approve(address(LENDING_POOL), 0);
         IERC20Detailed(assetToSwapTo.asset).approve(
@@ -198,8 +185,7 @@ contract ParaSwapLiquiditySwapAdapter is
         );
         LENDING_POOL.deposit(
             address(assetToSwapTo.asset),
-            assetToSwapTo.tranche,
-            false,
+            assetToSwapTo.trancheId,
             amountReceived,
             msg.sender,
             0
@@ -220,15 +206,12 @@ contract ParaSwapLiquiditySwapAdapter is
         address initiator,
         DataTypes.TrancheAddress memory assetToSwapFrom
     ) internal {
-        IERC20WithPermit aToken =
-            IERC20WithPermit(
-                _getReserveData(
-                    address(assetToSwapFrom.asset),
-                    assetToSwapFrom
-                        .tranche
-                )
-                    .aTokenAddress
-            );
+        IERC20WithPermit aToken = IERC20WithPermit(
+            _getReserveData(
+                address(assetToSwapFrom.asset),
+                assetToSwapFrom.trancheId
+            ).aTokenAddress
+        );
         uint256 amountToSwap = flashLoanAmount;
 
         uint256 balance = aToken.balanceOf(initiator);
@@ -246,23 +229,21 @@ contract ParaSwapLiquiditySwapAdapter is
             );
         }
 
-        uint256 amountReceived =
-            _sellOnParaSwap(
-                vars.swapAllBalanceOffset,
-                vars.swapCalldata,
-                vars.augustus,
-                IERC20Detailed(assetToSwapFrom.asset),
-                vars.assetToSwapTo,
-                amountToSwap,
-                vars.minAmountToReceive
-            );
+        uint256 amountReceived = _sellOnParaSwap(
+            vars.swapAllBalanceOffset,
+            vars.swapCalldata,
+            vars.augustus,
+            IERC20Detailed(assetToSwapFrom.asset),
+            vars.assetToSwapTo,
+            amountToSwap,
+            vars.minAmountToReceive
+        );
 
         vars.assetToSwapTo.approve(address(LENDING_POOL), 0);
         vars.assetToSwapTo.approve(address(LENDING_POOL), amountReceived);
         LENDING_POOL.deposit(
             address(vars.assetToSwapTo),
             vars.assetToSwapToTranche,
-            false,
             amountReceived,
             initiator,
             0
@@ -270,7 +251,7 @@ contract ParaSwapLiquiditySwapAdapter is
 
         _pullATokenAndWithdraw(
             address(assetToSwapFrom.asset),
-            assetToSwapFrom.tranche,
+            assetToSwapFrom.trancheId,
             aToken,
             initiator,
             amountToSwap.add(premium),

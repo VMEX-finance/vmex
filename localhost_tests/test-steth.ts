@@ -86,7 +86,8 @@ await Steth.connect(signer).approve(lendingPool.address,ethers.utils.parseEther(
 /************************************************************************************/
 /****************** deposit steth to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(Steth.address, 2, true, ethers.utils.parseUnits('0.5'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(Steth.address, 2, ethers.utils.parseUnits('0.5'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(Steth.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 

@@ -2,9 +2,7 @@
 pragma solidity >=0.8.0;
 
 import {BaseUniswapAdapter} from "./BaseUniswapAdapter.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
@@ -105,20 +103,24 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
         PermitSignature calldata permitSignature,
         bool useEthPath
     ) external {
-        DataTypes.ReserveData memory collateralReserveData =
-            _getReserveData(collateralAsset.asset, collateralAsset.tranche);
-        DataTypes.ReserveData memory debtReserveData =
-            _getReserveData(debtAsset.asset, collateralAsset.tranche);
+        DataTypes.ReserveData memory collateralReserveData = _getReserveData(
+            collateralAsset.asset,
+            collateralAsset.trancheId
+        );
+        DataTypes.ReserveData memory debtReserveData = _getReserveData(
+            debtAsset.asset,
+            collateralAsset.trancheId
+        );
 
-        address debtToken =
-            DataTypes.InterestRateMode(debtRateMode) ==
-                DataTypes.InterestRateMode.STABLE
-                ? debtReserveData.stableDebtTokenAddress
-                : debtReserveData.variableDebtTokenAddress;
+        address debtToken = DataTypes.InterestRateMode(debtRateMode) ==
+            DataTypes.InterestRateMode.STABLE
+            ? debtReserveData.stableDebtTokenAddress
+            : debtReserveData.variableDebtTokenAddress;
 
         uint256 currentDebt = IERC20(debtToken).balanceOf(msg.sender);
-        uint256 amountToRepay =
-            debtRepayAmount <= currentDebt ? debtRepayAmount : currentDebt;
+        uint256 amountToRepay = debtRepayAmount <= currentDebt
+            ? debtRepayAmount
+            : currentDebt;
 
         if (collateralAsset.asset != debtAsset.asset) {
             uint256 maxCollateralToSwap = collateralAmount;
@@ -129,19 +131,18 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             }
 
             // Get exact collateral needed for the swap to avoid leftovers
-            uint256[] memory amounts =
-                _getAmountsIn(
-                    collateralAsset.asset,
-                    debtAsset.asset,
-                    amountToRepay,
-                    useEthPath
-                );
+            uint256[] memory amounts = _getAmountsIn(
+                collateralAsset.asset,
+                debtAsset.asset,
+                amountToRepay,
+                useEthPath
+            );
             require(amounts[0] <= maxCollateralToSwap, "slippage too high");
 
             // Pull aTokens from user
             _pullAToken(
                 collateralAsset.asset,
-                collateralAsset.tranche,
+                collateralAsset.trancheId,
                 collateralReserveData.aTokenAddress,
                 msg.sender,
                 amounts[0],
@@ -160,7 +161,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             // Pull aTokens from user
             _pullAToken(
                 collateralAsset.asset,
-                collateralAsset.tranche,
+                collateralAsset.trancheId,
                 collateralReserveData.aTokenAddress,
                 msg.sender,
                 amountToRepay,
@@ -173,7 +174,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
         IERC20(debtAsset.asset).approve(address(LENDING_POOL), amountToRepay);
         LENDING_POOL.repay(
             debtAsset.asset,
-            debtAsset.tranche,
+            debtAsset.trancheId,
             amountToRepay,
             debtRateMode,
             msg.sender
@@ -203,8 +204,10 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
         PermitSignature memory permitSignature,
         bool useEthPath
     ) internal {
-        DataTypes.ReserveData memory collateralReserveData =
-            _getReserveData(collateralAsset.asset, collateralAsset.tranche);
+        DataTypes.ReserveData memory collateralReserveData = _getReserveData(
+            collateralAsset.asset,
+            collateralAsset.trancheId
+        );
 
         // Repay debt. Approves for 0 first to comply with tokens that implement the anti frontrunning approval fix.
         IERC20(debtAsset.asset).approve(address(LENDING_POOL), 0);
@@ -212,7 +215,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
         uint256 repaidAmount = IERC20(debtAsset.asset).balanceOf(address(this));
         LENDING_POOL.repay(
             debtAsset.asset,
-            debtAsset.tranche,
+            debtAsset.trancheId,
             amount,
             rateMode,
             initiator
@@ -225,24 +228,23 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             uint256 maxCollateralToSwap = collateralAmount;
             if (repaidAmount < amount) {
                 maxCollateralToSwap = maxCollateralToSwap.mul(repaidAmount).div(
-                    amount
-                );
+                        amount
+                    );
             }
 
             uint256 neededForFlashLoanDebt = repaidAmount.add(premium);
-            uint256[] memory amounts =
-                _getAmountsIn(
-                    collateralAsset.asset,
-                    debtAsset.asset,
-                    neededForFlashLoanDebt,
-                    useEthPath
-                );
+            uint256[] memory amounts = _getAmountsIn(
+                collateralAsset.asset,
+                debtAsset.asset,
+                neededForFlashLoanDebt,
+                useEthPath
+            );
             require(amounts[0] <= maxCollateralToSwap, "slippage too high");
 
             // Pull aTokens from user
             _pullAToken(
                 collateralAsset.asset,
-                collateralAsset.tranche,
+                collateralAsset.trancheId,
                 collateralReserveData.aTokenAddress,
                 initiator,
                 amounts[0],
@@ -261,7 +263,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             // Pull aTokens from user
             _pullAToken(
                 collateralAsset.asset,
-                collateralAsset.tranche,
+                collateralAsset.trancheId,
                 collateralReserveData.aTokenAddress,
                 initiator,
                 repaidAmount.add(premium),
@@ -307,8 +309,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             bytes32 r,
             bytes32 s,
             bool useEthPath
-        ) =
-            abi.decode(
+        ) = abi.decode(
                 params,
                 (
                     address,

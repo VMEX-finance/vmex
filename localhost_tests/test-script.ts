@@ -61,7 +61,8 @@ await myWETH.connect(signer).deposit(options);
 await myWETH.connect(signer).balanceOf(signer.address);
 await myWETH.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
 
-await lendingPool.connect(signer).deposit(myWETH.address, 2, true, ethers.utils.parseUnits('100'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(myWETH.address, 2, ethers.utils.parseUnits('100'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(myWETH.address, 2, true); 
 
 
 // testing curve lp tokens

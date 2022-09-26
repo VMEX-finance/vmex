@@ -2,16 +2,10 @@
 pragma solidity >=0.8.0;
 
 import {LendingPool} from "../protocol/lendingpool/LendingPool.sol";
-import {
-    LendingPoolAddressesProvider
-} from "../protocol/configuration/LendingPoolAddressesProvider.sol";
-import {
-    LendingPoolConfigurator
-} from "../protocol/lendingpool/LendingPoolConfigurator.sol";
+import {LendingPoolAddressesProvider} from "../protocol/configuration/LendingPoolAddressesProvider.sol";
+import {LendingPoolConfigurator} from "../protocol/lendingpool/LendingPoolConfigurator.sol";
 import {AToken} from "../protocol/tokenization/AToken.sol";
-import {
-    DefaultReserveInterestRateStrategy
-} from "../protocol/lendingpool/DefaultReserveInterestRateStrategy.sol";
+import {DefaultReserveInterestRateStrategy} from "../protocol/lendingpool/DefaultReserveInterestRateStrategy.sol";
 import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
 import {StringLib} from "./StringLib.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
@@ -69,39 +63,34 @@ contract ATokensAndRatesHelper is Ownable {
         }
     }
 
-    function configureReserves(ConfigureReserveInput[] calldata inputParams)
-        external
-        onlyOwner
-    {
-        LendingPoolConfigurator configurator =
-            LendingPoolConfigurator(poolConfigurator);
+    function configureReserves(
+        ConfigureReserveInput[] calldata inputParams,
+        uint8 trancheId
+    ) external onlyOwner {
+        LendingPoolConfigurator configurator = LendingPoolConfigurator(
+            poolConfigurator
+        );
         for (uint256 i = 0; i < inputParams.length; i++) {
-            for (
-                uint8 tranche = 0;
-                tranche < DataTypes.NUM_TRANCHES;
-                tranche++
-            ) {
-                configurator.configureReserveAsCollateral(
-                    inputParams[i].asset,
-                    tranche,
-                    inputParams[i].baseLTV,
-                    inputParams[i].liquidationThreshold,
-                    inputParams[i].liquidationBonus
-                );
+            configurator.configureReserveAsCollateral(
+                inputParams[i].asset,
+                trancheId,
+                inputParams[i].baseLTV,
+                inputParams[i].liquidationThreshold,
+                inputParams[i].liquidationBonus
+            );
 
-                if (inputParams[i].borrowingEnabled) {
-                    configurator.enableBorrowingOnReserve(
-                        inputParams[i].asset,
-                        tranche,
-                        inputParams[i].stableBorrowingEnabled
-                    );
-                }
-                configurator.setReserveFactor(
+            if (inputParams[i].borrowingEnabled) {
+                configurator.enableBorrowingOnReserve(
                     inputParams[i].asset,
-                    tranche,
-                    inputParams[i].reserveFactor
+                    trancheId,
+                    inputParams[i].stableBorrowingEnabled
                 );
             }
+            configurator.setReserveFactor(
+                inputParams[i].asset,
+                trancheId,
+                inputParams[i].reserveFactor
+            );
         }
     }
 }

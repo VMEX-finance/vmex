@@ -163,7 +163,8 @@ await oracle.connect(signer).getAssetPrice('0x853d955aCEf822Db058eb8505911ED77F1
 /************************************************************************************/
 /****************** deposit curve LP token to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(CurveToken.address, 2, true, ethers.utils.parseUnits('900'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).deposit(CurveToken.address, 2, ethers.utils.parseUnits('900'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 2, true); 
 
 await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 
