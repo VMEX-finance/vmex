@@ -46,548 +46,4236 @@ export class TokenReserveData extends Contract {
 
   functions: {
     getType(overrides?: CallOverrides): Promise<{
-      0: [
-        {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
-          tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
-        },
-        {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
-          tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
-        },
-        {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
-          tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
-        }
-      ];
+      0: {
+        tokens: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ];
+        balances: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        data: [
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          }
+        ];
+        0: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ];
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          }
+        ];
+      };
     }>;
 
     "getType()"(overrides?: CallOverrides): Promise<{
-      0: [
-        {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
-          tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
-        },
-        {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
-          tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
-        },
-        {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
-          tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
-        }
-      ];
+      0: {
+        tokens: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ];
+        balances: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        data: [
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          }
+        ];
+        0: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ];
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          },
+          {
+            tranche: number;
+            income: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            debt: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            0: number;
+            1: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+            2: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ];
+          }
+        ];
+      };
     }>;
   };
 
   getType(
     overrides?: CallOverrides
-  ): Promise<
-    [
+  ): Promise<{
+    tokens: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+    balances: [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ];
+    data: [
       {
-        configuration: { data: BigNumber; 0: BigNumber };
-        liquidityIndex: BigNumber;
-        variableBorrowIndex: BigNumber;
-        currentLiquidityRate: BigNumber;
-        currentVariableBorrowRate: BigNumber;
-        currentStableBorrowRate: BigNumber;
-        lastUpdateTimestamp: number;
-        aTokenAddress: string;
-        stableDebtTokenAddress: string;
-        variableDebtTokenAddress: string;
-        interestRateStrategyAddress: string;
-        id: number;
         tranche: number;
-        0: { data: BigNumber; 0: BigNumber };
-        1: BigNumber;
-        2: BigNumber;
-        3: BigNumber;
-        4: BigNumber;
-        5: BigNumber;
-        6: number;
-        7: string;
-        8: string;
-        9: string;
-        10: string;
-        11: number;
-        12: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
       },
       {
-        configuration: { data: BigNumber; 0: BigNumber };
-        liquidityIndex: BigNumber;
-        variableBorrowIndex: BigNumber;
-        currentLiquidityRate: BigNumber;
-        currentVariableBorrowRate: BigNumber;
-        currentStableBorrowRate: BigNumber;
-        lastUpdateTimestamp: number;
-        aTokenAddress: string;
-        stableDebtTokenAddress: string;
-        variableDebtTokenAddress: string;
-        interestRateStrategyAddress: string;
-        id: number;
         tranche: number;
-        0: { data: BigNumber; 0: BigNumber };
-        1: BigNumber;
-        2: BigNumber;
-        3: BigNumber;
-        4: BigNumber;
-        5: BigNumber;
-        6: number;
-        7: string;
-        8: string;
-        9: string;
-        10: string;
-        11: number;
-        12: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
       },
       {
-        configuration: { data: BigNumber; 0: BigNumber };
-        liquidityIndex: BigNumber;
-        variableBorrowIndex: BigNumber;
-        currentLiquidityRate: BigNumber;
-        currentVariableBorrowRate: BigNumber;
-        currentStableBorrowRate: BigNumber;
-        lastUpdateTimestamp: number;
-        aTokenAddress: string;
-        stableDebtTokenAddress: string;
-        variableDebtTokenAddress: string;
-        interestRateStrategyAddress: string;
-        id: number;
         tranche: number;
-        0: { data: BigNumber; 0: BigNumber };
-        1: BigNumber;
-        2: BigNumber;
-        3: BigNumber;
-        4: BigNumber;
-        5: BigNumber;
-        6: number;
-        7: string;
-        8: string;
-        9: string;
-        10: string;
-        11: number;
-        12: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
       }
-    ]
-  >;
+    ];
+    0: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+    1: [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ];
+    2: [
+      {
+        tranche: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+      },
+      {
+        tranche: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+      },
+      {
+        tranche: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+      }
+    ];
+  }>;
 
   "getType()"(
     overrides?: CallOverrides
-  ): Promise<
-    [
+  ): Promise<{
+    tokens: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+    balances: [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ];
+    data: [
       {
-        configuration: { data: BigNumber; 0: BigNumber };
-        liquidityIndex: BigNumber;
-        variableBorrowIndex: BigNumber;
-        currentLiquidityRate: BigNumber;
-        currentVariableBorrowRate: BigNumber;
-        currentStableBorrowRate: BigNumber;
-        lastUpdateTimestamp: number;
-        aTokenAddress: string;
-        stableDebtTokenAddress: string;
-        variableDebtTokenAddress: string;
-        interestRateStrategyAddress: string;
-        id: number;
         tranche: number;
-        0: { data: BigNumber; 0: BigNumber };
-        1: BigNumber;
-        2: BigNumber;
-        3: BigNumber;
-        4: BigNumber;
-        5: BigNumber;
-        6: number;
-        7: string;
-        8: string;
-        9: string;
-        10: string;
-        11: number;
-        12: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
       },
       {
-        configuration: { data: BigNumber; 0: BigNumber };
-        liquidityIndex: BigNumber;
-        variableBorrowIndex: BigNumber;
-        currentLiquidityRate: BigNumber;
-        currentVariableBorrowRate: BigNumber;
-        currentStableBorrowRate: BigNumber;
-        lastUpdateTimestamp: number;
-        aTokenAddress: string;
-        stableDebtTokenAddress: string;
-        variableDebtTokenAddress: string;
-        interestRateStrategyAddress: string;
-        id: number;
         tranche: number;
-        0: { data: BigNumber; 0: BigNumber };
-        1: BigNumber;
-        2: BigNumber;
-        3: BigNumber;
-        4: BigNumber;
-        5: BigNumber;
-        6: number;
-        7: string;
-        8: string;
-        9: string;
-        10: string;
-        11: number;
-        12: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
       },
       {
-        configuration: { data: BigNumber; 0: BigNumber };
-        liquidityIndex: BigNumber;
-        variableBorrowIndex: BigNumber;
-        currentLiquidityRate: BigNumber;
-        currentVariableBorrowRate: BigNumber;
-        currentStableBorrowRate: BigNumber;
-        lastUpdateTimestamp: number;
-        aTokenAddress: string;
-        stableDebtTokenAddress: string;
-        variableDebtTokenAddress: string;
-        interestRateStrategyAddress: string;
-        id: number;
         tranche: number;
-        0: { data: BigNumber; 0: BigNumber };
-        1: BigNumber;
-        2: BigNumber;
-        3: BigNumber;
-        4: BigNumber;
-        5: BigNumber;
-        6: number;
-        7: string;
-        8: string;
-        9: string;
-        10: string;
-        11: number;
-        12: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
       }
-    ]
-  >;
+    ];
+    0: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+    1: [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ];
+    2: [
+      {
+        tranche: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+      },
+      {
+        tranche: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+      },
+      {
+        tranche: number;
+        income: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        debt: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        0: number;
+        1: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+        2: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ];
+      }
+    ];
+  }>;
 
   callStatic: {
     getType(
       overrides?: CallOverrides
-    ): Promise<
-      [
+    ): Promise<{
+      tokens: [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+      balances: [
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber
+      ];
+      data: [
         {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
           tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
         },
         {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
           tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
         },
         {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
           tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
         }
-      ]
-    >;
+      ];
+      0: [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+      1: [
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber
+      ];
+      2: [
+        {
+          tranche: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+        },
+        {
+          tranche: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+        },
+        {
+          tranche: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+        }
+      ];
+    }>;
 
     "getType()"(
       overrides?: CallOverrides
-    ): Promise<
-      [
+    ): Promise<{
+      tokens: [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+      balances: [
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber
+      ];
+      data: [
         {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
           tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
         },
         {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
           tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
         },
         {
-          configuration: { data: BigNumber; 0: BigNumber };
-          liquidityIndex: BigNumber;
-          variableBorrowIndex: BigNumber;
-          currentLiquidityRate: BigNumber;
-          currentVariableBorrowRate: BigNumber;
-          currentStableBorrowRate: BigNumber;
-          lastUpdateTimestamp: number;
-          aTokenAddress: string;
-          stableDebtTokenAddress: string;
-          variableDebtTokenAddress: string;
-          interestRateStrategyAddress: string;
-          id: number;
           tranche: number;
-          0: { data: BigNumber; 0: BigNumber };
-          1: BigNumber;
-          2: BigNumber;
-          3: BigNumber;
-          4: BigNumber;
-          5: BigNumber;
-          6: number;
-          7: string;
-          8: string;
-          9: string;
-          10: string;
-          11: number;
-          12: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
         }
-      ]
-    >;
+      ];
+      0: [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+      1: [
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber
+      ];
+      2: [
+        {
+          tranche: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+        },
+        {
+          tranche: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+        },
+        {
+          tranche: number;
+          income: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          debt: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          0: number;
+          1: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+          2: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ];
+        }
+      ];
+    }>;
   };
 
   filters: {};
