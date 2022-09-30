@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 interface ILendingPoolConfigurator {
     struct UpdateATokenInput {
         address asset;
-        uint8 trancheId;
+        uint16 trancheId;
         address treasury;
         address incentivesController;
         string name;
@@ -15,7 +15,7 @@ interface ILendingPoolConfigurator {
 
     struct UpdateDebtTokenInput {
         address asset;
-        uint8 trancheId;
+        uint16 trancheId;
         address incentivesController;
         string name;
         string symbol;

@@ -15,7 +15,7 @@ interface ILendingPool {
      **/
     event Deposit(
         address indexed reserve,
-        uint8 trancheId,
+        uint16 trancheId,
         address user,
         address indexed onBehalfOf,
         uint256 amount,
@@ -173,7 +173,7 @@ interface ILendingPool {
      **/
     function deposit(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
@@ -192,7 +192,7 @@ interface ILendingPool {
      **/
     function withdraw(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         address to
     ) external returns (uint256);
@@ -214,7 +214,7 @@ interface ILendingPool {
      **/
     function borrow(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
@@ -235,7 +235,7 @@ interface ILendingPool {
      **/
     function repay(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
@@ -248,7 +248,7 @@ interface ILendingPool {
      **/
     function swapBorrowRateMode(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 rateMode
     ) external;
 
@@ -263,7 +263,7 @@ interface ILendingPool {
      **/
     function rebalanceStableBorrowRate(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     ) external;
 
@@ -274,7 +274,7 @@ interface ILendingPool {
      **/
     function setUserUseReserveAsCollateral(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         bool useAsCollateral
     ) external;
 
@@ -292,7 +292,7 @@ interface ILendingPool {
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
-        uint8 trancheId,
+        uint16 trancheId,
         address user,
         uint256 debtToCover,
         bool receiveAToken
@@ -335,7 +335,7 @@ interface ILendingPool {
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint8 trancheId)
+    function getUserAccountData(address user, uint16 trancheId)
         external
         view
         returns (
@@ -351,7 +351,9 @@ interface ILendingPool {
         DataTypes.InitReserveInput calldata input,
         address aTokenAddress,
         address stableDebtAddress,
-        address variableDebtAddress
+        address variableDebtAddress,
+        uint16 trancheId,
+        uint16 trancheRisk
     ) external;
 
     /**
@@ -369,13 +371,13 @@ interface ILendingPool {
 
     function setReserveInterestRateStrategyAddress(
         address reserve,
-        uint8 trancheId,
+        uint16 trancheId,
         address rateStrategyAddress
     ) external;
 
     function setConfiguration(
         address reserve,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 configuration
     ) external;
 
@@ -384,7 +386,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The configuration of the reserve
      **/
-    function getConfiguration(address asset, uint8 trancheId)
+    function getConfiguration(address asset, uint16 trancheId)
         external
         view
         returns (DataTypes.ReserveConfigurationMap memory);
@@ -404,7 +406,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve's normalized income
      */
-    function getReserveNormalizedIncome(address asset, uint8 trancheId)
+    function getReserveNormalizedIncome(address asset, uint16 trancheId)
         external
         view
         returns (uint256);
@@ -414,7 +416,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve normalized variable debt
      */
-    function getReserveNormalizedVariableDebt(address asset, uint8 trancheId)
+    function getReserveNormalizedVariableDebt(address asset, uint16 trancheId)
         external
         view
         returns (uint256);
@@ -424,14 +426,14 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
      **/
-    function getReserveData(address asset, uint8 trancheId)
+    function getReserveData(address asset, uint16 trancheId)
         external
         view
         returns (DataTypes.ReserveData memory);
 
     function finalizeTransfer(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         address from,
         address to,
         uint256 amount,
@@ -439,12 +441,12 @@ interface ILendingPool {
         uint256 balanceToBefore
     ) external;
 
-    function getReservesList(uint8 trancheId)
+    function getReservesList(uint16 trancheId)
         external
         view
         returns (address[] memory);
 
-    // function getReservesList(uint8 trancheId) external view returns (address[] memory);
+    // function getReservesList(uint16 trancheId) external view returns (address[] memory);
 
     function getAssetData(address asset)
         external

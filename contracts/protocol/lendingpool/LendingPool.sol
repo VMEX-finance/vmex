@@ -119,7 +119,7 @@ contract LendingPool is
         //allowing collateral changes here opens up possibility of attack where someone can try to change the collateral status of someone else, but this can only be done for the initial deposit
         //confusing interface where users can choose their isCollateral but it only matters for the first deposit
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
@@ -157,7 +157,7 @@ contract LendingPool is
      **/
     function withdraw(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         address to
     ) public override whenNotPaused returns (uint256) {
@@ -214,7 +214,7 @@ contract LendingPool is
      **/
     function borrow(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
@@ -271,7 +271,7 @@ contract LendingPool is
      **/
     function repay(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
@@ -342,7 +342,7 @@ contract LendingPool is
      **/
     function swapBorrowRateMode(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 rateMode
     ) external override whenNotPaused {
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
@@ -406,7 +406,7 @@ contract LendingPool is
      **/
     function rebalanceStableBorrowRate(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     ) external override whenNotPaused {
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
@@ -447,7 +447,7 @@ contract LendingPool is
      **/
     function setUserUseReserveAsCollateral(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         bool useAsCollateral
     ) external override whenNotPaused {
         // require(
@@ -496,7 +496,7 @@ contract LendingPool is
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
-        uint8 trancheId,
+        uint16 trancheId,
         address user,
         uint256 debtToCover,
         bool receiveAToken
@@ -601,7 +601,7 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
      **/
-    function getReserveData(address asset, uint8 trancheId)
+    function getReserveData(address asset, uint16 trancheId)
         external
         view
         override
@@ -629,7 +629,7 @@ contract LendingPool is
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint8 trancheId)
+    function getUserAccountData(address user, uint16 trancheId)
         external
         view
         override
@@ -671,7 +671,7 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The configuration of the reserve
      **/
-    function getConfiguration(address asset, uint8 trancheId)
+    function getConfiguration(address asset, uint16 trancheId)
         external
         view
         override
@@ -699,7 +699,7 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve's normalized income
      */
-    function getReserveNormalizedIncome(address asset, uint8 trancheId)
+    function getReserveNormalizedIncome(address asset, uint16 trancheId)
         external
         view
         virtual
@@ -714,7 +714,7 @@ contract LendingPool is
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve normalized variable debt
      */
-    function getReserveNormalizedVariableDebt(address asset, uint8 trancheId)
+    function getReserveNormalizedVariableDebt(address asset, uint16 trancheId)
         external
         view
         override
@@ -733,7 +733,7 @@ contract LendingPool is
     /**
      * @dev Returns the list of the initialized reserves. This is just placeholder, looking at tranche 0.
      **/
-    function getReservesList(uint8 trancheId)
+    function getReservesList(uint16 trancheId)
         external
         view
         override
@@ -752,7 +752,7 @@ contract LendingPool is
     /**
      * @dev Returns the list of the initialized reserves
      **/
-    // function getReservesList(uint8 trancheId)
+    // function getReservesList(uint16 trancheId)
     //     external
     //     view
     //     override
@@ -815,7 +815,7 @@ contract LendingPool is
      */
     function finalizeTransfer(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         address from,
         address to,
         uint256 amount,
@@ -870,22 +870,26 @@ contract LendingPool is
         DataTypes.InitReserveInput calldata input,
         address aTokenAddress,
         address stableDebtAddress,
-        address variableDebtAddress
+        address variableDebtAddress,
+        uint16 trancheId,
+        uint16 trancheRisk
     ) external override onlyLendingPoolConfigurator {
         require(
             Address.isContract(input.underlyingAsset),
             Errors.LP_NOT_CONTRACT
         );
         //considering requiring _reservesCount[trancheId] = 0, but you can add another asset to an existing tranche too.
-        _reserves[input.underlyingAsset][input.trancheId].init(
+        _reserves[input.underlyingAsset][trancheId].init(
             aTokenAddress,
             stableDebtAddress,
             variableDebtAddress,
-            input
+            input,
+            trancheId,
+            trancheRisk
         );
 
         // TODO: update for tranches
-        _addReserveToList(input.underlyingAsset, input.trancheId);
+        _addReserveToList(input.underlyingAsset, trancheId);
     }
 
     /**
@@ -919,7 +923,7 @@ contract LendingPool is
      **/
     function setReserveInterestRateStrategyAddress(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         address rateStrategyAddress
     ) external override onlyLendingPoolConfigurator {
         _reserves[asset][trancheId]
@@ -934,7 +938,7 @@ contract LendingPool is
      **/
     function setConfiguration(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 configuration
     ) external override onlyLendingPoolConfigurator {
         _reserves[asset][trancheId].configuration.data = configuration;
@@ -954,7 +958,7 @@ contract LendingPool is
         }
     }
 
-    function _addReserveToList(address asset, uint8 trancheId) internal {
+    function _addReserveToList(address asset, uint16 trancheId) internal {
         uint256 reservesCount = _reservesCount[trancheId];
 
         require(

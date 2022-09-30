@@ -73,7 +73,7 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
      * @dev Get the aToken associated to the asset
      * @return address of the aToken
      */
-    function _getReserveData(address asset, uint8 trancheId)
+    function _getReserveData(address asset, uint16 trancheId)
         internal
         view
         returns (DataTypes.ReserveData memory)
@@ -91,7 +91,7 @@ abstract contract BaseParaSwapAdapter is FlashLoanReceiverBase, Ownable {
      */
     function _pullATokenAndWithdraw(
         address reserve,
-        uint8 trancheId,
+        uint16 trancheId,
         IERC20WithPermit reserveAToken,
         address user,
         uint256 amount,

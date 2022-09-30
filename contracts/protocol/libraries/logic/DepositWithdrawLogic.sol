@@ -56,7 +56,7 @@ library DepositWithdrawLogic {
      **/
     event Deposit(
         address indexed reserve,
-        uint8 trancheId,
+        uint16 trancheId,
         address user,
         address indexed onBehalfOf,
         uint256 amount,

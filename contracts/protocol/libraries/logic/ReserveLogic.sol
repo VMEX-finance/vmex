@@ -174,7 +174,9 @@ library ReserveLogic {
         address aTokenAddress,
         address stableDebtTokenAddress,
         address variableDebtTokenAddress,
-        DataTypes.InitReserveInput memory input
+        DataTypes.InitReserveInput memory input,
+        uint16 trancheId,
+        uint16 trancheRisk
     ) external {
         require(
             reserve.aTokenAddress == address(0),
@@ -190,8 +192,8 @@ library ReserveLogic {
         {
             reserve.interestRateStrategyAddress = input
                 .interestRateStrategyAddress;
-            reserve.trancheId = input.trancheId;
-            reserve.trancheRisk = input.trancheRisk;
+            reserve.trancheId = trancheId;
+            reserve.trancheRisk = trancheRisk;
             reserve.canBeCollateral = input.canBeCollateral;
         }
         {

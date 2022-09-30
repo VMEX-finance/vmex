@@ -88,7 +88,7 @@ contract LendingPoolCollateralManager is
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
-        uint8 trancheId,
+        uint16 trancheId,
         // uint8 debtAssetTranche, //this would actually be the same trancheId as the collateral (you can only borrow from the same trancheId that your collateral is in)
         address user,
         uint256 debtToCover,

@@ -46,7 +46,7 @@ library GenericLogic {
     //  * @param amount The amount to decrease
     struct balanceDecreaseAllowedParameters {
         address asset;
-        uint8 trancheId;
+        uint16 trancheId;
         address user;
         uint256 amount;
         ILendingPoolAddressesProvider _addressesProvider;
@@ -166,7 +166,7 @@ library GenericLogic {
         uint256 liquidityBalanceETH;
         address oracle;
         address user;
-        uint8 trancheId;
+        uint16 trancheId;
     }
 
     /**

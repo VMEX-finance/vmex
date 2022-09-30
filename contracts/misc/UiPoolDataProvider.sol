@@ -56,7 +56,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     function getReservesList(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint16 trancheId
     ) public view override returns (address[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
         return lendingPool.getReservesList(trancheId);
@@ -64,7 +64,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     function getSimpleReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint16 trancheId
     )
         public
         view
@@ -85,7 +85,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
             reserveData.underlyingAsset = reserves[i];
 
             // reserve current state
-            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint16 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserveData.underlyingAsset,
                 trancheId
@@ -197,7 +197,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     function getUserReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     ) external view override returns (UserReserveData[] memory, uint256) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
@@ -210,7 +210,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
         );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint16 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId
@@ -267,7 +267,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     function getReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     )
         external
@@ -302,7 +302,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
             }
 
             // reserve current state
-            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint16 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData;
             {
                 baseData = lendingPool.getReserveData(

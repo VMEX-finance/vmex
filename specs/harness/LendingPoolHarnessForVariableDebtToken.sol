@@ -68,7 +68,7 @@ contract LendingPoolHarnessForVariableDebtToken is ILendingPool {
   function liquidationCall(
     address collateral,
     address asset,
-    uint8 trancheId,
+    uint16 trancheId,
     address user,
     uint256 debtToCover,
     bool receiveAToken

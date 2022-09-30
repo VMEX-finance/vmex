@@ -25,7 +25,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
     struct LiquidationParams {
         address collateralAsset;
         address borrowedAsset;
-        uint8 trancheId;
+        uint16 trancheId;
         address user;
         uint256 debtToCover;
         bool useEthPath;
@@ -199,7 +199,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         (
             address collateralAsset,
             address borrowedAsset,
-            uint8 trancheId,
+            uint16 trancheId,
             address user,
             uint256 debtToCover,
             bool useEthPath
