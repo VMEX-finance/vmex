@@ -31,7 +31,7 @@ contract AaveProtocolDataProvider {
         ADDRESSES_PROVIDER = addressesProvider;
     }
 
-    function getAllReservesTokens(uint8 trancheId)
+    function getAllReservesTokens(uint16 trancheId)
         external
         view
         returns (TokenData[] memory)
@@ -62,7 +62,7 @@ contract AaveProtocolDataProvider {
         return reservesTokens;
     }
 
-    function getAllATokens(uint8 trancheId)
+    function getAllATokens(uint16 trancheId)
         external
         view
         returns (TokenData[] memory)
@@ -71,7 +71,7 @@ contract AaveProtocolDataProvider {
         address[] memory reserves = pool.getReservesList(trancheId);
         TokenData[] memory aTokens = new TokenData[](reserves.length);
         for (uint256 i = 0; i < reserves.length; i++) {
-            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint16 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory reserveData = pool.getReserveData(
                 reserves[i],
                 trancheId
@@ -110,7 +110,7 @@ contract AaveProtocolDataProvider {
         uint256 liquidityBalanceETH;
     }
 
-    function getReserveConfigurationData(address asset, uint8 trancheId)
+    function getReserveConfigurationData(address asset, uint16 trancheId)
         external
         view
         returns (
@@ -148,7 +148,7 @@ contract AaveProtocolDataProvider {
         usageAsCollateralEnabled = liquidationThreshold > 0;
     }
 
-    function getReserveData(address asset, uint8 trancheId)
+    function getReserveData(address asset, uint16 trancheId)
         external
         view
         returns (
@@ -185,7 +185,7 @@ contract AaveProtocolDataProvider {
 
     function getUserReserveData(
         address asset,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     )
         external
@@ -230,7 +230,7 @@ contract AaveProtocolDataProvider {
         usageAsCollateralEnabled = userConfig.isUsingAsCollateral(reserve.id);
     }
 
-    function getReserveTokensAddresses(address asset, uint8 trancheId)
+    function getReserveTokensAddresses(address asset, uint16 trancheId)
         external
         view
         returns (

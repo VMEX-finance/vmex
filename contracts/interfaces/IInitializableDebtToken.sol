@@ -42,7 +42,7 @@ interface IInitializableDebtToken {
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
-        uint8 trancheId,
+        uint16 trancheId,
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,

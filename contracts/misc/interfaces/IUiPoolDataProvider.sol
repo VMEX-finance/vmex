@@ -74,7 +74,7 @@ interface IUiPoolDataProvider {
 
     function getReservesList(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint16 trancheId
     ) external view returns (address[] memory);
 
     function incentivesController()
@@ -84,7 +84,7 @@ interface IUiPoolDataProvider {
 
     function getSimpleReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint16 trancheId
     )
         external
         view
@@ -96,7 +96,7 @@ interface IUiPoolDataProvider {
 
     function getUserReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     )
         external
@@ -109,7 +109,7 @@ interface IUiPoolDataProvider {
     // generic method with full data
     function getReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     )
         external

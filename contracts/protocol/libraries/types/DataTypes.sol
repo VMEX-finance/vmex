@@ -21,8 +21,6 @@ library DataTypes {
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
         bytes params;
-        uint8 trancheId;
-        uint8 trancheRisk;
         uint8 risk; //risk level for collateral
         bool allowHigherTranche;
         uint8 assetType;
@@ -47,12 +45,12 @@ library DataTypes {
     }
 
     struct Tranches {
-        uint8 trancheid;
+        uint16 trancheid;
         uint16 numAssets;
     }
 
     struct TrancheAddress {
-        uint8 trancheId;
+        uint16 trancheId;
         address asset;
     }
     struct ReserveData {
@@ -78,8 +76,8 @@ library DataTypes {
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
         //maybe consider
-        uint8 trancheId;
-        uint8 trancheRisk;
+        uint16 trancheId;
+        uint16 trancheRisk;
         //trancheid and trancheRisk?
         //since we will keep adding more tranches but they might not necessarily have increasing risks
         //tranches of the same trancheid will be pooled together as collateral
@@ -121,12 +119,12 @@ library DataTypes {
 
     struct AcctTranche {
         address user;
-        uint8 trancheId;
+        uint16 trancheId;
     }
 
     struct DepositVars {
         address asset;
-        uint8 trancheId;
+        uint16 trancheId;
         address _addressesProvider;
         uint256 amount;
         address onBehalfOf;
@@ -135,7 +133,7 @@ library DataTypes {
 
     struct ExecuteBorrowParams {
         address asset;
-        uint8 trancheId; //trancheId the user wants to borrow out of
+        uint16 trancheId; //trancheId the user wants to borrow out of
         address user;
         address onBehalfOf;
         uint256 amount;
@@ -150,7 +148,7 @@ library DataTypes {
     struct WithdrawParams {
         uint256 _reservesCount;
         address asset;
-        uint8 trancheId;
+        uint16 trancheId;
         uint256 amount;
         address to;
     }

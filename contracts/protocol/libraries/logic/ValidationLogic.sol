@@ -62,7 +62,7 @@ library ValidationLogic {
      */
     function validateWithdraw(
         address reserveAddress,
-        uint8 trancheId,
+        uint16 trancheId,
         uint256 amount,
         uint256 userBalance,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
@@ -545,7 +545,7 @@ library ValidationLogic {
      */
     function validateTransfer(
         address from,
-        uint8 trancheId,
+        uint16 trancheId,
         mapping(address => mapping(uint8 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,

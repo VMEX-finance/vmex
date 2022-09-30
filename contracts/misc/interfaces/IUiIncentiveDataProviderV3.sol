@@ -57,19 +57,19 @@ interface IUiIncentiveDataProviderV3 {
 
     function getReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint16 trancheId
     ) external view returns (AggregatedReserveIncentiveData[] memory);
 
     function getUserReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     ) external view returns (UserReserveIncentiveData[] memory);
 
     // generic method with full data
     function getFullReservesIncentiveData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint16 trancheId,
         address user
     )
         external

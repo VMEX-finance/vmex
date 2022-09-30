@@ -75,8 +75,6 @@ export const initReservesByHelper = async (
     stableDebtTokenName: string;
     stableDebtTokenSymbol: string;
     params: string;
-    trancheId: BigNumberish;
-    trancheRisk: BigNumberish;
     risk: BigNumberish;
     allowHigherTranche: boolean;
     assetType: BigNumberish;
@@ -181,8 +179,6 @@ export const initReservesByHelper = async (
       stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
-      trancheId: trancheId,
-      trancheRisk: trancheRisk,
       risk: risk,
       allowHigherTranche: allowedHigherTranche,
       assetType: assetType,
