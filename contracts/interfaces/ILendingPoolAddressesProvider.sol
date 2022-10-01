@@ -13,8 +13,11 @@ import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 interface ILendingPoolAddressesProvider {
     event MarketIdSet(string newMarketId);
     event LendingPoolUpdated(address indexed newAddress);
-    event ConfigurationAdminUpdated(address indexed newAddress);
-    event EmergencyAdminUpdated(address indexed newAddress);
+    event ConfigurationAdminUpdated(
+        address indexed newAddress,
+        uint64 trancheId
+    );
+    event EmergencyAdminUpdated(address indexed newAddress, uint64 trancheId);
     event LendingPoolConfiguratorUpdated(address indexed newAddress);
     event LendingPoolCollateralManagerUpdated(address indexed newAddress);
     event PriceOracleUpdated(address indexed newAddress);
@@ -47,18 +50,39 @@ interface ILendingPoolAddressesProvider {
 
     function setLendingPoolCollateralManager(address manager) external;
 
-    function getPoolAdmin() external view returns (address);
+    //********************************************************** */
+    //permissionless tranches changes
+    function getPoolAdmin(uint64 trancheId) external view returns (address); //this depends on trancheId. Different admin for different tranches
 
-    function setPoolAdmin(address admin) external;
+    function getGlobalAdmin() external view returns (address);
 
-    function getEmergencyAdmin() external view returns (address);
+    function setGlobalAdmin(address admin) external;
 
-    function setEmergencyAdmin(address admin) external;
+    function setPoolAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
-    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+    function getEmergencyAdmin(uint64 trancheId)
+        external
+        view
+        returns (address); //this depends on trancheId
+
+    function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
+
+    function addPoolAdmin(address admin, uint64 trancheId) external;
+
+    function addEmergencyAdmin(address admin, uint64 trancheId) external;
+
+    function getAddressTranche(bytes32 id, uint64 trancheId)
         external
         view
         returns (address);
+
+    function isWhitelistedAddress(address ad) external view returns (bool);
+
+    //********************************************************** */
+    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+        external
+        view
+        returns (address); //this might also depend on trancheId if some configurators choose to
 
     function getAavePriceOracle() external view returns (address);
 
@@ -76,7 +100,7 @@ interface ILendingPoolAddressesProvider {
 
     function setCurvePriceOracleWrapper(address priceOracle) external;
 
-    function getLendingRateOracle() external view returns (address);
+    function getLendingRateOracle() external view returns (address); //this oracle determines the stable borrow rate for a reserve. Should only need one, since it is based off the address of the reserve, which is unique for every asset in each tranche in each pool. Governance manually sets this
 
     function setLendingRateOracle(address lendingRateOracle) external;
 }

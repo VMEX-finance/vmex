@@ -25,7 +25,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
     struct LiquidationParams {
         address collateralAsset;
         address borrowedAsset;
-        uint8 trancheId;
+        uint64 trancheId;
         address user;
         uint256 debtToCover;
         bool useEthPath;
@@ -64,7 +64,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
      *   bool useEthPath Use WETH as connector path between the collateralAsset and borrowedAsset at Uniswap
      */
     function executeOperation(
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -78,8 +78,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         LiquidationParams memory decodedParams = _decodeParams(params);
 
         require(
-            assets.length == 1 &&
-                assets[0].asset == decodedParams.borrowedAsset,
+            assets.length == 1 && assets[0] == decodedParams.borrowedAsset,
             "INCONSISTENT_PARAMS"
         );
 
@@ -199,13 +198,13 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         (
             address collateralAsset,
             address borrowedAsset,
-            uint8 trancheId,
+            uint64 trancheId,
             address user,
             uint256 debtToCover,
             bool useEthPath
         ) = abi.decode(
                 params,
-                (address, address, uint8, address, uint256, bool)
+                (address, address, uint64, address, uint256, bool)
             );
 
         return

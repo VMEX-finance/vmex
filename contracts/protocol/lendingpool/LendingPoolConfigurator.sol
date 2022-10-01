@@ -35,18 +35,36 @@ contract LendingPoolConfigurator is
     ILendingPoolAddressesProvider internal addressesProvider;
     ILendingPool internal pool;
 
-    modifier onlyPoolAdmin() {
+    modifier onlyGlobalAdmin() {
+        //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         require(
-            addressesProvider.getPoolAdmin() == msg.sender,
+            addressesProvider.getGlobalAdmin() == msg.sender,
+            "Caller not global VMEX admin"
+        );
+        _;
+    }
+
+    modifier onlyPoolAdmin(uint64 trancheId) {
+        require(
+            addressesProvider.getPoolAdmin(trancheId) == msg.sender ||
+                addressesProvider.getGlobalAdmin() == msg.sender, //getPoolAdmin(trancheId) gets the admin for a specific tranche
             Errors.CALLER_NOT_POOL_ADMIN
         );
         _;
     }
 
-    modifier onlyEmergencyAdmin() {
+    modifier onlyEmergencyAdmin(uint64 trancheId) {
         require(
-            addressesProvider.getEmergencyAdmin() == msg.sender,
+            addressesProvider.getEmergencyAdmin(trancheId) == msg.sender,
             Errors.LPC_CALLER_NOT_EMERGENCY_ADMIN
+        );
+        _;
+    }
+
+    modifier whitelistedAddress() {
+        require(
+            addressesProvider.isWhitelistedAddress(msg.sender),
+            "Sender is not whitelisted to add new tranche"
         );
         _;
     }
@@ -66,142 +84,195 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Initializes reserves in batch
+     * @dev Initializes reserves in batch. Purpose is for people who want to create their own permissionless tranche, doesn't require any checks besides that trancheId is unique
      **/
-    function batchInitReserve(DataTypes.InitReserveInput[] calldata input)
-        external
-        onlyPoolAdmin
-    {
+    function addNewTrancheWithReserves(
+        DataTypes.InitReserveInput[] calldata input,
+        uint64 trancheId, //uint256
+        address admin,
+        address emergencyAdmin
+    ) external whitelistedAddress {
+        //whitelist only
+        addressesProvider.addPoolAdmin(admin, trancheId);
+        addressesProvider.addEmergencyAdmin(emergencyAdmin, trancheId);
+        //TODO: check implications of concurrent calls
         ILendingPool cachedPool = pool;
         for (uint256 i = 0; i < input.length; i++) {
-            _initReserve(cachedPool, input[i]);
+            _initReserve(
+                cachedPool,
+                DataTypes.InitReserveInputInternal(input[i], trancheId)
+            );
         }
     }
 
+    /**
+     * @dev Initializes reserves in batch. Can be called directly by those who already created tranches and want to add new reserves to their tranche
+     **/
+    function batchInitReserve(
+        DataTypes.InitReserveInput[] calldata input,
+        uint64 trancheId
+    ) external onlyPoolAdmin(trancheId) {
+        ILendingPool cachedPool = pool;
+        for (uint256 i = 0; i < input.length; i++) {
+            _initReserve(
+                cachedPool,
+                DataTypes.InitReserveInputInternal(input[i], trancheId)
+            );
+        }
+    }
+
+    //vmex assisted edits
+    //modifier onlyGlobalAdmin()
+
     function _initReserve(
         ILendingPool pool,
-        DataTypes.InitReserveInput calldata input
+        DataTypes.InitReserveInputInternal memory internalInput
     ) internal {
-        address aTokenProxyAddress = _initTokenWithProxy(
-            input.aTokenImpl,
-            abi.encodeWithSelector(
-                IInitializableAToken.initialize.selector,
-                pool,
-                input.treasury,
-                input.underlyingAsset,
-                input.trancheId,
-                IAaveIncentivesController(input.incentivesController),
-                input.underlyingAssetDecimals,
-                string(
-                    abi.encodePacked(
-                        input.aTokenName,
-                        Strings.toString(input.trancheId)
-                    )
-                ), //,//abi.encodePacked(input.aTokenName, trancheId),string(abi.encodePacked(input.aTokenName, trancheId+48))
-                string(
-                    abi.encodePacked(
-                        input.aTokenSymbol,
-                        Strings.toString(input.trancheId)
-                    )
-                ), //string(abi.encodePacked(input.aTokenSymbol, trancheId+48)) , //+48 is used to convert trancheId 0 to ascii value 0 which is number 48
-                input.params
-            )
-        );
+        address aTokenProxyAddress;
 
-        address stableDebtTokenProxyAddress = _initTokenWithProxy(
-            input.stableDebtTokenImpl,
-            abi.encodeWithSelector(
-                IInitializableDebtToken.initialize.selector,
-                pool,
-                input.underlyingAsset,
-                input.trancheId,
-                IAaveIncentivesController(input.incentivesController),
-                input.underlyingAssetDecimals,
-                string(
-                    abi.encodePacked(
-                        input.stableDebtTokenName,
-                        Strings.toString(input.trancheId)
-                    )
-                ), //abi.encodePacked(input.stableDebtTokenName, trancheId),
-                string(
-                    abi.encodePacked(
-                        input.stableDebtTokenSymbol,
-                        Strings.toString(input.trancheId)
-                    )
-                ), //abi.encodePacked(input.stableDebtTokenSymbol, trancheId),
-                input.params
-            )
-        );
+        {
+            aTokenProxyAddress = _initTokenWithProxy(
+                internalInput.input.aTokenImpl,
+                abi.encodeWithSelector(
+                    IInitializableAToken.initialize.selector,
+                    pool,
+                    internalInput.input.treasury,
+                    internalInput.input.underlyingAsset,
+                    internalInput.trancheId,
+                    IAaveIncentivesController(
+                        internalInput.input.incentivesController
+                    ),
+                    internalInput.input.underlyingAssetDecimals,
+                    string(
+                        abi.encodePacked(
+                            internalInput.input.aTokenName,
+                            Strings.toString(internalInput.trancheId)
+                        )
+                    ), //,//abi.encodePacked(input.aTokenName, trancheId),string(abi.encodePacked(input.aTokenName, trancheId+48))
+                    string(
+                        abi.encodePacked(
+                            internalInput.input.aTokenSymbol,
+                            Strings.toString(internalInput.trancheId)
+                        )
+                    ), //string(abi.encodePacked(input.aTokenSymbol, trancheId+48)) , //+48 is used to convert trancheId 0 to ascii value 0 which is number 48
+                    internalInput.input.params
+                )
+            );
+        }
+        address stableDebtTokenProxyAddress;
+        {
+            stableDebtTokenProxyAddress = _initTokenWithProxy(
+                internalInput.input.stableDebtTokenImpl,
+                abi.encodeWithSelector(
+                    IInitializableDebtToken.initialize.selector,
+                    pool,
+                    internalInput.input.underlyingAsset,
+                    internalInput.trancheId,
+                    IAaveIncentivesController(
+                        internalInput.input.incentivesController
+                    ),
+                    internalInput.input.underlyingAssetDecimals,
+                    string(
+                        abi.encodePacked(
+                            internalInput.input.stableDebtTokenName,
+                            Strings.toString(internalInput.trancheId)
+                        )
+                    ), //abi.encodePacked(input.stableDebtTokenName, trancheId),
+                    string(
+                        abi.encodePacked(
+                            internalInput.input.stableDebtTokenSymbol,
+                            Strings.toString(internalInput.trancheId)
+                        )
+                    ), //abi.encodePacked(input.stableDebtTokenSymbol, trancheId),
+                    internalInput.input.params
+                )
+            );
+        }
 
-        address variableDebtTokenProxyAddress = _initTokenWithProxy(
-            input.variableDebtTokenImpl,
-            abi.encodeWithSelector(
-                IInitializableDebtToken.initialize.selector,
-                pool,
-                input.underlyingAsset,
-                input.trancheId,
-                IAaveIncentivesController(input.incentivesController),
-                input.underlyingAssetDecimals,
-                string(
-                    abi.encodePacked(
-                        input.variableDebtTokenName,
-                        Strings.toString(input.trancheId)
-                    )
-                ), //abi.encodePacked(input.variableDebtTokenName, trancheId),
-                string(
-                    abi.encodePacked(
-                        input.variableDebtTokenSymbol,
-                        Strings.toString(input.trancheId)
-                    )
-                ), //abi.encodePacked(input.variableDebtTokenSymbol,trancheId),
-                input.params
-            )
-        );
+        address variableDebtTokenProxyAddress;
+        {
+            variableDebtTokenProxyAddress = _initTokenWithProxy(
+                internalInput.input.variableDebtTokenImpl,
+                abi.encodeWithSelector(
+                    IInitializableDebtToken.initialize.selector,
+                    pool,
+                    internalInput.input.underlyingAsset,
+                    internalInput.trancheId,
+                    IAaveIncentivesController(
+                        internalInput.input.incentivesController
+                    ),
+                    internalInput.input.underlyingAssetDecimals,
+                    string(
+                        abi.encodePacked(
+                            internalInput.input.variableDebtTokenName,
+                            Strings.toString(internalInput.trancheId)
+                        )
+                    ), //abi.encodePacked(input.variableDebtTokenName, trancheId),
+                    string(
+                        abi.encodePacked(
+                            internalInput.input.variableDebtTokenSymbol,
+                            Strings.toString(internalInput.trancheId)
+                        )
+                    ), //abi.encodePacked(input.variableDebtTokenSymbol,trancheId),
+                    internalInput.input.params
+                )
+            );
+        }
 
         pool.initReserve(
-            input,
+            internalInput.input,
             aTokenProxyAddress,
             stableDebtTokenProxyAddress,
-            variableDebtTokenProxyAddress
+            variableDebtTokenProxyAddress,
+            internalInput.trancheId
         );
 
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(input.underlyingAsset, input.trancheId);
+            .getConfiguration(
+                internalInput.input.underlyingAsset,
+                internalInput.trancheId
+            );
 
-        currentConfig.setDecimals(input.underlyingAssetDecimals);
+        currentConfig.setDecimals(internalInput.input.underlyingAssetDecimals);
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
 
         pool.setConfiguration(
-            input.underlyingAsset,
-            input.trancheId,
+            internalInput.input.underlyingAsset,
+            internalInput.trancheId,
             currentConfig.data
         );
 
-        pool.setAssetData(
-            input.underlyingAsset,
-            input.risk,
-            input.allowHigherTranche,
-            input.assetType
-        ); //initialize all asset risks
+        // pool.setAssetData(
+        //     input.underlyingAsset,
+        //     input.risk,
+        //     input.allowHigherTranche,
+        //     input.assetType
+        // ); //initialize all asset risks
 
         emit ReserveInitialized(
-            input.underlyingAsset,
+            internalInput.input.underlyingAsset,
             aTokenProxyAddress,
             stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress,
-            input.interestRateStrategyAddress
+            internalInput.input.interestRateStrategyAddress
         );
     }
 
     /**
      * @dev Updates the aToken implementation for the reserve
      **/
-    function updateAToken(UpdateATokenInput calldata input)
+    function updateAToken(UpdateATokenInput calldata input, uint64 trancheID)
         external
-        onlyPoolAdmin
     {
+        {
+            require(
+                addressesProvider.getPoolAdmin(trancheID) == msg.sender ||
+                    addressesProvider.getGlobalAdmin() == msg.sender, //getPoolAdmin(trancheId) gets the admin for a specific tranche
+                Errors.CALLER_NOT_POOL_ADMIN
+            );
+        }
         ILendingPool cachedPool = pool;
 
         DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
@@ -241,10 +312,10 @@ contract LendingPoolConfigurator is
     /**
      * @dev Updates the stable debt token implementation for the reserve
      **/
-    function updateStableDebtToken(UpdateDebtTokenInput calldata input)
-        external
-        onlyPoolAdmin
-    {
+    function updateStableDebtToken(
+        UpdateDebtTokenInput calldata input,
+        uint64 trancheID
+    ) external onlyPoolAdmin(trancheID) {
         ILendingPool cachedPool = pool;
 
         DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
@@ -283,10 +354,10 @@ contract LendingPoolConfigurator is
     /**
      * @dev Updates the variable debt token implementation for the asset
      **/
-    function updateVariableDebtToken(UpdateDebtTokenInput calldata input)
-        external
-        onlyPoolAdmin
-    {
+    function updateVariableDebtToken(
+        UpdateDebtTokenInput calldata input,
+        uint64 trancheID
+    ) external onlyPoolAdmin(trancheID) {
         ILendingPool cachedPool = pool;
 
         DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
@@ -329,9 +400,9 @@ contract LendingPoolConfigurator is
      **/
     function enableBorrowingOnReserve(
         address asset,
-        uint8 trancheId,
+        uint64 trancheId,
         bool stableBorrowRateEnabled
-    ) external onlyPoolAdmin {
+    ) external onlyPoolAdmin(trancheId) {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
@@ -347,9 +418,9 @@ contract LendingPoolConfigurator is
      * @dev Disables borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function disableBorrowingOnReserve(address asset, uint8 trancheId)
+    function disableBorrowingOnReserve(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin
+        onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -371,11 +442,11 @@ contract LendingPoolConfigurator is
      **/
     function configureReserveAsCollateral(
         address asset,
-        uint8 trancheId,
+        uint64 trancheId,
         uint256 ltv,
         uint256 liquidationThreshold,
         uint256 liquidationBonus
-    ) external onlyPoolAdmin {
+    ) external onlyPoolAdmin(trancheId) {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
@@ -425,9 +496,9 @@ contract LendingPoolConfigurator is
      * @dev Enable stable rate borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function enableReserveStableRate(address asset, uint8 trancheId)
+    function enableReserveStableRate(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin
+        onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -443,9 +514,9 @@ contract LendingPoolConfigurator is
      * @dev Disable stable rate borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function disableReserveStableRate(address asset, uint8 trancheId)
+    function disableReserveStableRate(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin
+        onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -461,9 +532,9 @@ contract LendingPoolConfigurator is
      * @dev Activates a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function activateReserve(address asset, uint8 trancheId)
+    function activateReserve(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin
+        onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -479,9 +550,9 @@ contract LendingPoolConfigurator is
      * @dev Deactivates a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function deactivateReserve(address asset, uint8 trancheId)
+    function deactivateReserve(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin
+        onlyPoolAdmin(trancheId)
     {
         _checkNoLiquidity(asset, trancheId);
 
@@ -500,9 +571,9 @@ contract LendingPoolConfigurator is
      *  but allows repayments, liquidations, rate rebalances and withdrawals
      * @param asset The address of the underlying asset of the reserve
      **/
-    function freezeReserve(address asset, uint8 trancheId)
+    function freezeReserve(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin
+        onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -518,9 +589,9 @@ contract LendingPoolConfigurator is
      * @dev Unfreezes a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function unfreezeReserve(address asset, uint8 trancheId)
+    function unfreezeReserve(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin
+        onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -539,9 +610,9 @@ contract LendingPoolConfigurator is
      **/
     function setReserveFactor(
         address asset,
-        uint8 trancheId,
+        uint64 trancheId,
         uint256 reserveFactor
-    ) external onlyPoolAdmin {
+    ) external onlyPoolAdmin(trancheId) {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
@@ -553,18 +624,14 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Sets the interest rate strategy of a reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @param _risk The new risk of the asset
+     * @dev Note this can only be called by global admin. Individual pool owners can't set the data for the asset, but can set the data for their own reserves
      **/
-    function setAssetData(
-        address asset,
-        uint8 _risk,
-        bool _allowedHigherTranche,
-        uint8 _assetType
-    ) external onlyPoolAdmin {
-        pool.setAssetData(asset, _risk, _allowedHigherTranche, _assetType);
-        emit AssetDataChanged(asset, _risk, _allowedHigherTranche, _assetType);
+    function setAssetData(address asset, uint8 _assetType)
+        external
+        onlyGlobalAdmin
+    {
+        pool.setAssetData(asset, _assetType);
+        emit AssetDataChanged(asset, _assetType);
     }
 
     /**
@@ -574,9 +641,9 @@ contract LendingPoolConfigurator is
      **/
     function setReserveInterestRateStrategyAddress(
         address asset,
-        uint8 trancheId,
+        uint64 trancheId,
         address rateStrategyAddress
-    ) external onlyPoolAdmin {
+    ) external onlyPoolAdmin(trancheId) {
         pool.setReserveInterestRateStrategyAddress(
             asset,
             trancheId,
@@ -589,8 +656,11 @@ contract LendingPoolConfigurator is
      * @dev pauses or unpauses all the actions of the protocol, including aToken transfers
      * @param val true if protocol needs to be paused, false otherwise
      **/
-    function setPoolPause(bool val) external onlyEmergencyAdmin {
-        pool.setPause(val);
+    function setPoolPause(bool val, uint64 trancheId)
+        external
+        onlyEmergencyAdmin(trancheId)
+    {
+        pool.setPause(val, trancheId);
     }
 
     function _initTokenWithProxy(
@@ -618,7 +688,7 @@ contract LendingPoolConfigurator is
         proxy.upgradeToAndCall(implementation, initParams);
     }
 
-    function _checkNoLiquidity(address asset, uint8 trancheId) internal view {
+    function _checkNoLiquidity(address asset, uint64 trancheId) internal view {
         DataTypes.ReserveData memory reserveData = pool.getReserveData(
             asset,
             trancheId

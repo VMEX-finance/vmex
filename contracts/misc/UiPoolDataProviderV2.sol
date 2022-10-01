@@ -60,7 +60,7 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
 
     function getReservesList(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint64 trancheId
     ) public view override returns (address[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
         return lendingPool.getReservesList(trancheId);
@@ -68,7 +68,7 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
 
     function getReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint64 trancheId
     )
         public
         view
@@ -86,7 +86,7 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
             reserveData.underlyingAsset = reserves[i];
 
             // reserve current state
-            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint64 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserveData.underlyingAsset,
                 trancheId
@@ -195,20 +195,20 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
 
     function getUserReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint64 trancheId,
         address user
     ) external view override returns (UserReserveData[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
         address[] memory reserves = lendingPool.getReservesList(trancheId);
         DataTypes.UserConfigurationMap memory userConfig = lendingPool
-            .getUserConfiguration(user);
+            .getUserConfiguration(user, trancheId);
 
         UserReserveData[] memory userReservesData = new UserReserveData[](
             user != address(0) ? reserves.length : 0
         );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            // uint8 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint64 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId

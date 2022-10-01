@@ -19,6 +19,8 @@ export { TokenReserveDataFactory } from "./TokenReserveDataFactory";
 export type { TokenReserveData } from "./TokenReserveData";
 export { GetUserTrancheDataFactory } from "./GetUserTrancheDataFactory";
 export type { GetUserTrancheData } from "./GetUserTrancheData";
+export { TrancheReserveDataFactory } from "./TrancheReserveDataFactory";
+export type { TrancheReserveData } from "./TrancheReserveData";
 export { ERC20Factory } from "./ERC20Factory";
 export type { ERC20 } from "./ERC20";
 export { OwnableFactory } from "./OwnableFactory";

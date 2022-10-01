@@ -88,13 +88,15 @@ contract LendingPoolCollateralManager is
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
-        uint8 trancheId,
+        uint64 trancheId,
         // uint8 debtAssetTranche, //this would actually be the same trancheId as the collateral (you can only borrow from the same trancheId that your collateral is in)
         address user,
         uint256 debtToCover,
         bool receiveAToken
     ) external override returns (uint256, string memory) {
-        DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user];
+        DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user][
+            trancheId
+        ];
 
         LiquidationCallLocalVars memory vars;
 
@@ -228,7 +230,9 @@ contract LendingPoolCollateralManager is
 
             if (vars.liquidatorPreviousATokenBalance == 0) {
                 DataTypes.UserConfigurationMap
-                    storage liquidatorConfig = _usersConfig[msg.sender];
+                    storage liquidatorConfig = _usersConfig[msg.sender][
+                        trancheId
+                    ];
                 liquidatorConfig.setUsingAsCollateral(
                     collateralReserve.id,
                     true
@@ -326,14 +330,14 @@ contract LendingPoolCollateralManager is
 
         {
             address oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[collateralAsset].assetType
+                assetDatas[collateralAsset]
             );
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
             oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[debtAsset].assetType
+                assetDatas[debtAsset]
             );
 
             oracle = IPriceOracleGetter(oracleAddress);

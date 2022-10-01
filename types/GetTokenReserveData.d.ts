@@ -62,7 +62,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -76,16 +82,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -101,7 +111,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -115,16 +131,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -142,7 +162,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -156,16 +182,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -181,7 +211,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -195,16 +231,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -222,7 +262,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -236,16 +282,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -261,7 +311,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -275,16 +331,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -302,7 +362,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -316,16 +382,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -341,7 +411,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -355,16 +431,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -382,7 +462,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -396,16 +482,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -421,7 +511,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -435,16 +531,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -462,7 +562,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -476,16 +582,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -501,7 +611,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -515,16 +631,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -542,7 +662,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -556,16 +682,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -581,7 +711,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -595,16 +731,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -622,7 +762,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -636,16 +782,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -661,7 +811,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -675,16 +831,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -702,7 +862,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -716,16 +882,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -741,7 +911,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -755,16 +931,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -782,7 +962,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -796,16 +982,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -821,7 +1011,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -835,16 +1031,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -862,7 +1062,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -876,16 +1082,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -901,7 +1111,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -915,16 +1131,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -942,7 +1162,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -956,16 +1182,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -981,7 +1211,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -995,16 +1231,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1022,7 +1262,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1036,16 +1282,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1061,7 +1311,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1075,16 +1331,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1102,7 +1362,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1116,16 +1382,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1141,7 +1411,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1155,16 +1431,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1182,7 +1462,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1196,16 +1482,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1221,7 +1511,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1235,16 +1531,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1262,7 +1562,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1276,16 +1582,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1301,7 +1611,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1315,16 +1631,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1342,7 +1662,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1356,16 +1682,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1381,7 +1711,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1395,16 +1731,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1422,7 +1762,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1436,16 +1782,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1461,7 +1811,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1475,16 +1831,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1502,7 +1862,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1516,16 +1882,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1541,7 +1911,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1555,16 +1931,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1582,7 +1962,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1596,16 +1982,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1621,7 +2011,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1635,16 +2031,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1662,7 +2062,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1676,16 +2082,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1701,7 +2111,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1715,16 +2131,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1742,7 +2162,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1756,16 +2182,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1781,7 +2211,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1795,16 +2231,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         }
       ];
@@ -1827,7 +2267,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1841,16 +2287,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1866,7 +2316,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1880,16 +2336,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1907,7 +2367,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1921,16 +2387,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -1946,7 +2416,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -1960,16 +2436,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -1987,7 +2467,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2001,16 +2487,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2026,7 +2516,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2040,16 +2536,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2067,7 +2567,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2081,16 +2587,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2106,7 +2616,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2120,16 +2636,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2147,7 +2667,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2161,16 +2687,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2186,7 +2716,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2200,16 +2736,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2227,7 +2767,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2241,16 +2787,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2266,7 +2816,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2280,16 +2836,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2307,7 +2867,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2321,16 +2887,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2346,7 +2916,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2360,16 +2936,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2387,7 +2967,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2401,16 +2987,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2426,7 +3016,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2440,16 +3036,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2467,7 +3067,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2481,16 +3087,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2506,7 +3116,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2520,16 +3136,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2547,7 +3167,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2561,16 +3187,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2586,7 +3216,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2600,16 +3236,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2627,7 +3267,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2641,16 +3287,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2666,7 +3316,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2680,16 +3336,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2707,7 +3367,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2721,16 +3387,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2746,7 +3416,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2760,16 +3436,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2787,7 +3467,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2801,16 +3487,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2826,7 +3516,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2840,16 +3536,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2867,7 +3567,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2881,16 +3587,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2906,7 +3616,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2920,16 +3636,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -2947,7 +3667,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -2961,16 +3687,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -2986,7 +3716,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3000,16 +3736,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -3027,7 +3767,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3041,16 +3787,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -3066,7 +3816,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3080,16 +3836,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -3107,7 +3867,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3121,16 +3887,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -3146,7 +3916,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3160,16 +3936,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -3187,7 +3967,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3201,16 +3987,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -3226,7 +4016,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3240,16 +4036,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -3267,7 +4067,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3281,16 +4087,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -3306,7 +4116,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3320,16 +4136,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -3347,7 +4167,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3361,16 +4187,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -3386,7 +4216,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3400,16 +4236,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -3427,7 +4267,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3441,16 +4287,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -3466,7 +4316,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3480,16 +4336,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -3507,7 +4367,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3521,16 +4387,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -3546,7 +4416,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -3560,16 +4436,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         }
       ];
@@ -3595,7 +4475,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3609,16 +4495,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -3634,7 +4524,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3648,16 +4544,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -3675,7 +4575,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3689,16 +4595,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -3714,7 +4624,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3728,16 +4644,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -3755,7 +4675,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3769,16 +4695,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -3794,7 +4724,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3808,16 +4744,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -3835,7 +4775,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3849,16 +4795,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -3874,7 +4824,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3888,16 +4844,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -3915,7 +4875,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3929,16 +4895,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -3954,7 +4924,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -3968,16 +4944,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -3995,7 +4975,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4009,16 +4995,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4034,7 +5024,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4048,16 +5044,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4075,7 +5075,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4089,16 +5095,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4114,7 +5124,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4128,16 +5144,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4155,7 +5175,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4169,16 +5195,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4194,7 +5224,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4208,16 +5244,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4235,7 +5275,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4249,16 +5295,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4274,7 +5324,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4288,16 +5344,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4315,7 +5375,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4329,16 +5395,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4354,7 +5424,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4368,16 +5444,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4395,7 +5475,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4409,16 +5495,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4434,7 +5524,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4448,16 +5544,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4475,7 +5575,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4489,16 +5595,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4514,7 +5624,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4528,16 +5644,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4555,7 +5675,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4569,16 +5695,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4594,7 +5724,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4608,16 +5744,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4635,7 +5775,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4649,16 +5795,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4674,7 +5824,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4688,16 +5844,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4715,7 +5875,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4729,16 +5895,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4754,7 +5924,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4768,16 +5944,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4795,7 +5975,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4809,16 +5995,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4834,7 +6024,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4848,16 +6044,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4875,7 +6075,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4889,16 +6095,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4914,7 +6124,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4928,16 +6144,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -4955,7 +6175,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -4969,16 +6195,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -4994,7 +6224,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5008,16 +6244,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5035,7 +6275,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5049,16 +6295,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5074,7 +6324,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5088,16 +6344,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5115,7 +6375,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5129,16 +6395,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5154,7 +6424,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5168,16 +6444,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5195,7 +6475,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5209,16 +6495,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5234,7 +6524,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5248,16 +6544,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5275,7 +6575,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5289,16 +6595,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5314,7 +6624,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5328,16 +6644,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       }
     ]
@@ -5362,7 +6682,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5376,16 +6702,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5401,7 +6731,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5415,16 +6751,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5442,7 +6782,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5456,16 +6802,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5481,7 +6831,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5495,16 +6851,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5522,7 +6882,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5536,16 +6902,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5561,7 +6931,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5575,16 +6951,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5602,7 +6982,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5616,16 +7002,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5641,7 +7031,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5655,16 +7051,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5682,7 +7082,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5696,16 +7102,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5721,7 +7131,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5735,16 +7151,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5762,7 +7182,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5776,16 +7202,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5801,7 +7231,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5815,16 +7251,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5842,7 +7282,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5856,16 +7302,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5881,7 +7331,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5895,16 +7351,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -5922,7 +7382,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5936,16 +7402,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -5961,7 +7431,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -5975,16 +7451,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6002,7 +7482,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6016,16 +7502,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6041,7 +7531,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6055,16 +7551,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6082,7 +7582,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6096,16 +7602,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6121,7 +7631,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6135,16 +7651,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6162,7 +7682,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6176,16 +7702,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6201,7 +7731,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6215,16 +7751,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6242,7 +7782,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6256,16 +7802,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6281,7 +7831,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6295,16 +7851,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6322,7 +7882,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6336,16 +7902,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6361,7 +7931,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6375,16 +7951,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6402,7 +7982,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6416,16 +8002,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6441,7 +8031,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6455,16 +8051,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6482,7 +8082,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6496,16 +8102,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6521,7 +8131,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6535,16 +8151,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6562,7 +8182,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6576,16 +8202,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6601,7 +8231,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6615,16 +8251,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6642,7 +8282,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6656,16 +8302,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6681,7 +8331,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6695,16 +8351,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6722,7 +8382,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6736,16 +8402,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6761,7 +8431,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6775,16 +8451,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6802,7 +8482,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6816,16 +8502,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6841,7 +8531,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6855,16 +8551,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6882,7 +8582,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6896,16 +8602,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -6921,7 +8631,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6935,16 +8651,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -6962,7 +8682,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -6976,16 +8702,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -7001,7 +8731,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -7015,16 +8751,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       },
       {
@@ -7042,7 +8782,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -7056,16 +8802,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         assetData: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
         0: string;
         1: {
@@ -7081,7 +8831,13 @@ export class GetTokenReserveData extends Contract {
           variableDebtTokenAddress: string;
           interestRateStrategyAddress: string;
           id: number;
-          tranche: number;
+          trancheId: number;
+          trancheRisk: number;
+          canBeCollateral: boolean;
+          collateralCap: BigNumber;
+          hasStrategy: boolean;
+          usingGovernanceSetInterestRate: boolean;
+          governanceSetInterestRate: BigNumber;
           0: { data: BigNumber; 0: BigNumber };
           1: BigNumber;
           2: BigNumber;
@@ -7095,16 +8851,20 @@ export class GetTokenReserveData extends Contract {
           10: string;
           11: number;
           12: number;
+          13: number;
+          14: boolean;
+          15: BigNumber;
+          16: boolean;
+          17: boolean;
+          18: BigNumber;
         };
         2: {
           collateralRisk: number;
-          isLendable: boolean;
           isAllowedCollateralInHigherTranches: boolean;
           assetType: number;
           0: number;
           1: boolean;
-          2: boolean;
-          3: number;
+          2: number;
         };
       }
     ]
@@ -7130,7 +8890,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7144,16 +8910,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7169,7 +8939,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7183,16 +8959,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7210,7 +8990,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7224,16 +9010,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7249,7 +9039,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7263,16 +9059,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7290,7 +9090,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7304,16 +9110,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7329,7 +9139,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7343,16 +9159,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7370,7 +9190,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7384,16 +9210,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7409,7 +9239,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7423,16 +9259,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7450,7 +9290,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7464,16 +9310,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7489,7 +9339,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7503,16 +9359,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7530,7 +9390,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7544,16 +9410,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7569,7 +9439,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7583,16 +9459,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7610,7 +9490,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7624,16 +9510,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7649,7 +9539,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7663,16 +9559,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7690,7 +9590,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7704,16 +9610,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7729,7 +9639,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7743,16 +9659,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7770,7 +9690,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7784,16 +9710,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7809,7 +9739,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7823,16 +9759,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7850,7 +9790,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7864,16 +9810,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7889,7 +9839,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7903,16 +9859,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -7930,7 +9890,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7944,16 +9910,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -7969,7 +9939,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -7983,16 +9959,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8010,7 +9990,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8024,16 +10010,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8049,7 +10039,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8063,16 +10059,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8090,7 +10090,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8104,16 +10110,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8129,7 +10139,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8143,16 +10159,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8170,7 +10190,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8184,16 +10210,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8209,7 +10239,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8223,16 +10259,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8250,7 +10290,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8264,16 +10310,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8289,7 +10339,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8303,16 +10359,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8330,7 +10390,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8344,16 +10410,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8369,7 +10439,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8383,16 +10459,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8410,7 +10490,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8424,16 +10510,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8449,7 +10539,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8463,16 +10559,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8490,7 +10590,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8504,16 +10610,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8529,7 +10639,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8543,16 +10659,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8570,7 +10690,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8584,16 +10710,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8609,7 +10739,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8623,16 +10759,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8650,7 +10790,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8664,16 +10810,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8689,7 +10839,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8703,16 +10859,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8730,7 +10890,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8744,16 +10910,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8769,7 +10939,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8783,16 +10959,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8810,7 +10990,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8824,16 +11010,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8849,7 +11039,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8863,16 +11059,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         }
       ]
@@ -8897,7 +11097,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8911,16 +11117,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -8936,7 +11146,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8950,16 +11166,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -8977,7 +11197,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -8991,16 +11217,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9016,7 +11246,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9030,16 +11266,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9057,7 +11297,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9071,16 +11317,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9096,7 +11346,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9110,16 +11366,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9137,7 +11397,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9151,16 +11417,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9176,7 +11446,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9190,16 +11466,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9217,7 +11497,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9231,16 +11517,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9256,7 +11546,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9270,16 +11566,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9297,7 +11597,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9311,16 +11617,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9336,7 +11646,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9350,16 +11666,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9377,7 +11697,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9391,16 +11717,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9416,7 +11746,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9430,16 +11766,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9457,7 +11797,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9471,16 +11817,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9496,7 +11846,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9510,16 +11866,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9537,7 +11897,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9551,16 +11917,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9576,7 +11946,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9590,16 +11966,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9617,7 +11997,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9631,16 +12017,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9656,7 +12046,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9670,16 +12066,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9697,7 +12097,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9711,16 +12117,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9736,7 +12146,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9750,16 +12166,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9777,7 +12197,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9791,16 +12217,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9816,7 +12246,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9830,16 +12266,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9857,7 +12297,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9871,16 +12317,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9896,7 +12346,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9910,16 +12366,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -9937,7 +12397,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9951,16 +12417,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -9976,7 +12446,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -9990,16 +12466,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10017,7 +12497,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10031,16 +12517,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10056,7 +12546,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10070,16 +12566,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10097,7 +12597,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10111,16 +12617,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10136,7 +12646,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10150,16 +12666,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10177,7 +12697,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10191,16 +12717,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10216,7 +12746,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10230,16 +12766,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10257,7 +12797,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10271,16 +12817,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10296,7 +12846,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10310,16 +12866,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10337,7 +12897,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10351,16 +12917,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10376,7 +12946,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10390,16 +12966,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10417,7 +12997,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10431,16 +13017,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10456,7 +13046,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10470,16 +13066,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10497,7 +13097,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10511,16 +13117,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10536,7 +13146,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10550,16 +13166,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         },
         {
@@ -10577,7 +13197,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10591,16 +13217,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           assetData: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
           0: string;
           1: {
@@ -10616,7 +13246,13 @@ export class GetTokenReserveData extends Contract {
             variableDebtTokenAddress: string;
             interestRateStrategyAddress: string;
             id: number;
-            tranche: number;
+            trancheId: number;
+            trancheRisk: number;
+            canBeCollateral: boolean;
+            collateralCap: BigNumber;
+            hasStrategy: boolean;
+            usingGovernanceSetInterestRate: boolean;
+            governanceSetInterestRate: BigNumber;
             0: { data: BigNumber; 0: BigNumber };
             1: BigNumber;
             2: BigNumber;
@@ -10630,16 +13266,20 @@ export class GetTokenReserveData extends Contract {
             10: string;
             11: number;
             12: number;
+            13: number;
+            14: boolean;
+            15: BigNumber;
+            16: boolean;
+            17: boolean;
+            18: BigNumber;
           };
           2: {
             collateralRisk: number;
-            isLendable: boolean;
             isAllowedCollateralInHigherTranches: boolean;
             assetType: number;
             0: number;
             1: boolean;
-            2: boolean;
-            3: number;
+            2: number;
           };
         }
       ]

@@ -61,12 +61,12 @@ interface IUiPoolDataProviderV2 {
 
     function getReservesList(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint64 trancheId
     ) external view returns (address[] memory);
 
     function getReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId
+        uint64 trancheId
     )
         external
         view
@@ -74,7 +74,7 @@ interface IUiPoolDataProviderV2 {
 
     function getUserReservesData(
         ILendingPoolAddressesProvider provider,
-        uint8 trancheId,
+        uint64 trancheId,
         address user
     ) external view returns (UserReserveData[] memory);
 }

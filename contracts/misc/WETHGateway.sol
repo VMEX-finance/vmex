@@ -39,7 +39,7 @@ contract WETHGateway is IWETHGateway, Ownable {
      **/
     function depositETH(
         address lendingPool,
-        uint8 trancheId,
+        uint64 trancheId,
         address onBehalfOf,
         uint16 referralCode
     ) external payable override {
@@ -61,7 +61,7 @@ contract WETHGateway is IWETHGateway, Ownable {
      */
     function withdrawETH(
         address lendingPool,
-        uint8 trancheId,
+        uint64 trancheId,
         uint256 amount,
         address to
     ) external override {
@@ -97,7 +97,7 @@ contract WETHGateway is IWETHGateway, Ownable {
      */
     function repayETH(
         address lendingPool,
-        uint8 trancheId,
+        uint64 trancheId,
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
@@ -146,7 +146,7 @@ contract WETHGateway is IWETHGateway, Ownable {
      */
     function borrowETH(
         address lendingPool,
-        uint8 trancheId,
+        uint64 trancheId,
         uint256 amount,
         uint256 interesRateMode,
         uint16 referralCode
