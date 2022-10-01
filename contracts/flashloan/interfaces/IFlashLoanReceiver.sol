@@ -15,7 +15,7 @@ import {DataTypes} from "../../protocol/libraries/types/DataTypes.sol";
  **/
 interface IFlashLoanReceiver {
     function executeOperation(
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,

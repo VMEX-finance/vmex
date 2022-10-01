@@ -419,7 +419,6 @@ export interface IReserveParams
   aTokenImpl: eContractid;
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
-  canBeCollateral: boolean; //can the asset be collateral
   collateralCap: string;
   hasStrategy: boolean; //whether the asset has a strategy
   usingGovernanceSetInterestRate: boolean;
@@ -452,9 +451,7 @@ export interface IReserveCollateralParams {
   baseLTVAsCollateral: string;
   liquidationThreshold: string;
   liquidationBonus: string;
-  risk: BigNumberish; //risk of asset, can only be set as collateral in tranches higher than this risk
   assetType: BigNumberish;
-  allowedHigherTranche: boolean;
 }
 export interface IMarketRates {
   borrowRate: string;

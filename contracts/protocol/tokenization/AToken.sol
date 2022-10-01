@@ -2,20 +2,14 @@
 pragma solidity >=0.8.0;
 
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
-import {
-    SafeERC20
-} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
-import {
-    VersionedInitializable
-} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
+import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
-import {
-    IAaveIncentivesController
-} from "../../interfaces/IAaveIncentivesController.sol";
+import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 
 /**
@@ -52,10 +46,10 @@ contract AToken is
     ILendingPool internal _pool;
     address internal _treasury;
     address internal _underlyingAsset;
-    uint8 internal _tranche;
+    uint64 internal _tranche;
     IAaveIncentivesController internal _incentivesController;
 
-    modifier onlyLendingPool {
+    modifier onlyLendingPool() {
         require(
             _msgSender() == address(_pool),
             Errors.CT_CALLER_MUST_BE_LENDING_POOL
@@ -401,23 +395,22 @@ contract AToken is
         //solium-disable-next-line
         require(block.timestamp <= deadline, "INVALID_EXPIRATION");
         uint256 currentValidNonce = _nonces[owner];
-        bytes32 digest =
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    DOMAIN_SEPARATOR,
-                    keccak256(
-                        abi.encode(
-                            PERMIT_TYPEHASH,
-                            owner,
-                            spender,
-                            value,
-                            currentValidNonce,
-                            deadline
-                        )
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                keccak256(
+                    abi.encode(
+                        PERMIT_TYPEHASH,
+                        owner,
+                        spender,
+                        value,
+                        currentValidNonce,
+                        deadline
                     )
                 )
-            );
+            )
+        );
         require(owner == ecrecover(digest, v, r, s), "INVALID_SIGNATURE");
         _nonces[owner] = currentValidNonce.add(1);
         _approve(owner, spender, value);
@@ -440,8 +433,10 @@ contract AToken is
         address underlyingAsset = _underlyingAsset;
         ILendingPool pool = _pool;
 
-        uint256 index =
-            pool.getReserveNormalizedIncome(underlyingAsset, _tranche);
+        uint256 index = pool.getReserveNormalizedIncome(
+            underlyingAsset,
+            _tranche
+        );
 
         uint256 fromBalanceBefore = super.balanceOf(from).rayMul(index);
         uint256 toBalanceBefore = super.balanceOf(to).rayMul(index);

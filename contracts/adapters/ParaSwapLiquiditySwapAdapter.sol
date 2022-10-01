@@ -32,7 +32,7 @@ contract ParaSwapLiquiditySwapAdapter is
 
     struct executeOperationVars {
         IERC20Detailed assetToSwapTo;
-        uint8 assetToSwapToTranche;
+        uint64 assetToSwapToTranche;
         uint256 minAmountToReceive;
         uint256 swapAllBalanceOffset;
         bytes swapCalldata;
@@ -47,7 +47,7 @@ contract ParaSwapLiquiditySwapAdapter is
     {
         (
             IERC20Detailed assetToSwapTo,
-            uint8 assetToSwapToTranche,
+            uint64 assetToSwapToTranche,
             uint256 minAmountToReceive,
             uint256 swapAllBalanceOffset,
             bytes memory swapCalldata,
@@ -57,7 +57,7 @@ contract ParaSwapLiquiditySwapAdapter is
                 params,
                 (
                     IERC20Detailed,
-                    uint8,
+                    uint64,
                     uint256,
                     uint256,
                     bytes,
@@ -95,7 +95,7 @@ contract ParaSwapLiquiditySwapAdapter is
      *   PermitSignature permitParams Struct containing the permit signatures, set to all zeroes if not used
      */
     function executeOperation(
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -204,13 +204,11 @@ contract ParaSwapLiquiditySwapAdapter is
         uint256 flashLoanAmount,
         uint256 premium,
         address initiator,
-        DataTypes.TrancheAddress memory assetToSwapFrom
+        address assetToSwapFrom
     ) internal {
         IERC20WithPermit aToken = IERC20WithPermit(
-            _getReserveData(
-                address(assetToSwapFrom.asset),
-                assetToSwapFrom.trancheId
-            ).aTokenAddress
+            _getReserveData(address(assetToSwapFrom), vars.assetToSwapToTranche)
+                .aTokenAddress
         );
         uint256 amountToSwap = flashLoanAmount;
 
@@ -233,7 +231,7 @@ contract ParaSwapLiquiditySwapAdapter is
             vars.swapAllBalanceOffset,
             vars.swapCalldata,
             vars.augustus,
-            IERC20Detailed(assetToSwapFrom.asset),
+            IERC20Detailed(assetToSwapFrom),
             vars.assetToSwapTo,
             amountToSwap,
             vars.minAmountToReceive
@@ -250,8 +248,8 @@ contract ParaSwapLiquiditySwapAdapter is
         );
 
         _pullATokenAndWithdraw(
-            address(assetToSwapFrom.asset),
-            assetToSwapFrom.trancheId,
+            address(assetToSwapFrom),
+            vars.assetToSwapToTranche, //must be the same tranche
             aToken,
             initiator,
             amountToSwap.add(premium),
@@ -259,8 +257,8 @@ contract ParaSwapLiquiditySwapAdapter is
         );
 
         // Repay flash loan
-        IERC20Detailed(assetToSwapFrom.asset).approve(address(LENDING_POOL), 0);
-        IERC20Detailed(assetToSwapFrom.asset).approve(
+        IERC20Detailed(assetToSwapFrom).approve(address(LENDING_POOL), 0);
+        IERC20Detailed(assetToSwapFrom).approve(
             address(LENDING_POOL),
             flashLoanAmount.add(premium)
         );
