@@ -291,7 +291,7 @@ abstract contract BaseUniswapAdapter is
      * @dev Get the aToken associated to the asset
      * @return address of the aToken
      */
-    function _getReserveData(address asset, uint16 trancheId)
+    function _getReserveData(address asset, uint64 trancheId)
         internal
         view
         returns (DataTypes.ReserveData memory)
@@ -309,7 +309,7 @@ abstract contract BaseUniswapAdapter is
      */
     function _pullAToken(
         address reserve,
-        uint16 trancheId,
+        uint64 trancheId,
         address reserveAToken,
         address user,
         uint256 amount,

@@ -21,10 +21,7 @@ library DataTypes {
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
         bytes params;
-        uint16 risk; //risk level for collateral
-        bool allowHigherTranche;
         uint8 assetType;
-        bool canBeCollateral;
         uint256 collateralCap;
         bool hasStrategy;
         bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
@@ -33,8 +30,7 @@ library DataTypes {
 
     struct InitReserveInputInternal {
         InitReserveInput input;
-        uint16 trancheId;
-        uint16 trancheRisk;
+        uint64 trancheId;
     }
 
     enum ReserveAssetType {
@@ -43,20 +39,8 @@ library DataTypes {
     } //update with other possible types of the underlying asset
     //AAVE is the original assets in the aave protocol
     //CURVE is the new LP tokens we are providing support for
-
-    struct AssetData {
-        uint16 collateralRisk; //this is a property of the asset. The asset has the same underlying risk as collateral regardless of what trancheId it is in
-        bool isAllowedCollateralInHigherTranches; //this is a property of the asset. It can't be "allowed as collateral in higher tranches" in some tranches but not in others, logical inconsistency
-        ReserveAssetType assetType; //this is asset property
-    }
-
-    struct Tranches {
-        uint16 trancheid;
-        uint16 numAssets;
-    }
-
     struct TrancheAddress {
-        uint16 trancheId;
+        uint64 trancheId;
         address asset;
     }
     struct ReserveData {
@@ -82,15 +66,7 @@ library DataTypes {
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
         //maybe consider
-        uint16 trancheId;
-        uint16 trancheRisk;
-        //trancheid and trancheRisk?
-        //since we will keep adding more tranches but they might not necessarily have increasing risks
-        //tranches of the same trancheid will be pooled together as collateral
-        //assets can only be set as collateral in tranches that have a trancheRisk >= assetRisk
-
-        //these can be considered to be put in reserveData instead, cause different reserves of the same asset can have different values of this property
-        bool canBeCollateral;
+        uint64 trancheId;
         uint256 collateralCap; //this can definitely be different per trancheId
         bool hasStrategy; //this might be put as a property of a reserve rather than property of the asset since USDC might have a trancheId that has a strategy, but unlikely to happen
         bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
@@ -125,12 +101,12 @@ library DataTypes {
 
     struct AcctTranche {
         address user;
-        uint16 trancheId;
+        uint64 trancheId;
     }
 
     struct DepositVars {
         address asset;
-        uint16 trancheId;
+        uint64 trancheId;
         address _addressesProvider;
         uint256 amount;
         address onBehalfOf;
@@ -139,7 +115,7 @@ library DataTypes {
 
     struct ExecuteBorrowParams {
         address asset;
-        uint16 trancheId; //trancheId the user wants to borrow out of
+        uint64 trancheId; //trancheId the user wants to borrow out of
         address user;
         address onBehalfOf;
         uint256 amount;
@@ -154,14 +130,9 @@ library DataTypes {
     struct WithdrawParams {
         uint256 _reservesCount;
         address asset;
-        uint16 trancheId;
+        uint64 trancheId;
         uint256 amount;
         address to;
-    }
-
-    struct ValidateSetUseReserveAsCollateralParams {
-        uint16 risk;
-        bool allowHigherTranche;
     }
 
     struct calculateInterestRatesVars {
@@ -175,7 +146,7 @@ library DataTypes {
     struct flashLoanVars {
         address receiverAddress;
         address[] assets;
-        uint16 trancheId;
+        uint64 trancheId;
         uint256[] amounts;
         uint256[] modes;
         address onBehalfOf;

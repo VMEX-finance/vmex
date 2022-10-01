@@ -65,7 +65,7 @@ contract ATokensAndRatesHelper is Ownable {
 
     function configureReserves(
         ConfigureReserveInput[] calldata inputParams,
-        uint16 trancheId
+        uint64 trancheId
     ) external onlyOwner {
         LendingPoolConfigurator configurator = LendingPoolConfigurator(
             poolConfigurator

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 interface ILendingPoolConfigurator {
     struct UpdateATokenInput {
         address asset;
-        uint16 trancheId;
+        uint64 trancheId;
         address treasury;
         address incentivesController;
         string name;
@@ -15,7 +15,7 @@ interface ILendingPoolConfigurator {
 
     struct UpdateDebtTokenInput {
         address asset;
-        uint16 trancheId;
+        uint64 trancheId;
         address incentivesController;
         string name;
         string symbol;
@@ -129,17 +129,7 @@ interface ILendingPoolConfigurator {
         address strategy
     );
 
-    /**
-     * @dev Emitted when a asset risk is updated
-     * @param asset The address of the underlying asset of the reserve
-     * @param _risk The new risk of an asset
-     **/
-    event AssetDataChanged(
-        address indexed asset,
-        uint16 _risk,
-        bool _allowedHigherTranche,
-        uint8 _assetType
-    );
+    event AssetDataChanged(address indexed asset, uint8 _assetType);
 
     /**
      * @dev Emitted when an aToken implementation is upgraded

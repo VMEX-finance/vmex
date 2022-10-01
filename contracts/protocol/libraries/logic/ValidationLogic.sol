@@ -62,16 +62,16 @@ library ValidationLogic {
      */
     function validateWithdraw(
         address reserveAddress,
-        uint16 trancheId,
+        uint64 trancheId,
         uint256 amount,
         uint256 userBalance,
-        mapping(address => mapping(uint16 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) external view {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
@@ -122,13 +122,13 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         uint256 amountInETH,
         uint256 maxStableLoanPercent,
-        mapping(address => mapping(uint16 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) external view {
         ValidateBorrowLocalVars memory vars;
 
@@ -388,43 +388,17 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         address reserveAddress,
         bool useAsCollateral,
-        mapping(address => mapping(uint16 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) external view {
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
             msg.sender
         );
-
-        {
-            DataTypes.AssetData memory assetData = assetDatas[reserveAddress];
-            if (useAsCollateral == true) {
-                require(
-                    reserve.canBeCollateral,
-                    "Asset cannot be set as collateral"
-                );
-                if (assetData.isAllowedCollateralInHigherTranches) {
-                    require(
-                        assetData.collateralRisk <= reserve.trancheRisk,
-                        "Risk is too high to set as collateral"
-                    ); //only allow user to set asset as collateral if risk of asset is lower than the trancheId
-                } else {
-                    require(
-                        assetData.collateralRisk == reserve.trancheRisk,
-                        "Risk is not equal to collateral trancheId"
-                    );
-                }
-                //allow them to turn on collateral, but only a certain amount will be counted
-                // require(
-                //     underlyingBalance <= assetData.collateralCap,
-                //     "Collateral amount exceeds collateral cap"
-                // );
-            }
-        }
 
         require(
             underlyingBalance > 0,
@@ -545,14 +519,14 @@ library ValidationLogic {
      */
     function validateTransfer(
         address from,
-        uint16 trancheId,
-        mapping(address => mapping(uint16 => DataTypes.ReserveData))
+        uint64 trancheId,
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) internal view {
         (, , , , uint256 healthFactor) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(from, trancheId),

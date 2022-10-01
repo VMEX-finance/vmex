@@ -15,9 +15,9 @@ interface ILendingPoolAddressesProvider {
     event LendingPoolUpdated(address indexed newAddress);
     event ConfigurationAdminUpdated(
         address indexed newAddress,
-        uint16 trancheId
+        uint64 trancheId
     );
-    event EmergencyAdminUpdated(address indexed newAddress, uint16 trancheId);
+    event EmergencyAdminUpdated(address indexed newAddress, uint64 trancheId);
     event LendingPoolConfiguratorUpdated(address indexed newAddress);
     event LendingPoolCollateralManagerUpdated(address indexed newAddress);
     event PriceOracleUpdated(address indexed newAddress);
@@ -52,29 +52,31 @@ interface ILendingPoolAddressesProvider {
 
     //********************************************************** */
     //permissionless tranches changes
-    function getPoolAdmin(uint16 trancheId) external view returns (address); //this depends on trancheId. Different admin for different tranches
+    function getPoolAdmin(uint64 trancheId) external view returns (address); //this depends on trancheId. Different admin for different tranches
 
     function getGlobalAdmin() external view returns (address);
 
     function setGlobalAdmin(address admin) external;
 
-    function setPoolAdmin(address admin, uint16 trancheId) external; //this depends on trancheId
+    function setPoolAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
-    function getEmergencyAdmin(uint16 trancheId)
+    function getEmergencyAdmin(uint64 trancheId)
         external
         view
         returns (address); //this depends on trancheId
 
-    function setEmergencyAdmin(address admin, uint16 trancheId) external; //this depends on trancheId
+    function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
-    function addPoolAdmin(address admin, uint16 trancheId) external;
+    function addPoolAdmin(address admin, uint64 trancheId) external;
 
-    function addEmergencyAdmin(address admin, uint16 trancheId) external;
+    function addEmergencyAdmin(address admin, uint64 trancheId) external;
 
-    function getAddressTranche(bytes32 id, uint16 trancheId)
+    function getAddressTranche(bytes32 id, uint64 trancheId)
         external
         view
         returns (address);
+
+    function isWhitelistedAddress(address ad) external view returns (bool);
 
     //********************************************************** */
     function getPriceOracle(DataTypes.ReserveAssetType assetType)

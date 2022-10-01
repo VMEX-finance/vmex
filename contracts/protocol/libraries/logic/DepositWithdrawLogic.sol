@@ -56,7 +56,7 @@ library DepositWithdrawLogic {
      **/
     event Deposit(
         address indexed reserve,
-        uint16 trancheId,
+        uint64 trancheId,
         address user,
         address indexed onBehalfOf,
         uint256 amount,
@@ -87,7 +87,7 @@ library DepositWithdrawLogic {
         ); //this also considers if it is a first deposit into a trancheId, not just a specific asset
 
         if (isFirstDeposit) {
-            user.setUsingAsCollateral(self.id, false); //default collateral is false
+            user.setUsingAsCollateral(self.id, true); //default collateral is true
         }
 
         emit Deposit(
@@ -125,13 +125,13 @@ library DepositWithdrawLogic {
     );
 
     function _withdraw(
-        mapping(address => mapping(uint16 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage _reserves,
         DataTypes.UserConfigurationMap storage user,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.WithdrawParams memory vars,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) public returns (uint256) {
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][
             vars.trancheId
@@ -204,11 +204,11 @@ library DepositWithdrawLogic {
     );
 
     function _borrowHelper(
-        mapping(address => mapping(uint16 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage _reserves,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.UserConfigurationMap storage userConfig,
-        mapping(address => DataTypes.AssetData) storage assetDatas,
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas,
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) public {
@@ -221,7 +221,7 @@ library DepositWithdrawLogic {
         //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
 
         uint256 amountInETH = IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
-            _addressesProvider.getPriceOracle(assetDatas[vars.asset].assetType)
+            _addressesProvider.getPriceOracle(assetDatas[vars.asset])
         ).getAssetPrice(vars.asset).mul(vars.amount).div(
                 10**reserve.configuration.getDecimals()
             ); //lp token decimals are 18, like ETH
@@ -305,7 +305,7 @@ library DepositWithdrawLogic {
         ILendingPoolAddressesProvider oracle;
         uint256 i;
         address currentAsset;
-        uint16 currentTranche;
+        uint64 currentTranche;
         address currentATokenAddress;
         uint256 currentAmount;
         uint256 currentPremium;
@@ -326,7 +326,7 @@ library DepositWithdrawLogic {
         address indexed target,
         address indexed initiator,
         address indexed asset,
-        uint16 trancheId,
+        uint64 trancheId,
         uint256 amount,
         uint256 premium,
         uint16 referralCode
@@ -334,11 +334,11 @@ library DepositWithdrawLogic {
 
     function _flashLoan(
         DataTypes.flashLoanVars memory callvars,
-        mapping(address => DataTypes.AssetData) storage assetDatas,
-        mapping(address => mapping(uint16 => DataTypes.ReserveData))
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas,
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage _reserves,
-        mapping(uint16 => mapping(uint256 => address)) storage _reservesList,
-        mapping(uint16 => uint256) storage _reservesCount,
+        mapping(uint64 => mapping(uint256 => address)) storage _reservesList,
+        mapping(uint64 => uint256) storage _reservesCount,
         DataTypes.UserConfigurationMap storage userConfig
     ) external {
         FlashLoanLocalVars memory vars;
