@@ -174,7 +174,8 @@ library ReserveLogic {
         address aTokenAddress,
         address stableDebtTokenAddress,
         address variableDebtTokenAddress,
-        DataTypes.InitReserveInput memory input
+        DataTypes.InitReserveInput memory input,
+        uint64 trancheId
     ) external {
         require(
             reserve.aTokenAddress == address(0),
@@ -190,13 +191,14 @@ library ReserveLogic {
         {
             reserve.interestRateStrategyAddress = input
                 .interestRateStrategyAddress;
-            reserve.trancheId = input.trancheId;
-            reserve.trancheRisk = input.trancheRisk;
-            reserve.canBeCollateral = input.canBeCollateral;
+            //TODO: users choose from governance approved set of strategies
+            reserve.trancheId = trancheId;
         }
         {
             reserve.collateralCap = input.collateralCap;
             reserve.hasStrategy = input.hasStrategy;
+            //check that if hasStrategy is true, borrowingEnabled is false
+            //check that this is only true if governance has a strategy for the asset (Ex: if USDC doesn't have a strategy, then this can't be set true)
             reserve.usingGovernanceSetInterestRate = input
                 .usingGovernanceSetInterestRate;
             reserve.governanceSetInterestRate = input.governanceSetInterestRate;

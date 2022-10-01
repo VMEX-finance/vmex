@@ -51,7 +51,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
      *   bytes32 s S param for the permit signature
      */
     function executeOperation(
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -195,7 +195,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
      */
     function _swapAndRepay(
         DataTypes.TrancheAddress memory collateralAsset,
-        DataTypes.TrancheAddress memory debtAsset,
+        address debtAsset,
         uint256 amount,
         uint256 collateralAmount,
         uint256 rateMode,
@@ -210,21 +210,21 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
         );
 
         // Repay debt. Approves for 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        IERC20(debtAsset.asset).approve(address(LENDING_POOL), 0);
-        IERC20(debtAsset.asset).approve(address(LENDING_POOL), amount);
-        uint256 repaidAmount = IERC20(debtAsset.asset).balanceOf(address(this));
+        IERC20(debtAsset).approve(address(LENDING_POOL), 0);
+        IERC20(debtAsset).approve(address(LENDING_POOL), amount);
+        uint256 repaidAmount = IERC20(debtAsset).balanceOf(address(this));
         LENDING_POOL.repay(
-            debtAsset.asset,
-            debtAsset.trancheId,
+            debtAsset,
+            collateralAsset.trancheId, //debt and collateral trancheId are the same
             amount,
             rateMode,
             initiator
         );
         repaidAmount = repaidAmount.sub(
-            IERC20(debtAsset.asset).balanceOf(address(this))
+            IERC20(debtAsset).balanceOf(address(this))
         );
 
-        if (collateralAsset.asset != debtAsset.asset) {
+        if (collateralAsset.asset != debtAsset) {
             uint256 maxCollateralToSwap = collateralAmount;
             if (repaidAmount < amount) {
                 maxCollateralToSwap = maxCollateralToSwap.mul(repaidAmount).div(
@@ -235,7 +235,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             uint256 neededForFlashLoanDebt = repaidAmount.add(premium);
             uint256[] memory amounts = _getAmountsIn(
                 collateralAsset.asset,
-                debtAsset.asset,
+                debtAsset,
                 neededForFlashLoanDebt,
                 useEthPath
             );
@@ -254,7 +254,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             // Swap collateral asset to the debt asset
             _swapTokensForExactTokens(
                 collateralAsset.asset,
-                debtAsset.asset,
+                debtAsset,
                 amounts[0],
                 neededForFlashLoanDebt,
                 useEthPath
@@ -272,11 +272,8 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
         }
 
         // Repay flashloan. Approves for 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        IERC20(debtAsset.asset).approve(address(LENDING_POOL), 0);
-        IERC20(debtAsset.asset).approve(
-            address(LENDING_POOL),
-            amount.add(premium)
-        );
+        IERC20(debtAsset).approve(address(LENDING_POOL), 0);
+        IERC20(debtAsset).approve(address(LENDING_POOL), amount.add(premium));
     }
 
     /**
@@ -300,7 +297,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
     {
         (
             address collateralAsset,
-            uint8 collateralTranche,
+            uint64 collateralTranche,
             uint256 collateralAmount,
             uint256 rateMode,
             uint256 permitAmount,
@@ -313,7 +310,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
                 params,
                 (
                     address,
-                    uint8,
+                    uint64,
                     uint256,
                     uint256,
                     uint256,

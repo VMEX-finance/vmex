@@ -6,9 +6,7 @@ import {MathUtils} from "../libraries/math/MathUtils.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {IStableDebtToken} from "../../interfaces/IStableDebtToken.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
-import {
-    IAaveIncentivesController
-} from "../../interfaces/IAaveIncentivesController.sol";
+import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 
@@ -45,7 +43,7 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
-        uint8 trancheId,
+        uint64 trancheId,
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,
@@ -138,11 +136,10 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
         if (accountBalance == 0) {
             return 0;
         }
-        uint256 cumulatedInterest =
-            MathUtils.calculateCompoundedInterest(
-                stableRate,
-                _timestamps[account]
-            );
+        uint256 cumulatedInterest = MathUtils.calculateCompoundedInterest(
+            stableRate,
+            _timestamps[account]
+        );
         return accountBalance.rayMul(cumulatedInterest);
     }
 
@@ -177,8 +174,11 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
             _decreaseBorrowAllowance(onBehalfOf, user, amount);
         }
 
-        (, uint256 currentBalance, uint256 balanceIncrease) =
-            _calculateBalanceIncrease(onBehalfOf);
+        (
+            ,
+            uint256 currentBalance,
+            uint256 balanceIncrease
+        ) = _calculateBalanceIncrease(onBehalfOf);
 
         vars.previousSupply = totalSupply();
         vars.currentAvgStableRate = _avgStableRate;
@@ -237,8 +237,11 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
         override
         onlyLendingPool
     {
-        (, uint256 currentBalance, uint256 balanceIncrease) =
-            _calculateBalanceIncrease(user);
+        (
+            ,
+            uint256 currentBalance,
+            uint256 balanceIncrease
+        ) = _calculateBalanceIncrease(user);
 
         uint256 previousSupply = totalSupply();
         uint256 newAvgStableRate = 0;
@@ -254,8 +257,9 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
             _totalSupply = 0;
         } else {
             nextSupply = _totalSupply = previousSupply.sub(amount);
-            uint256 firstTerm =
-                _avgStableRate.rayMul(previousSupply.wadToRay());
+            uint256 firstTerm = _avgStableRate.rayMul(
+                previousSupply.wadToRay()
+            );
             uint256 secondTerm = userStableRate.rayMul(amount.wadToRay());
 
             // For the same reason described above, when the last user is repaying it might
@@ -478,11 +482,10 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
             return 0;
         }
 
-        uint256 cumulatedInterest =
-            MathUtils.calculateCompoundedInterest(
-                avgRate,
-                _totalSupplyTimestamp
-            );
+        uint256 cumulatedInterest = MathUtils.calculateCompoundedInterest(
+            avgRate,
+            _totalSupplyTimestamp
+        );
 
         return principalSupply.rayMul(cumulatedInterest);
     }
