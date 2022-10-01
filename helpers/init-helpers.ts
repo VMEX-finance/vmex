@@ -49,7 +49,6 @@ export const initReservesByHelper = async (
   incentivesController: tEthereumAddress,
   poolName: ConfigNames,
   trancheId: BigNumberish,
-  trancheRisk: BigNumberish,
   verify: boolean
 ) => {
   // initTrancheMultiplier();
@@ -75,12 +74,7 @@ export const initReservesByHelper = async (
     stableDebtTokenName: string;
     stableDebtTokenSymbol: string;
     params: string;
-    trancheId: BigNumberish;
-    trancheRisk: BigNumberish;
-    risk: BigNumberish;
-    allowHigherTranche: boolean;
     assetType: BigNumberish;
-    canBeCollateral: boolean;
     collateralCap: string; //1,000,000
     hasStrategy: boolean;
     usingGovernanceSetInterestRate: boolean;
@@ -112,10 +106,7 @@ export const initReservesByHelper = async (
       strategy,
       aTokenImpl,
       reserveDecimals,
-      risk,
-      allowedHigherTranche,
       assetType,
-      canBeCollateral,
       collateralCap, //1,000,000
       hasStrategy,
       usingGovernanceSetInterestRate,
@@ -181,12 +172,7 @@ export const initReservesByHelper = async (
       stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
-      trancheId: trancheId,
-      trancheRisk: trancheRisk,
-      risk: risk,
-      allowHigherTranche: allowedHigherTranche,
       assetType: assetType,
-      canBeCollateral: canBeCollateral,
       collateralCap: collateralCap, //1,000,000
       hasStrategy: hasStrategy,
       usingGovernanceSetInterestRate: usingGovernanceSetInterestRate,
@@ -217,7 +203,10 @@ export const initReservesByHelper = async (
     chunkIndex++
   ) {
     const tx3 = await waitForTx(
-      await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
+      await configurator.batchInitReserve(
+        chunkedInitInputParams[chunkIndex],
+        trancheId
+      )
     );
 
     console.log(
