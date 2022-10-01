@@ -26,7 +26,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
     struct SwapParams {
         address[] assetToSwapToList;
-        uint8[] assetToSwapToListTranche;
+        uint16[] assetToSwapToListTranche;
         uint256[] minAmountsToReceive;
         bool[] swapAllBalance;
         PermitParams permitParams;
@@ -59,7 +59,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
      *   bytes32[] s List of s param for the permit signature
      */
     function executeOperation(
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -89,8 +89,8 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
         for (uint256 i = 0; i < assets.length; i++) {
             _swapLiquidity(
-                assets[i].asset,
-                assets[i].trancheId,
+                assets[i],
+                decodedParams.assetToSwapToListTranche[i],
                 decodedParams.assetToSwapToList[i],
                 decodedParams.assetToSwapToListTranche[i],
                 amounts[i],
@@ -229,9 +229,9 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
     function _swapLiquidity(
         address assetFrom,
-        uint8 assetFromTranche,
+        uint16 assetFromTranche,
         address assetTo,
-        uint8 assetToTranche,
+        uint16 assetToTranche,
         uint256 amount,
         uint256 premium,
         address initiator,
@@ -308,7 +308,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
     {
         (
             address[] memory assetToSwapToList,
-            uint8[] memory assetToSwapToListTranche,
+            uint16[] memory assetToSwapToListTranche,
             uint256[] memory minAmountsToReceive,
             bool[] memory swapAllBalance,
             uint256[] memory permitAmount,
@@ -321,7 +321,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
                 params,
                 (
                     address[],
-                    uint8[],
+                    uint16[],
                     uint256[],
                     bool[],
                     uint256[],

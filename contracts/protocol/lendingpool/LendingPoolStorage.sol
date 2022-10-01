@@ -15,7 +15,7 @@ contract LendingPoolStorage {
     ILendingPoolAddressesProvider internal _addressesProvider;
 
     // asset address to trancheId number to reserve data
-    mapping(address => mapping(uint8 => DataTypes.ReserveData))
+    mapping(address => mapping(uint16 => DataTypes.ReserveData))
         internal _reserves;
     mapping(address => DataTypes.UserConfigurationMap) internal _usersConfig;
 
@@ -23,10 +23,10 @@ contract LendingPoolStorage {
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
     //TODO: change this to be a different list per trancheId
-    mapping(uint8 => mapping(uint256 => address)) internal _reservesList; //trancheId id -> array of available reserves
-    mapping(uint8 => uint256) internal _reservesCount; //trancheId id -> number of reserves per that trancheId
+    mapping(uint16 => mapping(uint256 => address)) internal _reservesList; //trancheId id -> array of available reserves
+    mapping(uint16 => uint256) internal _reservesCount; //trancheId id -> number of reserves per that trancheId
 
-    bool internal _paused;
+    mapping(uint16=>bool) internal _paused; //trancheId -> paused
 
     uint256 internal _maxStableRateBorrowSizePercent;
 

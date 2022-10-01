@@ -62,22 +62,22 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
         return _simulateEOA;
     }
 
-    function _getAddresses(DataTypes.TrancheAddress[] memory assets)
-        private
-        pure
-        returns (address[] memory)
-    {
-        uint256 len = assets.length;
-        address[] memory ret = new address[](len);
-        for (uint256 i = 0; i < len; i++) {
-            ret[i] = assets[i].asset;
-        }
-        return ret;
-    }
+    // function _getAddresses(DataTypes.TrancheAddress[] memory assets)
+    //     private
+    //     pure
+    //     returns (address[] memory)
+    // {
+    //     uint256 len = assets.length;
+    //     address[] memory ret = new address[](len);
+    //     for (uint256 i = 0; i < len; i++) {
+    //         ret[i] = assets[i].asset;
+    //     }
+    //     return ret;
+    // }
 
     //TODO: TRANCHES NEED TO BE USED HERE
     function executeOperation(
-        DataTypes.TrancheAddress[] memory assets,
+        address[] memory assets,
         uint256[] memory amounts,
         uint256[] memory premiums,
         address initiator,
@@ -87,17 +87,17 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
         initiator;
 
         if (_failExecution) {
-            emit ExecutedWithFail(_getAddresses(assets), amounts, premiums);
+            emit ExecutedWithFail((assets), amounts, premiums);
             return !_simulateEOA;
         }
 
         for (uint256 i = 0; i < assets.length; i++) {
             //mint to this contract the specific amount
-            MintableERC20 token = MintableERC20(assets[i].asset);
+            MintableERC20 token = MintableERC20(assets[i]);
 
             //check the contract has the specified balance
             require(
-                amounts[i] <= IERC20(assets[i].asset).balanceOf(address(this)),
+                amounts[i] <= IERC20(assets[i]).balanceOf(address(this)),
                 "Invalid balance for the contract"
             );
 
@@ -109,13 +109,13 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
 
             token.mint(premiums[i]);
 
-            IERC20(assets[i].asset).approve(
+            IERC20(assets[i]).approve(
                 address(LENDING_POOL),
                 amountToReturn
             );
         }
 
-        emit ExecutedWithSuccess(_getAddresses(assets), amounts, premiums);
+        emit ExecutedWithSuccess((assets), amounts, premiums);
 
         return true;
     }

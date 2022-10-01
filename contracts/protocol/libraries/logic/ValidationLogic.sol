@@ -65,7 +65,7 @@ library ValidationLogic {
         uint16 trancheId,
         uint256 amount,
         uint256 userBalance,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
@@ -122,7 +122,7 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         uint256 amountInETH,
         uint256 maxStableLoanPercent,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
@@ -388,7 +388,7 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         address reserveAddress,
         bool useAsCollateral,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
@@ -457,7 +457,7 @@ library ValidationLogic {
      * @param amounts The amounts for each asset being borrowed
      **/
     function validateFlashloan(
-        DataTypes.TrancheAddress[] memory assets,
+        address[] memory assets,
         uint256[] memory amounts
     ) internal pure {
         require(
@@ -546,7 +546,7 @@ library ValidationLogic {
     function validateTransfer(
         address from,
         uint16 trancheId,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,

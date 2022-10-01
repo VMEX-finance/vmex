@@ -99,6 +99,7 @@ interface ILendingPool {
      **/
     event FlashLoan(
         address indexed target,
+        uint16 trancheId,
         address indexed initiator,
         address indexed asset,
         uint256 amount,
@@ -317,7 +318,8 @@ interface ILendingPool {
      **/
     function flashLoan(
         address receiverAddress,
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
+        uint16 trancheId,
         uint256[] calldata amounts,
         uint256[] calldata modes,
         address onBehalfOf,
@@ -364,7 +366,7 @@ interface ILendingPool {
      **/
     function setAssetData(
         address asset,
-        uint8 _risk,
+        uint16 _risk,
         bool _allowedHigherTranche,
         uint8 _assetType
     ) external;
@@ -458,7 +460,7 @@ interface ILendingPool {
         view
         returns (ILendingPoolAddressesProvider);
 
-    function setPause(bool val) external;
+    function setPause(bool val,uint16 trancheId) external;
 
-    function paused() external view returns (bool);
+    function paused(uint16 trancheId) external view returns (bool);
 }

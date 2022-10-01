@@ -21,7 +21,7 @@ library DataTypes {
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
         bytes params;
-        uint8 risk; //risk level for collateral
+        uint16 risk; //risk level for collateral
         bool allowHigherTranche;
         uint8 assetType;
         bool canBeCollateral;
@@ -29,6 +29,12 @@ library DataTypes {
         bool hasStrategy;
         bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
         uint256 governanceSetInterestRate;
+    }
+
+    struct InitReserveInputInternal {
+        InitReserveInput input;
+        uint16 trancheId;
+        uint16 trancheRisk;
     }
 
     enum ReserveAssetType {
@@ -39,7 +45,7 @@ library DataTypes {
     //CURVE is the new LP tokens we are providing support for
 
     struct AssetData {
-        uint8 collateralRisk; //this is a property of the asset. The asset has the same underlying risk as collateral regardless of what trancheId it is in
+        uint16 collateralRisk; //this is a property of the asset. The asset has the same underlying risk as collateral regardless of what trancheId it is in
         bool isAllowedCollateralInHigherTranches; //this is a property of the asset. It can't be "allowed as collateral in higher tranches" in some tranches but not in others, logical inconsistency
         ReserveAssetType assetType; //this is asset property
     }
@@ -154,7 +160,7 @@ library DataTypes {
     }
 
     struct ValidateSetUseReserveAsCollateralParams {
-        uint8 risk;
+        uint16 risk;
         bool allowHigherTranche;
     }
 
@@ -168,7 +174,8 @@ library DataTypes {
 
     struct flashLoanVars {
         address receiverAddress;
-        DataTypes.TrancheAddress[] assets;
+        address[] assets;
+        uint16 trancheId;
         uint256[] amounts;
         uint256[] modes;
         address onBehalfOf;
