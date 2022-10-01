@@ -297,7 +297,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
     {
         (
             address collateralAsset,
-            uint16 collateralTranche,
+            uint64 collateralTranche,
             uint256 collateralAmount,
             uint256 rateMode,
             uint256 permitAmount,
@@ -310,7 +310,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
                 params,
                 (
                     address,
-                    uint16,
+                    uint64,
                     uint256,
                     uint256,
                     uint256,

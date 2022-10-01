@@ -19,7 +19,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
 
     function getFullReservesIncentiveData(
         ILendingPoolAddressesProvider provider,
-        uint16 trancheId,
+        uint64 trancheId,
         address user
     )
         external
@@ -38,14 +38,14 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
 
     function getReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
-        uint16 trancheId
+        uint64 trancheId
     ) external view override returns (AggregatedReserveIncentiveData[] memory) {
         return _getReservesIncentivesData(provider, trancheId);
     }
 
     function _getReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
-        uint16 trancheId
+        uint64 trancheId
     ) private view returns (AggregatedReserveIncentiveData[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
         address[] memory reserves = lendingPool.getReservesList(trancheId);
@@ -59,7 +59,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
                 memory reserveIncentiveData = reservesIncentiveData[i];
             reserveIncentiveData.underlyingAsset = reserves[i];
 
-            // uint16 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint64 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId
@@ -243,7 +243,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
 
     function getUserReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
-        uint16 trancheId,
+        uint64 trancheId,
         address user
     ) external view override returns (UserReserveIncentiveData[] memory) {
         return _getUserReservesIncentivesData(provider, trancheId, user);
@@ -251,7 +251,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
 
     function _getUserReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
-        uint16 trancheId,
+        uint64 trancheId,
         address user
     ) private view returns (UserReserveIncentiveData[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
@@ -263,7 +263,7 @@ contract UiIncentiveDataProviderV2 is IUiIncentiveDataProviderV2 {
             );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            // uint16 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint64 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
                 trancheId

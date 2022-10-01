@@ -32,7 +32,7 @@ contract ParaSwapLiquiditySwapAdapter is
 
     struct executeOperationVars {
         IERC20Detailed assetToSwapTo;
-        uint16 assetToSwapToTranche;
+        uint64 assetToSwapToTranche;
         uint256 minAmountToReceive;
         uint256 swapAllBalanceOffset;
         bytes swapCalldata;
@@ -47,7 +47,7 @@ contract ParaSwapLiquiditySwapAdapter is
     {
         (
             IERC20Detailed assetToSwapTo,
-            uint16 assetToSwapToTranche,
+            uint64 assetToSwapToTranche,
             uint256 minAmountToReceive,
             uint256 swapAllBalanceOffset,
             bytes memory swapCalldata,
@@ -57,7 +57,7 @@ contract ParaSwapLiquiditySwapAdapter is
                 params,
                 (
                     IERC20Detailed,
-                    uint16,
+                    uint64,
                     uint256,
                     uint256,
                     bytes,

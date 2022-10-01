@@ -85,7 +85,7 @@ contract WalletBalanceProvider {
     function getUserWalletBalances(
         address provider,
         address user,
-        uint16 trancheId
+        uint64 trancheId
     ) external view returns (address[] memory, uint256[] memory) {
         ILendingPool pool = ILendingPool(
             ILendingPoolAddressesProvider(provider).getLendingPool()
@@ -101,7 +101,7 @@ contract WalletBalanceProvider {
         uint256[] memory balances = new uint256[](reservesWithEth.length);
 
         for (uint256 j = 0; j < reserves.length; j++) {
-            // uint16 trancheId = uint8(j % DataTypes.NUM_TRANCHES);
+            // uint64 trancheId = uint8(j % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveConfigurationMap memory configuration = pool
                 .getConfiguration(reservesWithEth[j], trancheId);
 

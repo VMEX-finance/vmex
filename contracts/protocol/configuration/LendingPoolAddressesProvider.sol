@@ -23,7 +23,9 @@ contract LendingPoolAddressesProvider is
 {
     string private _marketId;
     mapping(bytes32 => address) private _addresses; //addresses that are not specific to a configurator
-    mapping(bytes32 => mapping(uint16 => address)) private _addressesTranche; //addresses that are specific to a tranche: _addressesTranche[POOL_ADMIN][0] is the admin address for tranche 0
+    mapping(bytes32 => mapping(uint64 => address)) private _addressesTranche; //addresses that are specific to a tranche: _addressesTranche[POOL_ADMIN][0] is the admin address for tranche 0
+    mapping(address => bool) whitelistedAddresses;
+    bool permissionlessTranches;
 
     bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
     bytes32 private constant LENDING_POOL = "LENDING_POOL";
@@ -43,6 +45,24 @@ contract LendingPoolAddressesProvider is
 
     constructor(string memory marketId) public {
         _setMarketId(marketId);
+        permissionlessTranches = false;
+    }
+
+    function setPermissionlessTranches(bool _val) external onlyOwner {
+        permissionlessTranches = _val;
+    }
+
+    function addWhitelistedAddress(address ad) external onlyOwner {
+        whitelistedAddresses[ad] = true;
+    }
+
+    function isWhitelistedAddress(address ad)
+        external
+        view
+        override
+        returns (bool)
+    {
+        return permissionlessTranches || whitelistedAddresses[ad];
     }
 
     /**
@@ -102,7 +122,7 @@ contract LendingPoolAddressesProvider is
         return _addresses[id];
     }
 
-    function getAddressTranche(bytes32 id, uint16 trancheId)
+    function getAddressTranche(bytes32 id, uint64 trancheId)
         public
         view
         override
@@ -204,7 +224,7 @@ contract LendingPoolAddressesProvider is
         _addresses[GLOBAL_ADMIN] = admin;
     }
 
-    function getPoolAdmin(uint16 trancheId)
+    function getPoolAdmin(uint64 trancheId)
         external
         view
         override
@@ -213,7 +233,7 @@ contract LendingPoolAddressesProvider is
         return getAddressTranche(POOL_ADMIN, trancheId);
     }
 
-    function setPoolAdmin(address admin, uint16 trancheId) external override {
+    function setPoolAdmin(address admin, uint64 trancheId) external override {
         //eventually we want this to be permissionless, but for now we will manually set the pool admin for every tranche
         //TODO: check if I should use _msgSender or msg.sender
         require(
@@ -225,7 +245,7 @@ contract LendingPoolAddressesProvider is
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
-    function addPoolAdmin(address admin, uint16 trancheId) external override {
+    function addPoolAdmin(address admin, uint64 trancheId) external override {
         //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
         require(
             _msgSender() == getAddress(LENDING_POOL_CONFIGURATOR) ||
@@ -240,7 +260,7 @@ contract LendingPoolAddressesProvider is
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
-    function getEmergencyAdmin(uint16 trancheId)
+    function getEmergencyAdmin(uint64 trancheId)
         external
         view
         override
@@ -249,7 +269,7 @@ contract LendingPoolAddressesProvider is
         return getAddressTranche(EMERGENCY_ADMIN, trancheId);
     }
 
-    function setEmergencyAdmin(address emergencyAdmin, uint16 trancheId)
+    function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
         external
         override
     {
@@ -262,7 +282,7 @@ contract LendingPoolAddressesProvider is
         emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
     }
 
-    function addEmergencyAdmin(address emergencyAdmin, uint16 trancheId)
+    function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
         external
         override
     {

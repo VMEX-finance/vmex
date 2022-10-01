@@ -26,7 +26,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
     struct SwapParams {
         address[] assetToSwapToList;
-        uint16[] assetToSwapToListTranche;
+        uint64[] assetToSwapToListTranche;
         uint256[] minAmountsToReceive;
         bool[] swapAllBalance;
         PermitParams permitParams;
@@ -229,9 +229,9 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
 
     function _swapLiquidity(
         address assetFrom,
-        uint16 assetFromTranche,
+        uint64 assetFromTranche,
         address assetTo,
-        uint16 assetToTranche,
+        uint64 assetToTranche,
         uint256 amount,
         uint256 premium,
         address initiator,
@@ -308,7 +308,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
     {
         (
             address[] memory assetToSwapToList,
-            uint16[] memory assetToSwapToListTranche,
+            uint64[] memory assetToSwapToListTranche,
             uint256[] memory minAmountsToReceive,
             bool[] memory swapAllBalance,
             uint256[] memory permitAmount,
@@ -321,7 +321,7 @@ contract UniswapLiquiditySwapAdapter is BaseUniswapAdapter {
                 params,
                 (
                     address[],
-                    uint16[],
+                    uint64[],
                     uint256[],
                     bool[],
                     uint256[],

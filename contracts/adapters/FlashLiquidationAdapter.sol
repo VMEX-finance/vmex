@@ -25,7 +25,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
     struct LiquidationParams {
         address collateralAsset;
         address borrowedAsset;
-        uint16 trancheId;
+        uint64 trancheId;
         address user;
         uint256 debtToCover;
         bool useEthPath;
@@ -198,13 +198,13 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         (
             address collateralAsset,
             address borrowedAsset,
-            uint16 trancheId,
+            uint64 trancheId,
             address user,
             uint256 debtToCover,
             bool useEthPath
         ) = abi.decode(
                 params,
-                (address, address, uint16, address, uint256, bool)
+                (address, address, uint64, address, uint256, bool)
             );
 
         return
