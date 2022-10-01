@@ -52,7 +52,7 @@ contract AToken is
     ILendingPool internal _pool;
     address internal _treasury;
     address internal _underlyingAsset;
-    uint8 internal _tranche;
+    uint16 internal _tranche;
     IAaveIncentivesController internal _incentivesController;
 
     modifier onlyLendingPool {

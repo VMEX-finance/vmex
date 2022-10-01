@@ -136,7 +136,7 @@ interface ILendingPoolConfigurator {
      **/
     event AssetDataChanged(
         address indexed asset,
-        uint8 _risk,
+        uint16 _risk,
         bool _allowedHigherTranche,
         uint8 _assetType
     );

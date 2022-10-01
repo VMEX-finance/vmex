@@ -62,18 +62,17 @@ contract LendingPool is
 
     uint256 public constant LENDINGPOOL_REVISION = 0x2;
 
-    modifier whenNotPaused() {
-        _whenNotPaused();
+    modifier whenNotPaused(uint16 trancheId) {
+        {
+            require(!_paused[trancheId], Errors.LP_IS_PAUSED);
+        }
+        
         _;
     }
 
     modifier onlyLendingPoolConfigurator() {
         _onlyLendingPoolConfigurator();
         _;
-    }
-
-    function _whenNotPaused() internal view {
-        require(!_paused, Errors.LP_IS_PAUSED);
     }
 
     function _onlyLendingPoolConfigurator() internal view {
@@ -123,7 +122,7 @@ contract LendingPool is
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
-    ) public override whenNotPaused {
+    ) public override whenNotPaused(trancheId) {
         //changed scope to public so transferTranche can call it
         DataTypes.DepositVars memory vars;
         {
@@ -160,7 +159,7 @@ contract LendingPool is
         uint16 trancheId,
         uint256 amount,
         address to
-    ) public override whenNotPaused returns (uint256) {
+    ) public override whenNotPaused(trancheId) returns (uint256) {
         return
             DepositWithdrawLogic._withdraw(
                 _reserves,
@@ -176,25 +175,6 @@ contract LendingPool is
                 _addressesProvider,
                 assetDatas
             );
-    }
-
-    /**
-     * @dev Transfers an `amount` of underlying asset from the reserve, burning the equivalent aTokens owned in that trancheId, then depositing in destination trancheId
-     * E.g. User has 100 aUSDC, calls transferTranche() and receives 100 USDC, burning the 100 aUSDC, and transfers that to another trancheId in one transaction
-     * @param asset The address of the underlying asset to transfer
-     * @param originTranche The trancheId of the underlying asset to transfer from
-     * @param asset The trancheId of the underlying asset to transfer to
-     * @param amount The underlying amount to be transfer
-     *   - Send the value type(uint256).max in order to withdraw the whole aToken balance
-     **/
-    function transferTranche(
-        address asset,
-        uint8 originTranche,
-        uint8 destinationTranche,
-        uint256 amount
-    ) external whenNotPaused {
-        withdraw(asset, originTranche, amount, msg.sender);
-        deposit(asset, destinationTranche, amount, msg.sender, 0); //no referral code
     }
 
     /**
@@ -219,7 +199,7 @@ contract LendingPool is
         uint256 interestRateMode,
         uint16 referralCode,
         address onBehalfOf
-    ) public override whenNotPaused {
+    ) public override whenNotPaused(trancheId) {
         DataTypes.ReserveData storage reserve;
         DataTypes.ExecuteBorrowParams memory vars;
 
@@ -275,7 +255,10 @@ contract LendingPool is
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
-    ) external override whenNotPaused returns (uint256) {
+    ) external override  returns (uint256) {
+        {
+            require(!_paused[trancheId], Errors.LP_IS_PAUSED);
+        }
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         (uint256 stableDebt, uint256 variableDebt) = Helpers.getUserCurrentDebt(
@@ -344,7 +327,7 @@ contract LendingPool is
         address asset,
         uint16 trancheId,
         uint256 rateMode
-    ) external override whenNotPaused {
+    ) external override whenNotPaused(trancheId) {
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         (uint256 stableDebt, uint256 variableDebt) = Helpers.getUserCurrentDebt(
@@ -408,7 +391,7 @@ contract LendingPool is
         address asset,
         uint16 trancheId,
         address user
-    ) external override whenNotPaused {
+    ) external override whenNotPaused(trancheId) {
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
@@ -449,7 +432,7 @@ contract LendingPool is
         address asset,
         uint16 trancheId,
         bool useAsCollateral
-    ) external override whenNotPaused {
+    ) external override whenNotPaused(trancheId) {
         // require(
         //     assetDatas[asset].isLendable,
         //     "nonlendable assets must be set as collateral"
@@ -500,14 +483,14 @@ contract LendingPool is
         address user,
         uint256 debtToCover,
         bool receiveAToken
-    ) external override whenNotPaused {
+    ) external override whenNotPaused(trancheId) {
         address collateralManager = _addressesProvider
             .getLendingPoolCollateralManager();
 
         //solium-disable-next-line
         (bool success, bytes memory result) = collateralManager.delegatecall(
             abi.encodeWithSignature(
-                "liquidationCall(address,address,uint8,address,uint256,bool)",
+                "liquidationCall(address,address,uint16,address,uint256,bool)",
                 collateralAsset,
                 debtAsset,
                 trancheId,
@@ -532,7 +515,7 @@ contract LendingPool is
         address oracle;
         uint256 i;
         address currentAsset;
-        uint8 currentTranche;
+        uint16 currentTranche;
         address currentATokenAddress;
         uint256 currentAmount;
         uint256 currentPremium;
@@ -559,13 +542,17 @@ contract LendingPool is
      **/
     function flashLoan(
         address receiverAddress,
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
+        uint16 trancheId,
         uint256[] calldata amounts,
         uint256[] calldata modes,
         address onBehalfOf,
         bytes calldata params,
         uint16 referralCode
-    ) external override whenNotPaused {
+    ) external override {
+        {
+            require(!_paused[trancheId], Errors.LP_IS_PAUSED);
+        }
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
             onBehalfOf
         ];
@@ -575,6 +562,7 @@ contract LendingPool is
             callvars = DataTypes.flashLoanVars(
                 receiverAddress,
                 assets,
+                trancheId,
                 amounts,
                 modes,
                 onBehalfOf,
@@ -726,8 +714,8 @@ contract LendingPool is
     /**
      * @dev Returns if the LendingPool is paused
      */
-    function paused() external view override returns (bool) {
-        return _paused;
+    function paused(uint16 trancheId) external view override returns (bool) {
+        return _paused[trancheId];
     }
 
     /**
@@ -821,7 +809,7 @@ contract LendingPool is
         uint256 amount,
         uint256 balanceFromBefore,
         uint256 balanceToBefore
-    ) external override whenNotPaused {
+    ) external override whenNotPaused(trancheId) {
         require(
             msg.sender == _reserves[asset][trancheId].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
@@ -900,7 +888,7 @@ contract LendingPool is
      **/
     function setAssetData(
         address asset,
-        uint8 _risk,
+        uint16 _risk,
         bool _allowedHigherTranche,
         uint8 _assetType
     ) external override onlyLendingPoolConfigurator {
@@ -911,7 +899,7 @@ contract LendingPool is
         assetDatas[asset].assetType = DataTypes.ReserveAssetType(_assetType);
     }
 
-    function getAssetRisk(address asset) external view returns (uint8) {
+    function getAssetRisk(address asset) external view returns (uint16) {
         return assetDatas[asset].collateralRisk;
     }
 
@@ -949,9 +937,9 @@ contract LendingPool is
      * - Only callable by the LendingPoolConfigurator contract
      * @param val `true` to pause the reserve, `false` to un-pause it
      */
-    function setPause(bool val) external override onlyLendingPoolConfigurator {
-        _paused = val;
-        if (_paused) {
+    function setPause(bool val,uint16 trancheId) external override onlyLendingPoolConfigurator {
+        _paused[trancheId] = val;
+            if (_paused[trancheId]) {
             emit Paused();
         } else {
             emit Unpaused();

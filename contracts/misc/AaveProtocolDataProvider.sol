@@ -88,7 +88,7 @@ contract AaveProtocolDataProvider {
     }
 
     struct CalculateUserAccountDataVars {
-        uint8 currentTranche;
+        uint16 currentTranche;
         uint256 reserveUnitPrice;
         uint256 tokenUnit;
         uint256 compoundedLiquidityBalance;

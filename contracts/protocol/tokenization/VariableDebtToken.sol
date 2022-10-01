@@ -21,7 +21,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
     ILendingPool internal _pool;
     address internal _underlyingAsset;
-    uint8 _tranche;
+    uint16 _tranche;
     IAaveIncentivesController internal _incentivesController;
 
     /**

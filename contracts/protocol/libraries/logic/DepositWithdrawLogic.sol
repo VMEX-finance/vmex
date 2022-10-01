@@ -125,7 +125,7 @@ library DepositWithdrawLogic {
     );
 
     function _withdraw(
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage _reserves,
         DataTypes.UserConfigurationMap storage user,
         mapping(uint256 => address) storage _reservesList,
@@ -204,7 +204,7 @@ library DepositWithdrawLogic {
     );
 
     function _borrowHelper(
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage _reserves,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.UserConfigurationMap storage userConfig,
@@ -305,7 +305,7 @@ library DepositWithdrawLogic {
         ILendingPoolAddressesProvider oracle;
         uint256 i;
         address currentAsset;
-        uint8 currentTranche;
+        uint16 currentTranche;
         address currentATokenAddress;
         uint256 currentAmount;
         uint256 currentPremium;
@@ -326,6 +326,7 @@ library DepositWithdrawLogic {
         address indexed target,
         address indexed initiator,
         address indexed asset,
+        uint16 trancheId,
         uint256 amount,
         uint256 premium,
         uint16 referralCode
@@ -334,10 +335,10 @@ library DepositWithdrawLogic {
     function _flashLoan(
         DataTypes.flashLoanVars memory callvars,
         mapping(address => DataTypes.AssetData) storage assetDatas,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage _reserves,
-        mapping(uint8 => mapping(uint256 => address)) storage _reservesList,
-        mapping(uint8 => uint256) storage _reservesCount,
+        mapping(uint16 => mapping(uint256 => address)) storage _reservesList,
+        mapping(uint16 => uint256) storage _reservesCount,
         DataTypes.UserConfigurationMap storage userConfig
     ) external {
         FlashLoanLocalVars memory vars;
@@ -352,8 +353,8 @@ library DepositWithdrawLogic {
         vars.receiver = IFlashLoanReceiver(callvars.receiverAddress);
 
         for (vars.i = 0; vars.i < callvars.assets.length; vars.i++) {
-            aTokenAddresses[vars.i] = _reserves[callvars.assets[vars.i].asset][
-                callvars.assets[vars.i].trancheId
+            aTokenAddresses[vars.i] = _reserves[callvars.assets[vars.i]][
+                callvars.trancheId
             ].aTokenAddress;
 
             premiums[vars.i] = callvars
@@ -379,8 +380,8 @@ library DepositWithdrawLogic {
         );
 
         for (vars.i = 0; vars.i < callvars.assets.length; vars.i++) {
-            vars.currentAsset = callvars.assets[vars.i].asset;
-            vars.currentTranche = callvars.assets[vars.i].trancheId;
+            vars.currentAsset = callvars.assets[vars.i];
+            vars.currentTranche = callvars.trancheId;
             vars.currentAmount = callvars.amounts[vars.i];
             vars.oracle = ILendingPoolAddressesProvider(
                 callvars._addressesprovider
@@ -452,6 +453,7 @@ library DepositWithdrawLogic {
                 callvars.receiverAddress,
                 msg.sender,
                 vars.currentAsset,
+                callvars.trancheId,
                 vars.currentAmount,
                 vars.currentPremium,
                 callvars.referralCode

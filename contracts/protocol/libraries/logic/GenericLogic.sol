@@ -62,7 +62,7 @@ library GenericLogic {
      **/
     function balanceDecreaseAllowed(
         balanceDecreaseAllowedParameters calldata params,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap calldata userConfig,
         mapping(uint256 => address) storage reserves,
@@ -144,7 +144,7 @@ library GenericLogic {
     }
 
     struct CalculateUserAccountDataVars {
-        uint8 currentTranche;
+        uint16 currentTranche;
         uint256 reserveUnitPrice;
         uint256 tokenUnit;
         uint256 compoundedLiquidityBalance;
@@ -182,7 +182,7 @@ library GenericLogic {
      **/
     function calculateUserAccountData(
         DataTypes.AcctTranche memory actTranche,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint16 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap memory userConfig,
         mapping(uint256 => address) storage reserves,

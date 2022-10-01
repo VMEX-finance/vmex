@@ -23,7 +23,7 @@ contract LendingPoolAddressesProvider is
 {
     string private _marketId;
     mapping(bytes32 => address) private _addresses; //addresses that are not specific to a configurator
-    mapping(bytes32 => mapping(uint8 => address)) private _addressesTranche; //addresses that are specific to a tranche: _addressesTranche[POOL_ADMIN][0] is the admin address for tranche 0
+    mapping(bytes32 => mapping(uint16 => address)) private _addressesTranche; //addresses that are specific to a tranche: _addressesTranche[POOL_ADMIN][0] is the admin address for tranche 0
 
     bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
     bytes32 private constant LENDING_POOL = "LENDING_POOL";

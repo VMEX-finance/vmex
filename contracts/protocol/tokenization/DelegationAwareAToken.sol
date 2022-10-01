@@ -15,7 +15,7 @@ contract DelegationAwareAToken is AToken {
     modifier onlyPoolAdmin {
         require(
             _msgSender() ==
-                ILendingPool(_pool).getAddressesProvider().getPoolAdmin(),
+                ILendingPool(_pool).getAddressesProvider().getGlobalAdmin(),
             Errors.CALLER_NOT_POOL_ADMIN
         );
         _;
