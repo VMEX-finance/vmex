@@ -64,6 +64,12 @@ import {
   UiIncentiveDataProviderV2Factory,
 } from "../types";
 import {
+  // VMath__factory,
+  VStrategyHelper__factory,
+} from "@vmex/lending_pool_strategies/types/factories/src/deps/vmex/libs";
+import { CrvLpStrategy__factory } from "@vmex/lending_pool_strategies/types/factories/src/strats";
+import { CrvLpStrategyLibraryAddresses } from "@vmex/lending_pool_strategies/types/factories/src/strats/CrvLpStrategy__factory";
+import {
   withSaveAndVerify,
   registerContractInJsonDb,
   linkBytecode,
@@ -71,6 +77,7 @@ import {
   deployContract,
   verifyContract,
   getOptionalParamAddressPerNetwork,
+  // getContractAddressWithJsonFallback,
 } from "./contracts-helpers";
 import { StableAndVariableTokensHelperFactory } from "../types/StableAndVariableTokensHelperFactory";
 import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
@@ -412,6 +419,45 @@ export const deployvMath = async (verify?: boolean) =>
     [],
     verify
   );
+
+export const deployvStrategyHelper = async (verify?: boolean) =>
+  withSaveAndVerify(
+    await new VStrategyHelper__factory(await getFirstSigner()).deploy(),
+    eContractid.vStrategyHelper,
+    [],
+    verify
+  );
+
+export const deployStrategyLibraries = async (
+  verify?: boolean
+): Promise<CrvLpStrategyLibraryAddresses> => {
+  // TODO: pull this out of db instead
+  // const vMath = getContractAddressWithJsonFallback(eContractid.vMath, DRE.network.name);
+  const vMath = await deployvMath();
+  const vStrategyHelper = await deployvStrategyHelper();
+  return {
+    ["src/deps/vmex/libs/vStrategyHelper.sol:vStrategyHelper"]:
+      vStrategyHelper.address,
+  };
+};
+
+export const deployTricrypto2Strategy = async (verify?: boolean) => {
+  const libraries = await deployStrategyLibraries(verify);
+  const tricrypto2StrategyImpl = await new CrvLpStrategy__factory(
+    libraries,
+    await getFirstSigner()
+  ).deploy();
+  await insertContractAddressInDb(
+    eContractid.tricrypto2Strategy,
+    tricrypto2StrategyImpl.address
+  );
+  return withSaveAndVerify(
+    tricrypto2StrategyImpl,
+    eContractid.tricrypto2Strategy,
+    [],
+    verify
+  );
+};
 
 export const deployCurveLibraries = async (
   verify?: boolean
@@ -1075,3 +1121,31 @@ export const deployParaSwapLiquiditySwapAdapter = async (
     args,
     verify
   );
+
+// export const deployStrategyLibraries = async (
+//     verify?: boolean
+//   ): Promise<CurveOracleV2LibraryAddresses> => {
+//     const vMath = await deployvMath(verify);
+
+//     return {
+//       ["__$fc961522ee25e21dc45bf9241cf35e1d80$__"]: vMath.address,
+//     };
+//   };
+
+// export const deployCurveLPStrategy = async (verify?: boolean) => {
+//     const libraries = await deployStrategyLibraries(verify);
+//     const curveOracleImpl = await new CurveOracleV2Factory(
+//       libraries,
+//       await getFirstSigner()
+//     ).deploy();
+//     await insertContractAddressInDb(
+//       eContractid.curveOracle,
+//       curveOracleImpl.address
+//     );
+//     return withSaveAndVerify(
+//       curveOracleImpl,
+//       eContractid.curveOracle,
+//       [],
+//       verify
+//     );
+//   };

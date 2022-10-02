@@ -5,10 +5,13 @@ import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IReserveInterestRateStrategy} from "../../interfaces/IReserveInterestRateStrategy.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
+import {IAToken} from "../../interfaces/IAToken.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingRateOracle} from "../../interfaces/ILendingRateOracle.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+
+import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
 
 /**
  * @title DefaultReserveInterestRateStrategy contract
@@ -129,28 +132,39 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
             uint256
         )
     {
-        uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(
-            calvars.aToken
-        );
+        // this value is zero when strategy withdraws from atoken
+        uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(calvars.aToken);
         //avoid stack too deep
-        availableLiquidity = availableLiquidity.add(calvars.liquidityAdded).sub(
+        {
+            address strategyAddress = IAToken(calvars.aToken).getStrategy();
+
+            if (strategyAddress != address(0)) {
+                // if strategy exists, add the funds the strategy holds
+                // and the funds the strategy has boosted
+                availableLiquidity = availableLiquidity.add(
+                    IBaseStrategy(strategyAddress).balanceOf()
+                );
+            }
+            availableLiquidity = availableLiquidity.add(calvars.liquidityAdded).sub(
                 calvars.liquidityTaken
             );
+        }
 
         CalcInterestRatesLocalVars memory vars;
+        {
+            vars.totalDebt = totalStableDebt.add(totalVariableDebt);
+            vars.currentVariableBorrowRate = 0;
+            vars.currentStableBorrowRate = 0;
+            vars.currentLiquidityRate = 0;
+            vars.utilizationRate = vars.totalDebt == 0
+                ? 0
+                : vars.totalDebt.rayDiv(availableLiquidity.add(vars.totalDebt));
 
-        vars.totalDebt = totalStableDebt.add(totalVariableDebt);
-        vars.currentVariableBorrowRate = 0;
-        vars.currentStableBorrowRate = 0;
-        vars.currentLiquidityRate = 0;
+            vars.currentStableBorrowRate = ILendingRateOracle(
+                addressesProvider.getLendingRateOracle()
+            ).getMarketBorrowRate(calvars.reserve);
+        }
 
-        vars.utilizationRate = vars.totalDebt == 0
-            ? 0
-            : vars.totalDebt.rayDiv(availableLiquidity.add(vars.totalDebt));
-
-        vars.currentStableBorrowRate = ILendingRateOracle(
-            addressesProvider.getLendingRateOracle()
-        ).getMarketBorrowRate(calvars.reserve);
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
             uint256 excessUtilizationRateRatio = vars

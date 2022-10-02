@@ -2,17 +2,29 @@
 
 Run `yarn install` to install node_modules or update them
 
-### How to deploy mainnet fork:
+Clone a local copy of the strategies
+`git clone https://github.com/VMEX-finance/lending_pool_strategies.git`
 
-run `npm run vmex:node:fork:main` in one terminal (starts up localhost network) as a fork
+Run the following inside the strategies:
+
+```
+yarn install
+yarn link
+```
+
+Then run in this repo: `yarn link "@vmex/lending_pool_strategies"`
+
+### How to deploy:
+
+run `yarn vmex:node:fork:main` in one terminal (starts up localhost network) as a fork
 
 metamask should now be able to connect to http://127.0.0.1:8545
 
-run `npm run vmex:deploy` in another terminal to deploy the contracts and the fork of mainnet on the localhost network
+run `yarn vmex:deploy` in another terminal to deploy the contracts and the fork of mainnet on the localhost network
 
 you can use metamask to execute contract calls on the frontend
 
-run `npm run console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
+run `yarn console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
 
 Run `vmex:mainnetfork:unit-tests` to test all localhost tests
 
