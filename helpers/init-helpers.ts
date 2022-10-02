@@ -22,6 +22,7 @@ import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
 import BigNumber from "bignumber.js";
 import { oneRay } from "./constants";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 export const getATokenExtraParams = async (
   aTokenName: string,
@@ -44,7 +45,7 @@ export const initReservesByHelper = async (
   stableDebtTokenNamePrefix: string,
   variableDebtTokenNamePrefix: string,
   symbolPrefix: string,
-  admin: tEthereumAddress,
+  admin: SignerWithAddress,
   treasuryAddress: tEthereumAddress,
   incentivesController: tEthereumAddress,
   poolName: ConfigNames,
@@ -178,13 +179,6 @@ export const initReservesByHelper = async (
       usingGovernanceSetInterestRate: usingGovernanceSetInterestRate,
       governanceSetInterestRate: governanceSetInterestRate,
     });
-
-    console.log(
-      "Underlying asset address for ",
-      symbol,
-      ": ",
-      tokenAddresses[symbol]
-    );
   }
 
   // Deploy init reserves per tranche
@@ -193,6 +187,12 @@ export const initReservesByHelper = async (
   let initChunks = 1;
   const chunkedSymbols = chunk(reserveSymbols, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
+
+  await waitForTx(
+    await configurator.claimTrancheId(trancheId, admin.address, admin.address)
+  );
+
+  console.log(`-${trancheId} claimed for ${admin.address}`);
 
   console.log(
     `- Reserves initialization in ${chunkedInitInputParams.length} txs`
@@ -203,10 +203,9 @@ export const initReservesByHelper = async (
     chunkIndex++
   ) {
     const tx3 = await waitForTx(
-      await configurator.batchInitReserve(
-        chunkedInitInputParams[chunkIndex],
-        trancheId
-      )
+      await configurator
+        .connect(admin)
+        .batchInitReserve(chunkedInitInputParams[chunkIndex], trancheId)
     );
 
     console.log(
@@ -318,7 +317,10 @@ export const configureReservesByHelper = async (
   if (tokens.length) {
     // Set aTokenAndRatesDeployer as temporal admin
     await waitForTx(
-      await addressProvider.setPoolAdmin(atokenAndRatesDeployer.address)
+      await addressProvider.setPoolAdmin(
+        atokenAndRatesDeployer.address,
+        trancheId
+      )
     );
 
     // Deploy init per chunks
@@ -341,7 +343,7 @@ export const configureReservesByHelper = async (
       console.log(`  - Init for: ${chunkedSymbols[chunkIndex].join(", ")}`);
     }
     // Set deployer back as admin
-    await waitForTx(await addressProvider.setPoolAdmin(admin));
+    await waitForTx(await addressProvider.setPoolAdmin(admin, trancheId));
   }
 };
 

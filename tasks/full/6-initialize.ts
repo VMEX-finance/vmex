@@ -10,6 +10,7 @@ import {
   loadPoolConfig,
   ConfigNames,
   getTreasuryAddress,
+  getEmergencyAdmin,
 } from "../../helpers/configuration";
 import { getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
@@ -40,8 +41,6 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
     try {
       await DRE.run("set-DRE");
       const network = <eNetwork>DRE.network.name;
-      // console.log("localBRE: ",localBRE);
-      console.log("network: ", network); //network is hardhat even when running mainnet
       const poolConfig = loadPoolConfig(pool);
       const {
         ATokenNamePrefix,
@@ -65,7 +64,9 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
 
       const testHelpers = await getAaveProtocolDataProvider();
 
-      const admin = await addressesProvider.getPoolAdmin();
+      const admin = await DRE.ethers.getSigner(
+        await addressesProvider.getGlobalAdmin()
+      );
       // const oracle = await addressesProvider.getPriceOracle();
 
       if (!reserveAssets) {
@@ -86,7 +87,6 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         incentivesController,
         pool,
         0, //tranche id
-        0, //tranche risk
         verify
       );
       await configureReservesByHelper(
@@ -94,7 +94,7 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         reserveAssets,
         testHelpers,
         0,
-        admin
+        admin.address
       );
       await initReservesByHelper(
         ReservesConfigTranche1,
@@ -103,12 +103,11 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         StableDebtTokenNamePrefix,
         VariableDebtTokenNamePrefix,
         SymbolPrefix,
-        admin,
+        await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig)),
         treasuryAddress,
         incentivesController,
         pool,
         1, //tranche id
-        1, //tranche risk
         verify
       );
 
@@ -117,7 +116,7 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         reserveAssets,
         testHelpers,
         1,
-        admin
+        await getEmergencyAdmin(poolConfig)
       );
 
       let collateralManagerAddress = await getParamPerNetwork(
