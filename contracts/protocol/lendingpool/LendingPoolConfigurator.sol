@@ -125,7 +125,6 @@ contract LendingPoolConfigurator is
         address aTokenProxyAddress;
 
         {
-            //need to approve strategy access to aToken's funds
             aTokenProxyAddress = _initTokenWithProxy(
                 internalInput.input.aTokenImpl,
                 abi.encodeWithSelector(
@@ -145,13 +144,13 @@ contract LendingPoolConfigurator is
                             internalInput.input.aTokenName,
                             Strings.toString(internalInput.trancheId)
                         )
-                    ), //,//abi.encodePacked(input.aTokenName, trancheId),string(abi.encodePacked(input.aTokenName, trancheId+48))
+                    ),
                     string(
                         abi.encodePacked(
                             internalInput.input.aTokenSymbol,
                             Strings.toString(internalInput.trancheId)
                         )
-                    ), //string(abi.encodePacked(input.aTokenSymbol, trancheId+48)) , //+48 is used to convert trancheId 0 to ascii value 0 which is number 48
+                    ),
                     internalInput.input.params
                 )
             );
@@ -521,41 +520,6 @@ contract LendingPoolConfigurator is
         );
     }
 
-    /**
-     * @dev Enable stable rate borrowing on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function enableReserveStableRate(address asset, uint64 trancheId)
-        external
-        onlyPoolAdmin(trancheId)
-    {
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setStableRateBorrowingEnabled(true);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-
-        emit StableRateEnabledOnReserve(asset);
-    }
-
-    /**
-     * @dev Disable stable rate borrowing on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function disableReserveStableRate(address asset, uint64 trancheId)
-        external
-        onlyPoolAdmin(trancheId)
-    {
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setStableRateBorrowingEnabled(false);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-
-        emit StableRateDisabledOnReserve(asset);
-    }
 
     /**
      * @dev Activates a reserve
@@ -596,41 +560,41 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Freezes a reserve. A frozen reserve doesn't allow any new deposit, borrow or rate swap
-     *  but allows repayments, liquidations, rate rebalances and withdrawals
+     * @dev Enable stable rate borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function freezeReserve(address asset, uint64 trancheId)
+    function enableReserveStableRate(address asset, uint64 trancheId)
         external
         onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        currentConfig.setFrozen(true);
+        currentConfig.setStableRateBorrowingEnabled(true);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit ReserveFrozen(asset);
+        emit StableRateEnabledOnReserve(asset);
     }
 
     /**
-     * @dev Unfreezes a reserve
+     * @dev Disable stable rate borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function unfreezeReserve(address asset, uint64 trancheId)
+    function disableReserveStableRate(address asset, uint64 trancheId)
         external
         onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        currentConfig.setFrozen(false);
+        currentConfig.setStableRateBorrowingEnabled(false);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit ReserveUnfrozen(asset);
+        emit StableRateDisabledOnReserve(asset);
     }
+
 
     /**
      * @dev Note this can only be called by global admin. Individual pool owners can't set the data for the asset, but can set the data for their own reserves
@@ -711,5 +675,23 @@ contract LendingPoolConfigurator is
             availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
             Errors.LPC_RESERVE_LIQUIDITY_NOT_0
         );
+    }
+
+    function addStrategy(
+        address asset,
+        uint64 trancheId,
+        address strategy
+    ) external onlyPoolAdmin(trancheId) {
+        pool.addStrategy(asset, trancheId, strategy);
+        emit StrategyAdded(asset, trancheId, strategy);
+    }
+
+    function withdrawFromStrategy(
+        address asset,
+        uint64 trancheId,
+        uint256 amount
+    ) external onlyPoolAdmin(trancheId) {
+        pool.withdrawFromStrategy(asset, trancheId, amount);
+        emit WithdrawFromStrategy(asset, trancheId, amount);
     }
 }

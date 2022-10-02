@@ -23,7 +23,6 @@ library DataTypes {
         bytes params;
         uint8 assetType;
         uint256 collateralCap;
-        bool hasStrategy;
         bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
         uint256 governanceSetInterestRate;
     }
