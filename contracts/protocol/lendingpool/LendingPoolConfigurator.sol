@@ -86,8 +86,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Initializes reserves in batch. Purpose is for people who want to create their own permissionless tranche, doesn't require any checks besides that trancheId is unique
      **/
-    function addNewTrancheWithReserves(
-        DataTypes.InitReserveInput[] calldata input,
+    function claimTrancheId(
         uint64 trancheId, //uint256
         address admin,
         address emergencyAdmin
@@ -95,14 +94,6 @@ contract LendingPoolConfigurator is
         //whitelist only
         addressesProvider.addPoolAdmin(admin, trancheId);
         addressesProvider.addEmergencyAdmin(emergencyAdmin, trancheId);
-        //TODO: check implications of concurrent calls
-        ILendingPool cachedPool = pool;
-        for (uint256 i = 0; i < input.length; i++) {
-            _initReserve(
-                cachedPool,
-                DataTypes.InitReserveInputInternal(input[i], trancheId)
-            );
-        }
     }
 
     /**
@@ -131,6 +122,7 @@ contract LendingPoolConfigurator is
         address aTokenProxyAddress;
 
         {
+            //need to approve strategy access to aToken's funds
             aTokenProxyAddress = _initTokenWithProxy(
                 internalInput.input.aTokenImpl,
                 abi.encodeWithSelector(

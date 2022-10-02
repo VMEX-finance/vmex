@@ -22,7 +22,7 @@ const emergency = (await ethers.getSigners())[1]
 /************************************************************************************/
 const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
 
-await lendingPoolConfig.connect(emergency).setPoolPause(false)
+// await lendingPoolConfig.connect(emergency).setPoolPause(false)
 
 
 /************************************************************************************/
@@ -59,7 +59,7 @@ await myWETH.connect(emergency).deposit(options);
 await myWETH.connect(emergency).balanceOf(signer.address);
 await myWETH.connect(emergency).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
 
-await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
+await lendingPool.connect(emergency).deposit(myWETH.address, 1, ethers.utils.parseUnits('100'), emergency.address, '0'); 
 
 /************************************************************************************/
 /******************  Uniswap ETH for frax  **********************/ 
