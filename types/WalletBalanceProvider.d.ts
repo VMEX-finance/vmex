@@ -23,7 +23,7 @@ interface WalletBalanceProviderInterface extends ethers.utils.Interface {
   functions: {
     "balanceOf(address,address)": FunctionFragment;
     "batchBalanceOf(address[],address[])": FunctionFragment;
-    "getUserWalletBalances(address,address)": FunctionFragment;
+    "getUserWalletBalances(address,address,uint64)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -36,7 +36,7 @@ interface WalletBalanceProviderInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getUserWalletBalances",
-    values: [string, string]
+    values: [string, string, BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -101,15 +101,17 @@ export class WalletBalanceProvider extends Contract {
     getUserWalletBalances(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: string[];
       1: BigNumber[];
     }>;
 
-    "getUserWalletBalances(address,address)"(
+    "getUserWalletBalances(address,address,uint64)"(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: string[];
@@ -144,15 +146,17 @@ export class WalletBalanceProvider extends Contract {
   getUserWalletBalances(
     provider: string,
     user: string,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     0: string[];
     1: BigNumber[];
   }>;
 
-  "getUserWalletBalances(address,address)"(
+  "getUserWalletBalances(address,address,uint64)"(
     provider: string,
     user: string,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     0: string[];
@@ -187,15 +191,17 @@ export class WalletBalanceProvider extends Contract {
     getUserWalletBalances(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: string[];
       1: BigNumber[];
     }>;
 
-    "getUserWalletBalances(address,address)"(
+    "getUserWalletBalances(address,address,uint64)"(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: string[];
@@ -233,12 +239,14 @@ export class WalletBalanceProvider extends Contract {
     getUserWalletBalances(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getUserWalletBalances(address,address)"(
+    "getUserWalletBalances(address,address,uint64)"(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -271,12 +279,14 @@ export class WalletBalanceProvider extends Contract {
     getUserWalletBalances(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getUserWalletBalances(address,address)"(
+    "getUserWalletBalances(address,address,uint64)"(
       provider: string,
       user: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

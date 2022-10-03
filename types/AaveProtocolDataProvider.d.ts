@@ -22,12 +22,12 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface AaveProtocolDataProviderInterface extends ethers.utils.Interface {
   functions: {
     "ADDRESSES_PROVIDER()": FunctionFragment;
-    "getAllATokens()": FunctionFragment;
-    "getAllReservesTokens()": FunctionFragment;
-    "getReserveConfigurationData(address,uint8)": FunctionFragment;
-    "getReserveData(address,uint8)": FunctionFragment;
-    "getReserveTokensAddresses(address,uint8)": FunctionFragment;
-    "getUserReserveData(address,uint8,address)": FunctionFragment;
+    "getAllATokens(uint64)": FunctionFragment;
+    "getAllReservesTokens(uint64)": FunctionFragment;
+    "getReserveConfigurationData(address,uint64)": FunctionFragment;
+    "getReserveData(address,uint64)": FunctionFragment;
+    "getReserveTokensAddresses(address,uint64)": FunctionFragment;
+    "getUserReserveData(address,uint64,address)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -36,11 +36,11 @@ interface AaveProtocolDataProviderInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAllATokens",
-    values?: undefined
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getAllReservesTokens",
-    values?: undefined
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getReserveConfigurationData",
@@ -113,25 +113,37 @@ export class AaveProtocolDataProvider extends Contract {
       0: string;
     }>;
 
-    getAllATokens(overrides?: CallOverrides): Promise<{
+    getAllATokens(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
       0: { symbol: string; tokenAddress: string; 0: string; 1: string }[];
     }>;
 
-    "getAllATokens()"(overrides?: CallOverrides): Promise<{
+    "getAllATokens(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
       0: { symbol: string; tokenAddress: string; 0: string; 1: string }[];
     }>;
 
-    getAllReservesTokens(overrides?: CallOverrides): Promise<{
+    getAllReservesTokens(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
       0: { symbol: string; tokenAddress: string; 0: string; 1: string }[];
     }>;
 
-    "getAllReservesTokens()"(overrides?: CallOverrides): Promise<{
+    "getAllReservesTokens(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
       0: { symbol: string; tokenAddress: string; 0: string; 1: string }[];
     }>;
 
     getReserveConfigurationData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       decimals: BigNumber;
@@ -156,9 +168,9 @@ export class AaveProtocolDataProvider extends Contract {
       9: boolean;
     }>;
 
-    "getReserveConfigurationData(address,uint8)"(
+    "getReserveConfigurationData(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       decimals: BigNumber;
@@ -185,7 +197,7 @@ export class AaveProtocolDataProvider extends Contract {
 
     getReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       availableLiquidity: BigNumber;
@@ -210,9 +222,9 @@ export class AaveProtocolDataProvider extends Contract {
       9: number;
     }>;
 
-    "getReserveData(address,uint8)"(
+    "getReserveData(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       availableLiquidity: BigNumber;
@@ -239,7 +251,7 @@ export class AaveProtocolDataProvider extends Contract {
 
     getReserveTokensAddresses(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       aTokenAddress: string;
@@ -250,9 +262,9 @@ export class AaveProtocolDataProvider extends Contract {
       2: string;
     }>;
 
-    "getReserveTokensAddresses(address,uint8)"(
+    "getReserveTokensAddresses(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       aTokenAddress: string;
@@ -265,7 +277,7 @@ export class AaveProtocolDataProvider extends Contract {
 
     getUserReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<{
@@ -289,9 +301,9 @@ export class AaveProtocolDataProvider extends Contract {
       8: boolean;
     }>;
 
-    "getUserReserveData(address,uint8,address)"(
+    "getUserReserveData(address,uint64,address)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<{
@@ -321,24 +333,28 @@ export class AaveProtocolDataProvider extends Contract {
   "ADDRESSES_PROVIDER()"(overrides?: CallOverrides): Promise<string>;
 
   getAllATokens(
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{ symbol: string; tokenAddress: string; 0: string; 1: string }[]>;
 
-  "getAllATokens()"(
+  "getAllATokens(uint64)"(
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{ symbol: string; tokenAddress: string; 0: string; 1: string }[]>;
 
   getAllReservesTokens(
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{ symbol: string; tokenAddress: string; 0: string; 1: string }[]>;
 
-  "getAllReservesTokens()"(
+  "getAllReservesTokens(uint64)"(
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{ symbol: string; tokenAddress: string; 0: string; 1: string }[]>;
 
   getReserveConfigurationData(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     decimals: BigNumber;
@@ -363,9 +379,9 @@ export class AaveProtocolDataProvider extends Contract {
     9: boolean;
   }>;
 
-  "getReserveConfigurationData(address,uint8)"(
+  "getReserveConfigurationData(address,uint64)"(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     decimals: BigNumber;
@@ -392,7 +408,7 @@ export class AaveProtocolDataProvider extends Contract {
 
   getReserveData(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     availableLiquidity: BigNumber;
@@ -417,9 +433,9 @@ export class AaveProtocolDataProvider extends Contract {
     9: number;
   }>;
 
-  "getReserveData(address,uint8)"(
+  "getReserveData(address,uint64)"(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     availableLiquidity: BigNumber;
@@ -446,7 +462,7 @@ export class AaveProtocolDataProvider extends Contract {
 
   getReserveTokensAddresses(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     aTokenAddress: string;
@@ -457,9 +473,9 @@ export class AaveProtocolDataProvider extends Contract {
     2: string;
   }>;
 
-  "getReserveTokensAddresses(address,uint8)"(
+  "getReserveTokensAddresses(address,uint64)"(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     aTokenAddress: string;
@@ -472,7 +488,7 @@ export class AaveProtocolDataProvider extends Contract {
 
   getUserReserveData(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     user: string,
     overrides?: CallOverrides
   ): Promise<{
@@ -496,9 +512,9 @@ export class AaveProtocolDataProvider extends Contract {
     8: boolean;
   }>;
 
-  "getUserReserveData(address,uint8,address)"(
+  "getUserReserveData(address,uint64,address)"(
     asset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     user: string,
     overrides?: CallOverrides
   ): Promise<{
@@ -528,24 +544,28 @@ export class AaveProtocolDataProvider extends Contract {
     "ADDRESSES_PROVIDER()"(overrides?: CallOverrides): Promise<string>;
 
     getAllATokens(
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       { symbol: string; tokenAddress: string; 0: string; 1: string }[]
     >;
 
-    "getAllATokens()"(
+    "getAllATokens(uint64)"(
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       { symbol: string; tokenAddress: string; 0: string; 1: string }[]
     >;
 
     getAllReservesTokens(
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       { symbol: string; tokenAddress: string; 0: string; 1: string }[]
     >;
 
-    "getAllReservesTokens()"(
+    "getAllReservesTokens(uint64)"(
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       { symbol: string; tokenAddress: string; 0: string; 1: string }[]
@@ -553,7 +573,7 @@ export class AaveProtocolDataProvider extends Contract {
 
     getReserveConfigurationData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       decimals: BigNumber;
@@ -578,9 +598,9 @@ export class AaveProtocolDataProvider extends Contract {
       9: boolean;
     }>;
 
-    "getReserveConfigurationData(address,uint8)"(
+    "getReserveConfigurationData(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       decimals: BigNumber;
@@ -607,7 +627,7 @@ export class AaveProtocolDataProvider extends Contract {
 
     getReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       availableLiquidity: BigNumber;
@@ -632,9 +652,9 @@ export class AaveProtocolDataProvider extends Contract {
       9: number;
     }>;
 
-    "getReserveData(address,uint8)"(
+    "getReserveData(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       availableLiquidity: BigNumber;
@@ -661,7 +681,7 @@ export class AaveProtocolDataProvider extends Contract {
 
     getReserveTokensAddresses(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       aTokenAddress: string;
@@ -672,9 +692,9 @@ export class AaveProtocolDataProvider extends Contract {
       2: string;
     }>;
 
-    "getReserveTokensAddresses(address,uint8)"(
+    "getReserveTokensAddresses(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       aTokenAddress: string;
@@ -687,7 +707,7 @@ export class AaveProtocolDataProvider extends Contract {
 
     getUserReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<{
@@ -711,9 +731,9 @@ export class AaveProtocolDataProvider extends Contract {
       8: boolean;
     }>;
 
-    "getUserReserveData(address,uint8,address)"(
+    "getUserReserveData(address,uint64,address)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<{
@@ -745,60 +765,72 @@ export class AaveProtocolDataProvider extends Contract {
 
     "ADDRESSES_PROVIDER()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllATokens(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getAllATokens()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAllReservesTokens(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getAllReservesTokens()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getReserveConfigurationData(
-      asset: string,
-      tranche: BigNumberish,
+    getAllATokens(
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getReserveConfigurationData(address,uint8)"(
+    "getAllATokens(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getAllReservesTokens(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getAllReservesTokens(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getReserveConfigurationData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getReserveConfigurationData(address,uint64)"(
+      asset: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getReserveData(address,uint8)"(
+    "getReserveData(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getReserveTokensAddresses(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getReserveTokensAddresses(address,uint8)"(
+    "getReserveTokensAddresses(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getUserReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getUserReserveData(address,uint8,address)"(
+    "getUserReserveData(address,uint64,address)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -813,64 +845,72 @@ export class AaveProtocolDataProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAllATokens(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getAllATokens()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getAllReservesTokens(
+    getAllATokens(
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getAllReservesTokens()"(
+    "getAllATokens(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAllReservesTokens(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getAllReservesTokens(uint64)"(
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getReserveConfigurationData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getReserveConfigurationData(address,uint8)"(
+    "getReserveConfigurationData(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getReserveData(address,uint8)"(
+    "getReserveData(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getReserveTokensAddresses(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getReserveTokensAddresses(address,uint8)"(
+    "getReserveTokensAddresses(address,uint64)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getUserReserveData(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getUserReserveData(address,uint8,address)"(
+    "getUserReserveData(address,uint64,address)"(
       asset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

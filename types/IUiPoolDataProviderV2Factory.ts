@@ -28,6 +28,11 @@ const _abi = [
         name: "provider",
         type: "address",
       },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
     ],
     name: "getReservesData",
     outputs: [
@@ -241,6 +246,11 @@ const _abi = [
         name: "provider",
         type: "address",
       },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
     ],
     name: "getReservesList",
     outputs: [
@@ -259,6 +269,11 @@ const _abi = [
         internalType: "contract ILendingPoolAddressesProvider",
         name: "provider",
         type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "address",

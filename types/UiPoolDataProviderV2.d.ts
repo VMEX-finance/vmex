@@ -24,9 +24,9 @@ interface UiPoolDataProviderV2Interface extends ethers.utils.Interface {
     "ETH_CURRENCY_UNIT()": FunctionFragment;
     "MKRAddress()": FunctionFragment;
     "bytes32ToString(bytes32)": FunctionFragment;
-    "getReservesData(address)": FunctionFragment;
-    "getReservesList(address)": FunctionFragment;
-    "getUserReservesData(address,address)": FunctionFragment;
+    "getReservesData(address,uint64)": FunctionFragment;
+    "getReservesList(address,uint64)": FunctionFragment;
+    "getUserReservesData(address,uint64,address)": FunctionFragment;
     "marketReferenceCurrencyPriceInUsdProxyAggregator()": FunctionFragment;
     "networkBaseTokenPriceInUsdProxyAggregator()": FunctionFragment;
   };
@@ -45,15 +45,15 @@ interface UiPoolDataProviderV2Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getReservesData",
-    values: [string]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getReservesList",
-    values: [string]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getUserReservesData",
-    values: [string, string]
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "marketReferenceCurrencyPriceInUsdProxyAggregator",
@@ -143,6 +143,7 @@ export class UiPoolDataProviderV2 extends Contract {
 
     getReservesData(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: {
@@ -225,8 +226,9 @@ export class UiPoolDataProviderV2 extends Contract {
       };
     }>;
 
-    "getReservesData(address)"(
+    "getReservesData(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: {
@@ -311,13 +313,15 @@ export class UiPoolDataProviderV2 extends Contract {
 
     getReservesList(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: string[];
     }>;
 
-    "getReservesList(address)"(
+    "getReservesList(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: string[];
@@ -325,6 +329,7 @@ export class UiPoolDataProviderV2 extends Contract {
 
     getUserReservesData(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<{
@@ -346,8 +351,9 @@ export class UiPoolDataProviderV2 extends Contract {
       }[];
     }>;
 
-    "getUserReservesData(address,address)"(
+    "getUserReservesData(address,uint64,address)"(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<{
@@ -414,6 +420,7 @@ export class UiPoolDataProviderV2 extends Contract {
 
   getReservesData(
     provider: string,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     0: {
@@ -496,8 +503,9 @@ export class UiPoolDataProviderV2 extends Contract {
     };
   }>;
 
-  "getReservesData(address)"(
+  "getReservesData(address,uint64)"(
     provider: string,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     0: {
@@ -582,16 +590,19 @@ export class UiPoolDataProviderV2 extends Contract {
 
   getReservesList(
     provider: string,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  "getReservesList(address)"(
+  "getReservesList(address,uint64)"(
     provider: string,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
   getUserReservesData(
     provider: string,
+    trancheId: BigNumberish,
     user: string,
     overrides?: CallOverrides
   ): Promise<
@@ -613,8 +624,9 @@ export class UiPoolDataProviderV2 extends Contract {
     }[]
   >;
 
-  "getUserReservesData(address,address)"(
+  "getUserReservesData(address,uint64,address)"(
     provider: string,
+    trancheId: BigNumberish,
     user: string,
     overrides?: CallOverrides
   ): Promise<
@@ -673,6 +685,7 @@ export class UiPoolDataProviderV2 extends Contract {
 
     getReservesData(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: {
@@ -755,8 +768,9 @@ export class UiPoolDataProviderV2 extends Contract {
       };
     }>;
 
-    "getReservesData(address)"(
+    "getReservesData(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: {
@@ -841,16 +855,19 @@ export class UiPoolDataProviderV2 extends Contract {
 
     getReservesList(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    "getReservesList(address)"(
+    "getReservesList(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
     getUserReservesData(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<
@@ -872,8 +889,9 @@ export class UiPoolDataProviderV2 extends Contract {
       }[]
     >;
 
-    "getUserReservesData(address,address)"(
+    "getUserReservesData(address,uint64,address)"(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<
@@ -935,32 +953,38 @@ export class UiPoolDataProviderV2 extends Contract {
 
     getReservesData(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getReservesData(address)"(
+    "getReservesData(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getReservesList(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getReservesList(address)"(
+    "getReservesList(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getUserReservesData(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getUserReservesData(address,address)"(
+    "getUserReservesData(address,uint64,address)"(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1005,32 +1029,38 @@ export class UiPoolDataProviderV2 extends Contract {
 
     getReservesData(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getReservesData(address)"(
+    "getReservesData(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getReservesList(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getReservesList(address)"(
+    "getReservesList(address,uint64)"(
       provider: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getUserReservesData(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getUserReservesData(address,address)"(
+    "getUserReservesData(address,uint64,address)"(
       provider: string,
+      trancheId: BigNumberish,
       user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

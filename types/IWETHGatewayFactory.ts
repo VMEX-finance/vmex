@@ -25,9 +25,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",
@@ -58,9 +58,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "address",
@@ -86,9 +86,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",
@@ -119,9 +119,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",

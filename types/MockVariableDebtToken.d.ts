@@ -36,7 +36,7 @@ interface MockVariableDebtTokenInterface extends ethers.utils.Interface {
     "getIncentivesController()": FunctionFragment;
     "getScaledUserBalanceAndSupply(address)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)": FunctionFragment;
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)": FunctionFragment;
     "mint(address,address,uint256,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "scaledBalanceOf(address)": FunctionFragment;
@@ -392,7 +392,7 @@ export class MockVariableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -401,10 +401,10 @@ export class MockVariableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -634,7 +634,7 @@ export class MockVariableDebtToken extends Contract {
   initialize(
     pool: string,
     underlyingAsset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     incentivesController: string,
     debtTokenDecimals: BigNumberish,
     debtTokenName: string,
@@ -643,10 +643,10 @@ export class MockVariableDebtToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+  "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
     pool: string,
     underlyingAsset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     incentivesController: string,
     debtTokenDecimals: BigNumberish,
     debtTokenName: string,
@@ -853,7 +853,7 @@ export class MockVariableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -862,10 +862,10 @@ export class MockVariableDebtToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -1106,7 +1106,7 @@ export class MockVariableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -1115,10 +1115,10 @@ export class MockVariableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -1338,7 +1338,7 @@ export class MockVariableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -1347,10 +1347,10 @@ export class MockVariableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,

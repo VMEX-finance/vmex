@@ -22,7 +22,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface IInitializableDebtTokenInterface extends ethers.utils.Interface {
   functions: {
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)": FunctionFragment;
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -65,7 +65,7 @@ export class IInitializableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -74,10 +74,10 @@ export class IInitializableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -90,7 +90,7 @@ export class IInitializableDebtToken extends Contract {
   initialize(
     pool: string,
     underlyingAsset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     incentivesController: string,
     debtTokenDecimals: BigNumberish,
     debtTokenName: string,
@@ -99,10 +99,10 @@ export class IInitializableDebtToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+  "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
     pool: string,
     underlyingAsset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     incentivesController: string,
     debtTokenDecimals: BigNumberish,
     debtTokenName: string,
@@ -115,7 +115,7 @@ export class IInitializableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -124,10 +124,10 @@ export class IInitializableDebtToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -153,7 +153,7 @@ export class IInitializableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -162,10 +162,10 @@ export class IInitializableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -179,7 +179,7 @@ export class IInitializableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -188,10 +188,10 @@ export class IInitializableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,

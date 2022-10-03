@@ -28,9 +28,9 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         indexed: false,
@@ -68,6 +68,12 @@ const _abi = [
         internalType: "address",
         name: "target",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         indexed: true,
@@ -359,9 +365,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",
@@ -397,14 +403,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
-      },
-      {
-        internalType: "bool",
-        name: "isCollateral",
-        type: "bool",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",
@@ -430,42 +431,14 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "_liquidityRateMultiplier",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_variableBorrowRateMultiplier",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_stableBorrowRateMultiplier",
-        type: "uint256",
-      },
-    ],
-    name: "editTrancheMultiplier",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "asset",
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "address",
@@ -506,21 +479,14 @@ const _abi = [
         type: "address",
       },
       {
-        components: [
-          {
-            internalType: "uint8",
-            name: "tranche",
-            type: "uint8",
-          },
-          {
-            internalType: "address",
-            name: "asset",
-            type: "address",
-          },
-        ],
-        internalType: "struct DataTypes.TrancheAddress[]",
+        internalType: "address[]",
         name: "assets",
-        type: "tuple[]",
+        type: "address[]",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256[]",
@@ -577,31 +543,9 @@ const _abi = [
     name: "getAssetData",
     outputs: [
       {
-        components: [
-          {
-            internalType: "uint8",
-            name: "collateralRisk",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "isLendable",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "isAllowedCollateralInHigherTranches",
-            type: "bool",
-          },
-          {
-            internalType: "enum DataTypes.ReserveAssetType",
-            name: "assetType",
-            type: "uint8",
-          },
-        ],
-        internalType: "struct DataTypes.AssetData",
+        internalType: "enum DataTypes.ReserveAssetType",
         name: "",
-        type: "tuple",
+        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -615,9 +559,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "getConfiguration",
@@ -646,9 +590,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "getReserveData",
@@ -723,9 +667,29 @@ const _abi = [
             type: "uint8",
           },
           {
-            internalType: "uint8",
-            name: "tranche",
-            type: "uint8",
+            internalType: "uint64",
+            name: "trancheId",
+            type: "uint64",
+          },
+          {
+            internalType: "uint256",
+            name: "collateralCap",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "hasStrategy",
+            type: "bool",
+          },
+          {
+            internalType: "bool",
+            name: "usingGovernanceSetInterestRate",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "governanceSetInterestRate",
+            type: "uint256",
           },
         ],
         internalType: "struct DataTypes.ReserveData",
@@ -744,9 +708,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "getReserveNormalizedIncome",
@@ -768,9 +732,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "getReserveNormalizedVariableDebt",
@@ -785,7 +749,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+    ],
     name: "getReservesList",
     outputs: [
       {
@@ -800,50 +770,14 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
-      },
-    ],
-    name: "getTrancheMultiplier",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "liquidityRateMultiplier",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "variableBorrowRateMultiplier",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "stableBorrowRateMultiplier",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct DataTypes.TrancheMultiplier",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "user",
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "getUserAccountData",
@@ -889,6 +823,11 @@ const _abi = [
         name: "user",
         type: "address",
       },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
     ],
     name: "getUserConfiguration",
     outputs: [
@@ -911,9 +850,116 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "reserve",
-        type: "address",
+        components: [
+          {
+            internalType: "address",
+            name: "aTokenImpl",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "stableDebtTokenImpl",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "variableDebtTokenImpl",
+            type: "address",
+          },
+          {
+            internalType: "uint8",
+            name: "underlyingAssetDecimals",
+            type: "uint8",
+          },
+          {
+            internalType: "address",
+            name: "interestRateStrategyAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "underlyingAsset",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "treasury",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "incentivesController",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "underlyingAssetName",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "aTokenName",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "aTokenSymbol",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "variableDebtTokenName",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "variableDebtTokenSymbol",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "stableDebtTokenName",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "stableDebtTokenSymbol",
+            type: "string",
+          },
+          {
+            internalType: "bytes",
+            name: "params",
+            type: "bytes",
+          },
+          {
+            internalType: "uint8",
+            name: "assetType",
+            type: "uint8",
+          },
+          {
+            internalType: "uint256",
+            name: "collateralCap",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "hasStrategy",
+            type: "bool",
+          },
+          {
+            internalType: "bool",
+            name: "usingGovernanceSetInterestRate",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "governanceSetInterestRate",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct DataTypes.InitReserveInput",
+        name: "input",
+        type: "tuple",
       },
       {
         internalType: "address",
@@ -931,14 +977,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "address",
-        name: "interestRateStrategyAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "initReserve",
@@ -959,9 +1000,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "address",
@@ -985,7 +1026,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+    ],
     name: "paused",
     outputs: [
       {
@@ -1005,9 +1052,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "address",
@@ -1028,9 +1075,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",
@@ -1068,21 +1115,6 @@ const _abi = [
       },
       {
         internalType: "uint8",
-        name: "_risk",
-        type: "uint8",
-      },
-      {
-        internalType: "bool",
-        name: "_isLendable",
-        type: "bool",
-      },
-      {
-        internalType: "bool",
-        name: "_allowedHigherTranche",
-        type: "bool",
-      },
-      {
-        internalType: "uint8",
         name: "_assetType",
         type: "uint8",
       },
@@ -1100,9 +1132,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",
@@ -1122,6 +1154,11 @@ const _abi = [
         name: "val",
         type: "bool",
       },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
     ],
     name: "setPause",
     outputs: [],
@@ -1136,9 +1173,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "address",
@@ -1159,9 +1196,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "bool",
@@ -1182,9 +1219,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",
@@ -1205,9 +1242,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "uint256",

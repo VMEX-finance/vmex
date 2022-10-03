@@ -174,21 +174,9 @@ const _abi = [
   {
     inputs: [
       {
-        components: [
-          {
-            internalType: "uint8",
-            name: "tranche",
-            type: "uint8",
-          },
-          {
-            internalType: "address",
-            name: "asset",
-            type: "address",
-          },
-        ],
-        internalType: "struct DataTypes.TrancheAddress[]",
+        internalType: "address[]",
         name: "assets",
-        type: "tuple[]",
+        type: "address[]",
       },
       {
         internalType: "uint256[]",

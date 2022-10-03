@@ -42,28 +42,6 @@ const _abi = [
         type: "address",
       },
       {
-        components: [
-          {
-            internalType: "uint256",
-            name: "liquidityRateMultiplier",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "variableBorrowRateMultiplier",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "stableBorrowRateMultiplier",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct DataTypes.TrancheMultiplier",
-        name: "multiplier",
-        type: "tuple",
-      },
-      {
         internalType: "address",
         name: "aToken",
         type: "address",
@@ -126,28 +104,6 @@ const _abi = [
         internalType: "address",
         name: "reserve",
         type: "address",
-      },
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "liquidityRateMultiplier",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "variableBorrowRateMultiplier",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "stableBorrowRateMultiplier",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct DataTypes.TrancheMultiplier",
-        name: "multiplier",
-        type: "tuple",
       },
       {
         internalType: "uint256",

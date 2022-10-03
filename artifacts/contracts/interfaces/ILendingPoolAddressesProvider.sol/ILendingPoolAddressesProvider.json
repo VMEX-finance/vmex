@@ -36,6 +36,12 @@
           "internalType": "address",
           "name": "newAddress",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
         }
       ],
       "name": "ConfigurationAdminUpdated",
@@ -88,6 +94,12 @@
           "internalType": "address",
           "name": "newAddress",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
         }
       ],
       "name": "EmergencyAdminUpdated",
@@ -191,6 +203,42 @@
       "type": "event"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
+        }
+      ],
+      "name": "addEmergencyAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
+        }
+      ],
+      "name": "addPoolAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "getAavePriceOracle",
       "outputs": [
@@ -212,6 +260,30 @@
         }
       ],
       "name": "getAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
+        }
+      ],
+      "name": "getAddressTranche",
       "outputs": [
         {
           "internalType": "address",
@@ -262,8 +334,27 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
+        }
+      ],
       "name": "getEmergencyAdmin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getGlobalAdmin",
       "outputs": [
         {
           "internalType": "address",
@@ -340,7 +431,13 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
+        }
+      ],
       "name": "getPoolAdmin",
       "outputs": [
         {
@@ -366,6 +463,25 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "ad",
+          "type": "address"
+        }
+      ],
+      "name": "isWhitelistedAddress",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -465,9 +581,27 @@
           "internalType": "address",
           "name": "admin",
           "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
         }
       ],
       "name": "setEmergencyAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        }
+      ],
+      "name": "setGlobalAdmin",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -543,6 +677,11 @@
           "internalType": "address",
           "name": "admin",
           "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "trancheId",
+          "type": "uint64"
         }
       ],
       "name": "setPoolAdmin",

@@ -20,7 +20,7 @@ interface ILendingPoolConfiguratorInterface extends ethers.utils.Interface {
 
   events: {
     "ATokenUpgraded(address,address,address)": EventFragment;
-    "AssetDataChanged(address,uint8,bool,bool,uint8)": EventFragment;
+    "AssetDataChanged(address,uint8)": EventFragment;
     "BorrowingDisabledOnReserve(address)": EventFragment;
     "BorrowingEnabledOnReserve(address,bool)": EventFragment;
     "CollateralConfigurationChanged(address,uint256,uint256,uint256)": EventFragment;
@@ -87,13 +87,7 @@ export class ILendingPoolConfigurator extends Contract {
       implementation: string | null
     ): EventFilter;
 
-    AssetDataChanged(
-      asset: string | null,
-      _risk: null,
-      _isLendable: null,
-      _allowedHigherTranche: null,
-      _assetType: null
-    ): EventFilter;
+    AssetDataChanged(asset: string | null, _assetType: null): EventFilter;
 
     BorrowingDisabledOnReserve(asset: string | null): EventFilter;
 

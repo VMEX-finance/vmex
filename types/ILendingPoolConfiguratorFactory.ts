@@ -58,24 +58,6 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint8",
-        name: "_risk",
-        type: "uint8",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "_isLendable",
-        type: "bool",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "_allowedHigherTranche",
-        type: "bool",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
         name: "_assetType",
         type: "uint8",
       },
