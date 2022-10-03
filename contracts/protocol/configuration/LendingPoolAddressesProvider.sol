@@ -52,8 +52,8 @@ contract LendingPoolAddressesProvider is
         permissionlessTranches = _val;
     }
 
-    function addWhitelistedAddress(address ad) external onlyOwner {
-        whitelistedAddresses[ad] = true;
+    function addWhitelistedAddress(address ad, bool _val) external onlyOwner {
+        whitelistedAddresses[ad] = _val;
     }
 
     function isWhitelistedAddress(address ad)
@@ -210,14 +210,8 @@ contract LendingPoolAddressesProvider is
      * of the protocol hence the upgradable proxy pattern is not used
      **/
 
-    function getGlobalAdmin()
-        external
-        view
-        override
-        onlyOwner
-        returns (address)
-    {
-        getAddress(GLOBAL_ADMIN);
+    function getGlobalAdmin() external view override returns (address) {
+        return getAddress(GLOBAL_ADMIN);
     }
 
     function setGlobalAdmin(address admin) external override onlyOwner {
@@ -254,7 +248,7 @@ contract LendingPoolAddressesProvider is
         );
         require(
             _addressesTranche[POOL_ADMIN][trancheId] == address(0),
-            "trancheId input is already in use"
+            "Pool admin trancheId input is already in use"
         );
         _addressesTranche[POOL_ADMIN][trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
@@ -294,7 +288,7 @@ contract LendingPoolAddressesProvider is
         );
         require(
             _addressesTranche[EMERGENCY_ADMIN][trancheId] == address(0),
-            "trancheId input is already in use"
+            "Emergency admin trancheId input is already in use"
         );
         _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
         emit EmergencyAdminUpdated(emergencyAdmin, trancheId);

@@ -23,34 +23,48 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface ILendingPoolAddressesProviderInterface
   extends ethers.utils.Interface {
   functions: {
+    "addEmergencyAdmin(address,uint64)": FunctionFragment;
+    "addPoolAdmin(address,uint64)": FunctionFragment;
     "getAavePriceOracle()": FunctionFragment;
     "getAddress(bytes32)": FunctionFragment;
+    "getAddressTranche(bytes32,uint64)": FunctionFragment;
     "getCurveAddressProvider()": FunctionFragment;
     "getCurvePriceOracle()": FunctionFragment;
     "getCurvePriceOracleWrapper()": FunctionFragment;
-    "getEmergencyAdmin()": FunctionFragment;
+    "getEmergencyAdmin(uint64)": FunctionFragment;
+    "getGlobalAdmin()": FunctionFragment;
     "getLendingPool()": FunctionFragment;
     "getLendingPoolCollateralManager()": FunctionFragment;
     "getLendingPoolConfigurator()": FunctionFragment;
     "getLendingRateOracle()": FunctionFragment;
     "getMarketId()": FunctionFragment;
-    "getPoolAdmin()": FunctionFragment;
+    "getPoolAdmin(uint64)": FunctionFragment;
     "getPriceOracle(uint8)": FunctionFragment;
+    "isWhitelistedAddress(address)": FunctionFragment;
     "setAavePriceOracle(address)": FunctionFragment;
     "setAddress(bytes32,address)": FunctionFragment;
     "setAddressAsProxy(bytes32,address)": FunctionFragment;
     "setCurveAddressProvider(address)": FunctionFragment;
     "setCurvePriceOracle(address)": FunctionFragment;
     "setCurvePriceOracleWrapper(address)": FunctionFragment;
-    "setEmergencyAdmin(address)": FunctionFragment;
+    "setEmergencyAdmin(address,uint64)": FunctionFragment;
+    "setGlobalAdmin(address)": FunctionFragment;
     "setLendingPoolCollateralManager(address)": FunctionFragment;
     "setLendingPoolConfiguratorImpl(address)": FunctionFragment;
     "setLendingPoolImpl(address)": FunctionFragment;
     "setLendingRateOracle(address)": FunctionFragment;
     "setMarketId(string)": FunctionFragment;
-    "setPoolAdmin(address)": FunctionFragment;
+    "setPoolAdmin(address,uint64)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "addEmergencyAdmin",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addPoolAdmin",
+    values: [string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "getAavePriceOracle",
     values?: undefined
@@ -58,6 +72,10 @@ interface ILendingPoolAddressesProviderInterface
   encodeFunctionData(
     functionFragment: "getAddress",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAddressTranche",
+    values: [BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getCurveAddressProvider",
@@ -73,6 +91,10 @@ interface ILendingPoolAddressesProviderInterface
   ): string;
   encodeFunctionData(
     functionFragment: "getEmergencyAdmin",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getGlobalAdmin",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -97,11 +119,15 @@ interface ILendingPoolAddressesProviderInterface
   ): string;
   encodeFunctionData(
     functionFragment: "getPoolAdmin",
-    values?: undefined
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getPriceOracle",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isWhitelistedAddress",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setAavePriceOracle",
@@ -129,6 +155,10 @@ interface ILendingPoolAddressesProviderInterface
   ): string;
   encodeFunctionData(
     functionFragment: "setEmergencyAdmin",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGlobalAdmin",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -150,14 +180,26 @@ interface ILendingPoolAddressesProviderInterface
   encodeFunctionData(functionFragment: "setMarketId", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setPoolAdmin",
-    values: [string]
+    values: [string, BigNumberish]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "addEmergencyAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addPoolAdmin",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getAavePriceOracle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAddress", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAddressTranche",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getCurveAddressProvider",
     data: BytesLike
@@ -172,6 +214,10 @@ interface ILendingPoolAddressesProviderInterface
   ): Result;
   decodeFunctionResult(
     functionFragment: "getEmergencyAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getGlobalAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -203,6 +249,10 @@ interface ILendingPoolAddressesProviderInterface
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isWhitelistedAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setAavePriceOracle",
     data: BytesLike
   ): Result;
@@ -225,6 +275,10 @@ interface ILendingPoolAddressesProviderInterface
   ): Result;
   decodeFunctionResult(
     functionFragment: "setEmergencyAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGlobalAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -254,11 +308,11 @@ interface ILendingPoolAddressesProviderInterface
 
   events: {
     "AddressSet(bytes32,address,bool)": EventFragment;
-    "ConfigurationAdminUpdated(address)": EventFragment;
+    "ConfigurationAdminUpdated(address,uint64)": EventFragment;
     "CurveAddressProviderUpdated(address)": EventFragment;
     "CurvePriceOracleUpdated(address)": EventFragment;
     "CurvePriceOracleWrapperUpdated(address)": EventFragment;
-    "EmergencyAdminUpdated(address)": EventFragment;
+    "EmergencyAdminUpdated(address,uint64)": EventFragment;
     "LendingPoolCollateralManagerUpdated(address)": EventFragment;
     "LendingPoolConfiguratorUpdated(address)": EventFragment;
     "LendingPoolUpdated(address)": EventFragment;
@@ -305,6 +359,30 @@ export class ILendingPoolAddressesProvider extends Contract {
   interface: ILendingPoolAddressesProviderInterface;
 
   functions: {
+    addEmergencyAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    addPoolAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addPoolAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     getAavePriceOracle(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
@@ -322,6 +400,22 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getAddress(bytes32)"(
       id: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    getAddressTranche(
+      id: BytesLike,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    "getAddressTranche(bytes32,uint64)"(
+      id: BytesLike,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       0: string;
@@ -351,11 +445,25 @@ export class ILendingPoolAddressesProvider extends Contract {
       0: string;
     }>;
 
-    getEmergencyAdmin(overrides?: CallOverrides): Promise<{
+    getEmergencyAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
       0: string;
     }>;
 
-    "getEmergencyAdmin()"(overrides?: CallOverrides): Promise<{
+    "getEmergencyAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    getGlobalAdmin(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "getGlobalAdmin()"(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
@@ -399,11 +507,17 @@ export class ILendingPoolAddressesProvider extends Contract {
       0: string;
     }>;
 
-    getPoolAdmin(overrides?: CallOverrides): Promise<{
+    getPoolAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
       0: string;
     }>;
 
-    "getPoolAdmin()"(overrides?: CallOverrides): Promise<{
+    "getPoolAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
       0: string;
     }>;
 
@@ -419,6 +533,20 @@ export class ILendingPoolAddressesProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<{
       0: string;
+    }>;
+
+    isWhitelistedAddress(
+      ad: string,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
+    }>;
+
+    "isWhitelistedAddress(address)"(
+      ad: string,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
     }>;
 
     setAavePriceOracle(
@@ -487,10 +615,22 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     setEmergencyAdmin(
       admin: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "setEmergencyAdmin(address)"(
+    "setEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    setGlobalAdmin(
+      admin: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setGlobalAdmin(address)"(
       admin: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -547,14 +687,40 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     setPoolAdmin(
       admin: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "setPoolAdmin(address)"(
+    "setPoolAdmin(address,uint64)"(
       admin: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
   };
+
+  addEmergencyAdmin(
+    admin: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addEmergencyAdmin(address,uint64)"(
+    admin: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  addPoolAdmin(
+    admin: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addPoolAdmin(address,uint64)"(
+    admin: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   getAavePriceOracle(overrides?: CallOverrides): Promise<string>;
 
@@ -564,6 +730,18 @@ export class ILendingPoolAddressesProvider extends Contract {
 
   "getAddress(bytes32)"(
     id: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getAddressTranche(
+    id: BytesLike,
+    trancheId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "getAddressTranche(bytes32,uint64)"(
+    id: BytesLike,
+    trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -579,9 +757,19 @@ export class ILendingPoolAddressesProvider extends Contract {
 
   "getCurvePriceOracleWrapper()"(overrides?: CallOverrides): Promise<string>;
 
-  getEmergencyAdmin(overrides?: CallOverrides): Promise<string>;
+  getEmergencyAdmin(
+    trancheId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
-  "getEmergencyAdmin()"(overrides?: CallOverrides): Promise<string>;
+  "getEmergencyAdmin(uint64)"(
+    trancheId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getGlobalAdmin(overrides?: CallOverrides): Promise<string>;
+
+  "getGlobalAdmin()"(overrides?: CallOverrides): Promise<string>;
 
   getLendingPool(overrides?: CallOverrides): Promise<string>;
 
@@ -605,9 +793,15 @@ export class ILendingPoolAddressesProvider extends Contract {
 
   "getMarketId()"(overrides?: CallOverrides): Promise<string>;
 
-  getPoolAdmin(overrides?: CallOverrides): Promise<string>;
+  getPoolAdmin(
+    trancheId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
-  "getPoolAdmin()"(overrides?: CallOverrides): Promise<string>;
+  "getPoolAdmin(uint64)"(
+    trancheId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   getPriceOracle(
     assetType: BigNumberish,
@@ -618,6 +812,13 @@ export class ILendingPoolAddressesProvider extends Contract {
     assetType: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  isWhitelistedAddress(ad: string, overrides?: CallOverrides): Promise<boolean>;
+
+  "isWhitelistedAddress(address)"(
+    ad: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   setAavePriceOracle(
     priceOracle: string,
@@ -685,10 +886,22 @@ export class ILendingPoolAddressesProvider extends Contract {
 
   setEmergencyAdmin(
     admin: string,
+    trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "setEmergencyAdmin(address)"(
+  "setEmergencyAdmin(address,uint64)"(
+    admin: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  setGlobalAdmin(
+    admin: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setGlobalAdmin(address)"(
     admin: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -745,15 +958,41 @@ export class ILendingPoolAddressesProvider extends Contract {
 
   setPoolAdmin(
     admin: string,
+    trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "setPoolAdmin(address)"(
+  "setPoolAdmin(address,uint64)"(
     admin: string,
+    trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    addEmergencyAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addPoolAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addPoolAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     getAavePriceOracle(overrides?: CallOverrides): Promise<string>;
 
     "getAavePriceOracle()"(overrides?: CallOverrides): Promise<string>;
@@ -762,6 +1001,18 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getAddress(bytes32)"(
       id: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getAddressTranche(
+      id: BytesLike,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "getAddressTranche(bytes32,uint64)"(
+      id: BytesLike,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -777,9 +1028,19 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getCurvePriceOracleWrapper()"(overrides?: CallOverrides): Promise<string>;
 
-    getEmergencyAdmin(overrides?: CallOverrides): Promise<string>;
+    getEmergencyAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
-    "getEmergencyAdmin()"(overrides?: CallOverrides): Promise<string>;
+    "getEmergencyAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getGlobalAdmin(overrides?: CallOverrides): Promise<string>;
+
+    "getGlobalAdmin()"(overrides?: CallOverrides): Promise<string>;
 
     getLendingPool(overrides?: CallOverrides): Promise<string>;
 
@@ -803,9 +1064,15 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getMarketId()"(overrides?: CallOverrides): Promise<string>;
 
-    getPoolAdmin(overrides?: CallOverrides): Promise<string>;
+    getPoolAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
-    "getPoolAdmin()"(overrides?: CallOverrides): Promise<string>;
+    "getPoolAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     getPriceOracle(
       assetType: BigNumberish,
@@ -816,6 +1083,16 @@ export class ILendingPoolAddressesProvider extends Contract {
       assetType: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    isWhitelistedAddress(
+      ad: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isWhitelistedAddress(address)"(
+      ad: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     setAavePriceOracle(
       priceOracle: string,
@@ -881,9 +1158,21 @@ export class ILendingPoolAddressesProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setEmergencyAdmin(admin: string, overrides?: CallOverrides): Promise<void>;
+    setEmergencyAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    "setEmergencyAdmin(address)"(
+    "setEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setGlobalAdmin(admin: string, overrides?: CallOverrides): Promise<void>;
+
+    "setGlobalAdmin(address)"(
       admin: string,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -932,10 +1221,15 @@ export class ILendingPoolAddressesProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setPoolAdmin(admin: string, overrides?: CallOverrides): Promise<void>;
-
-    "setPoolAdmin(address)"(
+    setPoolAdmin(
       admin: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setPoolAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -947,7 +1241,10 @@ export class ILendingPoolAddressesProvider extends Contract {
       hasProxy: null
     ): EventFilter;
 
-    ConfigurationAdminUpdated(newAddress: string | null): EventFilter;
+    ConfigurationAdminUpdated(
+      newAddress: string | null,
+      trancheId: null
+    ): EventFilter;
 
     CurveAddressProviderUpdated(newAddress: string | null): EventFilter;
 
@@ -955,7 +1252,10 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     CurvePriceOracleWrapperUpdated(newAddress: string | null): EventFilter;
 
-    EmergencyAdminUpdated(newAddress: string | null): EventFilter;
+    EmergencyAdminUpdated(
+      newAddress: string | null,
+      trancheId: null
+    ): EventFilter;
 
     LendingPoolCollateralManagerUpdated(newAddress: string | null): EventFilter;
 
@@ -973,6 +1273,30 @@ export class ILendingPoolAddressesProvider extends Contract {
   };
 
   estimateGas: {
+    addEmergencyAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    addPoolAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addPoolAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     getAavePriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getAavePriceOracle()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -981,6 +1305,18 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getAddress(bytes32)"(
       id: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getAddressTranche(
+      id: BytesLike,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getAddressTranche(bytes32,uint64)"(
+      id: BytesLike,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -998,9 +1334,19 @@ export class ILendingPoolAddressesProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getEmergencyAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+    getEmergencyAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    "getEmergencyAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getEmergencyAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getGlobalAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getGlobalAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLendingPool(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1028,9 +1374,15 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getMarketId()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getPoolAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+    getPoolAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    "getPoolAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getPoolAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getPriceOracle(
       assetType: BigNumberish,
@@ -1039,6 +1391,16 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getPriceOracle(uint8)"(
       assetType: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isWhitelistedAddress(
+      ad: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isWhitelistedAddress(address)"(
+      ad: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1106,9 +1468,21 @@ export class ILendingPoolAddressesProvider extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    setEmergencyAdmin(admin: string, overrides?: Overrides): Promise<BigNumber>;
+    setEmergencyAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
-    "setEmergencyAdmin(address)"(
+    "setEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    setGlobalAdmin(admin: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "setGlobalAdmin(address)"(
       admin: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -1157,15 +1531,44 @@ export class ILendingPoolAddressesProvider extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    setPoolAdmin(admin: string, overrides?: Overrides): Promise<BigNumber>;
-
-    "setPoolAdmin(address)"(
+    setPoolAdmin(
       admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setPoolAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    addEmergencyAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    addPoolAdmin(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addPoolAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     getAavePriceOracle(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1181,6 +1584,18 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getAddress(bytes32)"(
       id: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAddressTranche(
+      id: BytesLike,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getAddressTranche(bytes32,uint64)"(
+      id: BytesLike,
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1208,9 +1623,19 @@ export class ILendingPoolAddressesProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getEmergencyAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getEmergencyAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    "getEmergencyAdmin()"(
+    "getEmergencyAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getGlobalAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getGlobalAdmin()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1248,9 +1673,15 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getMarketId()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getPoolAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getPoolAdmin(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    "getPoolAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "getPoolAdmin(uint64)"(
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getPriceOracle(
       assetType: BigNumberish,
@@ -1259,6 +1690,16 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     "getPriceOracle(uint8)"(
       assetType: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isWhitelistedAddress(
+      ad: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isWhitelistedAddress(address)"(
+      ad: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1328,10 +1769,22 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     setEmergencyAdmin(
       admin: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "setEmergencyAdmin(address)"(
+    "setEmergencyAdmin(address,uint64)"(
+      admin: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    setGlobalAdmin(
+      admin: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setGlobalAdmin(address)"(
       admin: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
@@ -1388,11 +1841,13 @@ export class ILendingPoolAddressesProvider extends Contract {
 
     setPoolAdmin(
       admin: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "setPoolAdmin(address)"(
+    "setPoolAdmin(address,uint64)"(
       admin: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
   };

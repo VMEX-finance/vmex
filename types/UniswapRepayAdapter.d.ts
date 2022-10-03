@@ -30,7 +30,7 @@ interface UniswapRepayAdapterInterface extends ethers.utils.Interface {
     "UNISWAP_ROUTER()": FunctionFragment;
     "USD_ADDRESS()": FunctionFragment;
     "WETH_ADDRESS()": FunctionFragment;
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)": FunctionFragment;
+    "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
     "getAmountsIn(uint256,address,address)": FunctionFragment;
     "getAmountsOut(uint256,address,address)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -71,13 +71,7 @@ interface UniswapRepayAdapterInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "executeOperation",
-    values: [
-      { tranche: BigNumberish; asset: string }[],
-      BigNumberish[],
-      BigNumberish[],
-      string,
-      BytesLike
-    ]
+    values: [string[], BigNumberish[], BigNumberish[], string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getAmountsIn",
@@ -99,8 +93,8 @@ interface UniswapRepayAdapterInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "swapAndRepay",
     values: [
-      { tranche: BigNumberish; asset: string },
-      { tranche: BigNumberish; asset: string },
+      { trancheId: BigNumberish; asset: string },
+      { trancheId: BigNumberish; asset: string },
       BigNumberish,
       BigNumberish,
       BigNumberish,
@@ -266,7 +260,7 @@ export class UniswapRepayAdapter extends Contract {
     }>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -274,8 +268,8 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -358,8 +352,8 @@ export class UniswapRepayAdapter extends Contract {
     ): Promise<ContractTransaction>;
 
     swapAndRepay(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,
@@ -374,9 +368,9 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "swapAndRepay((uint8,address),(uint8,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+    "swapAndRepay((uint64,address),(uint64,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,
@@ -435,7 +429,7 @@ export class UniswapRepayAdapter extends Contract {
   "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<string>;
 
   executeOperation(
-    assets: { tranche: BigNumberish; asset: string }[],
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -443,8 +437,8 @@ export class UniswapRepayAdapter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-    assets: { tranche: BigNumberish; asset: string }[],
+  "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -523,8 +517,8 @@ export class UniswapRepayAdapter extends Contract {
   ): Promise<ContractTransaction>;
 
   swapAndRepay(
-    collateralAsset: { tranche: BigNumberish; asset: string },
-    debtAsset: { tranche: BigNumberish; asset: string },
+    collateralAsset: { trancheId: BigNumberish; asset: string },
+    debtAsset: { trancheId: BigNumberish; asset: string },
     collateralAmount: BigNumberish,
     debtRepayAmount: BigNumberish,
     debtRateMode: BigNumberish,
@@ -539,9 +533,9 @@ export class UniswapRepayAdapter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "swapAndRepay((uint8,address),(uint8,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
-    collateralAsset: { tranche: BigNumberish; asset: string },
-    debtAsset: { tranche: BigNumberish; asset: string },
+  "swapAndRepay((uint64,address),(uint64,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
+    collateralAsset: { trancheId: BigNumberish; asset: string },
+    debtAsset: { trancheId: BigNumberish; asset: string },
     collateralAmount: BigNumberish,
     debtRepayAmount: BigNumberish,
     debtRateMode: BigNumberish,
@@ -600,7 +594,7 @@ export class UniswapRepayAdapter extends Contract {
     "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<string>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -608,8 +602,8 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -685,8 +679,8 @@ export class UniswapRepayAdapter extends Contract {
     ): Promise<void>;
 
     swapAndRepay(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,
@@ -701,9 +695,9 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "swapAndRepay((uint8,address),(uint8,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+    "swapAndRepay((uint64,address),(uint64,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,
@@ -777,7 +771,7 @@ export class UniswapRepayAdapter extends Contract {
     "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -785,8 +779,8 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -838,8 +832,8 @@ export class UniswapRepayAdapter extends Contract {
     ): Promise<BigNumber>;
 
     swapAndRepay(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,
@@ -854,9 +848,9 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "swapAndRepay((uint8,address),(uint8,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+    "swapAndRepay((uint64,address),(uint64,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,
@@ -930,7 +924,7 @@ export class UniswapRepayAdapter extends Contract {
     "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -938,8 +932,8 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -994,8 +988,8 @@ export class UniswapRepayAdapter extends Contract {
     ): Promise<PopulatedTransaction>;
 
     swapAndRepay(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,
@@ -1010,9 +1004,9 @@ export class UniswapRepayAdapter extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "swapAndRepay((uint8,address),(uint8,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
-      collateralAsset: { tranche: BigNumberish; asset: string },
-      debtAsset: { tranche: BigNumberish; asset: string },
+    "swapAndRepay((uint64,address),(uint64,address),uint256,uint256,uint256,(uint256,uint256,uint8,bytes32,bytes32),bool)"(
+      collateralAsset: { trancheId: BigNumberish; asset: string },
+      debtAsset: { trancheId: BigNumberish; asset: string },
       collateralAmount: BigNumberish,
       debtRepayAmount: BigNumberish,
       debtRateMode: BigNumberish,

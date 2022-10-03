@@ -195,9 +195,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "tranche",
-        type: "uint8",
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "contract IAaveIncentivesController",

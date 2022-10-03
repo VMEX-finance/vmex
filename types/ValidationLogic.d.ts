@@ -23,7 +23,6 @@ interface ValidationLogicInterface extends ethers.utils.Interface {
   functions: {
     "REBALANCE_UP_LIQUIDITY_RATE_THRESHOLD()": FunctionFragment;
     "REBALANCE_UP_USAGE_RATIO_THRESHOLD()": FunctionFragment;
-    "validateCollateralRisk(bool,uint8,uint8,bool)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -34,10 +33,6 @@ interface ValidationLogicInterface extends ethers.utils.Interface {
     functionFragment: "REBALANCE_UP_USAGE_RATIO_THRESHOLD",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "validateCollateralRisk",
-    values: [boolean, BigNumberish, BigNumberish, boolean]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "REBALANCE_UP_LIQUIDITY_RATE_THRESHOLD",
@@ -45,10 +40,6 @@ interface ValidationLogicInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "REBALANCE_UP_USAGE_RATIO_THRESHOLD",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateCollateralRisk",
     data: BytesLike
   ): Result;
 
@@ -86,26 +77,6 @@ export class ValidationLogic extends Contract {
     "REBALANCE_UP_USAGE_RATIO_THRESHOLD()"(overrides?: CallOverrides): Promise<{
       0: BigNumber;
     }>;
-
-    validateCollateralRisk(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
-      overrides?: CallOverrides
-    ): Promise<{
-      0: void;
-    }>;
-
-    "validateCollateralRisk(bool,uint8,uint8,bool)"(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
-      overrides?: CallOverrides
-    ): Promise<{
-      0: void;
-    }>;
   };
 
   REBALANCE_UP_LIQUIDITY_RATE_THRESHOLD(
@@ -124,22 +95,6 @@ export class ValidationLogic extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  validateCollateralRisk(
-    isCollateral: boolean,
-    risk: BigNumberish,
-    tranche: BigNumberish,
-    allowHigherTranche: boolean,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
-  "validateCollateralRisk(bool,uint8,uint8,bool)"(
-    isCollateral: boolean,
-    risk: BigNumberish,
-    tranche: BigNumberish,
-    allowHigherTranche: boolean,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   callStatic: {
     REBALANCE_UP_LIQUIDITY_RATE_THRESHOLD(
       overrides?: CallOverrides
@@ -156,22 +111,6 @@ export class ValidationLogic extends Contract {
     "REBALANCE_UP_USAGE_RATIO_THRESHOLD()"(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    validateCollateralRisk(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "validateCollateralRisk(bool,uint8,uint8,bool)"(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {};
@@ -192,22 +131,6 @@ export class ValidationLogic extends Contract {
     "REBALANCE_UP_USAGE_RATIO_THRESHOLD()"(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    validateCollateralRisk(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "validateCollateralRisk(bool,uint8,uint8,bool)"(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -224,22 +147,6 @@ export class ValidationLogic extends Contract {
     ): Promise<PopulatedTransaction>;
 
     "REBALANCE_UP_USAGE_RATIO_THRESHOLD()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    validateCollateralRisk(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "validateCollateralRisk(bool,uint8,uint8,bool)"(
-      isCollateral: boolean,
-      risk: BigNumberish,
-      tranche: BigNumberish,
-      allowHigherTranche: boolean,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

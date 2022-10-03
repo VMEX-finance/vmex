@@ -25,7 +25,7 @@ interface MockFlashLoanReceiverInterface extends ethers.utils.Interface {
     "ADDRESSES_PROVIDER()": FunctionFragment;
     "LENDING_POOL()": FunctionFragment;
     "amountToApprove()": FunctionFragment;
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)": FunctionFragment;
+    "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
     "setAmountToApprove(uint256)": FunctionFragment;
     "setFailExecutionTransfer(bool)": FunctionFragment;
     "setSimulateEOA(bool)": FunctionFragment;
@@ -46,13 +46,7 @@ interface MockFlashLoanReceiverInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "executeOperation",
-    values: [
-      { tranche: BigNumberish; asset: string }[],
-      BigNumberish[],
-      BigNumberish[],
-      string,
-      BytesLike
-    ]
+    values: [string[], BigNumberish[], BigNumberish[], string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setAmountToApprove",
@@ -152,7 +146,7 @@ export class MockFlashLoanReceiver extends Contract {
     }>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -160,8 +154,8 @@ export class MockFlashLoanReceiver extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -221,7 +215,7 @@ export class MockFlashLoanReceiver extends Contract {
   "amountToApprove()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   executeOperation(
-    assets: { tranche: BigNumberish; asset: string }[],
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -229,8 +223,8 @@ export class MockFlashLoanReceiver extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-    assets: { tranche: BigNumberish; asset: string }[],
+  "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -286,7 +280,7 @@ export class MockFlashLoanReceiver extends Contract {
     "amountToApprove()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -294,8 +288,8 @@ export class MockFlashLoanReceiver extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -363,7 +357,7 @@ export class MockFlashLoanReceiver extends Contract {
     "amountToApprove()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -371,8 +365,8 @@ export class MockFlashLoanReceiver extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -432,7 +426,7 @@ export class MockFlashLoanReceiver extends Contract {
     ): Promise<PopulatedTransaction>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -440,8 +434,8 @@ export class MockFlashLoanReceiver extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,

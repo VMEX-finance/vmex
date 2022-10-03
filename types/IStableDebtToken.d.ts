@@ -30,7 +30,7 @@ interface IStableDebtTokenInterface extends ethers.utils.Interface {
     "getTotalSupplyLastUpdated()": FunctionFragment;
     "getUserLastUpdated(address)": FunctionFragment;
     "getUserStableRate(address)": FunctionFragment;
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)": FunctionFragment;
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)": FunctionFragment;
     "mint(address,address,uint256,uint256)": FunctionFragment;
     "principalBalanceOf(address)": FunctionFragment;
   };
@@ -241,7 +241,7 @@ export class IStableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -250,10 +250,10 @@ export class IStableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -361,7 +361,7 @@ export class IStableDebtToken extends Contract {
   initialize(
     pool: string,
     underlyingAsset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     incentivesController: string,
     debtTokenDecimals: BigNumberish,
     debtTokenName: string,
@@ -370,10 +370,10 @@ export class IStableDebtToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+  "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
     pool: string,
     underlyingAsset: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     incentivesController: string,
     debtTokenDecimals: BigNumberish,
     debtTokenName: string,
@@ -480,7 +480,7 @@ export class IStableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -489,10 +489,10 @@ export class IStableDebtToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -618,7 +618,7 @@ export class IStableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -627,10 +627,10 @@ export class IStableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -738,7 +738,7 @@ export class IStableDebtToken extends Contract {
     initialize(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,
@@ -747,10 +747,10 @@ export class IStableDebtToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,address,uint8,address,uint8,string,string,bytes)"(
+    "initialize(address,address,uint64,address,uint8,string,string,bytes)"(
       pool: string,
       underlyingAsset: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       incentivesController: string,
       debtTokenDecimals: BigNumberish,
       debtTokenName: string,

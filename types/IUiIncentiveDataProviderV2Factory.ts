@@ -29,6 +29,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+      {
         internalType: "address",
         name: "user",
         type: "address",
@@ -340,6 +345,11 @@ const _abi = [
         name: "provider",
         type: "address",
       },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
     ],
     name: "getReservesIncentivesData",
     outputs: [
@@ -522,6 +532,11 @@ const _abi = [
         internalType: "contract ILendingPoolAddressesProvider",
         name: "provider",
         type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
       {
         internalType: "address",

@@ -55,6 +55,12 @@ const _abi = [
         name: "newAddress",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
     ],
     name: "ConfigurationAdminUpdated",
     type: "event",
@@ -106,6 +112,12 @@ const _abi = [
         internalType: "address",
         name: "newAddress",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "EmergencyAdminUpdated",
@@ -209,6 +221,42 @@ const _abi = [
     type: "event",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "admin",
+        type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+    ],
+    name: "addEmergencyAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "admin",
+        type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+    ],
+    name: "addPoolAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getAavePriceOracle",
     outputs: [
@@ -230,6 +278,30 @@ const _abi = [
       },
     ],
     name: "getAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "id",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+    ],
+    name: "getAddressTranche",
     outputs: [
       {
         internalType: "address",
@@ -280,8 +352,27 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+    ],
     name: "getEmergencyAdmin",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getGlobalAdmin",
     outputs: [
       {
         internalType: "address",
@@ -358,7 +449,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+    ],
     name: "getPoolAdmin",
     outputs: [
       {
@@ -384,6 +481,25 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "ad",
+        type: "address",
+      },
+    ],
+    name: "isWhitelistedAddress",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -484,8 +600,26 @@ const _abi = [
         name: "admin",
         type: "address",
       },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
     ],
     name: "setEmergencyAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "admin",
+        type: "address",
+      },
+    ],
+    name: "setGlobalAdmin",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -561,6 +695,11 @@ const _abi = [
         internalType: "address",
         name: "admin",
         type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
       },
     ],
     name: "setPoolAdmin",

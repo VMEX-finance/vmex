@@ -22,7 +22,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface ATokensAndRatesHelperInterface extends ethers.utils.Interface {
   functions: {
-    "configureReserves(tuple[])": FunctionFragment;
+    "configureReserves(tuple[],uint64)": FunctionFragment;
     "initDeployment(tuple[])": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -40,7 +40,8 @@ interface ATokensAndRatesHelperInterface extends ethers.utils.Interface {
         reserveFactor: BigNumberish;
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
-      }[]
+      }[],
+      BigNumberish
     ]
   ): string;
   encodeFunctionData(
@@ -120,10 +121,11 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "configureReserves(tuple[])"(
+    "configureReserves(tuple[],uint64)"(
       inputParams: {
         asset: string;
         baseLTV: BigNumberish;
@@ -133,6 +135,7 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -199,10 +202,11 @@ export class ATokensAndRatesHelper extends Contract {
       stableBorrowingEnabled: boolean;
       borrowingEnabled: boolean;
     }[],
+    trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "configureReserves(tuple[])"(
+  "configureReserves(tuple[],uint64)"(
     inputParams: {
       asset: string;
       baseLTV: BigNumberish;
@@ -212,6 +216,7 @@ export class ATokensAndRatesHelper extends Contract {
       stableBorrowingEnabled: boolean;
       borrowingEnabled: boolean;
     }[],
+    trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -274,10 +279,11 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "configureReserves(tuple[])"(
+    "configureReserves(tuple[],uint64)"(
       inputParams: {
         asset: string;
         baseLTV: BigNumberish;
@@ -287,6 +293,7 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -359,10 +366,11 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "configureReserves(tuple[])"(
+    "configureReserves(tuple[],uint64)"(
       inputParams: {
         asset: string;
         baseLTV: BigNumberish;
@@ -372,6 +380,7 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -435,10 +444,11 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "configureReserves(tuple[])"(
+    "configureReserves(tuple[],uint64)"(
       inputParams: {
         asset: string;
         baseLTV: BigNumberish;
@@ -448,6 +458,7 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 

@@ -27,7 +27,7 @@ interface BaseParaSwapSellAdapterInterface extends ethers.utils.Interface {
     "LENDING_POOL()": FunctionFragment;
     "MAX_SLIPPAGE_PERCENT()": FunctionFragment;
     "ORACLE()": FunctionFragment;
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)": FunctionFragment;
+    "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rescueTokens(address)": FunctionFragment;
@@ -53,13 +53,7 @@ interface BaseParaSwapSellAdapterInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "ORACLE", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "executeOperation",
-    values: [
-      { tranche: BigNumberish; asset: string }[],
-      BigNumberish[],
-      BigNumberish[],
-      string,
-      BytesLike
-    ]
+    values: [string[], BigNumberish[], BigNumberish[], string, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -174,7 +168,7 @@ export class BaseParaSwapSellAdapter extends Contract {
     }>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -182,8 +176,8 @@ export class BaseParaSwapSellAdapter extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -245,7 +239,7 @@ export class BaseParaSwapSellAdapter extends Contract {
   "ORACLE()"(overrides?: CallOverrides): Promise<string>;
 
   executeOperation(
-    assets: { tranche: BigNumberish; asset: string }[],
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -253,8 +247,8 @@ export class BaseParaSwapSellAdapter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-    assets: { tranche: BigNumberish; asset: string }[],
+  "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -312,7 +306,7 @@ export class BaseParaSwapSellAdapter extends Contract {
     "ORACLE()"(overrides?: CallOverrides): Promise<string>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -320,8 +314,8 @@ export class BaseParaSwapSellAdapter extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -391,7 +385,7 @@ export class BaseParaSwapSellAdapter extends Contract {
     "ORACLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -399,8 +393,8 @@ export class BaseParaSwapSellAdapter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -466,7 +460,7 @@ export class BaseParaSwapSellAdapter extends Contract {
     "ORACLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -474,8 +468,8 @@ export class BaseParaSwapSellAdapter extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,

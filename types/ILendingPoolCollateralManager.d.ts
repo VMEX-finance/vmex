@@ -23,7 +23,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface ILendingPoolCollateralManagerInterface
   extends ethers.utils.Interface {
   functions: {
-    "liquidationCall(address,address,uint8,address,uint256,bool)": FunctionFragment;
+    "liquidationCall(address,address,uint64,address,uint256,bool)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -68,17 +68,17 @@ export class ILendingPoolCollateralManager extends Contract {
     liquidationCall(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "liquidationCall(address,address,uint8,address,uint256,bool)"(
+    "liquidationCall(address,address,uint64,address,uint256,bool)"(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,
@@ -89,17 +89,17 @@ export class ILendingPoolCollateralManager extends Contract {
   liquidationCall(
     collateral: string,
     principal: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     user: string,
     debtToCover: BigNumberish,
     receiveAToken: boolean,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "liquidationCall(address,address,uint8,address,uint256,bool)"(
+  "liquidationCall(address,address,uint64,address,uint256,bool)"(
     collateral: string,
     principal: string,
-    tranche: BigNumberish,
+    trancheId: BigNumberish,
     user: string,
     debtToCover: BigNumberish,
     receiveAToken: boolean,
@@ -110,7 +110,7 @@ export class ILendingPoolCollateralManager extends Contract {
     liquidationCall(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,
@@ -120,10 +120,10 @@ export class ILendingPoolCollateralManager extends Contract {
       1: string;
     }>;
 
-    "liquidationCall(address,address,uint8,address,uint256,bool)"(
+    "liquidationCall(address,address,uint64,address,uint256,bool)"(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,
@@ -160,17 +160,17 @@ export class ILendingPoolCollateralManager extends Contract {
     liquidationCall(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "liquidationCall(address,address,uint8,address,uint256,bool)"(
+    "liquidationCall(address,address,uint64,address,uint256,bool)"(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,
@@ -182,17 +182,17 @@ export class ILendingPoolCollateralManager extends Contract {
     liquidationCall(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "liquidationCall(address,address,uint8,address,uint256,bool)"(
+    "liquidationCall(address,address,uint64,address,uint256,bool)"(
       collateral: string,
       principal: string,
-      tranche: BigNumberish,
+      trancheId: BigNumberish,
       user: string,
       debtToCover: BigNumberish,
       receiveAToken: boolean,

@@ -75,7 +75,7 @@ interface IATokenInterface extends ethers.utils.Interface {
     functionFragment: "initialize",
     values: [
       string,
-      { treasury: string; underlyingAsset: string; tranche: BigNumberish },
+      { treasury: string; underlyingAsset: string; trancheId: BigNumberish },
       string,
       BigNumberish,
       string,
@@ -310,7 +310,7 @@ export class IAToken extends Contract {
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,
@@ -320,12 +320,12 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,(address,address,uint8),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,
@@ -529,7 +529,11 @@ export class IAToken extends Contract {
 
   initialize(
     pool: string,
-    vars: { treasury: string; underlyingAsset: string; tranche: BigNumberish },
+    vars: {
+      treasury: string;
+      underlyingAsset: string;
+      trancheId: BigNumberish;
+    },
     incentivesController: string,
     aTokenDecimals: BigNumberish,
     aTokenName: string,
@@ -538,9 +542,13 @@ export class IAToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,(address,address,uint8),address,uint8,string,string,bytes)"(
+  "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
     pool: string,
-    vars: { treasury: string; underlyingAsset: string; tranche: BigNumberish },
+    vars: {
+      treasury: string;
+      underlyingAsset: string;
+      trancheId: BigNumberish;
+    },
     incentivesController: string,
     aTokenDecimals: BigNumberish,
     aTokenName: string,
@@ -731,7 +739,7 @@ export class IAToken extends Contract {
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,
@@ -741,12 +749,12 @@ export class IAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,(address,address,uint8),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,
@@ -973,7 +981,7 @@ export class IAToken extends Contract {
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,
@@ -983,12 +991,12 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,(address,address,uint8),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,
@@ -1189,7 +1197,7 @@ export class IAToken extends Contract {
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,
@@ -1199,12 +1207,12 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,(address,address,uint8),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
         treasury: string;
         underlyingAsset: string;
-        tranche: BigNumberish;
+        trancheId: BigNumberish;
       },
       incentivesController: string,
       aTokenDecimals: BigNumberish,

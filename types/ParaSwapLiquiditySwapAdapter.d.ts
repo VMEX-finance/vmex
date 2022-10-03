@@ -27,7 +27,7 @@ interface ParaSwapLiquiditySwapAdapterInterface extends ethers.utils.Interface {
     "LENDING_POOL()": FunctionFragment;
     "MAX_SLIPPAGE_PERCENT()": FunctionFragment;
     "ORACLE()": FunctionFragment;
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)": FunctionFragment;
+    "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rescueTokens(address)": FunctionFragment;
@@ -54,13 +54,7 @@ interface ParaSwapLiquiditySwapAdapterInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "ORACLE", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "executeOperation",
-    values: [
-      { tranche: BigNumberish; asset: string }[],
-      BigNumberish[],
-      BigNumberish[],
-      string,
-      BytesLike
-    ]
+    values: [string[], BigNumberish[], BigNumberish[], string, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -74,8 +68,8 @@ interface ParaSwapLiquiditySwapAdapterInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "swapAndDeposit",
     values: [
-      { tranche: BigNumberish; asset: string },
-      { tranche: BigNumberish; asset: string },
+      { trancheId: BigNumberish; asset: string },
+      { trancheId: BigNumberish; asset: string },
       BigNumberish,
       BigNumberish,
       BigNumberish,
@@ -198,7 +192,7 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     }>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -206,8 +200,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -238,8 +232,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     ): Promise<ContractTransaction>;
 
     swapAndDeposit(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,
@@ -255,9 +249,9 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "swapAndDeposit((uint8,address),(uint8,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+    "swapAndDeposit((uint64,address),(uint64,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,
@@ -305,7 +299,7 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
   "ORACLE()"(overrides?: CallOverrides): Promise<string>;
 
   executeOperation(
-    assets: { tranche: BigNumberish; asset: string }[],
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -313,8 +307,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-    assets: { tranche: BigNumberish; asset: string }[],
+  "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -341,8 +335,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
   ): Promise<ContractTransaction>;
 
   swapAndDeposit(
-    assetToSwapFrom: { tranche: BigNumberish; asset: string },
-    assetToSwapTo: { tranche: BigNumberish; asset: string },
+    assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+    assetToSwapTo: { trancheId: BigNumberish; asset: string },
     amountToSwap: BigNumberish,
     minAmountToReceive: BigNumberish,
     swapAllBalanceOffset: BigNumberish,
@@ -358,9 +352,9 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "swapAndDeposit((uint8,address),(uint8,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
-    assetToSwapFrom: { tranche: BigNumberish; asset: string },
-    assetToSwapTo: { tranche: BigNumberish; asset: string },
+  "swapAndDeposit((uint64,address),(uint64,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
+    assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+    assetToSwapTo: { trancheId: BigNumberish; asset: string },
     amountToSwap: BigNumberish,
     minAmountToReceive: BigNumberish,
     swapAllBalanceOffset: BigNumberish,
@@ -408,7 +402,7 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     "ORACLE()"(overrides?: CallOverrides): Promise<string>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -416,8 +410,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -441,8 +435,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     ): Promise<void>;
 
     swapAndDeposit(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,
@@ -458,9 +452,9 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "swapAndDeposit((uint8,address),(uint8,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+    "swapAndDeposit((uint64,address),(uint64,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,
@@ -523,7 +517,7 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     "ORACLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -531,8 +525,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -556,8 +550,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     ): Promise<BigNumber>;
 
     swapAndDeposit(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,
@@ -573,9 +567,9 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "swapAndDeposit((uint8,address),(uint8,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+    "swapAndDeposit((uint64,address),(uint64,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,
@@ -634,7 +628,7 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     "ORACLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -642,8 +636,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -670,8 +664,8 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
     ): Promise<PopulatedTransaction>;
 
     swapAndDeposit(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,
@@ -687,9 +681,9 @@ export class ParaSwapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "swapAndDeposit((uint8,address),(uint8,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
-      assetToSwapFrom: { tranche: BigNumberish; asset: string },
-      assetToSwapTo: { tranche: BigNumberish; asset: string },
+    "swapAndDeposit((uint64,address),(uint64,address),uint256,uint256,uint256,bytes,address,(uint256,uint256,uint8,bytes32,bytes32))"(
+      assetToSwapFrom: { trancheId: BigNumberish; asset: string },
+      assetToSwapTo: { trancheId: BigNumberish; asset: string },
       amountToSwap: BigNumberish,
       minAmountToReceive: BigNumberish,
       swapAllBalanceOffset: BigNumberish,

@@ -10,7 +10,7 @@
     "run-env": "npm i && tail -f /dev/null",
     "hardhat": "hardhat",
     "build": "tsc",
-    "start:dev": "concurrently -g -n 'network,deploy' \"yarn vmex:node:fork:main\"  \"yarn vmex:deploy\"",
+    "start:dev": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node:fork:main\"  \"yarn vmex:deploy\"",
     "scripts:priceFeed": "hardhat run scripts/test-priceFeed.ts",
     "scripts:userBalance": "hardhat run scripts/test-userBalance.ts",
     "hardhat:kovan": "hardhat --network kovan",

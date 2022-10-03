@@ -30,7 +30,7 @@ interface UniswapLiquiditySwapAdapterInterface extends ethers.utils.Interface {
     "UNISWAP_ROUTER()": FunctionFragment;
     "USD_ADDRESS()": FunctionFragment;
     "WETH_ADDRESS()": FunctionFragment;
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)": FunctionFragment;
+    "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
     "getAmountsIn(uint256,address,address)": FunctionFragment;
     "getAmountsOut(uint256,address,address)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -71,13 +71,7 @@ interface UniswapLiquiditySwapAdapterInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "executeOperation",
-    values: [
-      { tranche: BigNumberish; asset: string }[],
-      BigNumberish[],
-      BigNumberish[],
-      string,
-      BytesLike
-    ]
+    values: [string[], BigNumberish[], BigNumberish[], string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getAmountsIn",
@@ -99,8 +93,8 @@ interface UniswapLiquiditySwapAdapterInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "swapAndDeposit",
     values: [
-      { tranche: BigNumberish; asset: string }[],
-      { tranche: BigNumberish; asset: string }[],
+      { trancheId: BigNumberish; asset: string }[],
+      { trancheId: BigNumberish; asset: string }[],
       BigNumberish[],
       BigNumberish[],
       {
@@ -265,7 +259,7 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     }>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -273,8 +267,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -357,8 +351,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<ContractTransaction>;
 
     swapAndDeposit(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
@@ -373,8 +367,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<ContractTransaction>;
 
     "swapAndDeposit(tuple[],tuple[],uint256[],uint256[],tuple[],bool[])"(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
@@ -432,7 +426,7 @@ export class UniswapLiquiditySwapAdapter extends Contract {
   "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<string>;
 
   executeOperation(
-    assets: { tranche: BigNumberish; asset: string }[],
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -440,8 +434,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-    assets: { tranche: BigNumberish; asset: string }[],
+  "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+    assets: string[],
     amounts: BigNumberish[],
     premiums: BigNumberish[],
     initiator: string,
@@ -520,8 +514,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
   ): Promise<ContractTransaction>;
 
   swapAndDeposit(
-    assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-    assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+    assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+    assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
     amountToSwapList: BigNumberish[],
     minAmountsToReceive: BigNumberish[],
     permitParams: {
@@ -536,8 +530,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
   ): Promise<ContractTransaction>;
 
   "swapAndDeposit(tuple[],tuple[],uint256[],uint256[],tuple[],bool[])"(
-    assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-    assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+    assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+    assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
     amountToSwapList: BigNumberish[],
     minAmountsToReceive: BigNumberish[],
     permitParams: {
@@ -595,7 +589,7 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<string>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -603,8 +597,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -680,8 +674,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<void>;
 
     swapAndDeposit(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
@@ -696,8 +690,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<void>;
 
     "swapAndDeposit(tuple[],tuple[],uint256[],uint256[],tuple[],bool[])"(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
@@ -770,7 +764,7 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -778,8 +772,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -831,8 +825,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<BigNumber>;
 
     swapAndDeposit(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
@@ -847,8 +841,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<BigNumber>;
 
     "swapAndDeposit(tuple[],tuple[],uint256[],uint256[],tuple[],bool[])"(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
@@ -921,7 +915,7 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     "WETH_ADDRESS()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     executeOperation(
-      assets: { tranche: BigNumberish; asset: string }[],
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -929,8 +923,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "executeOperation(tuple[],uint256[],uint256[],address,bytes)"(
-      assets: { tranche: BigNumberish; asset: string }[],
+    "executeOperation(address[],uint256[],uint256[],address,bytes)"(
+      assets: string[],
       amounts: BigNumberish[],
       premiums: BigNumberish[],
       initiator: string,
@@ -985,8 +979,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<PopulatedTransaction>;
 
     swapAndDeposit(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
@@ -1001,8 +995,8 @@ export class UniswapLiquiditySwapAdapter extends Contract {
     ): Promise<PopulatedTransaction>;
 
     "swapAndDeposit(tuple[],tuple[],uint256[],uint256[],tuple[],bool[])"(
-      assetToSwapFromList: { tranche: BigNumberish; asset: string }[],
-      assetToSwapToList: { tranche: BigNumberish; asset: string }[],
+      assetToSwapFromList: { trancheId: BigNumberish; asset: string }[],
+      assetToSwapToList: { trancheId: BigNumberish; asset: string }[],
       amountToSwapList: BigNumberish[],
       minAmountsToReceive: BigNumberish[],
       permitParams: {
