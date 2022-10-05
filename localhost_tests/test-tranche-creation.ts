@@ -23,12 +23,75 @@ const emergency = (await ethers.getSigners())[1]
 /************************************************************************************/
 const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
 
-await lendingPoolConfig.connect(emergency).setPoolPause(false)
+await lendingPoolConfig.connect(admin).setPoolPause(false,0)
 
-var addressesProvider = await contractGetters.getLendingPoolAddressesProvider()
-await addressesProvider.connect(signer).getPoolAdmin() //signer is pool admin
+const mytypes = require( "./helpers/types");
 
-// initHelpers.initReservesByHelper()
-//in theory this is entirely possible
+const network = <mytypes.eNetwork>DRE.network.name;
+      const poolConfig = loadPoolConfig(pool);
+      const {
+        ATokenNamePrefix,
+        StableDebtTokenNamePrefix,
+        VariableDebtTokenNamePrefix,
+        SymbolPrefix,
+        ReserveAssets,
+        ReservesConfig,
+        ReservesConfigTranche1,
+        LendingPoolCollateralManager,
+        WethGateway,
+        IncentivesController,
+      } = poolConfig as ICommonConfiguration;
 
-await lendingPoolConfig.connect(signer).batchInitReserve()
+      const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
+      const incentivesController = await getParamPerNetwork(
+        IncentivesController,
+        network
+      );
+      const addressesProvider = await getLendingPoolAddressesProvider();
+
+      const lendingPoolConfiguratorProxy =
+        await getLendingPoolConfiguratorProxy(
+          await addressesProvider.getLendingPoolConfigurator()
+        );
+
+      const testHelpers = await getAaveProtocolDataProvider();
+
+      const admin = await DRE.ethers.getSigner(
+        await addressesProvider.getGlobalAdmin()
+      );
+      const emergAdmin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
+      // const oracle = await addressesProvider.getPriceOracle();
+
+      if (!reserveAssets) {
+        throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
+      }
+
+      const treasuryAddress = await getTreasuryAddress(poolConfig);
+      console.log("before initReservesByHelper");
+
+      await claimTrancheId(0, admin, admin);
+
+      // Pause market during deployment
+      await waitForTx(await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true,0));
+
+      await initReservesByHelper(
+        ReservesConfig,
+        reserveAssets,
+        ATokenNamePrefix,
+        StableDebtTokenNamePrefix,
+        VariableDebtTokenNamePrefix,
+        SymbolPrefix,
+        admin,
+        treasuryAddress,
+        incentivesController,
+        pool,
+        0, //tranche id
+        verify
+      );
+      await configureReservesByHelper(
+        ReservesConfig,
+        reserveAssets,
+        testHelpers,
+        0,
+        admin.address
+      );

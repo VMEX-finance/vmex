@@ -1,12 +1,6 @@
 import { task } from "hardhat/config";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
-  deployLendingPoolCollateralManager,
-  deployWalletBalancerProvider,
-  authorizeWETHGateway,
-  deployUiPoolDataProviderV2,
-} from "../../helpers/contracts-deployments";
-import {
   loadPoolConfig,
   loadCustomAavePoolConfig,
   ConfigNames,
@@ -27,14 +21,10 @@ import {
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
 } from "../../helpers/contracts-getters";
-import {
-  chainlinkAggregatorProxy,
-  chainlinkEthUsdAggregatorProxy,
-} from "../../helpers/constants";
 
 task(
-  "full:initialize-lending-pool",
-  "Initialize lending pool tranche 0 configuration."
+  "full:initialize-lending-pool-tranche-1",
+  "Initialize lending pool tranche 1 configuration."
 )
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam(
@@ -47,7 +37,7 @@ task(
     try {
       await DRE.run("set-DRE");
       const network = <eNetwork>DRE.network.name;
-      const poolConfig = await loadCustomAavePoolConfig("0"); //this is only for mainnet
+      const poolConfig = await loadCustomAavePoolConfig("1"); //this is only for mainnet
       const {
         ATokenNamePrefix,
         StableDebtTokenNamePrefix,
@@ -74,9 +64,6 @@ task(
 
       const testHelpers = await getAaveProtocolDataProvider();
 
-      const admin = await DRE.ethers.getSigner(
-        await addressesProvider.getGlobalAdmin()
-      );
       const emergAdmin = await DRE.ethers.getSigner(
         await getEmergencyAdmin(poolConfig)
       );
@@ -89,11 +76,13 @@ task(
       const treasuryAddress = await getTreasuryAddress(poolConfig);
       console.log("before initReservesByHelper");
 
-      await claimTrancheId(0, admin, admin);
+      await claimTrancheId(1, emergAdmin, emergAdmin);
 
       // Pause market during deployment
       await waitForTx(
-        await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .setPoolPause(true, 1)
       );
 
       await initReservesByHelper(
@@ -103,80 +92,20 @@ task(
         StableDebtTokenNamePrefix,
         VariableDebtTokenNamePrefix,
         SymbolPrefix,
-        admin,
+        emergAdmin,
         treasuryAddress,
         incentivesController,
         pool,
-        0, //tranche id
+        1, //tranche id
         verify
       );
       await configureReservesByHelper(
         ReservesConfig,
         reserveAssets,
         testHelpers,
-        0,
-        admin.address
+        1,
+        emergAdmin.address
       );
-
-      let collateralManagerAddress = await getParamPerNetwork(
-        LendingPoolCollateralManager,
-        network
-      );
-      if (!notFalsyOrZeroAddress(collateralManagerAddress)) {
-        const collateralManager = await deployLendingPoolCollateralManager(
-          verify
-        );
-        collateralManagerAddress = collateralManager.address;
-      }
-      // Seems unnecessary to register the collateral manager in the JSON db
-
-      console.log(
-        "\tSetting lending pool collateral manager implementation with address",
-        collateralManagerAddress
-      );
-      await waitForTx(
-        await addressesProvider.setLendingPoolCollateralManager(
-          collateralManagerAddress
-        )
-      );
-
-      console.log(
-        "\tSetting AaveProtocolDataProvider at AddressesProvider at id: 0x01",
-        collateralManagerAddress
-      );
-      const aaveProtocolDataProvider = await getAaveProtocolDataProvider();
-      await waitForTx(
-        await addressesProvider.setAddress(
-          "0x0100000000000000000000000000000000000000000000000000000000000000",
-          aaveProtocolDataProvider.address
-        )
-      );
-
-      const walletBalancerProvider = await deployWalletBalancerProvider(verify);
-
-      console.log(
-        "WalletBalancerProvider deployed at:",
-        walletBalancerProvider.address
-      );
-
-      const uiPoolDataProvider = await deployUiPoolDataProviderV2(
-        chainlinkAggregatorProxy[network],
-        chainlinkEthUsdAggregatorProxy[network],
-        verify
-      );
-      console.log(
-        "UiPoolDataProvider deployed at:",
-        uiPoolDataProvider.address
-      );
-
-      const lendingPoolAddress = await addressesProvider.getLendingPool();
-
-      let gateWay = getParamPerNetwork(WethGateway, network);
-      if (!notFalsyOrZeroAddress(gateWay)) {
-        gateWay = (await getWETHGateway()).address;
-      }
-      console.log("GATEWAY", gateWay);
-      await authorizeWETHGateway(gateWay, lendingPoolAddress);
     } catch (err) {
       console.error(err);
       exit(1);

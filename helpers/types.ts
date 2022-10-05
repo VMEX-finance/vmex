@@ -284,43 +284,45 @@ export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
 
 export type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
 
-export type iAavePoolAssets<T> = Pick<
-  iAssetsWithoutUSD<T>,
-  | "DAI"
-  | "TUSD"
-  | "USDC"
-  | "USDT"
-  | "SUSD"
-  | "AAVE"
-  | "BAT"
-  | "MKR"
-  | "LINK"
-  | "KNC"
-  | "WBTC"
-  | "MANA"
-  | "ZRX"
-  | "SNX"
-  | "BUSD"
-  | "WETH"
-  | "YFI"
-  | "UNI"
-  | "REN"
-  | "ENJ"
-  | "xSUSHI"
-  | "Tricrypto2"
-  | "ThreePool"
-  | "StethEth"
-  | "Steth"
-  | "FraxUSDC"
-  | "Frax3Crv"
-  | "Frax"
-  | "BAL"
-  | "CRV"
-  | "CVX"
-  | "BADGER"
-  | "LDO"
-  | "ALCX"
-  | "Oneinch"
+export type iAavePoolAssets<T> = Partial<
+  Pick<
+    iAssetsWithoutUSD<T>,
+    | "DAI"
+    | "TUSD"
+    | "USDC"
+    | "USDT"
+    | "SUSD"
+    | "AAVE"
+    | "BAT"
+    | "MKR"
+    | "LINK"
+    | "KNC"
+    | "WBTC"
+    | "MANA"
+    | "ZRX"
+    | "SNX"
+    | "BUSD"
+    | "WETH"
+    | "YFI"
+    | "UNI"
+    | "REN"
+    | "ENJ"
+    | "xSUSHI"
+    | "Tricrypto2"
+    | "ThreePool"
+    | "StethEth"
+    | "Steth"
+    | "FraxUSDC"
+    | "Frax3Crv"
+    | "Frax"
+    | "BAL"
+    | "CRV"
+    | "CVX"
+    | "BADGER"
+    | "LDO"
+    | "ALCX"
+    | "Oneinch"
+  >
 >;
 
 export type iLpPoolAssets<T> = Pick<
@@ -573,13 +575,11 @@ export interface IBaseConfiguration {
 
 export interface ICommonConfiguration extends IBaseConfiguration {
   ReservesConfig: iMultiPoolsAssets<IReserveParams>;
-  ReservesConfigTranche1: iMultiPoolsAssets<IReserveParams>;
   Mocks: IMocksConfig;
 }
 
 export interface IAaveConfiguration extends ICommonConfiguration {
   ReservesConfig: iAavePoolAssets<IReserveParams>;
-  ReservesConfigTranche1: iAavePoolAssets<IReserveParams>;
 }
 
 export interface IAmmConfiguration extends ICommonConfiguration {
