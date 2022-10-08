@@ -23,8 +23,8 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   functions: {
     "activateReserve(address,uint64)": FunctionFragment;
-    "addNewTrancheWithReserves(tuple[],uint64,address,address)": FunctionFragment;
     "batchInitReserve(tuple[],uint64)": FunctionFragment;
+    "claimTrancheId(uint64,address,address)": FunctionFragment;
     "configureReserveAsCollateral(address,uint64,uint256,uint256,uint256)": FunctionFragment;
     "deactivateReserve(address,uint64)": FunctionFragment;
     "disableBorrowingOnReserve(address,uint64)": FunctionFragment;
@@ -46,37 +46,6 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "activateReserve",
     values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addNewTrancheWithReserves",
-    values: [
-      {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      BigNumberish,
-      string,
-      string
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: "batchInitReserve",
@@ -106,6 +75,10 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
       }[],
       BigNumberish
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimTrancheId",
+    values: [BigNumberish, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "configureReserveAsCollateral",
@@ -208,11 +181,11 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "addNewTrancheWithReserves",
+    functionFragment: "batchInitReserve",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "batchInitReserve",
+    functionFragment: "claimTrancheId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -348,66 +321,6 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    addNewTrancheWithReserves(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "addNewTrancheWithReserves(tuple[],uint64,address,address)"(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
     batchInitReserve(
       input: {
         aTokenImpl: string;
@@ -461,6 +374,20 @@ export class LendingPoolConfigurator extends Contract {
         governanceSetInterestRate: BigNumberish;
       }[],
       trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    claimTrancheId(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "claimTrancheId(uint64,address,address)"(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -729,66 +656,6 @@ export class LendingPoolConfigurator extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  addNewTrancheWithReserves(
-    input: {
-      aTokenImpl: string;
-      stableDebtTokenImpl: string;
-      variableDebtTokenImpl: string;
-      underlyingAssetDecimals: BigNumberish;
-      interestRateStrategyAddress: string;
-      underlyingAsset: string;
-      treasury: string;
-      incentivesController: string;
-      underlyingAssetName: string;
-      aTokenName: string;
-      aTokenSymbol: string;
-      variableDebtTokenName: string;
-      variableDebtTokenSymbol: string;
-      stableDebtTokenName: string;
-      stableDebtTokenSymbol: string;
-      params: BytesLike;
-      assetType: BigNumberish;
-      collateralCap: BigNumberish;
-      hasStrategy: boolean;
-      usingGovernanceSetInterestRate: boolean;
-      governanceSetInterestRate: BigNumberish;
-    }[],
-    trancheId: BigNumberish,
-    admin: string,
-    emergencyAdmin: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "addNewTrancheWithReserves(tuple[],uint64,address,address)"(
-    input: {
-      aTokenImpl: string;
-      stableDebtTokenImpl: string;
-      variableDebtTokenImpl: string;
-      underlyingAssetDecimals: BigNumberish;
-      interestRateStrategyAddress: string;
-      underlyingAsset: string;
-      treasury: string;
-      incentivesController: string;
-      underlyingAssetName: string;
-      aTokenName: string;
-      aTokenSymbol: string;
-      variableDebtTokenName: string;
-      variableDebtTokenSymbol: string;
-      stableDebtTokenName: string;
-      stableDebtTokenSymbol: string;
-      params: BytesLike;
-      assetType: BigNumberish;
-      collateralCap: BigNumberish;
-      hasStrategy: boolean;
-      usingGovernanceSetInterestRate: boolean;
-      governanceSetInterestRate: BigNumberish;
-    }[],
-    trancheId: BigNumberish,
-    admin: string,
-    emergencyAdmin: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
   batchInitReserve(
     input: {
       aTokenImpl: string;
@@ -842,6 +709,20 @@ export class LendingPoolConfigurator extends Contract {
       governanceSetInterestRate: BigNumberish;
     }[],
     trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  claimTrancheId(
+    trancheId: BigNumberish,
+    admin: string,
+    emergencyAdmin: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "claimTrancheId(uint64,address,address)"(
+    trancheId: BigNumberish,
+    admin: string,
+    emergencyAdmin: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -1110,66 +991,6 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    addNewTrancheWithReserves(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "addNewTrancheWithReserves(tuple[],uint64,address,address)"(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     batchInitReserve(
       input: {
         aTokenImpl: string;
@@ -1223,6 +1044,20 @@ export class LendingPoolConfigurator extends Contract {
         governanceSetInterestRate: BigNumberish;
       }[],
       trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimTrancheId(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "claimTrancheId(uint64,address,address)"(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1554,66 +1389,6 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    addNewTrancheWithReserves(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    "addNewTrancheWithReserves(tuple[],uint64,address,address)"(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
     batchInitReserve(
       input: {
         aTokenImpl: string;
@@ -1667,6 +1442,20 @@ export class LendingPoolConfigurator extends Contract {
         governanceSetInterestRate: BigNumberish;
       }[],
       trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    claimTrancheId(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "claimTrancheId(uint64,address,address)"(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1933,66 +1722,6 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    addNewTrancheWithReserves(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "addNewTrancheWithReserves(tuple[],uint64,address,address)"(
-      input: {
-        aTokenImpl: string;
-        stableDebtTokenImpl: string;
-        variableDebtTokenImpl: string;
-        underlyingAssetDecimals: BigNumberish;
-        interestRateStrategyAddress: string;
-        underlyingAsset: string;
-        treasury: string;
-        incentivesController: string;
-        underlyingAssetName: string;
-        aTokenName: string;
-        aTokenSymbol: string;
-        variableDebtTokenName: string;
-        variableDebtTokenSymbol: string;
-        stableDebtTokenName: string;
-        stableDebtTokenSymbol: string;
-        params: BytesLike;
-        assetType: BigNumberish;
-        collateralCap: BigNumberish;
-        hasStrategy: boolean;
-        usingGovernanceSetInterestRate: boolean;
-        governanceSetInterestRate: BigNumberish;
-      }[],
-      trancheId: BigNumberish,
-      admin: string,
-      emergencyAdmin: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
     batchInitReserve(
       input: {
         aTokenImpl: string;
@@ -2046,6 +1775,20 @@ export class LendingPoolConfigurator extends Contract {
         governanceSetInterestRate: BigNumberish;
       }[],
       trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    claimTrancheId(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "claimTrancheId(uint64,address,address)"(
+      trancheId: BigNumberish,
+      admin: string,
+      emergencyAdmin: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
