@@ -24,7 +24,7 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
   functions: {
     "addEmergencyAdmin(address,uint64)": FunctionFragment;
     "addPoolAdmin(address,uint64)": FunctionFragment;
-    "addWhitelistedAddress(address)": FunctionFragment;
+    "addWhitelistedAddress(address,bool)": FunctionFragment;
     "getAavePriceOracle()": FunctionFragment;
     "getAddress(bytes32)": FunctionFragment;
     "getAddressTranche(bytes32,uint64)": FunctionFragment;
@@ -71,7 +71,7 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addWhitelistedAddress",
-    values: [string]
+    values: [string, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "getAavePriceOracle",
@@ -425,11 +425,13 @@ export class LendingPoolAddressesProvider extends Contract {
 
     addWhitelistedAddress(
       ad: string,
+      _val: boolean,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "addWhitelistedAddress(address)"(
+    "addWhitelistedAddress(address,bool)"(
       ad: string,
+      _val: boolean,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -806,11 +808,13 @@ export class LendingPoolAddressesProvider extends Contract {
 
   addWhitelistedAddress(
     ad: string,
+    _val: boolean,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "addWhitelistedAddress(address)"(
+  "addWhitelistedAddress(address,bool)"(
     ad: string,
+    _val: boolean,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -1113,10 +1117,15 @@ export class LendingPoolAddressesProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    addWhitelistedAddress(ad: string, overrides?: CallOverrides): Promise<void>;
-
-    "addWhitelistedAddress(address)"(
+    addWhitelistedAddress(
       ad: string,
+      _val: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addWhitelistedAddress(address,bool)"(
+      ad: string,
+      _val: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1459,11 +1468,13 @@ export class LendingPoolAddressesProvider extends Contract {
 
     addWhitelistedAddress(
       ad: string,
+      _val: boolean,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "addWhitelistedAddress(address)"(
+    "addWhitelistedAddress(address,bool)"(
       ad: string,
+      _val: boolean,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1769,11 +1780,13 @@ export class LendingPoolAddressesProvider extends Contract {
 
     addWhitelistedAddress(
       ad: string,
+      _val: boolean,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "addWhitelistedAddress(address)"(
+    "addWhitelistedAddress(address,bool)"(
       ad: string,
+      _val: boolean,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
