@@ -236,12 +236,10 @@ contract LendingPoolConfigurator is
             currentConfig.data
         );
 
-        // pool.setAssetData(
-        //     input.underlyingAsset,
-        //     input.risk,
-        //     input.allowHigherTranche,
-        //     input.assetType
-        // ); //initialize all asset risks
+        pool.setAssetData(
+            internalInput.input.underlyingAsset,
+            internalInput.input.assetType
+        ); //initialize all asset risks
 
         emit ReserveInitialized(
             internalInput.input.underlyingAsset,
