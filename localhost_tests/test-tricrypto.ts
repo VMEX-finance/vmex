@@ -26,7 +26,7 @@ const emergency = (await ethers.getSigners())[1]
 /************************************************************************************/
 const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
 
-await lendingPoolConfig.connect(emergency).setPoolPause(false)
+await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
 
 
 /************************************************************************************/
@@ -63,7 +63,7 @@ await myWETH.connect(emergency).deposit(options);
 await myWETH.connect(emergency).balanceOf(signer.address);
 await myWETH.connect(emergency).approve(lendingPool.address,ethers.utils.parseEther("100.0"))
 
-await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
+await lendingPool.connect(emergency).deposit(myWETH.address, 1, ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
 
 
 /************************************************************************************/
@@ -72,7 +72,7 @@ await lendingPool.connect(emergency).deposit(myWETH.address, 2, false, ethers.ut
 
 var options2 = {value: ethers.utils.parseEther("1.0"), gasLimit: 8000000}
 var triCryptoDepositAdd = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" //0xD51a44d3FaE010294C616388b506AcdA1bfAAE46 this is the address given on curve.fi/contracts
-var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/stethEth.json").toString()
+var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/tricrypto.json").toString()
 
 var triCryptoDeposit = new ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
@@ -80,7 +80,6 @@ var amounts = [ethers.utils.parseEther("0"),ethers.utils.parseEther("0"),ethers.
 
 await myWETH.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEther("1.0"))
 
-await triCryptoDeposit.connect(signer).calc_token_amount([10**2, 10**2,10**2],true)
 await triCryptoDeposit.connect(signer).add_liquidity(amounts,ethers.utils.parseEther("0.1"))
 
 // 0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF (this is EXACT MATCH, used to be deployed in our system),
@@ -112,12 +111,12 @@ await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseE
 /************************************************************************************/
 /****************** deposit curve LP token to pool and then borrow WETH  **********************/ 
 /************************************************************************************/
-await lendingPool.connect(signer).deposit(CurveToken.address, 2, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
-await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 2, true); 
+await lendingPool.connect(signer).deposit(CurveToken.address, 1, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true); 
 
-await lendingPool.connect(signer).getUserAccountData(signer.address,2)
+await lendingPool.connect(signer).getUserAccountData(signer.address,1)
 
-await lendingPool.connect(signer).borrow(myWETH.address, 2, ethers.utils.parseEther("0.01"), 1, '0', await signer.getAddress()); //borrow 500 USDT from tranche 2, 1 means stable rate
+await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.01"), 1, '0', signer.address); //borrow 500 USDT from tranche 2, 1 means stable rate
 
 await triCryptoDeposit.connect(signer).get_balances()
 /************************************************************************************/
@@ -144,8 +143,8 @@ await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 //test getPriceOracle
 var addressesProvider = await contractGetters.getLendingPoolAddressesProvider()
 
-var ad = await lendingPool.getAssetData(CurveToken.address)
-var oracleadd = await addressesProvider.getPriceOracle(ad.assetType)
+var ad = await lendingPool.getAssetData(myWETH.address)
+var oracleadd = await addressesProvider.getPriceOracle(ad)
 var oracleabi = [
     "function getAssetPrice(address asset) public view returns (uint256)",
     "function getFallbackOracle() external view returns (address)"
@@ -153,6 +152,7 @@ var oracleabi = [
 
 var oracle = new ethers.Contract(oracleadd,oracleabi)
 await oracle.connect(signer).getFallbackOracle();
+await oracle.connect(signer).getAssetPrice(myWETH.address);
 await oracle.connect(signer).getAssetPrice(CurveToken.address);
 //596885100691044998108101827164204760
 //This is actually the right answer in wei (have to divide by 10^18 first)
