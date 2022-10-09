@@ -121,7 +121,7 @@ const deployAllMockTokens = async (deployer: Signer) => {
 const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   console.time("setup");
   const aaveAdmin = await deployer.getAddress();
-  const config = await loadCustomAavePoolConfig("0"); //loadPoolConfig(ConfigNames.Aave);
+  var config = await loadCustomAavePoolConfig("0"); //loadPoolConfig(ConfigNames.Aave);
 
   const mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
@@ -342,7 +342,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   //---------------------------------------------------------------------------------
 
   // Reserve params from AAVE pool + mocked tokens
-  const reservesParams = {
+  var reservesParams = {
     ...config.ReservesConfig,
   };
 
@@ -377,6 +377,9 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   } = config;
   const treasuryAddress = await getTreasuryAddress(config);
 
+  //-------------------------------------------------------------
+  //deploy tranche 0
+
   await claimTrancheId(0, admin, admin);
 
   await initReservesByHelper(
@@ -401,6 +404,44 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     0,
     admin.address
   );
+
+  //-------------------------------------------------------------
+
+  //-------------------------------------------------------------
+  //deploy tranche 1 with tricrypto
+  config = await loadCustomAavePoolConfig("1");
+  reservesParams = {
+    ...config.ReservesConfig,
+  };
+
+  const user1 = await DRE.ethers.getSigner(addressList[1]);
+
+  await claimTrancheId(1, user1, user1);
+
+  await initReservesByHelper(
+    reservesParams,
+    allReservesAddresses,
+    ATokenNamePrefix,
+    StableDebtTokenNamePrefix,
+    VariableDebtTokenNamePrefix,
+    SymbolPrefix,
+    user1,
+    treasuryAddress,
+    ZERO_ADDRESS,
+    ConfigNames.Aave,
+    1,
+    false
+  );
+
+  await configureReservesByHelper(
+    reservesParams,
+    allReservesAddresses,
+    testHelpers,
+    1,
+    user1.address
+  );
+
+  //-------------------------------------------------------------
 
   const collateralManager = await deployLendingPoolCollateralManager();
   await waitForTx(

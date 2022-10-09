@@ -50,7 +50,7 @@ const executeAction = async (
   let myTranche = tranche;
   if (!tranche || tranche === "") {
     // compatibility with old aave tests
-    myTranche = "0";
+    myTranche = "1";
   }
 
   if (!name || name === "") {
@@ -92,7 +92,7 @@ const executeAction = async (
         throw `Invalid amount of ${reserve} to mint`;
       }
 
-      await mint(reserve, amount, user, testEnv);
+      await mint(reserve, amount, user, myTranche, testEnv);
       break;
 
     case "approve":
