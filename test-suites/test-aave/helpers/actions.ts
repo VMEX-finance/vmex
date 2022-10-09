@@ -39,7 +39,7 @@ import {
 } from "../../../helpers/misc-utils";
 
 import chai from "chai";
-import { ReserveData, UserReserveData, TrancheMultiplier } from "./utils/interfaces";
+import { ReserveData, UserReserveData } from "./utils/interfaces";
 import { ContractReceipt } from "ethers";
 import { AToken } from "../../../types/AToken";
 import { RateMode, tEthereumAddress } from "../../../helpers/types";
@@ -252,15 +252,7 @@ export const deposit = async (
     const txResult = await waitForTx(
       await pool
         .connect(sender.signer)
-        .deposit(
-          reserve,
-          tranche,
-          isCollateral,
-          amountToDeposit,
-          onBehalfOf,
-          "0",
-          txOptions
-        )
+        .deposit(reserve, tranche, amountToDeposit, onBehalfOf, "0", txOptions)
     );
 
     const {
@@ -277,16 +269,11 @@ export const deposit = async (
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
-    const multiplier:TrancheMultiplier = await pool.getTrancheMultiplier(tranche);
-
     const expectedReserveData = calcExpectedReserveDataAfterDeposit(
       amountToDeposit.toString(),
       reserveDataBefore,
-      txTimestamp,
-      multiplier
+      txTimestamp
     );
-
-    
 
     const expectedUserReserveData = calcExpectedUserDataAfterDeposit(
       amountToDeposit.toString(),
@@ -326,15 +313,7 @@ export const deposit = async (
     await expect(
       pool
         .connect(sender.signer)
-        .deposit(
-          reserve,
-          tranche,
-          isCollateral,
-          amountToDeposit,
-          onBehalfOf,
-          "0",
-          txOptions
-        ),
+        .deposit(reserve, tranche, amountToDeposit, onBehalfOf, "0", txOptions),
       revertMessage
     ).to.be.reverted;
   }
@@ -406,14 +385,11 @@ export const withdraw = async (
       timestamp,
     } = await getContractsData(reserve, tranche, user.address, testEnv);
 
-    const multiplier:TrancheMultiplier = await pool.getTrancheMultiplier(tranche);
-
     const expectedReserveData = calcExpectedReserveDataAfterWithdraw(
       amountToWithdraw,
       reserveDataBefore,
       userDataBefore,
-      txTimestamp,
-      multiplier
+      txTimestamp
     );
 
     const expectedUserData = calcExpectedUserDataAfterWithdraw(
@@ -548,14 +524,11 @@ export const transfer = async (
       timestamp,
     } = await getContractsData(reserve, originTranche, user.address, testEnv);
 
-    const multiplier1:TrancheMultiplier = await pool.getTrancheMultiplier(originTranche);
-
     const expectedReserveData = calcExpectedReserveDataAfterWithdraw(
       amountToWithdraw,
       reserveDataBefore,
       userDataBefore,
-      txTimestamp,
-      multiplier1
+      txTimestamp
     );
 
     const expectedUserData = calcExpectedUserDataAfterWithdraw(
@@ -581,13 +554,10 @@ export const transfer = async (
       testEnv
     );
 
-    const multiplier2:TrancheMultiplier = await pool.getTrancheMultiplier(destinationTranche);
-
     const expectedReserveDataDest = calcExpectedReserveDataAfterDeposit(
       amountToWithdraw,
       reserveDataBeforeDest,
-      txTimestamp,
-      multiplier2
+      txTimestamp
     );
 
     const expectedUserReserveDataDest = calcExpectedUserDataAfterDeposit(
@@ -769,16 +739,13 @@ export const borrow = async (
       user.address
     );
 
-    const multiplier:TrancheMultiplier = await pool.getTrancheMultiplier(tranche);
-
     const expectedReserveData = calcExpectedReserveDataAfterBorrow(
       amountToBorrow.toString(),
       interestRateMode,
       reserveDataBefore,
       userDataBefore,
       txTimestamp,
-      timestamp,
-      multiplier
+      timestamp
     );
 
     const expectedUserData = calcExpectedUserDataAfterBorrow(
@@ -914,16 +881,13 @@ export const repay = async (
       timestamp,
     } = await getContractsData(reserve, tranche, onBehalfOf.address, testEnv);
 
-    const multiplier:TrancheMultiplier = await pool.getTrancheMultiplier(tranche);
-
     const expectedReserveData = calcExpectedReserveDataAfterRepay(
       amountToRepay,
       <RateMode>rateMode,
       reserveDataBefore,
       userDataBefore,
       txTimestamp,
-      timestamp,
-      multiplier
+      timestamp
     );
 
     const expectedUserData = calcExpectedUserDataAfterRepay(
@@ -1070,14 +1034,11 @@ export const swapBorrowRateMode = async (
     const { reserveData: reserveDataAfter, userData: userDataAfter } =
       await getContractsData(reserve, tranche, user.address, testEnv);
 
-      const multiplier:TrancheMultiplier = await pool.getTrancheMultiplier(tranche);
-
     const expectedReserveData = calcExpectedReserveDataAfterSwapRateMode(
       reserveDataBefore,
       userDataBefore,
       rateMode,
-      txTimestamp,
-      multiplier
+      txTimestamp
     );
 
     const expectedUserData = calcExpectedUserDataAfterSwapRateMode(
@@ -1137,13 +1098,10 @@ export const rebalanceStableBorrowRate = async (
     const { reserveData: reserveDataAfter, userData: userDataAfter } =
       await getContractsData(reserve, tranche, target.address, testEnv);
 
-      const multiplier:TrancheMultiplier = await pool.getTrancheMultiplier(tranche);
-
     const expectedReserveData = calcExpectedReserveDataAfterStableRateRebalance(
       reserveDataBefore,
       userDataBefore,
-      txTimestamp,
-      multiplier
+      txTimestamp
     );
 
     const expectedUserData = calcExpectedUserDataAfterStableRateRebalance(

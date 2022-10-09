@@ -90,11 +90,11 @@ interface ILendingPoolAddressesProvider {
 
     function getCurvePriceOracleWrapper() external view returns (address);
 
-    function getCurveAddressProvider() external view returns (address);
+    // function getCurveAddressProvider() external view returns (address);
 
     function setAavePriceOracle(address priceOracle) external;
 
-    function setCurveAddressProvider(address addressProvider) external;
+    // function setCurveAddressProvider(address addressProvider) external;
 
     function setCurvePriceOracle(address priceOracle) external;
 

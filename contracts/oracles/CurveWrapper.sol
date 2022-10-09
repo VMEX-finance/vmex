@@ -34,7 +34,8 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
     event FallbackOracleUpdated(address indexed fallbackOracle);
 
     ILendingPoolAddressesProvider internal _addressesProvider;
-    IPriceOracleGetter private _fallbackOracle;
+    IPriceOracleGetter private _fallbackOracle; //fallback oracle for the entire price
+    // ICurveOracle private _fallbackCurvePoolOracle; //fallback oracle for curve pool, to get_virtual_price
     address public immutable BASE_CURRENCY;
     uint256 public immutable BASE_CURRENCY_UNIT;
     mapping(address => address) internal lpTokenToPool;
@@ -51,11 +52,13 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
     constructor(
         address addressProvider,
         address fallbackOracle, //this will likely not be set for the Curve wrappers, maybe can use the fallback oracles from AaveOracle, but if the pool price cannot be determined then it doesn't matter if the other asset prices can be determined
+        // address fallbackCurvePoolOracle,
         address baseCurrency,
         uint256 baseCurrencyUnit
     ) public {
         _addressesProvider = ILendingPoolAddressesProvider(addressProvider);
         _setFallbackOracle(fallbackOracle);
+        // _fallbackCurvePoolOracle = ICurveOracle(fallbackCurvePoolOracle);
         BASE_CURRENCY = baseCurrency;
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
         initializeMappings();
@@ -164,6 +167,10 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
         // ICurveRegistry registry = ICurveRegistry(provider.get_registry()); //registry contains the addresses for the pools
 
         address pool = lpTokenToPool[asset]; //asset is the LP token
+
+        if (pool == address(0)) {
+            return _fallbackOracle.getAssetPrice(asset);
+        }
 
         //TODO: check if we should use underlying or not. [0] is not underlying, [1] includes underlying
         uint256 num_coins = numCoins[pool];

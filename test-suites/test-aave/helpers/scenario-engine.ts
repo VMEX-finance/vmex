@@ -50,7 +50,7 @@ const executeAction = async (
   let myTranche = tranche;
   if (!tranche || tranche === "") {
     // compatibility with old aave tests
-    myTranche = "1";
+    myTranche = "0";
   }
 
   if (!name || name === "") {
