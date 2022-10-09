@@ -92,7 +92,7 @@
           "name": "borrow",
           "args": {
             "reserve": "DAI",
-            "amount": "100",
+            "amount": "31.25",
             "borrowRateMode": "variable",
             "user": "1",
             "timeTravel": "365"
@@ -212,7 +212,7 @@
       ]
     },
     {
-      "description": "User 2 deposits a small amount of WETH to account for rounding errors",
+      "description": "User 2 deposits a small amount of tricrypto to account for rounding errors",
       "actions": [
         {
           "name": "mint",

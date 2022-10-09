@@ -147,20 +147,28 @@ export const mint = async (
   reserveSymbol: string,
   amount: string,
   user: SignerWithAddress,
+  trancheId: string,
   testEnv: TestEnv
 ) => {
+  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+  console.log("minting: ", reserveSymbol);
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+  console.log("reserve address: ", reserve);
 
   const token = await getMintableERC20(reserve);
+  //console.log("token address: ",token)
 
   const {
     aTokenInstance: _,
     reserve: reserveDest,
     userData: userDataBefore,
     reserveData: reserveDataBeforeDest,
-  } = await getDataBeforeAction(reserveSymbol, "0", user.address, testEnv);
-
-  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+  } = await getDataBeforeAction(
+    reserveSymbol,
+    trancheId,
+    user.address,
+    testEnv
+  );
 
   console.log("Mint " + amount + " to " + user.address);
   console.log("Before mint: " + userDataBefore.walletBalance);
@@ -175,7 +183,7 @@ export const mint = async (
     reserveData: reserveDataAfter,
     userData: userDataAfter,
     timestamp,
-  } = await getContractsData(reserve, "0", user.address, testEnv);
+  } = await getContractsData(reserve, trancheId, user.address, testEnv);
 
   console.log("After mint: " + userDataAfter.walletBalance);
 
@@ -234,7 +242,7 @@ export const deposit = async (
 
   console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
-  console.log("Deposit into " + tranche);
+  console.log("Deposit " + reserveSymbol + " into " + tranche);
   console.log("Before tx: origin reserve: " + reserveDataBefore.totalLiquidity);
   console.log(
     "Before tx: origin user: " +
@@ -295,6 +303,13 @@ export const deposit = async (
         ", atoken: " +
         userDataAfter.currentATokenBalance
     );
+
+    const userAccountData = await pool.getUserAccountData(
+      sender.address,
+      tranche
+    );
+
+    console.log("userAccountData: ", userAccountData);
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
@@ -411,6 +426,13 @@ export const withdraw = async (
         ", stable debt: " +
         userDataAfter.currentStableDebt
     );
+
+    const userAccountData = await pool.getUserAccountData(
+      user.address,
+      tranche
+    );
+
+    console.log("userAccountData: ", userAccountData);
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
@@ -767,6 +789,13 @@ export const borrow = async (
         ", stable debt: " +
         userDataAfter.currentStableDebt
     );
+
+    const userAccountData = await pool.getUserAccountData(
+      user.address,
+      tranche
+    );
+
+    console.log("userAccountData: ", userAccountData);
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
@@ -1164,6 +1193,8 @@ const getDataBeforeAction = async (
     user,
     testEnv
   );
+
+  //console.log("after getContractsData: ", reserveData)
   const aTokenInstance = await getAToken(reserveData.aTokenAddress);
   return {
     reserve,
