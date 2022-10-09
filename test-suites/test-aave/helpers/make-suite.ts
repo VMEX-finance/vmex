@@ -138,7 +138,7 @@ export async function initializeMakeSuite() {
 
   testEnv.helpersContract = await getAaveProtocolDataProvider();
 
-  const allTokens = await testEnv.helpersContract.getAllATokens();
+  const allTokens = await testEnv.helpersContract.getAllATokens("0");
   const aDaiAddress = allTokens.find(
     (aToken) => aToken.symbol === "aDAI0"
   )?.tokenAddress; //choose tranche
@@ -147,7 +147,9 @@ export async function initializeMakeSuite() {
     (aToken) => aToken.symbol === "aWETH0"
   )?.tokenAddress;
 
-  const reservesTokens = await testEnv.helpersContract.getAllReservesTokens();
+  const reservesTokens = await testEnv.helpersContract.getAllReservesTokens(
+    "0"
+  );
 
   const daiAddress = reservesTokens.find(
     (token) => token.symbol === "DAI"

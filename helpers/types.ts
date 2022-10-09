@@ -413,6 +413,20 @@ export enum TokenContractId {
   STAKE = "STAKE",
   xSUSHI = "xSUSHI",
   WAVAX = "WAVAX",
+  Tricrypto2 = "Tricrypto2",
+  ThreePool = "ThreePool",
+  StethEth = "StethEth",
+  Steth = "Steth",
+  FraxUSDC = "FraxUSDC",
+  Frax3Crv = "Frax3Crv",
+  Frax = "Frax",
+  BAL = "BAL",
+  CRV = "CRV",
+  CVX = "CVX",
+  BADGER = "BADGER",
+  LDO = "LDO",
+  ALCX = "ALCX",
+  Oneinch = "Oneinch",
 }
 
 export interface IReserveParams

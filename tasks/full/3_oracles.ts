@@ -78,7 +78,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       let lendingRateOracle: LendingRateOracle;
 
       if (notFalsyOrZeroAddress(aaveOracleAddress)) {
-        aaveOracle = await await getAaveOracle(aaveOracleAddress);
+        aaveOracle = await getAaveOracle(aaveOracleAddress);
         await waitForTx(await aaveOracle.setAssetSources(tokens, aggregators));
       } else {
         aaveOracle = await deployAaveOracle(
@@ -120,12 +120,13 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         await addressesProvider.setLendingRateOracle(lendingRateOracle.address)
       );
 
-      //Also add Curve provider to our aave address provider so we can get_registry to have access to function that converts lp token address to pool address
-      await waitForTx(
-        await addressesProvider.setCurveAddressProvider(
-          "0x0000000022D53366457F9d5E68Ec105046FC4383"
-        ) //this will always be address provider for curve
-      );
+      //Now, we don't use this anymore. Outdated: Also add Curve provider to our aave address provider so we can get_registry to have access to function that converts lp token address to pool address
+      // await waitForTx(
+      //   await addressesProvider.setCurveAddressProvider(
+      //     "0x0000000022D53366457F9d5E68Ec105046FC4383"
+      //   ) //this will always be address provider for curve
+      // );
+
       //Also deploy CurveOracleV2 contract and add that contract to the aave address provider
       const curveOracle = await deployCurveOracle(verify);
 
