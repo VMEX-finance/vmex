@@ -1,38 +1,22 @@
+import { ethers } from "ethers";
 
 // scripts/index.js
 async function main () {
     // Our code will go here
 
+const fs = require('fs');
+
+// const DAI = new Token(
+//     '',
+//     "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+//     18
+// );
+
     // Load the HRE into helpers to access signers
     await run("set-DRE")
-    const fs = require('fs');
 
     // Import getters to instance any Aave contract
     const contractGetters = require('./helpers/contracts-getters');
-    var signer = await contractGetters.getFirstSigner();
-
-
-    const addProv = await contractGetters.getLendingPoolAddressesProvider();
-
-    const curveOracleAdd = await addProv.connect(signer).getCurvePriceOracleWrapper();
-    var curveOracleAbi = [
-      "function getAssetPrice(address asset) public view returns (uint256)"
-  ]
-
-  const curveOracle = new ethers.Contract(curveOracleAdd,curveOracleAbi);
-
-    const pricePerToken = curveOracle.connect(signer).getAssetPrice("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff");
-
-
-
-
-
-
-
-    
-
-
-
     const contractHelpers = require('./helpers/contracts-helpers');
 
     const lendingPool = await contractGetters.getLendingPool();
@@ -49,7 +33,7 @@ const emergency = (await ethers.getSigners())[1]
 /************************************************************************************/
 const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
 
-await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
+await lendingPoolConfig.connect(emergency).setPoolPause(false)
 
 
 /************************************************************************************/
@@ -69,6 +53,9 @@ const WETHabi = [
     "function deposit() public payable",
     "function withdraw(uint wad) public"
 ];
+const DAIadd = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+const DAI_ABI = fs.readFileSync("./localhost_tests/DAI_ABI.json").toString()
+const DAI = new ethers.Contract(DAIadd,DAI_ABI)
 
 const myWETH = new ethers.Contract(WETHadd,WETHabi)
 
@@ -90,25 +77,43 @@ await lendingPool.connect(emergency).deposit(myWETH.address, 1, ethers.utils.par
 
 
 /************************************************************************************/
-/******************  get LP tokens **********************/ 
+/******************  Uniswap ETH for DAI  **********************/ 
 /************************************************************************************/
 
-var options2 = {value: ethers.utils.parseEther("1.0"), gasLimit: 8000000}
-var triCryptoDepositAdd = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" //0xD51a44d3FaE010294C616388b506AcdA1bfAAE46 this is the address given on curve.fi/contracts
-var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/tricrypto.json").toString()
+const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+const UNISWAP_ROUTER_ABI = fs.readFileSync("./localhost_tests/uniswapAbi.json").toString()
+const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
+
+const path = [myWETH.address, DAI.address];
+const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
+
+//emergency deposits 100 WETH to pool to provide liquidity
+var options = {value: ethers.utils.parseEther("1000.0")}
+
+await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("1000000.0"), path, signer.address, deadline,options)
+
+await DAI.connect(signer).balanceOf(signer.address)
+
+
+/************************************************************************************/
+/******************  get LP tokens **********************/ 
+/************************************************************************************/
+var triCryptoDepositAdd = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7" 
+var triCryptoDepositAbi = [
+    "function add_liquidity(uint256[3] _amounts,uint256 _min_mint_amount) external",
+    "function calc_token_amount(uint256[3] _amounts,bool deposit) external view"
+]
 
 var triCryptoDeposit = new ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
-var amounts = [ethers.utils.parseEther("0"),ethers.utils.parseEther("0"),ethers.utils.parseEther("1.0")]
+var amounts = [ethers.utils.parseEther("10"),ethers.utils.parseEther("0"),ethers.utils.parseEther("0")]
 
-await myWETH.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEther("1.0"))
+await DAI.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEther("10"))
 
-//await triCryptoDeposit.connect(signer).calc_token_amount(amounts,true)
+// await triCryptoDeposit.connect(signer).calc_token_amount([10**2, 10**2,10**2],true)
 await triCryptoDeposit.connect(signer).add_liquidity(amounts,ethers.utils.parseEther("0.1"))
 
-// 0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF (this is EXACT MATCH, used to be deployed in our system),
-// 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff  (this is similar match, THIS IS ADDRESS ON CURVE FRONTEND, WHICH IS WHAT WE NEED TO USE),  however, this is the address that triCryptoDeposit address uses. So I think we need to redeploy with this token
-var CurveTokenAdd = "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff"
+var CurveTokenAdd = "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"
 var CurveTokenAddabi = [
     "function allowance(address owner, address spender) external view returns (uint256 remaining)",
     "function approve(address spender, uint256 value) external returns (bool success)",
@@ -125,7 +130,7 @@ var CurveTokenAddabi = [
 
 var CurveToken = new ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
 await CurveToken.connect(signer).balanceOf(signer.address)
-await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("1.0"))
+await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100000.0"))
 
 // await lendingPoolConfig.connect(signer).unfreezeReserve(CurveToken.address, 2)
 // await lendingPoolConfig.connect(signer).activateReserve(CurveToken.address, 2)
@@ -138,11 +143,31 @@ await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseE
 await lendingPool.connect(signer).deposit(CurveToken.address, 1, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
 await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true); 
 
+
+
 await lendingPool.connect(signer).getUserAccountData(signer.address,1)
 
-await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.01"), 1, '0', signer.address); //borrow 500 USDT from tranche 2, 1 means stable rate
+await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.01"), 1, '0', await signer.getAddress()); //borrow 500 USDT from tranche 2, 1 means stable rate
 
-await triCryptoDeposit.connect(signer).get_balances()
+/************************************************************************************/
+/****************** moving tokens around **********************/ 
+/************************************************************************************/
+await CurveToken.connect(signer).balanceOf(signer.address)
+
+
+await lendingPool.connect(signer).withdraw(CurveToken.address, 1, ethers.utils.parseEther("1"),signer.address); 
+await lendingPool.connect(signer).deposit(CurveToken.address, 1, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
+
+await lendingPool.connect(signer).transferTranche(CurveToken.address, 1, 0, ethers.utils.parseEther("1")); 
+
+await lendingPool.connect(signer).getUserAccountData(signer.address,0)
+
+await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 0, true);  //revert expected
+
+var dataProv = await contractGetters.getAaveProtocolDataProvider()
+
+await dataProv.getReserveData(CurveToken.address,0)
+await dataProv.getUserReserveData(CurveToken.address,0,signer.address)
 /************************************************************************************/
 /****************** debugging  **********************/ 
 /************************************************************************************/
@@ -155,8 +180,8 @@ await lendingPool.connect(signer).getReserveData(CurveToken.address, 2)
 
 var dataProv = await contractGetters.getAaveProtocolDataProvider()
 
-await dataProv.getReserveData(CurveToken.address,2)
-await dataProv.getUserReserveData(CurveToken.address,2,signer.address)
+await dataProv.getReserveData(CurveToken.address,1)
+await dataProv.getUserReserveData(CurveToken.address,1,signer.address)
 
 await dataProv.getReserveData(myWETH.address,2)
 
@@ -167,8 +192,8 @@ await lendingPool.connect(signer).getUserAccountData(signer.address,2)
 //test getPriceOracle
 var addressesProvider = await contractGetters.getLendingPoolAddressesProvider()
 
-var ad = await lendingPool.getAssetData(myWETH.address)
-var oracleadd = await addressesProvider.getPriceOracle(ad)
+var ad = await lendingPool.getAssetData(CurveToken.address)
+var oracleadd = await addressesProvider.getPriceOracle(ad.assetType)
 var oracleabi = [
     "function getAssetPrice(address asset) public view returns (uint256)",
     "function getFallbackOracle() external view returns (address)"
@@ -176,7 +201,6 @@ var oracleabi = [
 
 var oracle = new ethers.Contract(oracleadd,oracleabi)
 await oracle.connect(signer).getFallbackOracle();
-await oracle.connect(signer).getAssetPrice(myWETH.address);
 await oracle.connect(signer).getAssetPrice(CurveToken.address);
 //596885100691044998108101827164204760
 //This is actually the right answer in wei (have to divide by 10^18 first)
