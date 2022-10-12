@@ -313,6 +313,7 @@ library ReserveLogic {
         uint256 cumulatedStableInterest;
         uint256 totalDebtAccrued;
         uint256 amountToMint;
+        uint256 amountToMintVMEX;
         uint256 reserveFactor;
         uint40 stableSupplyUpdatedTimestamp;
     }
@@ -378,12 +379,39 @@ library ReserveLogic {
             .sub(vars.previousVariableDebt)
             .sub(vars.previousStableDebt);
 
-        vars.amountToMint = vars.totalDebtAccrued.percentMul(
-            vars.reserveFactor
-        );
+        vars.amountToMint = vars
+            .totalDebtAccrued
+            // .percentMul(
+            //     PercentageMath.PERCENTAGE_FACTOR.sub(vars.globalVMEXReserveFactor)
+            // ) //for global VMEX reserve
+            .percentMul(vars.reserveFactor); //permissionless pool owners will always get their reserveFactor * debt
 
         if (vars.amountToMint != 0) {
             IAToken(reserve.aTokenAddress).mintToTreasury(
+                vars.amountToMint,
+                newLiquidityIndex
+            );
+        }
+
+        vars.amountToMintVMEX = vars
+            .totalDebtAccrued
+            .percentMul(
+                PercentageMath.PERCENTAGE_FACTOR.sub(vars.reserveFactor)
+            )
+            .percentMul(
+                vars.globalVMEXReserveFactor //for global VMEX reserve
+            ); //we will get (1-reserveFactor) * vmexReserveFacotr * debt
+
+        //P = total earned
+        //x = reserveFactor
+        //y = VMEX reserve factor
+        //user gets P*(1-x)*(1-y)
+        //pool owner gets P*x
+        //VMEX gets P*(1-x)*y
+        //total distribution: P * (1-x-y+xy + x + y-xy) = P
+
+        if (vars.amountToMintVMEX != 0) {
+            IAToken(reserve.aTokenAddress).mintToVMEXTreasury(
                 vars.amountToMint,
                 newLiquidityIndex
             );

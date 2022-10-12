@@ -237,9 +237,16 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
             totalVariableDebt,
             vars.currentVariableBorrowRate,
             averageStableBorrowRate
-        ).rayMul(vars.utilizationRate).percentMul( //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
-            PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor)
-        ); //if this last part wasn't here, once everyone repays and all deposits are withdrawn, there should be zero left in pool. Now, reserveFactor*liquidity is left in pool
+        )
+        .rayMul(vars.utilizationRate) // % return per asset borrowed * amount borrowed = total expected return in pool
+        .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor)) //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
+            .percentMul(
+                PercentageMath.PERCENTAGE_FACTOR.sub(globalVMEXReserveFactor) //global VMEX treasury interest rate
+            );
+        //borrow interest rate * (1-reserve factor) *(1- global VMEX reserve factor) = deposit interest rate
+        //this means borrow interest rate *(1- global VMEX reserve factor) * reserve factor is the interest rate of the pool admin treasury
+        //borrow interest rate *(1- reserve factor) * global VMEX reserve factor is the interest rate of the VMEX treasury
+        //if this last part wasn't here, once everyone repays and all deposits are withdrawn, there should be zero left in pool. Now, reserveFactor*borrow interest rate*liquidity is left in pool
 
         return (
             vars.currentLiquidityRate,
