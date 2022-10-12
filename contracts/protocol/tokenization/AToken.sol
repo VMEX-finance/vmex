@@ -45,6 +45,7 @@ contract AToken is
 
     ILendingPool internal _pool;
     address internal _treasury;
+    address internal _VMEXTreasury;
     address internal _underlyingAsset;
     uint64 internal _tranche;
     IAaveIncentivesController internal _incentivesController;
@@ -102,6 +103,7 @@ contract AToken is
 
         _pool = pool;
         _treasury = vars.treasury;
+        _VMEXTreasury = vars.VMEXTreasury;
         _underlyingAsset = vars.underlyingAsset;
         _incentivesController = incentivesController;
         _tranche = vars.trancheId;
@@ -183,6 +185,33 @@ contract AToken is
         }
 
         address treasury = _treasury;
+
+        // Compared to the normal mint, we don't check for rounding errors.
+        // The amount to mint can easily be very small since it is a fraction of the interest ccrued.
+        // In that case, the treasury will experience a (very small) loss, but it
+        // wont cause potentially valid transactions to fail.
+        _mint(treasury, amount.rayDiv(index));
+
+        emit Transfer(address(0), treasury, amount);
+        emit Mint(treasury, amount, index);
+    }
+
+    /**
+     * @dev Mints aTokens to the reserve treasury
+     * - Only callable by the LendingPool
+     * @param amount The amount of tokens getting minted
+     * @param index The new liquidity index of the reserve
+     */
+    function mintToVMEXTreasury(uint256 amount, uint256 index)
+        external
+        override
+        onlyLendingPool
+    {
+        if (amount == 0) {
+            return;
+        }
+
+        address treasury = _VMEXTreasury;
 
         // Compared to the normal mint, we don't check for rounding errors.
         // The amount to mint can easily be very small since it is a fraction of the interest ccrued.

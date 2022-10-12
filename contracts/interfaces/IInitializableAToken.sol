@@ -34,6 +34,7 @@ interface IInitializableAToken {
 
     struct InitializeTreasuryVars {
         address treasury;
+        address VMEXTreasury;
         address underlyingAsset;
         uint64 trancheId;
     }

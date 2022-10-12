@@ -34,6 +34,7 @@ contract LendingPoolConfigurator is
 
     ILendingPoolAddressesProvider internal addressesProvider;
     ILendingPool internal pool;
+    address internal VMEXTreasury;
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -75,11 +76,12 @@ contract LendingPoolConfigurator is
         return CONFIGURATOR_REVISION;
     }
 
-    function initialize(ILendingPoolAddressesProvider provider)
-        public
-        initializer
-    {
+    function initialize(
+        ILendingPoolAddressesProvider provider,
+        address _VMEXTreasury
+    ) public initializer {
         addressesProvider = provider;
+        VMEXTreasury = _VMEXTreasury;
         pool = ILendingPool(addressesProvider.getLendingPool());
     }
 
@@ -129,6 +131,7 @@ contract LendingPoolConfigurator is
                     IInitializableAToken.initialize.selector,
                     pool,
                     internalInput.input.treasury,
+                    VMEXTreasury,
                     internalInput.input.underlyingAsset,
                     internalInput.trancheId,
                     IAaveIncentivesController(

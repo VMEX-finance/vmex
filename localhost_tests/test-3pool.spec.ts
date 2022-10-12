@@ -5,7 +5,7 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 import rawBRE from "hardhat";
 import { BigNumber, utils } from "ethers";
-
+import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
 
 before(async () => {
@@ -16,8 +16,9 @@ before(async () => {
     console.log("***************\n");
   });
 makeSuite(
-    "Tricrypto2 ",
+    "3pool ",
     () => {
+        const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');
         const contractGetters = require('../helpers/contracts-getters.ts');
         // const lendingPool = await contractGetters.getLendingPool();
@@ -213,6 +214,10 @@ var triCryptoDepositAbi = [
             expect(
               signerWeth.toString()
             ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.01"), "Did not get WETH");
+
+            await expect(
+                lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("1000"), 1, '0', signer.address)
+              ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
           });
     }
 )
