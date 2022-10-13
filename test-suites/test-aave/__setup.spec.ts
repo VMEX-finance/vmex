@@ -32,6 +32,8 @@ import {
   authorizeWETHGateway,
   deployATokenImplementations,
   deployAaveOracle,
+  deployCurveOracle,
+  deployCurveOracleWrapper,
 } from "../../helpers/contracts-deployments";
 import { Signer } from "ethers";
 import {
@@ -46,6 +48,7 @@ import {
   getReservesConfigByPool,
   getTreasuryAddress,
   loadPoolConfig,
+  loadCustomAavePoolConfig,
 } from "../../helpers/configuration";
 import { initializeMakeSuite } from "./helpers/make-suite";
 
@@ -58,6 +61,7 @@ import { DRE, waitForTx } from "../../helpers/misc-utils";
 import {
   initReservesByHelper,
   configureReservesByHelper,
+  claimTrancheId,
 } from "../../helpers/init-helpers";
 import AaveConfig from "../../markets/aave";
 import { oneEther, ZERO_ADDRESS } from "../../helpers/constants";
@@ -80,6 +84,8 @@ const deployAllMockTokens = async (deployer: Signer) => {
   } = {};
 
   const protoConfigData = getReservesConfigByPool(AavePools.proto);
+
+  //console.log(protoConfigData)
 
   for (const tokenSymbol of Object.keys(TokenContractId)) {
     if (tokenSymbol === "WETH") {
@@ -115,22 +121,24 @@ const deployAllMockTokens = async (deployer: Signer) => {
 const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   console.time("setup");
   const aaveAdmin = await deployer.getAddress();
-  const config = loadPoolConfig(ConfigNames.Aave);
+  var config = await loadCustomAavePoolConfig("0"); //loadPoolConfig(ConfigNames.Aave);
 
   const mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
   } = {
     ...(await deployAllMockTokens(deployer)),
   };
+
+  //console.log("mockTokens: ",mockTokens)
   const addressesProvider = await deployLendingPoolAddressesProvider(
     AaveConfig.MarketId
   );
-  await waitForTx(await addressesProvider.setPoolAdmin(aaveAdmin));
+  await waitForTx(await addressesProvider.setGlobalAdmin(aaveAdmin));
 
   //setting users[1] as emergency admin, which is in position 2 in the DRE addresses list
   const addressList = await getEthersSignersAddresses();
 
-  await waitForTx(await addressesProvider.setEmergencyAdmin(addressList[2]));
+  //await waitForTx(await addressesProvider.setEmergencyAdmin(addressList[2]));
 
   const addressesProviderRegistry =
     await deployLendingPoolAddressesProviderRegistry();
@@ -287,7 +295,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     oneEther.toString(),
   ]);
   await waitForTx(
-    await addressesProvider.setPriceOracle(fallbackOracle.address)
+    await addressesProvider.setAavePriceOracle(fallbackOracle.address)
   );
 
   const lendingRateOracle = await deployLendingRateOracle();
@@ -306,12 +314,36 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     aaveAdmin
   );
 
+  //---------------------------------------------------------------------------------
+  //Also deploy CurveOracleV2 contract and add that contract to the aave address provider
+  const curveOracle = await deployCurveOracle();
+  console.log("Curve oracle deployed at ", curveOracle.address);
+
+  await waitForTx(
+    await addressesProvider.setCurvePriceOracle(curveOracle.address)
+  );
+
+  //Also deploy CurveOracleV2 wrapper contract and add that contract to the aave address provider
+  const curveOracleWrapper = await deployCurveOracleWrapper(
+    addressesProvider.address,
+    fallbackOracle.address, //in this test, the fallback oracle is the aave oracle
+    mockTokens.WETH.address,
+    oneEther.toString()
+  );
+
+  console.log("Curve oracle wrapper deployed at ", curveOracleWrapper.address);
+
+  await waitForTx(
+    await addressesProvider.setCurvePriceOracleWrapper(
+      curveOracleWrapper.address
+    )
+  );
+
+  //---------------------------------------------------------------------------------
+
   // Reserve params from AAVE pool + mocked tokens
-  const reservesParams = {
+  var reservesParams = {
     ...config.ReservesConfig,
-  };
-  const reservesParamsTranche1 = {
-    ...config.ReservesConfigTranche1,
   };
 
   const testHelpers = await deployAaveProtocolDataProvider(
@@ -320,7 +352,22 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
 
-  const admin = await deployer.getAddress();
+  await waitForTx(
+    await addressesProvider.addWhitelistedAddress(
+      await deployer.getAddress(),
+      true
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.addWhitelistedAddress(addressList[1], true)
+  );
+
+  await waitForTx(
+    await addressesProvider.addWhitelistedAddress(addressList[2], true)
+  );
+
+  const admin = await DRE.ethers.getSigner(await deployer.getAddress());
 
   const {
     ATokenNamePrefix,
@@ -330,6 +377,11 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   } = config;
   const treasuryAddress = await getTreasuryAddress(config);
 
+  //-------------------------------------------------------------
+  //deploy tranche 0
+
+  await claimTrancheId(0, admin, admin);
+
   await initReservesByHelper(
     reservesParams,
     allReservesAddresses,
@@ -342,7 +394,6 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     ZERO_ADDRESS,
     ConfigNames.Aave,
     0,
-    0,
     false
   );
 
@@ -351,21 +402,33 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     allReservesAddresses,
     testHelpers,
     0,
-    admin
+    admin.address
   );
 
+  //-------------------------------------------------------------
+
+  //-------------------------------------------------------------
+  //deploy tranche 1 with tricrypto
+  config = await loadCustomAavePoolConfig("1");
+  reservesParams = {
+    ...config.ReservesConfig,
+  };
+
+  const user1 = await DRE.ethers.getSigner(addressList[1]);
+
+  await claimTrancheId(1, user1, user1);
+
   await initReservesByHelper(
-    reservesParamsTranche1,
+    reservesParams,
     allReservesAddresses,
     ATokenNamePrefix,
     StableDebtTokenNamePrefix,
     VariableDebtTokenNamePrefix,
     SymbolPrefix,
-    admin,
+    user1,
     treasuryAddress,
     ZERO_ADDRESS,
     ConfigNames.Aave,
-    1,
     1,
     false
   );
@@ -375,8 +438,10 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     allReservesAddresses,
     testHelpers,
     1,
-    admin
+    user1.address
   );
+
+  //-------------------------------------------------------------
 
   const collateralManager = await deployLendingPoolCollateralManager();
   await waitForTx(
@@ -423,7 +488,7 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    // await rawBRE.run("aave:mainnet", { skipRegistry: true });
+    await rawBRE.run("aave:mainnet", { skipRegistry: true });
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer, secondaryWallet);

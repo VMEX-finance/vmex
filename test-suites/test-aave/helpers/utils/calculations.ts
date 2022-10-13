@@ -12,7 +12,7 @@ import {
   tEthereumAddress,
 } from "../../../../helpers/types";
 import "./math";
-import { ReserveData, UserReserveData, TrancheMultiplier } from "./interfaces";
+import { ReserveData, UserReserveData } from "./interfaces";
 import { expect } from "chai";
 
 export const strToBN = (amount: string): BigNumber => new BigNumber(amount);
@@ -179,8 +179,8 @@ export const calcExpectedUserDataAfterWithdraw = (
 export const calcExpectedReserveDataAfterDeposit = (
   amountDeposited: string,
   reserveDataBeforeAction: ReserveData,
-  txTimestamp: BigNumber,
-  multiplier: TrancheMultiplier
+  txTimestamp: BigNumber
+  //multiplier: TrancheMultiplier
 ): ReserveData => {
   const expectedReserveData: ReserveData = <ReserveData>{};
 
@@ -227,7 +227,7 @@ export const calcExpectedReserveDataAfterDeposit = (
   );
   const rates = calcExpectedInterestRates(
     reserveDataBeforeAction.symbol,
-    multiplier,
+    //multiplier,
     reserveDataBeforeAction.marketStableRate,
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
@@ -245,8 +245,7 @@ export const calcExpectedReserveDataAfterWithdraw = (
   amountWithdrawn: string,
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
-  txTimestamp: BigNumber,
-  multiplier: TrancheMultiplier
+  txTimestamp: BigNumber
 ): ReserveData => {
   const expectedReserveData: ReserveData = <ReserveData>{};
 
@@ -306,7 +305,6 @@ export const calcExpectedReserveDataAfterWithdraw = (
   );
   const rates = calcExpectedInterestRates(
     reserveDataBeforeAction.symbol,
-    multiplier,
     reserveDataBeforeAction.marketStableRate,
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
@@ -326,8 +324,7 @@ export const calcExpectedReserveDataAfterBorrow = (
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   txTimestamp: BigNumber,
-  currentTimestamp: BigNumber,
-  multiplier: TrancheMultiplier
+  currentTimestamp: BigNumber
 ): ReserveData => {
   const expectedReserveData = <ReserveData>{};
 
@@ -389,7 +386,6 @@ export const calcExpectedReserveDataAfterBorrow = (
 
     const ratesAfterTx = calcExpectedInterestRates(
       reserveDataBeforeAction.symbol,
-      multiplier,
       reserveDataBeforeAction.marketStableRate,
       utilizationRateAfterTx,
       expectedReserveData.principalStableDebt,
@@ -470,7 +466,6 @@ export const calcExpectedReserveDataAfterBorrow = (
 
     const rates = calcExpectedInterestRates(
       reserveDataBeforeAction.symbol,
-      multiplier,
       reserveDataBeforeAction.marketStableRate,
       utilizationRateAfterTx,
       totalStableDebtAfterTx,
@@ -514,8 +509,7 @@ export const calcExpectedReserveDataAfterRepay = (
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   txTimestamp: BigNumber,
-  currentTimestamp: BigNumber,
-  multiplier: TrancheMultiplier
+  currentTimestamp: BigNumber
 ): ReserveData => {
   const expectedReserveData: ReserveData = <ReserveData>{};
 
@@ -634,7 +628,6 @@ export const calcExpectedReserveDataAfterRepay = (
 
   const rates = calcExpectedInterestRates(
     reserveDataBeforeAction.symbol,
-    multiplier,
     reserveDataBeforeAction.marketStableRate,
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
@@ -847,8 +840,7 @@ export const calcExpectedReserveDataAfterSwapRateMode = (
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   rateMode: string,
-  txTimestamp: BigNumber,
-  multiplier: TrancheMultiplier
+  txTimestamp: BigNumber
 ): ReserveData => {
   const expectedReserveData: ReserveData = <ReserveData>{};
 
@@ -949,7 +941,6 @@ export const calcExpectedReserveDataAfterSwapRateMode = (
 
   const rates = calcExpectedInterestRates(
     reserveDataBeforeAction.symbol,
-    multiplier,
     reserveDataBeforeAction.marketStableRate,
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
@@ -1037,8 +1028,7 @@ export const calcExpectedUserDataAfterSwapRateMode = (
 export const calcExpectedReserveDataAfterStableRateRebalance = (
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
-  txTimestamp: BigNumber,
-  multiplier: TrancheMultiplier
+  txTimestamp: BigNumber
 ): ReserveData => {
   const expectedReserveData: ReserveData = <ReserveData>{};
 
@@ -1109,7 +1099,6 @@ export const calcExpectedReserveDataAfterStableRateRebalance = (
 
   const rates = calcExpectedInterestRates(
     reserveDataBeforeAction.symbol,
-    multiplier,
     reserveDataBeforeAction.marketStableRate,
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
@@ -1336,7 +1325,6 @@ const calcCompoundedInterest = (
 
 export const calcExpectedInterestRates = (
   reserveSymbol: string,
-  multiplier: TrancheMultiplier,
   marketStableRate: BigNumber,
   utilizationRate: BigNumber,
   totalStableDebt: BigNumber,
@@ -1393,7 +1381,7 @@ export const calcExpectedInterestRates = (
         .rayDiv(optimalRate)
         .rayMul(new BigNumber(reserveConfiguration.strategy.variableRateSlope1))
     );
-  }  
+  }
 
   const expectedOverallRate = calcExpectedOverallBorrowRate(
     totalStableDebt,
@@ -1406,11 +1394,6 @@ export const calcExpectedInterestRates = (
     .percentMul(
       new BigNumber(PERCENTAGE_FACTOR).minus(reserveConfiguration.reserveFactor)
     );
-
-    variableBorrowRate = variableBorrowRate.rayMul(new BigNumber(multiplier.variableBorrowRateMultiplier.toString()));
-  stableBorrowRate = stableBorrowRate.rayMul(new BigNumber(multiplier.stableBorrowRateMultiplier.toString()));
-  
-    liquidityRate = liquidityRate.rayMul(new BigNumber(multiplier.liquidityRateMultiplier.toString()));
 
   return [liquidityRate, stableBorrowRate, variableBorrowRate];
 };
