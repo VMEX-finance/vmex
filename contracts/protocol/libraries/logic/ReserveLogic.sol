@@ -254,7 +254,8 @@ library ReserveLogic {
                 aTokenAddress,
                 liquidityAdded,
                 liquidityTaken,
-                reserve.configuration.getReserveFactor()
+                reserve.configuration.getReserveFactor(),
+                reserve.configuration.getVMEXReserveFactor()
             );
         }
         {
@@ -265,14 +266,10 @@ library ReserveLogic {
             ) = IReserveInterestRateStrategy(
                 reserve.interestRateStrategyAddress
             ).calculateInterestRates(
-                    calvars.reserve,
-                    calvars.aToken,
-                    calvars.liquidityAdded,
-                    calvars.liquidityTaken,
+                    calvars,
                     vars.totalStableDebt,
                     vars.totalVariableDebt,
-                    vars.avgStableRate,
-                    calvars.reserveFactor
+                    vars.avgStableRate
                 );
         }
 
@@ -315,6 +312,7 @@ library ReserveLogic {
         uint256 amountToMint;
         uint256 amountToMintVMEX;
         uint256 reserveFactor;
+        uint256 globalVMEXReserveFactor;
         uint40 stableSupplyUpdatedTimestamp;
     }
 
@@ -336,8 +334,12 @@ library ReserveLogic {
         uint40 timestamp
     ) internal {
         MintToTreasuryLocalVars memory vars;
-
-        vars.reserveFactor = reserve.configuration.getReserveFactor();
+        {
+            vars.reserveFactor = reserve.configuration.getReserveFactor();
+            vars.globalVMEXReserveFactor = reserve
+                .configuration
+                .getVMEXReserveFactor();
+        }
 
         if (vars.reserveFactor == 0) {
             return;
@@ -401,7 +403,6 @@ library ReserveLogic {
             .percentMul(
                 vars.globalVMEXReserveFactor //for global VMEX reserve
             ); //we will get (1-reserveFactor) * vmexReserveFacotr * debt
-
         //P = total earned
         //x = reserveFactor
         //y = VMEX reserve factor

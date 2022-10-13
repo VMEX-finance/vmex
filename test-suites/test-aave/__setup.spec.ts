@@ -49,6 +49,7 @@ import {
   getTreasuryAddress,
   loadPoolConfig,
   loadCustomAavePoolConfig,
+  getGlobalVMEXReserveFactor,
 } from "../../helpers/configuration";
 import { initializeMakeSuite } from "./helpers/make-suite";
 
@@ -169,6 +170,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
       lendingPoolConfiguratorImpl.address
     )
   );
+  // await lendingPoolConfiguratorImpl.initialize(addressesProvider.address, await getTreasuryAddress(config));
+
   const lendingPoolConfiguratorProxy = await getLendingPoolConfiguratorProxy(
     await addressesProvider.getLendingPoolConfigurator()
   );
@@ -177,16 +180,27 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     lendingPoolConfiguratorProxy.address
   );
 
+  await lendingPoolConfiguratorProxy.setDefaultVMEXTreasury(
+    await getTreasuryAddress(config)
+  );
+
   // Deploy deployment helpers
   await deployStableAndVariableTokensHelper([
     lendingPoolProxy.address,
     addressesProvider.address,
   ]);
-  await deployATokensAndRatesHelper([
+  const ATokensAndRatesHelper = await deployATokensAndRatesHelper([
     lendingPoolProxy.address,
     addressesProvider.address,
     lendingPoolConfiguratorProxy.address,
+    await getGlobalVMEXReserveFactor(),
   ]);
+
+  await waitForTx(
+    await addressesProvider.setATokenAndRatesHelper(
+      ATokensAndRatesHelper.address
+    )
+  );
 
   const fallbackOracle = await deployPriceOracle();
   await waitForTx(await fallbackOracle.setEthUsdPrice(MOCK_USD_PRICE_IN_WEI));
@@ -375,7 +389,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     VariableDebtTokenNamePrefix,
     SymbolPrefix,
   } = config;
-  const treasuryAddress = await getTreasuryAddress(config);
+  var treasuryAddress = admin.address;
 
   //-------------------------------------------------------------
   //deploy tranche 0
@@ -410,12 +424,13 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   //-------------------------------------------------------------
   //deploy tranche 1 with tricrypto
   config = await loadCustomAavePoolConfig("1");
+
   reservesParams = {
     ...config.ReservesConfig,
   };
 
   const user1 = await DRE.ethers.getSigner(addressList[1]);
-
+  treasuryAddress = user1.address;
   await claimTrancheId(1, user1, user1);
 
   await initReservesByHelper(

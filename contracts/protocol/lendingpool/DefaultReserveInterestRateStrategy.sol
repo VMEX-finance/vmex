@@ -108,24 +108,17 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
     /**
      * @dev Calculates the interest rates depending on the reserve's state and configurations
-     * @param reserve The address of the reserve
-     * @param liquidityAdded The liquidity added during the operation
-     * @param liquidityTaken The liquidity taken during the operation
+     * @param calvars: reserves The address of the reserve  * liquidityAdded The liquidity added during the operation. liquidityTaken The liquidity taken during the operation reserveFactor The reserve portion of the interest that goes to the treasury of the market
      * @param totalStableDebt The total borrowed from the reserve a stable rate
      * @param totalVariableDebt The total borrowed from the reserve at a variable rate
      * @param averageStableBorrowRate The weighted average of all the stable rate loans
-     * @param reserveFactor The reserve portion of the interest that goes to the treasury of the market
      * @return The liquidity rate, the stable borrow rate and the variable borrow rate
      **/
     function calculateInterestRates(
-        address reserve,
-        address aToken,
-        uint256 liquidityAdded,
-        uint256 liquidityTaken,
+        DataTypes.calculateInterestRatesVars memory calvars,
         uint256 totalStableDebt,
         uint256 totalVariableDebt,
-        uint256 averageStableBorrowRate,
-        uint256 reserveFactor
+        uint256 averageStableBorrowRate
     )
         external
         view
@@ -136,60 +129,14 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
             uint256
         )
     {
-        uint256 availableLiquidity = IERC20(reserve).balanceOf(aToken);
-        //avoid stack too deep
-        availableLiquidity = availableLiquidity.add(liquidityAdded).sub(
-            liquidityTaken
+        uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(
+            calvars.aToken
         );
-
-        return
-            calculateInterestRates(
-                reserve,
-                availableLiquidity,
-                totalStableDebt,
-                totalVariableDebt,
-                averageStableBorrowRate,
-                reserveFactor
+        //avoid stack too deep
+        availableLiquidity = availableLiquidity.add(calvars.liquidityAdded).sub(
+                calvars.liquidityTaken
             );
-    }
 
-    struct CalcInterestRatesLocalVars {
-        uint256 totalDebt;
-        uint256 currentVariableBorrowRate;
-        uint256 currentStableBorrowRate;
-        uint256 currentLiquidityRate;
-        uint256 utilizationRate;
-    }
-
-    /**
-     * @dev Calculates the interest rates depending on the reserve's state and configurations.
-     * NOTE This function is kept for compatibility with the previous DefaultInterestRateStrategy interface.
-     * New protocol implementation uses the new calculateInterestRates() interface
-     * @param reserve The address of the reserve
-     * @param availableLiquidity The liquidity available in the corresponding aToken
-     * @param totalStableDebt The total borrowed from the reserve a stable rate
-     * @param totalVariableDebt The total borrowed from the reserve at a variable rate
-     * @param averageStableBorrowRate The weighted average of all the stable rate loans
-     * @param reserveFactor The reserve portion of the interest that goes to the treasury of the market
-     * @return The liquidity rate, the stable borrow rate and the variable borrow rate
-     **/
-    function calculateInterestRates(
-        address reserve,
-        uint256 availableLiquidity,
-        uint256 totalStableDebt,
-        uint256 totalVariableDebt,
-        uint256 averageStableBorrowRate,
-        uint256 reserveFactor
-    )
-        public
-        view
-        override
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
-    {
         CalcInterestRatesLocalVars memory vars;
 
         vars.totalDebt = totalStableDebt.add(totalVariableDebt);
@@ -203,7 +150,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         vars.currentStableBorrowRate = ILendingRateOracle(
             addressesProvider.getLendingRateOracle()
-        ).getMarketBorrowRate(reserve);
+        ).getMarketBorrowRate(calvars.reserve);
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
             uint256 excessUtilizationRateRatio = vars
@@ -239,9 +186,11 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
             averageStableBorrowRate
         )
         .rayMul(vars.utilizationRate) // % return per asset borrowed * amount borrowed = total expected return in pool
-        .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(reserveFactor)) //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
+        .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(calvars.reserveFactor)) //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
             .percentMul(
-                PercentageMath.PERCENTAGE_FACTOR.sub(globalVMEXReserveFactor) //global VMEX treasury interest rate
+                PercentageMath.PERCENTAGE_FACTOR.sub(
+                    calvars.globalVMEXReserveFactor
+                ) //global VMEX treasury interest rate
             );
         //borrow interest rate * (1-reserve factor) *(1- global VMEX reserve factor) = deposit interest rate
         //this means borrow interest rate *(1- global VMEX reserve factor) * reserve factor is the interest rate of the pool admin treasury
@@ -253,6 +202,14 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
             vars.currentStableBorrowRate,
             vars.currentVariableBorrowRate
         );
+    }
+
+    struct CalcInterestRatesLocalVars {
+        uint256 totalDebt;
+        uint256 currentVariableBorrowRate;
+        uint256 currentStableBorrowRate;
+        uint256 currentLiquidityRate;
+        uint256 utilizationRate;
     }
 
     /**

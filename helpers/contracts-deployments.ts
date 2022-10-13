@@ -778,7 +778,7 @@ export const deployStableAndVariableTokensHelper = async (
   );
 
 export const deployATokensAndRatesHelper = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress],
+  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string],
   verify?: boolean
 ) =>
   withSaveAndVerify(

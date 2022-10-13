@@ -44,6 +44,7 @@ contract AToken is
     bytes32 public DOMAIN_SEPARATOR;
 
     ILendingPool internal _pool;
+    address internal _lendingPoolConfigurator;
     address internal _treasury;
     address internal _VMEXTreasury;
     address internal _underlyingAsset;
@@ -54,6 +55,14 @@ contract AToken is
         require(
             _msgSender() == address(_pool),
             Errors.CT_CALLER_MUST_BE_LENDING_POOL
+        );
+        _;
+    }
+
+    modifier onlyLendingPoolConfigurator() {
+        require(
+            _msgSender() == _lendingPoolConfigurator,
+            Errors.LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR
         );
         _;
     }
@@ -102,6 +111,7 @@ contract AToken is
         _setDecimals(aTokenDecimals);
 
         _pool = pool;
+        _lendingPoolConfigurator = vars.lendingPoolConfigurator;
         _treasury = vars.treasury;
         _VMEXTreasury = vars.VMEXTreasury;
         _underlyingAsset = vars.underlyingAsset;
@@ -118,6 +128,24 @@ contract AToken is
             aTokenSymbol,
             params
         );
+    }
+
+    function setTreasury(address newTreasury)
+        external
+        override
+        onlyLendingPoolConfigurator
+    {
+        _treasury = newTreasury;
+        emit TreasuryChanged(newTreasury);
+    }
+
+    function setVMEXTreasury(address newTreasury)
+        external
+        override
+        onlyLendingPoolConfigurator
+    {
+        _VMEXTreasury = newTreasury;
+        emit VMEXTreasuryChanged(newTreasury);
     }
 
     /**
