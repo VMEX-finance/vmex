@@ -1,6 +1,7 @@
 import { configuration as actionsConfiguration } from "./helpers/actions";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 import { evmRevert, evmSnapshot, DRE } from "../../helpers/misc-utils";
+import rawBRE from "hardhat";
 
 import fs from "fs";
 import BigNumber from "bignumber.js";
@@ -25,6 +26,14 @@ import { executeStory } from "./helpers/scenario-engine";
 // const revertHead = async () => {
 //   await evmRevert(buidlerevmSnapshotId);
 // };
+
+// await DRE.run("set-DRE");
+before(async () => {
+  await rawBRE.run("set-DRE");
+  console.log("\n***************");
+  console.log("Setup and snapshot finished");
+  console.log("***************\n");
+});
 
 const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/curve";
 

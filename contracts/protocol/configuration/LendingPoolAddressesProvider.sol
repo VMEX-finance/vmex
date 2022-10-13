@@ -329,14 +329,14 @@ contract LendingPoolAddressesProvider is
     }
 
     //custom address provider for Curve tokens
-    function getCurveAddressProvider()
-        external
-        view
-        override
-        returns (address)
-    {
-        return getAddress(CURVE_ADDRESS_PROVIDER);
-    }
+    // function getCurveAddressProvider()
+    //     external
+    //     view
+    //     override
+    //     returns (address)
+    // {
+    //     return getAddress(CURVE_ADDRESS_PROVIDER);
+    // }
 
     function setAavePriceOracle(address priceOracle)
         external
@@ -365,14 +365,14 @@ contract LendingPoolAddressesProvider is
         emit CurvePriceOracleWrapperUpdated(priceOracle);
     }
 
-    function setCurveAddressProvider(address addressProvider)
-        external
-        override
-        onlyOwner
-    {
-        _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
-        emit CurveAddressProviderUpdated(addressProvider);
-    }
+    // function setCurveAddressProvider(address addressProvider)
+    //     external
+    //     override
+    //     onlyOwner
+    // {
+    //     _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
+    //     emit CurveAddressProviderUpdated(addressProvider);
+    // }
 
     function getLendingRateOracle() external view override returns (address) {
         return getAddress(LENDING_RATE_ORACLE);

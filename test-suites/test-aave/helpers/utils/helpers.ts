@@ -96,6 +96,14 @@ export const getUserData = async (
   user: tEthereumAddress,
   sender?: tEthereumAddress
 ): Promise<UserReserveData> => {
+  console.log(
+    "getUserData reserve: ",
+    reserve,
+    " tranche: ",
+    tranche,
+    " user: ",
+    user
+  );
   const [userData, scaledATokenBalance] = await Promise.all([
     helper.getUserReserveData(reserve, tranche, user),
     getATokenUserData(reserve, tranche, user, helper),
@@ -126,6 +134,7 @@ export const getUserData = async (
 };
 
 export const getReserveAddressFromSymbol = async (symbol: string) => {
+  //console.log("DB: ",await getDb().get(`${symbol}.${DRE.network.name}`).value())
   const token = await getMintableERC20(
     (
       await getDb().get(`${symbol}.${DRE.network.name}`).value()

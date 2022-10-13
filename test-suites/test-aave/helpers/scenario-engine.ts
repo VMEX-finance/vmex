@@ -92,7 +92,7 @@ const executeAction = async (
         throw `Invalid amount of ${reserve} to mint`;
       }
 
-      await mint(reserve, amount, user, testEnv);
+      await mint(reserve, amount, user, myTranche, testEnv);
       break;
 
     case "approve":
