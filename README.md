@@ -14,7 +14,7 @@ you can use metamask to execute contract calls on the frontend
 
 run `npm run console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
 
-copy test files in `localhost_tests` directly to the console to run the tests.
+In package.json, change `vmex:unit-tests` to the name of your test file. Then run `npm run vmex:unit-tests`
 
 ### VMEX supported assets
 
