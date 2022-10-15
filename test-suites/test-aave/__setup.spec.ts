@@ -429,7 +429,9 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     ...config.ReservesConfig,
   };
 
-  const user1 = await DRE.ethers.getSigner(addressList[1]);
+  const user1 = await DRE.ethers.getSigner(addressList[7]);
+  console.log("$$$$$$$$$$$$ addressList: ", addressList);
+  console.log("$$$$$$$$$$ admin of tranche 1: ", user1.address);
   treasuryAddress = user1.address;
   await claimTrancheId(1, user1, user1);
 

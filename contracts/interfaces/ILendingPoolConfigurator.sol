@@ -106,13 +106,6 @@ interface ILendingPoolConfigurator {
     event ReserveUnfrozen(address indexed asset);
 
     /**
-     * @dev Emitted when a reserve factor is updated
-     * @param asset The address of the underlying asset of the reserve
-     * @param factor The new reserve factor
-     **/
-    event ReserveFactorChanged(address indexed asset, uint256 factor);
-
-    /**
      * @dev Emitted when the reserve decimals are updated
      * @param asset The address of the underlying asset of the reserve
      * @param decimals The new decimals
