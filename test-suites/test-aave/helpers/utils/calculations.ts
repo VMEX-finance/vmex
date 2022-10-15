@@ -1393,8 +1393,10 @@ export const calcExpectedInterestRates = (
     .rayMul(utilizationRate)
     .percentMul(
       new BigNumber(PERCENTAGE_FACTOR).minus(reserveConfiguration.reserveFactor)
+    )
+    .percentMul(
+      new BigNumber(PERCENTAGE_FACTOR).minus("1000") //assuming default of 1000
     );
-
   return [liquidityRate, stableBorrowRate, variableBorrowRate];
 };
 

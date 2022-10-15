@@ -413,7 +413,7 @@ library ReserveLogic {
 
         if (vars.amountToMintVMEX != 0) {
             IAToken(reserve.aTokenAddress).mintToVMEXTreasury(
-                vars.amountToMint,
+                vars.amountToMintVMEX,
                 newLiquidityIndex
             );
         }
