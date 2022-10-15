@@ -14,3 +14,11 @@ export async function getLendingPoolImpl(signer: ethers.Signer, network: string,
     let { abi } = require("../artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json");
     return new ethers.Contract(address, abi, signer);
 }
+
+/**
+ * 
+ */
+export async function approveUnderlying(signer: ethers.Signer, amount: any, underlying: string) {
+    let _underlying = new ethers.Contract(underlying, ["function approve(address spender, uint256 value) external returns (bool success)"], signer);
+    return await _underlying.approve(await signer.getAddress(), amount);
+}

@@ -25,3 +25,4 @@ async function getTrancheReserveData(signer) {
     return (lodash_1.default.uniq(returnData['0']));
 }
 exports.default = getTrancheReserveData;
+//# sourceMappingURL=getTrancheReserveData.js.map

@@ -78,3 +78,4 @@ exports.BLOCK_TO_FORK = {
     [types_1.eAvalancheNetwork.avalanche]: undefined,
     [types_1.eAvalancheNetwork.fuji]: undefined,
 };
+//# sourceMappingURL=helper-hardhat-config.js.map

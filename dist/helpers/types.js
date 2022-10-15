@@ -250,3 +250,4 @@ var RateMode;
     RateMode["Stable"] = "1";
     RateMode["Variable"] = "2";
 })(RateMode = exports.RateMode || (exports.RateMode = {}));
+//# sourceMappingURL=types.js.map
