@@ -21,3 +21,4 @@ async function getTokenReserveData(signer) {
     return returnData['0'];
 }
 exports.default = getTokenReserveData;
+//# sourceMappingURL=getTokenReserveData.js.map

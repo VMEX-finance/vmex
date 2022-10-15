@@ -18,5 +18,4 @@ export async function setupMockEnv(address) {
     } catch (err) {
         console.error(err)
     }
-    
 }

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { deployments } from "./constants";
-import { getLendingPoolImpl } from "./utils";
+import { getLendingPoolImpl, approveUnderlying } from "./utils";
 
 export async function borrow(params: {
     underlying: string;
@@ -126,6 +126,14 @@ export async function supply(params: {
     collateral?: boolean;
 }, callback?: () => Promise<any>) {
     let client = await params.signer.getAddress();
+    let amount = ethers.utils.parseEther(String(amount));
+    try {
+        await approveUnderlying(params.signer, amound, params.underlying);
+    } catch (error) {
+        console.error("failed to approve spend for underlying asset", error);
+    }
+
+    
     let lendingPool = await getLendingPoolImpl(params.signer, params.network);
     await lendingPool.deposit(
         params.underlying,
