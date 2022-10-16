@@ -586,6 +586,7 @@ var triCryptoDepositAbi = [
             await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("100.0"), path, signer.address, deadline,options)
 
             var signerAmt = await USDC.connect(signer).balanceOf(signer.address)
+            console.log("signerAmt: ",signerAmt)
 
             expect(
                 signerAmt.toString()
@@ -597,21 +598,29 @@ var triCryptoDepositAbi = [
             /************************************************************************************/
             /****************** deposit CRV to pool and then borrow WETH  **********************/ 
             /************************************************************************************/
-            await lendingPool.connect(signer).deposit(USDC.address, 1, ethers.utils.parseUnits('805'), await signer.getAddress(), '0'); 
+            await lendingPool.connect(signer).deposit(USDC.address, 1, ethers.utils.parseUnits('0.01'), await signer.getAddress(), '0'); 
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 1, true); 
 
             var userResDat = await dataProv.getUserReserveData("0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",1,signer.address)
 
-            expect(userResDat.currentATokenBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("805"), "Did not get atoken");
+            expect(userResDat.currentATokenBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.01"), "Did not get atoken");
 
             var resDat =  await dataProv.getReserveData("0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",1)
 
-            expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("805"), "Reserve doesn't have liquidity");
+            var approx = BigNumber.from(resDat.availableLiquidity.toString()).add(5); //1049...5 to 1050...04 are accepted
+            var comp1 = BigNumber.from(approx.toString().slice(0,-1));
+            var exp = BigNumber.from(DRE.ethers.utils.parseEther("0.01").toString().slice(0,-1))
+            console.log(comp1)
+            console.log(exp)
+
+            expect(comp1).to.be.bignumber.equal(exp, "Reserve doesn't have liquidity");
 
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.01"), 1, '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+
+            console.log(userDat)
 
             // expect(
             //     userDat.totalDebtETH.toString()
