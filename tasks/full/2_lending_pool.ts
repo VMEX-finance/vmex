@@ -83,11 +83,6 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
         );
         lendingPoolConfiguratorImplAddress =
           lendingPoolConfiguratorImpl.address;
-        const treasuryAddress = await getTreasuryAddress(poolConfig); //this will be our global vmex treasury address
-        await lendingPoolConfiguratorImpl.initialize(
-          addressesProvider.address,
-          treasuryAddress
-        );
       }
       console.log(
         "\tSetting lending pool configurator implementation with address:",
@@ -108,6 +103,10 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       await insertContractAddressInDb(
         eContractid.LendingPoolConfigurator,
         lendingPoolConfiguratorProxy.address
+      );
+
+      await lendingPoolConfiguratorProxy.setDefaultVMEXTreasury(
+        await getTreasuryAddress(poolConfig)
       );
 
       // Deploy deployment helpers
@@ -136,7 +135,7 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       }
 
       await waitForTx(
-        await addressesProvider.setATokensAndRatesHelper(
+        await addressesProvider.setATokenAndRatesHelper(
           ATokensAndRatesHelper.address
         )
       );
