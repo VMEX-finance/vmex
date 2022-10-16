@@ -13,6 +13,7 @@ import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 interface ILendingPoolAddressesProvider {
     event MarketIdSet(string newMarketId);
     event LendingPoolUpdated(address indexed newAddress);
+    event ATokensAndRatesHelperUpdated(address indexed newAddress);
     event ConfigurationAdminUpdated(
         address indexed newAddress,
         uint64 trancheId
@@ -41,6 +42,10 @@ interface ILendingPoolAddressesProvider {
     function getLendingPool() external view returns (address);
 
     function setLendingPoolImpl(address pool) external;
+
+    function getATokenAndRatesHelper() external view returns (address);
+
+    function setATokenAndRatesHelper(address newAdd) external;
 
     function getLendingPoolConfigurator() external view returns (address);
 

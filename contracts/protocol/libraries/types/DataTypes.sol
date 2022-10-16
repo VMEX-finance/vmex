@@ -71,6 +71,7 @@ library DataTypes {
         bool hasStrategy; //this might be put as a property of a reserve rather than property of the asset since USDC might have a trancheId that has a strategy, but unlikely to happen
         bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
         uint256 governanceSetInterestRate;
+        //uint16 globalVMEXReserveFactor; //interest we are taking for each reserve. Default will be 10% but governance can set it
     }
 
     // uint8 constant NUM_TRANCHES = 3;
@@ -86,6 +87,7 @@ library DataTypes {
         //bit 59: stable rate borrowing enabled
         //bit 60-63: reserved
         //bit 64-79: reserve factor
+        //bit 80-95: vmex reserve factor
         uint256 data;
     }
 
@@ -141,6 +143,7 @@ library DataTypes {
         uint256 liquidityAdded;
         uint256 liquidityTaken;
         uint256 reserveFactor;
+        uint256 globalVMEXReserveFactor;
     }
 
     struct flashLoanVars {

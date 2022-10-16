@@ -73,7 +73,7 @@ task(
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
       }
 
-      const treasuryAddress = await getTreasuryAddress(poolConfig);
+      const treasuryAddress = emergAdmin.address;
       console.log("before initReservesByHelper");
 
       await claimTrancheId(1, emergAdmin, emergAdmin);
