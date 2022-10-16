@@ -82,6 +82,16 @@ contract LendingPool is
         );
     }
 
+    modifier onlyATokensAndRatesHelperOrConfigurator() {
+        //this contract handles the updates to the configuration
+        require(
+            _addressesProvider.getATokenAndRatesHelper() == msg.sender ||
+                _addressesProvider.getLendingPoolConfigurator() == msg.sender,
+            "Caller is not ATokensAndRatesHelper"
+        );
+        _;
+    }
+
     function getRevision() internal pure override returns (uint256) {
         return LENDINGPOOL_REVISION;
     }
@@ -912,7 +922,7 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         uint256 configuration
-    ) external override onlyLendingPoolConfigurator {
+    ) external override onlyATokensAndRatesHelperOrConfigurator {
         _reserves[asset][trancheId].configuration.data = configuration;
     }
 

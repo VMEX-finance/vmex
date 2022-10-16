@@ -41,7 +41,7 @@ export const strategyDAI: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
   assetType: 0,
-  collateralCap: '1000000000000000000', //1 (for testing)
+  collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
   governanceSetInterestRate: '0'

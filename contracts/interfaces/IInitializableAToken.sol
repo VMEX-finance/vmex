@@ -33,7 +33,9 @@ interface IInitializableAToken {
     );
 
     struct InitializeTreasuryVars {
+        address lendingPoolConfigurator;
         address treasury;
+        address VMEXTreasury;
         address underlyingAsset;
         uint64 trancheId;
     }

@@ -254,7 +254,8 @@ library ReserveLogic {
                 aTokenAddress,
                 liquidityAdded,
                 liquidityTaken,
-                reserve.configuration.getReserveFactor()
+                reserve.configuration.getReserveFactor(),
+                reserve.configuration.getVMEXReserveFactor()
             );
         }
         {
@@ -265,14 +266,10 @@ library ReserveLogic {
             ) = IReserveInterestRateStrategy(
                 reserve.interestRateStrategyAddress
             ).calculateInterestRates(
-                    calvars.reserve,
-                    calvars.aToken,
-                    calvars.liquidityAdded,
-                    calvars.liquidityTaken,
+                    calvars,
                     vars.totalStableDebt,
                     vars.totalVariableDebt,
-                    vars.avgStableRate,
-                    calvars.reserveFactor
+                    vars.avgStableRate
                 );
         }
 
@@ -313,7 +310,9 @@ library ReserveLogic {
         uint256 cumulatedStableInterest;
         uint256 totalDebtAccrued;
         uint256 amountToMint;
+        uint256 amountToMintVMEX;
         uint256 reserveFactor;
+        uint256 globalVMEXReserveFactor;
         uint40 stableSupplyUpdatedTimestamp;
     }
 
@@ -335,10 +334,14 @@ library ReserveLogic {
         uint40 timestamp
     ) internal {
         MintToTreasuryLocalVars memory vars;
+        {
+            vars.reserveFactor = reserve.configuration.getReserveFactor();
+            vars.globalVMEXReserveFactor = reserve
+                .configuration
+                .getVMEXReserveFactor();
+        }
 
-        vars.reserveFactor = reserve.configuration.getReserveFactor();
-
-        if (vars.reserveFactor == 0) {
+        if (vars.reserveFactor == 0 && vars.globalVMEXReserveFactor == 0) {
             return;
         }
 
@@ -372,19 +375,46 @@ library ReserveLogic {
         );
 
         //debt accrued is the sum of the current debt minus the sum of the debt at the last update
+        //note that repay did not have to occur for this to be higher.
         vars.totalDebtAccrued = vars
             .currentVariableDebt
             .add(vars.currentStableDebt)
             .sub(vars.previousVariableDebt)
             .sub(vars.previousStableDebt);
 
-        vars.amountToMint = vars.totalDebtAccrued.percentMul(
-            vars.reserveFactor
-        );
+        vars.amountToMint = vars
+            .totalDebtAccrued
+            // .percentMul(
+            //     PercentageMath.PERCENTAGE_FACTOR.sub(vars.globalVMEXReserveFactor)
+            // ) //for global VMEX reserve
+            .percentMul(vars.reserveFactor); //permissionless pool owners will always get their reserveFactor * debt
 
         if (vars.amountToMint != 0) {
             IAToken(reserve.aTokenAddress).mintToTreasury(
                 vars.amountToMint,
+                newLiquidityIndex
+            );
+        }
+
+        vars.amountToMintVMEX = vars
+            .totalDebtAccrued
+            .percentMul(
+                PercentageMath.PERCENTAGE_FACTOR.sub(vars.reserveFactor)
+            )
+            .percentMul(
+                vars.globalVMEXReserveFactor //for global VMEX reserve
+            ); //we will get (1-reserveFactor) * vmexReserveFacotr * debt
+        //P = total earned
+        //x = reserveFactor
+        //y = VMEX reserve factor
+        //user gets P*(1-x)*(1-y)
+        //pool owner gets P*x
+        //VMEX gets P*(1-x)*y
+        //total distribution: P * (1-x-y+xy + x + y-xy) = P
+
+        if (vars.amountToMintVMEX != 0) {
+            IAToken(reserve.aTokenAddress).mintToVMEXTreasury(
+                vars.amountToMintVMEX,
                 newLiquidityIndex
             );
         }

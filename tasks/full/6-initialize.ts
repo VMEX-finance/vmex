@@ -10,7 +10,6 @@ import {
   loadPoolConfig,
   loadCustomAavePoolConfig,
   ConfigNames,
-  getTreasuryAddress,
   getEmergencyAdmin,
 } from "../../helpers/configuration";
 import { getWETHGateway } from "../../helpers/contracts-getters";
@@ -86,7 +85,8 @@ task(
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
       }
 
-      const treasuryAddress = await getTreasuryAddress(poolConfig);
+      const treasuryAddress = admin.address; //treasury address can be the same address as the deployer
+      //TODO: change vmex treasuryAddress to the same address as the global address
       console.log("before initReservesByHelper");
 
       await claimTrancheId(0, admin, admin);

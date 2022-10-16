@@ -20,6 +20,7 @@ import { DRE, filterMapBy } from "./misc-utils";
 import { tEthereumAddress } from "./types";
 import { getParamPerNetwork } from "./contracts-helpers";
 import { deployWETHMocked } from "./contracts-deployments";
+import BigNumber from "bignumber.js";
 
 export enum ConfigNames {
   Commons = "Commons",
@@ -122,6 +123,10 @@ export const getTreasuryAddress = async (
     config.ReserveFactorTreasuryAddress,
     <eNetwork>currentNetwork
   );
+};
+
+export const getGlobalVMEXReserveFactor = async (): Promise<string> => {
+  return "1000"; //10% is default VMEX reserve factor
 };
 
 export const getATokenDomainSeparatorPerNetwork = (
