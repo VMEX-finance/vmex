@@ -814,7 +814,7 @@
       ]
     },
     {
-      "description": "User 0 deposits 1000 DAI, user 6 deposits 2 WETH and borrow 100 DAI at variable rate first, then 100 DAI at stable rate, repays everything. User 0 withdraws",
+      "description": "User 0 deposits 1000 DAI, user 5 deposits 2 WETH and borrow 100 DAI at variable rate first, then 100 DAI at stable rate, repays everything. User 0 withdraws",
       "actions": [
         {
           "name": "mint",
@@ -847,7 +847,7 @@
           "args": {
             "reserve": "WETH",
             "amount": "2",
-            "user": "6"
+            "user": "5"
           },
           "expected": "success"
         },
@@ -855,7 +855,7 @@
           "name": "approve",
           "args": {
             "reserve": "WETH",
-            "user": "6"
+            "user": "5"
           },
           "expected": "success"
         },
@@ -864,7 +864,7 @@
           "args": {
             "reserve": "WETH",
             "amount": "2",
-            "user": "6"
+            "user": "5"
           },
           "expected": "success"
         },
@@ -872,7 +872,7 @@
           "name": "setUseAsCollateral",
           "args": {
             "reserve": "WETH",
-            "user": "6",
+            "user": "5",
             "useAsCollateral": "true"
           },
           "expected": "success"
@@ -883,7 +883,7 @@
             "reserve": "DAI",
             "amount": "100",
             "borrowRateMode": "variable",
-            "user": "6",
+            "user": "5",
             "timeTravel": "365"
           },
           "expected": "success"
@@ -894,7 +894,7 @@
             "reserve": "DAI",
             "amount": "100",
             "borrowRateMode": "stable",
-            "user": "6",
+            "user": "5",
             "timeTravel": "365"
           },
           "expected": "success"
@@ -905,7 +905,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "50",
-            "user": "6"
+            "user": "5"
           },
           "expected": "success"
         },
@@ -913,7 +913,7 @@
           "name": "approve",
           "args": {
             "reserve": "DAI",
-            "user": "6"
+            "user": "5"
           },
           "expected": "success"
         },
@@ -922,8 +922,8 @@
           "args": {
             "reserve": "DAI",
             "amount": "-1",
-            "user": "6",
-            "onBehalfOf": "6",
+            "user": "5",
+            "onBehalfOf": "5",
             "borrowRateMode": "stable"
           },
           "expected": "success"
@@ -933,8 +933,8 @@
           "args": {
             "reserve": "DAI",
             "amount": "-1",
-            "user": "6",
-            "onBehalfOf": "6",
+            "user": "5",
+            "onBehalfOf": "5",
             "borrowRateMode": "variable"
           },
           "expected": "success"
