@@ -2,7 +2,7 @@
 
 Run `yarn install` to install node_modules or update them
 
-### How to deploy:
+### How to deploy mainnet fork:
 
 run `npm run vmex:node:fork:main` in one terminal (starts up localhost network) as a fork
 
@@ -14,7 +14,12 @@ you can use metamask to execute contract calls on the frontend
 
 run `npm run console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
 
-In package.json, change `vmex:unit-tests` to the name of your test file. Then run `npm run vmex:unit-tests`
+Run `vmex:mainnetfork:unit-tests` to test all localhost tests
+
+### How to test in hardhat network mock environment:
+
+Run `npm run test`
+These are a separate set of tests than the above unit-tests
 
 ### VMEX supported assets
 
