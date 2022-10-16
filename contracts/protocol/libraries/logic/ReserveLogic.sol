@@ -341,7 +341,7 @@ library ReserveLogic {
                 .getVMEXReserveFactor();
         }
 
-        if (vars.reserveFactor == 0) {
+        if (vars.reserveFactor == 0 && vars.globalVMEXReserveFactor == 0) {
             return;
         }
 
@@ -375,6 +375,7 @@ library ReserveLogic {
         );
 
         //debt accrued is the sum of the current debt minus the sum of the debt at the last update
+        //note that repay did not have to occur for this to be higher.
         vars.totalDebtAccrued = vars
             .currentVariableDebt
             .add(vars.currentStableDebt)

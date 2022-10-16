@@ -225,6 +225,7 @@ const executeAction = async (
         await borrow(
           reserve,
           myTranche,
+          trancheAdmin,
           amount,
           rateMode,
           user,
@@ -259,6 +260,7 @@ const executeAction = async (
         await repay(
           reserve,
           myTranche,
+          trancheAdmin,
           amount,
           rateMode,
           user,
