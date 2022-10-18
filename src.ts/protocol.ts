@@ -47,6 +47,7 @@ export async function markReserveAsCollateral(params: {
     }
 }
 
+
 export async function withdraw(params: {
     asset: string;
     to?: string;
@@ -119,29 +120,48 @@ export async function swapBorrowRateMode(params: {
 export async function supply(params: {
     underlying: string;
     trancheId: number;
-    amount: ethers.BigNumber | number | string;
+    amount: string;
     signer: ethers.Signer;
     network: string;
     referrer?: number;
     collateral?: boolean;
+    test?: boolean;
 }, callback?: () => Promise<any>) {
     let client = await params.signer.getAddress();
-    let amount = ethers.utils.parseEther(String(amount));
+    let amount = ethers.utils.parseEther(params.amount);
+    let lendingPool = await getLendingPoolImpl(params.signer, params.network);
+
     try {
-        await approveUnderlying(params.signer, amound, params.underlying);
+        await approveUnderlying(params.signer, amount, params.underlying, lendingPool.address);
     } catch (error) {
-        console.error("failed to approve spend for underlying asset", error);
+        throw(new Error("failed to approve spend for underlying asset"));
     }
 
-    
-    let lendingPool = await getLendingPoolImpl(params.signer, params.network);
-    await lendingPool.deposit(
-        params.underlying,
-        params.trancheId,
-        params.amount,
-        client,
-        params.referrer || 0
-    );
+    try {
+        if (!params.test) {
+            await lendingPool.deposit(
+                params.underlying,
+                params.trancheId,
+                amount,
+                client,
+                params.referrer || 0
+            );
+        }
+
+        await lendingPool.deposit(
+            params.underlying,
+            params.trancheId,
+            amount,
+            client,
+            params.referrer || 0,
+            {
+                gasLimit: "8000000"
+            }
+        );
+
+    } catch (error) {
+        throw error;
+    }
 
     if (params.collateral) {
         await lendingPool.setUserUseReserveAsCollateral(
@@ -152,6 +172,6 @@ export async function supply(params: {
     }
 
     if (callback) {
-        await callback().catch((error) => { console.error("CALLBACK_ERROR: \n", error)});
+        return await callback()
     }
 }

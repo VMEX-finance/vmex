@@ -10,6 +10,7 @@
     "resolveJsonModule": true,
     "sourceMap": true
   },
-  "include": ["./src.ts/*/*", "./src.ts/*", "./test"],
-  "exclude": ["./test-suites", "./modules", "./modules", "./tasks"]
+  "include": ["./src.ts/*/*", "./src.ts/*", "./test", "./artifacts"],
+  "exclude": ["./test-suites", "./modules", "./tasks"],
+  
 }
