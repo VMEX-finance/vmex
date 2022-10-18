@@ -43,9 +43,10 @@ export declare function swapBorrowRateMode(params: {
 export declare function supply(params: {
     underlying: string;
     trancheId: number;
-    amount: ethers.BigNumber | number | string;
+    amount: string;
     signer: ethers.Signer;
     network: string;
     referrer?: number;
     collateral?: boolean;
-}, callback?: () => Promise<any>): Promise<void>;
+    test?: boolean;
+}, callback?: () => Promise<any>): Promise<any>;

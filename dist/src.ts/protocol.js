@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.supply = exports.swapBorrowRateMode = exports.repay = exports.withdraw = exports.markReserveAsCollateral = exports.borrow = void 0;
+const ethers_1 = require("ethers");
 const utils_1 = require("./utils");
 async function borrow(params, callback) {
     let client = await params.signer.getAddress();
@@ -49,13 +50,30 @@ async function swapBorrowRateMode(params, callback) {
 exports.swapBorrowRateMode = swapBorrowRateMode;
 async function supply(params, callback) {
     let client = await params.signer.getAddress();
+    let amount = ethers_1.ethers.utils.parseEther(params.amount);
     let lendingPool = await (0, utils_1.getLendingPoolImpl)(params.signer, params.network);
-    await lendingPool.deposit(params.underlying, params.trancheId, params.amount, client, params.referrer || 0);
+    try {
+        await (0, utils_1.approveUnderlying)(params.signer, amount, params.underlying, lendingPool.address);
+    }
+    catch (error) {
+        throw (new Error("failed to approve spend for underlying asset"));
+    }
+    try {
+        if (!params.test) {
+            await lendingPool.deposit(params.underlying, params.trancheId, amount, client, params.referrer || 0);
+        }
+        await lendingPool.deposit(params.underlying, params.trancheId, amount, client, params.referrer || 0, {
+            gasLimit: "8000000"
+        });
+    }
+    catch (error) {
+        throw error;
+    }
     if (params.collateral) {
         await lendingPool.setUserUseReserveAsCollateral(params.underlying, params.trancheId, params.collateral);
     }
     if (callback) {
-        await callback().catch((error) => { console.error("CALLBACK_ERROR: \n", error); });
+        return await callback();
     }
 }
 exports.supply = supply;
