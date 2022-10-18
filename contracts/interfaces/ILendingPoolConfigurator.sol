@@ -93,17 +93,7 @@ interface ILendingPoolConfigurator {
      **/
     event ReserveDeactivated(address indexed asset);
 
-    /**
-     * @dev Emitted when a reserve is frozen
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    event ReserveFrozen(address indexed asset);
 
-    /**
-     * @dev Emitted when a reserve is unfrozen
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    event ReserveUnfrozen(address indexed asset);
 
     /**
      * @dev Emitted when the reserve decimals are updated
@@ -159,4 +149,20 @@ interface ILendingPoolConfigurator {
         address indexed proxy,
         address indexed implementation
     );
+
+    /**
+     * @dev Emitted when a strategy is associated with an asset/tranche
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche
+     * @param strategy The address of the strategy
+     **/
+    event StrategyAdded(address asset, uint64 trancheId, address strategy);
+
+    /**
+     * @dev Emitted when successful withdraw from strategy to lending pool
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche
+     * @param amount The amount withdrawn from strategy
+     **/
+    event WithdrawFromStrategy(address asset, uint64 trancheId, uint256 amount);
 }

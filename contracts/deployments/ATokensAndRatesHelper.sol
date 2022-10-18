@@ -189,4 +189,53 @@ contract ATokensAndRatesHelper is Ownable {
 
         emit ReserveFactorChanged(asset, reserveFactor);
     }
+
+    /**
+     * @dev Emitted when a reserve is frozen
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    event ReserveFrozen(address indexed asset);
+
+    /**
+     * @dev Emitted when a reserve is unfrozen
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    event ReserveUnfrozen(address indexed asset);
+
+    /**
+     * @dev Freezes a reserve. A frozen reserve doesn't allow any new deposit, borrow or rate swap
+     *  but allows repayments, liquidations, rate rebalances and withdrawals
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    function freezeReserve(address asset, uint64 trancheId)
+        external
+        onlyPoolAdmin(trancheId)
+    {
+        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(pool)
+            .getConfiguration(asset, trancheId);
+
+        currentConfig.setFrozen(true);
+
+        ILendingPool(pool).setConfiguration(asset, trancheId, currentConfig.data);
+
+        emit ReserveFrozen(asset);
+    }
+
+    /**
+     * @dev Unfreezes a reserve
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    function unfreezeReserve(address asset, uint64 trancheId)
+        external
+        onlyPoolAdmin(trancheId)
+    {
+        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(pool)
+            .getConfiguration(asset, trancheId);
+
+        currentConfig.setFrozen(false);
+
+        ILendingPool(pool).setConfiguration(asset, trancheId, currentConfig.data);
+
+        emit ReserveUnfrozen(asset);
+    }
 }

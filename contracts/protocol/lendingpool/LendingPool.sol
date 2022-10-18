@@ -962,4 +962,23 @@ contract LendingPool is
             _reservesCount[trancheId] = reservesCount + 1;
         }
     }
+
+    function addStrategy(
+        address asset,
+        uint64 trancheId,
+        address strategy
+    ) external override onlyLendingPoolConfigurator {
+        IAToken(_reserves[asset][trancheId].aTokenAddress)
+            .setAndApproveStrategy(strategy);
+    }
+
+    function withdrawFromStrategy(
+        address asset,
+        uint64 trancheId,
+        uint256 amount
+    ) external override onlyLendingPoolConfigurator {
+        IAToken(_reserves[asset][trancheId].aTokenAddress).withdrawFromStrategy(
+                amount
+            );
+    }
 }

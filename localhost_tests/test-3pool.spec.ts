@@ -10,7 +10,7 @@ import {getCurvePrice} from "./helpers/curve-calculation";
 
 before(async () => {
     await rawBRE.run("set-DRE");
-    
+
     console.log("\n***************");
     console.log("DRE finished");
     console.log("***************\n");
@@ -23,7 +23,7 @@ makeSuite(
         const contractGetters = require('../helpers/contracts-getters.ts');
         // const lendingPool = await contractGetters.getLendingPool();
         // Load the first signer
-        
+
         const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
         const WETHabi = [
             "function allowance(address owner, address spender) external view returns (uint256 remaining)",
@@ -61,13 +61,13 @@ makeSuite(
         const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
         const UNISWAP_ROUTER_ABI = fs.readFileSync("./localhost_tests/abis/uniswapAbi.json").toString()
 
-        var triCryptoDepositAdd = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7" 
+        var triCryptoDepositAdd = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
 var triCryptoDepositAbi = [
     "function add_liquidity(uint256[3] _amounts,uint256 _min_mint_amount) external",
     "function calc_token_amount(uint256[3] _amounts,bool deposit) external view"
 ]
 
-        
+
         it("unpause lending pools", async () => {
             const emergency = (await DRE.ethers.getSigners())[1]
             const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
@@ -106,9 +106,9 @@ var triCryptoDepositAbi = [
 
             await myWETH.connect(emergency).approve(lendingPool.address,DRE.ethers.utils.parseEther("100.0"))
 
-            await lendingPool.connect(emergency).deposit(myWETH.address, 1, DRE.ethers.utils.parseUnits('100'), await emergency.getAddress(), '0'); 
+            await lendingPool.connect(emergency).deposit(myWETH.address, 1, DRE.ethers.utils.parseUnits('100'), await emergency.getAddress(), '0');
             const resDat = await dataProv.getReserveData(myWETH.address, 1)
-            
+
 
             expect(
               resDat.availableLiquidity.toString()
@@ -148,7 +148,7 @@ var triCryptoDepositAbi = [
             var signer = await contractGetters.getFirstSigner();
             const DAI = new DRE.ethers.Contract(DAIadd,DAI_ABI)
             const lendingPool = await contractGetters.getLendingPool();
-            
+
             var triCryptoDeposit = new DRE.ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
             var amounts = [ethers.utils.parseEther("10000"),ethers.utils.parseEther("0"),ethers.utils.parseEther("0")]
@@ -162,12 +162,12 @@ var triCryptoDepositAbi = [
             var mycurve = await CurveToken.connect(signer).balanceOf(signer.address)
 
             console.log("my curve amount ",mycurve)
-            
+
             expect(
               mycurve.toString()
             ).to.not.be.equal("0", "Did not get curve"); //this can be general, we assume that curve's stuff is correct
           });
-        
+
           it("deposit LP and borrow", async () => {
             //emergency deposits 100 WETH to pool to provide liquidity
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
@@ -179,19 +179,19 @@ var triCryptoDepositAbi = [
             const dataProv = await contractGetters.getAaveProtocolDataProvider();
 
             await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100000.0"))
-            await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('1000'), await signer.getAddress(), '0'); 
-            await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true); 
-            
+            await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('1000'), await signer.getAddress(), '0');
+            await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true);
+
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
 
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
             const curveOracleAdd = await addProv.connect(signer).getCurvePriceOracleWrapper();
             var curveOracleAbi = [
-              "function getAssetPrice(address asset) public view returns (uint256)"
-          ]
+                "function getAssetPrice(address asset) public view returns (uint256)"
+            ]
 
-          const curveOracle = new DRE.ethers.Contract(curveOracleAdd,curveOracleAbi);
+            const curveOracle = new DRE.ethers.Contract(curveOracleAdd,curveOracleAbi);
 
             const pricePerToken = await curveOracle.connect(signer).getAssetPrice(CurveToken.address);
             console.log("pricePerToken: ",pricePerToken)
@@ -199,9 +199,9 @@ var triCryptoDepositAbi = [
             expect(
               userDat.totalCollateralETH.toString()
             ).to.be.bignumber.equal(col.toString(), "Did not deposit 3crv");
-            
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), 1, '0', signer.address); 
-            
+
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), 1, '0', signer.address);
+
             userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
 
             expect(
