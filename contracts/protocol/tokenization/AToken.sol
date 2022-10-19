@@ -10,6 +10,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
+import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 
 /**
@@ -38,21 +39,37 @@ contract AToken is
 
     uint256 public constant ATOKEN_REVISION = 0x1;
 
+    // totalSupply / targetSupplyQuotient = targetSupply
+    uint256 public constant targetSupplyQuotient = 10;
+    // totalSupply / minSupplyQuotient = minSupply
+    uint256 public constant minSupplyQuotient = 20;
+
     /// @dev owner => next valid nonce to submit with permit()
     mapping(address => uint256) public _nonces;
 
     bytes32 public DOMAIN_SEPARATOR;
 
     ILendingPool internal _pool;
+    address internal _lendingPoolConfigurator;
     address internal _treasury;
+    address internal _VMEXTreasury;
     address internal _underlyingAsset;
     uint64 internal _tranche;
+    address internal _strategy;
     IAaveIncentivesController internal _incentivesController;
 
     modifier onlyLendingPool() {
         require(
             _msgSender() == address(_pool),
             Errors.CT_CALLER_MUST_BE_LENDING_POOL
+        );
+        _;
+    }
+
+    modifier onlyLendingPoolConfigurator() {
+        require(
+            _msgSender() == _lendingPoolConfigurator,
+            Errors.LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR
         );
         _;
     }
@@ -101,7 +118,9 @@ contract AToken is
         _setDecimals(aTokenDecimals);
 
         _pool = pool;
+        _lendingPoolConfigurator = vars.lendingPoolConfigurator;
         _treasury = vars.treasury;
+        _VMEXTreasury = vars.VMEXTreasury;
         _underlyingAsset = vars.underlyingAsset;
         _incentivesController = incentivesController;
         _tranche = vars.trancheId;
@@ -116,6 +135,24 @@ contract AToken is
             aTokenSymbol,
             params
         );
+    }
+
+    function setTreasury(address newTreasury)
+        external
+        override
+        onlyLendingPoolConfigurator
+    {
+        _treasury = newTreasury;
+        emit TreasuryChanged(newTreasury);
+    }
+
+    function setVMEXTreasury(address newTreasury)
+        external
+        override
+        onlyLendingPoolConfigurator
+    {
+        _VMEXTreasury = newTreasury;
+        emit VMEXTreasuryChanged(newTreasury);
     }
 
     /**
@@ -135,6 +172,36 @@ contract AToken is
         uint256 amountScaled = amount.rayDiv(index);
         require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
         _burn(user, amountScaled);
+
+        if (_strategy != address(0x0)) {
+            // withdraw from strategy
+            IBaseStrategy(_strategy).withdraw(amount);
+
+            // NOTE: the strategist should adjust the supply to stay above 5%, however in the case where the strategist
+            // is not able to adjust, the first user who wants to withdraw past 5% will pay the gas to fix the rate
+
+            // if underlyingBalance - amount < minSupply, then withdraw from strategy to have totalSupply = targetSupply + amount
+            // uint256 underlyingBalance = IERC20(_underlyingAsset).balanceOf(
+            //     address(this)
+            // );
+
+            // (bool didOverflow, uint256 remaining) = underlyingBalance.trySub(
+            //     amount
+            // );
+            // uint256 totalSupply = totalSupply();
+            // uint256 minSupply = totalSupply.div(minSupplyQuotient);
+
+            // if (didOverflow || remaining < minSupply) {
+            //     uint256 targetSupplyBeforeWithdraw = totalSupply.div(
+            //         targetSupplyQuotient
+            //     ) +
+            //         amount -
+            //         underlyingBalance;
+
+            //     // withdraw from strategy
+            //     IBaseStrategy(_strategy).withdraw(targetSupplyBeforeWithdraw);
+            // }
+        }
 
         IERC20(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
 
@@ -183,6 +250,33 @@ contract AToken is
         }
 
         address treasury = _treasury;
+
+        // Compared to the normal mint, we don't check for rounding errors.
+        // The amount to mint can easily be very small since it is a fraction of the interest ccrued.
+        // In that case, the treasury will experience a (very small) loss, but it
+        // wont cause potentially valid transactions to fail.
+        _mint(treasury, amount.rayDiv(index));
+
+        emit Transfer(address(0), treasury, amount);
+        emit Mint(treasury, amount, index);
+    }
+
+    /**
+     * @dev Mints aTokens to the reserve treasury
+     * - Only callable by the LendingPool
+     * @param amount The amount of tokens getting minted
+     * @param index The new liquidity index of the reserve
+     */
+    function mintToVMEXTreasury(uint256 amount, uint256 index)
+        external
+        override
+        onlyLendingPool
+    {
+        if (amount == 0) {
+            return;
+        }
+
+        address treasury = _VMEXTreasury;
 
         // Compared to the normal mint, we don't check for rounding errors.
         // The amount to mint can easily be very small since it is a fraction of the interest ccrued.
@@ -470,5 +564,35 @@ contract AToken is
         uint256 amount
     ) internal override {
         _transfer(from, to, amount, true);
+    }
+
+    function setAndApproveStrategy(address strategy)
+        external
+        override
+        onlyLendingPool
+    {
+        _strategy = strategy;
+
+        IERC20 token = IERC20(_underlyingAsset);
+
+        if (token.allowance(address(this), strategy) != type(uint256).max) {
+            token.safeApprove(strategy, type(uint256).max);
+        }
+    }
+
+    /**
+     * @dev Manually pull funds from strategy by strategist
+     * @param amount The amount withdrawn from strategy
+     **/
+    function withdrawFromStrategy(uint256 amount)
+        external
+        override
+        onlyLendingPool
+    {
+        IBaseStrategy(_strategy).withdraw(amount);
+    }
+
+    function getStrategy() external view override returns (address) {
+        return _strategy;
     }
 }

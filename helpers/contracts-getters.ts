@@ -34,6 +34,7 @@ import {
   WETHGatewayFactory,
   FlashLiquidationAdapterFactory,
 } from "../types";
+import { CrvLpStrategy__factory } from "@vmex/lending_pool_strategies/types/factories/src/strats";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
 import { DRE, getDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
@@ -485,6 +486,17 @@ export const getAaveOracle = async (address?: tEthereumAddress) =>
       (
         await getDb()
           .get(`${eContractid.AaveOracle}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getTricrypto2Strategy = async (address?: tEthereumAddress) =>
+  await CrvLpStrategy__factory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.tricrypto2Strategy}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

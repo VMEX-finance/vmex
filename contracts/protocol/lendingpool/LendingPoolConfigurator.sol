@@ -15,6 +15,7 @@ import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.
 import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
+import {IAToken} from "../../interfaces/IAToken.sol";
 
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 
@@ -34,6 +35,7 @@ contract LendingPoolConfigurator is
 
     ILendingPoolAddressesProvider internal addressesProvider;
     ILendingPool internal pool;
+    address internal DefaultVMEXTreasury;
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -75,12 +77,13 @@ contract LendingPoolConfigurator is
         return CONFIGURATOR_REVISION;
     }
 
-    function initialize(ILendingPoolAddressesProvider provider)
-        public
-        initializer
-    {
-        addressesProvider = provider;
+    function initialize(address provider) public initializer {
+        addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
+    }
+
+    function setDefaultVMEXTreasury(address add) external onlyGlobalAdmin {
+        DefaultVMEXTreasury = add;
     }
 
     /**
@@ -122,13 +125,14 @@ contract LendingPoolConfigurator is
         address aTokenProxyAddress;
 
         {
-            //need to approve strategy access to aToken's funds
             aTokenProxyAddress = _initTokenWithProxy(
                 internalInput.input.aTokenImpl,
                 abi.encodeWithSelector(
                     IInitializableAToken.initialize.selector,
                     pool,
+                    address(this), //lendingPoolConfigurator address
                     internalInput.input.treasury,
+                    DefaultVMEXTreasury,
                     internalInput.input.underlyingAsset,
                     internalInput.trancheId,
                     IAaveIncentivesController(
@@ -140,13 +144,13 @@ contract LendingPoolConfigurator is
                             internalInput.input.aTokenName,
                             Strings.toString(internalInput.trancheId)
                         )
-                    ), //,//abi.encodePacked(input.aTokenName, trancheId),string(abi.encodePacked(input.aTokenName, trancheId+48))
+                    ),
                     string(
                         abi.encodePacked(
                             internalInput.input.aTokenSymbol,
                             Strings.toString(internalInput.trancheId)
                         )
-                    ), //string(abi.encodePacked(input.aTokenSymbol, trancheId+48)) , //+48 is used to convert trancheId 0 to ascii value 0 which is number 48
+                    ),
                     internalInput.input.params
                 )
             );
@@ -250,6 +254,33 @@ contract LendingPoolConfigurator is
         );
     }
 
+    function updateTreasuryAddress(
+        address newAddress,
+        address asset,
+        uint64 trancheId
+    ) external onlyPoolAdmin(trancheId) {
+        ILendingPool cachedPool = pool;
+        IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
+            .setTreasury(newAddress);
+    }
+
+    function updateVMEXTreasuryAddress(
+        address newAddress,
+        address asset,
+        uint64 trancheId
+    ) external onlyGlobalAdmin {
+        ILendingPool cachedPool = pool;
+        IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
+            .setVMEXTreasury(newAddress);
+    }
+
+    struct updateATokenVars {
+        address DefaultVMEXTreasury;
+        uint256 decimals;
+        ILendingPool cachedPool;
+        DataTypes.ReserveData reserveData;
+    }
+
     /**
      * @dev Updates the aToken implementation for the reserve
      **/
@@ -257,44 +288,51 @@ contract LendingPoolConfigurator is
         external
     {
         {
+            //placed here instead of modifier because of stack too deep
             require(
                 addressesProvider.getPoolAdmin(trancheID) == msg.sender ||
                     addressesProvider.getGlobalAdmin() == msg.sender, //getPoolAdmin(trancheId) gets the admin for a specific tranche
                 Errors.CALLER_NOT_POOL_ADMIN
             );
         }
-        ILendingPool cachedPool = pool;
+        updateATokenVars memory vars;
+        {
+            vars.cachedPool = pool;
 
-        DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
-            input.asset,
-            input.trancheId
-        );
+            vars.reserveData = vars.cachedPool.getReserveData(
+                input.asset,
+                input.trancheId
+            );
 
-        (, , , uint256 decimals, ) = cachedPool
-            .getConfiguration(input.asset, input.trancheId)
-            .getParamsMemory();
+            (, , , vars.decimals, ) = vars
+                .cachedPool
+                .getConfiguration(input.asset, input.trancheId)
+                .getParamsMemory();
+        }
 
         bytes memory encodedCall = abi.encodeWithSelector(
             IInitializableAToken.initialize.selector,
-            cachedPool,
+            vars.cachedPool,
+            address(this),
             input.treasury,
+            DefaultVMEXTreasury,
             input.asset,
             input.incentivesController,
-            decimals,
+            vars.decimals,
             input.name,
             input.symbol,
             input.params
         );
 
         _upgradeTokenImplementation(
-            reserveData.aTokenAddress,
+            vars.reserveData.aTokenAddress,
             input.implementation,
             encodedCall
         );
 
         emit ATokenUpgraded(
             input.asset,
-            reserveData.aTokenAddress,
+            vars.reserveData.aTokenAddress,
             input.implementation
         );
     }
@@ -483,42 +521,6 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Enable stable rate borrowing on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function enableReserveStableRate(address asset, uint64 trancheId)
-        external
-        onlyPoolAdmin(trancheId)
-    {
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setStableRateBorrowingEnabled(true);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-
-        emit StableRateEnabledOnReserve(asset);
-    }
-
-    /**
-     * @dev Disable stable rate borrowing on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function disableReserveStableRate(address asset, uint64 trancheId)
-        external
-        onlyPoolAdmin(trancheId)
-    {
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setStableRateBorrowingEnabled(false);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-
-        emit StableRateDisabledOnReserve(asset);
-    }
-
-    /**
      * @dev Activates a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
@@ -557,60 +559,39 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Freezes a reserve. A frozen reserve doesn't allow any new deposit, borrow or rate swap
-     *  but allows repayments, liquidations, rate rebalances and withdrawals
+     * @dev Enable stable rate borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function freezeReserve(address asset, uint64 trancheId)
+    function enableReserveStableRate(address asset, uint64 trancheId)
         external
         onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        currentConfig.setFrozen(true);
+        currentConfig.setStableRateBorrowingEnabled(true);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit ReserveFrozen(asset);
+        emit StableRateEnabledOnReserve(asset);
     }
 
     /**
-     * @dev Unfreezes a reserve
+     * @dev Disable stable rate borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function unfreezeReserve(address asset, uint64 trancheId)
+    function disableReserveStableRate(address asset, uint64 trancheId)
         external
         onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        currentConfig.setFrozen(false);
+        currentConfig.setStableRateBorrowingEnabled(false);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit ReserveUnfrozen(asset);
-    }
-
-    /**
-     * @dev Updates the reserve factor of a reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @param reserveFactor The new reserve factor of the reserve
-     **/
-    function setReserveFactor(
-        address asset,
-        uint64 trancheId,
-        uint256 reserveFactor
-    ) external onlyPoolAdmin(trancheId) {
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setReserveFactor(reserveFactor);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-
-        emit ReserveFactorChanged(asset, reserveFactor);
+        emit StableRateDisabledOnReserve(asset);
     }
 
     /**
@@ -692,5 +673,23 @@ contract LendingPoolConfigurator is
             availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
             Errors.LPC_RESERVE_LIQUIDITY_NOT_0
         );
+    }
+
+    function addStrategy(
+        address asset,
+        uint64 trancheId,
+        address strategy
+    ) external onlyPoolAdmin(trancheId) {
+        pool.addStrategy(asset, trancheId, strategy);
+        emit StrategyAdded(asset, trancheId, strategy);
+    }
+
+    function withdrawFromStrategy(
+        address asset,
+        uint64 trancheId,
+        uint256 amount
+    ) external onlyPoolAdmin(trancheId) {
+        pool.withdrawFromStrategy(asset, trancheId, amount);
+        emit WithdrawFromStrategy(asset, trancheId, amount);
     }
 }

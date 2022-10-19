@@ -29,6 +29,8 @@ contract LendingPoolAddressesProvider is
 
     bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
     bytes32 private constant LENDING_POOL = "LENDING_POOL";
+    bytes32 private constant ATOKEN_AND_RATES_HELPER =
+        "ATOKEN_AND_RATES_HELPER";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
         "LENDING_POOL_CONFIGURATOR";
     bytes32 private constant POOL_ADMIN = "POOL_ADMIN";
@@ -135,6 +137,33 @@ contract LendingPoolAddressesProvider is
      * @dev Returns the address of the LendingPool proxy
      * @return The LendingPool proxy address
      **/
+    function getATokenAndRatesHelper()
+        external
+        view
+        override
+        returns (address)
+    {
+        return getAddress(ATOKEN_AND_RATES_HELPER);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param newAdd The new LendingPool implementation
+     **/
+    function setATokenAndRatesHelper(address newAdd)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[ATOKEN_AND_RATES_HELPER] = newAdd;
+        emit ATokensAndRatesHelperUpdated(newAdd);
+    }
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The LendingPool proxy address
+     **/
     function getLendingPool() external view override returns (address) {
         return getAddress(LENDING_POOL);
     }
@@ -165,15 +194,37 @@ contract LendingPoolAddressesProvider is
     /**
      * @dev Updates the implementation of the LendingPoolConfigurator, or creates the proxy
      * setting the new `configurator` implementation on the first time calling it
-     * @param configurator The new LendingPoolConfigurator implementation
+     * @param newAddress The new LendingPoolConfigurator implementation
      **/
-    function setLendingPoolConfiguratorImpl(address configurator)
+    function setLendingPoolConfiguratorImpl(address newAddress)
         external
         override
         onlyOwner
     {
-        _updateImpl(LENDING_POOL_CONFIGURATOR, configurator);
-        emit LendingPoolConfiguratorUpdated(configurator);
+        // address payable proxyAddress = payable(_addresses[LENDING_POOL_CONFIGURATOR]);
+
+        // InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
+        //         proxyAddress
+        //     );
+
+        // bytes memory params = abi.encodeWithSignature(
+        //     "initialize(address, address)",
+        //     address(this),
+        //     _DefaultVMEXTreasury
+        // );
+
+        // if (proxyAddress == address(0)) {
+        //     proxy = new InitializableImmutableAdminUpgradeabilityProxy(
+        //         address(this)
+        //     );
+        //     proxy.initialize(newAddress, params);
+        //     _addresses[LENDING_POOL_CONFIGURATOR] = address(proxy);
+        //     emit ProxyCreated(LENDING_POOL_CONFIGURATOR, address(proxy));
+        // } else {
+        //     proxy.upgradeToAndCall(newAddress, params);
+        // }
+        _updateImpl(LENDING_POOL_CONFIGURATOR, newAddress);
+        emit LendingPoolConfiguratorUpdated(newAddress);
     }
 
     /**
@@ -329,14 +380,14 @@ contract LendingPoolAddressesProvider is
     }
 
     //custom address provider for Curve tokens
-    function getCurveAddressProvider()
-        external
-        view
-        override
-        returns (address)
-    {
-        return getAddress(CURVE_ADDRESS_PROVIDER);
-    }
+    // function getCurveAddressProvider()
+    //     external
+    //     view
+    //     override
+    //     returns (address)
+    // {
+    //     return getAddress(CURVE_ADDRESS_PROVIDER);
+    // }
 
     function setAavePriceOracle(address priceOracle)
         external
@@ -365,14 +416,14 @@ contract LendingPoolAddressesProvider is
         emit CurvePriceOracleWrapperUpdated(priceOracle);
     }
 
-    function setCurveAddressProvider(address addressProvider)
-        external
-        override
-        onlyOwner
-    {
-        _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
-        emit CurveAddressProviderUpdated(addressProvider);
-    }
+    // function setCurveAddressProvider(address addressProvider)
+    //     external
+    //     override
+    //     onlyOwner
+    // {
+    //     _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
+    //     emit CurveAddressProviderUpdated(addressProvider);
+    // }
 
     function getLendingRateOracle() external view override returns (address) {
         return getAddress(LENDING_RATE_ORACLE);
@@ -402,6 +453,7 @@ contract LendingPoolAddressesProvider is
         InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
                 proxyAddress
             );
+
         bytes memory params = abi.encodeWithSignature(
             "initialize(address)",
             address(this)

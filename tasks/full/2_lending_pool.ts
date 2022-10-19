@@ -23,6 +23,8 @@ import {
   ConfigNames,
   getGenesisPoolAdmin,
   getEmergencyAdmin,
+  getGlobalVMEXReserveFactor,
+  getTreasuryAddress,
 } from "../../helpers/configuration";
 
 task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
@@ -103,19 +105,41 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
         lendingPoolConfiguratorProxy.address
       );
 
+      await lendingPoolConfiguratorProxy.setDefaultVMEXTreasury(
+        await getTreasuryAddress(poolConfig)
+      );
+
       // Deploy deployment helpers
       await deployStableAndVariableTokensHelper(
         [lendingPoolProxy.address, addressesProvider.address],
         verify
       );
-      await deployATokensAndRatesHelper(
+      const ATokensAndRatesHelper = await deployATokensAndRatesHelper(
         [
           lendingPoolProxy.address,
           addressesProvider.address,
           lendingPoolConfiguratorProxy.address,
+          await getGlobalVMEXReserveFactor(),
         ],
         verify
       );
+
+      if (!notFalsyOrZeroAddress(ATokensAndRatesHelper.address)) {
+        //bad address
+        throw "deploying ATokensAndRatesHelper error, address is falsy or zero";
+      } else {
+        console.log(
+          "ATokensAndRatesHelper deployed at ",
+          ATokensAndRatesHelper.address
+        );
+      }
+
+      await waitForTx(
+        await addressesProvider.setATokenAndRatesHelper(
+          ATokensAndRatesHelper.address
+        )
+      );
+
       await deployATokenImplementations(
         pool,
         poolConfig.ReservesConfig,
