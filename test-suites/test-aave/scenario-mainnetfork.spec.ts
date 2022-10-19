@@ -1,6 +1,7 @@
 import { configuration as actionsConfiguration } from "./helpers/actions";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 import { evmRevert, evmSnapshot, DRE } from "../../helpers/misc-utils";
+import rawBRE from "hardhat";
 
 import fs from "fs";
 import BigNumber from "bignumber.js";
@@ -26,14 +27,22 @@ import { executeStory } from "./helpers/scenario-engine";
 //   await evmRevert(buidlerevmSnapshotId);
 // };
 
-const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/oldAaveTests";
+// await DRE.run("set-DRE");
+before(async () => {
+  await rawBRE.run("set-DRE");
+  console.log("\n***************");
+  console.log("Setup and snapshot finished");
+  console.log("***************\n");
+});
+
+const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/curve";
 
 const selectedScenarios: string[] = [];
 
 fs.readdirSync(scenarioFolder).forEach((file) => {
   if (selectedScenarios.length > 0 && !selectedScenarios.includes(file)) return;
 
-  const scenario = require(`./helpers/scenarios/oldAaveTests/${file}`);
+  const scenario = require(`./helpers/scenarios/curve/${file}`);
 
   makeSuite(scenario.title, async (testEnv) => {
     //each file resets the state before moving on to the next file. I don't think each story within a file will revert state
@@ -61,7 +70,7 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
     for (const story of scenario.stories) {
       it(story.description, async function () {
         // Retry the test scenarios up to 4 times if an error happens, due erratic HEVM network errors
-        this.retries(4);
+        //this.retries(4);
         await executeStory(story, testEnv);
       });
     }

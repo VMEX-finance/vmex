@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 
 export interface UserReserveData {
   scaledATokenBalance: BigNumber;
@@ -37,10 +37,4 @@ export interface ReserveData {
   totalStableDebtLastUpdated: BigNumber;
   liquidityRate: BigNumber;
   [key: string]: BigNumber | string;
-}
-
-export interface TrancheMultiplier {
-  liquidityRateMultiplier: BigNumber;
-   variableBorrowRateMultiplier: BigNumber;
-   stableBorrowRateMultiplier: BigNumber;
 }

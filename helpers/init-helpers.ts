@@ -95,7 +95,6 @@ export const initReservesByHelper = async (
     params: string;
     assetType: BigNumberish;
     collateralCap: string; //1,000,000
-    hasStrategy: boolean;
     usingGovernanceSetInterestRate: boolean;
     governanceSetInterestRate: string;
   }[] = [];
@@ -131,6 +130,7 @@ export const initReservesByHelper = async (
       usingGovernanceSetInterestRate,
       governanceSetInterestRate,
     } = params;
+
     const {
       optimalUtilizationRate,
       baseVariableBorrowRate,
@@ -193,7 +193,6 @@ export const initReservesByHelper = async (
       params: await getATokenExtraParams(aTokenImpl, tokenAddresses[symbol]),
       assetType: assetType,
       collateralCap: collateralCap, //1,000,000
-      hasStrategy: hasStrategy,
       usingGovernanceSetInterestRate: usingGovernanceSetInterestRate,
       governanceSetInterestRate: governanceSetInterestRate,
     });

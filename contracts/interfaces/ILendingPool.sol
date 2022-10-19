@@ -451,4 +451,16 @@ interface ILendingPool {
     function setPause(bool val, uint64 trancheId) external;
 
     function paused(uint64 trancheId) external view returns (bool);
+
+    function addStrategy(
+        address asset,
+        uint64 trancheId,
+        address strategy
+    ) external;
+
+    function withdrawFromStrategy(
+        address asset,
+        uint64 trancheId,
+        uint256 amount
+    ) external;
 }

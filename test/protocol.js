@@ -32,7 +32,7 @@ const WETHabi = [
 ];
 
 
-describe("Protocol - end-to-end test", () => {
+describe("Supply - end-to-end test", () => {
     let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
     const owner = provider.getSigner();
     
@@ -80,4 +80,12 @@ describe("Protocol - end-to-end test", () => {
         let aToken = new ethers.Contract(data.aTokenAddress, WETHabi, owner);
         expect(await aToken.balanceOf(await owner.getAddress())).to.be.above(ethers.utils.parseEther('1.0'))
     })
+
+})
+
+describe("Borrow - end-to-end test", () => {
+    let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+    const owner = provider.getSigner();
+
+    it('1 - should check the number of aTokens of a secondary asset are available to borrow')
 })

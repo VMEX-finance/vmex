@@ -58,6 +58,8 @@ export enum eContractid {
   curveOracle = "curveOracle",
   curveWrapper = "curveWrapper",
   vMath = "vMath",
+  vStrategyHelper = "vStrategyHelper",
+  tricrypto2Strategy = "tricrypto2Strategy",
   LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
   MintableERC20 = "MintableERC20",
   MintableDelegationERC20 = "MintableDelegationERC20",
@@ -413,6 +415,20 @@ export enum TokenContractId {
   STAKE = "STAKE",
   xSUSHI = "xSUSHI",
   WAVAX = "WAVAX",
+  Tricrypto2 = "Tricrypto2",
+  ThreePool = "ThreePool",
+  StethEth = "StethEth",
+  Steth = "Steth",
+  FraxUSDC = "FraxUSDC",
+  Frax3Crv = "Frax3Crv",
+  Frax = "Frax",
+  BAL = "BAL",
+  CRV = "CRV",
+  CVX = "CVX",
+  BADGER = "BADGER",
+  LDO = "LDO",
+  ALCX = "ALCX",
+  Oneinch = "Oneinch",
 }
 
 export interface IReserveParams
@@ -422,7 +438,7 @@ export interface IReserveParams
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   collateralCap: string;
-  hasStrategy: boolean; //whether the asset has a strategy
+  // hasStrategy: boolean; // address of strategist, 0 if no strategy
   usingGovernanceSetInterestRate: boolean;
   governanceSetInterestRate: string;
 }

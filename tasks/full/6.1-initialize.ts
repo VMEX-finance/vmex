@@ -7,6 +7,7 @@ import {
   getTreasuryAddress,
   getEmergencyAdmin,
 } from "../../helpers/configuration";
+import { deployTricrypto2Strategy } from "../../helpers/contracts-deployments";
 import { getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
@@ -21,6 +22,7 @@ import {
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
 } from "../../helpers/contracts-getters";
+// import { deployStrategies } from "@vmex/lending_pool_strategies/scripts/deployStrategies";
 
 task(
   "full:initialize-lending-pool-tranche-1",
@@ -73,7 +75,7 @@ task(
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
       }
 
-      const treasuryAddress = await getTreasuryAddress(poolConfig);
+      const treasuryAddress = emergAdmin.address;
       console.log("before initReservesByHelper");
 
       await claimTrancheId(1, emergAdmin, emergAdmin);
@@ -105,6 +107,34 @@ task(
         testHelpers,
         1,
         emergAdmin.address
+      );
+
+      // deploy strategies
+      const tricrypto2Strat = await deployTricrypto2Strategy();
+      const tricrypto2StratTranche = 1;
+
+      console.log("DEPLOYED cvxCrv Strat at address", tricrypto2Strat.address);
+
+      await waitForTx(
+        await tricrypto2Strat.connect(emergAdmin).initialize(
+          addressesProvider.address,
+          reserveAssets["Tricrypto2"],
+          tricrypto2StratTranche,
+          38,
+          3,
+          "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" // address of tricrypto2 pool
+        )
+      );
+
+      // admin grants strategy access to all funds
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .addStrategy(
+            reserveAssets["Tricrypto2"],
+            tricrypto2StratTranche,
+            tricrypto2Strat.address
+          )
       );
     } catch (err) {
       console.error(err);

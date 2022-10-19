@@ -14,6 +14,8 @@ import {
 } from "./actions";
 import { RateMode } from "../../../helpers/types";
 
+import { DRE } from "../../../helpers/misc-utils";
+
 export interface Action {
   name: string;
   args?: any;
@@ -83,6 +85,11 @@ const executeAction = async (
   }
 
   const user = users[parseInt(userIndex)];
+  const { addressesProvider } = testEnv;
+  const trancheAdmin = await DRE.ethers.getSigner(
+    await addressesProvider.getPoolAdmin(myTranche)
+  );
+  // console.log("$$$$$$$$$ USERS: ",users)
 
   switch (name) {
     case "mint": //I think this is for minting actual ERC20 tokens, not a tokens
@@ -92,7 +99,7 @@ const executeAction = async (
         throw `Invalid amount of ${reserve} to mint`;
       }
 
-      await mint(reserve, amount, user, testEnv);
+      await mint(reserve, amount, user, myTranche, testEnv);
       break;
 
     case "approve":
@@ -169,6 +176,7 @@ const executeAction = async (
           myTranche,
           amount,
           user,
+          trancheAdmin,
           expected,
           testEnv,
           timeTravel,
@@ -217,6 +225,7 @@ const executeAction = async (
         await borrow(
           reserve,
           myTranche,
+          trancheAdmin,
           amount,
           rateMode,
           user,
@@ -251,6 +260,7 @@ const executeAction = async (
         await repay(
           reserve,
           myTranche,
+          trancheAdmin,
           amount,
           rateMode,
           user,
