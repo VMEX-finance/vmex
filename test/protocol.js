@@ -87,5 +87,7 @@ describe("Borrow - end-to-end test", () => {
     let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
     const owner = provider.getSigner();
 
-    it('1 - should check the number of aTokens of a secondary asset are available to borrow')
+    it('1 - should check the number of aTokens of a secondary asset are available to borrow', async () => {
+        
+    })
 })
