@@ -254,6 +254,14 @@ contract LendingPoolConfigurator is
         );
     }
 
+    function addWhitelistedDepositBorrow(address user)
+        external
+        onlyGlobalAdmin
+    {
+        ILendingPool cachedPool = pool;
+        cachedPool.addWhitelistedDepositBorrow(user);
+    }
+
     function updateTreasuryAddress(
         address newAddress,
         address asset,
@@ -520,7 +528,6 @@ contract LendingPoolConfigurator is
         );
     }
 
-
     /**
      * @dev Activates a reserve
      * @param asset The address of the underlying asset of the reserve
@@ -594,7 +601,6 @@ contract LendingPoolConfigurator is
 
         emit StableRateDisabledOnReserve(asset);
     }
-
 
     /**
      * @dev Note this can only be called by global admin. Individual pool owners can't set the data for the asset, but can set the data for their own reserves

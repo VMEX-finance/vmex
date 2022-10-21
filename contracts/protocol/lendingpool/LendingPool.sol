@@ -92,6 +92,24 @@ contract LendingPool is
         _;
     }
 
+    modifier _onlyWhitelistedDepositBorrow(uint64 trancheId) {
+        if (isWhitelistedDepositBorrow[msg.sender] == false) {
+            require(
+                lastUserBorrow[msg.sender][trancheId] != block.number,
+                "User is not whitelisted to borrow and deposit in same block"
+            );
+        }
+        _;
+    }
+
+    function addWhitelistedDepositBorrow(address user)
+        external
+        override
+        onlyLendingPoolConfigurator
+    {
+        isWhitelistedDepositBorrow[user] = true;
+    }
+
     function getRevision() internal pure override returns (uint256) {
         return LENDINGPOOL_REVISION;
     }
@@ -132,8 +150,19 @@ contract LendingPool is
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
-    ) public override whenNotPaused(trancheId) {
+    )
+        public
+        override
+        whenNotPaused(trancheId)
+        _onlyWhitelistedDepositBorrow(trancheId)
+    {
         //changed scope to public so transferTranche can call it
+        if (isWhitelistedDepositBorrow[msg.sender] == false) {
+            require(
+                lastUserBorrow[msg.sender][trancheId] != block.number,
+                "User is not whitelisted to borrow and deposit in same block"
+            );
+        }
         DataTypes.DepositVars memory vars;
         {
             vars = DataTypes.DepositVars(
@@ -151,6 +180,7 @@ contract LendingPool is
                 _usersConfig[onBehalfOf][trancheId]
             );
         }
+        lastUserDeposit[msg.sender][trancheId] = block.number;
     }
 
     /**
@@ -209,7 +239,18 @@ contract LendingPool is
         uint256 interestRateMode,
         uint16 referralCode,
         address onBehalfOf
-    ) public override whenNotPaused(trancheId) {
+    )
+        public
+        override
+        whenNotPaused(trancheId)
+        _onlyWhitelistedDepositBorrow(trancheId)
+    {
+        if (isWhitelistedDepositBorrow[msg.sender] == false) {
+            require(
+                lastUserDeposit[msg.sender][trancheId] != block.number,
+                "User is not whitelisted to borrow and deposit in same block"
+            );
+        }
         DataTypes.ReserveData storage reserve;
         DataTypes.ExecuteBorrowParams memory vars;
 
@@ -245,6 +286,8 @@ contract LendingPool is
             _addressesProvider,
             vars
         );
+
+        lastUserBorrow[msg.sender][trancheId] = block.number;
     }
 
     /**
@@ -520,18 +563,18 @@ contract LendingPool is
         require(returnCode == 0, string(abi.encodePacked(returnMessage)));
     }
 
-    struct FlashLoanLocalVars {
-        IFlashLoanReceiver receiver;
-        address oracle;
-        uint256 i;
-        address currentAsset;
-        uint64 currentTranche;
-        address currentATokenAddress;
-        uint256 currentAmount;
-        uint256 currentPremium;
-        uint256 currentAmountPlusPremium;
-        address debtToken;
-    }
+    // struct FlashLoanLocalVars {
+    //     IFlashLoanReceiver receiver;
+    //     address oracle;
+    //     uint256 i;
+    //     address currentAsset;
+    //     uint64 currentTranche;
+    //     address currentATokenAddress;
+    //     uint256 currentAmount;
+    //     uint256 currentPremium;
+    //     uint256 currentAmountPlusPremium;
+    //     address debtToken;
+    // }
 
     /**
      * @dev Allows smartcontracts to access the liquidity of the pool within one transaction,
@@ -550,49 +593,49 @@ contract LendingPool is
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
      **/
-    function flashLoan(
-        address receiverAddress,
-        address[] calldata assets,
-        uint64 trancheId,
-        uint256[] calldata amounts,
-        uint256[] calldata modes,
-        address onBehalfOf,
-        bytes calldata params,
-        uint16 referralCode
-    ) external override {
-        {
-            require(!_paused[trancheId], Errors.LP_IS_PAUSED);
-        }
-        DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
-            onBehalfOf
-        ][trancheId];
-        DataTypes.flashLoanVars memory callvars;
+    // function flashLoan(
+    //     address receiverAddress,
+    //     address[] calldata assets,
+    //     uint64 trancheId,
+    //     uint256[] calldata amounts,
+    //     uint256[] calldata modes,
+    //     address onBehalfOf,
+    //     bytes calldata params,
+    //     uint16 referralCode
+    // ) external override {
+    //     {
+    //         require(!_paused[trancheId], Errors.LP_IS_PAUSED);
+    //     }
+    //     DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
+    //         onBehalfOf
+    //     ][trancheId];
+    //     DataTypes.flashLoanVars memory callvars;
 
-        {
-            callvars = DataTypes.flashLoanVars(
-                receiverAddress,
-                assets,
-                trancheId,
-                amounts,
-                modes,
-                onBehalfOf,
-                params,
-                referralCode,
-                _flashLoanPremiumTotal,
-                _addressesProvider.getAavePriceOracle(), //TODO: For now we are assuming that the assets we are flashloaning are not lendable so it would always be this oracle. Also this isn't even used lol
-                _maxStableRateBorrowSizePercent,
-                address(_addressesProvider)
-            );
-        }
-        DepositWithdrawLogic._flashLoan(
-            callvars,
-            assetDatas,
-            _reserves,
-            _reservesList,
-            _reservesCount,
-            userConfig
-        );
-    }
+    //     {
+    //         callvars = DataTypes.flashLoanVars(
+    //             receiverAddress,
+    //             assets,
+    //             trancheId,
+    //             amounts,
+    //             modes,
+    //             onBehalfOf,
+    //             params,
+    //             referralCode,
+    //             _flashLoanPremiumTotal,
+    //             _addressesProvider.getAavePriceOracle(), //TODO: For now we are assuming that the assets we are flashloaning are not lendable so it would always be this oracle. Also this isn't even used lol
+    //             _maxStableRateBorrowSizePercent,
+    //             address(_addressesProvider)
+    //         );
+    //     }
+    //     DepositWithdrawLogic._flashLoan(
+    //         callvars,
+    //         assetDatas,
+    //         _reserves,
+    //         _reservesList,
+    //         _reservesCount,
+    //         userConfig
+    //     );
+    // }
 
     /**
      * @dev Returns the state and configuration of the reserve
