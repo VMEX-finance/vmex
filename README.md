@@ -9,7 +9,9 @@ Run the following inside the strategies:
 
 ```
 yarn install
+git submodule update --init --recursive
 yarn link
+yarn compile
 ```
 
 Then run in this repo: `yarn link "@vmex/lending_pool_strategies"`
@@ -157,10 +159,8 @@ USERS:  [
 ]
 $$
 
-
-
-
-$$$$$$$$$$$$ addressList:  [
+$$
+addressList:  [
   '0xc783df8a850f42e7F7e57013759C285caa701eB6',
   '0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4',
   '0xE5904695748fe4A84b40b3fc79De2277660BD1D3',
@@ -171,4 +171,7 @@ $$$$$$$$$$$$ addressList:  [
   '0x8BffC896D42F07776561A5814D6E4240950d6D3a'
 ]
 $$$$$$$$$$ admin of tranche 1:  0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4
+$$
+
+$$
 $$
