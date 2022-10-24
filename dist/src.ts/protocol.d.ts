@@ -14,7 +14,7 @@ export declare function markReserveAsCollateral(params: {
     asset: string;
     trancheId: number;
     useAsCollateral: boolean;
-}, callback?: () => Promise<any>): Promise<void>;
+}, callback?: () => Promise<any>): Promise<any>;
 export declare function withdraw(params: {
     asset: string;
     to?: string;

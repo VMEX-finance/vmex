@@ -19,24 +19,41 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "reserve",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "aToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "liquidityAdded",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "liquidityTaken",
-          "type": "uint256"
+          "components": [
+            {
+              "internalType": "address",
+              "name": "reserve",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "aToken",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "liquidityAdded",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "liquidityTaken",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reserveFactor",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "globalVMEXReserveFactor",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct DataTypes.calculateInterestRatesVars",
+          "name": "calvars",
+          "type": "tuple"
         },
         {
           "internalType": "uint256",
@@ -51,11 +68,6 @@
         {
           "internalType": "uint256",
           "name": "averageStableBorrowRate",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "reserveFactor",
           "type": "uint256"
         }
       ],
@@ -74,60 +86,6 @@
         {
           "internalType": "uint256",
           "name": "variableBorrowRate",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "reserve",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "availableLiquidity",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "totalStableDebt",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "totalVariableDebt",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "averageStableBorrowRate",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "reserveFactor",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateInterestRates",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
           "type": "uint256"
         }
       ],

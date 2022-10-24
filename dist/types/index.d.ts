@@ -64,6 +64,8 @@ export { MockParaSwapTokenTransferProxyFactory } from "./MockParaSwapTokenTransf
 export type { MockParaSwapTokenTransferProxy } from "./MockParaSwapTokenTransferProxy";
 export { MockUniswapV2Router02Factory } from "./MockUniswapV2Router02Factory";
 export type { MockUniswapV2Router02 } from "./MockUniswapV2Router02";
+export { CurvePoolMockedFactory } from "./CurvePoolMockedFactory";
+export type { CurvePoolMocked } from "./CurvePoolMocked";
 export { MintableDelegationERC20Factory } from "./MintableDelegationERC20Factory";
 export type { MintableDelegationERC20 } from "./MintableDelegationERC20";
 export { MintableERC20Factory } from "./MintableERC20Factory";

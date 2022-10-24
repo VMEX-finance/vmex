@@ -22,7 +22,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface IReserveInterestRateStrategyInterface extends ethers.utils.Interface {
   functions: {
     "baseVariableBorrowRate()": FunctionFragment;
-    "calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "calculateInterestRates(tuple,uint256,uint256,uint256)": FunctionFragment;
     "getMaxVariableBorrowRate()": FunctionFragment;
   };
 
@@ -33,11 +33,14 @@ interface IReserveInterestRateStrategyInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "calculateInterestRates",
     values: [
-      string,
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
+      {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       BigNumberish,
       BigNumberish,
       BigNumberish
@@ -86,15 +89,18 @@ export class IReserveInterestRateStrategy extends Contract {
       0: BigNumber;
     }>;
 
-    "calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      aToken: string,
-      liquidityAdded: BigNumberish,
-      liquidityTaken: BigNumberish,
+    calculateInterestRates(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       liquidityRate: BigNumber;
@@ -105,15 +111,23 @@ export class IReserveInterestRateStrategy extends Contract {
       2: BigNumber;
     }>;
 
-    "calculateInterestRates(address,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      availableLiquidity: BigNumberish,
+    "calculateInterestRates((address,address,uint256,uint256,uint256,uint256),uint256,uint256,uint256)"(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
+      liquidityRate: BigNumber;
+      stableBorrowRate: BigNumber;
+      variableBorrowRate: BigNumber;
       0: BigNumber;
       1: BigNumber;
       2: BigNumber;
@@ -132,15 +146,18 @@ export class IReserveInterestRateStrategy extends Contract {
 
   "baseVariableBorrowRate()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)"(
-    reserve: string,
-    aToken: string,
-    liquidityAdded: BigNumberish,
-    liquidityTaken: BigNumberish,
+  calculateInterestRates(
+    calvars: {
+      reserve: string;
+      aToken: string;
+      liquidityAdded: BigNumberish;
+      liquidityTaken: BigNumberish;
+      reserveFactor: BigNumberish;
+      globalVMEXReserveFactor: BigNumberish;
+    },
     totalStableDebt: BigNumberish,
     totalVariableDebt: BigNumberish,
     averageStableBorrowRate: BigNumberish,
-    reserveFactor: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
     liquidityRate: BigNumber;
@@ -151,15 +168,23 @@ export class IReserveInterestRateStrategy extends Contract {
     2: BigNumber;
   }>;
 
-  "calculateInterestRates(address,uint256,uint256,uint256,uint256,uint256)"(
-    reserve: string,
-    availableLiquidity: BigNumberish,
+  "calculateInterestRates((address,address,uint256,uint256,uint256,uint256),uint256,uint256,uint256)"(
+    calvars: {
+      reserve: string;
+      aToken: string;
+      liquidityAdded: BigNumberish;
+      liquidityTaken: BigNumberish;
+      reserveFactor: BigNumberish;
+      globalVMEXReserveFactor: BigNumberish;
+    },
     totalStableDebt: BigNumberish,
     totalVariableDebt: BigNumberish,
     averageStableBorrowRate: BigNumberish,
-    reserveFactor: BigNumberish,
     overrides?: CallOverrides
   ): Promise<{
+    liquidityRate: BigNumber;
+    stableBorrowRate: BigNumber;
+    variableBorrowRate: BigNumber;
     0: BigNumber;
     1: BigNumber;
     2: BigNumber;
@@ -174,15 +199,18 @@ export class IReserveInterestRateStrategy extends Contract {
 
     "baseVariableBorrowRate()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      aToken: string,
-      liquidityAdded: BigNumberish,
-      liquidityTaken: BigNumberish,
+    calculateInterestRates(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
       liquidityRate: BigNumber;
@@ -193,15 +221,23 @@ export class IReserveInterestRateStrategy extends Contract {
       2: BigNumber;
     }>;
 
-    "calculateInterestRates(address,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      availableLiquidity: BigNumberish,
+    "calculateInterestRates((address,address,uint256,uint256,uint256,uint256),uint256,uint256,uint256)"(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
+      liquidityRate: BigNumber;
+      stableBorrowRate: BigNumber;
+      variableBorrowRate: BigNumber;
       0: BigNumber;
       1: BigNumber;
       2: BigNumber;
@@ -219,25 +255,33 @@ export class IReserveInterestRateStrategy extends Contract {
 
     "baseVariableBorrowRate()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      aToken: string,
-      liquidityAdded: BigNumberish,
-      liquidityTaken: BigNumberish,
+    calculateInterestRates(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "calculateInterestRates(address,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      availableLiquidity: BigNumberish,
+    "calculateInterestRates((address,address,uint256,uint256,uint256,uint256),uint256,uint256,uint256)"(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -255,25 +299,33 @@ export class IReserveInterestRateStrategy extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      aToken: string,
-      liquidityAdded: BigNumberish,
-      liquidityTaken: BigNumberish,
+    calculateInterestRates(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "calculateInterestRates(address,uint256,uint256,uint256,uint256,uint256)"(
-      reserve: string,
-      availableLiquidity: BigNumberish,
+    "calculateInterestRates((address,address,uint256,uint256,uint256,uint256),uint256,uint256,uint256)"(
+      calvars: {
+        reserve: string;
+        aToken: string;
+        liquidityAdded: BigNumberish;
+        liquidityTaken: BigNumberish;
+        reserveFactor: BigNumberish;
+        globalVMEXReserveFactor: BigNumberish;
+      },
       totalStableDebt: BigNumberish,
       totalVariableDebt: BigNumberish,
       averageStableBorrowRate: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

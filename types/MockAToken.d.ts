@@ -38,21 +38,29 @@ interface MockATokenInterface extends ethers.utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "getIncentivesController()": FunctionFragment;
     "getScaledUserBalanceAndSupply(address)": FunctionFragment;
+    "getStrategy()": FunctionFragment;
     "handleRepayment(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize(address,tuple,address,uint8,string,string,bytes)": FunctionFragment;
+    "minSupplyQuotient()": FunctionFragment;
     "mint(address,uint256,uint256)": FunctionFragment;
     "mintToTreasury(uint256,uint256)": FunctionFragment;
+    "mintToVMEXTreasury(uint256,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "scaledBalanceOf(address)": FunctionFragment;
     "scaledTotalSupply()": FunctionFragment;
+    "setAndApproveStrategy(address)": FunctionFragment;
+    "setTreasury(address)": FunctionFragment;
+    "setVMEXTreasury(address)": FunctionFragment;
     "symbol()": FunctionFragment;
+    "targetSupplyQuotient()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOnLiquidation(address,address,uint256)": FunctionFragment;
     "transferUnderlyingTo(address,uint256)": FunctionFragment;
+    "withdrawFromStrategy(uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -108,6 +116,10 @@ interface MockATokenInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "getStrategy",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "handleRepayment",
     values: [string, BigNumberish]
   ): string;
@@ -119,7 +131,13 @@ interface MockATokenInterface extends ethers.utils.Interface {
     functionFragment: "initialize",
     values: [
       string,
-      { treasury: string; underlyingAsset: string; trancheId: BigNumberish },
+      {
+        lendingPoolConfigurator: string;
+        treasury: string;
+        VMEXTreasury: string;
+        underlyingAsset: string;
+        trancheId: BigNumberish;
+      },
       string,
       BigNumberish,
       string,
@@ -128,11 +146,19 @@ interface MockATokenInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "minSupplyQuotient",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "mint",
     values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "mintToTreasury",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mintToVMEXTreasury",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
@@ -156,7 +182,20 @@ interface MockATokenInterface extends ethers.utils.Interface {
     functionFragment: "scaledTotalSupply",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "setAndApproveStrategy",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "setTreasury", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "setVMEXTreasury",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "targetSupplyQuotient",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -176,6 +215,10 @@ interface MockATokenInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "transferUnderlyingTo",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFromStrategy",
+    values: [BigNumberish]
   ): string;
 
   decodeFunctionResult(
@@ -222,6 +265,10 @@ interface MockATokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "handleRepayment",
     data: BytesLike
   ): Result;
@@ -230,9 +277,17 @@ interface MockATokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "minSupplyQuotient",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mintToTreasury",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "mintToVMEXTreasury",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -245,7 +300,23 @@ interface MockATokenInterface extends ethers.utils.Interface {
     functionFragment: "scaledTotalSupply",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAndApproveStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTreasury",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVMEXTreasury",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "targetSupplyQuotient",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -263,6 +334,10 @@ interface MockATokenInterface extends ethers.utils.Interface {
     functionFragment: "transferUnderlyingTo",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFromStrategy",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
@@ -271,6 +346,8 @@ interface MockATokenInterface extends ethers.utils.Interface {
     "Initialized(address,address,address,address,uint8,string,string,bytes)": EventFragment;
     "Mint(address,uint256,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
+    "TreasuryChanged(address)": EventFragment;
+    "VMEXTreasuryChanged(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
@@ -279,6 +356,8 @@ interface MockATokenInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Mint"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TreasuryChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VMEXTreasuryChanged"): EventFragment;
 }
 
 export class MockAToken extends Contract {
@@ -467,6 +546,14 @@ export class MockAToken extends Contract {
       1: BigNumber;
     }>;
 
+    getStrategy(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -494,7 +581,9 @@ export class MockAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -506,10 +595,12 @@ export class MockAToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -520,6 +611,14 @@ export class MockAToken extends Contract {
       params: BytesLike,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
+
+    minSupplyQuotient(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
+
+    "minSupplyQuotient()"(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
 
     mint(
       user: string,
@@ -542,6 +641,18 @@ export class MockAToken extends Contract {
     ): Promise<ContractTransaction>;
 
     "mintToTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
       amount: BigNumberish,
       index: BigNumberish,
       overrides?: Overrides
@@ -599,12 +710,50 @@ export class MockAToken extends Contract {
       0: BigNumber;
     }>;
 
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    setTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     symbol(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
     "symbol()"(overrides?: CallOverrides): Promise<{
       0: string;
+    }>;
+
+    targetSupplyQuotient(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
+
+    "targetSupplyQuotient()"(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
     }>;
 
     totalSupply(overrides?: CallOverrides): Promise<{
@@ -663,6 +812,16 @@ export class MockAToken extends Contract {
 
     "transferUnderlyingTo(address,uint256)"(
       target: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "withdrawFromStrategy(uint256)"(
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -786,6 +945,10 @@ export class MockAToken extends Contract {
     1: BigNumber;
   }>;
 
+  getStrategy(overrides?: CallOverrides): Promise<string>;
+
+  "getStrategy()"(overrides?: CallOverrides): Promise<string>;
+
   handleRepayment(
     user: string,
     amount: BigNumberish,
@@ -813,7 +976,9 @@ export class MockAToken extends Contract {
   initialize(
     pool: string,
     vars: {
+      lendingPoolConfigurator: string;
       treasury: string;
+      VMEXTreasury: string;
       underlyingAsset: string;
       trancheId: BigNumberish;
     },
@@ -825,10 +990,12 @@ export class MockAToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+  "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
     pool: string,
     vars: {
+      lendingPoolConfigurator: string;
       treasury: string;
+      VMEXTreasury: string;
       underlyingAsset: string;
       trancheId: BigNumberish;
     },
@@ -839,6 +1006,10 @@ export class MockAToken extends Contract {
     params: BytesLike,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
+
+  minSupplyQuotient(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "minSupplyQuotient()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   mint(
     user: string,
@@ -861,6 +1032,18 @@ export class MockAToken extends Contract {
   ): Promise<ContractTransaction>;
 
   "mintToTreasury(uint256,uint256)"(
+    amount: BigNumberish,
+    index: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  mintToVMEXTreasury(
+    amount: BigNumberish,
+    index: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "mintToVMEXTreasury(uint256,uint256)"(
     amount: BigNumberish,
     index: BigNumberish,
     overrides?: Overrides
@@ -903,9 +1086,43 @@ export class MockAToken extends Contract {
 
   "scaledTotalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+  setAndApproveStrategy(
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setAndApproveStrategy(address)"(
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  setTreasury(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setTreasury(address)"(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  setVMEXTreasury(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setVMEXTreasury(address)"(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   symbol(overrides?: CallOverrides): Promise<string>;
 
   "symbol()"(overrides?: CallOverrides): Promise<string>;
+
+  targetSupplyQuotient(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "targetSupplyQuotient()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -959,6 +1176,16 @@ export class MockAToken extends Contract {
 
   "transferUnderlyingTo(address,uint256)"(
     target: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  withdrawFromStrategy(
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "withdrawFromStrategy(uint256)"(
     amount: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -1082,6 +1309,10 @@ export class MockAToken extends Contract {
       1: BigNumber;
     }>;
 
+    getStrategy(overrides?: CallOverrides): Promise<string>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<string>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -1109,7 +1340,9 @@ export class MockAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1121,10 +1354,12 @@ export class MockAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1135,6 +1370,10 @@ export class MockAToken extends Contract {
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    minSupplyQuotient(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "minSupplyQuotient()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       user: string,
@@ -1157,6 +1396,18 @@ export class MockAToken extends Contract {
     ): Promise<void>;
 
     "mintToTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
       amount: BigNumberish,
       index: BigNumberish,
       overrides?: CallOverrides
@@ -1202,9 +1453,40 @@ export class MockAToken extends Contract {
 
     "scaledTotalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTreasury(newTreasury: string, overrides?: CallOverrides): Promise<void>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     symbol(overrides?: CallOverrides): Promise<string>;
 
     "symbol()"(overrides?: CallOverrides): Promise<string>;
+
+    targetSupplyQuotient(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "targetSupplyQuotient()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1261,6 +1543,16 @@ export class MockAToken extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawFromStrategy(uint256)"(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -1298,6 +1590,10 @@ export class MockAToken extends Contract {
     Mint(from: string | null, value: null, index: null): EventFilter;
 
     Transfer(from: string | null, to: string | null, value: null): EventFilter;
+
+    TreasuryChanged(newAddress: string | null): EventFilter;
+
+    VMEXTreasuryChanged(newAddress: string | null): EventFilter;
   };
 
   estimateGas: {
@@ -1413,6 +1709,10 @@ export class MockAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getStrategy(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -1440,7 +1740,9 @@ export class MockAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1452,10 +1754,12 @@ export class MockAToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1466,6 +1770,10 @@ export class MockAToken extends Contract {
       params: BytesLike,
       overrides?: Overrides
     ): Promise<BigNumber>;
+
+    minSupplyQuotient(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "minSupplyQuotient()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       user: string,
@@ -1488,6 +1796,18 @@ export class MockAToken extends Contract {
     ): Promise<BigNumber>;
 
     "mintToTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
       amount: BigNumberish,
       index: BigNumberish,
       overrides?: Overrides
@@ -1533,9 +1853,40 @@ export class MockAToken extends Contract {
 
     "scaledTotalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    setTreasury(newTreasury: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     "symbol()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    targetSupplyQuotient(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "targetSupplyQuotient()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1589,6 +1940,16 @@ export class MockAToken extends Contract {
 
     "transferUnderlyingTo(address,uint256)"(
       target: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "withdrawFromStrategy(uint256)"(
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -1733,6 +2094,10 @@ export class MockAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getStrategy(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -1760,7 +2125,9 @@ export class MockAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1772,10 +2139,12 @@ export class MockAToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1785,6 +2154,12 @@ export class MockAToken extends Contract {
       aTokenSymbol: string,
       params: BytesLike,
       overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    minSupplyQuotient(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "minSupplyQuotient()"(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     mint(
@@ -1808,6 +2183,18 @@ export class MockAToken extends Contract {
     ): Promise<PopulatedTransaction>;
 
     "mintToTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
       amount: BigNumberish,
       index: BigNumberish,
       overrides?: Overrides
@@ -1855,9 +2242,47 @@ export class MockAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    setTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "symbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    targetSupplyQuotient(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "targetSupplyQuotient()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1911,6 +2336,16 @@ export class MockAToken extends Contract {
 
     "transferUnderlyingTo(address,uint256)"(
       target: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawFromStrategy(uint256)"(
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;

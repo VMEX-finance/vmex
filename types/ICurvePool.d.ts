@@ -21,17 +21,14 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface ICurvePoolInterface extends ethers.utils.Interface {
   functions: {
-    "coins(uint256)": FunctionFragment;
     "get_virtual_price()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "coins", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "get_virtual_price",
     values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "coins", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "get_virtual_price",
     data: BytesLike
@@ -54,20 +51,6 @@ export class ICurvePool extends Contract {
   interface: ICurvePoolInterface;
 
   functions: {
-    coins(
-      n: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<{
-      0: string;
-    }>;
-
-    "coins(uint256)"(
-      n: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<{
-      0: string;
-    }>;
-
     get_virtual_price(overrides?: CallOverrides): Promise<{
       0: BigNumber;
     }>;
@@ -77,22 +60,11 @@ export class ICurvePool extends Contract {
     }>;
   };
 
-  coins(n: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-  "coins(uint256)"(n: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
   get_virtual_price(overrides?: CallOverrides): Promise<BigNumber>;
 
   "get_virtual_price()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    coins(n: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-    "coins(uint256)"(
-      n: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     get_virtual_price(overrides?: CallOverrides): Promise<BigNumber>;
 
     "get_virtual_price()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -101,29 +73,12 @@ export class ICurvePool extends Contract {
   filters: {};
 
   estimateGas: {
-    coins(n: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "coins(uint256)"(
-      n: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     get_virtual_price(overrides?: CallOverrides): Promise<BigNumber>;
 
     "get_virtual_price()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    coins(
-      n: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "coins(uint256)"(
-      n: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     get_virtual_price(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "get_virtual_price()"(

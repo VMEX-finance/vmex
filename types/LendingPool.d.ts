@@ -24,6 +24,7 @@ interface LendingPoolInterface extends ethers.utils.Interface {
   functions: {
     "FLASHLOAN_PREMIUM_TOTAL()": FunctionFragment;
     "LENDINGPOOL_REVISION()": FunctionFragment;
+    "addStrategy(address,uint64,address)": FunctionFragment;
     "borrow(address,uint64,uint256,uint256,uint16,address)": FunctionFragment;
     "deposit(address,uint64,uint256,address,uint16)": FunctionFragment;
     "finalizeTransfer(address,uint64,address,address,uint256,uint256,uint256)": FunctionFragment;
@@ -50,6 +51,7 @@ interface LendingPoolInterface extends ethers.utils.Interface {
     "setUserUseReserveAsCollateral(address,uint64,bool)": FunctionFragment;
     "swapBorrowRateMode(address,uint64,uint256)": FunctionFragment;
     "withdraw(address,uint64,uint256,address)": FunctionFragment;
+    "withdrawFromStrategy(address,uint64,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -59,6 +61,10 @@ interface LendingPoolInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "LENDINGPOOL_REVISION",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addStrategy",
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "borrow",
@@ -158,7 +164,6 @@ interface LendingPoolInterface extends ethers.utils.Interface {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -213,6 +218,10 @@ interface LendingPoolInterface extends ethers.utils.Interface {
     functionFragment: "withdraw",
     values: [string, BigNumberish, BigNumberish, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFromStrategy",
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "FLASHLOAN_PREMIUM_TOTAL",
@@ -220,6 +229,10 @@ interface LendingPoolInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "LENDINGPOOL_REVISION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addStrategy",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
@@ -302,6 +315,10 @@ interface LendingPoolInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFromStrategy",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Deposit(address,uint64,address,address,uint256,uint16)": EventFragment;
@@ -365,6 +382,20 @@ export class LendingPool extends Contract {
     "LENDINGPOOL_REVISION()"(overrides?: CallOverrides): Promise<{
       0: BigNumber;
     }>;
+
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
     borrow(
       asset: string,
@@ -694,7 +725,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -705,7 +735,7 @@ export class LendingPool extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -725,7 +755,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -907,6 +936,20 @@ export class LendingPool extends Contract {
       to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
   };
 
   FLASHLOAN_PREMIUM_TOTAL(overrides?: CallOverrides): Promise<BigNumber>;
@@ -916,6 +959,20 @@ export class LendingPool extends Contract {
   LENDINGPOOL_REVISION(overrides?: CallOverrides): Promise<BigNumber>;
 
   "LENDINGPOOL_REVISION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  addStrategy(
+    asset: string,
+    trancheId: BigNumberish,
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addStrategy(address,uint64,address)"(
+    asset: string,
+    trancheId: BigNumberish,
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   borrow(
     asset: string,
@@ -1210,7 +1267,6 @@ export class LendingPool extends Contract {
       params: BytesLike;
       assetType: BigNumberish;
       collateralCap: BigNumberish;
-      hasStrategy: boolean;
       usingGovernanceSetInterestRate: boolean;
       governanceSetInterestRate: BigNumberish;
     },
@@ -1221,7 +1277,7 @@ export class LendingPool extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+  "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
     input: {
       aTokenImpl: string;
       stableDebtTokenImpl: string;
@@ -1241,7 +1297,6 @@ export class LendingPool extends Contract {
       params: BytesLike;
       assetType: BigNumberish;
       collateralCap: BigNumberish;
-      hasStrategy: boolean;
       usingGovernanceSetInterestRate: boolean;
       governanceSetInterestRate: BigNumberish;
     },
@@ -1417,6 +1472,20 @@ export class LendingPool extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  withdrawFromStrategy(
+    asset: string,
+    trancheId: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "withdrawFromStrategy(address,uint64,uint256)"(
+    asset: string,
+    trancheId: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     FLASHLOAN_PREMIUM_TOTAL(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1425,6 +1494,20 @@ export class LendingPool extends Contract {
     LENDINGPOOL_REVISION(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LENDINGPOOL_REVISION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     borrow(
       asset: string,
@@ -1719,7 +1802,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -1730,7 +1812,7 @@ export class LendingPool extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -1750,7 +1832,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -1925,6 +2006,20 @@ export class LendingPool extends Contract {
       to: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -2014,6 +2109,20 @@ export class LendingPool extends Contract {
     LENDINGPOOL_REVISION(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LENDINGPOOL_REVISION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
     borrow(
       asset: string,
@@ -2212,7 +2321,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2223,7 +2331,7 @@ export class LendingPool extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -2243,7 +2351,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2418,6 +2525,20 @@ export class LendingPool extends Contract {
       to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -2435,6 +2556,20 @@ export class LendingPool extends Contract {
 
     "LENDINGPOOL_REVISION()"(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
     borrow(
@@ -2641,7 +2776,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2652,7 +2786,7 @@ export class LendingPool extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -2672,7 +2806,6 @@ export class LendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2848,6 +2981,20 @@ export class LendingPool extends Contract {
       trancheId: BigNumberish,
       amount: BigNumberish,
       to: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
   };

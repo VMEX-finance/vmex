@@ -23,6 +23,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   functions: {
     "activateReserve(address,uint64)": FunctionFragment;
+    "addStrategy(address,uint64,address)": FunctionFragment;
     "batchInitReserve(tuple[],uint64)": FunctionFragment;
     "claimTrancheId(uint64,address,address)": FunctionFragment;
     "configureReserveAsCollateral(address,uint64,uint256,uint256,uint256)": FunctionFragment;
@@ -31,21 +32,26 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     "disableReserveStableRate(address,uint64)": FunctionFragment;
     "enableBorrowingOnReserve(address,uint64,bool)": FunctionFragment;
     "enableReserveStableRate(address,uint64)": FunctionFragment;
-    "freezeReserve(address,uint64)": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "setAssetData(address,uint8)": FunctionFragment;
+    "setDefaultVMEXTreasury(address)": FunctionFragment;
     "setPoolPause(bool,uint64)": FunctionFragment;
-    "setReserveFactor(address,uint64,uint256)": FunctionFragment;
     "setReserveInterestRateStrategyAddress(address,uint64,address)": FunctionFragment;
-    "unfreezeReserve(address,uint64)": FunctionFragment;
     "updateAToken(tuple,uint64)": FunctionFragment;
     "updateStableDebtToken(tuple,uint64)": FunctionFragment;
+    "updateTreasuryAddress(address,address,uint64)": FunctionFragment;
+    "updateVMEXTreasuryAddress(address,address,uint64)": FunctionFragment;
     "updateVariableDebtToken(tuple,uint64)": FunctionFragment;
+    "withdrawFromStrategy(address,uint64,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "activateReserve",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addStrategy",
+    values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "batchInitReserve",
@@ -69,7 +75,6 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -104,30 +109,22 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     functionFragment: "enableReserveStableRate",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "freezeReserve",
-    values: [string, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "initialize", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setAssetData",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "setDefaultVMEXTreasury",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setPoolPause",
     values: [boolean, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setReserveFactor",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setReserveInterestRateStrategyAddress",
     values: [string, BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "unfreezeReserve",
-    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "updateAToken",
@@ -161,6 +158,14 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "updateTreasuryAddress",
+    values: [string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateVMEXTreasuryAddress",
+    values: [string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "updateVariableDebtToken",
     values: [
       {
@@ -175,9 +180,17 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
       BigNumberish
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFromStrategy",
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "activateReserve",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addStrategy",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -212,13 +225,13 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     functionFragment: "enableReserveStableRate",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "freezeReserve",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAssetData",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDefaultVMEXTreasury",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -226,15 +239,7 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setReserveFactor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setReserveInterestRateStrategyAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "unfreezeReserve",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -246,7 +251,19 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "updateTreasuryAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateVMEXTreasuryAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "updateVariableDebtToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFromStrategy",
     data: BytesLike
   ): Result;
 
@@ -259,15 +276,14 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     "ReserveActivated(address)": EventFragment;
     "ReserveDeactivated(address)": EventFragment;
     "ReserveDecimalsChanged(address,uint256)": EventFragment;
-    "ReserveFactorChanged(address,uint256)": EventFragment;
-    "ReserveFrozen(address)": EventFragment;
     "ReserveInitialized(address,address,address,address,address)": EventFragment;
     "ReserveInterestRateStrategyChanged(address,address)": EventFragment;
-    "ReserveUnfrozen(address)": EventFragment;
     "StableDebtTokenUpgraded(address,address,address)": EventFragment;
     "StableRateDisabledOnReserve(address)": EventFragment;
     "StableRateEnabledOnReserve(address)": EventFragment;
+    "StrategyAdded(address,uint64,address)": EventFragment;
     "VariableDebtTokenUpgraded(address,address,address)": EventFragment;
+    "WithdrawFromStrategy(address,uint64,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ATokenUpgraded"): EventFragment;
@@ -280,19 +296,18 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ReserveActivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveDeactivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveDecimalsChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveFactorChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveFrozen"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveInitialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ReserveInterestRateStrategyChanged"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveUnfrozen"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableDebtTokenUpgraded"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "StableRateDisabledOnReserve"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableRateEnabledOnReserve"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StrategyAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VariableDebtTokenUpgraded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WithdrawFromStrategy"): EventFragment;
 }
 
 export class LendingPoolConfigurator extends Contract {
@@ -321,6 +336,20 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     batchInitReserve(
       input: {
         aTokenImpl: string;
@@ -341,7 +370,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -369,7 +397,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -471,18 +498,6 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    freezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "freezeReserve(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
     initialize(
       provider: string,
       overrides?: Overrides
@@ -505,6 +520,16 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    setDefaultVMEXTreasury(
+      add: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setDefaultVMEXTreasury(address)"(
+      add: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     setPoolPause(
       val: boolean,
       trancheId: BigNumberish,
@@ -514,20 +539,6 @@ export class LendingPoolConfigurator extends Contract {
     "setPoolPause(bool,uint64)"(
       val: boolean,
       trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    setReserveFactor(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "setReserveFactor(address,uint64,uint256)"(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -542,18 +553,6 @@ export class LendingPoolConfigurator extends Contract {
       asset: string,
       trancheId: BigNumberish,
       rateStrategyAddress: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    unfreezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "unfreezeReserve(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -615,6 +614,34 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    updateTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "updateTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    updateVMEXTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "updateVMEXTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     updateVariableDebtToken(
       input: {
         asset: string;
@@ -642,6 +669,20 @@ export class LendingPoolConfigurator extends Contract {
       trancheID: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
   };
 
   activateReserve(
@@ -653,6 +694,20 @@ export class LendingPoolConfigurator extends Contract {
   "activateReserve(address,uint64)"(
     asset: string,
     trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  addStrategy(
+    asset: string,
+    trancheId: BigNumberish,
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addStrategy(address,uint64,address)"(
+    asset: string,
+    trancheId: BigNumberish,
+    strategy: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -676,7 +731,6 @@ export class LendingPoolConfigurator extends Contract {
       params: BytesLike;
       assetType: BigNumberish;
       collateralCap: BigNumberish;
-      hasStrategy: boolean;
       usingGovernanceSetInterestRate: boolean;
       governanceSetInterestRate: BigNumberish;
     }[],
@@ -704,7 +758,6 @@ export class LendingPoolConfigurator extends Contract {
       params: BytesLike;
       assetType: BigNumberish;
       collateralCap: BigNumberish;
-      hasStrategy: boolean;
       usingGovernanceSetInterestRate: boolean;
       governanceSetInterestRate: BigNumberish;
     }[],
@@ -806,18 +859,6 @@ export class LendingPoolConfigurator extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  freezeReserve(
-    asset: string,
-    trancheId: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "freezeReserve(address,uint64)"(
-    asset: string,
-    trancheId: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
   initialize(
     provider: string,
     overrides?: Overrides
@@ -840,6 +881,16 @@ export class LendingPoolConfigurator extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  setDefaultVMEXTreasury(
+    add: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setDefaultVMEXTreasury(address)"(
+    add: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   setPoolPause(
     val: boolean,
     trancheId: BigNumberish,
@@ -849,20 +900,6 @@ export class LendingPoolConfigurator extends Contract {
   "setPoolPause(bool,uint64)"(
     val: boolean,
     trancheId: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  setReserveFactor(
-    asset: string,
-    trancheId: BigNumberish,
-    reserveFactor: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "setReserveFactor(address,uint64,uint256)"(
-    asset: string,
-    trancheId: BigNumberish,
-    reserveFactor: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -877,18 +914,6 @@ export class LendingPoolConfigurator extends Contract {
     asset: string,
     trancheId: BigNumberish,
     rateStrategyAddress: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  unfreezeReserve(
-    asset: string,
-    trancheId: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "unfreezeReserve(address,uint64)"(
-    asset: string,
-    trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -950,6 +975,34 @@ export class LendingPoolConfigurator extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  updateTreasuryAddress(
+    newAddress: string,
+    asset: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "updateTreasuryAddress(address,address,uint64)"(
+    newAddress: string,
+    asset: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  updateVMEXTreasuryAddress(
+    newAddress: string,
+    asset: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "updateVMEXTreasuryAddress(address,address,uint64)"(
+    newAddress: string,
+    asset: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   updateVariableDebtToken(
     input: {
       asset: string;
@@ -978,6 +1031,20 @@ export class LendingPoolConfigurator extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  withdrawFromStrategy(
+    asset: string,
+    trancheId: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "withdrawFromStrategy(address,uint64,uint256)"(
+    asset: string,
+    trancheId: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     activateReserve(
       asset: string,
@@ -988,6 +1055,20 @@ export class LendingPoolConfigurator extends Contract {
     "activateReserve(address,uint64)"(
       asset: string,
       trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1011,7 +1092,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -1039,7 +1119,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -1141,18 +1220,6 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    freezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "freezeReserve(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     initialize(provider: string, overrides?: CallOverrides): Promise<void>;
 
     "initialize(address)"(
@@ -1172,6 +1239,16 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setDefaultVMEXTreasury(
+      add: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setDefaultVMEXTreasury(address)"(
+      add: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPoolPause(
       val: boolean,
       trancheId: BigNumberish,
@@ -1181,20 +1258,6 @@ export class LendingPoolConfigurator extends Contract {
     "setPoolPause(bool,uint64)"(
       val: boolean,
       trancheId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setReserveFactor(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setReserveFactor(address,uint64,uint256)"(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1209,18 +1272,6 @@ export class LendingPoolConfigurator extends Contract {
       asset: string,
       trancheId: BigNumberish,
       rateStrategyAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    unfreezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "unfreezeReserve(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1282,6 +1333,34 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    updateTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "updateTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateVMEXTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "updateVMEXTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     updateVariableDebtToken(
       input: {
         asset: string;
@@ -1307,6 +1386,20 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
       },
       trancheID: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1340,10 +1433,6 @@ export class LendingPoolConfigurator extends Contract {
 
     ReserveDecimalsChanged(asset: string | null, decimals: null): EventFilter;
 
-    ReserveFactorChanged(asset: string | null, factor: null): EventFilter;
-
-    ReserveFrozen(asset: string | null): EventFilter;
-
     ReserveInitialized(
       asset: string | null,
       aToken: string | null,
@@ -1357,8 +1446,6 @@ export class LendingPoolConfigurator extends Contract {
       strategy: null
     ): EventFilter;
 
-    ReserveUnfrozen(asset: string | null): EventFilter;
-
     StableDebtTokenUpgraded(
       asset: string | null,
       proxy: string | null,
@@ -1369,10 +1456,18 @@ export class LendingPoolConfigurator extends Contract {
 
     StableRateEnabledOnReserve(asset: string | null): EventFilter;
 
+    StrategyAdded(asset: null, trancheId: null, strategy: null): EventFilter;
+
     VariableDebtTokenUpgraded(
       asset: string | null,
       proxy: string | null,
       implementation: string | null
+    ): EventFilter;
+
+    WithdrawFromStrategy(
+      asset: null,
+      trancheId: null,
+      amount: null
     ): EventFilter;
   };
 
@@ -1386,6 +1481,20 @@ export class LendingPoolConfigurator extends Contract {
     "activateReserve(address,uint64)"(
       asset: string,
       trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1409,7 +1518,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -1437,7 +1545,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -1539,18 +1646,6 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    freezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    "freezeReserve(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
     initialize(provider: string, overrides?: Overrides): Promise<BigNumber>;
 
     "initialize(address)"(
@@ -1570,6 +1665,16 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    setDefaultVMEXTreasury(
+      add: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setDefaultVMEXTreasury(address)"(
+      add: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     setPoolPause(
       val: boolean,
       trancheId: BigNumberish,
@@ -1579,20 +1684,6 @@ export class LendingPoolConfigurator extends Contract {
     "setPoolPause(bool,uint64)"(
       val: boolean,
       trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    setReserveFactor(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    "setReserveFactor(address,uint64,uint256)"(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1607,18 +1698,6 @@ export class LendingPoolConfigurator extends Contract {
       asset: string,
       trancheId: BigNumberish,
       rateStrategyAddress: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    unfreezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    "unfreezeReserve(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1680,6 +1759,34 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    updateTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "updateTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    updateVMEXTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "updateVMEXTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     updateVariableDebtToken(
       input: {
         asset: string;
@@ -1707,6 +1814,20 @@ export class LendingPoolConfigurator extends Contract {
       trancheID: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1719,6 +1840,20 @@ export class LendingPoolConfigurator extends Contract {
     "activateReserve(address,uint64)"(
       asset: string,
       trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -1742,7 +1877,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -1770,7 +1904,6 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       }[],
@@ -1867,18 +2000,6 @@ export class LendingPoolConfigurator extends Contract {
     ): Promise<PopulatedTransaction>;
 
     "enableReserveStableRate(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    freezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "freezeReserve(address,uint64)"(
       asset: string,
       trancheId: BigNumberish,
       overrides?: Overrides
@@ -1906,6 +2027,16 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    setDefaultVMEXTreasury(
+      add: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setDefaultVMEXTreasury(address)"(
+      add: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     setPoolPause(
       val: boolean,
       trancheId: BigNumberish,
@@ -1915,20 +2046,6 @@ export class LendingPoolConfigurator extends Contract {
     "setPoolPause(bool,uint64)"(
       val: boolean,
       trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    setReserveFactor(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "setReserveFactor(address,uint64,uint256)"(
-      asset: string,
-      trancheId: BigNumberish,
-      reserveFactor: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -1943,18 +2060,6 @@ export class LendingPoolConfigurator extends Contract {
       asset: string,
       trancheId: BigNumberish,
       rateStrategyAddress: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    unfreezeReserve(
-      asset: string,
-      trancheId: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "unfreezeReserve(address,uint64)"(
-      asset: string,
-      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -2016,6 +2121,34 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    updateTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "updateTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    updateVMEXTreasuryAddress(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "updateVMEXTreasuryAddress(address,address,uint64)"(
+      newAddress: string,
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     updateVariableDebtToken(
       input: {
         asset: string;
@@ -2041,6 +2174,20 @@ export class LendingPoolConfigurator extends Contract {
         params: BytesLike;
       },
       trancheID: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
   };

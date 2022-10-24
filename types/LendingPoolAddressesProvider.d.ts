@@ -25,10 +25,10 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
     "addEmergencyAdmin(address,uint64)": FunctionFragment;
     "addPoolAdmin(address,uint64)": FunctionFragment;
     "addWhitelistedAddress(address,bool)": FunctionFragment;
+    "getATokenAndRatesHelper()": FunctionFragment;
     "getAavePriceOracle()": FunctionFragment;
     "getAddress(bytes32)": FunctionFragment;
     "getAddressTranche(bytes32,uint64)": FunctionFragment;
-    "getCurveAddressProvider()": FunctionFragment;
     "getCurvePriceOracle()": FunctionFragment;
     "getCurvePriceOracleWrapper()": FunctionFragment;
     "getEmergencyAdmin(uint64)": FunctionFragment;
@@ -43,10 +43,10 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
     "isWhitelistedAddress(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "setATokenAndRatesHelper(address)": FunctionFragment;
     "setAavePriceOracle(address)": FunctionFragment;
     "setAddress(bytes32,address)": FunctionFragment;
     "setAddressAsProxy(bytes32,address)": FunctionFragment;
-    "setCurveAddressProvider(address)": FunctionFragment;
     "setCurvePriceOracle(address)": FunctionFragment;
     "setCurvePriceOracleWrapper(address)": FunctionFragment;
     "setEmergencyAdmin(address,uint64)": FunctionFragment;
@@ -74,6 +74,10 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
     values: [string, boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "getATokenAndRatesHelper",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getAavePriceOracle",
     values?: undefined
   ): string;
@@ -84,10 +88,6 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "getAddressTranche",
     values: [BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCurveAddressProvider",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getCurvePriceOracle",
@@ -143,6 +143,10 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "setATokenAndRatesHelper",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setAavePriceOracle",
     values: [string]
   ): string;
@@ -153,10 +157,6 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setAddressAsProxy",
     values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setCurveAddressProvider",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setCurvePriceOracle",
@@ -217,16 +217,16 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getATokenAndRatesHelper",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getAavePriceOracle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAddress", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAddressTranche",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCurveAddressProvider",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -283,16 +283,16 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setATokenAndRatesHelper",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setAavePriceOracle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setAddress", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAddressAsProxy",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setCurveAddressProvider",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -345,6 +345,7 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "ATokensAndRatesHelperUpdated(address)": EventFragment;
     "AddressSet(bytes32,address,bool)": EventFragment;
     "ConfigurationAdminUpdated(address,uint64)": EventFragment;
     "CurveAddressProviderUpdated(address)": EventFragment;
@@ -361,6 +362,9 @@ interface LendingPoolAddressesProviderInterface extends ethers.utils.Interface {
     "ProxyCreated(bytes32,address)": EventFragment;
   };
 
+  getEvent(
+    nameOrSignatureOrTopic: "ATokensAndRatesHelperUpdated"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AddressSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConfigurationAdminUpdated"): EventFragment;
   getEvent(
@@ -435,6 +439,14 @@ export class LendingPoolAddressesProvider extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    getATokenAndRatesHelper(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "getATokenAndRatesHelper()"(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
     getAavePriceOracle(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
@@ -470,14 +482,6 @@ export class LendingPoolAddressesProvider extends Contract {
       trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<{
-      0: string;
-    }>;
-
-    getCurveAddressProvider(overrides?: CallOverrides): Promise<{
-      0: string;
-    }>;
-
-    "getCurveAddressProvider()"(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
@@ -613,6 +617,16 @@ export class LendingPoolAddressesProvider extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
+    setATokenAndRatesHelper(
+      newAdd: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setATokenAndRatesHelper(address)"(
+      newAdd: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     setAavePriceOracle(
       priceOracle: string,
       overrides?: Overrides
@@ -644,16 +658,6 @@ export class LendingPoolAddressesProvider extends Contract {
     "setAddressAsProxy(bytes32,address)"(
       id: BytesLike,
       implementationAddress: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    setCurveAddressProvider(
-      addressProvider: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "setCurveAddressProvider(address)"(
-      addressProvider: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -710,12 +714,12 @@ export class LendingPoolAddressesProvider extends Contract {
     ): Promise<ContractTransaction>;
 
     setLendingPoolConfiguratorImpl(
-      configurator: string,
+      newAddress: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
     "setLendingPoolConfiguratorImpl(address)"(
-      configurator: string,
+      newAddress: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -818,6 +822,10 @@ export class LendingPoolAddressesProvider extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  getATokenAndRatesHelper(overrides?: CallOverrides): Promise<string>;
+
+  "getATokenAndRatesHelper()"(overrides?: CallOverrides): Promise<string>;
+
   getAavePriceOracle(overrides?: CallOverrides): Promise<string>;
 
   "getAavePriceOracle()"(overrides?: CallOverrides): Promise<string>;
@@ -840,10 +848,6 @@ export class LendingPoolAddressesProvider extends Contract {
     trancheId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  getCurveAddressProvider(overrides?: CallOverrides): Promise<string>;
-
-  "getCurveAddressProvider()"(overrides?: CallOverrides): Promise<string>;
 
   getCurvePriceOracle(overrides?: CallOverrides): Promise<string>;
 
@@ -924,6 +928,16 @@ export class LendingPoolAddressesProvider extends Contract {
 
   "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
+  setATokenAndRatesHelper(
+    newAdd: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setATokenAndRatesHelper(address)"(
+    newAdd: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   setAavePriceOracle(
     priceOracle: string,
     overrides?: Overrides
@@ -955,16 +969,6 @@ export class LendingPoolAddressesProvider extends Contract {
   "setAddressAsProxy(bytes32,address)"(
     id: BytesLike,
     implementationAddress: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  setCurveAddressProvider(
-    addressProvider: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "setCurveAddressProvider(address)"(
-    addressProvider: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -1021,12 +1025,12 @@ export class LendingPoolAddressesProvider extends Contract {
   ): Promise<ContractTransaction>;
 
   setLendingPoolConfiguratorImpl(
-    configurator: string,
+    newAddress: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
   "setLendingPoolConfiguratorImpl(address)"(
-    configurator: string,
+    newAddress: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -1129,6 +1133,10 @@ export class LendingPoolAddressesProvider extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    getATokenAndRatesHelper(overrides?: CallOverrides): Promise<string>;
+
+    "getATokenAndRatesHelper()"(overrides?: CallOverrides): Promise<string>;
+
     getAavePriceOracle(overrides?: CallOverrides): Promise<string>;
 
     "getAavePriceOracle()"(overrides?: CallOverrides): Promise<string>;
@@ -1151,10 +1159,6 @@ export class LendingPoolAddressesProvider extends Contract {
       trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    getCurveAddressProvider(overrides?: CallOverrides): Promise<string>;
-
-    "getCurveAddressProvider()"(overrides?: CallOverrides): Promise<string>;
 
     getCurvePriceOracle(overrides?: CallOverrides): Promise<string>;
 
@@ -1238,6 +1242,16 @@ export class LendingPoolAddressesProvider extends Contract {
 
     "renounceOwnership()"(overrides?: CallOverrides): Promise<void>;
 
+    setATokenAndRatesHelper(
+      newAdd: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setATokenAndRatesHelper(address)"(
+      newAdd: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setAavePriceOracle(
       priceOracle: string,
       overrides?: CallOverrides
@@ -1269,16 +1283,6 @@ export class LendingPoolAddressesProvider extends Contract {
     "setAddressAsProxy(bytes32,address)"(
       id: BytesLike,
       implementationAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setCurveAddressProvider(
-      addressProvider: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setCurveAddressProvider(address)"(
-      addressProvider: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1332,12 +1336,12 @@ export class LendingPoolAddressesProvider extends Contract {
     ): Promise<void>;
 
     setLendingPoolConfiguratorImpl(
-      configurator: string,
+      newAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     "setLendingPoolConfiguratorImpl(address)"(
-      configurator: string,
+      newAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1399,6 +1403,8 @@ export class LendingPoolAddressesProvider extends Contract {
   };
 
   filters: {
+    ATokensAndRatesHelperUpdated(newAddress: string | null): EventFilter;
+
     AddressSet(
       id: null,
       newAddress: string | null,
@@ -1478,6 +1484,10 @@ export class LendingPoolAddressesProvider extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    getATokenAndRatesHelper(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getATokenAndRatesHelper()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getAavePriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getAavePriceOracle()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1500,10 +1510,6 @@ export class LendingPoolAddressesProvider extends Contract {
       trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    getCurveAddressProvider(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getCurveAddressProvider()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCurvePriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1593,6 +1599,16 @@ export class LendingPoolAddressesProvider extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<BigNumber>;
 
+    setATokenAndRatesHelper(
+      newAdd: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setATokenAndRatesHelper(address)"(
+      newAdd: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     setAavePriceOracle(
       priceOracle: string,
       overrides?: Overrides
@@ -1624,16 +1640,6 @@ export class LendingPoolAddressesProvider extends Contract {
     "setAddressAsProxy(bytes32,address)"(
       id: BytesLike,
       implementationAddress: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    setCurveAddressProvider(
-      addressProvider: string,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    "setCurveAddressProvider(address)"(
-      addressProvider: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1687,12 +1693,12 @@ export class LendingPoolAddressesProvider extends Contract {
     ): Promise<BigNumber>;
 
     setLendingPoolConfiguratorImpl(
-      configurator: string,
+      newAddress: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
     "setLendingPoolConfiguratorImpl(address)"(
-      configurator: string,
+      newAddress: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1790,6 +1796,14 @@ export class LendingPoolAddressesProvider extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    getATokenAndRatesHelper(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getATokenAndRatesHelper()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getAavePriceOracle(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1817,14 +1831,6 @@ export class LendingPoolAddressesProvider extends Contract {
     "getAddressTranche(bytes32,uint64)"(
       id: BytesLike,
       trancheId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getCurveAddressProvider(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getCurveAddressProvider()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1932,6 +1938,16 @@ export class LendingPoolAddressesProvider extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<PopulatedTransaction>;
 
+    setATokenAndRatesHelper(
+      newAdd: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setATokenAndRatesHelper(address)"(
+      newAdd: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     setAavePriceOracle(
       priceOracle: string,
       overrides?: Overrides
@@ -1963,16 +1979,6 @@ export class LendingPoolAddressesProvider extends Contract {
     "setAddressAsProxy(bytes32,address)"(
       id: BytesLike,
       implementationAddress: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    setCurveAddressProvider(
-      addressProvider: string,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "setCurveAddressProvider(address)"(
-      addressProvider: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -2029,12 +2035,12 @@ export class LendingPoolAddressesProvider extends Contract {
     ): Promise<PopulatedTransaction>;
 
     setLendingPoolConfiguratorImpl(
-      configurator: string,
+      newAddress: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
     "setLendingPoolConfiguratorImpl(address)"(
-      configurator: string,
+      newAddress: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 

@@ -23,10 +23,14 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface ATokensAndRatesHelperInterface extends ethers.utils.Interface {
   functions: {
     "configureReserves(tuple[],uint64)": FunctionFragment;
+    "freezeReserve(address,uint64)": FunctionFragment;
     "initDeployment(tuple[])": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "setReserveFactor(address,uint64,uint256)": FunctionFragment;
+    "setVMEXReserveFactor(address,uint64,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
+    "unfreezeReserve(address,uint64)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -43,6 +47,10 @@ interface ATokensAndRatesHelperInterface extends ethers.utils.Interface {
       }[],
       BigNumberish
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "freezeReserve",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "initDeployment",
@@ -66,12 +74,28 @@ interface ATokensAndRatesHelperInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "setReserveFactor",
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setVMEXReserveFactor",
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "unfreezeReserve",
+    values: [string, BigNumberish]
   ): string;
 
   decodeFunctionResult(
     functionFragment: "configureReserves",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "freezeReserve",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -84,16 +108,34 @@ interface ATokensAndRatesHelperInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setReserveFactor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVMEXReserveFactor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "unfreezeReserve",
     data: BytesLike
   ): Result;
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
+    "ReserveFactorChanged(address,uint256)": EventFragment;
+    "ReserveFrozen(address)": EventFragment;
+    "ReserveUnfrozen(address)": EventFragment;
     "deployedContracts(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ReserveFactorChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ReserveFrozen"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ReserveUnfrozen"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "deployedContracts"): EventFragment;
 }
 
@@ -135,6 +177,18 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    freezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "freezeReserve(address,uint64)"(
+      asset: string,
       trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -181,6 +235,34 @@ export class ATokensAndRatesHelper extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
+    setReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    setVMEXReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setVMEXReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides
@@ -188,6 +270,18 @@ export class ATokensAndRatesHelper extends Contract {
 
     "transferOwnership(address)"(
       newOwner: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    unfreezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "unfreezeReserve(address,uint64)"(
+      asset: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
   };
@@ -216,6 +310,18 @@ export class ATokensAndRatesHelper extends Contract {
       stableBorrowingEnabled: boolean;
       borrowingEnabled: boolean;
     }[],
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  freezeReserve(
+    asset: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "freezeReserve(address,uint64)"(
+    asset: string,
     trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -258,6 +364,34 @@ export class ATokensAndRatesHelper extends Contract {
 
   "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
+  setReserveFactor(
+    asset: string,
+    trancheId: BigNumberish,
+    reserveFactor: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setReserveFactor(address,uint64,uint256)"(
+    asset: string,
+    trancheId: BigNumberish,
+    reserveFactor: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  setVMEXReserveFactor(
+    asset: string,
+    trancheId: BigNumberish,
+    reserveFactor: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setVMEXReserveFactor(address,uint64,uint256)"(
+    asset: string,
+    trancheId: BigNumberish,
+    reserveFactor: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: string,
     overrides?: Overrides
@@ -265,6 +399,18 @@ export class ATokensAndRatesHelper extends Contract {
 
   "transferOwnership(address)"(
     newOwner: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  unfreezeReserve(
+    asset: string,
+    trancheId: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "unfreezeReserve(address,uint64)"(
+    asset: string,
+    trancheId: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -293,6 +439,18 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    freezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "freezeReserve(address,uint64)"(
+      asset: string,
       trancheId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -335,6 +493,34 @@ export class ATokensAndRatesHelper extends Contract {
 
     "renounceOwnership()"(overrides?: CallOverrides): Promise<void>;
 
+    setReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVMEXReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setVMEXReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
@@ -344,6 +530,18 @@ export class ATokensAndRatesHelper extends Contract {
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    unfreezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "unfreezeReserve(address,uint64)"(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -351,6 +549,12 @@ export class ATokensAndRatesHelper extends Contract {
       previousOwner: string | null,
       newOwner: string | null
     ): EventFilter;
+
+    ReserveFactorChanged(asset: string | null, factor: null): EventFilter;
+
+    ReserveFrozen(asset: string | null): EventFilter;
+
+    ReserveUnfrozen(asset: string | null): EventFilter;
 
     deployedContracts(aToken: null, strategy: null): EventFilter;
   };
@@ -380,6 +584,18 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    freezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "freezeReserve(address,uint64)"(
+      asset: string,
       trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -422,6 +638,34 @@ export class ATokensAndRatesHelper extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<BigNumber>;
 
+    setReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    setVMEXReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setVMEXReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides
@@ -429,6 +673,18 @@ export class ATokensAndRatesHelper extends Contract {
 
     "transferOwnership(address)"(
       newOwner: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    unfreezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "unfreezeReserve(address,uint64)"(
+      asset: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
   };
@@ -458,6 +714,18 @@ export class ATokensAndRatesHelper extends Contract {
         stableBorrowingEnabled: boolean;
         borrowingEnabled: boolean;
       }[],
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    freezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "freezeReserve(address,uint64)"(
+      asset: string,
       trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
@@ -500,6 +768,34 @@ export class ATokensAndRatesHelper extends Contract {
 
     "renounceOwnership()"(overrides?: Overrides): Promise<PopulatedTransaction>;
 
+    setReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    setVMEXReserveFactor(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setVMEXReserveFactor(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      reserveFactor: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides
@@ -507,6 +803,18 @@ export class ATokensAndRatesHelper extends Contract {
 
     "transferOwnership(address)"(
       newOwner: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    unfreezeReserve(
+      asset: string,
+      trancheId: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "unfreezeReserve(address,uint64)"(
+      asset: string,
+      trancheId: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
   };

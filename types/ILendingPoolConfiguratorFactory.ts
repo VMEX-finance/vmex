@@ -183,38 +183,6 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "factor",
-        type: "uint256",
-      },
-    ],
-    name: "ReserveFactorChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "asset",
-        type: "address",
-      },
-    ],
-    name: "ReserveFrozen",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "asset",
-        type: "address",
-      },
-      {
         indexed: true,
         internalType: "address",
         name: "aToken",
@@ -259,19 +227,6 @@ const _abi = [
       },
     ],
     name: "ReserveInterestRateStrategyChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "asset",
-        type: "address",
-      },
-    ],
-    name: "ReserveUnfrozen",
     type: "event",
   },
   {
@@ -329,6 +284,31 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "strategy",
+        type: "address",
+      },
+    ],
+    name: "StrategyAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "asset",
@@ -348,6 +328,31 @@ const _abi = [
       },
     ],
     name: "VariableDebtTokenUpgraded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "WithdrawFromStrategy",
     type: "event",
   },
 ];

@@ -29,7 +29,13 @@ interface IInitializableATokenInterface extends ethers.utils.Interface {
     functionFragment: "initialize",
     values: [
       string,
-      { treasury: string; underlyingAsset: string; trancheId: BigNumberish },
+      {
+        lendingPoolConfigurator: string;
+        treasury: string;
+        VMEXTreasury: string;
+        underlyingAsset: string;
+        trancheId: BigNumberish;
+      },
       string,
       BigNumberish,
       string,
@@ -64,7 +70,9 @@ export class IInitializableAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -76,10 +84,12 @@ export class IInitializableAToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -95,7 +105,9 @@ export class IInitializableAToken extends Contract {
   initialize(
     pool: string,
     vars: {
+      lendingPoolConfigurator: string;
       treasury: string;
+      VMEXTreasury: string;
       underlyingAsset: string;
       trancheId: BigNumberish;
     },
@@ -107,10 +119,12 @@ export class IInitializableAToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+  "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
     pool: string,
     vars: {
+      lendingPoolConfigurator: string;
       treasury: string;
+      VMEXTreasury: string;
       underlyingAsset: string;
       trancheId: BigNumberish;
     },
@@ -126,7 +140,9 @@ export class IInitializableAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -138,10 +154,12 @@ export class IInitializableAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -171,7 +189,9 @@ export class IInitializableAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -183,10 +203,12 @@ export class IInitializableAToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -203,7 +225,9 @@ export class IInitializableAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -215,10 +239,12 @@ export class IInitializableAToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },

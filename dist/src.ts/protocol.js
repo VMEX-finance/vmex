@@ -17,7 +17,7 @@ async function markReserveAsCollateral(params, callback) {
     const lendingPool = await (0, utils_1.getLendingPoolImpl)(params.signer, params.network);
     await lendingPool.setUserUseReserveAsCollateral(params.asset, params.trancheId, params.useAsCollateral);
     if (callback) {
-        await callback().catch((error) => { console.error("CALLBACK_ERROR: \n", error); });
+        return await callback();
     }
 }
 exports.markReserveAsCollateral = markReserveAsCollateral;
@@ -67,7 +67,7 @@ async function supply(params, callback) {
         });
     }
     catch (error) {
-        throw error;
+        throw new Error("Lending Pool Failed with " + error);
     }
     if (params.collateral) {
         await lendingPool.setUserUseReserveAsCollateral(params.underlying, params.trancheId, params.collateral);

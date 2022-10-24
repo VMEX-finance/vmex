@@ -21,7 +21,7 @@ export async function getLendingPoolImpl(signer: ethers.Signer, network: string,
  */
 export async function approveUnderlying(signer: ethers.Signer, amount: any, underlying: string, spender: string) {
     let _underlying = new ethers.Contract(underlying, ["function approve(address spender, uint256 value) external returns (bool success)"], signer);
-    return await _underlying.approve(await spender, amount);
+    return await _underlying.connect(signer).approve(spender, amount);
 }
 
 export async function lendingPoolPause(approvedSigner: ethers.Signer, setPause: boolean, network: string, tranche: number) {
@@ -42,4 +42,19 @@ export async function lendingPoolPause(approvedSigner: ethers.Signer, setPause: 
 export async function getUserSingleReserveData(signer: ethers.Signer, network: string, asset: string, tranche: number) {
     let lendingPool = await getLendingPoolImpl(signer, network);
     return await lendingPool.getReserveData(asset, tranche);
+}
+
+export async function getLendingPoolReservesList(signer: ethers.Signer, network: string, tranche: number) {
+    let lendingPool = await getLendingPoolImpl(signer, network);
+    return await lendingPool.getReservesList(tranche);
+}
+
+export async function getAssetData(signer: ethers.Signer, network: string, asset: string, tranche: number) {
+    let lendingPool = await getLendingPoolImpl(signer, network);
+    return await lendingPool.getAssetData(asset, tranche);
+}
+
+export async function getReserveData(signer: ethers.Signer, network: string, asset: string, tranche: number) {
+    let lendingPool = await getLendingPoolImpl(signer, network);
+    return await lendingPool.getReserveData(asset, tranche)
 }
