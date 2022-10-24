@@ -27,15 +27,14 @@ interface ILendingPoolConfiguratorInterface extends ethers.utils.Interface {
     "ReserveActivated(address)": EventFragment;
     "ReserveDeactivated(address)": EventFragment;
     "ReserveDecimalsChanged(address,uint256)": EventFragment;
-    "ReserveFactorChanged(address,uint256)": EventFragment;
-    "ReserveFrozen(address)": EventFragment;
     "ReserveInitialized(address,address,address,address,address)": EventFragment;
     "ReserveInterestRateStrategyChanged(address,address)": EventFragment;
-    "ReserveUnfrozen(address)": EventFragment;
     "StableDebtTokenUpgraded(address,address,address)": EventFragment;
     "StableRateDisabledOnReserve(address)": EventFragment;
     "StableRateEnabledOnReserve(address)": EventFragment;
+    "StrategyAdded(address,uint64,address)": EventFragment;
     "VariableDebtTokenUpgraded(address,address,address)": EventFragment;
+    "WithdrawFromStrategy(address,uint64,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ATokenUpgraded"): EventFragment;
@@ -48,19 +47,18 @@ interface ILendingPoolConfiguratorInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ReserveActivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveDeactivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveDecimalsChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveFactorChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveFrozen"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveInitialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ReserveInterestRateStrategyChanged"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReserveUnfrozen"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableDebtTokenUpgraded"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "StableRateDisabledOnReserve"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableRateEnabledOnReserve"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StrategyAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VariableDebtTokenUpgraded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WithdrawFromStrategy"): EventFragment;
 }
 
 export class ILendingPoolConfigurator extends Contract {
@@ -109,10 +107,6 @@ export class ILendingPoolConfigurator extends Contract {
 
     ReserveDecimalsChanged(asset: string | null, decimals: null): EventFilter;
 
-    ReserveFactorChanged(asset: string | null, factor: null): EventFilter;
-
-    ReserveFrozen(asset: string | null): EventFilter;
-
     ReserveInitialized(
       asset: string | null,
       aToken: string | null,
@@ -126,8 +120,6 @@ export class ILendingPoolConfigurator extends Contract {
       strategy: null
     ): EventFilter;
 
-    ReserveUnfrozen(asset: string | null): EventFilter;
-
     StableDebtTokenUpgraded(
       asset: string | null,
       proxy: string | null,
@@ -138,10 +130,18 @@ export class ILendingPoolConfigurator extends Contract {
 
     StableRateEnabledOnReserve(asset: string | null): EventFilter;
 
+    StrategyAdded(asset: null, trancheId: null, strategy: null): EventFilter;
+
     VariableDebtTokenUpgraded(
       asset: string | null,
       proxy: string | null,
       implementation: string | null
+    ): EventFilter;
+
+    WithdrawFromStrategy(
+      asset: null,
+      trancheId: null,
+      amount: null
     ): EventFilter;
   };
 

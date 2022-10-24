@@ -43,7 +43,7 @@ export async function markReserveAsCollateral(params: {
     );
 
     if (callback) {
-        await callback().catch((error) => { console.error("CALLBACK_ERROR: \n", error)});
+        return await callback()
     }
 }
 
@@ -160,7 +160,7 @@ export async function supply(params: {
         );
 
     } catch (error) {
-        throw error;
+        throw new Error("Lending Pool Failed with " + error);
     }
 
     if (params.collateral) {

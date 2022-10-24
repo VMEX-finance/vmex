@@ -370,6 +370,29 @@ const _abi = [
         type: "uint64",
       },
       {
+        internalType: "address",
+        name: "strategy",
+        type: "address",
+      },
+    ],
+    name: "addStrategy",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -943,11 +966,6 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "hasStrategy",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
             name: "usingGovernanceSetInterestRate",
             type: "bool",
           },
@@ -1265,6 +1283,29 @@ const _abi = [
         type: "uint256",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "trancheId",
+        type: "uint64",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "withdrawFromStrategy",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },

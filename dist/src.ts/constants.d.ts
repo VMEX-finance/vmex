@@ -759,8 +759,112 @@ export declare const deployments: {
             address: string;
             deployer: string;
         };
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
     };
     curveWrapper: {
+        localhost: {
+            address: string;
+            deployer: string;
+        };
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    TRICRYPTO2: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    THREEPOOL: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    STETHETH: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    STETH: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    FRAXUSDC: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    FRAX3CRV: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    FRAX: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    BAL: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    CRV: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    CVX: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    BADGER: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    LDO: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    ALCX: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    ONEINCH: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    vStrategyHelper: {
+        localhost: {
+            address: string;
+            deployer: string;
+        };
+    };
+    tricrypto2Strategy: {
         localhost: {
             address: string;
             deployer: string;

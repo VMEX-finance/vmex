@@ -29,17 +29,23 @@ interface IATokenInterface extends ethers.utils.Interface {
     "burn(address,address,uint256,uint256)": FunctionFragment;
     "getIncentivesController()": FunctionFragment;
     "getScaledUserBalanceAndSupply(address)": FunctionFragment;
+    "getStrategy()": FunctionFragment;
     "handleRepayment(address,uint256)": FunctionFragment;
     "initialize(address,tuple,address,uint8,string,string,bytes)": FunctionFragment;
     "mint(address,uint256,uint256)": FunctionFragment;
     "mintToTreasury(uint256,uint256)": FunctionFragment;
+    "mintToVMEXTreasury(uint256,uint256)": FunctionFragment;
     "scaledBalanceOf(address)": FunctionFragment;
     "scaledTotalSupply()": FunctionFragment;
+    "setAndApproveStrategy(address)": FunctionFragment;
+    "setTreasury(address)": FunctionFragment;
+    "setVMEXTreasury(address)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOnLiquidation(address,address,uint256)": FunctionFragment;
     "transferUnderlyingTo(address,uint256)": FunctionFragment;
+    "withdrawFromStrategy(uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -68,6 +74,10 @@ interface IATokenInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "getStrategy",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "handleRepayment",
     values: [string, BigNumberish]
   ): string;
@@ -75,7 +85,13 @@ interface IATokenInterface extends ethers.utils.Interface {
     functionFragment: "initialize",
     values: [
       string,
-      { treasury: string; underlyingAsset: string; trancheId: BigNumberish },
+      {
+        lendingPoolConfigurator: string;
+        treasury: string;
+        VMEXTreasury: string;
+        underlyingAsset: string;
+        trancheId: BigNumberish;
+      },
       string,
       BigNumberish,
       string,
@@ -92,12 +108,25 @@ interface IATokenInterface extends ethers.utils.Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "mintToVMEXTreasury",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "scaledBalanceOf",
     values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "scaledTotalSupply",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAndApproveStrategy",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "setTreasury", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "setVMEXTreasury",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -119,6 +148,10 @@ interface IATokenInterface extends ethers.utils.Interface {
     functionFragment: "transferUnderlyingTo",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFromStrategy",
+    values: [BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "UNDERLYING_ASSET_ADDRESS",
@@ -137,6 +170,10 @@ interface IATokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "handleRepayment",
     data: BytesLike
   ): Result;
@@ -147,11 +184,27 @@ interface IATokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "mintToVMEXTreasury",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "scaledBalanceOf",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "scaledTotalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAndApproveStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTreasury",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVMEXTreasury",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -171,6 +224,10 @@ interface IATokenInterface extends ethers.utils.Interface {
     functionFragment: "transferUnderlyingTo",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFromStrategy",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
@@ -179,6 +236,8 @@ interface IATokenInterface extends ethers.utils.Interface {
     "Initialized(address,address,address,address,uint8,string,string,bytes)": EventFragment;
     "Mint(address,uint256,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
+    "TreasuryChanged(address)": EventFragment;
+    "VMEXTreasuryChanged(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
@@ -187,6 +246,8 @@ interface IATokenInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Mint"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TreasuryChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VMEXTreasuryChanged"): EventFragment;
 }
 
 export class IAToken extends Contract {
@@ -293,6 +354,14 @@ export class IAToken extends Contract {
       1: BigNumber;
     }>;
 
+    getStrategy(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -308,7 +377,9 @@ export class IAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -320,10 +391,12 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -361,6 +434,18 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     scaledBalanceOf(
       user: string,
       overrides?: CallOverrides
@@ -382,6 +467,36 @@ export class IAToken extends Contract {
     "scaledTotalSupply()"(overrides?: CallOverrides): Promise<{
       0: BigNumber;
     }>;
+
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    setTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<{
       0: BigNumber;
@@ -439,6 +554,16 @@ export class IAToken extends Contract {
 
     "transferUnderlyingTo(address,uint256)"(
       user: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "withdrawFromStrategy(uint256)"(
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -515,6 +640,10 @@ export class IAToken extends Contract {
     1: BigNumber;
   }>;
 
+  getStrategy(overrides?: CallOverrides): Promise<string>;
+
+  "getStrategy()"(overrides?: CallOverrides): Promise<string>;
+
   handleRepayment(
     user: string,
     amount: BigNumberish,
@@ -530,7 +659,9 @@ export class IAToken extends Contract {
   initialize(
     pool: string,
     vars: {
+      lendingPoolConfigurator: string;
       treasury: string;
+      VMEXTreasury: string;
       underlyingAsset: string;
       trancheId: BigNumberish;
     },
@@ -542,10 +673,12 @@ export class IAToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+  "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
     pool: string,
     vars: {
+      lendingPoolConfigurator: string;
       treasury: string;
+      VMEXTreasury: string;
       underlyingAsset: string;
       trancheId: BigNumberish;
     },
@@ -583,6 +716,18 @@ export class IAToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  mintToVMEXTreasury(
+    amount: BigNumberish,
+    index: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "mintToVMEXTreasury(uint256,uint256)"(
+    amount: BigNumberish,
+    index: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   scaledBalanceOf(user: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   "scaledBalanceOf(address)"(
@@ -593,6 +738,36 @@ export class IAToken extends Contract {
   scaledTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   "scaledTotalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  setAndApproveStrategy(
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setAndApproveStrategy(address)"(
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  setTreasury(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setTreasury(address)"(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  setVMEXTreasury(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "setVMEXTreasury(address)"(
+    newTreasury: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -646,6 +821,16 @@ export class IAToken extends Contract {
 
   "transferUnderlyingTo(address,uint256)"(
     user: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  withdrawFromStrategy(
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "withdrawFromStrategy(uint256)"(
     amount: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -722,6 +907,10 @@ export class IAToken extends Contract {
       1: BigNumber;
     }>;
 
+    getStrategy(overrides?: CallOverrides): Promise<string>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<string>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -737,7 +926,9 @@ export class IAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -749,10 +940,12 @@ export class IAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -790,6 +983,18 @@ export class IAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     scaledBalanceOf(
       user: string,
       overrides?: CallOverrides
@@ -803,6 +1008,33 @@ export class IAToken extends Contract {
     scaledTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     "scaledTotalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTreasury(newTreasury: string, overrides?: CallOverrides): Promise<void>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -859,6 +1091,16 @@ export class IAToken extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawFromStrategy(uint256)"(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -896,6 +1138,10 @@ export class IAToken extends Contract {
     Mint(from: string | null, value: null, index: null): EventFilter;
 
     Transfer(from: string | null, to: string | null, value: null): EventFilter;
+
+    TreasuryChanged(newAddress: string | null): EventFilter;
+
+    VMEXTreasuryChanged(newAddress: string | null): EventFilter;
   };
 
   estimateGas: {
@@ -964,6 +1210,10 @@ export class IAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getStrategy(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -979,7 +1229,9 @@ export class IAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -991,10 +1243,12 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1032,6 +1286,18 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     scaledBalanceOf(
       user: string,
       overrides?: CallOverrides
@@ -1045,6 +1311,33 @@ export class IAToken extends Contract {
     scaledTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     "scaledTotalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    setTreasury(newTreasury: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1098,6 +1391,16 @@ export class IAToken extends Contract {
 
     "transferUnderlyingTo(address,uint256)"(
       user: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "withdrawFromStrategy(uint256)"(
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -1180,6 +1483,10 @@ export class IAToken extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getStrategy(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getStrategy()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     handleRepayment(
       user: string,
       amount: BigNumberish,
@@ -1195,7 +1502,9 @@ export class IAToken extends Contract {
     initialize(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1207,10 +1516,12 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize(address,(address,address,uint64),address,uint8,string,string,bytes)"(
+    "initialize(address,(address,address,address,address,uint64),address,uint8,string,string,bytes)"(
       pool: string,
       vars: {
+        lendingPoolConfigurator: string;
         treasury: string;
+        VMEXTreasury: string;
         underlyingAsset: string;
         trancheId: BigNumberish;
       },
@@ -1248,6 +1559,18 @@ export class IAToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    mintToVMEXTreasury(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "mintToVMEXTreasury(uint256,uint256)"(
+      amount: BigNumberish,
+      index: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     scaledBalanceOf(
       user: string,
       overrides?: CallOverrides
@@ -1262,6 +1585,36 @@ export class IAToken extends Contract {
 
     "scaledTotalSupply()"(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setAndApproveStrategy(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setAndApproveStrategy(address)"(
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    setTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    setVMEXTreasury(
+      newTreasury: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "setVMEXTreasury(address)"(
+      newTreasury: string,
+      overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1316,6 +1669,16 @@ export class IAToken extends Contract {
 
     "transferUnderlyingTo(address,uint256)"(
       user: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFromStrategy(
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawFromStrategy(uint256)"(
       amount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;

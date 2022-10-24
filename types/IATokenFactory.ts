@@ -210,6 +210,32 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newAddress",
+        type: "address",
+      },
+    ],
+    name: "TreasuryChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newAddress",
+        type: "address",
+      },
+    ],
+    name: "VMEXTreasuryChanged",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "UNDERLYING_ASSET_ADDRESS",
     outputs: [
@@ -355,6 +381,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getStrategy",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -383,7 +422,17 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "lendingPoolConfigurator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "treasury",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "VMEXTreasury",
             type: "address",
           },
           {
@@ -482,6 +531,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+    ],
+    name: "mintToVMEXTreasury",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "user",
         type: "address",
@@ -509,6 +576,45 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "strategy",
+        type: "address",
+      },
+    ],
+    name: "setAndApproveStrategy",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newTreasury",
+        type: "address",
+      },
+    ],
+    name: "setTreasury",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newTreasury",
+        type: "address",
+      },
+    ],
+    name: "setVMEXTreasury",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -621,6 +727,19 @@ const _abi = [
         type: "uint256",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "withdrawFromStrategy",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },

@@ -22,6 +22,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface ILendingPoolInterface extends ethers.utils.Interface {
   functions: {
+    "addStrategy(address,uint64,address)": FunctionFragment;
     "borrow(address,uint64,uint256,uint256,uint16,address)": FunctionFragment;
     "deposit(address,uint64,uint256,address,uint16)": FunctionFragment;
     "finalizeTransfer(address,uint64,address,address,uint256,uint256,uint256)": FunctionFragment;
@@ -47,8 +48,13 @@ interface ILendingPoolInterface extends ethers.utils.Interface {
     "setUserUseReserveAsCollateral(address,uint64,bool)": FunctionFragment;
     "swapBorrowRateMode(address,uint64,uint256)": FunctionFragment;
     "withdraw(address,uint64,uint256,address)": FunctionFragment;
+    "withdrawFromStrategy(address,uint64,uint256)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "addStrategy",
+    values: [string, BigNumberish, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "borrow",
     values: [
@@ -147,7 +153,6 @@ interface ILendingPoolInterface extends ethers.utils.Interface {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -201,7 +206,15 @@ interface ILendingPoolInterface extends ethers.utils.Interface {
     functionFragment: "withdraw",
     values: [string, BigNumberish, BigNumberish, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFromStrategy",
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "addStrategy",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
@@ -281,6 +294,10 @@ interface ILendingPoolInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFromStrategy",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Deposit(address,uint64,address,address,uint256,uint16)": EventFragment;
@@ -329,6 +346,20 @@ export class ILendingPool extends Contract {
   interface: ILendingPoolInterface;
 
   functions: {
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -657,7 +688,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -668,7 +698,7 @@ export class ILendingPool extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -688,7 +718,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -860,7 +889,35 @@ export class ILendingPool extends Contract {
       to: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
   };
+
+  addStrategy(
+    asset: string,
+    trancheId: BigNumberish,
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addStrategy(address,uint64,address)"(
+    asset: string,
+    trancheId: BigNumberish,
+    strategy: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   borrow(
     asset: string,
@@ -1155,7 +1212,6 @@ export class ILendingPool extends Contract {
       params: BytesLike;
       assetType: BigNumberish;
       collateralCap: BigNumberish;
-      hasStrategy: boolean;
       usingGovernanceSetInterestRate: boolean;
       governanceSetInterestRate: BigNumberish;
     },
@@ -1166,7 +1222,7 @@ export class ILendingPool extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+  "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
     input: {
       aTokenImpl: string;
       stableDebtTokenImpl: string;
@@ -1186,7 +1242,6 @@ export class ILendingPool extends Contract {
       params: BytesLike;
       assetType: BigNumberish;
       collateralCap: BigNumberish;
-      hasStrategy: boolean;
       usingGovernanceSetInterestRate: boolean;
       governanceSetInterestRate: BigNumberish;
     },
@@ -1352,7 +1407,35 @@ export class ILendingPool extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  withdrawFromStrategy(
+    asset: string,
+    trancheId: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "withdrawFromStrategy(address,uint64,uint256)"(
+    asset: string,
+    trancheId: BigNumberish,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -1646,7 +1729,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -1657,7 +1739,7 @@ export class ILendingPool extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -1677,7 +1759,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -1845,6 +1926,20 @@ export class ILendingPool extends Contract {
       to: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -1927,6 +2022,20 @@ export class ILendingPool extends Contract {
   };
 
   estimateGas: {
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -2124,7 +2233,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2135,7 +2243,7 @@ export class ILendingPool extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -2155,7 +2263,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2323,9 +2430,37 @@ export class ILendingPool extends Contract {
       to: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    addStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addStrategy(address,uint64,address)"(
+      asset: string,
+      trancheId: BigNumberish,
+      strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -2530,7 +2665,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2541,7 +2675,7 @@ export class ILendingPool extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,bool,uint256),address,address,address,uint64)"(
+    "initReserve((address,address,address,uint8,address,address,address,address,string,string,string,string,string,string,string,bytes,uint8,uint256,bool,uint256),address,address,address,uint64)"(
       input: {
         aTokenImpl: string;
         stableDebtTokenImpl: string;
@@ -2561,7 +2695,6 @@ export class ILendingPool extends Contract {
         params: BytesLike;
         assetType: BigNumberish;
         collateralCap: BigNumberish;
-        hasStrategy: boolean;
         usingGovernanceSetInterestRate: boolean;
         governanceSetInterestRate: BigNumberish;
       },
@@ -2727,6 +2860,20 @@ export class ILendingPool extends Contract {
       trancheId: BigNumberish,
       amount: BigNumberish,
       to: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFromStrategy(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawFromStrategy(address,uint64,uint256)"(
+      asset: string,
+      trancheId: BigNumberish,
+      amount: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
   };

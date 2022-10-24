@@ -24,6 +24,7 @@ interface ErrorsInterface extends ethers.utils.Interface {
     "BORROW_ALLOWANCE_NOT_ENOUGH()": FunctionFragment;
     "CALLER_NOT_POOL_ADMIN()": FunctionFragment;
     "CT_CALLER_MUST_BE_LENDING_POOL()": FunctionFragment;
+    "CT_CALLER_MUST_BE_STRATEGIST()": FunctionFragment;
     "CT_CANNOT_GIVE_ALLOWANCE_TO_HIMSELF()": FunctionFragment;
     "CT_INVALID_BURN_AMOUNT()": FunctionFragment;
     "CT_INVALID_MINT_AMOUNT()": FunctionFragment;
@@ -113,6 +114,10 @@ interface ErrorsInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "CT_CALLER_MUST_BE_LENDING_POOL",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CT_CALLER_MUST_BE_STRATEGIST",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -434,6 +439,10 @@ interface ErrorsInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "CT_CALLER_MUST_BE_LENDING_POOL",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CT_CALLER_MUST_BE_STRATEGIST",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -783,6 +792,14 @@ export class Errors extends Contract {
     }>;
 
     "CT_CALLER_MUST_BE_LENDING_POOL()"(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    CT_CALLER_MUST_BE_STRATEGIST(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "CT_CALLER_MUST_BE_STRATEGIST()"(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
@@ -1495,6 +1512,10 @@ export class Errors extends Contract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  CT_CALLER_MUST_BE_STRATEGIST(overrides?: CallOverrides): Promise<string>;
+
+  "CT_CALLER_MUST_BE_STRATEGIST()"(overrides?: CallOverrides): Promise<string>;
+
   CT_CANNOT_GIVE_ALLOWANCE_TO_HIMSELF(
     overrides?: CallOverrides
   ): Promise<string>;
@@ -1943,6 +1964,12 @@ export class Errors extends Contract {
     CT_CALLER_MUST_BE_LENDING_POOL(overrides?: CallOverrides): Promise<string>;
 
     "CT_CALLER_MUST_BE_LENDING_POOL()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    CT_CALLER_MUST_BE_STRATEGIST(overrides?: CallOverrides): Promise<string>;
+
+    "CT_CALLER_MUST_BE_STRATEGIST()"(
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -2423,6 +2450,12 @@ export class Errors extends Contract {
     ): Promise<BigNumber>;
 
     "CT_CALLER_MUST_BE_LENDING_POOL()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    CT_CALLER_MUST_BE_STRATEGIST(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "CT_CALLER_MUST_BE_STRATEGIST()"(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2957,6 +2990,14 @@ export class Errors extends Contract {
     ): Promise<PopulatedTransaction>;
 
     "CT_CALLER_MUST_BE_LENDING_POOL()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    CT_CALLER_MUST_BE_STRATEGIST(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "CT_CALLER_MUST_BE_STRATEGIST()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

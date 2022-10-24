@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserSingleReserveData = exports.lendingPoolPause = exports.approveUnderlying = exports.getLendingPoolImpl = void 0;
+exports.getReserveData = exports.getAssetData = exports.getLendingPoolReservesList = exports.getUserSingleReserveData = exports.lendingPoolPause = exports.approveUnderlying = exports.getLendingPoolImpl = void 0;
 const ethers_1 = require("ethers");
 const constants_1 = require("./constants");
 const ILendingPoolAddressesProvider_json_1 = __importDefault(require("../artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json"));
@@ -27,7 +27,7 @@ exports.getLendingPoolImpl = getLendingPoolImpl;
  */
 async function approveUnderlying(signer, amount, underlying, spender) {
     let _underlying = new ethers_1.ethers.Contract(underlying, ["function approve(address spender, uint256 value) external returns (bool success)"], signer);
-    return await _underlying.approve(await spender, amount);
+    return await _underlying.connect(signer).approve(spender, amount);
 }
 exports.approveUnderlying = approveUnderlying;
 async function lendingPoolPause(approvedSigner, setPause, network, tranche) {
@@ -52,4 +52,19 @@ async function getUserSingleReserveData(signer, network, asset, tranche) {
     return await lendingPool.getReserveData(asset, tranche);
 }
 exports.getUserSingleReserveData = getUserSingleReserveData;
+async function getLendingPoolReservesList(signer, network, tranche) {
+    let lendingPool = await getLendingPoolImpl(signer, network);
+    return await lendingPool.getReservesList(tranche);
+}
+exports.getLendingPoolReservesList = getLendingPoolReservesList;
+async function getAssetData(signer, network, asset, tranche) {
+    let lendingPool = await getLendingPoolImpl(signer, network);
+    return await lendingPool.getAssetData(asset, tranche);
+}
+exports.getAssetData = getAssetData;
+async function getReserveData(signer, network, asset, tranche) {
+    let lendingPool = await getLendingPoolImpl(signer, network);
+    return await lendingPool.getReserveData(asset, tranche);
+}
+exports.getReserveData = getReserveData;
 //# sourceMappingURL=utils.js.map

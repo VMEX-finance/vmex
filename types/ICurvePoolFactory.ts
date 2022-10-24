@@ -18,25 +18,6 @@ export class ICurvePoolFactory {
 
 const _abi = [
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "n",
-        type: "uint256",
-      },
-    ],
-    name: "coins",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "get_virtual_price",
     outputs: [

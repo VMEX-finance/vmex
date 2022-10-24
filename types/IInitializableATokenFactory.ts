@@ -87,7 +87,17 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "lendingPoolConfigurator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "treasury",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "VMEXTreasury",
             type: "address",
           },
           {

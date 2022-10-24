@@ -25,6 +25,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "newAddress",
+        type: "address",
+      },
+    ],
+    name: "ATokensAndRatesHelperUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes32",
         name: "id",
@@ -258,6 +271,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "getATokenAndRatesHelper",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "getAavePriceOracle",
     outputs: [
       {
@@ -302,19 +328,6 @@ const _abi = [
       },
     ],
     name: "getAddressTranche",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getCurveAddressProvider",
     outputs: [
       {
         internalType: "address",
@@ -509,6 +522,19 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "newAdd",
+        type: "address",
+      },
+    ],
+    name: "setATokenAndRatesHelper",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "priceOracle",
         type: "address",
       },
@@ -550,19 +576,6 @@ const _abi = [
       },
     ],
     name: "setAddressAsProxy",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "addressProvider",
-        type: "address",
-      },
-    ],
-    name: "setCurveAddressProvider",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
