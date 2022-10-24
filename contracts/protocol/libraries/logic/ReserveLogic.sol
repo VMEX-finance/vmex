@@ -15,6 +15,8 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 
+import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+
 /**
  * @title ReserveLogic library
  * @author Aave
@@ -109,6 +111,8 @@ library ReserveLogic {
      * @param reserve the reserve object
      **/
     function updateState(DataTypes.ReserveData storage reserve) internal {
+        address strategist = IAToken(reserve.aTokenAddress).getStrategy();
+        //if(strategist==address(0)) { //no strategist, so keep original method of calculating
         uint256 scaledVariableDebt = IVariableDebtToken(
             reserve.variableDebtTokenAddress
         ).scaledTotalSupply();
@@ -116,25 +120,45 @@ library ReserveLogic {
         uint256 previousLiquidityIndex = reserve.liquidityIndex;
         uint40 lastUpdatedTimestamp = reserve.lastUpdateTimestamp;
 
-        (
-            uint256 newLiquidityIndex,
-            uint256 newVariableBorrowIndex
-        ) = _updateIndexes(
-                reserve,
-                scaledVariableDebt,
-                previousLiquidityIndex,
-                previousVariableBorrowIndex,
-                lastUpdatedTimestamp
-            );
-
-        _mintToTreasury(
+        (uint256 newLiquidityIndex, uint256 newVariableBorrowIndex) = _updateIndexes(
             reserve,
-            scaledVariableDebt,
+            scaledVariableDebt, //for curve, this will always be zero, but the currentLiquidityRate gets updated with the tends. Don't need to pass in strategist address since currentLiquidityRate gets updated elsewhere
+            previousLiquidityIndex,
             previousVariableBorrowIndex,
-            newLiquidityIndex,
-            newVariableBorrowIndex,
             lastUpdatedTimestamp
         );
+        if (strategist == address(0)) {
+            //no strategist, so keep original method of minting to treasury. For strategies, minting to treasury will be handled during tend()
+            _mintToTreasury(
+                reserve,
+                scaledVariableDebt,
+                previousVariableBorrowIndex,
+                newLiquidityIndex,
+                newVariableBorrowIndex,
+                lastUpdatedTimestamp
+            );
+        }
+        // }
+        // else{
+        //     //assumptions
+        //     //no borrowing in this reserve => Stable and variable rate always 0 so don't need to update
+        //     //only need to update liquidity index for user to get interest
+        //     uint256 globalVMEXReserveFactor = reserve
+        //         .configuration
+        //         .getVMEXReserveFactor();
+
+        //     reserve.liquidityIndex = BaseStrategy(strategist).calculateAverageRate().percentMul(
+        //         PercentageMath.PERCENTAGE_FACTOR.sub(globalVMEXReserveFactor)
+        //     );
+
+        //     // minting to treasury will be handled during tend()
+
+        //     // IAToken(reserve.aTokenAddress).mintToVMEXTreasury(
+        //     //     vars.amountToMintVMEX,
+        //     //     newLiquidityIndex
+        //     // );
+
+        // }
     }
 
     /**
@@ -228,72 +252,114 @@ library ReserveLogic {
         uint256 liquidityAdded,
         uint256 liquidityTaken
     ) internal {
-        UpdateInterestRatesLocalVars memory vars;
-        {
-            vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
+        if (IAToken(reserve.aTokenAddress).getStrategy() != address(0)) {
+            //has strategy
+            updateInterestRatesStrategy(reserve, reserveAddress, aTokenAddress);
+        } else {
+            UpdateInterestRatesLocalVars memory vars;
+            {
+                vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
 
-            (vars.totalStableDebt, vars.avgStableRate) = IStableDebtToken(
-                vars.stableDebtTokenAddress
-            ).getTotalSupplyAndAvgRate();
-        }
+                (vars.totalStableDebt, vars.avgStableRate) = IStableDebtToken(
+                    vars.stableDebtTokenAddress
+                ).getTotalSupplyAndAvgRate();
+            }
 
-        {
-            //calculates the total variable debt locally using the scaled total supply instead
-            //of totalSupply(), as it's noticeably cheaper. Also, the index has been
-            //updated by the previous updateState() call
-            vars.totalVariableDebt = IVariableDebtToken(
-                reserve.variableDebtTokenAddress
-            ).scaledTotalSupply().rayMul(reserve.variableBorrowIndex);
-        }
+            {
+                //calculates the total variable debt locally using the scaled total supply instead
+                //of totalSupply(), as it's noticeably cheaper. Also, the index has been
+                //updated by the previous updateState() call
+                vars.totalVariableDebt = IVariableDebtToken(
+                    reserve.variableDebtTokenAddress
+                ).scaledTotalSupply().rayMul(reserve.variableBorrowIndex);
+            }
 
-        DataTypes.calculateInterestRatesVars memory calvars;
-        {
-            calvars = DataTypes.calculateInterestRatesVars(
-                reserveAddress,
-                aTokenAddress,
-                liquidityAdded,
-                liquidityTaken,
-                reserve.configuration.getReserveFactor(),
-                reserve.configuration.getVMEXReserveFactor()
+            DataTypes.calculateInterestRatesVars memory calvars;
+            {
+                calvars = DataTypes.calculateInterestRatesVars(
+                    reserveAddress,
+                    aTokenAddress,
+                    liquidityAdded,
+                    liquidityTaken,
+                    reserve.configuration.getReserveFactor(),
+                    reserve.configuration.getVMEXReserveFactor()
+                );
+            }
+            {
+                (
+                    vars.newLiquidityRate,
+                    vars.newStableRate,
+                    vars.newVariableRate
+                ) = IReserveInterestRateStrategy(
+                    reserve.interestRateStrategyAddress
+                ).calculateInterestRates(
+                        calvars,
+                        vars.totalStableDebt,
+                        vars.totalVariableDebt,
+                        vars.avgStableRate
+                    );
+            }
+
+            require(
+                vars.newLiquidityRate <= type(uint128).max,
+                Errors.RL_LIQUIDITY_RATE_OVERFLOW
             );
-        }
-        {
-            (
+            require(
+                vars.newStableRate <= type(uint128).max,
+                Errors.RL_STABLE_BORROW_RATE_OVERFLOW
+            );
+            require(
+                vars.newVariableRate <= type(uint128).max,
+                Errors.RL_VARIABLE_BORROW_RATE_OVERFLOW
+            );
+
+            reserve.currentLiquidityRate = uint128(vars.newLiquidityRate);
+            reserve.currentStableBorrowRate = uint128(vars.newStableRate);
+            reserve.currentVariableBorrowRate = uint128(vars.newVariableRate);
+
+            emit ReserveDataUpdated(
+                reserveAddress,
                 vars.newLiquidityRate,
                 vars.newStableRate,
-                vars.newVariableRate
-            ) = IReserveInterestRateStrategy(
-                reserve.interestRateStrategyAddress
-            ).calculateInterestRates(
-                    calvars,
-                    vars.totalStableDebt,
-                    vars.totalVariableDebt,
-                    vars.avgStableRate
-                );
+                vars.newVariableRate,
+                reserve.liquidityIndex,
+                reserve.variableBorrowIndex
+            );
         }
+    }
 
+    /**
+     * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
+     * @param reserve The address of the reserve to be updated
+     **/
+    function updateInterestRatesStrategy(
+        DataTypes.ReserveData storage reserve,
+        address reserveAddress,
+        address aTokenAddress
+    ) internal {
+        address strategist = IAToken(reserve.aTokenAddress).getStrategy();
+
+        uint256 globalVMEXReserveFactor = reserve
+            .configuration
+            .getVMEXReserveFactor();
+
+        uint256 newLiquidityRate = IBaseStrategy(strategist)
+            .calculateAverageRate()
+            .percentMul(
+                PercentageMath.PERCENTAGE_FACTOR.sub(globalVMEXReserveFactor)
+            );
         require(
-            vars.newLiquidityRate <= type(uint128).max,
+            newLiquidityRate <= type(uint128).max,
             Errors.RL_LIQUIDITY_RATE_OVERFLOW
         );
-        require(
-            vars.newStableRate <= type(uint128).max,
-            Errors.RL_STABLE_BORROW_RATE_OVERFLOW
-        );
-        require(
-            vars.newVariableRate <= type(uint128).max,
-            Errors.RL_VARIABLE_BORROW_RATE_OVERFLOW
-        );
 
-        reserve.currentLiquidityRate = uint128(vars.newLiquidityRate);
-        reserve.currentStableBorrowRate = uint128(vars.newStableRate);
-        reserve.currentVariableBorrowRate = uint128(vars.newVariableRate);
+        reserve.currentLiquidityRate = uint128(newLiquidityRate);
 
         emit ReserveDataUpdated(
             reserveAddress,
-            vars.newLiquidityRate,
-            vars.newStableRate,
-            vars.newVariableRate,
+            newLiquidityRate,
+            0, //vars.newStableRate,
+            0, //vars.newVariableRate,
             reserve.liquidityIndex,
             reserve.variableBorrowIndex
         );
