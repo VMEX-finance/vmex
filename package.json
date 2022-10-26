@@ -1,7 +1,7 @@
 {
-  "name": "vmex",
+  "name": "@vmex/contracts",
   "version": "1.0.1",
-  "description": "Aave Protocol V2 smart contracts",
+  "description": "VMEX V1 smart contracts",
   "files": [
     "contracts",
     "artifacts"
@@ -67,7 +67,7 @@
     "vmex:node:fork:main": "FORK=main npx hardhat node",
     "vmex:deploy": "npm run compile && FORK=main hardhat aave:mainnet --network localhost",
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/*.spec.ts --network localhost",
-    "vmex:unit-test": "FORK=main hardhat test ./localhost_tests/test-deposit-borrow-block.spec.ts --network localhost",
+    "vmex:unit-test": "FORK=main hardhat test ./localhost_tests/test-tricrypto-strategy.spec.ts --network localhost",
     "aave:fork:kovan": "npm run compile && FORK=kovan hardhat aave:mainnet",
     "amm:fork:main": "npm run compile && FORK=main hardhat amm:mainnet",
     "amm:fork:kovan": "npm run compile && FORK=kovan hardhat amm:mainnet",

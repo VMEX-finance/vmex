@@ -16,6 +16,12 @@ yarn compile
 
 Then run in this repo: `yarn link "@vmex/lending_pool_strategies"`
 
+Then, link this repo with the strategies repo:
+
+In this repo run: `yarn link`
+
+In strategies repo run: `yarn link "@vmex/contracts"`
+
 ### How to deploy:
 
 run `yarn vmex:node:fork:main` in one terminal (starts up localhost network) as a fork
