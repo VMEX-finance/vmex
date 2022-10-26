@@ -7,7 +7,20 @@ import rawBRE from "hardhat";
 import { BigNumber, utils } from "ethers";
 import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
+import {UserAccountData} from "./interfaces/index";
+import {almostEqualOrEqual} from "./helpers/almostEqual";
+chai.use(function (chai: any, utils: any) {
+  chai.Assertion.overwriteMethod(
+    "almostEqualOrEqual",
+    function (original: any) {
+      return function (this: any, expected: UserAccountData) {
+        const actual = <UserAccountData>this._obj;
 
+        almostEqualOrEqual.apply(this, [expected, actual]);
+      };
+    }
+  );
+});
 before(async () => {
     await rawBRE.run("set-DRE");
 
@@ -190,128 +203,6 @@ makeSuite(
           expect(
             userDat.totalDebtETH.toString()
           ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.01"), "Did not deposit tricypto2");
-        });
-
-        it("strategy pulls LP and invests", async () => {
-          const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
-          const signer = await contractGetters.getFirstSigner();
-          const emergencyAdmin = (await DRE.ethers.getSigners())[1]
-          var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
-          const dataProv = await contractGetters.getAaveProtocolDataProvider();
-
-          const userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
-          const tricrypto2Tranch1ATokenAddress =
-            (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
-          // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
-
-          const tricrypto2Tranch1AToken =
-            await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
-
-          const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
-          console.log("tricrypto2 atoken total supply: ", aTokenBalance);
-
-          const vTokenAddress = await strategy.connect(signer).vToken();
-          console.log("vtoken address: ", vTokenAddress);
-          const underlying = await strategy.connect(signer).underlying();
-          console.log("underlying address: ", underlying);
-
-          var CurveToken2 = new DRE.ethers.Contract(underlying,CurveTokenAddabi)
-          const aTokenHolds = await CurveToken2.connect(signer).balanceOf(vTokenAddress);
-          console.log("atoken is holding : ", aTokenHolds);
-
-          // let filter1 = {
-          //     address: strategy.address,
-          //     topics: [
-          //         // the name of the event, parnetheses containing the data type of each event, no spaces
-          //         utils.id("StrategyPullFromLendingPool(address,uint256)")
-          //     ]
-          // };
-          // let filter2 = {
-          //     address: strategy.address,
-          //     topics: [
-          //         // the name of the event, parnetheses containing the data type of each event, no spaces
-          //         utils.id("SetWithdrawalMaxDeviationThreshold(uint256)")
-          //     ]
-          // };
-
-          // DRE.ethers.provider.on(filter1, (addr, val) => {
-          //   console.log("withdraw lp", val);
-          // })
-
-          // DRE.ethers.provider.on(filter2, (val) => {
-          //     console.log("set withdraw to", val);
-          // })
-
-          const amount = await strategy.connect(signer).pull();
-
-          const aTokenHoldsAfter = await CurveToken.connect(signer).balanceOf(tricrypto2Tranch1ATokenAddress);
-          const strategyHolds = await CurveToken.connect(signer).balanceOf(strategy.address);
-          console.log("after atoken is holding : ", aTokenHoldsAfter, " after strategy: ", strategyHolds);
-
-          var origBalance = await strategy.balanceOfPool();
-
-          console.log("strategy boosted balance: " + origBalance);
-
-          // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
-          console.log("USER DATA: ", userData);
-        });
-
-        it("strategy booster earns interest redeposits", async () => {
-          const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
-          const signer = await contractGetters.getFirstSigner();
-
-          var strategyStartBoostedBalance = await strategy.balanceOfPool();
-          console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
-
-          // increase time by 10 hours
-          await DRE.ethers.provider.send("evm_increaseTime", [36000])
-
-          var tendData = await strategy.tend();
-
-          console.log("strategy tended: ", tendData);
-
-          var pull = await strategy.pull();
-
-          var strategyBoostedBalance = await strategy.balanceOfPool();
-          console.log("strategy NEW boosted balance: " + strategyBoostedBalance);
-        });
-
-        it("user withdraws which withdraws from the booster", async () => {
-          const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
-          const signer = await contractGetters.getFirstSigner();
-          const emergencyAdmin = (await DRE.ethers.getSigners())[1]
-          var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
-
-          const tricrypto2Tranch1ATokenAddress =
-            (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
-          // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
-
-          const tricrypto2Tranch1AToken =
-            await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
-
-          // withdraw half funds back to the aToken
-          // await lendingPool
-          //   .connect(emergencyAdmin)
-          //   .withdrawFromStrategy(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.5'));
-
-          // user withdraws half of his funds
-          await lendingPool.connect(signer)
-            .withdraw(
-              CurveToken.address,
-              1,
-              DRE.ethers.utils.parseUnits('0.1'),
-              await signer.getAddress());
-
-          var strategyBoostedBalance = await strategy.balanceOfPool();
-          console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
-
-          // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
-          console.log("USER DATA: ", userData);
         });
     }
 )
