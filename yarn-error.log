@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/stevenyao/.nvm/versions/node/v16.14.2/bin/node /Users/stevenyao/.nvm/versions/node/v16.14.2/bin/yarn add test-liquidation
+  /Users/stevenyao/.nvm/versions/node/v16.14.2/bin/node /Users/stevenyao/.nvm/versions/node/v16.14.2/bin/yarn link
 
 PATH: 
   /opt/homebrew/opt/openssl@3/bin:/Users/stevenyao/.tym/bin:/Users/stevenyao/.nvm/versions/node/v16.14.2/bin:/Users/stevenyao/Development/google-cloud-sdk/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/CMake.app/Contents/bin:/usr/local/go/bin:/opt/X11/bin:/opt/homebrew/opt/openssl@3/bin:/Users/stevenyao/.tym/bin:/Users/stevenyao/.nvm/versions/node/v16.14.2/bin:/Users/stevenyao/Development/google-cloud-sdk/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/stevenyao/.cargo/bin:/Users/stevenyao/Library/Python/3.9/bin:/Users/stevenyao/.local/bin:/Users/stevenyao/.foundry/bin:/Users/stevenyao/Library/Python/3.9/bin:/Users/stevenyao/.local/bin:/Users/stevenyao/.foundry/bin:/Users/stevenyao/Library/Python/3.9/bin:/Users/stevenyao/.local/bin
@@ -14,23 +14,18 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/test-liquidation: Not found
-      at Request.params.callback [as _callback] (/Users/stevenyao/.nvm/versions/node/v16.14.2/lib/node_modules/yarn/lib/cli.js:66138:18)
-      at Request.self.callback (/Users/stevenyao/.nvm/versions/node/v16.14.2/lib/node_modules/yarn/lib/cli.js:140883:22)
-      at Request.emit (node:events:526:28)
-      at Request.<anonymous> (/Users/stevenyao/.nvm/versions/node/v16.14.2/lib/node_modules/yarn/lib/cli.js:141855:10)
-      at Request.emit (node:events:526:28)
-      at IncomingMessage.<anonymous> (/Users/stevenyao/.nvm/versions/node/v16.14.2/lib/node_modules/yarn/lib/cli.js:141777:12)
-      at Object.onceWrapper (node:events:645:28)
-      at IncomingMessage.emit (node:events:538:35)
-      at endReadableNT (node:internal/streams/readable:1345:12)
-      at processTicksAndRejections (node:internal/process/task_queues:83:21)
+  SyntaxError: /Users/stevenyao/Development/vmex/vmex/package.json: Unexpected token < in JSON at position 6495
+      at JSON.parse (<anonymous>)
+      at /Users/stevenyao/.nvm/versions/node/v16.14.2/lib/node_modules/yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/Users/stevenyao/.nvm/versions/node/v16.14.2/lib/node_modules/yarn/lib/cli.js:310:30)
+      at /Users/stevenyao/.nvm/versions/node/v16.14.2/lib/node_modules/yarn/lib/cli.js:321:13
 
 npm manifest: 
   {
-    "name": "vmex",
+    "name": "@vmex/contracts",
     "version": "1.0.1",
-    "description": "Aave Protocol V2 smart contracts",
+    "description": "VMEX V1 smart contracts",
     "files": [
       "contracts",
       "artifacts"
@@ -57,6 +52,7 @@ npm manifest:
       "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-underlying.spec.ts",
       "test-mainnet-fork": "FORK=main hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/scenario.spec.ts  --network localhost",
       "test-liquidation": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-underlying.spec.ts",
+      "test-liquidation-strategy": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-strategy.spec.ts",
       "test-amm": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-amm/*.spec.ts",
       "test-amm-scenarios": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-amm/__setup.spec.ts test-suites/test-amm/scenario.spec.ts",
       "test-scenarios": "npm run compile && npx hardhat test test-suites/test-aave/__setup.spec.ts test-suites/test-aave/scenario.spec.ts",
@@ -95,7 +91,12 @@ npm manifest:
       "aave:fork:main": "npm run compile && FORK=main hardhat aave:mainnet",
       "vmex:node:fork:main": "FORK=main npx hardhat node",
       "vmex:deploy": "npm run compile && FORK=main hardhat aave:mainnet --network localhost",
+  <<<<<<< HEAD
+      "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/*.spec.ts --network localhost",
+      "vmex:unit-test": "FORK=main hardhat test ./localhost_tests/test-tricrypto-strategy.spec.ts --network localhost",
+  =======
       "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/test-tricrypto.spec.ts --network localhost",
+  >>>>>>> 2443bd4 (not working liquidation tests)
       "aave:fork:kovan": "npm run compile && FORK=kovan hardhat aave:mainnet",
       "amm:fork:main": "npm run compile && FORK=main hardhat amm:mainnet",
       "amm:fork:kovan": "npm run compile && FORK=kovan hardhat amm:mainnet",
@@ -150,7 +151,7 @@ npm manifest:
       "@nomiclabs/buidler-ethers": "2.0.0",
       "@nomiclabs/buidler-etherscan": "^2.1.0",
       "@nomiclabs/buidler-waffle": "2.0.0",
-      "@nomiclabs/hardhat-ethers": "^2.0.0",
+      "@nomiclabs/hardhat-ethers": "^2.2.0",
       "@nomiclabs/hardhat-waffle": "^2.0.0",
       "@openzeppelin/contracts": "3.1.0",
       "@tenderly/hardhat-tenderly": "1.1.0-beta.5",
@@ -173,11 +174,12 @@ npm manifest:
       "eth-sig-util": "2.5.3",
       "ethereum-waffle": "3.0.2",
       "ethereumjs-util": "7.0.2",
-      "ethers": "^5.0.19",
+      "ethers": "^5.7.2",
       "globby": "^11.0.1",
-      "hardhat": "^2.2.0",
+      "hardhat": "^2.12.0",
       "hardhat-contract-sizer": "^2.6.1",
       "hardhat-gas-reporter": "^1.0.0",
+      "hardhat-test-utils": "^0.1.1",
       "hardhat-typechain": "^0.3.3",
       "husky": "^4.2.5",
       "lowdb": "1.0.0",
@@ -576,6 +578,32 @@ Lockfile:
       bech32 "1.1.4"
       ws "7.4.6"
   
+  "@ethersproject/providers@5.7.2":
+    version "5.7.2"
+    resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.7.2.tgz#f8b1a4f275d7ce58cf0a2eec222269a08beb18cb"
+    integrity sha512-g34EWZ1WWAVgr4aptGlVBF8mhl3VWjv+8hoAnzStu8Ah22VHBsuGzP17eb6xDVRzw895G4W7vvx60lFFur/1Rg==
+    dependencies:
+      "@ethersproject/abstract-provider" "^5.7.0"
+      "@ethersproject/abstract-signer" "^5.7.0"
+      "@ethersproject/address" "^5.7.0"
+      "@ethersproject/base64" "^5.7.0"
+      "@ethersproject/basex" "^5.7.0"
+      "@ethersproject/bignumber" "^5.7.0"
+      "@ethersproject/bytes" "^5.7.0"
+      "@ethersproject/constants" "^5.7.0"
+      "@ethersproject/hash" "^5.7.0"
+      "@ethersproject/logger" "^5.7.0"
+      "@ethersproject/networks" "^5.7.0"
+      "@ethersproject/properties" "^5.7.0"
+      "@ethersproject/random" "^5.7.0"
+      "@ethersproject/rlp" "^5.7.0"
+      "@ethersproject/sha2" "^5.7.0"
+      "@ethersproject/strings" "^5.7.0"
+      "@ethersproject/transactions" "^5.7.0"
+      "@ethersproject/web" "^5.7.0"
+      bech32 "1.1.4"
+      ws "7.4.6"
+  
   "@ethersproject/random@5.7.0", "@ethersproject/random@^5.7.0":
     version "5.7.0"
     resolved "https://registry.yarnpkg.com/@ethersproject/random/-/random-5.7.0.tgz#af19dcbc2484aae078bb03656ec05df66253280c"
@@ -880,71 +908,71 @@ Lockfile:
       mcl-wasm "^0.7.1"
       rustbn.js "~0.2.0"
   
-  "@nomicfoundation/solidity-analyzer-darwin-arm64@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-darwin-arm64/-/solidity-analyzer-darwin-arm64-0.0.3.tgz#1d49e4ac028831a3011a9f3dca60bd1963185342"
-    integrity sha512-W+bIiNiZmiy+MTYFZn3nwjyPUO6wfWJ0lnXx2zZrM8xExKObMrhCh50yy8pQING24mHfpPFCn89wEB/iG7vZDw==
+  "@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-darwin-arm64/-/solidity-analyzer-darwin-arm64-0.1.0.tgz#83a7367342bd053a76d04bbcf4f373fef07cf760"
+    integrity sha512-vEF3yKuuzfMHsZecHQcnkUrqm8mnTWfJeEVFHpg+cO+le96xQA4lAJYdUan8pXZohQxv1fSReQsn4QGNuBNuCw==
   
-  "@nomicfoundation/solidity-analyzer-darwin-x64@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-darwin-x64/-/solidity-analyzer-darwin-x64-0.0.3.tgz#c0fccecc5506ff5466225e41e65691abafef3dbe"
-    integrity sha512-HuJd1K+2MgmFIYEpx46uzwEFjvzKAI765mmoMxy4K+Aqq1p+q7hHRlsFU2kx3NB8InwotkkIq3A5FLU1sI1WDw==
+  "@nomicfoundation/solidity-analyzer-darwin-x64@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-darwin-x64/-/solidity-analyzer-darwin-x64-0.1.0.tgz#1225f7da647ae1ad25a87125664704ecc0af6ccc"
+    integrity sha512-dlHeIg0pTL4dB1l9JDwbi/JG6dHQaU1xpDK+ugYO8eJ1kxx9Dh2isEUtA4d02cQAl22cjOHTvifAk96A+ItEHA==
   
-  "@nomicfoundation/solidity-analyzer-freebsd-x64@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-freebsd-x64/-/solidity-analyzer-freebsd-x64-0.0.3.tgz#8261d033f7172b347490cd005931ef8168ab4d73"
-    integrity sha512-2cR8JNy23jZaO/vZrsAnWCsO73asU7ylrHIe0fEsXbZYqBP9sMr+/+xP3CELDHJxUbzBY8zqGvQt1ULpyrG+Kw==
+  "@nomicfoundation/solidity-analyzer-freebsd-x64@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-freebsd-x64/-/solidity-analyzer-freebsd-x64-0.1.0.tgz#dbc052dcdfd50ae50fd5ae1788b69b4e0fa40040"
+    integrity sha512-WFCZYMv86WowDA4GiJKnebMQRt3kCcFqHeIomW6NMyqiKqhK1kIZCxSLDYsxqlx396kKLPN1713Q1S8tu68GKg==
   
-  "@nomicfoundation/solidity-analyzer-linux-arm64-gnu@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-arm64-gnu/-/solidity-analyzer-linux-arm64-gnu-0.0.3.tgz#1ba64b1d76425f8953dedc6367bd7dd46f31dfc5"
-    integrity sha512-Eyv50EfYbFthoOb0I1568p+eqHGLwEUhYGOxcRNywtlTE9nj+c+MT1LA53HnxD9GsboH4YtOOmJOulrjG7KtbA==
+  "@nomicfoundation/solidity-analyzer-linux-arm64-gnu@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-arm64-gnu/-/solidity-analyzer-linux-arm64-gnu-0.1.0.tgz#e6b2eea633995b557e74e881d2a43eab4760903d"
+    integrity sha512-DTw6MNQWWlCgc71Pq7CEhEqkb7fZnS7oly13pujs4cMH1sR0JzNk90Mp1zpSCsCs4oKan2ClhMlLKtNat/XRKQ==
   
-  "@nomicfoundation/solidity-analyzer-linux-arm64-musl@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-arm64-musl/-/solidity-analyzer-linux-arm64-musl-0.0.3.tgz#8d864c49b55e683f7e3b5cce9d10b628797280ac"
-    integrity sha512-V8grDqI+ivNrgwEt2HFdlwqV2/EQbYAdj3hbOvjrA8Qv+nq4h9jhQUxFpegYMDtpU8URJmNNlXgtfucSrAQwtQ==
+  "@nomicfoundation/solidity-analyzer-linux-arm64-musl@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-arm64-musl/-/solidity-analyzer-linux-arm64-musl-0.1.0.tgz#af81107f5afa794f19988a368647727806e18dc4"
+    integrity sha512-wUpUnR/3GV5Da88MhrxXh/lhb9kxh9V3Jya2NpBEhKDIRCDmtXMSqPMXHZmOR9DfCwCvG6vLFPr/+YrPCnUN0w==
   
-  "@nomicfoundation/solidity-analyzer-linux-x64-gnu@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-x64-gnu/-/solidity-analyzer-linux-x64-gnu-0.0.3.tgz#16e769500cf1a8bb42ab9498cee3b93c30f78295"
-    integrity sha512-uRfVDlxtwT1vIy7MAExWAkRD4r9M79zMG7S09mCrWUn58DbLs7UFl+dZXBX0/8FTGYWHhOT/1Etw1ZpAf5DTrg==
+  "@nomicfoundation/solidity-analyzer-linux-x64-gnu@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-x64-gnu/-/solidity-analyzer-linux-x64-gnu-0.1.0.tgz#6877e1da1a06a9f08446070ab6e0a5347109f868"
+    integrity sha512-lR0AxK1x/MeKQ/3Pt923kPvwigmGX3OxeU5qNtQ9pj9iucgk4PzhbS3ruUeSpYhUxG50jN4RkIGwUMoev5lguw==
   
-  "@nomicfoundation/solidity-analyzer-linux-x64-musl@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-x64-musl/-/solidity-analyzer-linux-x64-musl-0.0.3.tgz#75f4e1a25526d54c506e4eba63b3d698b6255b8f"
-    integrity sha512-8HPwYdLbhcPpSwsE0yiU/aZkXV43vlXT2ycH+XlOjWOnLfH8C41z0njK8DHRtEFnp4OVN6E7E5lHBBKDZXCliA==
+  "@nomicfoundation/solidity-analyzer-linux-x64-musl@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-linux-x64-musl/-/solidity-analyzer-linux-x64-musl-0.1.0.tgz#bb6cd83a0c259eccef4183796b6329a66cf7ebd9"
+    integrity sha512-A1he/8gy/JeBD3FKvmI6WUJrGrI5uWJNr5Xb9WdV+DK0F8msuOqpEByLlnTdLkXMwW7nSl3awvLezOs9xBHJEg==
   
-  "@nomicfoundation/solidity-analyzer-win32-arm64-msvc@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-win32-arm64-msvc/-/solidity-analyzer-win32-arm64-msvc-0.0.3.tgz#ef6e20cfad5eedfdb145cc34a44501644cd7d015"
-    integrity sha512-5WWcT6ZNvfCuxjlpZOY7tdvOqT1kIQYlDF9Q42wMpZ5aTm4PvjdCmFDDmmTvyXEBJ4WTVmY5dWNWaxy8h/E28g==
+  "@nomicfoundation/solidity-analyzer-win32-arm64-msvc@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-win32-arm64-msvc/-/solidity-analyzer-win32-arm64-msvc-0.1.0.tgz#9d4bca1cc9a1333fde985675083b0b7d165f6076"
+    integrity sha512-7x5SXZ9R9H4SluJZZP8XPN+ju7Mx+XeUMWZw7ZAqkdhP5mK19I4vz3x0zIWygmfE8RT7uQ5xMap0/9NPsO+ykw==
   
-  "@nomicfoundation/solidity-analyzer-win32-ia32-msvc@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-win32-ia32-msvc/-/solidity-analyzer-win32-ia32-msvc-0.0.3.tgz#98c4e3af9cee68896220fa7e270aefdf7fc89c7b"
-    integrity sha512-P/LWGZwWkyjSwkzq6skvS2wRc3gabzAbk6Akqs1/Iiuggql2CqdLBkcYWL5Xfv3haynhL+2jlNkak+v2BTZI4A==
+  "@nomicfoundation/solidity-analyzer-win32-ia32-msvc@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-win32-ia32-msvc/-/solidity-analyzer-win32-ia32-msvc-0.1.0.tgz#0db5bfc6aa952bea4098d8d2c8947b4e5c4337ee"
+    integrity sha512-m7w3xf+hnE774YRXu+2mGV7RiF3QJtUoiYU61FascCkQhX3QMQavh7saH/vzb2jN5D24nT/jwvaHYX/MAM9zUw==
   
-  "@nomicfoundation/solidity-analyzer-win32-x64-msvc@0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-win32-x64-msvc/-/solidity-analyzer-win32-x64-msvc-0.0.3.tgz#12da288e7ef17ec14848f19c1e8561fed20d231d"
-    integrity sha512-4AcTtLZG1s/S5mYAIr/sdzywdNwJpOcdStGF3QMBzEt+cGn3MchMaS9b1gyhb2KKM2c39SmPF5fUuWq1oBSQZQ==
+  "@nomicfoundation/solidity-analyzer-win32-x64-msvc@0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-win32-x64-msvc/-/solidity-analyzer-win32-x64-msvc-0.1.0.tgz#2e0f39a2924dcd77db6b419828595e984fabcb33"
+    integrity sha512-xCuybjY0sLJQnJhupiFAXaek2EqF0AP0eBjgzaalPXSNvCEN6ZYHvUzdA50ENDVeSYFXcUsYf3+FsD3XKaeptA==
   
-  "@nomicfoundation/solidity-analyzer@^0.0.3":
-    version "0.0.3"
-    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer/-/solidity-analyzer-0.0.3.tgz#d1029f872e66cb1082503b02cc8b0be12f8dd95e"
-    integrity sha512-VFMiOQvsw7nx5bFmrmVp2Q9rhIjw2AFST4DYvWVVO9PMHPE23BY2+kyfrQ4J3xCMFC8fcBbGLt7l4q7m1SlTqg==
+  "@nomicfoundation/solidity-analyzer@^0.1.0":
+    version "0.1.0"
+    resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer/-/solidity-analyzer-0.1.0.tgz#e5ddc43ad5c0aab96e5054520d8e16212e125f50"
+    integrity sha512-xGWAiVCGOycvGiP/qrlf9f9eOn7fpNbyJygcB0P21a1MDuVPlKt0Srp7rvtBEutYQ48ouYnRXm33zlRnlTOPHg==
     optionalDependencies:
-      "@nomicfoundation/solidity-analyzer-darwin-arm64" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-darwin-x64" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-freebsd-x64" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-linux-arm64-gnu" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-linux-arm64-musl" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-linux-x64-gnu" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-linux-x64-musl" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-win32-arm64-msvc" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-win32-ia32-msvc" "0.0.3"
-      "@nomicfoundation/solidity-analyzer-win32-x64-msvc" "0.0.3"
+      "@nomicfoundation/solidity-analyzer-darwin-arm64" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-darwin-x64" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-freebsd-x64" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-linux-arm64-gnu" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-linux-arm64-musl" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-linux-x64-gnu" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-linux-x64-musl" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-win32-arm64-msvc" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-win32-ia32-msvc" "0.1.0"
+      "@nomicfoundation/solidity-analyzer-win32-x64-msvc" "0.1.0"
   
   "@nomiclabs/buidler-ethers@2.0.0":
     version "2.0.0"
@@ -1041,10 +1069,15 @@ Lockfile:
       safe-buffer "^5.1.1"
       util.promisify "^1.0.0"
   
-  "@nomiclabs/hardhat-ethers@^2.0.0", "@nomiclabs/hardhat-ethers@^2.0.1":
+  "@nomiclabs/hardhat-ethers@^2.0.1":
     version "2.1.1"
     resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-ethers/-/hardhat-ethers-2.1.1.tgz#3f1d1ab49813d1bae4c035cc1adec224711e528b"
     integrity sha512-Gg0IFkT/DW3vOpih4/kMjeZCLYqtfgECLeLXTs7ZDPzcK0cfoc5wKk4nq5n/izCUzdhidO/Utd6ptF9JrWwWVA==
+  
+  "@nomiclabs/hardhat-ethers@^2.2.0":
+    version "2.2.0"
+    resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-ethers/-/hardhat-ethers-2.2.0.tgz#f55ace2752d0effcf583e754960e9fa89fbe12cd"
+    integrity sha512-kKCW7xawuD/lw69Yr1yqUUrF0IKmnLNGf+pTVbJ/ctHaRcPrwKI0EPkO1RNXBHlOOZkv6v4DK2PPvq0lL2ykig==
   
   "@nomiclabs/hardhat-waffle@^2.0.0":
     version "2.0.3"
@@ -4560,7 +4593,7 @@ Lockfile:
       uuid "2.0.1"
       xmlhttprequest "1.8.0"
   
-  ethers@^5.0.1, ethers@^5.0.19, ethers@^5.0.2, ethers@^5.0.24, ethers@^5.5.2, ethers@^5.5.3:
+  ethers@^5.0.1, ethers@^5.0.2, ethers@^5.0.24, ethers@^5.5.2, ethers@^5.5.3:
     version "5.7.1"
     resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.1.tgz#48c83a44900b5f006eb2f65d3ba6277047fd4f33"
     integrity sha512-5krze4dRLITX7FpU8J4WscXqADiKmyeNlylmmDLbS95DaZpBhDe2YSwRQwKXWNyXcox7a3gBgm/MkGXV1O1S/Q==
@@ -4584,6 +4617,42 @@ Lockfile:
       "@ethersproject/pbkdf2" "5.7.0"
       "@ethersproject/properties" "5.7.0"
       "@ethersproject/providers" "5.7.1"
+      "@ethersproject/random" "5.7.0"
+      "@ethersproject/rlp" "5.7.0"
+      "@ethersproject/sha2" "5.7.0"
+      "@ethersproject/signing-key" "5.7.0"
+      "@ethersproject/solidity" "5.7.0"
+      "@ethersproject/strings" "5.7.0"
+      "@ethersproject/transactions" "5.7.0"
+      "@ethersproject/units" "5.7.0"
+      "@ethersproject/wallet" "5.7.0"
+      "@ethersproject/web" "5.7.1"
+      "@ethersproject/wordlists" "5.7.0"
+  
+  ethers@^5.7.2:
+    version "5.7.2"
+    resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
+    integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
+    dependencies:
+      "@ethersproject/abi" "5.7.0"
+      "@ethersproject/abstract-provider" "5.7.0"
+      "@ethersproject/abstract-signer" "5.7.0"
+      "@ethersproject/address" "5.7.0"
+      "@ethersproject/base64" "5.7.0"
+      "@ethersproject/basex" "5.7.0"
+      "@ethersproject/bignumber" "5.7.0"
+      "@ethersproject/bytes" "5.7.0"
+      "@ethersproject/constants" "5.7.0"
+      "@ethersproject/contracts" "5.7.0"
+      "@ethersproject/hash" "5.7.0"
+      "@ethersproject/hdnode" "5.7.0"
+      "@ethersproject/json-wallets" "5.7.0"
+      "@ethersproject/keccak256" "5.7.0"
+      "@ethersproject/logger" "5.7.0"
+      "@ethersproject/networks" "5.7.1"
+      "@ethersproject/pbkdf2" "5.7.0"
+      "@ethersproject/properties" "5.7.0"
+      "@ethersproject/providers" "5.7.2"
       "@ethersproject/random" "5.7.0"
       "@ethersproject/rlp" "5.7.0"
       "@ethersproject/sha2" "5.7.0"
@@ -5570,15 +5639,20 @@ Lockfile:
       eth-gas-reporter "^0.2.25"
       sha1 "^1.1.1"
   
+  hardhat-test-utils@^0.1.1:
+    version "0.1.1"
+    resolved "https://registry.yarnpkg.com/hardhat-test-utils/-/hardhat-test-utils-0.1.1.tgz#fdc15c33e6924e761e259a8d197d1f7b69c4ef0b"
+    integrity sha512-wUaq4QXh/Mv4a34nYgOt/LDLL69Hj8Mpm9GzqguVhNRSKf+vpo+Zgqy/u9P2Y629tN1f9NXAoUIizTxP6TO1Xw==
+  
   hardhat-typechain@^0.3.3:
     version "0.3.5"
     resolved "https://registry.yarnpkg.com/hardhat-typechain/-/hardhat-typechain-0.3.5.tgz#8e50616a9da348b33bd001168c8fda9c66b7b4af"
     integrity sha512-w9lm8sxqTJACY+V7vijiH+NkPExnmtiQEjsV9JKD1KgMdVk2q8y+RhvU/c4B7+7b1+HylRUCxpOIvFuB3rE4+w==
   
-  hardhat@^2.2.0:
-    version "2.11.2"
-    resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.11.2.tgz#c81388630255823bb1717ec07c4ee651b1fbe97f"
-    integrity sha512-BdsXC1CFJQDJKmAgCwpmGhFuVU6dcqlgMgT0Kg/xmFAFVugkpYu6NRmh4AaJ3Fah0/BR9DOR4XgQGIbg4eon/Q==
+  hardhat@^2.12.0:
+    version "2.12.0"
+    resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.12.0.tgz#51e59f1ff4991bcb66d1a380ea807e6c15fcac34"
+    integrity sha512-mNJFbVG479HwOzxiaLxobyvED2M1aEAuPPYhEo1+88yicMDSTrU2JIS7vV+V0GSNQKaDoiHCmV6bcKjiljT/dQ==
     dependencies:
       "@ethersproject/abi" "^5.1.2"
       "@metamask/eth-sig-util" "^4.0.0"
@@ -5592,7 +5666,7 @@ Lockfile:
       "@nomicfoundation/ethereumjs-tx" "^4.0.0"
       "@nomicfoundation/ethereumjs-util" "^8.0.0"
       "@nomicfoundation/ethereumjs-vm" "^6.0.0"
-      "@nomicfoundation/solidity-analyzer" "^0.0.3"
+      "@nomicfoundation/solidity-analyzer" "^0.1.0"
       "@sentry/node" "^5.18.1"
       "@types/bn.js" "^5.1.0"
       "@types/lru-cache" "^5.1.0"

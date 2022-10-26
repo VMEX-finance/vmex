@@ -341,7 +341,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   //Also deploy CurveOracleV2 wrapper contract and add that contract to the aave address provider
   const curveOracleWrapper = await deployCurveOracleWrapper(
     addressesProvider.address,
-    curveOracle.address, //in this test, the fallback oracle is the aave oracle
+    fallbackOracle.address, //in this test, the fallback oracle is the aave oracle
     mockTokens.WETH.address,
     oneEther.toString()
   );

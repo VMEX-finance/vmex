@@ -68,8 +68,7 @@ export interface TestEnv {
   aDai: AToken;
   usdc: MintableERC20;
   aave: MintableERC20;
-  tricrypto2T1: MintableERC20;
-  daiT1: MintableERC20;
+  tricrypto2: MintableERC20;
   tricrypto2Strategy: CrvLpStrategy;
   addressesProvider: LendingPoolAddressesProvider;
   uniswapLiquiditySwapAdapter: UniswapLiquiditySwapAdapter;
@@ -99,8 +98,7 @@ const testEnv: TestEnv = {
   aDai: {} as AToken,
   usdc: {} as MintableERC20,
   aave: {} as MintableERC20,
-  daiT1: {} as MintableERC20,
-  tricrypto2T1: {} as MintableERC20,
+  tricrypto2: {} as MintableERC20,
   tricrypto2Strategy: {} as CrvLpStrategy,
   addressesProvider: {} as LendingPoolAddressesProvider,
   uniswapLiquiditySwapAdapter: {} as UniswapLiquiditySwapAdapter,
@@ -182,15 +180,11 @@ export async function initializeMakeSuite() {
     "1"
   );
 
-  const daiAddressT1 = reservesTokensT1.find(
-    (token) => token.symbol === "DAI"
-  )?.tokenAddress;
-
-  const tricrypto2AddressT1 = reservesTokensT1.find(
+  const tricrypto2Address = reservesTokensT1.find(
     (token) => token.symbol === "Tricrypto2"
   )?.tokenAddress;
 
-  if (!daiAddressT1 || !tricrypto2AddressT1) {
+  if (!tricrypto2Address) {
     process.exit(1);
   }
 
@@ -205,8 +199,7 @@ export async function initializeMakeSuite() {
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
 
-  testEnv.daiT1 = await getMintableERC20(daiAddressT1);
-  testEnv.tricrypto2T1 = await getMintableERC20(tricrypto2AddressT1);
+  testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 
   //CURVE TODO: these are not deployed when running mainnet fork in localhost
   // testEnv.uniswapLiquiditySwapAdapter = await getUniswapLiquiditySwapAdapter();
