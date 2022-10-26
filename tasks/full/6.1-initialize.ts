@@ -126,6 +126,11 @@ task(
         )
       );
 
+      console.log(
+        "Initialized cvxCrv Strat at address",
+        tricrypto2Strat.address
+      );
+
       // admin grants strategy access to all funds
       await waitForTx(
         await lendingPoolConfiguratorProxy
