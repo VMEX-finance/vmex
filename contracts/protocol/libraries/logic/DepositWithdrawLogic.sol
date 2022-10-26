@@ -74,8 +74,9 @@ library DepositWithdrawLogic {
 
         // if (assetData.isLendable) {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
-        self.updateState();
         self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
+        self.updateState();
+
         // }
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
@@ -161,9 +162,8 @@ library DepositWithdrawLogic {
             assetDatas
         );
 
-        reserve.updateState();
-
         reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount);
+        reserve.updateState();
 
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);

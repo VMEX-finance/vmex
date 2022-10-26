@@ -506,6 +506,7 @@ library ReserveLogic {
 
         //only cumulating if there is any income being produced
         if (currentLiquidityRate > 0) {
+            //consider strategies cumulatedLiquidityInterest can be calculated via ppfs approach
             uint256 cumulatedLiquidityInterest = MathUtils
                 .calculateLinearInterest(currentLiquidityRate, timestamp); //if currentLiquidityRate is 1% APR, and the time difference between current block and last update was half a year then this function will return 0.5% + 100%
             newLiquidityIndex = cumulatedLiquidityInterest.rayMul(

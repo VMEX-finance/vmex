@@ -105,6 +105,8 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
         lendingPoolConfiguratorProxy.address
       );
 
+      //****** SETS DEFAULT VMEX TREASURY TO THAT PROVIDED IN THE POOL CONFIG */
+      /// 0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c for main
       await lendingPoolConfiguratorProxy.setDefaultVMEXTreasury(
         await getTreasuryAddress(poolConfig)
       );
