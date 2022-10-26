@@ -399,11 +399,11 @@ export const deployAaveOracle = async (
 export const deployLendingPoolCollateralManager = async (verify?: boolean) => {
   const collateralManagerImpl = await new LendingPoolCollateralManagerFactory(
     await getFirstSigner()
-  ).deploy();
-  await insertContractAddressInDb(
-    eContractid.LendingPoolCollateralManagerImpl,
-    collateralManagerImpl.address
-  );
+    ).deploy();
+    await insertContractAddressInDb(
+      eContractid.LendingPoolCollateralManagerImpl,
+      collateralManagerImpl.address
+      );
   return withSaveAndVerify(
     collateralManagerImpl,
     eContractid.LendingPoolCollateralManager,
@@ -433,7 +433,6 @@ export const deployStrategyLibraries = async (
 ): Promise<CrvLpStrategyLibraryAddresses> => {
   // TODO: pull this out of db instead
   // const vMath = getContractAddressWithJsonFallback(eContractid.vMath, DRE.network.name);
-  const vMath = await deployvMath();
   const vStrategyHelper = await deployvStrategyHelper();
   return {
     ["src/deps/vmex/libs/vStrategyHelper.sol:vStrategyHelper"]:
@@ -476,12 +475,12 @@ export const deployCurveOracle = async (verify?: boolean) => {
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
-    eContractid.curveOracle,
+    eContractid.CurveOracle,
     curveOracleImpl.address
   );
   return withSaveAndVerify(
     curveOracleImpl,
-    eContractid.curveOracle,
+    eContractid.CurveOracle,
     [],
     verify
   );
@@ -498,12 +497,12 @@ export const deployCurveOracleWrapper = async (
     await getFirstSigner()
   ).deploy(addressProvider, fallbackOracle, baseCurrency, baseCurrencyUnit);
   await insertContractAddressInDb(
-    eContractid.curveWrapper,
+    eContractid.CurveWrapper,
     curveOracleWrapper.address
   );
   return withSaveAndVerify(
     curveOracleWrapper,
-    eContractid.curveWrapper,
+    eContractid.CurveWrapper,
     [],
     verify
   );
@@ -1121,31 +1120,3 @@ export const deployParaSwapLiquiditySwapAdapter = async (
     args,
     verify
   );
-
-// export const deployStrategyLibraries = async (
-//     verify?: boolean
-//   ): Promise<CurveOracleV2LibraryAddresses> => {
-//     const vMath = await deployvMath(verify);
-
-//     return {
-//       ["__$fc961522ee25e21dc45bf9241cf35e1d80$__"]: vMath.address,
-//     };
-//   };
-
-// export const deployCurveLPStrategy = async (verify?: boolean) => {
-//     const libraries = await deployStrategyLibraries(verify);
-//     const curveOracleImpl = await new CurveOracleV2Factory(
-//       libraries,
-//       await getFirstSigner()
-//     ).deploy();
-//     await insertContractAddressInDb(
-//       eContractid.curveOracle,
-//       curveOracleImpl.address
-//     );
-//     return withSaveAndVerify(
-//       curveOracleImpl,
-//       eContractid.curveOracle,
-//       [],
-//       verify
-//     );
-//   };

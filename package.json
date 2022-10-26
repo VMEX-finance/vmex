@@ -25,9 +25,10 @@
     "compile": "SKIP_LOAD=true hardhat compile",
     "console:fork": "FORK=main hardhat console",
     "console:localhost:fork": "FORK=main hardhat console --network localhost",
-    "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/scenario.spec.ts",
+    "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-underlying.spec.ts",
     "test-mainnet-fork": "FORK=main hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/scenario.spec.ts  --network localhost",
-    "test-liquidation": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-atoken.spec.ts",
+    "test-liquidation": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-underlying.spec.ts",
+    "test-liquidation-strategy": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-strategy.spec.ts",
     "test-amm": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-amm/*.spec.ts",
     "test-amm-scenarios": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-amm/__setup.spec.ts test-suites/test-amm/scenario.spec.ts",
     "test-scenarios": "npm run compile && npx hardhat test test-suites/test-aave/__setup.spec.ts test-suites/test-aave/scenario.spec.ts",
@@ -66,8 +67,12 @@
     "aave:fork:main": "npm run compile && FORK=main hardhat aave:mainnet",
     "vmex:node:fork:main": "FORK=main npx hardhat node",
     "vmex:deploy": "npm run compile && FORK=main hardhat aave:mainnet --network localhost",
+<<<<<<< HEAD
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/*.spec.ts --network localhost",
     "vmex:unit-test": "FORK=main hardhat test ./localhost_tests/test-tricrypto-strategy.spec.ts --network localhost",
+=======
+    "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/test-tricrypto.spec.ts --network localhost",
+>>>>>>> 2443bd4 (not working liquidation tests)
     "aave:fork:kovan": "npm run compile && FORK=kovan hardhat aave:mainnet",
     "amm:fork:main": "npm run compile && FORK=main hardhat amm:mainnet",
     "amm:fork:kovan": "npm run compile && FORK=kovan hardhat amm:mainnet",

@@ -2,7 +2,7 @@ import { addListener } from 'process';
 import { oneRay, ZERO_ADDRESS } from '../../helpers/constants';
 import { IAaveConfiguration, eEthereumNetwork } from '../../helpers/types';
 
-import { CommonsConfig } from './commons';
+import { CommonsConfig } from '../aave/commons';
 import {
   strategyBUSD,
   strategyDAI,
@@ -45,7 +45,7 @@ export const AaveConfig: IAaveConfiguration = {
   ...CommonsConfig,
   MarketId: 'Aave genesis market',
   ProviderId: 1,
-  
+
   ReservesConfig: {
     AAVE: strategyAAVE,
     BAT: strategyBAT,
@@ -69,12 +69,12 @@ export const AaveConfig: IAaveConfiguration = {
     ZRX: strategyZRX,
     xSUSHI: strategyXSUSHI,
     Tricrypto2: strategyCurveLPToken, //Curve TODO: add other curve lp tokens, modify custom strategies
-    ThreePool: strategyCurveLPToken, 
-    StethEth: strategyCurveLPToken, 
+    ThreePool: strategyCurveLPToken,
+    StethEth: strategyCurveLPToken,
     Steth: strategySTETH, //Change strategy
-    FraxUSDC: strategyCurveLPToken, 
-    Frax3Crv: strategyCurveLPToken, 
-    Frax: strategyFrax, 
+    FraxUSDC: strategyCurveLPToken,
+    Frax3Crv: strategyCurveLPToken,
+    Frax: strategyFrax,
     BAL: strategyBAL,
     CRV: strategyCRV,
     CVX: strategyCVX,

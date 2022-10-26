@@ -34,6 +34,7 @@ import {
   deployAaveOracle,
   deployCurveOracle,
   deployCurveOracleWrapper,
+  deployTricrypto2Strategy,
 } from "../../helpers/contracts-deployments";
 import { Signer } from "ethers";
 import {
@@ -340,7 +341,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   //Also deploy CurveOracleV2 wrapper contract and add that contract to the aave address provider
   const curveOracleWrapper = await deployCurveOracleWrapper(
     addressesProvider.address,
-    fallbackOracle.address, //in this test, the fallback oracle is the aave oracle
+    curveOracle.address, //in this test, the fallback oracle is the aave oracle
     mockTokens.WETH.address,
     oneEther.toString()
   );
@@ -495,6 +496,35 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   const gateWay = await deployWETHGateway([mockTokens.WETH.address]);
   await authorizeWETHGateway(gateWay.address, lendingPoolAddress);
+
+  // TODO: mock the curve pool (needs deposit function), convex booster, sushiswap
+  // right now the tend() function for strategies is unusable in hardhat tests
+  // deploy tricrypto2 strategy
+
+  // const tricrypto2Strategy = await deployTricrypto2Strategy();
+  // console.log("DEPLOYED tricrypto Strat at address", tricrypto2Strategy.address);
+
+  // await waitForTx(
+  //   await tricrypto2Strategy.connect(aaveAdmin).initialize(
+  //     addressesProvider.address,
+  //     allReservesAddresses["Tricrypto2"],
+  //     1,
+  //     38,
+  //     3,
+  //     "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" // address of tricrypto2 pool, will not work for hardhat test
+  //   )
+  // );
+
+  // // admin grants strategy access to all funds
+  // await waitForTx(
+  //   await lendingPoolConfiguratorProxy
+  //     .connect(aaveAdmin)
+  //     .addStrategy(
+  //       allReservesAddresses["Tricrypto2"],
+  //       1,
+  //       tricrypto2Strategy.address
+  //     )
+  // );
 
   console.timeEnd("setup");
 };

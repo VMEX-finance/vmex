@@ -10,7 +10,7 @@ import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {ILendingPoolCollateralManager} from "../../interfaces/ILendingPoolCollateralManager.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
-import {Helpers} from "../libraries/helpers/Helpers.sol";
+// import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
@@ -21,6 +21,10 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {UserConfiguration} from "../libraries/configuration/UserConfiguration.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
+
+import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title LendingPoolCollateralManager contract
@@ -74,6 +78,16 @@ contract LendingPoolCollateralManager is
         return 0;
     }
 
+    function getUserCurrentDebt(
+        address user,
+        DataTypes.ReserveData storage reserve
+    ) internal view returns (uint256, uint256) {
+        return (
+            IERC20(reserve.stableDebtTokenAddress).balanceOf(user),
+            IERC20(reserve.variableDebtTokenAddress).balanceOf(user)
+        );
+    }
+
     /**
      * @dev Function to liquidate a position if its Health Factor drops below 1
      * - The caller (liquidator) covers `debtToCover` amount of debt of the user getting liquidated, and receives
@@ -112,8 +126,6 @@ contract LendingPoolCollateralManager is
             );
         }
 
-        // vars.healthFactor = 2;
-
         DataTypes.ReserveData storage collateralReserve = _reserves[
             collateralAsset
         ][trancheId];
@@ -121,18 +133,19 @@ contract LendingPoolCollateralManager is
             trancheId
         ];
 
-        (vars.userStableDebt, vars.userVariableDebt) = Helpers
-            .getUserCurrentDebt(user, debtReserve);
+        (vars.userStableDebt, vars.userVariableDebt) = getUserCurrentDebt(user, debtReserve);
 
-        (vars.errorCode, vars.errorMsg) = ValidationLogic
-            .validateLiquidationCall(
-                collateralReserve,
-                debtReserve,
-                userConfig,
-                vars.healthFactor,
-                vars.userStableDebt,
-                vars.userVariableDebt
-            );
+        // (vars.errorCode, vars.errorMsg) = ValidationLogic
+        //     .validateLiquidationCall(
+        //         collateralReserve,
+        //         debtReserve,
+        //         userConfig,
+        //         vars.healthFactor,
+        //         vars.userStableDebt,
+        //         vars.userVariableDebt
+        //     );
+
+        console.log("A");
 
         if (
             Errors.CollateralManagerErrors(vars.errorCode) !=
@@ -154,6 +167,7 @@ contract LendingPoolCollateralManager is
             ? vars.maxLiquidatableDebt
             : debtToCover;
 
+        console.log("B");
         (
             vars.maxCollateralToLiquidate,
             vars.debtAmountNeeded
@@ -166,6 +180,7 @@ contract LendingPoolCollateralManager is
             vars.userCollateralBalance
         );
 
+        console.log("C");
         // If debtAmountNeeded < actualDebtToLiquidate, there isn't enough
         // collateral to cover the actual amount that is being liquidated, hence we liquidate
         // a smaller amount
@@ -177,8 +192,20 @@ contract LendingPoolCollateralManager is
         // If the liquidator reclaims the underlying asset, we make sure there is enough available liquidity in the
         // collateral reserve
         if (!receiveAToken) {
+            console.log("D");
+
             uint256 currentAvailableCollateral = IERC20(collateralAsset)
                 .balanceOf(address(vars.collateralAtoken));
+
+            // there is a strategy associated with the collateral token, add the balance of strategy
+            // to available collateral
+            if (IAToken(vars.collateralAtoken).getStrategy() != address(0)) {
+                console.log("E");
+                currentAvailableCollateral.add(
+                    IBaseStrategy(IAToken(vars.collateralAtoken).getStrategy()).balanceOf()
+                );
+                console.log("F");
+            }
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
                 return (
                     uint256(

@@ -33,6 +33,7 @@ import {
   WETH9MockedFactory,
   WETHGatewayFactory,
   FlashLiquidationAdapterFactory,
+  CurveWrapperFactory,
 } from "../types";
 import { CrvLpStrategy__factory } from "@vmex/lending_pool_strategies/types/factories/src/strats";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
@@ -94,6 +95,17 @@ export const getPriceOracle = async (address?: tEthereumAddress) =>
       (
         await getDb()
           .get(`${eContractid.PriceOracle}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getCurvePriceOracleWrapper = async (address?: tEthereumAddress) =>
+  await CurveWrapperFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.CurveWrapper}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

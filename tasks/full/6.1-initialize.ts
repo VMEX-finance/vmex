@@ -113,7 +113,7 @@ task(
       const tricrypto2Strat = await deployTricrypto2Strategy();
       const tricrypto2StratTranche = 1;
 
-      console.log("DEPLOYED cvxCrv Strat at address", tricrypto2Strat.address);
+      console.log("DEPLOYED tricrypto Strat at address", tricrypto2Strat.address);
 
       await waitForTx(
         await tricrypto2Strat.connect(emergAdmin).initialize(
