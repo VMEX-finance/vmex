@@ -25,10 +25,10 @@ interface LendingPoolInterface extends ethers.utils.Interface {
     "FLASHLOAN_PREMIUM_TOTAL()": FunctionFragment;
     "LENDINGPOOL_REVISION()": FunctionFragment;
     "addStrategy(address,uint64,address)": FunctionFragment;
+    "addWhitelistedDepositBorrow(address)": FunctionFragment;
     "borrow(address,uint64,uint256,uint256,uint16,address)": FunctionFragment;
     "deposit(address,uint64,uint256,address,uint16)": FunctionFragment;
     "finalizeTransfer(address,uint64,address,address,uint256,uint256,uint256)": FunctionFragment;
-    "flashLoan(address,address[],uint64,uint256[],uint256[],address,bytes,uint16)": FunctionFragment;
     "getAddressesProvider()": FunctionFragment;
     "getAssetData(address)": FunctionFragment;
     "getConfiguration(address,uint64)": FunctionFragment;
@@ -67,6 +67,10 @@ interface LendingPoolInterface extends ethers.utils.Interface {
     values: [string, BigNumberish, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "addWhitelistedDepositBorrow",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "borrow",
     values: [
       string,
@@ -90,19 +94,6 @@ interface LendingPoolInterface extends ethers.utils.Interface {
       string,
       BigNumberish,
       BigNumberish,
-      BigNumberish
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [
-      string,
-      string[],
-      BigNumberish,
-      BigNumberish[],
-      BigNumberish[],
-      string,
-      BytesLike,
       BigNumberish
     ]
   ): string;
@@ -235,13 +226,16 @@ interface LendingPoolInterface extends ethers.utils.Interface {
     functionFragment: "addStrategy",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "addWhitelistedDepositBorrow",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "finalizeTransfer",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAddressesProvider",
     data: BytesLike
@@ -322,7 +316,6 @@ interface LendingPoolInterface extends ethers.utils.Interface {
 
   events: {
     "Deposit(address,uint64,address,address,uint256,uint16)": EventFragment;
-    "FlashLoan(address,uint64,address,address,uint256,uint256,uint16)": EventFragment;
     "LiquidationCall(address,address,address,uint256,uint256,address,bool)": EventFragment;
     "Paused()": EventFragment;
     "RebalanceStableBorrowRate(address,address)": EventFragment;
@@ -336,7 +329,6 @@ interface LendingPoolInterface extends ethers.utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FlashLoan"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidationCall"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceStableBorrowRate"): EventFragment;
@@ -397,6 +389,16 @@ export class LendingPool extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -454,30 +456,6 @@ export class LendingPool extends Contract {
       amount: BigNumberish,
       balanceFromBefore: BigNumberish,
       balanceToBefore: BigNumberish,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    flashLoan(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
-    "flashLoan(address,address[],uint64,uint256[],uint256[],address,bytes,uint16)"(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -974,6 +952,16 @@ export class LendingPool extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  addWhitelistedDepositBorrow(
+    user: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addWhitelistedDepositBorrow(address)"(
+    user: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   borrow(
     asset: string,
     trancheId: BigNumberish,
@@ -1031,30 +1019,6 @@ export class LendingPool extends Contract {
     amount: BigNumberish,
     balanceFromBefore: BigNumberish,
     balanceToBefore: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  flashLoan(
-    receiverAddress: string,
-    assets: string[],
-    trancheId: BigNumberish,
-    amounts: BigNumberish[],
-    modes: BigNumberish[],
-    onBehalfOf: string,
-    params: BytesLike,
-    referralCode: BigNumberish,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
-  "flashLoan(address,address[],uint64,uint256[],uint256[],address,bytes,uint16)"(
-    receiverAddress: string,
-    assets: string[],
-    trancheId: BigNumberish,
-    amounts: BigNumberish[],
-    modes: BigNumberish[],
-    onBehalfOf: string,
-    params: BytesLike,
-    referralCode: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -1509,6 +1473,16 @@ export class LendingPool extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -1566,30 +1540,6 @@ export class LendingPool extends Contract {
       amount: BigNumberish,
       balanceFromBefore: BigNumberish,
       balanceToBefore: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    flashLoan(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "flashLoan(address,address[],uint64,uint256[],uint256[],address,bytes,uint16)"(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2032,16 +1982,6 @@ export class LendingPool extends Contract {
       referral: BigNumberish | null
     ): EventFilter;
 
-    FlashLoan(
-      target: string | null,
-      trancheId: null,
-      initiator: string | null,
-      asset: string | null,
-      amount: null,
-      premium: null,
-      referralCode: null
-    ): EventFilter;
-
     LiquidationCall(
       collateralAsset: string | null,
       debtAsset: string | null,
@@ -2124,6 +2064,16 @@ export class LendingPool extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -2181,30 +2131,6 @@ export class LendingPool extends Contract {
       amount: BigNumberish,
       balanceFromBefore: BigNumberish,
       balanceToBefore: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    flashLoan(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
-      overrides?: Overrides
-    ): Promise<BigNumber>;
-
-    "flashLoan(address,address[],uint64,uint256[],uint256[],address,bytes,uint16)"(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -2572,6 +2498,16 @@ export class LendingPool extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     borrow(
       asset: string,
       trancheId: BigNumberish,
@@ -2629,30 +2565,6 @@ export class LendingPool extends Contract {
       amount: BigNumberish,
       balanceFromBefore: BigNumberish,
       balanceToBefore: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    flashLoan(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
-      overrides?: Overrides
-    ): Promise<PopulatedTransaction>;
-
-    "flashLoan(address,address[],uint64,uint256[],uint256[],address,bytes,uint16)"(
-      receiverAddress: string,
-      assets: string[],
-      trancheId: BigNumberish,
-      amounts: BigNumberish[],
-      modes: BigNumberish[],
-      onBehalfOf: string,
-      params: BytesLike,
-      referralCode: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 

@@ -25,6 +25,7 @@ interface IBaseStrategyInterface extends ethers.utils.Interface {
     "balanceOf()": FunctionFragment;
     "balanceOfRewards()": FunctionFragment;
     "baseStrategyVersion()": FunctionFragment;
+    "calculateAverageRate()": FunctionFragment;
     "emitNonProtectedToken(address)": FunctionFragment;
     "getName()": FunctionFragment;
     "harvest()": FunctionFragment;
@@ -45,6 +46,10 @@ interface IBaseStrategyInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "baseStrategyVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "calculateAverageRate",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -81,6 +86,10 @@ interface IBaseStrategyInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "baseStrategyVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateAverageRate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -152,6 +161,16 @@ export class IBaseStrategy extends Contract {
 
     "baseStrategyVersion()"(overrides?: CallOverrides): Promise<{
       0: string;
+    }>;
+
+    calculateAverageRate(overrides?: CallOverrides): Promise<{
+      r: BigNumber;
+      0: BigNumber;
+    }>;
+
+    "calculateAverageRate()"(overrides?: CallOverrides): Promise<{
+      r: BigNumber;
+      0: BigNumber;
     }>;
 
     emitNonProtectedToken(
@@ -234,6 +253,10 @@ export class IBaseStrategy extends Contract {
   baseStrategyVersion(overrides?: CallOverrides): Promise<string>;
 
   "baseStrategyVersion()"(overrides?: CallOverrides): Promise<string>;
+
+  calculateAverageRate(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "calculateAverageRate()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   emitNonProtectedToken(
     _token: string,
@@ -319,6 +342,10 @@ export class IBaseStrategy extends Contract {
     baseStrategyVersion(overrides?: CallOverrides): Promise<string>;
 
     "baseStrategyVersion()"(overrides?: CallOverrides): Promise<string>;
+
+    calculateAverageRate(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "calculateAverageRate()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     emitNonProtectedToken(
       _token: string,
@@ -430,6 +457,10 @@ export class IBaseStrategy extends Contract {
 
     "baseStrategyVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    calculateAverageRate(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "calculateAverageRate()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     emitNonProtectedToken(
       _token: string,
       overrides?: Overrides
@@ -507,6 +538,14 @@ export class IBaseStrategy extends Contract {
     ): Promise<PopulatedTransaction>;
 
     "baseStrategyVersion()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    calculateAverageRate(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "calculateAverageRate()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

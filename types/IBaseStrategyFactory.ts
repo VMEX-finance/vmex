@@ -101,6 +101,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "calculateAverageRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "r",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",

@@ -24,6 +24,7 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   functions: {
     "activateReserve(address,uint64)": FunctionFragment;
     "addStrategy(address,uint64,address)": FunctionFragment;
+    "addWhitelistedDepositBorrow(address)": FunctionFragment;
     "batchInitReserve(tuple[],uint64)": FunctionFragment;
     "claimTrancheId(uint64,address,address)": FunctionFragment;
     "configureReserveAsCollateral(address,uint64,uint256,uint256,uint256)": FunctionFragment;
@@ -52,6 +53,10 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "addStrategy",
     values: [string, BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addWhitelistedDepositBorrow",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "batchInitReserve",
@@ -191,6 +196,10 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "addStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addWhitelistedDepositBorrow",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -347,6 +356,16 @@ export class LendingPoolConfigurator extends Contract {
       asset: string,
       trancheId: BigNumberish,
       strategy: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -711,6 +730,16 @@ export class LendingPoolConfigurator extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  addWhitelistedDepositBorrow(
+    user: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addWhitelistedDepositBorrow(address)"(
+    user: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   batchInitReserve(
     input: {
       aTokenImpl: string;
@@ -1069,6 +1098,16 @@ export class LendingPoolConfigurator extends Contract {
       asset: string,
       trancheId: BigNumberish,
       strategy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1498,6 +1537,16 @@ export class LendingPoolConfigurator extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     batchInitReserve(
       input: {
         aTokenImpl: string;
@@ -1854,6 +1903,16 @@ export class LendingPoolConfigurator extends Contract {
       asset: string,
       trancheId: BigNumberish,
       strategy: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    addWhitelistedDepositBorrow(
+      user: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addWhitelistedDepositBorrow(address)"(
+      user: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 

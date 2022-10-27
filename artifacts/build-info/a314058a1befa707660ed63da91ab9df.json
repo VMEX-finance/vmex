@@ -1,0 +1,351 @@
+{
+  "id": "a314058a1befa707660ed63da91ab9df",
+  "_format": "hh-sol-build-info-1",
+  "solcVersion": "0.8.0",
+  "solcLongVersion": "0.8.0+commit.c7dfd78e",
+  "input": {
+    "language": "Solidity",
+    "sources": {
+      "contracts/oracles/uniswapv08/v3-core/interfaces/IUniswapV3PoolDeployer.sol": {
+        "content": "// SPDX-License-Identifier: GPL-2.0-or-later\npragma solidity >=0.5.0;\n\n/// @title An interface for a contract that is capable of deploying Uniswap V3 Pools\n/// @notice A contract that constructs a pool must implement this to pass arguments to the pool\n/// @dev This is used to avoid having constructor arguments in the pool contract, which results in the init code hash\n/// of the pool being constant allowing the CREATE2 address of the pool to be cheaply computed on-chain\ninterface IUniswapV3PoolDeployer {\n    /// @notice Get the parameters to be used in constructing the pool, set transiently during pool creation.\n    /// @dev Called by the pool constructor to fetch the parameters of the pool\n    /// Returns factory The factory address\n    /// Returns token0 The first token of the pool by address sort order\n    /// Returns token1 The second token of the pool by address sort order\n    /// Returns fee The fee collected upon every swap in the pool, denominated in hundredths of a bip\n    /// Returns tickSpacing The minimum number of ticks between initialized ticks\n    function parameters()\n        external\n        view\n        returns (\n            address factory,\n            address token0,\n            address token1,\n            uint24 fee,\n            int24 tickSpacing\n        );\n}\n"
+      }
+    },
+    "settings": {
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "evmVersion": "istanbul",
+      "outputSelection": {
+        "*": {
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata",
+            "devdoc",
+            "userdoc",
+            "storageLayout",
+            "evm.gasEstimates"
+          ],
+          "": [
+            "ast"
+          ]
+        }
+      },
+      "metadata": {
+        "useLiteralContent": true
+      }
+    }
+  },
+  "output": {
+    "contracts": {
+      "contracts/oracles/uniswapv08/v3-core/interfaces/IUniswapV3PoolDeployer.sol": {
+        "IUniswapV3PoolDeployer": {
+          "abi": [
+            {
+              "inputs": [],
+              "name": "parameters",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "factory",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "token0",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "token1",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint24",
+                  "name": "fee",
+                  "type": "uint24"
+                },
+                {
+                  "internalType": "int24",
+                  "name": "tickSpacing",
+                  "type": "int24"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ],
+          "devdoc": {
+            "details": "This is used to avoid having constructor arguments in the pool contract, which results in the init code hash of the pool being constant allowing the CREATE2 address of the pool to be cheaply computed on-chain",
+            "kind": "dev",
+            "methods": {
+              "parameters()": {
+                "details": "Called by the pool constructor to fetch the parameters of the pool Returns factory The factory address Returns token0 The first token of the pool by address sort order Returns token1 The second token of the pool by address sort order Returns fee The fee collected upon every swap in the pool, denominated in hundredths of a bip Returns tickSpacing The minimum number of ticks between initialized ticks"
+              }
+            },
+            "title": "An interface for a contract that is capable of deploying Uniswap V3 Pools",
+            "version": 1
+          },
+          "evm": {
+            "bytecode": {
+              "generatedSources": [],
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "deployedBytecode": {
+              "generatedSources": [],
+              "immutableReferences": {},
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "gasEstimates": null,
+            "methodIdentifiers": {
+              "parameters()": "89035730"
+            }
+          },
+          "metadata": "{\"compiler\":{\"version\":\"0.8.0+commit.c7dfd78e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"parameters\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"factory\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"token0\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"token1\",\"type\":\"address\"},{\"internalType\":\"uint24\",\"name\":\"fee\",\"type\":\"uint24\"},{\"internalType\":\"int24\",\"name\":\"tickSpacing\",\"type\":\"int24\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"This is used to avoid having constructor arguments in the pool contract, which results in the init code hash of the pool being constant allowing the CREATE2 address of the pool to be cheaply computed on-chain\",\"kind\":\"dev\",\"methods\":{\"parameters()\":{\"details\":\"Called by the pool constructor to fetch the parameters of the pool Returns factory The factory address Returns token0 The first token of the pool by address sort order Returns token1 The second token of the pool by address sort order Returns fee The fee collected upon every swap in the pool, denominated in hundredths of a bip Returns tickSpacing The minimum number of ticks between initialized ticks\"}},\"title\":\"An interface for a contract that is capable of deploying Uniswap V3 Pools\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"parameters()\":{\"notice\":\"Get the parameters to be used in constructing the pool, set transiently during pool creation.\"}},\"notice\":\"A contract that constructs a pool must implement this to pass arguments to the pool\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/oracles/uniswapv08/v3-core/interfaces/IUniswapV3PoolDeployer.sol\":\"IUniswapV3PoolDeployer\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/oracles/uniswapv08/v3-core/interfaces/IUniswapV3PoolDeployer.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-2.0-or-later\\npragma solidity >=0.5.0;\\n\\n/// @title An interface for a contract that is capable of deploying Uniswap V3 Pools\\n/// @notice A contract that constructs a pool must implement this to pass arguments to the pool\\n/// @dev This is used to avoid having constructor arguments in the pool contract, which results in the init code hash\\n/// of the pool being constant allowing the CREATE2 address of the pool to be cheaply computed on-chain\\ninterface IUniswapV3PoolDeployer {\\n    /// @notice Get the parameters to be used in constructing the pool, set transiently during pool creation.\\n    /// @dev Called by the pool constructor to fetch the parameters of the pool\\n    /// Returns factory The factory address\\n    /// Returns token0 The first token of the pool by address sort order\\n    /// Returns token1 The second token of the pool by address sort order\\n    /// Returns fee The fee collected upon every swap in the pool, denominated in hundredths of a bip\\n    /// Returns tickSpacing The minimum number of ticks between initialized ticks\\n    function parameters()\\n        external\\n        view\\n        returns (\\n            address factory,\\n            address token0,\\n            address token1,\\n            uint24 fee,\\n            int24 tickSpacing\\n        );\\n}\\n\",\"keccak256\":\"0x4661803343659fa8a05c4db910f00065087e41cf18707a81ae4c9df6bfedb9ea\",\"license\":\"GPL-2.0-or-later\"}},\"version\":1}",
+          "storageLayout": {
+            "storage": [],
+            "types": null
+          },
+          "userdoc": {
+            "kind": "user",
+            "methods": {
+              "parameters()": {
+                "notice": "Get the parameters to be used in constructing the pool, set transiently during pool creation."
+              }
+            },
+            "notice": "A contract that constructs a pool must implement this to pass arguments to the pool",
+            "version": 1
+          }
+        }
+      }
+    },
+    "sources": {
+      "contracts/oracles/uniswapv08/v3-core/interfaces/IUniswapV3PoolDeployer.sol": {
+        "ast": {
+          "absolutePath": "contracts/oracles/uniswapv08/v3-core/interfaces/IUniswapV3PoolDeployer.sol",
+          "exportedSymbols": {
+            "IUniswapV3PoolDeployer": [
+              17
+            ]
+          },
+          "id": 18,
+          "license": "GPL-2.0-or-later",
+          "nodeType": "SourceUnit",
+          "nodes": [
+            {
+              "id": 1,
+              "literals": [
+                "solidity",
+                ">=",
+                "0.5",
+                ".0"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "45:24:0"
+            },
+            {
+              "abstract": false,
+              "baseContracts": [],
+              "contractDependencies": [],
+              "contractKind": "interface",
+              "documentation": {
+                "id": 2,
+                "nodeType": "StructuredDocumentation",
+                "src": "71:403:0",
+                "text": "@title An interface for a contract that is capable of deploying Uniswap V3 Pools\n @notice A contract that constructs a pool must implement this to pass arguments to the pool\n @dev This is used to avoid having constructor arguments in the pool contract, which results in the init code hash\n of the pool being constant allowing the CREATE2 address of the pool to be cheaply computed on-chain"
+              },
+              "fullyImplemented": false,
+              "id": 17,
+              "linearizedBaseContracts": [
+                17
+              ],
+              "name": "IUniswapV3PoolDeployer",
+              "nodeType": "ContractDefinition",
+              "nodes": [
+                {
+                  "documentation": {
+                    "id": 3,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "513:560:0",
+                    "text": "@notice Get the parameters to be used in constructing the pool, set transiently during pool creation.\n @dev Called by the pool constructor to fetch the parameters of the pool\n Returns factory The factory address\n Returns token0 The first token of the pool by address sort order\n Returns token1 The second token of the pool by address sort order\n Returns fee The fee collected upon every swap in the pool, denominated in hundredths of a bip\n Returns tickSpacing The minimum number of ticks between initialized ticks"
+                  },
+                  "functionSelector": "89035730",
+                  "id": 16,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "parameters",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 4,
+                    "nodeType": "ParameterList",
+                    "parameters": [],
+                    "src": "1097:2:0"
+                  },
+                  "returnParameters": {
+                    "id": 15,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 6,
+                        "mutability": "mutable",
+                        "name": "factory",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 16,
+                        "src": "1160:15:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 5,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "1160:7:0",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 8,
+                        "mutability": "mutable",
+                        "name": "token0",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 16,
+                        "src": "1189:14:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 7,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "1189:7:0",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 10,
+                        "mutability": "mutable",
+                        "name": "token1",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 16,
+                        "src": "1217:14:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 9,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "1217:7:0",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 12,
+                        "mutability": "mutable",
+                        "name": "fee",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 16,
+                        "src": "1245:10:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint24",
+                          "typeString": "uint24"
+                        },
+                        "typeName": {
+                          "id": 11,
+                          "name": "uint24",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "1245:6:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint24",
+                            "typeString": "uint24"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 14,
+                        "mutability": "mutable",
+                        "name": "tickSpacing",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 16,
+                        "src": "1269:17:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int24",
+                          "typeString": "int24"
+                        },
+                        "typeName": {
+                          "id": 13,
+                          "name": "int24",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "1269:5:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int24",
+                            "typeString": "int24"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "1146:150:0"
+                  },
+                  "scope": 17,
+                  "src": "1078:219:0",
+                  "stateMutability": "view",
+                  "virtual": false,
+                  "visibility": "external"
+                }
+              ],
+              "scope": 18,
+              "src": "474:825:0"
+            }
+          ],
+          "src": "45:1255:0"
+        },
+        "id": 0
+      }
+    }
+  }
+}
