@@ -254,6 +254,14 @@ contract LendingPoolConfigurator is
         );
     }
 
+    function addWhitelistedDepositBorrow(address user)
+        external
+        onlyGlobalAdmin
+    {
+        ILendingPool cachedPool = pool;
+        cachedPool.addWhitelistedDepositBorrow(user);
+    }
+
     function updateTreasuryAddress(
         address newAddress,
         address asset,
