@@ -3,9 +3,9 @@ pragma solidity >=0.8.0;
 import {ILendingPool} from "../interfaces/ILendingPool.sol";
 
 contract TrancheReserveData {
-    constructor(address pool) {
-        // ILendingPool(pool).getReserveData(asset, tranche)
-        address[] memory list = ILendingPool(pool).getReservesList();
+    constructor(address pool, uint64 trancheId) {
+        // ILendingPool(pool).getReserveData(asset, trancheId)
+        address[] memory list = ILendingPool(pool).getReservesList(trancheId);
         bytes memory returnData = abi.encode(list);
         assembly {
             return(add(0x20, returnData), mload(returnData))

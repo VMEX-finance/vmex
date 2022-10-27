@@ -50,30 +50,6 @@ library ValidationLogic {
     }
 
     /**
-     * @dev Validates risk of collateral is lower than tranche
-     */
-    function validateCollateralRisk(
-        bool isCollateral,
-        uint8 risk,
-        uint8 tranche,
-        bool allowHigherTranche
-    ) public pure {
-        if (isCollateral == true) {
-            if (allowHigherTranche) {
-                require(
-                    risk <= tranche,
-                    "Risk is too high to set as collateral"
-                ); //only allow user to set asset as collateral if risk of asset is lower than the tranche
-            } else {
-                require(
-                    risk == tranche,
-                    "Risk is not equal to collateral tranche"
-                );
-            }
-        }
-    }
-
-    /**
      * @dev Validates a withdraw action
      * @param reserveAddress The address of the reserve
      * @param amount The amount to be withdrawn
@@ -86,16 +62,16 @@ library ValidationLogic {
      */
     function validateWithdraw(
         address reserveAddress,
-        uint8 tranche,
+        uint64 trancheId,
         uint256 amount,
         uint256 userBalance,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) external view {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
@@ -103,7 +79,7 @@ library ValidationLogic {
             Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
 
-        (bool isActive, , , ) = reservesData[reserveAddress][tranche]
+        (bool isActive, , , ) = reservesData[reserveAddress][trancheId]
             .configuration
             .getFlags();
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
@@ -112,7 +88,7 @@ library ValidationLogic {
             GenericLogic.balanceDecreaseAllowed(
                 GenericLogic.balanceDecreaseAllowedParameters(
                     reserveAddress,
-                    tranche,
+                    trancheId,
                     msg.sender,
                     amount,
                     _addressesProvider
@@ -146,13 +122,13 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         uint256 amountInETH,
         uint256 maxStableLoanPercent,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) external view {
         ValidateBorrowLocalVars memory vars;
 
@@ -185,7 +161,7 @@ library ValidationLogic {
             vars.currentLiquidationThreshold,
             vars.healthFactor
         ) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(exvars.user, exvars.tranche),
+            DataTypes.AcctTranche(exvars.user, exvars.trancheId),
             reservesData,
             userConfig,
             reserves,
@@ -412,13 +388,13 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         address reserveAddress,
         bool useAsCollateral,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) external view {
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
             msg.sender
@@ -434,7 +410,7 @@ library ValidationLogic {
                 GenericLogic.balanceDecreaseAllowed(
                     GenericLogic.balanceDecreaseAllowedParameters(
                         reserveAddress,
-                        reserve.tranche,
+                        reserve.trancheId,
                         msg.sender,
                         underlyingBalance,
                         _addressesProvider
@@ -455,7 +431,7 @@ library ValidationLogic {
      * @param amounts The amounts for each asset being borrowed
      **/
     function validateFlashloan(
-        DataTypes.TrancheAddress[] memory assets,
+        address[] memory assets,
         uint256[] memory amounts
     ) internal pure {
         require(
@@ -543,17 +519,17 @@ library ValidationLogic {
      */
     function validateTransfer(
         address from,
-        uint8 tranche,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        uint64 trancheId,
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) internal view {
         (, , , , uint256 healthFactor) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(from, tranche),
+            DataTypes.AcctTranche(from, trancheId),
             reservesData,
             userConfig,
             reserves,

@@ -2,18 +2,14 @@
 pragma solidity >=0.8.0;
 
 import {BaseUniswapAdapter} from "./BaseUniswapAdapter.sol";
-import {
-    ILendingPoolAddressesProvider
-} from "../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {Helpers} from "../protocol/libraries/helpers/Helpers.sol";
 import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 import {IAToken} from "../interfaces/IAToken.sol";
-import {
-    ReserveConfiguration
-} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
+import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
 
 /**
@@ -29,7 +25,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
     struct LiquidationParams {
         address collateralAsset;
         address borrowedAsset;
-        uint8 tranche;
+        uint64 trancheId;
         address user;
         uint256 debtToCover;
         bool useEthPath;
@@ -68,7 +64,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
      *   bool useEthPath Use WETH as connector path between the collateralAsset and borrowedAsset at Uniswap
      */
     function executeOperation(
-        DataTypes.TrancheAddress[] calldata assets,
+        address[] calldata assets,
         uint256[] calldata amounts,
         uint256[] calldata premiums,
         address initiator,
@@ -82,8 +78,7 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         LiquidationParams memory decodedParams = _decodeParams(params);
 
         require(
-            assets.length == 1 &&
-                assets[0].asset == decodedParams.borrowedAsset,
+            assets.length == 1 && assets[0] == decodedParams.borrowedAsset,
             "INCONSISTENT_PARAMS"
         );
 
@@ -129,15 +124,15 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         LENDING_POOL.liquidationCall(
             decodedParams.collateralAsset,
             decodedParams.borrowedAsset,
-            decodedParams.tranche,
+            decodedParams.trancheId,
             decodedParams.user,
             decodedParams.debtToCover,
             false
         );
 
         // Discover the liquidated tokens
-        uint256 collateralBalanceAfter =
-            IERC20(decodedParams.collateralAsset).balanceOf(address(this));
+        uint256 collateralBalanceAfter = IERC20(decodedParams.collateralAsset)
+            .balanceOf(address(this));
 
         // Track only collateral released, not current asset balance of the contract
         vars.diffCollateralBalance = collateralBalanceAfter.sub(
@@ -146,8 +141,9 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
 
         if (decodedParams.collateralAsset != decodedParams.borrowedAsset) {
             // Discover flash loan balance after the liquidation
-            uint256 flashBorrowedAssetAfter =
-                IERC20(decodedParams.borrowedAsset).balanceOf(address(this));
+            uint256 flashBorrowedAssetAfter = IERC20(
+                decodedParams.borrowedAsset
+            ).balanceOf(address(this));
 
             // Use only flash loan borrowed assets, not current asset balance of the contract
             vars.diffFlashBorrowedBalance = flashBorrowedAssetAfter.sub(
@@ -202,21 +198,20 @@ contract FlashLiquidationAdapter is BaseUniswapAdapter {
         (
             address collateralAsset,
             address borrowedAsset,
-            uint8 tranche,
+            uint64 trancheId,
             address user,
             uint256 debtToCover,
             bool useEthPath
-        ) =
-            abi.decode(
+        ) = abi.decode(
                 params,
-                (address, address, uint8, address, uint256, bool)
+                (address, address, uint64, address, uint256, bool)
             );
 
         return
             LiquidationParams(
                 collateralAsset,
                 borrowedAsset,
-                tranche,
+                trancheId,
                 user,
                 debtToCover,
                 useEthPath

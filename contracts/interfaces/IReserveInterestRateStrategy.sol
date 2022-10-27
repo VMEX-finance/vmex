@@ -13,32 +13,10 @@ interface IReserveInterestRateStrategy {
     function getMaxVariableBorrowRate() external view returns (uint256);
 
     function calculateInterestRates(
-        address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
-        uint256 availableLiquidity,
+        DataTypes.calculateInterestRatesVars memory calvars,
         uint256 totalStableDebt,
         uint256 totalVariableDebt,
-        uint256 averageStableBorrowRate,
-        uint256 reserveFactor
-    )
-        external
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        );
-
-    function calculateInterestRates(
-        address reserve,
-        DataTypes.TrancheMultiplier memory multiplier,
-        address aToken,
-        uint256 liquidityAdded,
-        uint256 liquidityTaken,
-        uint256 totalStableDebt,
-        uint256 totalVariableDebt,
-        uint256 averageStableBorrowRate,
-        uint256 reserveFactor
+        uint256 averageStableBorrowRate
     )
         external
         view

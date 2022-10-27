@@ -8,13 +8,15 @@ import {
 } from "../../helpers/contracts-deployments";
 import {
   loadPoolConfig,
+  loadCustomAavePoolConfig,
   ConfigNames,
-  getTreasuryAddress,
+  getEmergencyAdmin,
 } from "../../helpers/configuration";
 import { getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
+  claimTrancheId,
   initReservesByHelper,
   configureReservesByHelper,
 } from "../../helpers/init-helpers";
@@ -22,13 +24,17 @@ import { exit } from "process";
 import {
   getAaveProtocolDataProvider,
   getLendingPoolAddressesProvider,
+  getLendingPoolConfiguratorProxy,
 } from "../../helpers/contracts-getters";
 import {
   chainlinkAggregatorProxy,
   chainlinkEthUsdAggregatorProxy,
 } from "../../helpers/constants";
 
-task("full:initialize-lending-pool", "Initialize lending pool configuration.")
+task(
+  "full:initialize-lending-pool",
+  "Initialize lending pool tranche 0 configuration."
+)
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam(
     "pool",
@@ -40,9 +46,7 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
     try {
       await DRE.run("set-DRE");
       const network = <eNetwork>DRE.network.name;
-      // console.log("localBRE: ",localBRE);
-      console.log("network: ", network); //network is hardhat even when running mainnet
-      const poolConfig = loadPoolConfig(pool);
+      const poolConfig = await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
         ATokenNamePrefix,
         StableDebtTokenNamePrefix,
@@ -62,16 +66,35 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
       );
       const addressesProvider = await getLendingPoolAddressesProvider();
 
+      const lendingPoolConfiguratorProxy =
+        await getLendingPoolConfiguratorProxy(
+          await addressesProvider.getLendingPoolConfigurator()
+        );
+
       const testHelpers = await getAaveProtocolDataProvider();
 
-      const admin = await addressesProvider.getPoolAdmin();
+      const admin = await DRE.ethers.getSigner(
+        await addressesProvider.getGlobalAdmin()
+      );
+      const emergAdmin = await DRE.ethers.getSigner(
+        await getEmergencyAdmin(poolConfig)
+      );
       // const oracle = await addressesProvider.getPriceOracle();
 
       if (!reserveAssets) {
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
       }
 
-      const treasuryAddress = await getTreasuryAddress(poolConfig);
+      const treasuryAddress = admin.address; //treasury address can be the same address as the deployer
+      //TODO: change vmex treasuryAddress to the same address as the global address
+      console.log("before initReservesByHelper");
+
+      await claimTrancheId(0, admin, admin);
+
+      // Pause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
+      );
 
       await initReservesByHelper(
         ReservesConfig,
@@ -84,13 +107,15 @@ task("full:initialize-lending-pool", "Initialize lending pool configuration.")
         treasuryAddress,
         incentivesController,
         pool,
+        0, //tranche id
         verify
       );
       await configureReservesByHelper(
         ReservesConfig,
         reserveAssets,
         testHelpers,
-        admin
+        0,
+        admin.address
       );
 
       let collateralManagerAddress = await getParamPerNetwork(

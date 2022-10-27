@@ -1,33 +1,47 @@
-reservesConfigs.ts is the file you use to edit the risk levels of assets during init
+### Setup
 
-How to connect metamask:
+Run `yarn install` to install node_modules or update them
 
-Follow metamask setup here: https://www.web3.university/article/how-to-build-a-react-dapp-with-hardhat-and-metamask
+Clone a local copy of the strategies
+`git clone https://github.com/VMEX-finance/lending_pool_strategies.git`
 
-run `npm run vmex:node:fork:main` in one terminal (starts up localhost network) as a fork
+Run the following inside the strategies:
+
+```
+yarn install
+git submodule update --init --recursive
+yarn link
+yarn compile
+```
+
+Then run in this repo: `yarn link "@vmex/lending_pool_strategies"`
+
+Then, link this repo with the strategies repo:
+
+In this repo run: `yarn link`
+
+In strategies repo run: `yarn link "@vmex/contracts"`
+
+### How to deploy:
+
+run `yarn vmex:node:fork:main` in one terminal (starts up localhost network) as a fork
 
 metamask should now be able to connect to http://127.0.0.1:8545
 
-run `npm run vmex:deploy` in another terminal to deploy the contracts and the fork of mainnet on the localhost network
+run `yarn vmex:deploy` in another terminal to deploy the contracts and the fork of mainnet on the localhost network
 
 you can use metamask to execute contract calls on the frontend
 
-run `npm run console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
-run `npx hardhat run --network localhost localhost_tests/test-script.ts` to run a set of tests to interact with the chain
+run `yarn console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
 
-How to get all Curve token pool addresses, which is needed to input to Curve oracle
-provider = Contract('0x0000000022D53366457F9d5E68Ec105046FC4383') //this address provider contract will always be at this address for mainnet
-provider.get_registry() //registry contains the addresses for the pools
+Run `vmex:mainnetfork:unit-tests` to test all localhost tests
 
-loop i from 0 to registry.pool_count():
-registry.pool_list(i) //this contains the pool address we need to input to the curve oracle
-// This is different than the Curve LP token though, which is what the users will actually deposit
-x = registry.get_lp_token(registry.pool_list(i)) //this converts the pool address to the lp token for that pool. This is the address we probably want to store in the reserves
-registry.get_pool_from_lp_token(x) //this converts lp token address to pool address (1 to 1 mapping between pool address and lp token address I think).
+### How to test in hardhat network mock environment:
 
-localhost addresses (I think this changes every deployment but double check)
+Run `npm run test`
+These are a separate set of tests than the above unit-tests
 
-VMEX supported assets
+### VMEX supported assets
 
 BUSD (L&B only)
 DAI (L&B + Collateral)
@@ -62,3 +76,108 @@ ThreePool Curve LP (Collateral only)
 StethEth Curve LP (Collateral only)
 FraxUSDC Curve LP (Collateral only)
 Frax3Crv Curve LP (Collateral only)
+
+# Accounts
+
+Account #0: 0xc783df8a850f42e7F7e57013759C285caa701eB6 (1000000 ETH)
+
+Account #1: 0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4 (1000000 ETH)
+
+Account #2: 0xE5904695748fe4A84b40b3fc79De2277660BD1D3 (1000000 ETH)
+
+Account #3: 0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2 (1000000 ETH)
+
+Account #4: 0x2fFd013AaA7B5a7DA93336C2251075202b33FB2B (1000000 ETH)
+
+Account #5: 0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39 (1000000 ETH)
+
+Account #6: 0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE (1000000 ETH)
+
+Account #7: 0x8BffC896D42F07776561A5814D6E4240950d6D3a (1000000 ETH)
+
+Users in scenario-engine:
+
+$$
+USERS:  [
+  {
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    address: '0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4'
+  },
+  {
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0xE5904695748fe4A84b40b3fc79De2277660BD1D3',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    address: '0xE5904695748fe4A84b40b3fc79De2277660BD1D3'
+  },
+  {
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    address: '0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2'
+  },
+  {
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0x2fFd013AaA7B5a7DA93336C2251075202b33FB2B',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    address: '0x2fFd013AaA7B5a7DA93336C2251075202b33FB2B'
+  },
+  {
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    address: '0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39'
+  },
+  {
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    address: '0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE'
+  },
+  {
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0x8BffC896D42F07776561A5814D6E4240950d6D3a',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    address: '0x8BffC896D42F07776561A5814D6E4240950d6D3a'
+  }
+]
+$$
+
+$$
+addressList:  [
+  '0xc783df8a850f42e7F7e57013759C285caa701eB6',
+  '0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4',
+  '0xE5904695748fe4A84b40b3fc79De2277660BD1D3',
+  '0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2',
+  '0x2fFd013AaA7B5a7DA93336C2251075202b33FB2B',
+  '0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39',
+  '0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE',
+  '0x8BffC896D42F07776561A5814D6E4240950d6D3a'
+]
+$$$$$$$$$$ admin of tranche 1:  0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4
+$$
+
+$$
+$$

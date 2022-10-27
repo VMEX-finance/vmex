@@ -88,32 +88,38 @@ contract LendingPoolCollateralManager is
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
-        uint8 tranche,
-        // uint8 debtAssetTranche, //this would actually be the same tranche as the collateral (you can only borrow from the same tranche that your collateral is in)
+        uint64 trancheId,
+        // uint8 debtAssetTranche, //this would actually be the same trancheId as the collateral (you can only borrow from the same trancheId that your collateral is in)
         address user,
         uint256 debtToCover,
         bool receiveAToken
     ) external override returns (uint256, string memory) {
-        DataTypes.ReserveData storage collateralReserve = _reserves[
-            collateralAsset
-        ][tranche];
-        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset][
-            tranche
+        DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user][
+            trancheId
         ];
-        DataTypes.UserConfigurationMap storage userConfig = _usersConfig[user];
 
         LiquidationCallLocalVars memory vars;
 
-        (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(user, tranche),
-            _reserves,
-            userConfig,
-            _reservesList,
-            _reservesCount,
-            _addressesProvider,
-            assetDatas
-        );
+        {
+            (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
+                DataTypes.AcctTranche(user, trancheId),
+                _reserves,
+                userConfig,
+                _reservesList[trancheId],
+                _reservesCount[trancheId],
+                _addressesProvider,
+                assetDatas
+            );
+        }
+
         // vars.healthFactor = 2;
+
+        DataTypes.ReserveData storage collateralReserve = _reserves[
+            collateralAsset
+        ][trancheId];
+        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset][
+            trancheId
+        ];
 
         (vars.userStableDebt, vars.userVariableDebt) = Helpers
             .getUserCurrentDebt(user, debtReserve);
@@ -207,7 +213,6 @@ contract LendingPoolCollateralManager is
         }
 
         debtReserve.updateInterestRates(
-            trancheMultipliers[tranche],
             debtAsset,
             debtReserve.aTokenAddress,
             vars.actualDebtToLiquidate,
@@ -225,7 +230,9 @@ contract LendingPoolCollateralManager is
 
             if (vars.liquidatorPreviousATokenBalance == 0) {
                 DataTypes.UserConfigurationMap
-                    storage liquidatorConfig = _usersConfig[msg.sender];
+                    storage liquidatorConfig = _usersConfig[msg.sender][
+                        trancheId
+                    ];
                 liquidatorConfig.setUsingAsCollateral(
                     collateralReserve.id,
                     true
@@ -238,7 +245,6 @@ contract LendingPoolCollateralManager is
         } else {
             collateralReserve.updateState();
             collateralReserve.updateInterestRates(
-                trancheMultipliers[tranche],
                 collateralAsset,
                 address(vars.collateralAtoken),
                 0,
@@ -324,14 +330,14 @@ contract LendingPoolCollateralManager is
 
         {
             address oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[collateralAsset].assetType
+                assetDatas[collateralAsset]
             );
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
             oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[debtAsset].assetType
+                assetDatas[debtAsset]
             );
 
             oracle = IPriceOracleGetter(oracleAddress);

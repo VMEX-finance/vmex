@@ -28,6 +28,10 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
         uint256 index
     ) external returns (bool);
 
+    function setTreasury(address newTreasury) external;
+
+    function setVMEXTreasury(address newTreasury) external;
+
     /**
      * @dev Emitted after aTokens are burned
      * @param from The owner of the aTokens, getting them burned
@@ -41,6 +45,10 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
         uint256 value,
         uint256 index
     );
+
+    event TreasuryChanged(address indexed newAddress);
+
+    event VMEXTreasuryChanged(address indexed newAddress);
 
     /**
      * @dev Emitted during the transfer action
@@ -76,6 +84,13 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
      * @param index The new liquidity index of the reserve
      */
     function mintToTreasury(uint256 amount, uint256 index) external;
+
+    /**
+     * @dev Mints aTokens to the vmex treasury
+     * @param amount The amount of tokens getting minted
+     * @param index The new liquidity index of the reserve
+     */
+    function mintToVMEXTreasury(uint256 amount, uint256 index) external;
 
     /**
      * @dev Transfers aTokens in the event of a borrow being liquidated, in case the liquidators reclaims the aToken
@@ -119,4 +134,10 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
     function UNDERLYING_ASSET_ADDRESS() external view returns (address);
+
+    function setAndApproveStrategy(address strategy) external;
+
+    function withdrawFromStrategy(uint256 amount) external;
+
+    function getStrategy() external view returns (address);
 }

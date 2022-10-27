@@ -58,6 +58,8 @@ export enum eContractid {
   curveOracle = "curveOracle",
   curveWrapper = "curveWrapper",
   vMath = "vMath",
+  vStrategyHelper = "vStrategyHelper",
+  tricrypto2Strategy = "tricrypto2Strategy",
   LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
   MintableERC20 = "MintableERC20",
   MintableDelegationERC20 = "MintableDelegationERC20",
@@ -284,43 +286,45 @@ export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
 
 export type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
 
-export type iAavePoolAssets<T> = Pick<
-  iAssetsWithoutUSD<T>,
-  | "DAI"
-  | "TUSD"
-  | "USDC"
-  | "USDT"
-  | "SUSD"
-  | "AAVE"
-  | "BAT"
-  | "MKR"
-  | "LINK"
-  | "KNC"
-  | "WBTC"
-  | "MANA"
-  | "ZRX"
-  | "SNX"
-  | "BUSD"
-  | "WETH"
-  | "YFI"
-  | "UNI"
-  | "REN"
-  | "ENJ"
-  | "xSUSHI"
-  | "Tricrypto2"
-  | "ThreePool"
-  | "StethEth"
-  | "Steth"
-  | "FraxUSDC"
-  | "Frax3Crv"
-  | "Frax"
-  | "BAL"
-  | "CRV"
-  | "CVX"
-  | "BADGER"
-  | "LDO"
-  | "ALCX"
-  | "Oneinch"
+export type iAavePoolAssets<T> = Partial<
+  Pick<
+    iAssetsWithoutUSD<T>,
+    | "DAI"
+    | "TUSD"
+    | "USDC"
+    | "USDT"
+    | "SUSD"
+    | "AAVE"
+    | "BAT"
+    | "MKR"
+    | "LINK"
+    | "KNC"
+    | "WBTC"
+    | "MANA"
+    | "ZRX"
+    | "SNX"
+    | "BUSD"
+    | "WETH"
+    | "YFI"
+    | "UNI"
+    | "REN"
+    | "ENJ"
+    | "xSUSHI"
+    | "Tricrypto2"
+    | "ThreePool"
+    | "StethEth"
+    | "Steth"
+    | "FraxUSDC"
+    | "Frax3Crv"
+    | "Frax"
+    | "BAL"
+    | "CRV"
+    | "CVX"
+    | "BADGER"
+    | "LDO"
+    | "ALCX"
+    | "Oneinch"
+  >
 >;
 
 export type iLpPoolAssets<T> = Pick<
@@ -411,6 +415,20 @@ export enum TokenContractId {
   STAKE = "STAKE",
   xSUSHI = "xSUSHI",
   WAVAX = "WAVAX",
+  Tricrypto2 = "Tricrypto2",
+  ThreePool = "ThreePool",
+  StethEth = "StethEth",
+  Steth = "Steth",
+  FraxUSDC = "FraxUSDC",
+  Frax3Crv = "Frax3Crv",
+  Frax = "Frax",
+  BAL = "BAL",
+  CRV = "CRV",
+  CVX = "CVX",
+  BADGER = "BADGER",
+  LDO = "LDO",
+  ALCX = "ALCX",
+  Oneinch = "Oneinch",
 }
 
 export interface IReserveParams
@@ -419,7 +437,10 @@ export interface IReserveParams
   aTokenImpl: eContractid;
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
-  isLendable: boolean; //is the asset lendable
+  collateralCap: string;
+  // hasStrategy: boolean; // address of strategist, 0 if no strategy
+  usingGovernanceSetInterestRate: boolean;
+  governanceSetInterestRate: string;
 }
 
 export interface IInterestRateStrategyParams {
@@ -448,9 +469,7 @@ export interface IReserveCollateralParams {
   baseLTVAsCollateral: string;
   liquidationThreshold: string;
   liquidationBonus: string;
-  risk: BigNumberish; //risk of asset, can only be set as collateral in tranches higher than this risk
   assetType: BigNumberish;
-  allowedHigherTranche: boolean;
 }
 export interface IMarketRates {
   borrowRate: string;

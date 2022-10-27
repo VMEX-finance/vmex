@@ -4,22 +4,42 @@ pragma solidity >=0.8.0;
 library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
 
+    struct InitReserveInput {
+        address aTokenImpl;
+        address stableDebtTokenImpl;
+        address variableDebtTokenImpl;
+        uint8 underlyingAssetDecimals;
+        address interestRateStrategyAddress;
+        address underlyingAsset;
+        address treasury;
+        address incentivesController;
+        string underlyingAssetName;
+        string aTokenName;
+        string aTokenSymbol;
+        string variableDebtTokenName;
+        string variableDebtTokenSymbol;
+        string stableDebtTokenName;
+        string stableDebtTokenSymbol;
+        bytes params;
+        uint8 assetType;
+        uint256 collateralCap;
+        bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
+        uint256 governanceSetInterestRate;
+    }
+
+    struct InitReserveInputInternal {
+        InitReserveInput input;
+        uint64 trancheId;
+    }
+
     enum ReserveAssetType {
         AAVE,
         CURVE
     } //update with other possible types of the underlying asset
     //AAVE is the original assets in the aave protocol
     //CURVE is the new LP tokens we are providing support for
-
-    struct AssetData {
-        uint8 collateralRisk;
-        bool isLendable;
-        bool isAllowedCollateralInHigherTranches;
-        ReserveAssetType assetType;
-    }
-
     struct TrancheAddress {
-        uint8 tranche;
+        uint64 trancheId;
         address asset;
     }
     struct ReserveData {
@@ -44,16 +64,16 @@ library DataTypes {
         address interestRateStrategyAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
-        uint8 tranche; //I think this will be used for nonlendable assets, cause your collateral only asset can be placed in higher tranche if necessary
+        //maybe consider
+        uint64 trancheId;
+        uint256 collateralCap; //this can definitely be different per trancheId
+        bool hasStrategy; //this might be put as a property of a reserve rather than property of the asset since USDC might have a trancheId that has a strategy, but unlikely to happen
+        bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
+        uint256 governanceSetInterestRate;
+        //uint16 globalVMEXReserveFactor; //interest we are taking for each reserve. Default will be 10% but governance can set it
     }
 
-    struct TrancheMultiplier {
-        uint256 liquidityRateMultiplier;
-        uint256 variableBorrowRateMultiplier;
-        uint256 stableBorrowRateMultiplier;
-    }
-
-    uint8 constant NUM_TRANCHES = 3;
+    // uint8 constant NUM_TRANCHES = 3;
 
     struct ReserveConfigurationMap {
         //bit 0-15: LTV
@@ -66,6 +86,7 @@ library DataTypes {
         //bit 59: stable rate borrowing enabled
         //bit 60-63: reserved
         //bit 64-79: reserve factor
+        //bit 80-95: vmex reserve factor
         uint256 data;
     }
 
@@ -81,21 +102,21 @@ library DataTypes {
 
     struct AcctTranche {
         address user;
-        uint8 tranche;
+        uint64 trancheId;
     }
 
     struct DepositVars {
         address asset;
-        uint8 tranche;
-        uint8 risk;
-        bool allowHigherTranche;
-        bool isLendable;
-        TrancheMultiplier t;
+        uint64 trancheId;
+        address _addressesProvider;
+        uint256 amount;
+        address onBehalfOf;
+        uint16 referralCode;
     }
 
     struct ExecuteBorrowParams {
         address asset;
-        uint8 tranche; //tranche the user wants to borrow out of
+        uint64 trancheId; //trancheId the user wants to borrow out of
         address user;
         address onBehalfOf;
         uint256 amount;
@@ -105,21 +126,14 @@ library DataTypes {
         bool releaseUnderlying;
         uint256 _maxStableRateBorrowSizePercent;
         uint256 _reservesCount;
-        TrancheMultiplier t;
     }
 
     struct WithdrawParams {
         uint256 _reservesCount;
         address asset;
-        uint8 tranche;
+        uint64 trancheId;
         uint256 amount;
         address to;
-        TrancheMultiplier t;
-    }
-
-    struct ValidateSetUseReserveAsCollateralParams {
-        uint8 risk;
-        bool allowHigherTranche;
     }
 
     struct calculateInterestRatesVars {
@@ -128,11 +142,13 @@ library DataTypes {
         uint256 liquidityAdded;
         uint256 liquidityTaken;
         uint256 reserveFactor;
+        uint256 globalVMEXReserveFactor;
     }
 
     struct flashLoanVars {
         address receiverAddress;
-        DataTypes.TrancheAddress[] assets;
+        address[] assets;
+        uint64 trancheId;
         uint256[] amounts;
         uint256[] modes;
         address onBehalfOf;
@@ -141,6 +157,7 @@ library DataTypes {
         uint256 _flashLoanPremiumTotal;
         address oracle;
         uint256 _maxStableRateBorrowSizePercent;
-        uint256 _reservesCount;
+        address _addressesprovider;
+        // mapping(uint8 => uint256) _reservesCount;
     }
 }

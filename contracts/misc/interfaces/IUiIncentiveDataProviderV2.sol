@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
-import {
-    ILendingPoolAddressesProvider
-} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 
 interface IUiIncentiveDataProviderV2 {
     struct AggregatedReserveIncentiveData {
@@ -41,19 +39,21 @@ interface IUiIncentiveDataProviderV2 {
         uint8 rewardTokenDecimals;
     }
 
-    function getReservesIncentivesData(ILendingPoolAddressesProvider provider)
-        external
-        view
-        returns (AggregatedReserveIncentiveData[] memory);
+    function getReservesIncentivesData(
+        ILendingPoolAddressesProvider provider,
+        uint64 trancheId
+    ) external view returns (AggregatedReserveIncentiveData[] memory);
 
     function getUserReservesIncentivesData(
         ILendingPoolAddressesProvider provider,
+        uint64 trancheId,
         address user
     ) external view returns (UserReserveIncentiveData[] memory);
 
     // generic method with full data
     function getFullReservesIncentiveData(
         ILendingPoolAddressesProvider provider,
+        uint64 trancheId,
         address user
     )
         external
