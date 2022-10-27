@@ -18,6 +18,7 @@ import {
   buildForkConfig,
 } from './helper-hardhat-config';
 // import "hardhat-contract-sizer";
+import 'hardhat-test-utils';
 
 require('dotenv').config();
 
