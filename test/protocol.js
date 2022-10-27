@@ -46,19 +46,15 @@ describe("Supply - end-to-end test", () => {
     let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
     const owner = provider.getSigner();
     
-    it("1 - signer should receive 1 WETH so he can transact for LP tokens", async () => {
+    it("1 - signer should receive 3 WETH so he can transact for LP tokens", async () => {
         const WETH = new ethers.Contract(WETHadd, WETHabi, owner);
-        await WETH.connect(owner).deposit({ value: ethers.utils.parseEther("2.0")});
+        await WETH.connect(owner).deposit({ value: ethers.utils.parseEther("3.0")});
         expect(await WETH.balanceOf(await owner.getAddress())).to.be.above(ethers.utils.parseEther("1.0"))
     });
 
-    it("2 - should test the getLendingPooImpl util", async () => {
-        expect(await getLendingPoolImpl(owner, 'localhost')).to.be.an.instanceOf(ethers.Contract);
-    })
-
-    it("3 - should test the approveUnderlying util", async () => {
+    it("2 - should test the approveUnderlying util", async () => {
         let lendingPool = await getLendingPoolImpl(owner, "localhost");
-        await approveUnderlying(owner, ethers.utils.parseEther("1.0"), WETHadd, lendingPool.address);
+        await approveUnderlying(owner, ethers.utils.parseEther("3.0"), WETHadd, lendingPool.address);
     })
 
     
@@ -81,38 +77,39 @@ describe("Supply - end-to-end test", () => {
             signer: owner,
             network: 'localhost',
             test: true
-        }, () => { return true})).to.be.true;
+        }, () => { return true })).to.be.true;
 
     })
 
     it("7 - should test that the user has a non-zero amount of aTokens for an asset", async () => {
         let data = await getUserSingleReserveData(owner, 'localhost', WETHadd, 1);
         let aToken = new ethers.Contract(data.aTokenAddress, WETHabi, owner);
-        expect(await aToken.balanceOf(await owner.getAddress())).to.be.above(ethers.utils.parseEther('1.0'))
+        console.log(await aToken.connect(owner).balanceOf(await owner.getAddress()))
+        expect(await aToken.connect(owner).balanceOf(await owner.getAddress())).to.be.above(ethers.utils.parseEther('1.0'));
     })
 
 })
 
 describe("Borrow - end-to-end test", () => {
-    let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
-    const temp = provider.getSigner(1);
+    // let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+    // const temp = provider.getSigner(1);
 
-    it("1 - should give temp 1 WETH", async () => {
-        const WETH = new ethers.Contract(WETHadd, WETHabi, temp);
-        await WETH.connect(temp).deposit({ value: ethers.utils.parseEther("2.0")});
-        await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("1.0"));
-        expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(ethers.utils.parseEther("1.0"))
-    })
+    // it("1 - should give temp 1 WETH", async () => {
+    //     const WETH = new ethers.Contract(WETHadd, WETHabi, temp);
+    //     await WETH.connect(temp).deposit({ value: ethers.utils.parseEther("2.0")});
+    //     await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("1.0"));
+    //     expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(ethers.utils.parseEther("1.0"))
+    // })
 
-    it("2 - should swap for USDC with UNISWAP", async () => {
-        var path = [WETHadd, USDCadd];
-        var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-        var options = {value: ethers.utils.parseEther("1.0")}
-        const USDC = new ethers.Contract(USDCadd, WETHabi, temp);
-        const UNISWAP = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI, temp);
-        await UNISWAP.swapExactETHForTokens(ethers.utils.parseEther("0.5"), path, await temp.getAddress(), deadline, { value: ethers.utils.parseEther("1.0"), gasLimit: "8000000"} );
-        expect(await USDC.balanceOf(await temp.getAddress())).to.be.bignumber.above(ethers.utils.parseEther("0.5"));
-    })
+    // it("2 - should swap for USDC with UNISWAP", async () => {
+    //     var path = [WETHadd, USDCadd];
+    //     var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
+    //     var options = {value: ethers.utils.parseEther("1.0")}
+    //     const USDC = new ethers.Contract(USDCadd, WETHabi, temp);
+    //     const UNISWAP = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI, temp);
+    //     await UNISWAP.swapExactETHForTokens(ethers.utils.parseEther("0.5"), path, await temp.getAddress(), deadline, { value: ethers.utils.parseEther("1.0"), gasLimit: "8000000"} );
+    //     expect(await USDC.balanceOf(await temp.getAddress())).to.be.bignumber.above(ethers.utils.parseEther("0.5"));
+    // })
     // it("test", async () => {
     //     console.log(await getReserveData(temp, 'localhost', Crv3Crypto, 0))
     // })

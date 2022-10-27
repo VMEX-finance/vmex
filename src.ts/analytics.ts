@@ -1,25 +1,37 @@
-// import { Signer } from "@ethersproject/abstract-signer";
-// import { ContractFactory } from "@ethersproject/contracts";
-// import { JsonRpcProvider } from "@ethersproject/providers";
-// import { Interface } from "@ethersproject/abi";
-// import { deployments } from "./constants";
-// import getUserTokenData from "../artifacts/contracts/analytics/queries/getUserTokenData.sol/TokenReserveData.json";
-// import _ from "lodash";
+import { ethers } from "ethers";
+import { getLendingPoolImpl, approveUnderlying } from "./utils";
 
+//PROTOCOL ANALYTICS
 
+// USER ANALYTICS
+/**
+ * userAmountSupplied
+ * @params { signer: ethers.Signer, underlying: address, network?: string }
+ */
 
-// export async function getTokenReserveData(signer: Signer) {
-//     // const provider = new JsonRpcProvider('http://127.0.0.1:8545');
-//     // const signer = signer.connect(provider);
+export async function userAmountSupplied(params: {
+    underlying: string;
+    trancheId: number;
+    signer: ethers.Signer;
+    network?: string;
+    test?: boolean;
+}, callback?: () => Promise<any>) {
+    
+}
+/**
+ * getUserReserveConfig
+ * @params { signer: ethers.Signer, underlying: address, network?: string }
+ */
 
-//     let contractFactory = new ContractFactory(getUserTokenData.abi, getUserTokenData.bytecode);
-//     let data = await signer.provider?.call({
-//         data: contractFactory.getDeployTransaction(deployments.LendingPoolAddressesProvider.localhost.address, await signer.getAddress()).data
-//     })
+/**
+ * getUserAvailableAssets
+ * @parmas { signer: ethers.Signer, network?: string }
+ */
 
-//     const iface = new Interface(getUserTokenData.abi);
-//     const returnData = await iface.decodeFunctionResult("getType", (data as string));
-//     return returnData['0'];
-// }
+/**
+ * getUserCollateralAssets
+ * @params { signer: ethers.Signer, network?: string }
+ */
+
 
 
