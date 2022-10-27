@@ -66,6 +66,14 @@ contract AToken is
         _;
     }
 
+    modifier onlyLendingPoolOrStrategy() {
+        require(
+            _msgSender() == address(_pool) || _msgSender() == _strategy,
+            Errors.CT_CALLER_MUST_BE_LENDING_POOL
+        );
+        _;
+    }
+
     modifier onlyLendingPoolConfigurator() {
         require(
             _msgSender() == _lendingPoolConfigurator,
@@ -270,7 +278,7 @@ contract AToken is
     function mintToVMEXTreasury(uint256 amount, uint256 index)
         external
         override
-        onlyLendingPool
+        onlyLendingPoolOrStrategy
     {
         if (amount == 0) {
             return;

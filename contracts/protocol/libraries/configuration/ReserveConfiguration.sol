@@ -335,6 +335,21 @@ library ReserveConfiguration {
     }
 
     /**
+     * @dev Gets the reserve factor of the reserve from memory
+     * @param data The reserve configuration data
+     * @return The reserve factor
+     **/
+    function getVMEXReserveFactorData(uint256 data)
+        internal
+        pure
+        returns (uint256)
+    {
+        return
+            (data & ~VMEX_RESERVE_FACTOR_MASK) >>
+            VMEX_RESERVE_FACTOR_START_BIT_POSITION;
+    }
+
+    /**
      * @dev Gets the configuration flags of the reserve
      * @param self The reserve configuration
      * @return The state flags representing active, frozen, borrowing enabled, stableRateBorrowing enabled
