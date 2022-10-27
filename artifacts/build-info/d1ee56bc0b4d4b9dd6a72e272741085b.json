@@ -1,0 +1,384 @@
+{
+  "id": "d1ee56bc0b4d4b9dd6a72e272741085b",
+  "_format": "hh-sol-build-info-1",
+  "solcVersion": "0.8.0",
+  "solcLongVersion": "0.8.0+commit.c7dfd78e",
+  "input": {
+    "language": "Solidity",
+    "sources": {
+      "contracts/oracles/interfaces/IAaveOracle.sol": {
+        "content": "// SPDX-License-Identifier: agpl-3.0\npragma solidity >=0.8.0;\n\ninterface IAaveOracle {\n    /// @notice Gets an asset price by address\n    /// @param asset The asset address\n    function getAssetPrice(address asset) external view returns (uint256);\n\n    /// @notice Gets a list of prices from a list of assets addresses\n    /// @param assets The list of assets addresses\n    function getAssetsPrices(address[] calldata assets)\n        external\n        view\n        returns (uint256[] memory);\n}\n"
+      }
+    },
+    "settings": {
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "evmVersion": "istanbul",
+      "outputSelection": {
+        "*": {
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata",
+            "devdoc",
+            "userdoc",
+            "storageLayout",
+            "evm.gasEstimates"
+          ],
+          "": [
+            "ast"
+          ]
+        }
+      },
+      "metadata": {
+        "useLiteralContent": true
+      }
+    }
+  },
+  "output": {
+    "contracts": {
+      "contracts/oracles/interfaces/IAaveOracle.sol": {
+        "IAaveOracle": {
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "asset",
+                  "type": "address"
+                }
+              ],
+              "name": "getAssetPrice",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address[]",
+                  "name": "assets",
+                  "type": "address[]"
+                }
+              ],
+              "name": "getAssetsPrices",
+              "outputs": [
+                {
+                  "internalType": "uint256[]",
+                  "name": "",
+                  "type": "uint256[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ],
+          "devdoc": {
+            "kind": "dev",
+            "methods": {
+              "getAssetPrice(address)": {
+                "params": {
+                  "asset": "The asset address"
+                }
+              },
+              "getAssetsPrices(address[])": {
+                "params": {
+                  "assets": "The list of assets addresses"
+                }
+              }
+            },
+            "version": 1
+          },
+          "evm": {
+            "bytecode": {
+              "generatedSources": [],
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "deployedBytecode": {
+              "generatedSources": [],
+              "immutableReferences": {},
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "gasEstimates": null,
+            "methodIdentifiers": {
+              "getAssetPrice(address)": "b3596f07",
+              "getAssetsPrices(address[])": "9d23d9f2"
+            }
+          },
+          "metadata": "{\"compiler\":{\"version\":\"0.8.0+commit.c7dfd78e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"asset\",\"type\":\"address\"}],\"name\":\"getAssetPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"assets\",\"type\":\"address[]\"}],\"name\":\"getAssetsPrices\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getAssetPrice(address)\":{\"params\":{\"asset\":\"The asset address\"}},\"getAssetsPrices(address[])\":{\"params\":{\"assets\":\"The list of assets addresses\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getAssetPrice(address)\":{\"notice\":\"Gets an asset price by address\"},\"getAssetsPrices(address[])\":{\"notice\":\"Gets a list of prices from a list of assets addresses\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/oracles/interfaces/IAaveOracle.sol\":\"IAaveOracle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/oracles/interfaces/IAaveOracle.sol\":{\"content\":\"// SPDX-License-Identifier: agpl-3.0\\npragma solidity >=0.8.0;\\n\\ninterface IAaveOracle {\\n    /// @notice Gets an asset price by address\\n    /// @param asset The asset address\\n    function getAssetPrice(address asset) external view returns (uint256);\\n\\n    /// @notice Gets a list of prices from a list of assets addresses\\n    /// @param assets The list of assets addresses\\n    function getAssetsPrices(address[] calldata assets)\\n        external\\n        view\\n        returns (uint256[] memory);\\n}\\n\",\"keccak256\":\"0x6a7b44187f0eab69cda62056ae724e735104544fd86e44538ff9080da36ad600\",\"license\":\"agpl-3.0\"}},\"version\":1}",
+          "storageLayout": {
+            "storage": [],
+            "types": null
+          },
+          "userdoc": {
+            "kind": "user",
+            "methods": {
+              "getAssetPrice(address)": {
+                "notice": "Gets an asset price by address"
+              },
+              "getAssetsPrices(address[])": {
+                "notice": "Gets a list of prices from a list of assets addresses"
+              }
+            },
+            "version": 1
+          }
+        }
+      }
+    },
+    "sources": {
+      "contracts/oracles/interfaces/IAaveOracle.sol": {
+        "ast": {
+          "absolutePath": "contracts/oracles/interfaces/IAaveOracle.sol",
+          "exportedSymbols": {
+            "IAaveOracle": [
+              20
+            ]
+          },
+          "id": 21,
+          "license": "agpl-3.0",
+          "nodeType": "SourceUnit",
+          "nodes": [
+            {
+              "id": 1,
+              "literals": [
+                "solidity",
+                ">=",
+                "0.8",
+                ".0"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "37:24:0"
+            },
+            {
+              "abstract": false,
+              "baseContracts": [],
+              "contractDependencies": [],
+              "contractKind": "interface",
+              "fullyImplemented": false,
+              "id": 20,
+              "linearizedBaseContracts": [
+                20
+              ],
+              "name": "IAaveOracle",
+              "nodeType": "ContractDefinition",
+              "nodes": [
+                {
+                  "documentation": {
+                    "id": 2,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "91:81:0",
+                    "text": "@notice Gets an asset price by address\n @param asset The asset address"
+                  },
+                  "functionSelector": "b3596f07",
+                  "id": 9,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "getAssetPrice",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 5,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 4,
+                        "mutability": "mutable",
+                        "name": "asset",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 9,
+                        "src": "200:13:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 3,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "200:7:0",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "199:15:0"
+                  },
+                  "returnParameters": {
+                    "id": 8,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 7,
+                        "mutability": "mutable",
+                        "name": "",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 9,
+                        "src": "238:7:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "typeName": {
+                          "id": 6,
+                          "name": "uint256",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "238:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "237:9:0"
+                  },
+                  "scope": 20,
+                  "src": "177:70:0",
+                  "stateMutability": "view",
+                  "virtual": false,
+                  "visibility": "external"
+                },
+                {
+                  "documentation": {
+                    "id": 10,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "253:116:0",
+                    "text": "@notice Gets a list of prices from a list of assets addresses\n @param assets The list of assets addresses"
+                  },
+                  "functionSelector": "9d23d9f2",
+                  "id": 19,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "getAssetsPrices",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 14,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 13,
+                        "mutability": "mutable",
+                        "name": "assets",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 19,
+                        "src": "399:25:0",
+                        "stateVariable": false,
+                        "storageLocation": "calldata",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_array$_t_address_$dyn_calldata_ptr",
+                          "typeString": "address[]"
+                        },
+                        "typeName": {
+                          "baseType": {
+                            "id": 11,
+                            "name": "address",
+                            "nodeType": "ElementaryTypeName",
+                            "src": "399:7:0",
+                            "stateMutability": "nonpayable",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "id": 12,
+                          "nodeType": "ArrayTypeName",
+                          "src": "399:9:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                            "typeString": "address[]"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "398:27:0"
+                  },
+                  "returnParameters": {
+                    "id": 18,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 17,
+                        "mutability": "mutable",
+                        "name": "",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 19,
+                        "src": "473:16:0",
+                        "stateVariable": false,
+                        "storageLocation": "memory",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                          "typeString": "uint256[]"
+                        },
+                        "typeName": {
+                          "baseType": {
+                            "id": 15,
+                            "name": "uint256",
+                            "nodeType": "ElementaryTypeName",
+                            "src": "473:7:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "id": 16,
+                          "nodeType": "ArrayTypeName",
+                          "src": "473:9:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                            "typeString": "uint256[]"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "472:18:0"
+                  },
+                  "scope": 20,
+                  "src": "374:117:0",
+                  "stateMutability": "view",
+                  "virtual": false,
+                  "visibility": "external"
+                }
+              ],
+              "scope": 21,
+              "src": "63:430:0"
+            }
+          ],
+          "src": "37:457:0"
+        },
+        "id": 0
+      }
+    }
+  }
+}
