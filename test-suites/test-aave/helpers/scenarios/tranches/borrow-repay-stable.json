@@ -113,6 +113,18 @@
           "args": {
             "reserve": "DAI",
             "amount": "50",
+            "tranche": "0", 
+            "user": "1",
+            "onBehalfOf": "1",
+            "borrowRateMode": "stable"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "repay",
+          "args": {
+            "reserve": "DAI",
+            "amount": "50",
             "user": "1",
             "onBehalfOf": "1",
             "borrowRateMode": "stable"
@@ -281,6 +293,18 @@
             "reserve": "DAI",
             "amount": "100",
             "borrowRateMode": "stable",
+            "tranche": "0",
+            "user": "1",
+            "timeTravel": "365"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "borrow",
+          "args": {
+            "reserve": "DAI",
+            "amount": "100",
+            "borrowRateMode": "stable",
             "user": "1",
             "timeTravel": "365"
           },
@@ -311,6 +335,18 @@
             "user": "2"
           },
           "expected": "success"
+        },
+        {
+          "name": "borrow",
+          "args": {
+            "reserve": "DAI",
+            "amount": "100",
+            "borrowRateMode": "stable",
+            "tranche": "0",
+            "user": "2",
+            "timeTravel": "365"
+          },
+          "expected": "revert"
         },
         {
           "name": "borrow",
@@ -355,6 +391,18 @@
             "reserve": "DAI",
             "amount": "100",
             "borrowRateMode": "stable",
+            "tranche": "0",
+            "user": "3",
+            "timeTravel": "365"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "borrow",
+          "args": {
+            "reserve": "DAI",
+            "amount": "100",
+            "borrowRateMode": "stable",
             "user": "3",
             "timeTravel": "365"
           },
@@ -385,6 +433,18 @@
             "user": "4"
           },
           "expected": "success"
+        },
+        {
+          "name": "borrow",
+          "args": {
+            "reserve": "DAI",
+            "amount": "100",
+            "borrowRateMode": "stable",
+            "tranche": "0",
+            "user": "4",
+            "timeTravel": "365"
+          },
+          "expected": "revert"
         },
         {
           "name": "borrow",
@@ -420,6 +480,18 @@
           "args": {
             "reserve": "DAI",
             "amount": "-1",
+            "tranche": "0",
+            "user": "1",
+            "onBehalfOf": "1",
+            "borrowRateMode": "stable"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "repay",
+          "args": {
+            "reserve": "DAI",
+            "amount": "-1",
             "user": "1",
             "onBehalfOf": "1",
             "borrowRateMode": "stable"
@@ -443,6 +515,18 @@
             "user": "2"
           },
           "expected": "success"
+        },
+        {
+          "name": "repay",
+          "args": {
+            "reserve": "DAI",
+            "amount": "-1",
+            "tranche": "0",
+            "user": "2",
+            "onBehalfOf": "2",
+            "borrowRateMode": "stable"
+          },
+          "expected": "revert"
         },
         {
           "name": "repay",
@@ -478,6 +562,18 @@
           "args": {
             "reserve": "DAI",
             "amount": "-1",
+            "tranche": "0",
+            "user": "3",
+            "onBehalfOf": "3",
+            "borrowRateMode": "stable"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "repay",
+          "args": {
+            "reserve": "DAI",
+            "amount": "-1",
             "user": "3",
             "onBehalfOf": "3",
             "borrowRateMode": "stable"
@@ -501,6 +597,18 @@
             "user": "4"
           },
           "expected": "success"
+        },
+        {
+          "name": "repay",
+          "args": {
+            "reserve": "DAI",
+            "amount": "-1",
+            "tranche": "0",
+            "user": "4",
+            "onBehalfOf": "4",
+            "borrowRateMode": "stable"
+          },
+          "expected": "revert"
         },
         {
           "name": "repay",
@@ -584,6 +692,30 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
+            "tranche": "0",
+            "borrowRateMode": "stable",
+            "user": "1",
+            "timeTravel": "365"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "borrow",
+          "args": {
+            "reserve": "DAI",
+            "amount": "100",
+            "tranche": "0",
+            "borrowRateMode": "variable",
+            "user": "1",
+            "timeTravel": "365"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "borrow",
+          "args": {
+            "reserve": "DAI",
+            "amount": "100",
             "borrowRateMode": "stable",
             "user": "1",
             "timeTravel": "365"
@@ -624,6 +756,30 @@
           "args": {
             "reserve": "DAI",
             "amount": "-1",
+            "tranche": "0",
+            "user": "1",
+            "onBehalfOf": "1",
+            "borrowRateMode": "stable"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "repay",
+          "args": {
+            "reserve": "DAI",
+            "amount": "-1",
+            "tranche": "0",
+            "user": "1",
+            "onBehalfOf": "1",
+            "borrowRateMode": "variable"
+          },
+          "expected": "revert"
+        },
+        {
+          "name": "repay",
+          "args": {
+            "reserve": "DAI",
+            "amount": "-1",
             "user": "1",
             "onBehalfOf": "1",
             "borrowRateMode": "stable"
@@ -640,6 +796,16 @@
             "borrowRateMode": "variable"
           },
           "expected": "success"
+        },
+        {
+          "name": "withdraw",
+          "args": {
+            "reserve": "DAI",
+            "tranche": "0",
+            "amount": "-1",
+            "user": "0"
+          },
+          "expected": "revert"
         },
         {
           "name": "withdraw",

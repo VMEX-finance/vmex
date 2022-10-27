@@ -27,7 +27,7 @@
           "args": {
             "reserve": "DAI",
             "tranche": "0",
-            "amount": "100",
+            "amount": "1000",
             "user": "0"
           },
           "expected": "success"
@@ -41,21 +41,11 @@
             "user": "0"
           },
           "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "DAI",
-            "tranche": "2",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "success"
         }
       ]
     },
     {
-      "description": "user 1 deposits 1 WETH (risk 1) as collateral in tranche 2 and borrows 100 DAI at stable rate. Tries to borrow from tranches 0 and 1 (revert) ",
+      "description": "user 1 deposits 1 WETH (risk 1) as collateral in tranche 1 and borrows 100 DAI at stable rate. Tries to borrow from tranches 0 and 1 (revert) ",
       "actions": [
         {
           "name": "mint",
@@ -78,18 +68,7 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "tranche": "2",  
-            "amount": "1",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "setUseAsCollateral",
-          "args": {
-            "reserve": "WETH",
-            "tranche": "2",
-            "useAsCollateral" : "true",
+            "tranche": "1",  
             "amount": "1",
             "user": "1"
           },
@@ -111,18 +90,6 @@
             "timeTravel": "365"
           },
           "expected": "revert"
-        },
-        {
-          "name": "borrow",
-          "args": {
-            "reserve": "DAI",
-            "tranche": "1",
-            "amount": "100",
-            "borrowRateMode": "stable",
-            "user": "1",
-            "timeTravel": "365"
-          },
-          "expected": "revert"
         }
       ]
     },
@@ -133,7 +100,7 @@
           "name": "borrow",
           "args": {
             "reserve": "DAI",
-            "tranche": "2",
+            "tranche": "1",
             "amount": "100",
             "borrowRateMode": "stable",
             "user": "1",
@@ -144,13 +111,13 @@
       ]
     },
     {
-      "description": "user 0 tries to withdraw all 1000 in tranche 2 (revert). ",
+      "description": "user 0 tries to withdraw all 1000 in tranche 1 (revert). ",
       "actions": [
         {
           "name": "withdraw",
           "args": {
             "reserve": "DAI",
-            "tranche": "2",
+            "tranche": "1",
             "amount": "1000",
             "user": "0"
           },
@@ -159,28 +126,13 @@
       ]
     },
     {
-      "description": "user 0 tries to withdraw 400 in tranche 2 (success). ",
+      "description": "user 0 tries to withdraw 1000 in tranche 0 (success). ",
       "actions": [
         {
           "name": "withdraw",
           "args": {
             "reserve": "DAI",
-            "tranche": "2",
-            "amount": "400",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "user 0 tries to withdraw 1000 in tranche 1 (success). ",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "tranche": "1",
+            "tranche": "0",
             "amount": "1000",
             "user": "0"
           },

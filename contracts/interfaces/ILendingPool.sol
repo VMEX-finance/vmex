@@ -89,25 +89,6 @@ interface ILendingPool {
     );
 
     /**
-     * @dev Emitted on flashLoan()
-     * @param target The address of the flash loan receiver contract
-     * @param initiator The address initiating the flash loan
-     * @param asset The address of the asset being flash borrowed
-     * @param amount The amount flash borrowed
-     * @param premium The fee flash borrowed
-     * @param referralCode The referral code used
-     **/
-    event FlashLoan(
-        address indexed target,
-        uint64 trancheId,
-        address indexed initiator,
-        address indexed asset,
-        uint256 amount,
-        uint256 premium,
-        uint16 referralCode
-    );
-
-    /**
      * @dev Emitted when the pause is triggered.
      */
     event Paused();
@@ -160,6 +141,8 @@ interface ILendingPool {
         uint256 liquidityIndex,
         uint256 variableBorrowIndex
     );
+
+    function addWhitelistedDepositBorrow(address user) external;
 
     /**
      * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
@@ -316,16 +299,16 @@ interface ILendingPool {
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
      **/
-    function flashLoan(
-        address receiverAddress,
-        address[] calldata assets,
-        uint64 trancheId,
-        uint256[] calldata amounts,
-        uint256[] calldata modes,
-        address onBehalfOf,
-        bytes calldata params,
-        uint16 referralCode
-    ) external;
+    // function flashLoan(
+    //     address receiverAddress,
+    //     address[] calldata assets,
+    //     uint64 trancheId,
+    //     uint256[] calldata amounts,
+    //     uint256[] calldata modes,
+    //     address onBehalfOf,
+    //     bytes calldata params,
+    //     uint16 referralCode
+    // ) external;
 
     /**
      * @dev Returns the user account data across all the reserves

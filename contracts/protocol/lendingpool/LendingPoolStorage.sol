@@ -33,4 +33,9 @@ contract LendingPoolStorage {
     uint256 internal _flashLoanPremiumTotal;
 
     uint256 internal _maxNumberOfReserves;
+
+    mapping(address => bool) isWhitelistedDepositBorrow;
+
+    mapping(address => mapping(uint64 => uint256)) lastUserBorrow;
+    mapping(address => mapping(uint64 => uint256)) lastUserDeposit; //user address to tranche to block number
 }
