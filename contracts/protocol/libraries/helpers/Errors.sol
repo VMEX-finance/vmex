@@ -26,7 +26,7 @@ library Errors {
 
     //contract specific errors
     string public constant VL_INVALID_AMOUNT = "1"; // 'Amount must be greater than 0'
-    string public constant VL_NO_ACTIVE_RESERVE = "2"; // 'Action requires an active reserve'
+    string public constant VL_NO_ACTIVE_RESERVE = "2"; // 'Action requires an active reserve' also if try to deposit in tranche that doesn't exist
     string public constant VL_RESERVE_FROZEN = "3"; // 'Action cannot be performed because the reserve is frozen'
     string public constant VL_CURRENT_AVAILABLE_LIQUIDITY_NOT_ENOUGH = "4"; // 'The current liquidity is not enough'
     string public constant VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE = "5"; // 'User cannot withdraw more than the available balance'
@@ -106,6 +106,7 @@ library Errors {
     string public constant LP_NOT_CONTRACT = "78";
     string public constant SDT_STABLE_DEBT_OVERFLOW = "79";
     string public constant SDT_BURN_EXCEEDS_BALANCE = "80";
+    string public constant CT_CALLER_MUST_BE_STRATEGIST = "81";
 
     enum CollateralManagerErrors {
         NO_ERROR,

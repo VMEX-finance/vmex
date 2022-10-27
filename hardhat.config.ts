@@ -17,6 +17,8 @@ import {
   BLOCK_TO_FORK,
   buildForkConfig,
 } from './helper-hardhat-config';
+// import "hardhat-contract-sizer";
+import 'hardhat-test-utils';
 
 require('dotenv').config();
 
@@ -71,6 +73,7 @@ const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
 });
 
 let forkMode;
+
 
 const buidlerConfig: HardhatUserConfig = {
   solidity: {

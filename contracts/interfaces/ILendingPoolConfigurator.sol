@@ -2,39 +2,9 @@
 pragma solidity >=0.8.0;
 
 interface ILendingPoolConfigurator {
-    struct InitMultiplierInput {
-        uint8 tranche;
-        uint256 _liquidityRateMultiplier;
-        uint256 _variableBorrowRateMultiplier;
-        uint256 _stableBorrowRateMultiplier;
-    }
-
-    struct InitReserveInput {
-        address aTokenImpl;
-        address stableDebtTokenImpl;
-        address variableDebtTokenImpl;
-        uint8 underlyingAssetDecimals;
-        address interestRateStrategyAddress;
-        address underlyingAsset;
-        address treasury;
-        address incentivesController;
-        string underlyingAssetName;
-        string aTokenName;
-        string aTokenSymbol;
-        string variableDebtTokenName;
-        string variableDebtTokenSymbol;
-        string stableDebtTokenName;
-        string stableDebtTokenSymbol;
-        bytes params;
-        uint8 risk; //risk level for collateral
-        bool isLendable;
-        bool allowHigherTranche;
-        uint8 assetType;
-    }
-
     struct UpdateATokenInput {
         address asset;
-        uint8 tranche;
+        uint64 trancheId;
         address treasury;
         address incentivesController;
         string name;
@@ -45,7 +15,7 @@ interface ILendingPoolConfigurator {
 
     struct UpdateDebtTokenInput {
         address asset;
-        uint8 tranche;
+        uint64 trancheId;
         address incentivesController;
         string name;
         string symbol;
@@ -123,24 +93,7 @@ interface ILendingPoolConfigurator {
      **/
     event ReserveDeactivated(address indexed asset);
 
-    /**
-     * @dev Emitted when a reserve is frozen
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    event ReserveFrozen(address indexed asset);
 
-    /**
-     * @dev Emitted when a reserve is unfrozen
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    event ReserveUnfrozen(address indexed asset);
-
-    /**
-     * @dev Emitted when a reserve factor is updated
-     * @param asset The address of the underlying asset of the reserve
-     * @param factor The new reserve factor
-     **/
-    event ReserveFactorChanged(address indexed asset, uint256 factor);
 
     /**
      * @dev Emitted when the reserve decimals are updated
@@ -159,18 +112,7 @@ interface ILendingPoolConfigurator {
         address strategy
     );
 
-    /**
-     * @dev Emitted when a asset risk is updated
-     * @param asset The address of the underlying asset of the reserve
-     * @param _risk The new risk of an asset
-     **/
-    event AssetDataChanged(
-        address indexed asset,
-        uint8 _risk,
-        bool _isLendable,
-        bool _allowedHigherTranche,
-        uint8 _assetType
-    );
+    event AssetDataChanged(address indexed asset, uint8 _assetType);
 
     /**
      * @dev Emitted when an aToken implementation is upgraded
@@ -207,4 +149,20 @@ interface ILendingPoolConfigurator {
         address indexed proxy,
         address indexed implementation
     );
+
+    /**
+     * @dev Emitted when a strategy is associated with an asset/tranche
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche
+     * @param strategy The address of the strategy
+     **/
+    event StrategyAdded(address asset, uint64 trancheId, address strategy);
+
+    /**
+     * @dev Emitted when successful withdraw from strategy to lending pool
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche
+     * @param amount The amount withdrawn from strategy
+     **/
+    event WithdrawFromStrategy(address asset, uint64 trancheId, uint256 amount);
 }

@@ -22,9 +22,15 @@ contract LendingPoolAddressesProvider is
     ILendingPoolAddressesProvider
 {
     string private _marketId;
-    mapping(bytes32 => address) private _addresses;
+    mapping(bytes32 => address) private _addresses; //addresses that are not specific to a configurator
+    mapping(bytes32 => mapping(uint64 => address)) private _addressesTranche; //addresses that are specific to a tranche: _addressesTranche[POOL_ADMIN][0] is the admin address for tranche 0
+    mapping(address => bool) whitelistedAddresses;
+    bool permissionlessTranches;
 
+    bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
     bytes32 private constant LENDING_POOL = "LENDING_POOL";
+    bytes32 private constant ATOKEN_AND_RATES_HELPER =
+        "ATOKEN_AND_RATES_HELPER";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
         "LENDING_POOL_CONFIGURATOR";
     bytes32 private constant POOL_ADMIN = "POOL_ADMIN";
@@ -41,6 +47,24 @@ contract LendingPoolAddressesProvider is
 
     constructor(string memory marketId) public {
         _setMarketId(marketId);
+        permissionlessTranches = false;
+    }
+
+    function setPermissionlessTranches(bool _val) external onlyOwner {
+        permissionlessTranches = _val;
+    }
+
+    function addWhitelistedAddress(address ad, bool _val) external onlyOwner {
+        whitelistedAddresses[ad] = _val;
+    }
+
+    function isWhitelistedAddress(address ad)
+        external
+        view
+        override
+        returns (bool)
+    {
+        return permissionlessTranches || whitelistedAddresses[ad];
     }
 
     /**
@@ -100,6 +124,42 @@ contract LendingPoolAddressesProvider is
         return _addresses[id];
     }
 
+    function getAddressTranche(bytes32 id, uint64 trancheId)
+        public
+        view
+        override
+        returns (address)
+    {
+        return _addressesTranche[id][trancheId];
+    }
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The LendingPool proxy address
+     **/
+    function getATokenAndRatesHelper()
+        external
+        view
+        override
+        returns (address)
+    {
+        return getAddress(ATOKEN_AND_RATES_HELPER);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param newAdd The new LendingPool implementation
+     **/
+    function setATokenAndRatesHelper(address newAdd)
+        external
+        override
+        onlyOwner
+    {
+        _addresses[ATOKEN_AND_RATES_HELPER] = newAdd;
+        emit ATokensAndRatesHelperUpdated(newAdd);
+    }
+
     /**
      * @dev Returns the address of the LendingPool proxy
      * @return The LendingPool proxy address
@@ -134,15 +194,37 @@ contract LendingPoolAddressesProvider is
     /**
      * @dev Updates the implementation of the LendingPoolConfigurator, or creates the proxy
      * setting the new `configurator` implementation on the first time calling it
-     * @param configurator The new LendingPoolConfigurator implementation
+     * @param newAddress The new LendingPoolConfigurator implementation
      **/
-    function setLendingPoolConfiguratorImpl(address configurator)
+    function setLendingPoolConfiguratorImpl(address newAddress)
         external
         override
         onlyOwner
     {
-        _updateImpl(LENDING_POOL_CONFIGURATOR, configurator);
-        emit LendingPoolConfiguratorUpdated(configurator);
+        // address payable proxyAddress = payable(_addresses[LENDING_POOL_CONFIGURATOR]);
+
+        // InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
+        //         proxyAddress
+        //     );
+
+        // bytes memory params = abi.encodeWithSignature(
+        //     "initialize(address, address)",
+        //     address(this),
+        //     _DefaultVMEXTreasury
+        // );
+
+        // if (proxyAddress == address(0)) {
+        //     proxy = new InitializableImmutableAdminUpgradeabilityProxy(
+        //         address(this)
+        //     );
+        //     proxy.initialize(newAddress, params);
+        //     _addresses[LENDING_POOL_CONFIGURATOR] = address(proxy);
+        //     emit ProxyCreated(LENDING_POOL_CONFIGURATOR, address(proxy));
+        // } else {
+        //     proxy.upgradeToAndCall(newAddress, params);
+        // }
+        _updateImpl(LENDING_POOL_CONFIGURATOR, newAddress);
+        emit LendingPoolConfiguratorUpdated(newAddress);
     }
 
     /**
@@ -179,26 +261,88 @@ contract LendingPoolAddressesProvider is
      * of the protocol hence the upgradable proxy pattern is not used
      **/
 
-    function getPoolAdmin() external view override returns (address) {
-        return getAddress(POOL_ADMIN);
+    function getGlobalAdmin() external view override returns (address) {
+        return getAddress(GLOBAL_ADMIN);
     }
 
-    function setPoolAdmin(address admin) external override onlyOwner {
-        _addresses[POOL_ADMIN] = admin;
-        emit ConfigurationAdminUpdated(admin);
+    function setGlobalAdmin(address admin) external override onlyOwner {
+        _addresses[GLOBAL_ADMIN] = admin;
     }
 
-    function getEmergencyAdmin() external view override returns (address) {
-        return getAddress(EMERGENCY_ADMIN);
+    function getPoolAdmin(uint64 trancheId)
+        external
+        view
+        override
+        returns (address)
+    {
+        return getAddressTranche(POOL_ADMIN, trancheId);
     }
 
-    function setEmergencyAdmin(address emergencyAdmin)
+    function setPoolAdmin(address admin, uint64 trancheId) external override {
+        //eventually we want this to be permissionless, but for now we will manually set the pool admin for every tranche
+        //TODO: check if I should use _msgSender or msg.sender
+        require(
+            _msgSender() == owner() ||
+                _msgSender() == getAddressTranche(POOL_ADMIN, trancheId),
+            "Sender is not VMEX admin or the original admin of the tranche"
+        );
+        _addressesTranche[POOL_ADMIN][trancheId] = admin;
+        emit ConfigurationAdminUpdated(admin, trancheId);
+    }
+
+    function addPoolAdmin(address admin, uint64 trancheId) external override {
+        //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
+        require(
+            _msgSender() == getAddress(LENDING_POOL_CONFIGURATOR) ||
+                _msgSender() == owner(),
+            "Caller must be lending pool configurator that is creating a new tranche"
+        );
+        require(
+            _addressesTranche[POOL_ADMIN][trancheId] == address(0),
+            "Pool admin trancheId input is already in use"
+        );
+        _addressesTranche[POOL_ADMIN][trancheId] = admin;
+        emit ConfigurationAdminUpdated(admin, trancheId);
+    }
+
+    function getEmergencyAdmin(uint64 trancheId)
+        external
+        view
+        override
+        returns (address)
+    {
+        return getAddressTranche(EMERGENCY_ADMIN, trancheId);
+    }
+
+    function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
         external
         override
-        onlyOwner
     {
-        _addresses[EMERGENCY_ADMIN] = emergencyAdmin;
-        emit EmergencyAdminUpdated(emergencyAdmin);
+        require(
+            _msgSender() == owner() ||
+                _msgSender() == getAddressTranche(EMERGENCY_ADMIN, trancheId),
+            "Sender is not VMEX admin or the original admin of the tranche"
+        );
+        _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
+        emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
+    }
+
+    function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
+        external
+        override
+    {
+        //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
+        require(
+            msg.sender == getAddress(LENDING_POOL_CONFIGURATOR) ||
+                _msgSender() == owner(),
+            "Caller must be lending pool configurator that is creating a new tranche"
+        );
+        require(
+            _addressesTranche[EMERGENCY_ADMIN][trancheId] == address(0),
+            "Emergency admin trancheId input is already in use"
+        );
+        _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
+        emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
     }
 
     function getPriceOracle(DataTypes.ReserveAssetType assetType)
@@ -236,14 +380,14 @@ contract LendingPoolAddressesProvider is
     }
 
     //custom address provider for Curve tokens
-    function getCurveAddressProvider()
-        external
-        view
-        override
-        returns (address)
-    {
-        return getAddress(CURVE_ADDRESS_PROVIDER);
-    }
+    // function getCurveAddressProvider()
+    //     external
+    //     view
+    //     override
+    //     returns (address)
+    // {
+    //     return getAddress(CURVE_ADDRESS_PROVIDER);
+    // }
 
     function setAavePriceOracle(address priceOracle)
         external
@@ -272,14 +416,14 @@ contract LendingPoolAddressesProvider is
         emit CurvePriceOracleWrapperUpdated(priceOracle);
     }
 
-    function setCurveAddressProvider(address addressProvider)
-        external
-        override
-        onlyOwner
-    {
-        _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
-        emit CurveAddressProviderUpdated(addressProvider);
-    }
+    // function setCurveAddressProvider(address addressProvider)
+    //     external
+    //     override
+    //     onlyOwner
+    // {
+    //     _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
+    //     emit CurveAddressProviderUpdated(addressProvider);
+    // }
 
     function getLendingRateOracle() external view override returns (address) {
         return getAddress(LENDING_RATE_ORACLE);
@@ -309,6 +453,7 @@ contract LendingPoolAddressesProvider is
         InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
                 proxyAddress
             );
+
         bytes memory params = abi.encodeWithSignature(
             "initialize(address)",
             address(this)

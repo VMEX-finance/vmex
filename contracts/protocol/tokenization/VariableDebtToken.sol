@@ -6,9 +6,7 @@ import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {DebtTokenBase} from "./base/DebtTokenBase.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
-import {
-    IAaveIncentivesController
-} from "../../interfaces/IAaveIncentivesController.sol";
+import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 
 /**
  * @title VariableDebtToken
@@ -23,7 +21,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
     ILendingPool internal _pool;
     address internal _underlyingAsset;
-    uint8 _tranche;
+    uint64 _tranche;
     IAaveIncentivesController internal _incentivesController;
 
     /**
@@ -38,7 +36,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
-        uint8 tranche,
+        uint64 trancheId,
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,
@@ -51,7 +49,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
         _pool = pool;
         _underlyingAsset = underlyingAsset;
-        _tranche = tranche;
+        _tranche = trancheId;
         _incentivesController = incentivesController;
 
         emit Initialized(

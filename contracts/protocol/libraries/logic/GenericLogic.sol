@@ -46,7 +46,7 @@ library GenericLogic {
     //  * @param amount The amount to decrease
     struct balanceDecreaseAllowedParameters {
         address asset;
-        uint8 tranche;
+        uint64 trancheId;
         address user;
         uint256 amount;
         ILendingPoolAddressesProvider _addressesProvider;
@@ -62,17 +62,17 @@ library GenericLogic {
      **/
     function balanceDecreaseAllowed(
         balanceDecreaseAllowedParameters calldata params,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap calldata userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     ) external view returns (bool) {
         if (
             !userConfig.isBorrowingAny() ||
             !userConfig.isUsingAsCollateral(
-                reservesData[params.asset][params.tranche].id
+                reservesData[params.asset][params.trancheId].id
             )
         ) {
             return true;
@@ -82,7 +82,7 @@ library GenericLogic {
 
         (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[
             params.asset
-        ][params.tranche].configuration.getParams();
+        ][params.trancheId].configuration.getParams();
 
         if (vars.liquidationThreshold == 0) {
             return true;
@@ -95,7 +95,7 @@ library GenericLogic {
             vars.avgLiquidationThreshold,
 
         ) = calculateUserAccountData(
-            DataTypes.AcctTranche(params.user, params.tranche),
+            DataTypes.AcctTranche(params.user, params.trancheId),
             reservesData,
             userConfig,
             reserves,
@@ -112,9 +112,7 @@ library GenericLogic {
 
         //here, need to check if the reserve is a curve reserve. If so
         vars.amountToDecreaseInETH = IPriceOracleGetter(
-            params._addressesProvider.getPriceOracle(
-                assetDatas[params.asset].assetType
-            )
+            params._addressesProvider.getPriceOracle(assetDatas[params.asset])
         ).getAssetPrice(params.asset).mul(params.amount).div(10**vars.decimals);
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
@@ -144,7 +142,7 @@ library GenericLogic {
     }
 
     struct CalculateUserAccountDataVars {
-        uint8 currentTranche;
+        uint64 currentTranche;
         uint256 reserveUnitPrice;
         uint256 tokenUnit;
         uint256 compoundedLiquidityBalance;
@@ -166,14 +164,14 @@ library GenericLogic {
         uint256 liquidityBalanceETH;
         address oracle;
         address user;
-        uint8 tranche;
+        uint64 trancheId;
     }
 
     /**
      * @dev Calculates the user data across the reserves.
      * this includes the total liquidity/collateral/borrow balances in ETH,
      * the average Loan To Value, the average Liquidation Ratio, and the Health factor.
-     * @param actTranche The address of the user and tranche
+     * @param actTranche The address of the user and trancheId
      * @param reservesData Data of all the reserves
      * @param userConfig The configuration of the user
      * @param reserves The list of the available reserves
@@ -182,13 +180,13 @@ library GenericLogic {
      **/
     function calculateUserAccountData(
         DataTypes.AcctTranche memory actTranche,
-        mapping(address => mapping(uint8 => DataTypes.ReserveData))
+        mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap memory userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.AssetData) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
     )
         internal
         view
@@ -203,7 +201,7 @@ library GenericLogic {
         CalculateUserAccountDataVars memory vars;
         {
             vars.user = actTranche.user;
-            vars.tranche = actTranche.tranche;
+            vars.trancheId = actTranche.trancheId;
         }
 
         // require(!userConfig.isEmpty(), "userConfig is empty");
@@ -211,31 +209,25 @@ library GenericLogic {
             return (0, 0, 0, 0, type(uint256).max);
         }
         // assert(reservesCount == reserves.length);
-        for (
-            vars.i = vars.tranche;
-            vars.i < reservesCount;
-            vars.i += DataTypes.NUM_TRANCHES
-        ) {
+        for (vars.i = 0; vars.i < reservesCount; vars.i++) {
             if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
                 continue;
             }
 
             vars.currentReserveAddress = reserves[vars.i];
-            // vars.currentTranche = uint8(vars.i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData storage currentReserve = reservesData[
                 vars.currentReserveAddress
-            ][vars.tranche];
+            ][vars.trancheId];
 
             {
                 vars.oracle = _addressesProvider.getPriceOracle(
-                    assetDatas[vars.currentReserveAddress].assetType
+                    assetDatas[vars.currentReserveAddress]
                 );
             }
 
-            // if this fails, come up with better solution than modulo
             require(
-                currentReserve.tranche == vars.tranche,
-                "calculateUserAccountData tranche does not line up"
+                currentReserve.trancheId == vars.trancheId,
+                "calculateUserAccountData trancheId does not line up"
             );
 
             (
@@ -254,6 +246,7 @@ library GenericLogic {
                 vars.liquidationThreshold != 0 &&
                 userConfig.isUsingAsCollateral(vars.i)
             ) {
+                //the check vars.liquidationThreshold != 0 means reserves that are disabled as collateral (vars.liquidationThreshold = 0) won't count
                 vars.compoundedLiquidityBalance = IERC20(
                     currentReserve.aTokenAddress
                 ).balanceOf(vars.user);
@@ -262,6 +255,10 @@ library GenericLogic {
                     .reserveUnitPrice
                     .mul(vars.compoundedLiquidityBalance)
                     .div(vars.tokenUnit);
+
+                if (vars.liquidityBalanceETH > currentReserve.collateralCap) {
+                    vars.liquidityBalanceETH = currentReserve.collateralCap;
+                }
 
                 vars.totalCollateralInETH = vars.totalCollateralInETH.add(
                     vars.liquidityBalanceETH

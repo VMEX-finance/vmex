@@ -26,7 +26,7 @@ import { executeStory } from "./helpers/scenario-engine";
 //   await evmRevert(buidlerevmSnapshotId);
 // };
 
-const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/tranches/";
+const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/tranches";
 
 const selectedScenarios: string[] = [];
 
@@ -59,13 +59,9 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
     });
 
     for (const story of scenario.stories) {
-      // await setSnapshot();
       it(story.description, async function () {
         // Retry the test scenarios up to 4 times if an error happens, due erratic HEVM network errors
-        // beforeEach(async () => {
-        //   await revertHead();
-        // });
-        // this.retries(4);
+        this.retries(4);
         await executeStory(story, testEnv);
       });
     }

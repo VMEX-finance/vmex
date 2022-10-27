@@ -14,30 +14,19 @@ contract LendingPoolStorage {
 
     ILendingPoolAddressesProvider internal _addressesProvider;
 
-    // asset address to tranche number to reserve data
-    mapping(address => mapping(uint8 => DataTypes.ReserveData))
+    // asset address to trancheId number to reserve data
+    mapping(address => mapping(uint64 => DataTypes.ReserveData))
         internal _reserves;
-    mapping(address => DataTypes.UserConfigurationMap) internal _usersConfig;
+    mapping(address => mapping(uint64 => DataTypes.UserConfigurationMap))
+        internal _usersConfig; //user address to trancheId to user configuration
 
-    //combine these together into struct
-    // {
-    //     //asset address to risk level of that asset when it is used as collateral
-    // mapping(address => uint8) internal collateralRisk;
-    //     //asset address to boolean value representing if that address is lendable, or if it should just be a collateral vault
-    //     mapping(address => bool) internal isLendable;
-
-    //     mapping(address => bool) internal isAllowedCollateralInHigherTranches;
-
-    //
-    // }
-
-    mapping(address => DataTypes.AssetData) internal assetDatas;
+    mapping(address => DataTypes.ReserveAssetType) internal assetDatas;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
-    mapping(uint256 => address) internal _reservesList;
-    uint256 internal _reservesCount;
+    mapping(uint64 => mapping(uint256 => address)) internal _reservesList; //trancheId id -> array of available reserves
+    mapping(uint64 => uint256) internal _reservesCount; //trancheId id -> number of reserves per that trancheId
 
-    bool internal _paused;
+    mapping(uint64 => bool) internal _paused; //trancheId -> paused
 
     uint256 internal _maxStableRateBorrowSizePercent;
 
@@ -45,5 +34,8 @@ contract LendingPoolStorage {
 
     uint256 internal _maxNumberOfReserves;
 
-    mapping(uint256 => DataTypes.TrancheMultiplier) internal trancheMultipliers;
+    mapping(address => bool) isWhitelistedDepositBorrow;
+
+    mapping(address => mapping(uint64 => uint256)) lastUserBorrow;
+    mapping(address => mapping(uint64 => uint256)) lastUserDeposit; //user address to tranche to block number
 }

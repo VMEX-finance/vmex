@@ -58,17 +58,18 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
         );
     }
 
-    function getReservesList(ILendingPoolAddressesProvider provider)
-        public
-        view
-        override
-        returns (address[] memory)
-    {
+    function getReservesList(
+        ILendingPoolAddressesProvider provider,
+        uint64 trancheId
+    ) public view override returns (address[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        return lendingPool.getReservesList();
+        return lendingPool.getReservesList(trancheId);
     }
 
-    function getReservesData(ILendingPoolAddressesProvider provider)
+    function getReservesData(
+        ILendingPoolAddressesProvider provider,
+        uint64 trancheId
+    )
         public
         view
         override
@@ -76,7 +77,7 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
     {
         IAaveOracle oracle = IAaveOracle(provider.getAavePriceOracle());
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         AggregatedReserveData[]
             memory reservesData = new AggregatedReserveData[](reserves.length);
 
@@ -85,12 +86,12 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
             reserveData.underlyingAsset = reserves[i];
 
             // reserve current state
-            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint64 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserveData.underlyingAsset,
-                tranche
+                trancheId
             );
-            assert(baseData.tranche == tranche);
+            assert(baseData.trancheId == trancheId);
             reserveData.liquidityIndex = baseData.liquidityIndex;
             reserveData.variableBorrowIndex = baseData.variableBorrowIndex;
             reserveData.liquidityRate = baseData.currentLiquidityRate;
@@ -194,24 +195,25 @@ contract UiPoolDataProviderV2 is IUiPoolDataProviderV2 {
 
     function getUserReservesData(
         ILendingPoolAddressesProvider provider,
+        uint64 trancheId,
         address user
     ) external view override returns (UserReserveData[] memory) {
         ILendingPool lendingPool = ILendingPool(provider.getLendingPool());
-        address[] memory reserves = lendingPool.getReservesList();
+        address[] memory reserves = lendingPool.getReservesList(trancheId);
         DataTypes.UserConfigurationMap memory userConfig = lendingPool
-            .getUserConfiguration(user);
+            .getUserConfiguration(user, trancheId);
 
         UserReserveData[] memory userReservesData = new UserReserveData[](
             user != address(0) ? reserves.length : 0
         );
 
         for (uint256 i = 0; i < reserves.length; i++) {
-            uint8 tranche = uint8(i % DataTypes.NUM_TRANCHES);
+            // uint64 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory baseData = lendingPool.getReserveData(
                 reserves[i],
-                tranche
+                trancheId
             );
-            assert(baseData.tranche == tranche);
+            assert(baseData.trancheId == trancheId);
 
             // user reserve data
             userReservesData[i].underlyingAsset = reserves[i];

@@ -15,7 +15,7 @@ interface ILendingPool {
      **/
     event Deposit(
         address indexed reserve,
-        uint8 tranche,
+        uint64 trancheId,
         address user,
         address indexed onBehalfOf,
         uint256 amount,
@@ -89,24 +89,6 @@ interface ILendingPool {
     );
 
     /**
-     * @dev Emitted on flashLoan()
-     * @param target The address of the flash loan receiver contract
-     * @param initiator The address initiating the flash loan
-     * @param asset The address of the asset being flash borrowed
-     * @param amount The amount flash borrowed
-     * @param premium The fee flash borrowed
-     * @param referralCode The referral code used
-     **/
-    event FlashLoan(
-        address indexed target,
-        address indexed initiator,
-        address indexed asset,
-        uint256 amount,
-        uint256 premium,
-        uint16 referralCode
-    );
-
-    /**
      * @dev Emitted when the pause is triggered.
      */
     event Paused();
@@ -160,6 +142,8 @@ interface ILendingPool {
         uint256 variableBorrowIndex
     );
 
+    function addWhitelistedDepositBorrow(address user) external;
+
     /**
      * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
      * - E.g. User deposits 100 USDC and gets in return 100 aUSDC
@@ -173,8 +157,7 @@ interface ILendingPool {
      **/
     function deposit(
         address asset,
-        uint8 tranche,
-        bool isCollateral,
+        uint64 trancheId,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
@@ -193,7 +176,7 @@ interface ILendingPool {
      **/
     function withdraw(
         address asset,
-        uint8 tranche,
+        uint64 trancheId,
         uint256 amount,
         address to
     ) external returns (uint256);
@@ -215,7 +198,7 @@ interface ILendingPool {
      **/
     function borrow(
         address asset,
-        uint8 tranche,
+        uint64 trancheId,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
@@ -236,7 +219,7 @@ interface ILendingPool {
      **/
     function repay(
         address asset,
-        uint8 tranche,
+        uint64 trancheId,
         uint256 amount,
         uint256 rateMode,
         address onBehalfOf
@@ -249,7 +232,7 @@ interface ILendingPool {
      **/
     function swapBorrowRateMode(
         address asset,
-        uint8 tranche,
+        uint64 trancheId,
         uint256 rateMode
     ) external;
 
@@ -264,7 +247,7 @@ interface ILendingPool {
      **/
     function rebalanceStableBorrowRate(
         address asset,
-        uint8 tranche,
+        uint64 trancheId,
         address user
     ) external;
 
@@ -275,7 +258,7 @@ interface ILendingPool {
      **/
     function setUserUseReserveAsCollateral(
         address asset,
-        uint8 tranche,
+        uint64 trancheId,
         bool useAsCollateral
     ) external;
 
@@ -293,7 +276,7 @@ interface ILendingPool {
     function liquidationCall(
         address collateralAsset,
         address debtAsset,
-        uint8 tranche,
+        uint64 trancheId,
         address user,
         uint256 debtToCover,
         bool receiveAToken
@@ -316,15 +299,16 @@ interface ILendingPool {
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
      **/
-    function flashLoan(
-        address receiverAddress,
-        DataTypes.TrancheAddress[] calldata assets,
-        uint256[] calldata amounts,
-        uint256[] calldata modes,
-        address onBehalfOf,
-        bytes calldata params,
-        uint16 referralCode
-    ) external;
+    // function flashLoan(
+    //     address receiverAddress,
+    //     address[] calldata assets,
+    //     uint64 trancheId,
+    //     uint256[] calldata amounts,
+    //     uint256[] calldata modes,
+    //     address onBehalfOf,
+    //     bytes calldata params,
+    //     uint16 referralCode
+    // ) external;
 
     /**
      * @dev Returns the user account data across all the reserves
@@ -336,7 +320,7 @@ interface ILendingPool {
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint8 tranche)
+    function getUserAccountData(address user, uint64 trancheId)
         external
         view
         returns (
@@ -349,37 +333,24 @@ interface ILendingPool {
         );
 
     function initReserve(
-        address reserve,
+        DataTypes.InitReserveInput calldata input,
         address aTokenAddress,
         address stableDebtAddress,
         address variableDebtAddress,
-        address interestRateStrategyAddress,
-        uint8 tranche
+        uint64 trancheId
     ) external;
 
-    /**
-     * @dev Updates the address of the interest rate strategy contract
-     * - Only callable by the LendingPoolConfigurator contract
-     * @param asset The address of the underlying asset of the reserve
-     * @param _risk The risk of the asset
-     **/
-    function setAssetData(
-        address asset,
-        uint8 _risk,
-        bool _isLendable,
-        bool _allowedHigherTranche,
-        uint8 _assetType
-    ) external;
+    function setAssetData(address asset, uint8 _assetType) external;
 
     function setReserveInterestRateStrategyAddress(
         address reserve,
-        uint8 tranche,
+        uint64 trancheId,
         address rateStrategyAddress
     ) external;
 
     function setConfiguration(
         address reserve,
-        uint8 tranche,
+        uint64 trancheId,
         uint256 configuration
     ) external;
 
@@ -388,7 +359,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The configuration of the reserve
      **/
-    function getConfiguration(address asset, uint8 tranche)
+    function getConfiguration(address asset, uint64 trancheId)
         external
         view
         returns (DataTypes.ReserveConfigurationMap memory);
@@ -398,7 +369,7 @@ interface ILendingPool {
      * @param user The user address
      * @return The configuration of the user
      **/
-    function getUserConfiguration(address user)
+    function getUserConfiguration(address user, uint64 trancheId)
         external
         view
         returns (DataTypes.UserConfigurationMap memory);
@@ -408,7 +379,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve's normalized income
      */
-    function getReserveNormalizedIncome(address asset, uint8 tranche)
+    function getReserveNormalizedIncome(address asset, uint64 trancheId)
         external
         view
         returns (uint256);
@@ -418,7 +389,7 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The reserve normalized variable debt
      */
-    function getReserveNormalizedVariableDebt(address asset, uint8 tranche)
+    function getReserveNormalizedVariableDebt(address asset, uint64 trancheId)
         external
         view
         returns (uint256);
@@ -428,14 +399,14 @@ interface ILendingPool {
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
      **/
-    function getReserveData(address asset, uint8 tranche)
+    function getReserveData(address asset, uint64 trancheId)
         external
         view
         returns (DataTypes.ReserveData memory);
 
     function finalizeTransfer(
         address asset,
-        uint8 tranche,
+        uint64 trancheId,
         address from,
         address to,
         uint256 amount,
@@ -443,31 +414,36 @@ interface ILendingPool {
         uint256 balanceToBefore
     ) external;
 
-    function getReservesList() external view returns (address[] memory);
+    function getReservesList(uint64 trancheId)
+        external
+        view
+        returns (address[] memory);
+
+    // function getReservesList(uint64 trancheId) external view returns (address[] memory);
 
     function getAssetData(address asset)
         external
         view
-        returns (DataTypes.AssetData memory);
+        returns (DataTypes.ReserveAssetType);
 
     function getAddressesProvider()
         external
         view
         returns (ILendingPoolAddressesProvider);
 
-    function setPause(bool val) external;
+    function setPause(bool val, uint64 trancheId) external;
 
-    function paused() external view returns (bool);
+    function paused(uint64 trancheId) external view returns (bool);
 
-    function editTrancheMultiplier(
-        uint8 tranche,
-        uint256 _liquidityRateMultiplier,
-        uint256 _variableBorrowRateMultiplier,
-        uint256 _stableBorrowRateMultiplier
+    function addStrategy(
+        address asset,
+        uint64 trancheId,
+        address strategy
     ) external;
 
-    function getTrancheMultiplier(uint8 tranche)
-        external
-        view
-        returns (DataTypes.TrancheMultiplier memory);
+    function withdrawFromStrategy(
+        address asset,
+        uint64 trancheId,
+        uint256 amount
+    ) external;
 }
