@@ -96,14 +96,6 @@ export const getUserData = async (
   user: tEthereumAddress,
   sender?: tEthereumAddress
 ): Promise<UserReserveData> => {
-  console.log(
-    "getUserData reserve: ",
-    reserve,
-    " tranche: ",
-    tranche,
-    " user: ",
-    user
-  );
   const [userData, scaledATokenBalance] = await Promise.all([
     helper.getUserReserveData(reserve, tranche, user),
     getATokenUserData(reserve, tranche, user, helper),

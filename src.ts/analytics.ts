@@ -1,6 +1,9 @@
 import { ethers } from "ethers";
 import { getLendingPoolImpl, approveUnderlying } from "./utils";
-
+import {getUserData} from "../test-suites/test-aave/helpers/utils/helpers"
+import { ReserveData, UserReserveData } from "../test-suites/test-aave/helpers/utils/interfaces";
+import { getAaveProtocolDataProvider, getLendingPool } from "../helpers/contracts-getters";
+import { Address } from "defender-relay-client/lib/relayer";
 //PROTOCOL ANALYTICS
 
 // USER ANALYTICS
@@ -35,3 +38,16 @@ export async function userAmountSupplied(params: {
 
 
 
+//user level (querying by wallet address)
+ export async function userInfo(params: {
+    underlying: string;
+    trancheId: string;
+    signer: ethers.Signer; //assume signer is also address that you want
+    network: string;
+    test?: boolean;
+}, callback?: () => Promise<UserReserveData>) {
+    let lendingPool = await getLendingPool();
+    let helpersContract = await getAaveProtocolDataProvider();
+    
+    return getUserData(lendingPool, helpersContract, params.underlying, params.trancheId, await params.signer.getAddress() );
+}
