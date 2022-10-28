@@ -36,6 +36,7 @@ contract LendingPoolConfigurator is
     ILendingPoolAddressesProvider internal addressesProvider;
     ILendingPool internal pool;
     address internal DefaultVMEXTreasury;
+    uint64 totalTranches;
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -89,14 +90,17 @@ contract LendingPoolConfigurator is
     /**
      * @dev Initializes reserves in batch. Purpose is for people who want to create their own permissionless tranche, doesn't require any checks besides that trancheId is unique
      **/
-    function claimTrancheId(
-        uint64 trancheId, //uint256
-        address admin,
-        address emergencyAdmin
-    ) external whitelistedAddress {
+    function claimTrancheId(address admin, address emergencyAdmin)
+        external
+        whitelistedAddress
+        returns (uint256 trancheId)
+    {
         //whitelist only
-        addressesProvider.addPoolAdmin(admin, trancheId);
-        addressesProvider.addEmergencyAdmin(emergencyAdmin, trancheId);
+        uint64 givenTranche = totalTranches;
+        addressesProvider.addPoolAdmin(admin, givenTranche);
+        addressesProvider.addEmergencyAdmin(emergencyAdmin, givenTranche);
+        totalTranches += 1;
+        return givenTranche;
     }
 
     /**
