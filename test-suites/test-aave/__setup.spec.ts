@@ -35,6 +35,8 @@ import {
   deployCurveOracle,
   deployCurveOracleWrapper,
   deployTricrypto2Strategy,
+  deployConvexBaseRewardPool,
+  deployConvexBooster,
 } from "../../helpers/contracts-deployments";
 import { Signer } from "ethers";
 import {
@@ -501,30 +503,50 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   // right now the tend() function for strategies is unusable in hardhat tests
   // deploy tricrypto2 strategy
 
-  // const tricrypto2Strategy = await deployTricrypto2Strategy();
-  // console.log("DEPLOYED tricrypto Strat at address", tricrypto2Strategy.address);
+  const baseRewardPool = await deployConvexBaseRewardPool();
+  console.log("DEPLOYED baserewardpool at address", baseRewardPool.address);
 
-  // await waitForTx(
-  //   await tricrypto2Strategy.connect(aaveAdmin).initialize(
-  //     addressesProvider.address,
-  //     allReservesAddresses["Tricrypto2"],
-  //     1,
-  //     38,
-  //     3,
-  //     "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" // address of tricrypto2 pool, will not work for hardhat test
-  //   )
-  // );
+  const booster = await deployConvexBooster();
+  console.log("DEPLOYED booster at address", booster.address);
 
-  // // admin grants strategy access to all funds
-  // await waitForTx(
-  //   await lendingPoolConfiguratorProxy
-  //     .connect(aaveAdmin)
-  //     .addStrategy(
-  //       allReservesAddresses["Tricrypto2"],
-  //       1,
-  //       tricrypto2Strategy.address
-  //     )
-  // );
+  const tricrypto2Strategy = await deployTricrypto2Strategy();
+  console.log(
+    "DEPLOYED tricrypto Strat at address",
+    tricrypto2Strategy.address
+  );
+
+  const pid = 38;
+  const numTokensInPool = 0;
+  const tranche = 1;
+
+  await waitForTx(
+    await booster.addPool(pid.toString(), baseRewardPool.address)
+  );
+  console.log("Finished booster add pool");
+
+  await waitForTx(
+    await tricrypto2Strategy.initialize(
+      addressesProvider.address,
+      allReservesAddresses["Tricrypto2"],
+      tranche,
+      pid,
+      numTokensInPool,
+      "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool, will not work for hardhat test, do not tend
+      booster.address
+    )
+  );
+  console.log("Finished strategy initialize");
+
+  // admin grants strategy access to all funds
+  await waitForTx(
+    await lendingPoolConfiguratorProxy.addStrategy(
+      allReservesAddresses["Tricrypto2"],
+      1,
+      tricrypto2Strategy.address
+    )
+  );
+
+  console.log("deployed strategies");
 
   console.timeEnd("setup");
 };

@@ -55,6 +55,8 @@ export enum AavePools {
 
 export enum eContractid {
   Example = "Example",
+  Booster = "Booster",
+  BaseRewardPool = "BaseRewardPool",
   CurveOracle = "CurveOracle",
   CurveWrapper = "CurveWrapper",
   vMath = "vMath",

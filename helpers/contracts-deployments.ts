@@ -62,6 +62,8 @@ import {
   UiPoolDataProviderV2V3Factory,
   UiIncentiveDataProviderV2V3,
   UiIncentiveDataProviderV2Factory,
+  BoosterFactory,
+  BaseRewardPoolFactory,
 } from "../types";
 import {
   // VMath__factory,
@@ -399,11 +401,11 @@ export const deployAaveOracle = async (
 export const deployLendingPoolCollateralManager = async (verify?: boolean) => {
   const collateralManagerImpl = await new LendingPoolCollateralManagerFactory(
     await getFirstSigner()
-    ).deploy();
-    await insertContractAddressInDb(
-      eContractid.LendingPoolCollateralManagerImpl,
-      collateralManagerImpl.address
-      );
+  ).deploy();
+  await insertContractAddressInDb(
+    eContractid.LendingPoolCollateralManagerImpl,
+    collateralManagerImpl.address
+  );
   return withSaveAndVerify(
     collateralManagerImpl,
     eContractid.LendingPoolCollateralManager,
@@ -453,6 +455,24 @@ export const deployTricrypto2Strategy = async (verify?: boolean) => {
   return withSaveAndVerify(
     tricrypto2StrategyImpl,
     eContractid.tricrypto2Strategy,
+    [],
+    verify
+  );
+};
+
+export const deployConvexBooster = async (verify?: boolean) => {
+  return await withSaveAndVerify(
+    await new BoosterFactory(await getFirstSigner()).deploy(),
+    eContractid.Booster,
+    [],
+    verify
+  );
+};
+
+export const deployConvexBaseRewardPool = async (verify?: boolean) => {
+  return await withSaveAndVerify(
+    await new BaseRewardPoolFactory(await getFirstSigner()).deploy(),
+    eContractid.BaseRewardPool,
     [],
     verify
   );

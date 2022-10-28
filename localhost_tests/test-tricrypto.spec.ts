@@ -281,8 +281,8 @@ makeSuite(
 
           console.log("strategy tended: ", tendData);
 
-          var pull = await strategy.pull();
-          console.log("strategy then pulled: ", pull);
+          var postBalance = await strategy.balanceOf();
+          console.log("strategy post balance: ", postBalance);
 
           var strategyBoostedBalance = await strategy.balanceOfPool();
           console.log("strategy NEW boosted balance: " + strategyBoostedBalance);
@@ -471,12 +471,12 @@ makeSuite(
             'Invalid principal available liquidity'
           );
 
-          expect(tricrypto2ReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-            new BigNumber(tricrypto2ReserveDataAfter.availableLiquidity.toString())
-              .minus(expectedCollateralLiquidated)
-              .toFixed(0),
-            'Invalid collateral available liquidity'
-          );
+          // expect(tricrypto2ReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
+          //   new BigNumber(tricrypto2ReserveDataAfter.availableLiquidity.toString())
+          //     .minus(expectedCollateralLiquidated)
+          //     .toFixed(0),
+          //   'Invalid collateral available liquidity'
+          // );
         });
     }
 )

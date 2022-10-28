@@ -13,6 +13,7 @@ import {
   getWETHGateway,
   getTricrypto2Strategy,
   getCurvePriceOracleWrapper,
+  getEmergencyAdmin,
 } from "../../../helpers/contracts-getters";
 import {
   eEthereumNetwork,
@@ -188,7 +189,7 @@ export async function initializeMakeSuite() {
     process.exit(1);
   }
 
-  // testEnv.tricrypto2Strategy = await getTricrypto2Strategy();
+  testEnv.tricrypto2Strategy = await getTricrypto2Strategy();
 
   testEnv.aDai = await getAToken(aDaiAddress);
   testEnv.aWETH = await getAToken(aWEthAddress);

@@ -797,7 +797,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x22B37db37e9992728245A7dD0536892AF9bA1baB",
+      "address": "0x2005823e074313cd644035557bF4FFa0ca0Bddff",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   },
@@ -806,6 +806,18 @@
       "address": "0x8358D5a3936ECe64208117E0639006FB24E40572",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
+    "hardhat": {
+      "address": "0x850Fae11E1313e6C23Db7c2410Ec0985d9Ea325A",
+      "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
+    }
+  },
+  "BaseRewardPool": {
+    "hardhat": {
+      "address": "0x22B37db37e9992728245A7dD0536892AF9bA1baB",
+      "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
+    }
+  },
+  "Booster": {
     "hardhat": {
       "address": "0x9D37fB22EA7d655f12E68DABBf6B6585A00774C3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"

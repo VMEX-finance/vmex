@@ -71,8 +71,9 @@ makeSuite(
       await configurator.activateReserve(dai.address, tranche);
     });
 
-    it("Deposits tricrypto2, borrows DAI in tranche 1", async () => {
-      const { dai, tricrypto2, users, pool, oracle } = testEnv;
+    it("Deposits tricrypto2, borrows DAI in tranche 1, strategy pulls the funds", async () => {
+      const { dai, tricrypto2, users, pool, oracle, tricrypto2Strategy } =
+        testEnv;
       const depositor = users[0];
       const borrower = users[1];
 
@@ -172,6 +173,17 @@ makeSuite(
       expect(
         userGlobalDataAfter.currentLiquidationThreshold.toString()
       ).to.be.bignumber.equal("8250", INVALID_HF);
+
+      // person pulling for the strategy can be anyone
+      const amountPulled = await tricrypto2Strategy
+        .connect(depositor.signer)
+        .pull();
+
+      const balanceOfStrategy = await tricrypto2Strategy.balanceOf();
+      expect(balanceOfStrategy.toString()).to.be.bignumber.equal(
+        amountTricrypto2toDeposit.toString(),
+        "Strategy does not hold the right amount of curve tokens"
+      );
     });
 
     it("Drop the health factor below 1", async () => {
@@ -200,6 +212,7 @@ makeSuite(
       const {
         dai,
         tricrypto2,
+        tricrypto2Strategy,
         users,
         pool,
         oracle,
@@ -227,6 +240,7 @@ makeSuite(
         tricrypto2.address,
         tranche
       );
+      const balanceOfStrategyBefore = await tricrypto2Strategy.balanceOf();
 
       const userReserveDataBefore = await getUserData(
         pool,
@@ -347,10 +361,10 @@ makeSuite(
         "Invalid principal available liquidity"
       );
 
-      expect(
-        tricrypto2ReserveDataAfter.availableLiquidity.toString()
-      ).to.be.bignumber.almostEqual(
-        new BigNumber(tricrypto2ReserveDataBefore.availableLiquidity.toString())
+      const balanceOfStrategyAfter = await tricrypto2Strategy.balanceOf();
+
+      expect(balanceOfStrategyAfter.toString()).to.be.bignumber.almostEqual(
+        new BigNumber(balanceOfStrategyBefore.toString())
           .minus(expectedCollateralLiquidated)
           .toFixed(0),
         "Invalid collateral available liquidity"
@@ -358,8 +372,15 @@ makeSuite(
     });
 
     it("User 3 deposits 1000 USDC, user 4 1 Tricrypto2, user 4 borrows - drops HF, liquidates the borrow", async () => {
-      const { usdc, users, pool, oracle, tricrypto2, helpersContract } =
-        testEnv;
+      const {
+        usdc,
+        users,
+        pool,
+        oracle,
+        tricrypto2,
+        helpersContract,
+        tricrypto2Strategy,
+      } = testEnv;
 
       const depositor = users[3];
       const borrower = users[4];
@@ -475,6 +496,7 @@ makeSuite(
         tricrypto2.address,
         tranche
       );
+      const balanceOfStrategyBefore = await tricrypto2Strategy.balanceOf();
 
       const amountToLiquidate = DRE.ethers.BigNumber.from(
         userReserveDataBefore.currentStableDebt.toString()
@@ -576,10 +598,10 @@ makeSuite(
         "Invalid principal available liquidity"
       );
 
-      expect(
-        tricrypto2ReserveDataAfter.availableLiquidity.toString()
-      ).to.be.bignumber.almostEqual(
-        new BigNumber(tricrypto2ReserveDataBefore.availableLiquidity.toString())
+      const balanceOfStrategyAfter = await tricrypto2Strategy.balanceOf();
+
+      expect(balanceOfStrategyAfter.toString()).to.be.bignumber.almostEqual(
+        new BigNumber(balanceOfStrategyBefore.toString())
           .minus(expectedCollateralLiquidated)
           .toFixed(0),
         "Invalid collateral available liquidity"
