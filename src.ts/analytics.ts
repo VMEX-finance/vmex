@@ -6,37 +6,24 @@ import { getAaveProtocolDataProvider, getLendingPool } from "../helpers/contract
 import { Address } from "defender-relay-client/lib/relayer";
 import {UserAccountData} from "../localhost_tests/interfaces"
 //PROTOCOL ANALYTICS
-
-// USER ANALYTICS
-/**
- * userAmountSupplied
- * @params { signer: ethers.Signer, underlying: address, network?: string }
- */
-
-export async function userAmountSupplied(params: {
-    underlying: string;
-    trancheId: number;
-    signer: ethers.Signer;
-    network?: string;
-    test?: boolean;
-}, callback?: () => Promise<any>) {
-    
+export async function totalValueLocked(params?: {
+    network: string;
+    test: boolean;
+}, callback?: () => Promise<UserReserveData>) {
+    let lendingPool = await getLendingPool();
+    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
 }
-/**
- * getUserReserveConfig
- * @params { signer: ethers.Signer, underlying: address, network?: string }
- */
 
-/**
- * getUserAvailableAssets
- * @parmas { signer: ethers.Signer, network?: string }
- */
+export async function totalTranches(params?: {
+    network: string;
+    test: boolean;
+}, callback?: () => Promise<UserReserveData>) {
+    let lendingPool = await getLendingPool();
+    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
+}
 
-/**
- * getUserCollateralAssets
- * @params { signer: ethers.Signer, network?: string }
- */
 
+//tranche level
 
 
 //user level (querying by wallet address)
