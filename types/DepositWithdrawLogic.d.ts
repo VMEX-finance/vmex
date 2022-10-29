@@ -21,7 +21,6 @@ interface DepositWithdrawLogicInterface extends ethers.utils.Interface {
   events: {
     "Borrow(address,address,address,uint256,uint256,uint256,uint16)": EventFragment;
     "Deposit(address,uint64,address,address,uint256,uint16)": EventFragment;
-    "FlashLoan(address,address,address,uint64,uint256,uint256,uint16)": EventFragment;
     "ReserveUsedAsCollateralDisabled(address,address)": EventFragment;
     "ReserveUsedAsCollateralEnabled(address,address)": EventFragment;
     "Withdraw(address,address,address,uint256)": EventFragment;
@@ -29,7 +28,6 @@ interface DepositWithdrawLogicInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "Borrow"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FlashLoan"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ReserveUsedAsCollateralDisabled"
   ): EventFragment;
@@ -74,16 +72,6 @@ export class DepositWithdrawLogic extends Contract {
       onBehalfOf: string | null,
       amount: null,
       referral: BigNumberish | null
-    ): EventFilter;
-
-    FlashLoan(
-      target: string | null,
-      initiator: string | null,
-      asset: string | null,
-      trancheId: null,
-      amount: null,
-      premium: null,
-      referralCode: null
     ): EventFilter;
 
     ReserveUsedAsCollateralDisabled(

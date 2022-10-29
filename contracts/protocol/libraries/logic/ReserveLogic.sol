@@ -254,7 +254,7 @@ library ReserveLogic {
     ) internal {
         if (IAToken(reserve.aTokenAddress).getStrategy() != address(0)) {
             //has strategy
-            updateInterestRatesStrategy(reserve, reserveAddress, aTokenAddress);
+            updateInterestRatesStrategy(reserve, reserveAddress);
         } else {
             UpdateInterestRatesLocalVars memory vars;
             {
@@ -334,8 +334,7 @@ library ReserveLogic {
      **/
     function updateInterestRatesStrategy(
         DataTypes.ReserveData storage reserve,
-        address reserveAddress,
-        address aTokenAddress
+        address reserveAddress
     ) internal {
         address strategist = IAToken(reserve.aTokenAddress).getStrategy();
 

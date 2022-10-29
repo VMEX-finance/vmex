@@ -230,14 +230,14 @@ makeSuite(
           // console.log("VMEX ADMIN DATA before tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
 
           expect(await strategy.calculateAverageRate()).to.be.bignumber.equal(BigNumber.from("0"), "rate starts at zero");
-
+          console.log("before tend: ");
           var tendData = await strategy.tend(); //this will update the interest rate
 
           expect(await strategy.calculateAverageRate()).to.be.bignumber.equal(BigNumber.from("15523416873587429285714285"), "rate is now not zero"); //again this might be different with different block to fork
-
+          
           // increase time by 24 hours
           await DRE.ethers.provider.send("evm_increaseTime", [86400]) 
-
+          console.log("after tend: ");
           await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.001'), await emergencyAdmin.getAddress(), '0'); //deposit something for emergency so reserve rates are updated
 
           var strategyBoostedBalance = await strategy.balanceOfPool();

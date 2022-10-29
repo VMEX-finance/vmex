@@ -394,7 +394,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   //-------------------------------------------------------------
   //deploy tranche 0
 
-  await claimTrancheId(0, admin, admin);
+  await claimTrancheId("Vmex tranche 0", admin, admin);
 
   await initReservesByHelper(
     reservesParams,
@@ -433,7 +433,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   console.log("$$$$$$$$$$$$ addressList: ", addressList);
   console.log("$$$$$$$$$$ admin of tranche 1: ", user1.address);
   treasuryAddress = user1.address;
-  await claimTrancheId(1, user1, user1);
+  await claimTrancheId("Vmex tranche 1", user1, user1);
 
   await initReservesByHelper(
     reservesParams,

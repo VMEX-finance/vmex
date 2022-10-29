@@ -49,6 +49,7 @@ import {
   ParaSwapLiquiditySwapAdapterFactory,
   PriceOracleFactory,
   ReserveLogicFactory,
+  DeployATokensFactory,
   SelfdestructTransferFactory,
   StableDebtTokenFactory,
   UniswapLiquiditySwapAdapterFactory,
@@ -84,6 +85,7 @@ import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
 import { readArtifact as buidlerReadArtifact } from "@nomiclabs/buidler/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendingPoolLibraryAddresses } from "../types/LendingPoolFactory";
+import { LendingPoolConfiguratorLibraryAddresses } from "../types/LendingPoolConfiguratorFactory";
 import { CurveOracleV2LibraryAddresses } from "../types/CurveOracleV2Factory";
 import { UiPoolDataProvider } from "../types";
 import { eNetwork } from "./types";
@@ -186,8 +188,40 @@ export const deployLendingPoolAddressesProviderRegistry = async (
     verify
   );
 
+export const deployATokenDeployer = async (verify?: boolean) =>
+  withSaveAndVerify(
+    await new DeployATokensFactory(await getFirstSigner()).deploy(),
+    eContractid.ReserveLogic,
+    [],
+    verify
+  );
+
+export const deployConfiguratorLibraries = async (
+  verify?: boolean
+): Promise<LendingPoolConfiguratorLibraryAddresses> => {
+  const atokendeployer = await deployATokenDeployer(verify);
+
+  // Hardcoded solidity placeholders, if any library changes path this will fail.
+  // The '__$PLACEHOLDER$__ can be calculated via solidity keccak, but the LendingPoolLibraryAddresses Type seems to
+  // require a hardcoded string.
+  //
+  //  how-to:
+  //  1. PLACEHOLDER = solidityKeccak256(['string'], `${libPath}:${libName}`).slice(2, 36)
+  //  2. LIB_PLACEHOLDER = `__$${PLACEHOLDER}$__`
+  // or grab placeholdes from LendingPoolLibraryAddresses at Typechain generation.
+  //
+  // libPath example: contracts/libraries/logic/GenericLogic.sol
+  // libName example: GenericLogic
+  // f1f6c0540507d7a73571ad55dbacf4a67d
+  return {
+    ["__$1a4ab84be2d7625b6f21850c42bc00346a$__"]: atokendeployer.address,
+  };
+};
+
 export const deployLendingPoolConfigurator = async (verify?: boolean) => {
+  const libraries = await deployConfiguratorLibraries(verify);
   const lendingPoolConfiguratorImpl = await new LendingPoolConfiguratorFactory(
+    libraries,
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
