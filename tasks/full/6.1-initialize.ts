@@ -78,7 +78,7 @@ task(
       const treasuryAddress = emergAdmin.address;
       console.log("before initReservesByHelper");
 
-      await claimTrancheId(1, emergAdmin, emergAdmin);
+      await claimTrancheId("Vmex tranche 1", emergAdmin, emergAdmin);
 
       // Pause market during deployment
       await waitForTx(

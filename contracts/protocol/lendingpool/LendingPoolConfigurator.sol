@@ -16,7 +16,7 @@ import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
-
+import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 
 /**
@@ -36,7 +36,8 @@ contract LendingPoolConfigurator is
     ILendingPoolAddressesProvider internal addressesProvider;
     ILendingPool internal pool;
     address internal DefaultVMEXTreasury;
-    uint64 totalTranches;
+    uint64 public totalTranches;
+    mapping(uint64 => string) public trancheNames; //just for frontend purposes
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -89,16 +90,18 @@ contract LendingPoolConfigurator is
 
     /**
      * @dev Initializes reserves in batch. Purpose is for people who want to create their own permissionless tranche, doesn't require any checks besides that trancheId is unique
+     * @return trancheId given to the user
      **/
-    function claimTrancheId(address admin, address emergencyAdmin)
-        external
-        whitelistedAddress
-        returns (uint256 trancheId)
-    {
+    function claimTrancheId(
+        string calldata name,
+        address admin,
+        address emergencyAdmin
+    ) external whitelistedAddress returns (uint256 trancheId) {
         //whitelist only
         uint64 givenTranche = totalTranches;
         addressesProvider.addPoolAdmin(admin, givenTranche);
         addressesProvider.addEmergencyAdmin(emergencyAdmin, givenTranche);
+        trancheNames[givenTranche] = name;
         totalTranches += 1;
         return givenTranche;
     }
@@ -126,98 +129,17 @@ contract LendingPoolConfigurator is
         ILendingPool pool,
         DataTypes.InitReserveInputInternal memory internalInput
     ) internal {
-        address aTokenProxyAddress;
-
-        {
-            aTokenProxyAddress = _initTokenWithProxy(
-                internalInput.input.aTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableAToken.initialize.selector,
+        (
+            address aTokenProxyAddress,
+            address stableDebtTokenProxyAddress,
+            address variableDebtTokenProxyAddress
+        ) = DeployATokens.deployATokens(
+                DeployATokens.deployATokensVars(
                     pool,
-                    address(this), //lendingPoolConfigurator address
-                    internalInput.input.treasury,
                     DefaultVMEXTreasury,
-                    internalInput.input.underlyingAsset,
-                    internalInput.trancheId,
-                    IAaveIncentivesController(
-                        internalInput.input.incentivesController
-                    ),
-                    internalInput.input.underlyingAssetDecimals,
-                    string(
-                        abi.encodePacked(
-                            internalInput.input.aTokenName,
-                            Strings.toString(internalInput.trancheId)
-                        )
-                    ),
-                    string(
-                        abi.encodePacked(
-                            internalInput.input.aTokenSymbol,
-                            Strings.toString(internalInput.trancheId)
-                        )
-                    ),
-                    internalInput.input.params
+                    internalInput
                 )
             );
-        }
-        address stableDebtTokenProxyAddress;
-        {
-            stableDebtTokenProxyAddress = _initTokenWithProxy(
-                internalInput.input.stableDebtTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableDebtToken.initialize.selector,
-                    pool,
-                    internalInput.input.underlyingAsset,
-                    internalInput.trancheId,
-                    IAaveIncentivesController(
-                        internalInput.input.incentivesController
-                    ),
-                    internalInput.input.underlyingAssetDecimals,
-                    string(
-                        abi.encodePacked(
-                            internalInput.input.stableDebtTokenName,
-                            Strings.toString(internalInput.trancheId)
-                        )
-                    ), //abi.encodePacked(input.stableDebtTokenName, trancheId),
-                    string(
-                        abi.encodePacked(
-                            internalInput.input.stableDebtTokenSymbol,
-                            Strings.toString(internalInput.trancheId)
-                        )
-                    ), //abi.encodePacked(input.stableDebtTokenSymbol, trancheId),
-                    internalInput.input.params
-                )
-            );
-        }
-
-        address variableDebtTokenProxyAddress;
-        {
-            variableDebtTokenProxyAddress = _initTokenWithProxy(
-                internalInput.input.variableDebtTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableDebtToken.initialize.selector,
-                    pool,
-                    internalInput.input.underlyingAsset,
-                    internalInput.trancheId,
-                    IAaveIncentivesController(
-                        internalInput.input.incentivesController
-                    ),
-                    internalInput.input.underlyingAssetDecimals,
-                    string(
-                        abi.encodePacked(
-                            internalInput.input.variableDebtTokenName,
-                            Strings.toString(internalInput.trancheId)
-                        )
-                    ), //abi.encodePacked(input.variableDebtTokenName, trancheId),
-                    string(
-                        abi.encodePacked(
-                            internalInput.input.variableDebtTokenSymbol,
-                            Strings.toString(internalInput.trancheId)
-                        )
-                    ), //abi.encodePacked(input.variableDebtTokenSymbol,trancheId),
-                    internalInput.input.params
-                )
-            );
-        }
 
         pool.initReserve(
             internalInput.input,
@@ -644,19 +566,6 @@ contract LendingPoolConfigurator is
         onlyEmergencyAdmin(trancheId)
     {
         pool.setPause(val, trancheId);
-    }
-
-    function _initTokenWithProxy(
-        address implementation,
-        bytes memory initParams
-    ) internal returns (address) {
-        InitializableImmutableAdminUpgradeabilityProxy proxy = new InitializableImmutableAdminUpgradeabilityProxy(
-                address(this)
-            );
-
-        proxy.initialize(implementation, initParams);
-
-        return address(proxy);
     }
 
     function _upgradeTokenImplementation(

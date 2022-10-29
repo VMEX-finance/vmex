@@ -89,7 +89,7 @@ task(
       //TODO: change vmex treasuryAddress to the same address as the global address
       console.log("before initReservesByHelper");
 
-      await claimTrancheId(0, admin, admin);
+      await claimTrancheId("Vmex tranche 0", admin, admin);
 
       // Pause market during deployment
       await waitForTx(
