@@ -86,6 +86,13 @@ makeSuite(
             "function getAssetPrice(address asset) public view returns (uint256)"
         ]
 
+        const CONVEX_BOOSTER = "0xF403C135812408BFbE8713b5A23a04b3D48AAE31";
+        const CONVEX_BOOSTER_ABI = [
+          "function isShutdown() external view returns(bool)",
+          "function earmarkRewards(uint256 _pid) external returns(bool)"
+        ]
+        const PID = 38;
+
 
         before('Before LendingPool liquidation: set config', () => {
           BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
@@ -233,9 +240,9 @@ makeSuite(
           const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI)
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
 
-          const userReserveData = await dataProv.getUserReserveData(tricrypto2Token.address, 1, borrower.address);
+          const userReserveData = await dataProv.getUserReserveData(tricrypto2Token.address, TRANCHE, borrower.address);
           const tricrypto2Tranch1ATokenAddress =
-            (await lendingPool.getReserveData(tricrypto2Token.address, 1)).aTokenAddress;
+            (await lendingPool.getReserveData(tricrypto2Token.address, TRANCHE)).aTokenAddress;
           // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
 
           const tricrypto2Tranch1AToken =
@@ -264,220 +271,288 @@ makeSuite(
           console.log("strategy boosted balance: " + origBalance);
 
           // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
           console.log("USER DATA: ", userData);
         });
 
-        it("strategy booster earns interest redeposits", async () => {
-          const strategy = await contractGetters.getTricrypto2Strategy();
-
-          var strategyStartBoostedBalance = await strategy.balanceOfPool();
-          console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
-
-          // increase time by 10 hours
-          await increaseTime(36000);
-
-          var tendData = await strategy.tend();
-
-          console.log("strategy tended: ", tendData);
-
-          var postBalance = await strategy.balanceOf();
-          console.log("strategy post balance: ", postBalance);
-
-          var strategyBoostedBalance = await strategy.balanceOfPool();
-          console.log("strategy NEW boosted balance: " + strategyBoostedBalance);
-        });
-
-        it("user withdraws which withdraws from the booster", async () => {
+        it("perform a small withdrawal after some time", async () => {
           const lendingPool = await contractGetters.getLendingPool();
           const strategy = await contractGetters.getTricrypto2Strategy();
           const borrower = await contractGetters.getFirstSigner();
-          const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI)
+          const emergency = (await DRE.ethers.getSigners())[1];
+          const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI);
 
-          const tricrypto2Tranch1ATokenAddress =
-            (await lendingPool.getReserveData(tricrypto2Token.address, 1)).aTokenAddress;
-          // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
+          await increaseTime(41000000);
+          // 2800000 (1 month)- passes
+          // 4000000 - passes
+          // 4100000 - fails
 
-          const tricrypto2Tranch1AToken =
-            await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
+          // // updates state of weth and tricrypto2 reserve
+          await lendingPool.connect(emergency).deposit(WETH_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('1'), await emergency.getAddress(), '0');
+          await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.0000001'), await borrower.getAddress(), '0');
 
-          // withdraw half funds back to the aToken
-          // await lendingPool
-          //   .connect(emergencyAdmin)
-          //   .withdrawFromStrategy(tricrypto2Token.address, 1, DRE.ethers.utils.parseUnits('0.5'));
-
-          // user withdraws half of his funds
-          await lendingPool.connect(borrower)
+          let userDataBeforeWithdraw = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+          console.log("USER DATA BEFORE WITHDRAW: ", userDataBeforeWithdraw);
+          // user withdraws 0.1 tricrypto2
+          const tx = await lendingPool.connect(borrower)
             .withdraw(
               tricrypto2Token.address,
-              1,
-              DRE.ethers.utils.parseUnits('0.4'),
+              TRANCHE,
+              DRE.ethers.utils.parseUnits('0.1'),
               await borrower.getAddress());
+
 
           var strategyBoostedBalance = await strategy.balanceOfPool();
           console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
-
-          // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
-          console.log("USER DATA: ", userData);
         });
 
-        it('Drop the health factor below 1', async () => {
-          const borrower = await contractGetters.getFirstSigner();
-          const emergency = (await DRE.ethers.getSigners())[1];
-          const lendingPool = await contractGetters.getLendingPool();
+        // it("strategy booster earns interest redeposits", async () => {
+        //   const strategy = await contractGetters.getTricrypto2Strategy();
 
-          // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
-          console.log("USER DATA BEFORE WAITING LONG TIME: ", userData);
+        //   var strategyStartBoostedBalance = await strategy.balanceOfPool();
+        //   console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
 
-          // increase time by 100000 hours
-          await increaseTime(360000000);
+        //   // increase time by 10 hours
+        //   await increaseTime(36000);
 
-          // updates state of weth and tricrypto2 reserve
-          await lendingPool.connect(emergency).deposit(WETH_ADDR, 1, DRE.ethers.utils.parseUnits('1'), await emergency.getAddress(), '0');
-          await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, 1, DRE.ethers.utils.parseUnits('0.0000001'), await borrower.getAddress(), '0');
+        //   var tendData = await strategy.tend();
 
-          userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
-          console.log("USER DATA AFTER WAITING LONG TIME: ", userData);
+        //   console.log("strategy tended: ", tendData);
 
-          expect(userData.healthFactor.toString()).to.be.bignumber.lt(
-            DRE.ethers.utils.parseUnits('1'),
-            "Invalid health factor"
-          );
-        });
+        //   var postBalance = await strategy.balanceOf();
+        //   console.log("strategy post balance: ", postBalance);
 
-        it('Liquidates the borrow', async () => {
-          const helpersContract = await contractGetters.getAaveProtocolDataProvider();
-          const liquidator = (await DRE.ethers.getSigners())[2];
-          const borrower = await contractGetters.getFirstSigner();
-          const weth = new DRE.ethers.Contract(WETH_ADDR,WETH_ABI);
-          const lendingPool = await contractGetters.getLendingPool();
-          // const addrProv = await contractGetters.getLendingPoolAddressesProvider();
-          // const addrProvColAddr = await addrProv.getLendingPoolCollateralManager();
-          // console.log("addr prov col manager addr ", addrProvColAddr);
+        //   var strategyBoostedBalance = await strategy.balanceOfPool();
+        //   console.log("strategy NEW boosted balance: " + strategyBoostedBalance);
+        // });
 
-          const lendingPoolCollateralManager = await contractGetters.getLendingPoolCollateralManager();
-          const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI)
+        // it("user withdraws which withdraws from the booster", async () => {
+        //   const lendingPool = await contractGetters.getLendingPool();
+        //   const strategy = await contractGetters.getTricrypto2Strategy();
+        //   const borrower = await contractGetters.getFirstSigner();
+        //   const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI);
 
-          //mints weth to the liquidator
-          var options = {value: DRE.ethers.utils.parseEther("100.0")}
-          await weth.connect(liquidator).deposit(options);
+        //   // const tricrypto2Tranch1ATokenAddress =
+        //   //   (await lendingPool.getReserveData(tricrypto2Token.address, TRANCHE)).aTokenAddress;
+        //   // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
 
-          //approve protocol to access the liquidator wallet
-          await weth.connect(liquidator).approve(lendingPool.address, DRE.ethers.utils.parseEther("100"));
+        //   // const tricrypto2Tranch1AToken =
+        //   //   await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
-          const wethReserveDataBefore = await helpersContract.getReserveData(weth.address, TRANCHE);
-          const tricrypto2ReserveDataBefore = await helpersContract.getReserveData(tricrypto2Token.address, TRANCHE);
+        //   // // // check that the user is still healthy after strategy withdraws
+        //   // let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   // console.log("USER DATA BEFORE WAITING LONG TIME: ", userData);
 
-          const userReserveDataBefore = await getUserData(
-            lendingPool,
-            helpersContract,
-            weth.address,
-            TRANCHE.toString(),
-            borrower.address
-          );
+        //   // await increaseTime(4100000);
+        //   // // 2800000 (1 month)- passes
+        //   // // 4000000 - passes
+        //   // // 4100000 - fails
 
-          console.log("user reserve data before liquidation:", userReserveDataBefore);
+        //   // const emergency = (await DRE.ethers.getSigners())[1];
+        //   // const booster = new DRE.ethers.Contract(CONVEX_BOOSTER, CONVEX_BOOSTER_ABI);
+        //   // // const isPoolShutDown = await booster.connect(emergency).isShutdown();
+        //   // // console.log("ispoolshut down?", isPoolShutDown);
 
-          const amountToLiquidate = userReserveDataBefore.currentStableDebt.div(2).toString();
-          console.log("amount to liquidate:", amountToLiquidate);
+        //   // // reset the rewards in the booster
+        //   // booster.connect(emergency).earmarkRewards(PID);
 
-          await increaseTime(100);
+        //   // // updates state of weth and tricrypto2 reserve
+        //   // await lendingPool.connect(emergency).deposit(WETH_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('1'), await emergency.getAddress(), '0');
+        //   // await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.0000001'), await borrower.getAddress(), '0');
 
-          const tx = await lendingPoolCollateralManager
-          .connect(liquidator)
-          .liquidationCall(TRICRYPTO2_ADDR, WETH_ADDR, TRANCHE, borrower.address, amountToLiquidate, false);
-          // const tx = await lendingPool
-          // .connect(liquidator)
-          // .liquidationCall(TRICRYPTO2_ADDR, WETH_ADDR, TRANCHE, borrower.address, amountToLiquidate, false);
+        //   // userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   // console.log("USER DATA AFTER WAITING LONG TIME: ", userData);
 
-          const userReserveDataAfter = await getUserData(
-            lendingPool,
-            helpersContract,
-            weth.address,
-            TRANCHE.toString(),
-            borrower.address
-            );
+        //   // // var tendData = await strategy.tend();
+        //   // // console.log("strategy tended: ", tendData);
 
-          console.log("user reserve data after liquidation:", userReserveDataAfter);
+        //   // // var postBalance = await strategy.balanceOf();
+        //   // // console.log("strategy post balance: ", postBalance);
 
-          const wethReserveDataAfter = await helpersContract.getReserveData(weth.address, TRANCHE);
-          const tricrypto2ReserveDataAfter = await helpersContract.getReserveData(tricrypto2Token.address, TRANCHE);
+        //   let userDataBeforeWithdraw = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+        //   console.log("USER DATA BEFORE WITHDRAW: ", userDataBeforeWithdraw);
 
-          // get the curve oracle and aave oracle
-          const curveOracleAddr = await addProv.connect(borrower).getCurvePriceOracleWrapper();
-          const curveOracle = new DRE.ethers.Contract(curveOracleAddr,CURVE_ORACLE_ABI);
+        //   // user withdraws 0.1 tricrypto2
+        //   const tx = await lendingPool.connect(borrower)
+        //     .withdraw(
+        //       tricrypto2Token.address,
+        //       TRANCHE,
+        //       DRE.ethers.utils.parseUnits('0.1'),
+        //       await borrower.getAddress());
 
-          const aaveOracle = await contractGetters.getAaveOracle();
+        //   const receipt = await tx.wait();
+        //   receipt.events?.filter((x) => {console.log("event: ", x.event)})
 
-          const collateralPrice = await curveOracle.getAssetPrice(tricrypto2Token.address);
-          const principalPrice = await aaveOracle.getAssetPrice(weth.address);
+        //   var strategyBoostedBalance = await strategy.balanceOfPool();
+        //   console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
 
-          const collateralDecimals = (
-            await helpersContract.getReserveConfigurationData(tricrypto2Token.address, TRANCHE)
-          ).decimals.toString();
-          const principalDecimals = (
-            await helpersContract.getReserveConfigurationData(weth.address, TRANCHE)
-          ).decimals.toString();
+        //   // check that the user is still healthy after strategy withdraws
+        //   const userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+        //   console.log("USER DATA: ", userData);
+        // });
 
-          const expectedCollateralLiquidated = new BigNumber(principalPrice.toString())
-            .times(new BigNumber(amountToLiquidate).times(105))
-            .times(new BigNumber(10).pow(collateralDecimals))
-            .div(
-              new BigNumber(collateralPrice.toString()).times(new BigNumber(10).pow(principalDecimals))
-            )
-            .div(100)
-            .decimalPlaces(0, BigNumber.ROUND_DOWN);
+        // it('Drop the health factor below 1', async () => {
+        //   const borrower = await contractGetters.getFirstSigner();
+        //   const emergency = (await DRE.ethers.getSigners())[1];
+        //   const lendingPool = await contractGetters.getLendingPool();
 
-          console.log("EXPECTED COLLATERAL LIQUIDATED IS:", expectedCollateralLiquidated)
+        //   // check that the user is still healthy after strategy withdraws
+        //   let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   console.log("USER DATA BEFORE WAITING LONG TIME: ", userData);
 
-          if (!tx.blockNumber) {
-            expect(false, 'Invalid block number');
-            return;
-          }
-          const txTimestamp = new BigNumber(
-            (await DRE.ethers.provider.getBlock(tx.blockNumber)).timestamp
-          );
+        //   // increase time by 1000000 hours
+        //   // await increaseTime(360000000);
+        //   // user withdraws most of his funds
+        //   const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI);
+        //   const tx = await lendingPool.connect(borrower)
+        //     .withdraw(
+        //       tricrypto2Token.address,
+        //       TRANCHE,
+        //       DRE.ethers.utils.parseUnits('0.5'),
+        //       await borrower.getAddress());
 
-          const stableDebtBeforeTx = calcExpectedStableDebtTokenBalance(
-            userReserveDataBefore.principalStableDebt,
-            userReserveDataBefore.stableBorrowRate,
-            userReserveDataBefore.stableRateLastUpdated,
-            txTimestamp
-          );
+        //   // updates state of weth and tricrypto2 reserve
+        //   await lendingPool.connect(emergency).deposit(WETH_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('1'), await emergency.getAddress(), '0');
+        //   await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.0000001'), await borrower.getAddress(), '0');
 
-          expect(userReserveDataAfter.currentStableDebt.toString()).to.be.bignumber.almostEqual(
-            stableDebtBeforeTx.minus(amountToLiquidate).toFixed(0),
-            'Invalid user debt after liquidation'
-          );
+        //   userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   console.log("USER DATA AFTER WAITING LONG TIME: ", userData);
 
-          //the liquidity index of the principal reserve needs to be bigger than the index before
-          expect(wethReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
-            wethReserveDataBefore.liquidityIndex.toString(),
-            'Invalid liquidity index'
-          );
+        //   expect(userData.healthFactor.toString()).to.be.bignumber.lt(
+        //     DRE.ethers.utils.parseUnits('1'),
+        //     "Invalid health factor"
+        //   );
+        // });
 
-          //the principal APY after a liquidation needs to be lower than the APY before
-          expect(wethReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
-            wethReserveDataBefore.liquidityRate.toString(),
-            'Invalid liquidity APY'
-          );
+        // it('Liquidates the borrow', async () => {
+        //   const helpersContract = await contractGetters.getAaveProtocolDataProvider();
+        //   const liquidator = (await DRE.ethers.getSigners())[2];
+        //   const borrower = await contractGetters.getFirstSigner();
+        //   const weth = new DRE.ethers.Contract(WETH_ADDR,WETH_ABI);
+        //   const lendingPool = await contractGetters.getLendingPool();
+        //   const strategy = await contractGetters.getTricrypto2Strategy();
+        //   // const addrProv = await contractGetters.getLendingPoolAddressesProvider();
+        //   // const addrProvColAddr = await addrProv.getLendingPoolCollateralManager();
+        //   // console.log("addr prov col manager addr ", addrProvColAddr);
 
-          expect(wethReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-            new BigNumber(wethReserveDataBefore.availableLiquidity.toString())
-              .plus(amountToLiquidate)
-              .toFixed(0),
-            'Invalid principal available liquidity'
-          );
+        //   const lendingPoolCollateralManager = await contractGetters.getLendingPoolCollateralManager();
+        //   const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI)
 
-          // expect(tricrypto2ReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-          //   new BigNumber(tricrypto2ReserveDataAfter.availableLiquidity.toString())
-          //     .minus(expectedCollateralLiquidated)
-          //     .toFixed(0),
-          //   'Invalid collateral available liquidity'
-          // );
-        });
+        //   //mints weth to the liquidator
+        //   var options = {value: DRE.ethers.utils.parseEther("1000.0")}
+        //   await weth.connect(liquidator).deposit(options);
+
+        //   //approve protocol to access the liquidator wallet
+        //   await weth.connect(liquidator).approve(lendingPool.address, DRE.ethers.utils.parseEther("1000"));
+
+        //   const wethReserveDataBefore = await helpersContract.getReserveData(weth.address, TRANCHE);
+        //   const tricrypto2ReserveDataBefore = await helpersContract.getReserveData(tricrypto2Token.address, TRANCHE);
+
+        //   const userReserveDataBefore = await getUserData(
+        //     lendingPool,
+        //     helpersContract,
+        //     weth.address,
+        //     TRANCHE.toString(),
+        //     borrower.address
+        //   );
+
+        //   console.log("user reserve data before liquidation:", userReserveDataBefore);
+
+        //   const amountToLiquidate = userReserveDataBefore.currentStableDebt.div(2).toString();
+        //   console.log("amount to liquidate:", amountToLiquidate);
+
+        //   await increaseTime(100);
+
+        //   const tx = await lendingPool
+        //   .connect(liquidator)
+        //   .liquidationCall(TRICRYPTO2_ADDR, WETH_ADDR, TRANCHE, borrower.address, amountToLiquidate, false);
+
+        //   const userReserveDataAfter = await getUserData(
+        //     lendingPool,
+        //     helpersContract,
+        //     weth.address,
+        //     TRANCHE.toString(),
+        //     borrower.address
+        //     );
+
+        //   console.log("user reserve data after liquidation:", userReserveDataAfter);
+
+        //   const wethReserveDataAfter = await helpersContract.getReserveData(weth.address, TRANCHE);
+        //   console.log("WETH reserve after: ", wethReserveDataAfter);
+        //   const tricrypto2ReserveDataAfter = await helpersContract.getReserveData(tricrypto2Token.address, TRANCHE);
+        //   console.log("tricrypto2 reserve after: ", tricrypto2ReserveDataAfter);
+
+        //   // get the curve oracle and aave oracle
+        //   const curveOracle = await contractGetters.getCurvePriceOracleWrapper();
+        //   const aaveOracle = await contractGetters.getAaveOracle();
+
+        //   const collateralPrice = await curveOracle.getAssetPrice(tricrypto2Token.address);
+        //   const principalPrice = await aaveOracle.getAssetPrice(weth.address);
+
+        //   const collateralDecimals = (
+        //     await helpersContract.getReserveConfigurationData(tricrypto2Token.address, TRANCHE)
+        //   ).decimals.toString();
+        //   const principalDecimals = (
+        //     await helpersContract.getReserveConfigurationData(weth.address, TRANCHE)
+        //   ).decimals.toString();
+
+        //   const expectedCollateralLiquidated = new BigNumber(principalPrice.toString())
+        //     .times(new BigNumber(amountToLiquidate).times(105))
+        //     .times(new BigNumber(10).pow(collateralDecimals))
+        //     .div(
+        //       new BigNumber(collateralPrice.toString()).times(new BigNumber(10).pow(principalDecimals))
+        //     )
+        //     .div(100)
+        //     .decimalPlaces(0, BigNumber.ROUND_DOWN);
+
+        //   console.log("EXPECTED COLLATERAL LIQUIDATED IS:", expectedCollateralLiquidated.toString())
+
+        //   if (!tx.blockNumber) {
+        //     expect(false, 'Invalid block number');
+        //     return;
+        //   }
+        //   const txTimestamp = new BigNumber(
+        //     (await DRE.ethers.provider.getBlock(tx.blockNumber)).timestamp
+        //   );
+
+        //   const stableDebtBeforeTx = calcExpectedStableDebtTokenBalance(
+        //     userReserveDataBefore.principalStableDebt,
+        //     userReserveDataBefore.stableBorrowRate,
+        //     userReserveDataBefore.stableRateLastUpdated,
+        //     txTimestamp
+        //   );
+
+        //   expect(userReserveDataAfter.currentStableDebt.toString()).to.be.bignumber.almostEqual(
+        //     stableDebtBeforeTx.minus(amountToLiquidate).toFixed(0),
+        //     'Invalid user debt after liquidation'
+        //   );
+
+        //   //the liquidity index of the principal reserve needs to be bigger than the index before
+        //   expect(wethReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
+        //     wethReserveDataBefore.liquidityIndex.toString(),
+        //     'Invalid liquidity index'
+        //   );
+
+        //   //the principal APY after a liquidation needs to be lower than the APY before
+        //   expect(wethReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
+        //     wethReserveDataBefore.liquidityRate.toString(),
+        //     'Invalid liquidity APY'
+        //   );
+
+        //   expect(wethReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
+        //     new BigNumber(wethReserveDataBefore.availableLiquidity.toString())
+        //       .plus(amountToLiquidate)
+        //       .toFixed(0),
+        //     'Invalid principal available liquidity'
+        //   );
+
+        //   expect(tricrypto2ReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
+        //     new BigNumber(tricrypto2ReserveDataAfter.availableLiquidity.toString())
+        //       .minus(expectedCollateralLiquidated)
+        //       .toFixed(0),
+        //     'Invalid collateral available liquidity'
+        //   );
+        // });
     }
 )
 

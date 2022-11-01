@@ -22,7 +22,9 @@ import {UserConfiguration} from "../libraries/configuration/UserConfiguration.so
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
-import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title LendingPoolCollateralManager contract
@@ -270,7 +272,7 @@ contract LendingPoolCollateralManager is
                 0,
                 vars.maxCollateralToLiquidate
             );
-
+            console.log("trying to burn", vars.maxCollateralToLiquidate);
             // Burn the equivalent amount of aToken, sending the underlying to the liquidator
             vars.collateralAtoken.burn(
                 user,
@@ -278,6 +280,7 @@ contract LendingPoolCollateralManager is
                 vars.maxCollateralToLiquidate,
                 collateralReserve.liquidityIndex
             );
+            console.log("done with burn");
         }
 
         // If the collateral being liquidated is equal to the user balance,
@@ -347,7 +350,6 @@ contract LendingPoolCollateralManager is
         uint256 debtAmountNeeded = 0;
 
         AvailableCollateralToLiquidateLocalVars memory vars;
-
         {
             address oracleAddress = _addressesProvider.getPriceOracle(
                 assetDatas[collateralAsset]

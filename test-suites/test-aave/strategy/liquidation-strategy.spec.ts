@@ -1,15 +1,15 @@
 import BigNumber from "bignumber.js";
 
-import { DRE, increaseTime } from "../../helpers/misc-utils";
+import { DRE, increaseTime } from "../../../helpers/misc-utils";
 import {
   APPROVAL_AMOUNT_LENDING_POOL,
   oneEther,
-} from "../../helpers/constants";
-import { convertToCurrencyDecimals } from "../../helpers/contracts-helpers";
-import { makeSuite } from "./helpers/make-suite";
-import { ProtocolErrors, RateMode } from "../../helpers/types";
-import { calcExpectedStableDebtTokenBalance } from "./helpers/utils/calculations";
-import { getUserData } from "./helpers/utils/helpers";
+} from "../../../helpers/constants";
+import { convertToCurrencyDecimals } from "../../../helpers/contracts-helpers";
+import { makeSuite } from "../helpers/make-suite";
+import { ProtocolErrors, RateMode } from "../../../helpers/types";
+import { calcExpectedStableDebtTokenBalance } from "../helpers/utils/calculations";
+import { getUserData } from "../helpers/utils/helpers";
 
 import { parseEther } from "ethers/lib/utils";
 
@@ -71,7 +71,7 @@ makeSuite(
       await configurator.activateReserve(dai.address, tranche);
     });
 
-    it("Deposits tricrypto2, borrows DAI in tranche 1, strategy pulls the funds", async () => {
+    it("Deposits tricrypto2, strategy pulls the funds", async () => {
       const { dai, tricrypto2, users, pool, oracle, tricrypto2Strategy } =
         testEnv;
       const depositor = users[0];
@@ -108,7 +108,7 @@ makeSuite(
       //user 2 deposits 1 Tricrypto2
       const amountTricrypto2toDeposit = await convertToCurrencyDecimals(
         tricrypto2.address,
-        "1"
+        "1.1"
       );
       console.log("amount to deposit: ", amountTricrypto2toDeposit);
       //mints Tricrypto2 to borrower
@@ -131,7 +131,52 @@ makeSuite(
           "0"
         );
 
-      //user 2 borrows
+      // person pulling for the strategy can be anyone
+      const amountPulled = await tricrypto2Strategy
+        .connect(depositor.signer)
+        .pull();
+
+      const balanceOfStrategy = await tricrypto2Strategy.balanceOf();
+      expect(balanceOfStrategy.toString()).to.be.bignumber.equal(
+        amountTricrypto2toDeposit.toString(),
+        "Strategy does not hold the right amount of curve tokens"
+      );
+
+      console.log("balance of strategy", balanceOfStrategy);
+    });
+
+    it("Withdraw a small amount from strategy back to user", async () => {
+      // small withdrawal to test withdrawals
+      const { tricrypto2, users, pool, tricrypto2Strategy } = testEnv;
+      const borrower = users[1];
+
+      const amountTricrypto2toWithdraw = await convertToCurrencyDecimals(
+        tricrypto2.address,
+        "0.1"
+      );
+
+      const amountWithdrawn = await pool
+        .connect(borrower.signer)
+        .withdraw(
+          tricrypto2.address,
+          tranche,
+          amountTricrypto2toWithdraw,
+          borrower.address
+        );
+      console.log("amount withdrawn", amountWithdrawn);
+
+      const balanceOfStrategy = await tricrypto2Strategy.balanceOf();
+
+      expect(balanceOfStrategy.toString()).to.be.bignumber.equal(
+        oneEther.toFixed(0),
+        "did not withdraw the correct amount of tricrypto2"
+      );
+    });
+
+    it("User 2 borrows DAI with tricrypto as collateral", async () => {
+      const { dai, tricrypto2, users, pool, oracle, tricrypto2Strategy } =
+        testEnv;
+      const borrower = users[1];
 
       const userGlobalData = await pool.getUserAccountData(
         borrower.address,
@@ -173,17 +218,6 @@ makeSuite(
       expect(
         userGlobalDataAfter.currentLiquidationThreshold.toString()
       ).to.be.bignumber.equal("8250", INVALID_HF);
-
-      // person pulling for the strategy can be anyone
-      const amountPulled = await tricrypto2Strategy
-        .connect(depositor.signer)
-        .pull();
-
-      const balanceOfStrategy = await tricrypto2Strategy.balanceOf();
-      expect(balanceOfStrategy.toString()).to.be.bignumber.equal(
-        amountTricrypto2toDeposit.toString(),
-        "Strategy does not hold the right amount of curve tokens"
-      );
     });
 
     it("Drop the health factor below 1", async () => {

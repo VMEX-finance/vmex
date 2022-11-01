@@ -53,6 +53,7 @@ import {
   loadPoolConfig,
   loadCustomAavePoolConfig,
   getGlobalVMEXReserveFactor,
+  isHardhatTestingStrategies,
 } from "../../helpers/configuration";
 import { initializeMakeSuite } from "./helpers/make-suite";
 
@@ -502,51 +503,53 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   // TODO: mock the curve pool (needs deposit function), convex booster, sushiswap
   // right now the tend() function for strategies is unusable in hardhat tests
   // deploy tricrypto2 strategy
+  if (isHardhatTestingStrategies) {
+    const baseRewardPool = await deployConvexBaseRewardPool();
+    console.log("DEPLOYED baserewardpool at address", baseRewardPool.address);
 
-  const baseRewardPool = await deployConvexBaseRewardPool();
-  console.log("DEPLOYED baserewardpool at address", baseRewardPool.address);
+    const booster = await deployConvexBooster();
+    console.log("DEPLOYED booster at address", booster.address);
 
-  const booster = await deployConvexBooster();
-  console.log("DEPLOYED booster at address", booster.address);
-
-  const tricrypto2Strategy = await deployTricrypto2Strategy();
-  console.log(
-    "DEPLOYED tricrypto Strat at address",
-    tricrypto2Strategy.address
-  );
-
-  const pid = 38;
-  const numTokensInPool = 0;
-  const tranche = 1;
-
-  await waitForTx(
-    await booster.addPool(pid.toString(), baseRewardPool.address)
-  );
-  console.log("Finished booster add pool");
-
-  await waitForTx(
-    await tricrypto2Strategy.initialize(
-      addressesProvider.address,
-      allReservesAddresses["Tricrypto2"],
-      tranche,
-      pid,
-      numTokensInPool,
-      "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool, will not work for hardhat test, do not tend
-      booster.address
-    )
-  );
-  console.log("Finished strategy initialize");
-
-  // admin grants strategy access to all funds
-  await waitForTx(
-    await lendingPoolConfiguratorProxy.addStrategy(
-      allReservesAddresses["Tricrypto2"],
-      1,
+    const tricrypto2Strategy = await deployTricrypto2Strategy();
+    console.log(
+      "DEPLOYED tricrypto Strat at address",
       tricrypto2Strategy.address
-    )
-  );
+    );
 
-  console.log("deployed strategies");
+    const pid = 38;
+    const numTokensInPool = 0;
+    const tranche = 1;
+
+    await waitForTx(
+      await booster.addPool(pid.toString(), baseRewardPool.address)
+    );
+    console.log("Finished booster add pool");
+
+    // have to comment out cvx, crv, underlying token allow all inside CrvLpStrategy.sol in order for this to work
+    await waitForTx(
+      await tricrypto2Strategy.initialize(
+        addressesProvider.address,
+        allReservesAddresses["Tricrypto2"],
+        tranche,
+        pid,
+        numTokensInPool,
+        "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool, will not work for hardhat test, do not tend
+        booster.address
+      )
+    );
+    console.log("Finished strategy initialize");
+
+    // admin grants strategy access to all funds
+    await waitForTx(
+      await lendingPoolConfiguratorProxy.addStrategy(
+        allReservesAddresses["Tricrypto2"],
+        1,
+        tricrypto2Strategy.address
+      )
+    );
+
+    console.log("deployed strategies");
+  }
 
   console.timeEnd("setup");
 };

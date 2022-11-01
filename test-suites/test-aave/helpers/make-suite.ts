@@ -25,7 +25,7 @@ import { AaveProtocolDataProvider } from "../../../types/AaveProtocolDataProvide
 import { MintableERC20 } from "../../../types/MintableERC20";
 import { AToken } from "../../../types/AToken";
 import { LendingPoolConfigurator } from "../../../types/LendingPoolConfigurator";
-import { CrvLpStrategy } from "@vmex/lending_pool_strategies/types/src/strats/CrvLpStrategy";
+import { CrvLpStrategy } from "../../../types/CrvLpStrategy";
 
 import chai from "chai";
 // @ts-ignore
@@ -46,6 +46,7 @@ import { AaveConfig } from "../../../markets/aave";
 import { CurveWrapper, FlashLiquidationAdapter } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
+import { isHardhatTestingStrategies } from "../../../helpers/configuration";
 
 chai.use(bignumberChai());
 chai.use(almostEqual());
@@ -189,7 +190,8 @@ export async function initializeMakeSuite() {
     process.exit(1);
   }
 
-  testEnv.tricrypto2Strategy = await getTricrypto2Strategy();
+  if (isHardhatTestingStrategies)
+    testEnv.tricrypto2Strategy = await getTricrypto2Strategy();
 
   testEnv.aDai = await getAToken(aDaiAddress);
   testEnv.aWETH = await getAToken(aWEthAddress);

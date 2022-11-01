@@ -64,13 +64,10 @@ import {
   UiIncentiveDataProviderV2Factory,
   BoosterFactory,
   BaseRewardPoolFactory,
+  VStrategyHelperFactory,
+  CrvLpStrategyFactory,
 } from "../types";
-import {
-  // VMath__factory,
-  VStrategyHelper__factory,
-} from "@vmex/lending_pool_strategies/types/factories/src/deps/vmex/libs";
-import { CrvLpStrategy__factory } from "@vmex/lending_pool_strategies/types/factories/src/strats";
-import { CrvLpStrategyLibraryAddresses } from "@vmex/lending_pool_strategies/types/factories/src/strats/CrvLpStrategy__factory";
+import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
   withSaveAndVerify,
   registerContractInJsonDb,
@@ -424,7 +421,7 @@ export const deployvMath = async (verify?: boolean) =>
 
 export const deployvStrategyHelper = async (verify?: boolean) =>
   withSaveAndVerify(
-    await new VStrategyHelper__factory(await getFirstSigner()).deploy(),
+    await new VStrategyHelperFactory(await getFirstSigner()).deploy(),
     eContractid.vStrategyHelper,
     [],
     verify
@@ -437,14 +434,13 @@ export const deployStrategyLibraries = async (
   // const vMath = getContractAddressWithJsonFallback(eContractid.vMath, DRE.network.name);
   const vStrategyHelper = await deployvStrategyHelper();
   return {
-    ["src/deps/vmex/libs/vStrategyHelper.sol:vStrategyHelper"]:
-      vStrategyHelper.address,
+    ["__$7512de7f1b86abca670bc1676b640da4fd$__"]: vStrategyHelper.address,
   };
 };
 
 export const deployTricrypto2Strategy = async (verify?: boolean) => {
   const libraries = await deployStrategyLibraries(verify);
-  const tricrypto2StrategyImpl = await new CrvLpStrategy__factory(
+  const tricrypto2StrategyImpl = await new CrvLpStrategyFactory(
     libraries,
     await getFirstSigner()
   ).deploy();
