@@ -17,7 +17,9 @@ const {
     supply,
     markReserveAsCollateral
 } = require("../dist/src.ts/protocol.js");
-
+const {
+    userAggregatedTrancheData
+} = require("../dist/src.ts/analytics.js");
 
 const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const WETHabi = [
@@ -81,80 +83,94 @@ describe("Supply - end-to-end test", () => {
 
     })
 
-    it("7 - should test that the user has a non-zero amount of aTokens for an asset", async () => {
-        let data = await getUserSingleReserveData(owner, 'localhost', WETHadd, 1);
-        let aToken = new ethers.Contract(data.aTokenAddress, WETHabi, owner);
-        console.log(await aToken.connect(owner).balanceOf(await owner.getAddress()))
-        expect(await aToken.connect(owner).balanceOf(await owner.getAddress())).to.be.above(ethers.utils.parseEther('1.0'));
+    it("7 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
+        let { totalCollateralETH } = await userAggregatedTrancheData({
+            signer: owner,
+            tranche: 0,
+            network: "localhost"
+        });
+        expect(totalCollateralETH).to.be.bignumber.above(ethers.utils.parseEther("1.0"));
     })
 
 })
 
 describe("Borrow - end-to-end test", () => {
-    // let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
-    // const temp = provider.getSigner(1);
+    let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+    const temp = provider.getSigner(1);
 
-    // it("1 - should give temp 1 WETH", async () => {
-    //     const WETH = new ethers.Contract(WETHadd, WETHabi, temp);
-    //     await WETH.connect(temp).deposit({ value: ethers.utils.parseEther("2.0")});
-    //     await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("1.0"));
-    //     expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(ethers.utils.parseEther("1.0"))
-    // })
+    it("1 - should give temp 1 WETH", async () => {
+        const WETH = new ethers.Contract(WETHadd, WETHabi, temp);
+        await WETH.connect(temp).deposit({ value: ethers.utils.parseEther("2.0")});
+        await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("1.0"));
+        expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(ethers.utils.parseEther("1.0"))
+    })
 
-    // it("2 - should swap for USDC with UNISWAP", async () => {
-    //     var path = [WETHadd, USDCadd];
-    //     var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-    //     var options = {value: ethers.utils.parseEther("1.0")}
-    //     const USDC = new ethers.Contract(USDCadd, WETHabi, temp);
-    //     const UNISWAP = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI, temp);
-    //     await UNISWAP.swapExactETHForTokens(ethers.utils.parseEther("0.5"), path, await temp.getAddress(), deadline, { value: ethers.utils.parseEther("1.0"), gasLimit: "8000000"} );
-    //     expect(await USDC.balanceOf(await temp.getAddress())).to.be.bignumber.above(ethers.utils.parseEther("0.5"));
-    // })
-    // it("test", async () => {
-    //     console.log(await getReserveData(temp, 'localhost', Crv3Crypto, 0))
-    // })
+    it("2 - should swap for USDC with UNISWAP", async () => {
+        var path = [WETHadd, USDCadd];
+        var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
+        const USDC = new ethers.Contract(USDCadd, WETHabi, temp);
+
+        const UNISWAP = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI, temp);
+        await UNISWAP.swapExactETHForTokens(1, path, await temp.getAddress(), deadline, { value: ethers.utils.parseEther("0.5"), gasLimit: "8000000"} );
+        expect(await USDC.balanceOf(await temp.getAddress())).to.be.bignumber.above(ethers.utils.parseEther("0"));
+    })
 
 
-    // it("2 - should approve triCrypto for 1 WETH spend", async () => {
-    //     const WETH = new ethers.Contract(WETHadd, WETHabi, temp);
-    //     await WETH.connect(temp).approve(TricryptoDeposit, ethers.utils.parseEther("1.0"));
-    // })
-    
-    // it('3 - should deposit WETH for Curve Tokens', async () => {
-    //     const triCryptoContract = new ethers.Contract(TricryptoDeposit, TricryptoABI, temp);
-    //     const _amounts = [ ethers.utils.parseEther("0"), ethers.utils.parseEther("0"), ethers.utils.parseEther("1.0") ];
-    //     await triCryptoContract.connect(temp).add_liquidity(_amounts, ethers.utils.parseEther("0.1"))
+    it("4 - should supply USDC tokens for aTokens with fn supply()", async () => {
+        USDC = new ethers.Contract(USDCadd, WETHabi, temp)
+        expect(await supply({
+            underlying: USDCadd,
+            trancheId: 0,
+            amount: ethers.utils.formatUnits(await USDC.balanceOf(await temp.getAddress())),
+            signer: temp,
+            network: "localhost",
+            test: true
+        }, () => { return true })).to.be.true;
+    })
 
-    //     const _crv = new ethers.Contract(Crv3Crypto, ["function balanceOf(address owner) external view returns (uint256 balance)"], temp);
-    //     expect(
-    //         await _crv.connect(temp).balanceOf(await temp.getAddress())
-    //     ).to.be.bignumber.not.equal(ethers.utils.parseEther("0"));
-    // })
+    it("5 - should mark supplied asset for collateral with fn markReserveAsCollateral", async () => {
+        markReserveAsCollateral({
+            signer: temp,
+            network: "localhost",
+            asset: USDCadd,
+            trancheId: 0,
+            useAsCollateral: true
+        }, () => { return true });
+    })
 
-    // it("4 - should supply curve tokens for aTokens with fn supply()", async () => {
-    //     const _crv = new ethers.Contract(Crv3Crypto, ["function balanceOf(address owner) external view returns (uint256 balance)"], temp);
-    //     let _bal = await _crv.balanceOf(await temp.getAddress())
-    //     let _intendedTransfer = ethers.utils.parseEther("0.1");
-    //     console.log(_bal, _intendedTransfer)
-    //     expect(await supply({
-    //         underlying: Crv3Crypto,
-    //         trancheId: 0,
-    //         amount: "1",
-    //         signer: temp,
-    //         network: "localhost",
-    //         test: true
-    //     }, () => { return true })).to.be.true;
-    // })
+    it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
+        let { totalCollateralETH, availableBorrowsETH } = await userAggregatedTrancheData({
+            signer: temp,
+            tranche: 0,
+            network: "localhost"
+        });
+        console.log(totalCollateralETH, availableBorrowsETH);
+        expect(totalCollateralETH).to.be.bignumber.above(ethers.utils.parseEther("1.0"));
+    })
 
-    // it("5 - should mark supplied asset for collateral with fn markReserveAsCollateral", async () => {
-    //     markReserveAsCollateral({
-    //         signer: temp,
-    //         network: "localhost",
-    //         asset: Crv3Crypto,
-    //         trancheId: 0,
-    //         useAsCollateral: true
-    //     }, () => { return true });
-    // })
+    it("7 - should test borrowing WETH with borrow() fn", async () => {
+        const WETHContract = new ethers.Contract(WETHadd, WETHabi, temp);
+        let originalBalance = await WETHContract.balanceOf(await temp.getAddress());
+        let { availableBorrowsETH } = await userAggregatedTrancheData({
+            signer: temp,
+            tranche: 0,
+            network: "localhost"
+        })
+
+        await borrow({
+            underlying: WETHadd,
+            trancheId: 0,
+            amount: availableBorrowsETH,
+            interestRateMode: 1,
+            signer: temp,
+            network: "localhost",
+            test: true
+        })
+
+        expect(await WETHContract.balanceOf(await temp.getAddress())).to.be.bignumber.above(originalBalance);
+    })
+
+
 
 
 })

@@ -6,7 +6,14 @@ const utils_1 = require("./utils");
 async function borrow(params, callback) {
     let client = await params.signer.getAddress();
     let lendingPool = await (0, utils_1.getLendingPoolImpl)(params.signer, params.network);
-    await lendingPool.borrow(params.underlying, params.trancheId, params.amount, params.interestRateMode, params.referrer || 0, client);
+    if (params.test) {
+        await lendingPool.borrow(params.underlying, params.trancheId, params.amount, params.interestRateMode, params.referrer || 0, client, {
+            gasLimit: "8000000"
+        });
+    }
+    else {
+        await lendingPool.borrow(params.underlying, params.trancheId, params.amount, params.interestRateMode, params.referrer || 0, client);
+    }
     if (callback) {
         await callback().catch((error) => { console.error("CALLBACK_ERROR: \n", error); });
     }

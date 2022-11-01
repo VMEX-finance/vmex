@@ -7,6 +7,7 @@ export declare function borrow(params: {
     referrer?: number;
     signer: ethers.Signer;
     network: string;
+    test?: boolean;
 }, callback?: () => Promise<any>): Promise<void>;
 export declare function markReserveAsCollateral(params: {
     signer: ethers.Signer;
