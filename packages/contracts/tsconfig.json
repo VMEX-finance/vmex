@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "dist",
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "sourceMap": true
+  },
+  "include": [
+    "./src.ts/*/*", 
+    "./src.ts/*", 
+    "./test", 
+    "./artifacts"
+  ],
+  "exclude": [
+    "**/types/**/*",
+    "**/test-suites/**/*",
+    "**/markets/**/*",
+    "**/modules",
+    "**/tasks"
+  ],
+  
+}
