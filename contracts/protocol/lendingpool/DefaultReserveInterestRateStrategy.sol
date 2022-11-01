@@ -11,7 +11,7 @@ import {ILendingRateOracle} from "../../interfaces/ILendingRateOracle.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 
-import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 
 /**
  * @title DefaultReserveInterestRateStrategy contract

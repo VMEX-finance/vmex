@@ -22,7 +22,6 @@ import {
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
 } from "../../helpers/contracts-getters";
-// import { deployStrategies } from "@vmex/lending_pool_strategies/scripts/deployStrategies";
 
 task(
   "full:initialize-lending-pool-tranche-1",
@@ -78,7 +77,7 @@ task(
       const treasuryAddress = emergAdmin.address;
       console.log("before initReservesByHelper");
 
-      await claimTrancheId(1, emergAdmin, emergAdmin);
+      await claimTrancheId("Vmex tranche 1", emergAdmin, emergAdmin);
 
       // Pause market during deployment
       await waitForTx(
@@ -113,7 +112,10 @@ task(
       const tricrypto2Strat = await deployTricrypto2Strategy();
       const tricrypto2StratTranche = 1;
 
-      console.log("DEPLOYED cvxCrv Strat at address", tricrypto2Strat.address);
+      console.log(
+        "DEPLOYED tricrypto Strat at address",
+        tricrypto2Strat.address
+      );
 
       await waitForTx(
         await tricrypto2Strat.connect(emergAdmin).initialize(
@@ -122,7 +124,8 @@ task(
           tricrypto2StratTranche,
           38,
           3,
-          "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" // address of tricrypto2 pool
+          "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool
+          "0xF403C135812408BFbE8713b5A23a04b3D48AAE31" // address of convex booster
         )
       );
 

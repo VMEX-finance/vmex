@@ -17,6 +17,7 @@ const { expect } = chai;
 
 makeSuite('LendingPool liquidation - liquidator receiving the underlying asset', (testEnv) => {
   const { INVALID_HF } = ProtocolErrors;
+  const tranche = 0;
 
   before('Before LendingPool liquidation: set config', () => {
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
@@ -29,21 +30,21 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
   it("It's not possible to liquidate on a non-active collateral or a non active principal", async () => {
     const { configurator, weth, pool, users, dai } = testEnv;
     const user = users[1];
-    await configurator.deactivateReserve(weth.address);
+    await configurator.deactivateReserve(weth.address, tranche);
 
     await expect(
-      pool.liquidationCall(weth.address, dai.address, user.address, parseEther('1000'), false)
+      pool.liquidationCall(weth.address, dai.address, tranche, user.address, parseEther('1000'), false)
     ).to.be.revertedWith('2');
 
-    await configurator.activateReserve(weth.address);
+    await configurator.activateReserve(weth.address, tranche);
 
-    await configurator.deactivateReserve(dai.address);
+    await configurator.deactivateReserve(dai.address, tranche);
 
     await expect(
-      pool.liquidationCall(weth.address, dai.address, user.address, parseEther('1000'), false)
+      pool.liquidationCall(weth.address, dai.address, tranche, user.address, parseEther('1000'), false)
     ).to.be.revertedWith('2');
 
-    await configurator.activateReserve(dai.address);
+    await configurator.activateReserve(dai.address, tranche);
   });
 
   it('Deposits WETH, borrows DAI', async () => {
@@ -62,7 +63,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(depositor.signer)
-      .deposit(dai.address, amountDAItoDeposit, depositor.address, '0');
+      .deposit(dai.address, tranche, amountDAItoDeposit, depositor.address, '0');
     //user 2 deposits 1 ETH
     const amountETHtoDeposit = await convertToCurrencyDecimals(weth.address, '1');
 
@@ -74,11 +75,11 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(borrower.signer)
-      .deposit(weth.address, amountETHtoDeposit, borrower.address, '0');
+      .deposit(weth.address, tranche, amountETHtoDeposit, borrower.address, '0');
 
     //user 2 borrows
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address);
+    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
     const daiPrice = await oracle.getAssetPrice(dai.address);
 
     const amountDAIToBorrow = await convertToCurrencyDecimals(
@@ -91,9 +92,9 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(borrower.signer)
-      .borrow(dai.address, amountDAIToBorrow, RateMode.Stable, '0', borrower.address);
+      .borrow(dai.address, tranche, amountDAIToBorrow, RateMode.Stable, '0', borrower.address);
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address);
+    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
 
     expect(userGlobalDataAfter.currentLiquidationThreshold.toString()).to.be.bignumber.equal(
       '8250',
@@ -112,7 +113,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       new BigNumber(daiPrice.toString()).multipliedBy(1.18).toFixed(0)
     );
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address);
+    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
 
     expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
       oneEther.toFixed(0),
@@ -131,13 +132,14 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
     //approve protocol to access the liquidator wallet
     await dai.connect(liquidator.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
-    const daiReserveDataBefore = await helpersContract.getReserveData(dai.address);
-    const ethReserveDataBefore = await helpersContract.getReserveData(weth.address);
+    const daiReserveDataBefore = await helpersContract.getReserveData(dai.address, tranche);
+    const ethReserveDataBefore = await helpersContract.getReserveData(weth.address, tranche);
 
     const userReserveDataBefore = await getUserData(
       pool,
       helpersContract,
       dai.address,
+      tranche.toString(),
       borrower.address
     );
 
@@ -147,26 +149,27 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     const tx = await pool
       .connect(liquidator.signer)
-      .liquidationCall(weth.address, dai.address, borrower.address, amountToLiquidate, false);
+      .liquidationCall(weth.address, dai.address, tranche, borrower.address, amountToLiquidate, false);
 
     const userReserveDataAfter = await getUserData(
       pool,
       helpersContract,
       dai.address,
+      tranche.toString(),
       borrower.address
     );
 
-    const daiReserveDataAfter = await helpersContract.getReserveData(dai.address);
-    const ethReserveDataAfter = await helpersContract.getReserveData(weth.address);
+    const daiReserveDataAfter = await helpersContract.getReserveData(dai.address, tranche);
+    const ethReserveDataAfter = await helpersContract.getReserveData(weth.address, tranche);
 
     const collateralPrice = await oracle.getAssetPrice(weth.address);
     const principalPrice = await oracle.getAssetPrice(dai.address);
 
     const collateralDecimals = (
-      await helpersContract.getReserveConfigurationData(weth.address)
+      await helpersContract.getReserveConfigurationData(weth.address, tranche)
     ).decimals.toString();
     const principalDecimals = (
-      await helpersContract.getReserveConfigurationData(dai.address)
+      await helpersContract.getReserveConfigurationData(dai.address, tranche)
     ).decimals.toString();
 
     const expectedCollateralLiquidated = new BigNumber(principalPrice.toString())
@@ -245,7 +248,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(depositor.signer)
-      .deposit(usdc.address, amountUSDCtoDeposit, depositor.address, '0');
+      .deposit(usdc.address, tranche, amountUSDCtoDeposit, depositor.address, '0');
 
     //borrower deposits 1 ETH
     const amountETHtoDeposit = await convertToCurrencyDecimals(weth.address, '1');
@@ -258,10 +261,10 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(borrower.signer)
-      .deposit(weth.address, amountETHtoDeposit, borrower.address, '0');
+      .deposit(weth.address, tranche, amountETHtoDeposit, borrower.address, '0');
 
     //borrower borrows
-    const userGlobalData = await pool.getUserAccountData(borrower.address);
+    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
 
     const usdcPrice = await oracle.getAssetPrice(usdc.address);
 
@@ -275,7 +278,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(borrower.signer)
-      .borrow(usdc.address, amountUSDCToBorrow, RateMode.Stable, '0', borrower.address);
+      .borrow(usdc.address, tranche, amountUSDCToBorrow, RateMode.Stable, '0', borrower.address);
 
     //drops HF below 1
     await oracle.setAssetPrice(
@@ -294,11 +297,12 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     const userReserveDataBefore = await helpersContract.getUserReserveData(
       usdc.address,
+      tranche,
       borrower.address
     );
 
-    const usdcReserveDataBefore = await helpersContract.getReserveData(usdc.address);
-    const ethReserveDataBefore = await helpersContract.getReserveData(weth.address);
+    const usdcReserveDataBefore = await helpersContract.getReserveData(usdc.address, tranche);
+    const ethReserveDataBefore = await helpersContract.getReserveData(weth.address, tranche);
 
     const amountToLiquidate = DRE.ethers.BigNumber.from(
       userReserveDataBefore.currentStableDebt.toString()
@@ -308,26 +312,27 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(liquidator.signer)
-      .liquidationCall(weth.address, usdc.address, borrower.address, amountToLiquidate, false);
+      .liquidationCall(weth.address, usdc.address, tranche, borrower.address, amountToLiquidate, false);
 
     const userReserveDataAfter = await helpersContract.getUserReserveData(
       usdc.address,
+      tranche,
       borrower.address
     );
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address);
+    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
 
-    const usdcReserveDataAfter = await helpersContract.getReserveData(usdc.address);
-    const ethReserveDataAfter = await helpersContract.getReserveData(weth.address);
+    const usdcReserveDataAfter = await helpersContract.getReserveData(usdc.address, tranche);
+    const ethReserveDataAfter = await helpersContract.getReserveData(weth.address, tranche);
 
     const collateralPrice = await oracle.getAssetPrice(weth.address);
     const principalPrice = await oracle.getAssetPrice(usdc.address);
 
     const collateralDecimals = (
-      await helpersContract.getReserveConfigurationData(weth.address)
+      await helpersContract.getReserveConfigurationData(weth.address, tranche)
     ).decimals.toString();
     const principalDecimals = (
-      await helpersContract.getReserveConfigurationData(usdc.address)
+      await helpersContract.getReserveConfigurationData(usdc.address, tranche)
     ).decimals.toString();
 
     const expectedCollateralLiquidated = new BigNumber(principalPrice.toString())
@@ -396,7 +401,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(borrower.signer)
-      .deposit(aave.address, amountToDeposit, borrower.address, '0');
+      .deposit(aave.address, tranche, amountToDeposit, borrower.address, '0');
     const usdcPrice = await oracle.getAssetPrice(usdc.address);
 
     //drops HF below 1
@@ -415,11 +420,12 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     const userReserveDataBefore = await helpersContract.getUserReserveData(
       usdc.address,
+      tranche,
       borrower.address
     );
 
-    const usdcReserveDataBefore = await helpersContract.getReserveData(usdc.address);
-    const aaveReserveDataBefore = await helpersContract.getReserveData(aave.address);
+    const usdcReserveDataBefore = await helpersContract.getReserveData(usdc.address, tranche);
+    const aaveReserveDataBefore = await helpersContract.getReserveData(aave.address, tranche);
 
     const amountToLiquidate = new BigNumber(userReserveDataBefore.currentStableDebt.toString())
       .div(2)
@@ -431,24 +437,25 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(liquidator.signer)
-      .liquidationCall(aave.address, usdc.address, borrower.address, amountToLiquidate, false);
+      .liquidationCall(aave.address, usdc.address, tranche, borrower.address, amountToLiquidate, false);
 
     const userReserveDataAfter = await helpersContract.getUserReserveData(
       usdc.address,
+      tranche,
       borrower.address
     );
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address);
+    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
 
-    const usdcReserveDataAfter = await helpersContract.getReserveData(usdc.address);
-    const aaveReserveDataAfter = await helpersContract.getReserveData(aave.address);
+    const usdcReserveDataAfter = await helpersContract.getReserveData(usdc.address, tranche);
+    const aaveReserveDataAfter = await helpersContract.getReserveData(aave.address, tranche);
 
-    const aaveConfiguration = await helpersContract.getReserveConfigurationData(aave.address);
+    const aaveConfiguration = await helpersContract.getReserveConfigurationData(aave.address, tranche);
     const collateralDecimals = aaveConfiguration.decimals.toString();
     const liquidationBonus = aaveConfiguration.liquidationBonus.toString();
 
     const principalDecimals = (
-      await helpersContract.getReserveConfigurationData(usdc.address)
+      await helpersContract.getReserveConfigurationData(usdc.address, tranche)
     ).decimals.toString();
 
     const expectedCollateralLiquidated = oneEther.multipliedBy('10');
