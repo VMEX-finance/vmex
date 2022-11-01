@@ -607,6 +607,10 @@ export declare const deployments: {
             address: string;
             deployer: string;
         };
+        localhost: {
+            address: string;
+            deployer: string;
+        };
     };
     MockFlashLoanReceiver: {
         hardhat: {
@@ -754,7 +758,7 @@ export declare const deployments: {
             address: string;
         };
     };
-    curveOracle: {
+    CurveOracle: {
         localhost: {
             address: string;
             deployer: string;
@@ -764,7 +768,7 @@ export declare const deployments: {
             deployer: string;
         };
     };
-    curveWrapper: {
+    CurveWrapper: {
         localhost: {
             address: string;
             deployer: string;
@@ -863,9 +867,29 @@ export declare const deployments: {
             address: string;
             deployer: string;
         };
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
     };
     tricrypto2Strategy: {
         localhost: {
+            address: string;
+            deployer: string;
+        };
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    BaseRewardPool: {
+        hardhat: {
+            address: string;
+            deployer: string;
+        };
+    };
+    Booster: {
+        hardhat: {
             address: string;
             deployer: string;
         };

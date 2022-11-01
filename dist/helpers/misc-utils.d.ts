@@ -1,0 +1,34 @@
+import BigNumber from 'bignumber.js';
+import BN = require('bn.js');
+import low from 'lowdb';
+import { ContractTransaction } from 'ethers';
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { BuidlerRuntimeEnvironment } from '@nomiclabs/buidler/types';
+import { tEthereumAddress } from './types';
+import { SignerWithAddress } from '../test-suites/test-aave/helpers/make-suite';
+export declare const toWad: (value: string | number) => string;
+export declare const bnToBigNumber: (amount: BN) => BigNumber;
+export declare const stringToBigNumber: (amount: string) => BigNumber;
+export declare const getDb: () => low.LowdbSync<any>;
+export declare let DRE: HardhatRuntimeEnvironment | BuidlerRuntimeEnvironment;
+export declare const setDRE: (_DRE: HardhatRuntimeEnvironment | BuidlerRuntimeEnvironment) => void;
+export declare const sleep: (milliseconds: number) => Promise<unknown>;
+export declare const createRandomAddress: () => string;
+export declare const evmSnapshot: () => Promise<any>;
+export declare const evmRevert: (id: string) => Promise<any>;
+export declare const timeLatest: () => Promise<BigNumber>;
+export declare const advanceBlock: (timestamp: number) => Promise<any>;
+export declare const increaseTime: (secondsToIncrease: number) => Promise<void>;
+export declare const advanceTimeAndBlock: (forwardTime: number) => Promise<void>;
+export declare const waitForTx: (tx: ContractTransaction) => Promise<import("ethers").ContractReceipt>;
+export declare const filterMapBy: (raw: {
+    [key: string]: any;
+}, fn: (key: string) => boolean) => {
+    [key: string]: any;
+};
+export declare const chunk: <T>(arr: T[], chunkSize: number) => T[][];
+export declare const printContracts: () => void;
+export declare const notFalsyOrZeroAddress: (address: tEthereumAddress | null | undefined) => boolean;
+export declare const impersonateAddress: (address: tEthereumAddress) => Promise<SignerWithAddress>;
+export declare const omit: <T, U extends keyof T>(obj: T, keys: U[]) => Omit<T, U>;
+export declare const impersonateAccountsHardhat: (accounts: string[]) => Promise<void>;

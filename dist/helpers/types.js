@@ -46,8 +46,10 @@ var AavePools;
 var eContractid;
 (function (eContractid) {
     eContractid["Example"] = "Example";
-    eContractid["curveOracle"] = "curveOracle";
-    eContractid["curveWrapper"] = "curveWrapper";
+    eContractid["Booster"] = "Booster";
+    eContractid["BaseRewardPool"] = "BaseRewardPool";
+    eContractid["CurveOracle"] = "CurveOracle";
+    eContractid["CurveWrapper"] = "CurveWrapper";
     eContractid["vMath"] = "vMath";
     eContractid["vStrategyHelper"] = "vStrategyHelper";
     eContractid["tricrypto2Strategy"] = "tricrypto2Strategy";
