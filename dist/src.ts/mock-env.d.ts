@@ -1,1 +1,2 @@
-export declare function setupMockEnv(address: any): Promise<void>;
+import { ethers } from "ethers";
+export declare function startMockEnvironment(signer: ethers.Signer): Promise<void>;

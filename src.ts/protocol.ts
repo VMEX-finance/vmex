@@ -9,18 +9,33 @@ export async function borrow(params: {
     interestRateMode: number;
     referrer?: number;
     signer: ethers.Signer;
-    network: string
+    network: string,
+    test?: boolean
 }, callback?: () => Promise<any>) {
     let client = await params.signer.getAddress()
     let lendingPool = await getLendingPoolImpl(params.signer, params.network);
-    await lendingPool.borrow(
-        params.underlying, 
-        params.trancheId, 
-        params.amount, 
-        params.interestRateMode, 
-        params.referrer || 0, 
-        client
-    );
+    if (params.test) {
+        await lendingPool.borrow(
+            params.underlying, 
+            params.trancheId, 
+            params.amount, 
+            params.interestRateMode, 
+            params.referrer || 0, 
+            client,
+            {
+                gasLimit: "8000000"
+            }
+        );
+    } else {
+        await lendingPool.borrow(
+            params.underlying, 
+            params.trancheId, 
+            params.amount, 
+            params.interestRateMode, 
+            params.referrer || 0, 
+            client,
+        );
+    }
 
     if (callback) {
         await callback().catch((error) => { console.error("CALLBACK_ERROR: \n", error)});

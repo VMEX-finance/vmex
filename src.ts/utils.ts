@@ -58,3 +58,4 @@ export async function getReserveData(signer: ethers.Signer, network: string, ass
     let lendingPool = await getLendingPoolImpl(signer, network);
     return await lendingPool.getReserveData(asset, tranche)
 }
+

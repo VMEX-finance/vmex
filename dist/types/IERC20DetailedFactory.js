@@ -235,3 +235,4 @@ const _abi = [
         type: "function",
     },
 ];
+//# sourceMappingURL=IERC20DetailedFactory.js.map

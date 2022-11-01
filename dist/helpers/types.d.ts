@@ -45,6 +45,8 @@ export declare enum eContractid {
     curveOracle = "curveOracle",
     curveWrapper = "curveWrapper",
     vMath = "vMath",
+    vStrategyHelper = "vStrategyHelper",
+    tricrypto2Strategy = "tricrypto2Strategy",
     LendingPoolAddressesProvider = "LendingPoolAddressesProvider",
     MintableERC20 = "MintableERC20",
     MintableDelegationERC20 = "MintableDelegationERC20",
@@ -296,14 +298,27 @@ export declare enum TokenContractId {
     WMATIC = "WMATIC",
     STAKE = "STAKE",
     xSUSHI = "xSUSHI",
-    WAVAX = "WAVAX"
+    WAVAX = "WAVAX",
+    Tricrypto2 = "Tricrypto2",
+    ThreePool = "ThreePool",
+    StethEth = "StethEth",
+    Steth = "Steth",
+    FraxUSDC = "FraxUSDC",
+    Frax3Crv = "Frax3Crv",
+    Frax = "Frax",
+    BAL = "BAL",
+    CRV = "CRV",
+    CVX = "CVX",
+    BADGER = "BADGER",
+    LDO = "LDO",
+    ALCX = "ALCX",
+    Oneinch = "Oneinch"
 }
 export interface IReserveParams extends IReserveBorrowParams, IReserveCollateralParams {
     aTokenImpl: eContractid;
     reserveFactor: string;
     strategy: IInterestRateStrategyParams;
     collateralCap: string;
-    hasStrategy: boolean;
     usingGovernanceSetInterestRate: boolean;
     governanceSetInterestRate: string;
 }
