@@ -2,19 +2,14 @@ import { deployments } from "./constants";
 import "../artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
 import { BigNumber, ethers } from "ethers";
 import { getLendingPoolImpl, approveUnderlying } from "./utils";
-import {getUserData} from "../test-suites/test-aave/helpers/utils/helpers"
-import { ReserveData, UserReserveData } from "../test-suites/test-aave/helpers/utils/interfaces";
-import { getAaveProtocolDataProvider, getLendingPool, getLendingPoolConfiguratorProxy } from "../helpers/contracts-getters";
-import { Address } from "defender-relay-client/lib/relayer";
-import {UserAccountData} from "../localhost_tests/interfaces"
 //PROTOCOL ANALYTICS
-export async function totalValueLocked(params?: {
-    network: string;
-    test: boolean;
-}, callback?: () => Promise<UserReserveData>) {
-    let lendingPool = await getLendingPool();
-    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-}
+// export async function totalValueLocked(params?: {
+//     network: string;
+//     test: boolean;
+// }, callback?: () => Promise<UserReserveData>) {
+//     let lendingPool = await getLendingPool();
+//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
+// }
 
 /**
  * userAggregatedTrancheData
@@ -62,23 +57,23 @@ export async function userTrancheBalances( params: {
  * @params { signer: ethers.Signer, underlying: address, network?: string }
  */
 
-export async function totalTranches(params?: {
-    network: string;
-    test: boolean;
-}, callback?: () => Promise<BigNumber>) {
-    let configurator = await getLendingPoolConfiguratorProxy();
-    return configurator.totalTranches;
-    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-}
+// export async function totalTranches(params?: {
+//     network: string;
+//     test: boolean;
+// }, callback?: () => Promise<BigNumber>) {
+//     let configurator = await getLendingPoolConfiguratorProxy();
+//     return configurator.totalTranches;
+//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
+// }
 
-export async function totalMarkets(params?: {
-    network: string;
-    test: boolean;
-}, callback?: () => Promise<BigNumber>) {
-    let configurator = await getLendingPoolConfiguratorProxy();
-    return configurator.totalTranches;
-    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-}
+// export async function totalMarkets(params?: {
+//     network: string;
+//     test: boolean;
+// }, callback?: () => Promise<BigNumber>) {
+//     let configurator = await getLendingPoolConfiguratorProxy();
+//     return configurator.totalTranches;
+//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
+// }
 
 //tranche level
 
