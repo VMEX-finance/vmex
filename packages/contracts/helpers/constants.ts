@@ -71,7 +71,6 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   BptBALWETH: oneEther.multipliedBy("22.407436").toFixed(),
   WMATIC: oneEther.multipliedBy("0.003620948469").toFixed(),
   STAKE: oneEther.multipliedBy("0.003620948469").toFixed(),
-  xSUSHI: oneEther.multipliedBy("0.00913428586").toFixed(),
   WAVAX: oneEther.multipliedBy("0.006051936629").toFixed(),
   USD: "5848466240000000",
   Tricrypto2: oneEther.toFixed(), //this should not be used, just placed here to compile
