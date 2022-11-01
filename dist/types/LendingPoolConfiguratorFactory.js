@@ -6,8 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LendingPoolConfiguratorFactory = void 0;
 const contracts_1 = require("@ethersproject/contracts");
 class LendingPoolConfiguratorFactory extends contracts_1.ContractFactory {
-    constructor(signer) {
-        super(_abi, _bytecode, signer);
+    constructor(linkLibraryAddresses, signer) {
+        super(_abi, LendingPoolConfiguratorFactory.linkBytecode(linkLibraryAddresses), signer);
+    }
+    static linkBytecode(linkLibraryAddresses) {
+        let linkedBytecode = _bytecode;
+        linkedBytecode = linkedBytecode.replace(new RegExp("__\\$1a4ab84be2d7625b6f21850c42bc00346a\\$__", "g"), linkLibraryAddresses["__$1a4ab84be2d7625b6f21850c42bc00346a$__"]
+            .replace(/^0x/, "")
+            .toLowerCase());
+        return linkedBytecode;
     }
     deploy(overrides) {
         return super.deploy(overrides || {});
@@ -538,9 +545,9 @@ const _abi = [
     {
         inputs: [
             {
-                internalType: "uint64",
-                name: "trancheId",
-                type: "uint64",
+                internalType: "string",
+                name: "name",
+                type: "string",
             },
             {
                 internalType: "address",
@@ -554,7 +561,13 @@ const _abi = [
             },
         ],
         name: "claimTrancheId",
-        outputs: [],
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "trancheId",
+                type: "uint256",
+            },
+        ],
         stateMutability: "nonpayable",
         type: "function",
     },
@@ -769,6 +782,38 @@ const _abi = [
         name: "setReserveInterestRateStrategyAddress",
         outputs: [],
         stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "totalTranches",
+        outputs: [
+            {
+                internalType: "uint64",
+                name: "",
+                type: "uint64",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "uint64",
+                name: "",
+                type: "uint64",
+            },
+        ],
+        name: "trancheNames",
+        outputs: [
+            {
+                internalType: "string",
+                name: "",
+                type: "string",
+            },
+        ],
+        stateMutability: "view",
         type: "function",
     },
     {
