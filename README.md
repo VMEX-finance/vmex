@@ -2,26 +2,6 @@
 
 Run `yarn install` to install node_modules or update them
 
-Clone a local copy of the strategies
-`git clone https://github.com/VMEX-finance/lending_pool_strategies.git`
-
-Run the following inside the strategies:
-
-```
-yarn install
-git submodule update --init --recursive
-yarn link
-yarn compile
-```
-
-Then run in this repo: `yarn link "@vmex/lending_pool_strategies"`
-
-Then, link this repo with the strategies repo:
-
-In this repo run: `yarn link`
-
-In strategies repo run: `yarn link "@vmex/contracts"`
-
 ### How to deploy:
 
 run `yarn vmex:node:fork:main` in one terminal (starts up localhost network) as a fork

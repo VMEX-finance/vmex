@@ -15,7 +15,7 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 
-import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+import {IBaseStrategy} from "../../../interfaces/IBaseStrategy.sol";
 
 /**
  * @title ReserveLogic library
