@@ -354,23 +354,6 @@ export const strategyZRX: IReserveParams = {
   governanceSetInterestRate: '0'
 };
 
-export const strategyXSUSHI: IReserveParams = {
-  strategy: rateStrategyVolatileFour,
-  baseLTVAsCollateral: '2500',
-  liquidationThreshold: '4500',
-  liquidationBonus: '11500',
-  borrowingEnabled: true,
-  stableBorrowRateEnabled: false,
-  reserveDecimals: '18',
-  aTokenImpl: eContractid.AToken,
-  reserveFactor: '3500',
-  assetType: 0,
-  collateralCap: '1000000000000000000000000', //1,000,000
-  hasStrategy: false,
-  usingGovernanceSetInterestRate: false,
-  governanceSetInterestRate: '0'
-};
-
 export const strategySTETH: IReserveParams = {
   strategy: rateStrategyVolatileFour,
   baseLTVAsCollateral: '2500',
