@@ -41,7 +41,7 @@ export const strategyDAI: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
   assetType: 0,
-  collateralCap: '1000000000000000000', //1 (for testing)
+  collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
   governanceSetInterestRate: '0'
@@ -354,22 +354,6 @@ export const strategyZRX: IReserveParams = {
   governanceSetInterestRate: '0'
 };
 
-export const strategyXSUSHI: IReserveParams = {
-  strategy: rateStrategyVolatileFour,
-  baseLTVAsCollateral: '2500',
-  liquidationThreshold: '4500',
-  liquidationBonus: '11500',
-  borrowingEnabled: true,
-  stableBorrowRateEnabled: false,
-  reserveDecimals: '18',
-  aTokenImpl: eContractid.AToken,
-  reserveFactor: '3500',
-  assetType: 0,
-  collateralCap: '1000000000000000000000000', //1,000,000
-  hasStrategy: false,
-  usingGovernanceSetInterestRate: false,
-  governanceSetInterestRate: '0'
-};
 
 export const strategySTETH: IReserveParams = {
   strategy: rateStrategyVolatileFour,
@@ -415,7 +399,7 @@ export const strategyBAL: IReserveParams = {
   reserveDecimals: '18', //checked
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  assetType: 0, 
+  assetType: 0,
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -432,7 +416,7 @@ export const strategyCRV: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  assetType: 0, 
+  assetType: 0,
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: true,
   usingGovernanceSetInterestRate: false,
@@ -449,7 +433,7 @@ export const strategyCVX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  assetType: 0, 
+  assetType: 0,
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: true,
   usingGovernanceSetInterestRate: false,
@@ -466,7 +450,7 @@ export const strategyBADGER: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  assetType: 0, 
+  assetType: 0,
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -483,7 +467,7 @@ export const strategyLDO: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  assetType: 0, 
+  assetType: 0,
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -500,7 +484,7 @@ export const strategyALCX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  assetType: 0, 
+  assetType: 0,
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -517,7 +501,7 @@ export const strategyOneinch: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
-  assetType: 0, 
+  assetType: 0,
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -538,6 +522,6 @@ export const strategyCurveLPToken: IReserveParams = {
   collateralCap: '1000000000000000000000000', //1,000,000
   hasStrategy: true,
   usingGovernanceSetInterestRate: true, //will use governance set rates at first?
-  governanceSetInterestRate: '10000000000000000000000000' //1% APY in ray is 0.01 RAY = 
+  governanceSetInterestRate: '10000000000000000000000000' //1% APY in ray is 0.01 RAY =
 };
 

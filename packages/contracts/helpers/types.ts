@@ -266,7 +266,6 @@ export interface iAssetBase<T> {
   BptBALWETH: T;
   WMATIC: T;
   STAKE: T;
-  xSUSHI: T;
   WAVAX: T;
   Tricrypto2: T;
   ThreePool: T;
@@ -311,7 +310,6 @@ export type iAavePoolAssets<T> = Partial<
     | "UNI"
     | "REN"
     | "ENJ"
-    | "xSUSHI"
     | "Tricrypto2"
     | "ThreePool"
     | "StethEth"
@@ -415,7 +413,6 @@ export enum TokenContractId {
   BptBALWETH = "BptBALWETH",
   WMATIC = "WMATIC",
   STAKE = "STAKE",
-  xSUSHI = "xSUSHI",
   WAVAX = "WAVAX",
   Tricrypto2 = "Tricrypto2",
   ThreePool = "ThreePool",

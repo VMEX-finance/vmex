@@ -23,7 +23,6 @@ import {
   strategyWBTC,
   strategyWETH,
   strategyYFI,
-  strategyXSUSHI,
   strategyENJ,
   strategyCurveLPToken,
   strategySTETH,
@@ -67,7 +66,6 @@ export const AaveConfig: IAaveConfiguration = {
     WETH: strategyWETH,
     YFI: strategyYFI,
     ZRX: strategyZRX,
-    xSUSHI: strategyXSUSHI,
   },
   ReserveAssets: {
     [eEthereumNetwork.buidlerevm]: {},
@@ -140,7 +138,6 @@ export const AaveConfig: IAaveConfiguration = {
       WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       YFI: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
       ZRX: '0xE41d2489571d322189246DaFA5ebDe1F4699F498',
-      xSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
@@ -163,7 +160,6 @@ export const AaveConfig: IAaveConfiguration = {
       WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       YFI: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
       ZRX: '0xE41d2489571d322189246DaFA5ebDe1F4699F498',
-      xSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
   },
 },
 };
