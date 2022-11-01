@@ -191,3 +191,7 @@ export const getQuoteCurrency = async (config: IBaseConfiguration) => {
       throw `Quote ${config.OracleQuoteCurrency} currency not set. Add a new case to getQuoteCurrency switch`;
   }
 };
+
+// if testing strategies, make sure to have to comment out cvx, crv, underlying
+// token allow all inside CrvLpStrategy.sol, otherwise setup fails for all tests
+export const isHardhatTestingStrategies = false;

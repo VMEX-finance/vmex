@@ -63,13 +63,12 @@ import {
   UiPoolDataProviderV2V3Factory,
   UiIncentiveDataProviderV2V3,
   UiIncentiveDataProviderV2Factory,
+  BoosterFactory,
+  BaseRewardPoolFactory,
+  VStrategyHelperFactory,
+  CrvLpStrategyFactory,
 } from "../types";
-import {
-  // VMath__factory,
-  VStrategyHelper__factory,
-} from "@vmex/lending_pool_strategies/types/factories/src/deps/vmex/libs";
-import { CrvLpStrategy__factory } from "@vmex/lending_pool_strategies/types/factories/src/strats";
-import { CrvLpStrategyLibraryAddresses } from "@vmex/lending_pool_strategies/types/factories/src/strats/CrvLpStrategy__factory";
+import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
   withSaveAndVerify,
   registerContractInJsonDb,
@@ -456,7 +455,7 @@ export const deployvMath = async (verify?: boolean) =>
 
 export const deployvStrategyHelper = async (verify?: boolean) =>
   withSaveAndVerify(
-    await new VStrategyHelper__factory(await getFirstSigner()).deploy(),
+    await new VStrategyHelperFactory(await getFirstSigner()).deploy(),
     eContractid.vStrategyHelper,
     [],
     verify
@@ -467,17 +466,15 @@ export const deployStrategyLibraries = async (
 ): Promise<CrvLpStrategyLibraryAddresses> => {
   // TODO: pull this out of db instead
   // const vMath = getContractAddressWithJsonFallback(eContractid.vMath, DRE.network.name);
-  const vMath = await deployvMath();
   const vStrategyHelper = await deployvStrategyHelper();
   return {
-    ["src/deps/vmex/libs/vStrategyHelper.sol:vStrategyHelper"]:
-      vStrategyHelper.address,
+    ["__$7512de7f1b86abca670bc1676b640da4fd$__"]: vStrategyHelper.address,
   };
 };
 
 export const deployTricrypto2Strategy = async (verify?: boolean) => {
   const libraries = await deployStrategyLibraries(verify);
-  const tricrypto2StrategyImpl = await new CrvLpStrategy__factory(
+  const tricrypto2StrategyImpl = await new CrvLpStrategyFactory(
     libraries,
     await getFirstSigner()
   ).deploy();
@@ -488,6 +485,24 @@ export const deployTricrypto2Strategy = async (verify?: boolean) => {
   return withSaveAndVerify(
     tricrypto2StrategyImpl,
     eContractid.tricrypto2Strategy,
+    [],
+    verify
+  );
+};
+
+export const deployConvexBooster = async (verify?: boolean) => {
+  return await withSaveAndVerify(
+    await new BoosterFactory(await getFirstSigner()).deploy(),
+    eContractid.Booster,
+    [],
+    verify
+  );
+};
+
+export const deployConvexBaseRewardPool = async (verify?: boolean) => {
+  return await withSaveAndVerify(
+    await new BaseRewardPoolFactory(await getFirstSigner()).deploy(),
+    eContractid.BaseRewardPool,
     [],
     verify
   );
@@ -510,12 +525,12 @@ export const deployCurveOracle = async (verify?: boolean) => {
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
-    eContractid.curveOracle,
+    eContractid.CurveOracle,
     curveOracleImpl.address
   );
   return withSaveAndVerify(
     curveOracleImpl,
-    eContractid.curveOracle,
+    eContractid.CurveOracle,
     [],
     verify
   );
@@ -532,12 +547,12 @@ export const deployCurveOracleWrapper = async (
     await getFirstSigner()
   ).deploy(addressProvider, fallbackOracle, baseCurrency, baseCurrencyUnit);
   await insertContractAddressInDb(
-    eContractid.curveWrapper,
+    eContractid.CurveWrapper,
     curveOracleWrapper.address
   );
   return withSaveAndVerify(
     curveOracleWrapper,
-    eContractid.curveWrapper,
+    eContractid.CurveWrapper,
     [],
     verify
   );
@@ -1155,31 +1170,3 @@ export const deployParaSwapLiquiditySwapAdapter = async (
     args,
     verify
   );
-
-// export const deployStrategyLibraries = async (
-//     verify?: boolean
-//   ): Promise<CurveOracleV2LibraryAddresses> => {
-//     const vMath = await deployvMath(verify);
-
-//     return {
-//       ["__$fc961522ee25e21dc45bf9241cf35e1d80$__"]: vMath.address,
-//     };
-//   };
-
-// export const deployCurveLPStrategy = async (verify?: boolean) => {
-//     const libraries = await deployStrategyLibraries(verify);
-//     const curveOracleImpl = await new CurveOracleV2Factory(
-//       libraries,
-//       await getFirstSigner()
-//     ).deploy();
-//     await insertContractAddressInDb(
-//       eContractid.curveOracle,
-//       curveOracleImpl.address
-//     );
-//     return withSaveAndVerify(
-//       curveOracleImpl,
-//       eContractid.curveOracle,
-//       [],
-//       verify
-//     );
-//   };

@@ -11,7 +11,7 @@ import {ICurvePool} from "../../oracles/interfaces/ICurvePoolV1.sol";
 contract CurvePoolMocked is ICurvePool {
     uint256 virtual_price;
 
-    constructor(uint256 _virtual_price) public {
+    constructor(uint256 _virtual_price) {
         if (_virtual_price == 0) {
             _virtual_price = 1020000000000000000; //1.02 with 18 decimals
         }

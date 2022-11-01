@@ -10,8 +10,10 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
-import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title Aave ERC20 AToken
@@ -183,7 +185,9 @@ contract AToken is
 
         if (_strategy != address(0x0)) {
             // withdraw from strategy
+            console.log("trying to withdraw from strat", amount);
             IBaseStrategy(_strategy).withdraw(amount);
+            console.log("done");
 
             // NOTE: the strategist should adjust the supply to stay above 5%, however in the case where the strategist
             // is not able to adjust, the first user who wants to withdraw past 5% will pay the gas to fix the rate
