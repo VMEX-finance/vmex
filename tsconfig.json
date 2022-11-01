@@ -17,6 +17,7 @@
     "./artifacts"
   ],
   "exclude": [
+    "**/types/**/*",
     "**/test-suites/**/*",
     "**/markets/**/*",
     "**/modules",

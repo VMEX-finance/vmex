@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userCollateralInfo = exports.userInfo = exports.totalMarkets = exports.totalTranches = exports.userTrancheBalances = exports.userAggregatedTrancheData = exports.totalValueLocked = void 0;
+exports.userTrancheBalances = exports.userAggregatedTrancheData = void 0;
 const constants_1 = require("./constants");
 require("../artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json");
 const ethers_1 = require("ethers");
 const utils_1 = require("./utils");
-const helpers_1 = require("../test-suites/test-aave/helpers/utils/helpers");
-const contracts_getters_1 = require("../helpers/contracts-getters");
 //PROTOCOL ANALYTICS
-async function totalValueLocked(params, callback) {
-    let lendingPool = await (0, contracts_getters_1.getLendingPool)();
-    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-}
-exports.totalValueLocked = totalValueLocked;
+// export async function totalValueLocked(params?: {
+//     network: string;
+//     test: boolean;
+// }, callback?: () => Promise<UserReserveData>) {
+//     let lendingPool = await getLendingPool();
+//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
+// }
 /**
  * userAggregatedTrancheData
  * @params { signer: ethers.Signer, tranche: number, network?: string }
@@ -47,29 +47,33 @@ exports.userTrancheBalances = userTrancheBalances;
  * getUserReserveConfig
  * @params { signer: ethers.Signer, underlying: address, network?: string }
  */
-async function totalTranches(params, callback) {
-    let configurator = await (0, contracts_getters_1.getLendingPoolConfiguratorProxy)();
-    return configurator.totalTranches;
-    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-}
-exports.totalTranches = totalTranches;
-async function totalMarkets(params, callback) {
-    let configurator = await (0, contracts_getters_1.getLendingPoolConfiguratorProxy)();
-    return configurator.totalTranches;
-    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-}
-exports.totalMarkets = totalMarkets;
+// export async function totalTranches(params?: {
+//     network: string;
+//     test: boolean;
+// }, callback?: () => Promise<BigNumber>) {
+//     let configurator = await getLendingPoolConfiguratorProxy();
+//     return configurator.totalTranches;
+//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
+// }
+// export async function totalMarkets(params?: {
+//     network: string;
+//     test: boolean;
+// }, callback?: () => Promise<BigNumber>) {
+//     let configurator = await getLendingPoolConfiguratorProxy();
+//     return configurator.totalTranches;
+//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
+// }
 //tranche level
-//user level (querying by wallet address)
-async function userInfo(params, callback) {
-    let lendingPool = await (0, contracts_getters_1.getLendingPool)();
-    let helpersContract = await (0, contracts_getters_1.getAaveProtocolDataProvider)();
-    return (0, helpers_1.getUserData)(lendingPool, helpersContract, params.underlying, params.trancheId, await params.signer.getAddress());
-}
-exports.userInfo = userInfo;
-async function userCollateralInfo(params, callback) {
-    let lendingPool = await (0, contracts_getters_1.getLendingPool)();
-    return lendingPool.connect(params.signer).getUserAccountData(await params.signer.getAddress(), params.trancheId);
-}
-exports.userCollateralInfo = userCollateralInfo;
+// //user level (querying by wallet address)
+//  export async function userInfo(params: {
+//     underlying: string;
+//     trancheId: string;
+//     signer: ethers.Signer; //assume signer is also address that you want
+//     network?: string;
+//     test?: boolean;
+// }, callback?: () => Promise<UserReserveData>) {
+//     let lendingPool = await getLendingPool();
+//     let helpersContract = await getAaveProtocolDataProvider();
+//     return getUserData(lendingPool, helpersContract, params.underlying, params.trancheId, await params.signer.getAddress() );
+// }
 //# sourceMappingURL=analytics.js.map
