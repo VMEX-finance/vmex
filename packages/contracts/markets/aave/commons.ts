@@ -285,7 +285,6 @@ export const CommonsConfig: ICommonConfiguration = {
       YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
-      xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
       Tricrypto2: ZERO_ADDRESS, //this should not be used
       ThreePool: ZERO_ADDRESS, //this should not be used
       StethEth: ZERO_ADDRESS, //this should not be used
@@ -322,7 +321,6 @@ export const CommonsConfig: ICommonConfiguration = {
       YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
       USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
-      xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
       Tricrypto2: ZERO_ADDRESS, //this should not be used
       ThreePool: ZERO_ADDRESS, //this should not be used
       StethEth: ZERO_ADDRESS, //this should not be used

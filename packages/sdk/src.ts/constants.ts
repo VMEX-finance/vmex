@@ -19,7 +19,6 @@ export const TOKEN_PRICE = {
     YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
     ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
     USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
-    xSUSHI: '0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
 }
 
 export const TOKEN_PRICE_CONTRACTS = {
@@ -61,8 +60,6 @@ export const TOKEN_PRICE_CONTRACTS = {
     '0xA027702dbb89fbd58938e4324ac03B58d812b0E1'],
     ZRX: ['0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
     '0x2885d15b8Af22648b98B122b22FDF4D2a56c6023'],
-    xSUSHI: ['0x9b26214bEC078E68a394AaEbfbffF406Ce14893F',
-    '0xCC1f5d9e6956447630d703C8e93b2345c2DE3D13']
 };
 
 export const TOKEN_ADDR_MAINNET = {
@@ -85,7 +82,6 @@ export const TOKEN_ADDR_MAINNET = {
     WBTC: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     YFI: "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
     ZRX: "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
-    xSUSHI: "0xF256CC7847E919FAc9B808cC216cAc87CCF2f47a"    
 }
 
 type Token<T> = { [k in keyof T]?: {
@@ -173,10 +169,6 @@ export const TOKEN: Token<typeof TOKEN_PRICE> = {
     ['USD']: {
         address: "",
         decimals: "8"
-    },
-    ['xSUSHI']: {
-        address: "0xF256CC7847E919FAc9B808cC216cAc87CCF2f47a",
-        decimals: "18"
     }
 }
 
