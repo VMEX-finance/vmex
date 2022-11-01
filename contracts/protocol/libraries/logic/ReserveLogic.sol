@@ -15,7 +15,7 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 
-import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+import {IBaseStrategy} from "../../../interfaces/IBaseStrategy.sol";
 
 /**
  * @title ReserveLogic library
@@ -254,7 +254,7 @@ library ReserveLogic {
     ) internal {
         if (IAToken(reserve.aTokenAddress).getStrategy() != address(0)) {
             //has strategy
-            updateInterestRatesStrategy(reserve, reserveAddress, aTokenAddress);
+            updateInterestRatesStrategy(reserve, reserveAddress);
         } else {
             UpdateInterestRatesLocalVars memory vars;
             {
@@ -334,8 +334,7 @@ library ReserveLogic {
      **/
     function updateInterestRatesStrategy(
         DataTypes.ReserveData storage reserve,
-        address reserveAddress,
-        address aTokenAddress
+        address reserveAddress
     ) internal {
         address strategist = IAToken(reserve.aTokenAddress).getStrategy();
 

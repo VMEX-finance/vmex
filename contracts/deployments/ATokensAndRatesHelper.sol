@@ -248,4 +248,60 @@ contract ATokensAndRatesHelper is Ownable {
 
         emit ReserveUnfrozen(asset);
     }
+
+    // /**
+    //  * @dev Emitted when stable rate borrowing is enabled on a reserve
+    //  * @param asset The address of the underlying asset of the reserve
+    //  **/
+    // event StableRateEnabledOnReserve(address indexed asset);
+
+    // /**
+    //  * @dev Emitted when stable rate borrowing is disabled on a reserve
+    //  * @param asset The address of the underlying asset of the reserve
+    //  **/
+    // event StableRateDisabledOnReserve(address indexed asset);
+
+    // /**
+    //  * @dev Enable stable rate borrowing on a reserve
+    //  * @param asset The address of the underlying asset of the reserve
+    //  **/
+    // function enableReserveStableRate(address asset, uint64 trancheId)
+    //     external
+    //     onlyPoolAdmin(trancheId)
+    // {
+    //     DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+    //         pool
+    //     )
+    //         .getConfiguration(asset, trancheId);
+
+    //     currentConfig.setStableRateBorrowingEnabled(true);
+
+    //     ILendingPool(
+    //         pool
+    //     ).setConfiguration(asset, trancheId, currentConfig.data);
+
+    //     emit StableRateEnabledOnReserve(asset);
+    // }
+
+    // /**
+    //  * @dev Disable stable rate borrowing on a reserve
+    //  * @param asset The address of the underlying asset of the reserve
+    //  **/
+    // function disableReserveStableRate(address asset, uint64 trancheId)
+    //     external
+    //     onlyPoolAdmin(trancheId)
+    // {
+    //     DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+    //         pool
+    //     )
+    //         .getConfiguration(asset, trancheId);
+
+    //     currentConfig.setStableRateBorrowingEnabled(false);
+
+    //     ILendingPool(
+    //         pool
+    //     ).setConfiguration(asset, trancheId, currentConfig.data);
+
+    //     emit StableRateDisabledOnReserve(asset);
+    // }
 }

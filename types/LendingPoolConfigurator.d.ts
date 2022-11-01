@@ -26,7 +26,7 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     "addStrategy(address,uint64,address)": FunctionFragment;
     "addWhitelistedDepositBorrow(address)": FunctionFragment;
     "batchInitReserve(tuple[],uint64)": FunctionFragment;
-    "claimTrancheId(uint64,address,address)": FunctionFragment;
+    "claimTrancheId(string,address,address)": FunctionFragment;
     "configureReserveAsCollateral(address,uint64,uint256,uint256,uint256)": FunctionFragment;
     "deactivateReserve(address,uint64)": FunctionFragment;
     "disableBorrowingOnReserve(address,uint64)": FunctionFragment;
@@ -38,6 +38,8 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
     "setDefaultVMEXTreasury(address)": FunctionFragment;
     "setPoolPause(bool,uint64)": FunctionFragment;
     "setReserveInterestRateStrategyAddress(address,uint64,address)": FunctionFragment;
+    "totalTranches()": FunctionFragment;
+    "trancheNames(uint64)": FunctionFragment;
     "updateAToken(tuple,uint64)": FunctionFragment;
     "updateStableDebtToken(tuple,uint64)": FunctionFragment;
     "updateTreasuryAddress(address,address,uint64)": FunctionFragment;
@@ -88,7 +90,7 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "claimTrancheId",
-    values: [BigNumberish, string, string]
+    values: [string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "configureReserveAsCollateral",
@@ -130,6 +132,14 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setReserveInterestRateStrategyAddress",
     values: [string, BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalTranches",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "trancheNames",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "updateAToken",
@@ -249,6 +259,14 @@ interface LendingPoolConfiguratorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setReserveInterestRateStrategyAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalTranches",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "trancheNames",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -424,14 +442,14 @@ export class LendingPoolConfigurator extends Contract {
     ): Promise<ContractTransaction>;
 
     claimTrancheId(
-      trancheId: BigNumberish,
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "claimTrancheId(uint64,address,address)"(
-      trancheId: BigNumberish,
+    "claimTrancheId(string,address,address)"(
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: Overrides
@@ -574,6 +592,28 @@ export class LendingPoolConfigurator extends Contract {
       rateStrategyAddress: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
+
+    totalTranches(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
+
+    "totalTranches()"(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
+
+    trancheNames(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    "trancheNames(uint64)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
 
     updateAToken(
       input: {
@@ -795,14 +835,14 @@ export class LendingPoolConfigurator extends Contract {
   ): Promise<ContractTransaction>;
 
   claimTrancheId(
-    trancheId: BigNumberish,
+    name: string,
     admin: string,
     emergencyAdmin: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "claimTrancheId(uint64,address,address)"(
-    trancheId: BigNumberish,
+  "claimTrancheId(string,address,address)"(
+    name: string,
     admin: string,
     emergencyAdmin: string,
     overrides?: Overrides
@@ -945,6 +985,17 @@ export class LendingPoolConfigurator extends Contract {
     rateStrategyAddress: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
+
+  totalTranches(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "totalTranches()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  trancheNames(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  "trancheNames(uint64)"(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   updateAToken(
     input: {
@@ -1166,18 +1217,18 @@ export class LendingPoolConfigurator extends Contract {
     ): Promise<void>;
 
     claimTrancheId(
-      trancheId: BigNumberish,
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
-    "claimTrancheId(uint64,address,address)"(
-      trancheId: BigNumberish,
+    "claimTrancheId(string,address,address)"(
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     configureReserveAsCollateral(
       asset: string,
@@ -1313,6 +1364,20 @@ export class LendingPoolConfigurator extends Contract {
       rateStrategyAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    totalTranches(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "totalTranches()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    trancheNames(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "trancheNames(uint64)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     updateAToken(
       input: {
@@ -1602,14 +1667,14 @@ export class LendingPoolConfigurator extends Contract {
     ): Promise<BigNumber>;
 
     claimTrancheId(
-      trancheId: BigNumberish,
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "claimTrancheId(uint64,address,address)"(
-      trancheId: BigNumberish,
+    "claimTrancheId(string,address,address)"(
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: Overrides
@@ -1748,6 +1813,20 @@ export class LendingPoolConfigurator extends Contract {
       trancheId: BigNumberish,
       rateStrategyAddress: string,
       overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    totalTranches(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "totalTranches()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    trancheNames(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "trancheNames(uint64)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     updateAToken(
@@ -1971,14 +2050,14 @@ export class LendingPoolConfigurator extends Contract {
     ): Promise<PopulatedTransaction>;
 
     claimTrancheId(
-      trancheId: BigNumberish,
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "claimTrancheId(uint64,address,address)"(
-      trancheId: BigNumberish,
+    "claimTrancheId(string,address,address)"(
+      name: string,
       admin: string,
       emergencyAdmin: string,
       overrides?: Overrides
@@ -2120,6 +2199,20 @@ export class LendingPoolConfigurator extends Contract {
       trancheId: BigNumberish,
       rateStrategyAddress: string,
       overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    totalTranches(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "totalTranches()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    trancheNames(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "trancheNames(uint64)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     updateAToken(

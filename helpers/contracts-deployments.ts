@@ -49,6 +49,7 @@ import {
   ParaSwapLiquiditySwapAdapterFactory,
   PriceOracleFactory,
   ReserveLogicFactory,
+  DeployATokensFactory,
   SelfdestructTransferFactory,
   StableDebtTokenFactory,
   UniswapLiquiditySwapAdapterFactory,
@@ -62,13 +63,12 @@ import {
   UiPoolDataProviderV2V3Factory,
   UiIncentiveDataProviderV2V3,
   UiIncentiveDataProviderV2Factory,
+  BoosterFactory,
+  BaseRewardPoolFactory,
+  VStrategyHelperFactory,
+  CrvLpStrategyFactory,
 } from "../types";
-import {
-  // VMath__factory,
-  VStrategyHelper__factory,
-} from "@vmex/lending_pool_strategies/types/factories/src/deps/vmex/libs";
-import { CrvLpStrategy__factory } from "@vmex/lending_pool_strategies/types/factories/src/strats";
-import { CrvLpStrategyLibraryAddresses } from "@vmex/lending_pool_strategies/types/factories/src/strats/CrvLpStrategy__factory";
+import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
   withSaveAndVerify,
   registerContractInJsonDb,
@@ -84,6 +84,7 @@ import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
 import { readArtifact as buidlerReadArtifact } from "@nomiclabs/buidler/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendingPoolLibraryAddresses } from "../types/LendingPoolFactory";
+import { LendingPoolConfiguratorLibraryAddresses } from "../types/LendingPoolConfiguratorFactory";
 import { CurveOracleV2LibraryAddresses } from "../types/CurveOracleV2Factory";
 import { UiPoolDataProvider } from "../types";
 import { eNetwork } from "./types";
@@ -186,8 +187,40 @@ export const deployLendingPoolAddressesProviderRegistry = async (
     verify
   );
 
+export const deployATokenDeployer = async (verify?: boolean) =>
+  withSaveAndVerify(
+    await new DeployATokensFactory(await getFirstSigner()).deploy(),
+    eContractid.ReserveLogic,
+    [],
+    verify
+  );
+
+export const deployConfiguratorLibraries = async (
+  verify?: boolean
+): Promise<LendingPoolConfiguratorLibraryAddresses> => {
+  const atokendeployer = await deployATokenDeployer(verify);
+
+  // Hardcoded solidity placeholders, if any library changes path this will fail.
+  // The '__$PLACEHOLDER$__ can be calculated via solidity keccak, but the LendingPoolLibraryAddresses Type seems to
+  // require a hardcoded string.
+  //
+  //  how-to:
+  //  1. PLACEHOLDER = solidityKeccak256(['string'], `${libPath}:${libName}`).slice(2, 36)
+  //  2. LIB_PLACEHOLDER = `__$${PLACEHOLDER}$__`
+  // or grab placeholdes from LendingPoolLibraryAddresses at Typechain generation.
+  //
+  // libPath example: contracts/libraries/logic/GenericLogic.sol
+  // libName example: GenericLogic
+  // f1f6c0540507d7a73571ad55dbacf4a67d
+  return {
+    ["__$1a4ab84be2d7625b6f21850c42bc00346a$__"]: atokendeployer.address,
+  };
+};
+
 export const deployLendingPoolConfigurator = async (verify?: boolean) => {
+  const libraries = await deployConfiguratorLibraries(verify);
   const lendingPoolConfiguratorImpl = await new LendingPoolConfiguratorFactory(
+    libraries,
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
@@ -422,7 +455,7 @@ export const deployvMath = async (verify?: boolean) =>
 
 export const deployvStrategyHelper = async (verify?: boolean) =>
   withSaveAndVerify(
-    await new VStrategyHelper__factory(await getFirstSigner()).deploy(),
+    await new VStrategyHelperFactory(await getFirstSigner()).deploy(),
     eContractid.vStrategyHelper,
     [],
     verify
@@ -433,17 +466,15 @@ export const deployStrategyLibraries = async (
 ): Promise<CrvLpStrategyLibraryAddresses> => {
   // TODO: pull this out of db instead
   // const vMath = getContractAddressWithJsonFallback(eContractid.vMath, DRE.network.name);
-  const vMath = await deployvMath();
   const vStrategyHelper = await deployvStrategyHelper();
   return {
-    ["src/deps/vmex/libs/vStrategyHelper.sol:vStrategyHelper"]:
-      vStrategyHelper.address,
+    ["__$7512de7f1b86abca670bc1676b640da4fd$__"]: vStrategyHelper.address,
   };
 };
 
 export const deployTricrypto2Strategy = async (verify?: boolean) => {
   const libraries = await deployStrategyLibraries(verify);
-  const tricrypto2StrategyImpl = await new CrvLpStrategy__factory(
+  const tricrypto2StrategyImpl = await new CrvLpStrategyFactory(
     libraries,
     await getFirstSigner()
   ).deploy();
@@ -454,6 +485,24 @@ export const deployTricrypto2Strategy = async (verify?: boolean) => {
   return withSaveAndVerify(
     tricrypto2StrategyImpl,
     eContractid.tricrypto2Strategy,
+    [],
+    verify
+  );
+};
+
+export const deployConvexBooster = async (verify?: boolean) => {
+  return await withSaveAndVerify(
+    await new BoosterFactory(await getFirstSigner()).deploy(),
+    eContractid.Booster,
+    [],
+    verify
+  );
+};
+
+export const deployConvexBaseRewardPool = async (verify?: boolean) => {
+  return await withSaveAndVerify(
+    await new BaseRewardPoolFactory(await getFirstSigner()).deploy(),
+    eContractid.BaseRewardPool,
     [],
     verify
   );
@@ -476,12 +525,12 @@ export const deployCurveOracle = async (verify?: boolean) => {
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
-    eContractid.curveOracle,
+    eContractid.CurveOracle,
     curveOracleImpl.address
   );
   return withSaveAndVerify(
     curveOracleImpl,
-    eContractid.curveOracle,
+    eContractid.CurveOracle,
     [],
     verify
   );
@@ -498,12 +547,12 @@ export const deployCurveOracleWrapper = async (
     await getFirstSigner()
   ).deploy(addressProvider, fallbackOracle, baseCurrency, baseCurrencyUnit);
   await insertContractAddressInDb(
-    eContractid.curveWrapper,
+    eContractid.CurveWrapper,
     curveOracleWrapper.address
   );
   return withSaveAndVerify(
     curveOracleWrapper,
-    eContractid.curveWrapper,
+    eContractid.CurveWrapper,
     [],
     verify
   );
@@ -1121,31 +1170,3 @@ export const deployParaSwapLiquiditySwapAdapter = async (
     args,
     verify
   );
-
-// export const deployStrategyLibraries = async (
-//     verify?: boolean
-//   ): Promise<CurveOracleV2LibraryAddresses> => {
-//     const vMath = await deployvMath(verify);
-
-//     return {
-//       ["__$fc961522ee25e21dc45bf9241cf35e1d80$__"]: vMath.address,
-//     };
-//   };
-
-// export const deployCurveLPStrategy = async (verify?: boolean) => {
-//     const libraries = await deployStrategyLibraries(verify);
-//     const curveOracleImpl = await new CurveOracleV2Factory(
-//       libraries,
-//       await getFirstSigner()
-//     ).deploy();
-//     await insertContractAddressInDb(
-//       eContractid.curveOracle,
-//       curveOracleImpl.address
-//     );
-//     return withSaveAndVerify(
-//       curveOracleImpl,
-//       eContractid.curveOracle,
-//       [],
-//       verify
-//     );
-//   };

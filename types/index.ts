@@ -113,6 +113,8 @@ export { BaseImmutableAdminUpgradeabilityProxyFactory } from "./BaseImmutableAdm
 export type { BaseImmutableAdminUpgradeabilityProxy } from "./BaseImmutableAdminUpgradeabilityProxy";
 export { InitializableImmutableAdminUpgradeabilityProxyFactory } from "./InitializableImmutableAdminUpgradeabilityProxyFactory";
 export type { InitializableImmutableAdminUpgradeabilityProxy } from "./InitializableImmutableAdminUpgradeabilityProxy";
+export { DeployATokensFactory } from "./DeployATokensFactory";
+export type { DeployATokens } from "./DeployATokens";
 export { ErrorsFactory } from "./ErrorsFactory";
 export type { Errors } from "./Errors";
 export { DepositWithdrawLogicFactory } from "./DepositWithdrawLogicFactory";

@@ -36,21 +36,21 @@ export const getATokenExtraParams = async (
 };
 
 export const claimTrancheId = async (
-  trancheId: BigNumberish,
+  name: string,
   admin: SignerWithAddress,
   emergencyAdmin: SignerWithAddress
 ) => {
   const configurator = await getLendingPoolConfiguratorProxy();
 
-  await waitForTx(
+  let ret = await waitForTx(
     await configurator.claimTrancheId(
-      trancheId,
+      name,
       admin.address,
       emergencyAdmin.address
     )
   );
 
-  console.log(`-${trancheId} claimed for ${admin.address}`);
+  console.log(`-${ret}:${name} claimed for ${admin.address}`);
 };
 
 //create another initReserves that initializes the curve v2, or just use this.
