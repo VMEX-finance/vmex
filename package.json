@@ -5,6 +5,7 @@
   "repository": "https://github.com/vmex-finance/vmex",
   "private": true,
   "author": "VMEX-finance",
+  "license": "UNLICENSED",
   "workspaces": [
     "packages/*"
   ],
