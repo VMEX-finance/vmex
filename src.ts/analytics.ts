@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { ethers } from "ethers";
 import { deployments } from "./constants";
-import { getLendingPoolImpl, approveUnderlying } from "./utils";
 import "../artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
-=======
 import { BigNumber, ethers } from "ethers";
 import { getLendingPoolImpl, approveUnderlying } from "./utils";
 import {getUserData} from "../test-suites/test-aave/helpers/utils/helpers"
@@ -11,7 +7,6 @@ import { ReserveData, UserReserveData } from "../test-suites/test-aave/helpers/u
 import { getAaveProtocolDataProvider, getLendingPool, getLendingPoolConfiguratorProxy } from "../helpers/contracts-getters";
 import { Address } from "defender-relay-client/lib/relayer";
 import {UserAccountData} from "../localhost_tests/interfaces"
->>>>>>> f05afe350c38a0c58616e803b5ce3563efa4b4b0
 //PROTOCOL ANALYTICS
 export async function totalValueLocked(params?: {
     network: string;
@@ -20,7 +15,6 @@ export async function totalValueLocked(params?: {
     let lendingPool = await getLendingPool();
     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
 }
-<<<<<<< HEAD
 
 /**
  * userAggregatedTrancheData
@@ -67,8 +61,6 @@ export async function userTrancheBalances( params: {
  * getUserReserveConfig
  * @params { signer: ethers.Signer, underlying: address, network?: string }
  */
-=======
->>>>>>> f05afe350c38a0c58616e803b5ce3563efa4b4b0
 
 export async function totalTranches(params?: {
     network: string;
@@ -91,8 +83,6 @@ export async function totalMarkets(params?: {
 //tranche level
 
 
-<<<<<<< HEAD
-=======
 //user level (querying by wallet address)
  export async function userInfo(params: {
     underlying: string;
@@ -116,4 +106,3 @@ export async function userCollateralInfo(params: {
     let lendingPool = await getLendingPool();
     return lendingPool.connect(params.signer).getUserAccountData(await params.signer.getAddress(), params.trancheId);
 }
->>>>>>> f05afe350c38a0c58616e803b5ce3563efa4b4b0
