@@ -11,10 +11,9 @@ import {
   getLendingPoolAddressesProviderRegistry,
   getWETHMocked,
   getWETHGateway,
-  getUniswapLiquiditySwapAdapter,
-  getUniswapRepayAdapter,
-  getFlashLiquidationAdapter,
-  getParaSwapLiquiditySwapAdapter,
+  getTricrypto2Strategy,
+  getCurvePriceOracleWrapper,
+  getEmergencyAdmin,
 } from "../../../helpers/contracts-getters";
 import {
   eEthereumNetwork,
@@ -26,6 +25,7 @@ import { AaveProtocolDataProvider } from "../../../types/AaveProtocolDataProvide
 import { MintableERC20 } from "../../../types/MintableERC20";
 import { AToken } from "../../../types/AToken";
 import { LendingPoolConfigurator } from "../../../types/LendingPoolConfigurator";
+import { CrvLpStrategy } from "../../../types/CrvLpStrategy";
 
 import chai from "chai";
 // @ts-ignore
@@ -43,9 +43,10 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { FlashLiquidationAdapter } from "../../../types";
+import { CurveWrapper, FlashLiquidationAdapter } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
+import { isHardhatTestingStrategies } from "../../../helpers/configuration";
 
 chai.use(bignumberChai());
 chai.use(almostEqual());
@@ -61,6 +62,7 @@ export interface TestEnv {
   pool: LendingPool;
   configurator: LendingPoolConfigurator;
   oracle: PriceOracle;
+  curveOracle: CurveWrapper;
   helpersContract: AaveProtocolDataProvider;
   weth: WETH9Mocked;
   aWETH: AToken;
@@ -68,6 +70,8 @@ export interface TestEnv {
   aDai: AToken;
   usdc: MintableERC20;
   aave: MintableERC20;
+  tricrypto2: MintableERC20;
+  tricrypto2Strategy: CrvLpStrategy;
   addressesProvider: LendingPoolAddressesProvider;
   uniswapLiquiditySwapAdapter: UniswapLiquiditySwapAdapter;
   uniswapRepayAdapter: UniswapRepayAdapter;
@@ -89,12 +93,15 @@ const testEnv: TestEnv = {
   configurator: {} as LendingPoolConfigurator,
   helpersContract: {} as AaveProtocolDataProvider,
   oracle: {} as PriceOracle,
+  curveOracle: {} as CurveWrapper,
   weth: {} as WETH9Mocked,
   aWETH: {} as AToken,
   dai: {} as MintableERC20,
   aDai: {} as AToken,
   usdc: {} as MintableERC20,
   aave: {} as MintableERC20,
+  tricrypto2: {} as MintableERC20,
+  tricrypto2Strategy: {} as CrvLpStrategy,
   addressesProvider: {} as LendingPoolAddressesProvider,
   uniswapLiquiditySwapAdapter: {} as UniswapLiquiditySwapAdapter,
   uniswapRepayAdapter: {} as UniswapRepayAdapter,
@@ -134,33 +141,34 @@ export async function initializeMakeSuite() {
   } else {
     testEnv.registry = await getLendingPoolAddressesProviderRegistry();
     testEnv.oracle = await getPriceOracle();
+    testEnv.curveOracle = await getCurvePriceOracleWrapper();
   }
 
   testEnv.helpersContract = await getAaveProtocolDataProvider();
 
-  const allTokens = await testEnv.helpersContract.getAllATokens("0");
-  const aDaiAddress = allTokens.find(
+  const allTokensT0 = await testEnv.helpersContract.getAllATokens("0");
+  const aDaiAddress = allTokensT0.find(
     (aToken) => aToken.symbol === "aDAI0"
   )?.tokenAddress; //choose tranche
 
-  const aWEthAddress = allTokens.find(
+  const aWEthAddress = allTokensT0.find(
     (aToken) => aToken.symbol === "aWETH0"
   )?.tokenAddress;
 
-  const reservesTokens = await testEnv.helpersContract.getAllReservesTokens(
+  const reservesTokensT0 = await testEnv.helpersContract.getAllReservesTokens(
     "0"
   );
 
-  const daiAddress = reservesTokens.find(
+  const daiAddress = reservesTokensT0.find(
     (token) => token.symbol === "DAI"
   )?.tokenAddress;
-  const usdcAddress = reservesTokens.find(
+  const usdcAddress = reservesTokensT0.find(
     (token) => token.symbol === "USDC"
   )?.tokenAddress;
-  const aaveAddress = reservesTokens.find(
+  const aaveAddress = reservesTokensT0.find(
     (token) => token.symbol === "AAVE"
   )?.tokenAddress;
-  const wethAddress = reservesTokens.find(
+  const wethAddress = reservesTokensT0.find(
     (token) => token.symbol === "WETH"
   )?.tokenAddress;
   if (!aDaiAddress || !aWEthAddress) {
@@ -170,6 +178,21 @@ export async function initializeMakeSuite() {
     process.exit(1);
   }
 
+  const reservesTokensT1 = await testEnv.helpersContract.getAllReservesTokens(
+    "1"
+  );
+
+  const tricrypto2Address = reservesTokensT1.find(
+    (token) => token.symbol === "Tricrypto2"
+  )?.tokenAddress;
+
+  if (!tricrypto2Address) {
+    process.exit(1);
+  }
+
+  if (isHardhatTestingStrategies)
+    testEnv.tricrypto2Strategy = await getTricrypto2Strategy();
+
   testEnv.aDai = await getAToken(aDaiAddress);
   testEnv.aWETH = await getAToken(aWEthAddress);
 
@@ -178,6 +201,8 @@ export async function initializeMakeSuite() {
   testEnv.aave = await getMintableERC20(aaveAddress);
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
+
+  testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 
   //CURVE TODO: these are not deployed when running mainnet fork in localhost
   // testEnv.uniswapLiquiditySwapAdapter = await getUniswapLiquiditySwapAdapter();
