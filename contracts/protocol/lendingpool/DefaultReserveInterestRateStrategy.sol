@@ -11,7 +11,7 @@ import {ILendingRateOracle} from "../../interfaces/ILendingRateOracle.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 
-import {IBaseStrategy} from "@vmex/lending_pool_strategies/src/IBaseStrategy.sol";
+import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 
 /**
  * @title DefaultReserveInterestRateStrategy contract
@@ -133,7 +133,9 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         )
     {
         // this value is zero when strategy withdraws from atoken
-        uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(calvars.aToken);
+        uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(
+            calvars.aToken
+        );
         //avoid stack too deep
         {
             address strategyAddress = IAToken(calvars.aToken).getStrategy();
@@ -145,9 +147,9 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
                     IBaseStrategy(strategyAddress).balanceOf()
                 );
             }
-            availableLiquidity = availableLiquidity.add(calvars.liquidityAdded).sub(
-                calvars.liquidityTaken
-            );
+            availableLiquidity = availableLiquidity
+                .add(calvars.liquidityAdded)
+                .sub(calvars.liquidityTaken);
         }
 
         CalcInterestRatesLocalVars memory vars;
@@ -164,7 +166,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
                 addressesProvider.getLendingRateOracle()
             ).getMarketBorrowRate(calvars.reserve);
         }
-
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
             uint256 excessUtilizationRateRatio = vars
