@@ -14,6 +14,18 @@ interface IBaseStrategy {
         uint256 extraRewardsTended;
     }
 
+    event Tend (
+        TendData t
+    );
+
+    event InterestRateUpdated (
+        uint256 scaledAmount,
+        uint256 timeDifference,
+        uint256 p,
+        uint256 seconds_per_year,
+        uint256 r
+    );
+
     event SetWithdrawalMaxDeviationThreshold(uint256 newMaxDeviationThreshold);
 
     event StrategyPullFromLendingPool(address lendingPool, uint256 amount);
@@ -41,6 +53,11 @@ interface IBaseStrategy {
     function harvest() external returns (TokenAmount[] memory harvested);
 
     function tend() external returns (TendData memory);
+
+    // function tend() external returns (uint256 crvTended,
+    //     uint256 cvxTended,
+    //     uint256 cvxCrvTended,
+    //     uint256 extraRewardsTended);
 
     function getName() external returns (string memory);
 
