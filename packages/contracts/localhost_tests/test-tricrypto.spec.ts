@@ -112,12 +112,12 @@ makeSuite(
           const weth = new DRE.ethers.Contract(WETH_ADDR,WETH_ABI)
           var borrower = await contractGetters.getFirstSigner();
           //give borrower 100 WETH so he can get LP tokens
-          var options = {value: DRE.ethers.utils.parseEther("100.0")}
+          var options = {value: DRE.ethers.utils.parseEther("10000.0")}
           await weth.connect(borrower).deposit(options);
           var signerWeth = await weth.connect(borrower).balanceOf(borrower.address);
           expect(
             signerWeth.toString()
-          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("100.0"), "Did not get WETH");
+          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("10000.0"), "Did not get WETH");
         });
 
         it("deposit WETH", async () => {
@@ -128,22 +128,22 @@ makeSuite(
 
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
 
-          var options = {value: DRE.ethers.utils.parseEther("1000.0")}
+          var options = {value: DRE.ethers.utils.parseEther("10000.0")}
           await weth.connect(emergency).deposit(options);
           var signerWeth = await weth.connect(emergency).balanceOf(emergency.address);
 
           expect(
             signerWeth.toString()
-          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1000.0"), "Did not get WETH");
+          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("10000.0"), "Did not get WETH");
 
-          await weth.connect(emergency).approve(lendingPool.address,DRE.ethers.utils.parseEther("1000.0"))
+          await weth.connect(emergency).approve(lendingPool.address,DRE.ethers.utils.parseEther("10000.0"))
 
-          await lendingPool.connect(emergency).deposit(weth.address, TRANCHE, DRE.ethers.utils.parseUnits('100'), await emergency.getAddress(), '0');
+          await lendingPool.connect(emergency).deposit(weth.address, TRANCHE, DRE.ethers.utils.parseUnits('1000'), await emergency.getAddress(), '0');
           const resDat = await dataProv.getReserveData(weth.address, TRANCHE)
 
           expect(
             resDat.availableLiquidity.toString()
-          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("100.0"), "Did not get WETH");
+          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1000.0"), "Did not get WETH");
         });
 
         it("get LP tokens", async () => {
@@ -156,9 +156,9 @@ makeSuite(
           var amounts = [
             DRE.ethers.utils.parseEther("0"),
             DRE.ethers.utils.parseEther("0"),
-            DRE.ethers.utils.parseEther("10.0")]
+            DRE.ethers.utils.parseEther("10000.0")]
 
-          await weth.connect(borrower).approve(triCryptoDeposit.address,DRE.ethers.utils.parseEther("100.0"))
+          await weth.connect(borrower).approve(triCryptoDeposit.address,DRE.ethers.utils.parseEther("10000.0"))
 
           await triCryptoDeposit.connect(borrower).add_liquidity(amounts,DRE.ethers.utils.parseEther("10"))
 
@@ -173,15 +173,17 @@ makeSuite(
           ).to.not.be.equal("0", "Did not get curve"); //this can be general, we assume that curve's stuff is correct
         });
 
-        it("deposit 1 LP and borrow WETH", async () => {
+        it("deposit 100 LP and borrow WETH", async () => {
           //emergency deposits 100 WETH to pool to provide liquidity
           const weth = new DRE.ethers.Contract(WETH_ADDR,WETH_ABI)
           const borrower = await contractGetters.getFirstSigner();
           const lendingPool = await contractGetters.getLendingPool();
-          const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI)
+          const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI);
 
-          await tricrypto2Token.connect(borrower).approve(lendingPool.address,DRE.ethers.utils.parseEther("1000.0"))
-          await lendingPool.connect(borrower).deposit(tricrypto2Token.address, TRANCHE, DRE.ethers.utils.parseUnits('1'), await borrower.getAddress(), '0');
+          const amountTricryptoToDeposit = "100";
+
+          await tricrypto2Token.connect(borrower).approve(lendingPool.address,DRE.ethers.utils.parseEther("1000"))
+          await lendingPool.connect(borrower).deposit(tricrypto2Token.address, TRANCHE, DRE.ethers.utils.parseUnits(amountTricryptoToDeposit), await borrower.getAddress(), '0');
           await lendingPool.connect(borrower).setUserUseReserveAsCollateral(tricrypto2Token.address, TRANCHE, true);
 
           var userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
@@ -213,7 +215,7 @@ makeSuite(
           console.log("pricePerToken: ",pricePerToken)
           expect(
             userData.totalCollateralETH.toString()
-            ).to.be.bignumber.equal(pricePerToken.toString(), "Did not deposit tricypto2");
+            ).to.be.bignumber.equal(pricePerToken.mul(amountTricryptoToDeposit).toString(), "Did not deposit tricypto2");
 
           console.log("availableBorrowsETH: ",userData.availableBorrowsETH)
           const amountWETHToBorrow =
@@ -282,14 +284,22 @@ makeSuite(
           const emergency = (await DRE.ethers.getSigners())[1];
           const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI);
 
-          await increaseTime(41000000);
-          // 2800000 (1 month)- passes
-          // 4000000 - passes
+          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+          console.log("USER DATA BEFORE WAITING LONG TIME: ", userData);
+
+          await increaseTime(4100000);
+          // 2800000 (1 month)- pass
+          // 4000000 - pass
           // 4100000 - fails
+
+          userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+          console.log("USER DATA AFTER WAITING LONG TIME: ", userData);
 
           // // updates state of weth and tricrypto2 reserve
           await lendingPool.connect(emergency).deposit(WETH_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('1'), await emergency.getAddress(), '0');
-          await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.0000001'), await borrower.getAddress(), '0');
+          console.log("after emergency deposit");
+          await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.001'), await borrower.getAddress(), '0');
+          console.log("after borrower deposit");
 
           let userDataBeforeWithdraw = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
           console.log("USER DATA BEFORE WITHDRAW: ", userDataBeforeWithdraw);
@@ -298,7 +308,7 @@ makeSuite(
             .withdraw(
               tricrypto2Token.address,
               TRANCHE,
-              DRE.ethers.utils.parseUnits('0.1'),
+              DRE.ethers.utils.parseUnits('1'),
               await borrower.getAddress());
 
 
