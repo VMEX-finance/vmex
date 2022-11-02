@@ -651,6 +651,19 @@ contract LendingPool is
         return _reserves[asset][trancheId];
     }
 
+    /**
+     * @dev Sets the liquidity index calculated from strategy
+     **/
+    function setReserveDataLI(address asset, uint64 trancheId, uint128 newLiquidityIndex)
+        external
+        override
+    {
+        //onlyStrategy modifier
+        DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
+        require(msg.sender == IAToken(reserve.aTokenAddress).getStrategy(), "Caller must be strategy that is attached to the reserve" );
+        reserve.liquidityIndex = newLiquidityIndex;
+    }
+
     function getAssetData(address asset)
         external
         view
