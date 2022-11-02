@@ -446,4 +446,7 @@ interface ILendingPool {
         uint64 trancheId,
         uint256 amount
     ) external;
+
+    function setReserveDataLI(address asset, uint64 trancheId, uint128 newLiquidityIndex)
+        external;
 }

@@ -9,6 +9,7 @@ import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
 import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
+import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
 chai.use(function (chai: any, utils: any) {
   chai.Assertion.overwriteMethod(
     "almostEqualOrEqual",
@@ -31,6 +32,7 @@ before(async () => {
 makeSuite(
     "Tricrypto2 ",
     () => {
+      const reserveFactor = BigNumber.from(1000);
       const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');
         const contractGetters = require('../helpers/contracts-getters.ts');
@@ -131,6 +133,7 @@ makeSuite(
 
           await CurveToken.connect(signer).approve(lendingPool.address,DRE.ethers.utils.parseEther("1000.0"))
           await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('1'), await signer.getAddress(), '0');
+          await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.5'), await emergency.getAddress(), '0');
 
           const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
@@ -145,6 +148,8 @@ makeSuite(
           console.log("pricePerToken: ",pricePerToken)
 
           await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true);
+
+          
         });
 
         it("strategy pulls LP and invests", async () => {
@@ -180,7 +185,7 @@ makeSuite(
           const aTokenHolds = await CurveToken2.connect(signer).balanceOf(vTokenAddress); //this is seeing how much tricrypto the vTokenAddress is holding
           console.log("atoken is holding : ", aTokenHolds);
 
-          expect(aTokenHolds.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "Did not deposit tricypto2")
+          expect(aTokenHolds.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.5"), "Did not deposit tricypto2")
 
           const amount = await strategy.connect(signer).pull();
 
@@ -195,7 +200,7 @@ makeSuite(
 
           console.log("strategy boosted balance: " + origBalance);
 
-          expect(origBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "Did not transfer tricypto2 to the booster")
+          expect(origBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.5"), "Did not transfer tricypto2 to the booster")
 
           // check that the user is still healthy after strategy withdraws
           var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
@@ -213,110 +218,113 @@ makeSuite(
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
           var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
 
-          var strategyStartBoostedBalance = await strategy.balanceOfPool();
-          console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
-          expect(strategyStartBoostedBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "Booster starts with one");
           
-          var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
-          expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "User still needs the aTokens of original deposit");
 
-          var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
-          expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0"), "Admin starts with nothing");
-
-          // increase time by 24 hours
-          await DRE.ethers.provider.send("evm_increaseTime", [86400])
-
-          // var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData("0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c",1)
-          // console.log("VMEX ADMIN DATA before tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
-
-          expect(await strategy.calculateAverageRate()).to.be.bignumber.equal(BigNumber.from("0"), "rate starts at zero");
-          console.log("before tend: ");
-          var tendData = await strategy.tend(); //this will update the interest rate
-
-          expect(await strategy.calculateAverageRate()).to.be.bignumber.equal(BigNumber.from("15523416873587429285714285"), "rate is now not zero"); //again this might be different with different block to fork
+          // var strategyStartBoostedBalance = await strategy.balanceOfPool();
+          // console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
+          // expect(strategyStartBoostedBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.5"), "Booster starts with one");
           
-          // increase time by 24 hours
-          await DRE.ethers.provider.send("evm_increaseTime", [86400]) 
-          console.log("after tend: ");
-          await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.001'), await emergencyAdmin.getAddress(), '0'); //deposit something for emergency so reserve rates are updated
+          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
+          // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "User still needs the aTokens of original deposit");
 
-          var strategyBoostedBalance = await strategy.balanceOfPool();
-
-          console.log("strategyBoostedBalance: ",strategyBoostedBalance)
-
-          expect(strategyBoostedBalance).to.be.bignumber.equal(BigNumber.from("1000297709364698937")); //note this might fail if we are using another block to fork
+          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+          // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0"), "Admin starts with nothing");
 
           
-          var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
-          //can't hardcode these values since based on current timestamp, it might be a bit more or less?
-          //.div(BigNumber.from("10000000000")) is to round to account for those errors
-          expect(userReserveData.currentATokenBalance.div(BigNumber.from("100000000000"))).to.be.bignumber.equal(BigNumber.from("1000076558709855637").div(BigNumber.from("100000000000")), "Admin gets 10% of the tricrypto generated");  //user doesn't exactly have the other portion of aTokens since it's based on a moving average
 
-          var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
-          
-        //   strategyBoostedBalance.sub(DRE.ethers.utils.parseEther("1")).div(10)//not exactly 10% since the 24 hour interest is also applied
-          expect(userReserveData.currentATokenBalance.div(BigNumber.from("1000000"))).to.be.bignumber.equal(BigNumber.from("29773215694381").div(BigNumber.from("1000000")), "Admin gets 10% of the tricrypto generated"); 
+          const tricrypto2Tranch1ATokenAddress =
+            (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
+          // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
 
+          const tricrypto2Tranch1AToken =
+            await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
+
+            for(let i = 0; i<3;i++){
+                var strategyStartBoostedBalance = await strategy.balanceOfPool();
+                console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
+                // increase time by 24 hours
+                await DRE.ethers.provider.send("evm_increaseTime", [86400])
+                const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
+
+                var userReserveDataSignerBefore = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
+                var userReserveDataEmergBefore = await dataProv.getUserReserveData(CurveToken.address, 1, emergencyAdmin.address);
+                var userReserveDataAdminBefore = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+
+                var signerStake = calculateUserStake(userReserveDataSignerBefore.currentATokenBalance, aTokenBalance )
+                var emergStake = calculateUserStake(userReserveDataEmergBefore.currentATokenBalance, aTokenBalance )
+                var adminStake = calculateUserStake(userReserveDataAdminBefore.currentATokenBalance, aTokenBalance)
+
+                console.log("signerStake: ", signerStake)
+                var tendData = (await strategy.tend()); //this will update the interest rate
+                // var rc = await tendData.wait();
+                // var event = rc.events.find(event => event.event === 'InterestRateUpdated');
+                // console.log("InterestRateUpdated data: ",event)
+
+                var strategyBoostedBalance = await strategy.balanceOfPool();
+
+                console.log("strategyBoostedBalance: ",strategyBoostedBalance)
+
+                expect(strategyBoostedBalance).to.be.not.bignumber.equal(BigNumber.from("0")); //note this might fail if we are using another block to fork.  1000297709364698937
+
+                
+                var userReserveDataSigner = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
+                
+                console.log("signer userReserveData.currentATokenBalance: ",userReserveDataSigner.currentATokenBalance )
+                var actualSignerInterest = userReserveDataSigner.currentATokenBalance.sub(userReserveDataSignerBefore.currentATokenBalance);
+                var expectedSignerInterest = calculateExpectedInterest(strategyBoostedBalance, strategyStartBoostedBalance, reserveFactor, signerStake);
+                expect(actualSignerInterest
+                  .sub(expectedSignerInterest).toNumber())
+                  .to.be.lessThan(10).and.greaterThan(-10);
+                
+                var actualSignerRate = actualSignerInterest.mul("1000000000000000000000000000").div(userReserveDataSignerBefore.currentATokenBalance).mul(365)
+                var expectedSignerRate = await strategy.getLatestRate();
+                console.log("actualSignerRate: ", actualSignerRate)
+                console.log("expectedSignerRate: ", expectedSignerRate)
+                if(i!=0){
+                  expect(actualSignerRate.div("1000000000000000000000000")
+                  .sub(expectedSignerRate.div("1000000000000000000000000")).toNumber())
+                  .to.be.lessThan(10).and.greaterThan(-10);
+                }
+                
+
+                
+                var userReserveDataEmerg = await dataProv.getUserReserveData(CurveToken.address, 1, emergencyAdmin.address);
+                console.log("emergency userReserveData.currentATokenBalance: ",userReserveDataEmerg.currentATokenBalance )
+                var actualEmergInterest = userReserveDataEmerg.currentATokenBalance.sub(userReserveDataEmergBefore.currentATokenBalance);
+                var expectedEmergInterest = calculateExpectedInterest(strategyBoostedBalance, strategyStartBoostedBalance, reserveFactor, emergStake);
+                expect(actualEmergInterest
+                  .sub(expectedEmergInterest).toNumber())
+                  .to.be.lessThan(10).and.greaterThan(-10);
+
+
+                var userReserveDataAdmin = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+              console.log("vmex admin userReserveData.currentATokenBalance: ",userReserveDataAdmin.currentATokenBalance )
+              var actualAdminInterest = userReserveDataAdmin.currentATokenBalance.sub(userReserveDataAdminBefore.currentATokenBalance);
+              var expectedAdminInterest = calculateExpectedInterest(strategyBoostedBalance, strategyStartBoostedBalance, reserveFactor, adminStake)
+                .add(calculateAdminInterest(strategyBoostedBalance, strategyStartBoostedBalance, reserveFactor));
+              expect(
+                (actualAdminInterest
+                .sub(expectedAdminInterest).toNumber())
+                ).to.be.lessThan(10).and.greaterThan(-10);
+
+              expect(
+                userReserveDataSigner.currentATokenBalance
+                .add(userReserveDataAdmin.currentATokenBalance)
+                .add(userReserveDataEmerg.currentATokenBalance)
+                ).to.be.almostEqualOrEqual(strategyBoostedBalance); 
+            }
           var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
           console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
-          expect(userData.totalCollateralETH.div(BigNumber.from("100000000000"))).to.be.bignumber.equal(BigNumber.from("596930797180116849").div(BigNumber.from("100000000000")));
-
           // NOTICE: confirmed that oracle price will increase after tending
         });
 
 
-        it("strategy booster earns interest redeposits 10 times, make sure that you're not overdrafting", async () => {
-            const lendingPool = await contractGetters.getLendingPool();
-            const strategy = await contractGetters.getTricrypto2Strategy();
-            const signer = await contractGetters.getFirstSigner();
-            const emergencyAdmin = (await DRE.ethers.getSigners())[1]
-            const dataProv = await contractGetters.getAaveProtocolDataProvider();
-            var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
-            
-            //with 5 and 10, get uniswap error
-            for(let i = 0; i<2;i++){
-                //in last test, already waited 24 hours. Can try tending again first
-                var tendData = await strategy.tend(); //this will update the interest rate
-                // increase time by 24 hours
-                await DRE.ethers.provider.send("evm_increaseTime", [86400]) 
-
-            await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.001'), await emergencyAdmin.getAddress(), '0'); //deposit something for emergency so reserve rates are updated
-            }
-            
-            console.log("strategy.calculateAverageRate(): ", await strategy.calculateAverageRate())
-            //expect(await strategy.calculateAverageRate()).to.be.bignumber.equal(BigNumber.from("15523416873587429285714285"), "rate is now not zero"); //again this might be different with different block to fork
-  
-            var strategyBoostedBalance = await strategy.balanceOfPool();
-  
-            console.log("strategyBoostedBalance: ",strategyBoostedBalance)
-  
-            //expect(strategyBoostedBalance).to.be.bignumber.equal(BigNumber.from("1000297709364698937")); //note this might fail if we are using another block to fork
-  
-            
-            var userReserveDataSigner = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
-            //can't hardcode these values since based on current timestamp, it might be a bit more or less?
-            //.div(BigNumber.from("10000000000")) is to round to account for those errors
-            console.log("userReserveDataSigner.currentATokenBalance signer: ", userReserveDataSigner.currentATokenBalance)
-            //expect(userReserveData.currentATokenBalance.div(BigNumber.from("10000000000"))).to.be.bignumber.equal(BigNumber.from("1000076558709855637").div(BigNumber.from("10000000000")), "Admin gets 10% of the tricrypto generated");  //user doesn't exactly have the other portion of aTokens since it's based on a moving average
-  
-            var userReserveDataAdmin = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
-            
-          //   strategyBoostedBalance.sub(DRE.ethers.utils.parseEther("1")).div(10)//not exactly 10% since the 24 hour interest is also applied
-            console.log("userReserveDataAdmin.currentATokenBalance vmex admin:",userReserveDataAdmin.currentATokenBalance)  
-          //expect(userReserveData.currentATokenBalance.div(BigNumber.from("1000000"))).to.be.bignumber.equal(BigNumber.from("29773215694381").div(BigNumber.from("1000000")), "Admin gets 10% of the tricrypto generated"); 
-  
-            var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
-            console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
-            //expect(userData.totalCollateralETH.div(BigNumber.from("100000000000"))).to.be.bignumber.equal(BigNumber.from("596930797180116849").div(BigNumber.from("100000000000")));
-            expect(  (strategyBoostedBalance.sub(userReserveDataAdmin.currentATokenBalance.add(userReserveDataSigner.currentATokenBalance))).toNumber()   ).to.be.greaterThan(0)
-            // NOTICE: confirmed that oracle price will increase after tending
-          });
-
-        it("user withdraws which withdraws from the booster", async () => {
+        it("all users withdraws which withdraws from the booster", async () => {
           const lendingPool = await contractGetters.getLendingPool();
           const strategy = await contractGetters.getTricrypto2Strategy();
           const signer = await contractGetters.getFirstSigner();
           const emergencyAdmin = (await DRE.ethers.getSigners())[1]
+          const dataProv = await contractGetters.getAaveProtocolDataProvider();
           var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
 
           const tricrypto2Tranch1ATokenAddress =
@@ -326,27 +334,23 @@ makeSuite(
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
-          // withdraw half funds back to the aToken
-          // await lendingPool
-          //   .connect(emergencyAdmin)
-          //   .withdrawFromStrategy(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.5'));
-
-          // user withdraws half of his funds
           await lendingPool.connect(signer)
             .withdraw(
               CurveToken.address,
               1,
-              DRE.ethers.utils.parseUnits('0.1'),
+              (await dataProv.getUserReserveData(CurveToken.address, 1, signer.address)).currentATokenBalance, //withdraw all
               await signer.getAddress());
             
-          
+              await lendingPool.connect(emergencyAdmin)
+              .withdraw(
+                CurveToken.address,
+                1,
+                (await dataProv.getUserReserveData(CurveToken.address, 1, emergencyAdmin.address)).currentATokenBalance, //withdraw all
+                await emergencyAdmin.getAddress());
 
           var strategyBoostedBalance = await strategy.balanceOfPool();
           console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
-
-          // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
-          console.log("USER DATA: ", userData);
+          expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c")).currentATokenBalance).to.be.almostEqualOrEqual(strategyBoostedBalance)
         });
     }
 )

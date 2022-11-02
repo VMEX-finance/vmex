@@ -53,6 +53,8 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     address public vToken; // address of the vToken the strategy is attached to
     uint256 public withdrawalMaxDeviationThreshold; // max allowed slippage when withdrawing
 
+    uint256 internal constant SECONDS_PER_YEAR = 365 days;
+
     /// @notice percentage of rewards converted to underlying
     /// @dev converting of rewards to underlying during harvest should take place in this ratio
     /// @dev change this ratio if rewards are converted in a different percentage
@@ -251,9 +253,16 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     //this can be used to find the APY by using the (1 + r/n)^n - 1 formula
     //NOTE: i already includes deductions from fees and swaps, no need to calc that in
     //NOTE: divide the result by 1e18, then multiply by 100 for a percentage
-    function interestRate(uint256 i, uint256 p) internal returns (uint256 r) {
-        //this method of calculating interest is dangerous when concave down. i.e. people are withdrawing a lot. Cause it's a lagging indicator
-        r = ((i * WadRayMath.ray()) / p) * 365; //*365 if we tend every day.
+    function interestRate(uint256 i, uint256 p, uint256 timeDifference) internal returns (uint256 r) {
+        uint256 m = ILendingPool(lendingPool)
+            .getReserveData(underlying, tranche)
+            .configuration
+            .data;
+        uint256 scaledAmount = i.percentMul(
+            PercentageMath.PERCENTAGE_FACTOR - (ReserveConfiguration.getVMEXReserveFactorData(m))
+        );
+
+        r = (scaledAmount * WadRayMath.ray() * SECONDS_PER_YEAR) / (p  * timeDifference) ; //*365 if we tend every day.
         //WadRayMath.ray() is 1e27. This is the same units as currentLiquidityRate
         // if we know the timestamp difference between this and last update, can extrapolate using that
 
@@ -268,16 +277,24 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
             index = 0;
         }
 
+        emit InterestRateUpdated(scaledAmount,timeDifference, p,SECONDS_PER_YEAR, r);
+
         return r;
     }
-
+    //this will only be used for purpose of frontend
     function calculateAverageRate() external view override returns (uint256 r) {
         uint256 ret = 0;
-        for (uint8 i = 0; i < 7; i++) {
+        for (uint8 i = 0; i < lengthOfMovingAverage; i++) {
             ret += averageR[i];
         }
         ret /= lengthOfMovingAverage;
         return ret;
+    }
+
+    function getLatestRate() external view returns (uint256 r) {
+        if(index == 0)
+            return averageR[lengthOfMovingAverage-1];
+        return averageR[index-1];
     }
 
     // ===== Permissioned Actions: Vault =====
@@ -491,6 +508,18 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
         return _tend();
     }
 
+    // function tend() external override whenNotPaused returns (uint256 crvTended,
+    //     uint256 cvxTended,
+    //     uint256 cvxCrvTended,
+    //     uint256 extraRewardsTended) {
+    //     //_onlyAuthorizedActors();
+    //     TendData memory t = _tend();
+    //     crvTended = t.crvTended;
+    //     cvxTended = t.cvxTended;
+    //     cvxCrvTended = t.cvxCrvTended;
+    //     extraRewardsTended = t.extraRewardsTended;
+    // }
+
     /// @dev Virtual function that should be overridden with the logic for tending.
     ///      Also see `tend`.
     function _tend() internal virtual returns (TendData memory);
@@ -514,8 +543,9 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
         override
         returns (TokenAmount[] memory rewards);
 
-    /// @notice Mints to treasury aTokens fees when tending
-    function _mintToTreasury(uint256 amount) internal {
+
+    /// @notice Mints to treasury aTokens fees and updates liquidity index when tending
+    function _updateState(uint256 amount) internal {
         uint256 m = ILendingPool(lendingPool)
             .getReserveData(underlying, tranche)
             .configuration
@@ -523,11 +553,17 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
         uint256 scaledAmount = amount.percentMul(
             ReserveConfiguration.getVMEXReserveFactorData(m)
         );
+
+
+        uint256 userAmount = amount - scaledAmount;
+        uint128 prevLiquidityIndex = ILendingPool(lendingPool).getReserveData(underlying, tranche).liquidityIndex;
+        uint128 newLiquidityIndex = uint128( (userAmount*WadRayMath.ray())/IAToken(vToken).scaledTotalSupply() ) + prevLiquidityIndex;
+        ILendingPool(lendingPool).setReserveDataLI(underlying, tranche, newLiquidityIndex);
+
+        //this needs to be done last to be updated with most recent liquidity index
         IAToken(vToken).mintToVMEXTreasury(
             scaledAmount,
-            ILendingPool(lendingPool)
-                .getReserveData(underlying, tranche)
-                .liquidityIndex
+            newLiquidityIndex
         );
     }
 
