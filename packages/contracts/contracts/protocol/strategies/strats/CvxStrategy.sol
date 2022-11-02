@@ -128,12 +128,16 @@ contract CvxStrategy is BaseStrategy {
 
         uint256 balanceAfter = balanceOfPool();
 
-        //update globals, inherited from BaseStrategy.sol
-        interestRate((balanceAfter - balanceBefore), balanceBefore);
-        lastHarvestTime = block.timestamp;
 
-        //mint to treasury
-        _mintToTreasury((balanceAfter - balanceBefore));
+        uint256 timeDifference =
+            block.timestamp - (uint256(lastHarvestTime));
+        lastHarvestTime = block.timestamp;
+        //update globals, inherited from BaseStrategy.sol
+        interestRate((balanceAfter - balanceBefore), balanceBefore, timeDifference);
+        
+
+        //mint to treasury and update LI
+        _updateState((balanceAfter - balanceBefore));
 
         return tendData;
     }
