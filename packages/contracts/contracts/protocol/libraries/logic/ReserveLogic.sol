@@ -64,7 +64,7 @@ library ReserveLogic {
         uint40 timestamp = reserve.lastUpdateTimestamp;
 
         //solium-disable-next-line
-        if (timestamp == uint40(block.timestamp)) {
+        if (timestamp == uint40(block.timestamp) || IAToken(reserve.aTokenAddress).getStrategy() != address(0)) { //if it has a strategy, it just the liquidityIndex
             //if the index was updated in the same block, no need to perform any calculation
             return reserve.liquidityIndex;
         }
@@ -112,7 +112,7 @@ library ReserveLogic {
      **/
     function updateState(DataTypes.ReserveData storage reserve) internal {
         address strategist = IAToken(reserve.aTokenAddress).getStrategy();
-        //if(strategist==address(0)) { //no strategist, so keep original method of calculating
+        if(strategist==address(0)) { //no strategist, so keep original method of calculating
         uint256 scaledVariableDebt = IVariableDebtToken(
             reserve.variableDebtTokenAddress
         ).scaledTotalSupply();
@@ -127,7 +127,6 @@ library ReserveLogic {
             previousVariableBorrowIndex,
             lastUpdatedTimestamp
         );
-        if (strategist == address(0)) {
             //no strategist, so keep original method of minting to treasury. For strategies, minting to treasury will be handled during tend()
             _mintToTreasury(
                 reserve,
@@ -252,10 +251,7 @@ library ReserveLogic {
         uint256 liquidityAdded,
         uint256 liquidityTaken
     ) internal {
-        if (IAToken(reserve.aTokenAddress).getStrategy() != address(0)) {
-            //has strategy
-            updateInterestRatesStrategy(reserve, reserveAddress);
-        } else {
+        if (IAToken(reserve.aTokenAddress).getStrategy() == address(0)) {
             UpdateInterestRatesLocalVars memory vars;
             {
                 vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
@@ -328,41 +324,6 @@ library ReserveLogic {
         }
     }
 
-    /**
-     * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
-     * @param reserve The address of the reserve to be updated
-     **/
-    function updateInterestRatesStrategy(
-        DataTypes.ReserveData storage reserve,
-        address reserveAddress
-    ) internal {
-        address strategist = IAToken(reserve.aTokenAddress).getStrategy();
-
-        uint256 globalVMEXReserveFactor = reserve
-            .configuration
-            .getVMEXReserveFactor();
-
-        uint256 newLiquidityRate = IBaseStrategy(strategist)
-            .calculateAverageRate()
-            .percentMul(
-                PercentageMath.PERCENTAGE_FACTOR.sub(globalVMEXReserveFactor)
-            );
-        require(
-            newLiquidityRate <= type(uint128).max,
-            Errors.RL_LIQUIDITY_RATE_OVERFLOW
-        );
-
-        reserve.currentLiquidityRate = uint128(newLiquidityRate);
-
-        emit ReserveDataUpdated(
-            reserveAddress,
-            newLiquidityRate,
-            0, //vars.newStableRate,
-            0, //vars.newVariableRate,
-            reserve.liquidityIndex,
-            reserve.variableBorrowIndex
-        );
-    }
 
     struct MintToTreasuryLocalVars {
         uint256 currentStableDebt;
