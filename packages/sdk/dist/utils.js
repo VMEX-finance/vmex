@@ -8,7 +8,8 @@ const ethers_1 = require("ethers");
 const constants_1 = require("./constants");
 const ILendingPoolAddressesProvider_json_1 = __importDefault(require("@vmex/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json"));
 const ILendingPool_json_1 = __importDefault(require("@vmex/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json"));
-const types_1 = require("@vmex/contracts/types");
+const LendingPoolConfigurator_json_1 = __importDefault(require("@vmex/contracts/artifacts/contracts/protocol/lendingPool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json"));
+// import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 /**
  * network agnostic function for getting the correct LendingPool address
  * @param signer
@@ -36,8 +37,9 @@ async function lendingPoolPause(approvedSigner, setPause, network, tranche) {
         throw new Error("signer must be pool admin");
     let lendingPool = await getLendingPoolImpl(approvedSigner, network);
     try {
-        let LendingPoolConfiguratorProxy = await types_1.LendingPoolConfiguratorFactory.connect(constants_1.deployments.LendingPoolConfigurator[`${network}`].address, approvedSigner);
-        await LendingPoolConfiguratorProxy.setPoolPause(false, tranche);
+        let _LendingPoolConfiguratorProxy = new ethers_1.ethers.Contract(constants_1.deployments.LendingPoolConfigurator[`${network}`].address, LendingPoolConfigurator_json_1.default.abi, approvedSigner);
+        // let LendingPoolConfiguratorProxy = await LendingPoolConfiguratorFactory.connect(deployments.LendingPoolConfigurator[`${network}`].address, approvedSigner);
+        await _LendingPoolConfiguratorProxy.setPoolPause(false, tranche);
         return await lendingPool.paused(tranche);
     }
     catch (error) {
