@@ -1,27 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2019",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "declaration": true,
-    "outDir": "dist",
-    "noImplicitAny": false,
     "resolveJsonModule": true,
-    "sourceMap": true
+    "moduleResolution": "node",
+    "target": "es2020",
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "declaration": true,
+    "types": [
+      // "node"
+    ]
   },
-  "include": [
-    "./src.ts/*/*", 
-    "./src.ts/*", 
-    "./test", 
-    "./artifacts"
-  ],
-  "exclude": [
-    "**/types/**/*",
-    "**/test-suites/**/*",
-    "**/markets/**/*",
-    "**/modules",
-    "**/tasks"
-  ],
-  
 }
