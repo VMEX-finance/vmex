@@ -449,4 +449,8 @@ interface ILendingPool {
 
     function setReserveDataLI(address asset, uint64 trancheId, uint128 newLiquidityIndex)
         external;
+
+    
+    function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external;
+    function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external;
 }

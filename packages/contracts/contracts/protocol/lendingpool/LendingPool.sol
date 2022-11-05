@@ -63,11 +63,11 @@ contract LendingPool is
     uint256 public constant LENDINGPOOL_REVISION = 0x2;
 
     modifier whenNotPaused(uint64 trancheId) {
-        {
-            require(!_paused[trancheId], Errors.LP_IS_PAUSED);
-        }
-
+        _whenNotPaused(trancheId);
         _;
+    }
+    function _whenNotPaused(uint64 trancheId) internal view {
+        require(!_paused[trancheId], Errors.LP_IS_PAUSED);
     }
 
     modifier onlyLendingPoolConfigurator() {
@@ -84,22 +84,31 @@ contract LendingPool is
 
     modifier onlyATokensAndRatesHelperOrConfigurator() {
         //this contract handles the updates to the configuration
+        _onlyATokensAndRatesHelperOrConfigurator();
+        _;
+    }
+
+    function _onlyATokensAndRatesHelperOrConfigurator() internal view {
+        //this contract handles the updates to the configuration
         require(
             _addressesProvider.getATokenAndRatesHelper() == msg.sender ||
                 _addressesProvider.getLendingPoolConfigurator() == msg.sender,
             "Caller is not ATokensAndRatesHelper"
         );
+    }
+
+    modifier onlyWhitelistedDepositBorrow(uint64 trancheId) {
+        _onlyWhitelistedDepositBorrow(trancheId);
         _;
     }
 
-    modifier _onlyWhitelistedDepositBorrow(uint64 trancheId) {
+    function _onlyWhitelistedDepositBorrow(uint64 trancheId) internal view {
         if (isWhitelistedDepositBorrow[msg.sender] == false) {
             require(
                 lastUserBorrow[msg.sender][trancheId] != block.number,
                 "User is not whitelisted to borrow and deposit in same block"
             );
         }
-        _;
     }
 
     function addWhitelistedDepositBorrow(address user)
@@ -129,6 +138,7 @@ contract LendingPool is
         _maxStableRateBorrowSizePercent = 2500;
         _flashLoanPremiumTotal = 9;
         _maxNumberOfReserves = 128; //this might actually be fine since this is max number of reserves per trancheId?
+        isUsingWhitelist = false;
     }
 
     /**
@@ -154,8 +164,12 @@ contract LendingPool is
         public
         override
         whenNotPaused(trancheId)
-        _onlyWhitelistedDepositBorrow(trancheId)
+        onlyWhitelistedDepositBorrow(trancheId)
     {
+        if(isUsingWhitelist){
+            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
+        }
+        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
         //changed scope to public so transferTranche can call it
         if (isWhitelistedDepositBorrow[msg.sender] == false) {
             require(
@@ -200,6 +214,10 @@ contract LendingPool is
         uint256 amount,
         address to
     ) public override whenNotPaused(trancheId) returns (uint256) {
+        if(isUsingWhitelist){
+            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
+        }
+        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
         return
             DepositWithdrawLogic._withdraw(
                 _reserves,
@@ -243,8 +261,12 @@ contract LendingPool is
         public
         override
         whenNotPaused(trancheId)
-        _onlyWhitelistedDepositBorrow(trancheId)
+        onlyWhitelistedDepositBorrow(trancheId)
     {
+        if(isUsingWhitelist){
+            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
+        }
+        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
         if (isWhitelistedDepositBorrow[msg.sender] == false) {
             require(
                 lastUserDeposit[msg.sender][trancheId] != block.number,
@@ -537,6 +559,10 @@ contract LendingPool is
         uint256 debtToCover,
         bool receiveAToken
     ) external override whenNotPaused(trancheId) {
+        if(isUsingWhitelist){
+            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
+        }
+        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
         address collateralManager = _addressesProvider
             .getLendingPoolCollateralManager();
 
@@ -1036,5 +1062,16 @@ contract LendingPool is
         IAToken(_reserves[asset][trancheId].aTokenAddress).withdrawFromStrategy(
                 amount
             );
+    }
+
+    function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external override onlyLendingPoolConfigurator {
+        if(!isUsingWhitelist){
+            isUsingWhitelist = true;
+        }
+        whitelist[trancheId][user] = isWhitelisted;
+    }
+
+    function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external override onlyLendingPoolConfigurator {
+        blacklist[trancheId][user] = isBlacklisted;
     }
 }
