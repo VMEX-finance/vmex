@@ -19,7 +19,6 @@ export declare const TOKEN_PRICE: {
     YFI: string;
     ZRX: string;
     USD: string;
-    xSUSHI: string;
 };
 export declare const TOKEN_PRICE_CONTRACTS: {
     AAVE: string[];
@@ -41,7 +40,6 @@ export declare const TOKEN_PRICE_CONTRACTS: {
     WBTC: string[];
     YFI: string[];
     ZRX: string[];
-    xSUSHI: string[];
 };
 export declare const TOKEN_ADDR_MAINNET: {
     AAVE: string;
@@ -63,7 +61,6 @@ export declare const TOKEN_ADDR_MAINNET: {
     WBTC: string;
     YFI: string;
     ZRX: string;
-    xSUSHI: string;
 };
 declare type Token<T> = {
     [k in keyof T]?: {
@@ -73,658 +70,99 @@ declare type Token<T> = {
 };
 export declare const TOKEN: Token<typeof TOKEN_PRICE>;
 export declare const deployments: {
-    MintableERC20: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    DAI: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    AAVE: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    TUSD: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    BAT: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    WETHMocked: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    WETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    USDC: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    USDT: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    SUSD: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    ZRX: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MKR: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    WBTC: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    LINK: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    KNC: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MANA: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    REN: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    SNX: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    BUSD: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    USD: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    YFI: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNI: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    ENJ: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIDAIWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIWBTCWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIAAVEWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIBATWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIDAIUSDC: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNICRVWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNILINKWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIMKRWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIRENWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNISNXWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIUNIWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIUSDCWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIWBTCUSDC: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UNIYFIWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    BPTWBTCWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    BPTBALWETH: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    WMATIC: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    STAKE: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    XSUSHI: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    WAVAX: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
     LendingPoolAddressesProvider: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    LendingPoolAddressesProviderRegistry: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     ReserveLogic: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     GenericLogic: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     ValidationLogic: {
-        hardhat: {
+        localhost: {
             address: string;
             deployer: string;
         };
+    };
+    DepositWithdrawLogic: {
         localhost: {
             address: string;
             deployer: string;
         };
     };
     LendingPoolImpl: {
-        hardhat: {
-            address: string;
-        };
         localhost: {
             address: string;
         };
     };
     LendingPool: {
-        hardhat: {
-            address: string;
-        };
         localhost: {
             address: string;
         };
     };
     LendingPoolConfiguratorImpl: {
-        hardhat: {
-            address: string;
-        };
         localhost: {
             address: string;
         };
     };
     LendingPoolConfigurator: {
-        hardhat: {
-            address: string;
-        };
         localhost: {
             address: string;
         };
     };
     StableAndVariableTokensHelper: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     ATokensAndRatesHelper: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    PriceOracle: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockAggregator: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    AaveOracle: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    LendingRateOracle: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    AaveProtocolDataProvider: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     AToken: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     DelegationAwareAToken: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     StableDebtToken: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
     VariableDebtToken: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
         localhost: {
             address: string;
             deployer: string;
         };
     };
-    DefaultReserveInterestRateStrategy: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
+    AaveOracle: {
         localhost: {
             address: string;
             deployer: string;
         };
     };
-    rateStrategyAAVE: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyVolatileOne: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyStableOne: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyStableTwo: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyVolatileTwo: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyVolatileThree: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyStableThree: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyWETH: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    rateStrategyVolatileFour: {
-        hardhat: {
-            address: string;
-        };
-        localhost: {
-            address: string;
-        };
-    };
-    LendingPoolCollateralManagerImpl: {
-        hardhat: {
-            address: string;
-        };
-    };
-    LendingPoolCollateralManager: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockFlashLoanReceiver: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockUniswapV2Router02: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UniswapLiquiditySwapAdapter: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UniswapRepayAdapter: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    FlashLiquidationAdapter: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockParaSwapAugustus: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockParaSwapAugustusRegistry: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    ParaSwapLiquiditySwapAdapter: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    WalletBalanceProvider: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    WETHGateway: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MintableDelegationERC20: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockAToken: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockStableDebtToken: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    MockVariableDebtToken: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    SelfdestructTransferMock: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    DepositWithdrawLogic: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-    };
-    UiPoolDataProvider: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
+    LendingRateOracle: {
         localhost: {
             address: string;
             deployer: string;
@@ -735,35 +173,9 @@ export declare const deployments: {
             address: string;
             deployer: string;
         };
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    curveOracleImpl: {
-        localhost: {
-            address: string;
-            deployer: string;
-        };
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    rateStrategyCurve: {
-        localhost: {
-            address: string;
-        };
-        hardhat: {
-            address: string;
-        };
     };
     CurveOracle: {
         localhost: {
-            address: string;
-            deployer: string;
-        };
-        hardhat: {
             address: string;
             deployer: string;
         };
@@ -773,93 +185,96 @@ export declare const deployments: {
             address: string;
             deployer: string;
         };
-        hardhat: {
+    };
+    AaveProtocolDataProvider: {
+        localhost: {
             address: string;
             deployer: string;
         };
     };
-    TRICRYPTO2: {
-        hardhat: {
+    WETHGateway: {
+        localhost: {
             address: string;
             deployer: string;
         };
     };
-    THREEPOOL: {
-        hardhat: {
+    DefaultReserveInterestRateStrategy: {
+        localhost: {
             address: string;
             deployer: string;
         };
     };
-    STETHETH: {
-        hardhat: {
+    rateStrategyAAVE: {
+        localhost: {
+            address: string;
+        };
+    };
+    rateStrategyVolatileOne: {
+        localhost: {
+            address: string;
+        };
+    };
+    rateStrategyStableOne: {
+        localhost: {
+            address: string;
+        };
+    };
+    rateStrategyStableTwo: {
+        localhost: {
+            address: string;
+        };
+    };
+    rateStrategyVolatileTwo: {
+        localhost: {
+            address: string;
+        };
+    };
+    rateStrategyVolatileThree: {
+        localhost: {
+            address: string;
+        };
+    };
+    rateStrategyStableThree: {
+        localhost: {
+            address: string;
+        };
+    };
+    rateStrategyWETH: {
+        localhost: {
+            address: string;
+        };
+    };
+    LendingPoolCollateralManagerImpl: {
+        localhost: {
+            address: string;
+        };
+    };
+    LendingPoolCollateralManager: {
+        localhost: {
             address: string;
             deployer: string;
         };
     };
-    STETH: {
-        hardhat: {
+    WalletBalanceProvider: {
+        localhost: {
             address: string;
             deployer: string;
         };
     };
-    FRAXUSDC: {
-        hardhat: {
+    UiPoolDataProvider: {
+        localhost: {
             address: string;
             deployer: string;
         };
     };
-    FRAX3CRV: {
-        hardhat: {
+    rateStrategyCurve: {
+        localhost: {
             address: string;
-            deployer: string;
         };
     };
-    FRAX: {
-        hardhat: {
+    rateStrategyVolatileFour: {
+        localhost: {
             address: string;
-            deployer: string;
-        };
-    };
-    BAL: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    CRV: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    CVX: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    BADGER: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    LDO: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    ALCX: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    ONEINCH: {
-        hardhat: {
-            address: string;
-            deployer: string;
         };
     };
     vStrategyHelper: {
@@ -867,29 +282,9 @@ export declare const deployments: {
             address: string;
             deployer: string;
         };
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
     };
     tricrypto2Strategy: {
         localhost: {
-            address: string;
-            deployer: string;
-        };
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    BaseRewardPool: {
-        hardhat: {
-            address: string;
-            deployer: string;
-        };
-    };
-    Booster: {
-        hardhat: {
             address: string;
             deployer: string;
         };
