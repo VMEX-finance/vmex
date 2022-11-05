@@ -26,6 +26,7 @@
     "console:fork": "FORK=main hardhat console",
     "console:localhost:fork": "FORK=main hardhat console --network localhost",
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/*.spec.ts",
+    "test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/admin-whitelist.spec.ts ./test-suites/test-aave/admin-blacklist.spec.ts",
     "test-mainnet-fork": "FORK=main hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/scenario.spec.ts  --network localhost",
     "test-strategy": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/strategy/*.spec.ts",
     "test-amm": "npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-amm/*.spec.ts",
