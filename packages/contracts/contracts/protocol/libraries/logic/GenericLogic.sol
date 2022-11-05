@@ -101,16 +101,16 @@ library GenericLogic {
             reserves,
             reservesCount,
             params._addressesProvider,
-            assetDatas
+            assetDatas,
+            true //this function is only used in the context of withdrawing or setting as not collateral, so it should be true
         );
-
-        // (uint256(14), uint256(14), uint256(14));
 
         if (vars.totalDebtInETH == 0) {
             return true;
         }
 
         //here, need to check if the reserve is a curve reserve. If so
+        //using current price instead of 24 hour average
         vars.amountToDecreaseInETH = IPriceOracleGetter(
             params._addressesProvider.getPriceOracle(assetDatas[params.asset])
         ).getAssetPrice(params.asset).mul(params.amount).div(10**vars.decimals);
@@ -165,6 +165,10 @@ library GenericLogic {
         address oracle;
         address user;
         uint64 trancheId;
+
+        bool useTwap;
+        uint256 reserveTwapUnitPrice;
+        uint256 liquidityBalanceETHTWAP;
     }
 
     /**
@@ -186,7 +190,8 @@ library GenericLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas,
+        bool useTwap
     )
         internal
         view
@@ -202,6 +207,7 @@ library GenericLogic {
         {
             vars.user = actTranche.user;
             vars.trancheId = actTranche.trancheId;
+            vars.useTwap = useTwap;
         }
 
         // require(!userConfig.isEmpty(), "userConfig is empty");
@@ -242,6 +248,10 @@ library GenericLogic {
             vars.reserveUnitPrice = IPriceOracleGetter(vars.oracle)
                 .getAssetPrice(vars.currentReserveAddress);
 
+            //decide whether to do on or off chain
+            vars.reserveTwapUnitPrice = IPriceOracleGetter(vars.oracle)
+                .getAssetTWAPPrice(vars.currentReserveAddress); //from uniswap
+
             if (
                 vars.liquidationThreshold != 0 &&
                 userConfig.isUsingAsCollateral(vars.i)
@@ -255,6 +265,18 @@ library GenericLogic {
                     .reserveUnitPrice
                     .mul(vars.compoundedLiquidityBalance)
                     .div(vars.tokenUnit);
+                
+                if(vars.useTwap){
+                    vars.liquidityBalanceETHTWAP = vars
+                        .reserveTwapUnitPrice
+                        .mul(vars.compoundedLiquidityBalance)
+                        .div(vars.tokenUnit);
+                    
+                    //this means the borrow must satisfy both current price and twap price
+                    if(vars.liquidityBalanceETHTWAP < vars.liquidityBalanceETH){
+                        vars.liquidityBalanceETH = vars.liquidityBalanceETHTWAP; 
+                    }
+                }
 
                 if (vars.liquidityBalanceETH > currentReserve.collateralCap) {
                     vars.liquidityBalanceETH = currentReserve.collateralCap;
@@ -282,11 +304,21 @@ library GenericLogic {
                     )
                 );
 
-                vars.totalDebtInETH = vars.totalDebtInETH.add(
-                    vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
-                        vars.tokenUnit
-                    )
-                );
+                if(!useTwap || vars.reserveTwapUnitPrice<vars.reserveUnitPrice){ //debt uses the larger value of price
+                //if not using twap or if not using twap has higher price, then use the regular price
+                    vars.totalDebtInETH = vars.totalDebtInETH.add(
+                        vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
+                            vars.tokenUnit
+                        )
+                    );
+                }
+                else{
+                    vars.totalDebtInETH = vars.totalDebtInETH.add(
+                        vars.reserveTwapUnitPrice.mul(vars.compoundedBorrowBalance).div(
+                            vars.tokenUnit
+                        )
+                    );
+                }
             }
         }
 

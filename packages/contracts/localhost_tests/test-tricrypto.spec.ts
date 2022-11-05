@@ -186,7 +186,7 @@ makeSuite(
           await lendingPool.connect(borrower).deposit(tricrypto2Token.address, TRANCHE, DRE.ethers.utils.parseUnits(amountTricryptoToDeposit), await borrower.getAddress(), '0');
           await lendingPool.connect(borrower).setUserUseReserveAsCollateral(tricrypto2Token.address, TRANCHE, true);
 
-          var userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+          var userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
 
           /*
           //calcualte expected amount (not done here since USDT has different number of decimals)
@@ -228,7 +228,7 @@ makeSuite(
           //borrow 90% of available borrows from TRANCHE 1, 1 means stable rate
           await lendingPool.connect(borrower).borrow(weth.address, TRANCHE, amountWETHToBorrow, STABLE_RATE, '0', borrower.address);
 
-          userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+          userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1,false)
           console.log("USER DATA: ", userData);
           expect(
             userData.totalDebtETH.toString()
@@ -273,7 +273,7 @@ makeSuite(
           console.log("strategy boosted balance: " + origBalance);
 
           // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
           console.log("USER DATA: ", userData);
         });
 
@@ -284,7 +284,7 @@ makeSuite(
           const emergency = (await DRE.ethers.getSigners())[1];
           const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI);
 
-          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
           console.log("USER DATA BEFORE WAITING LONG TIME: ", userData);
 
           await increaseTime(4100000);
@@ -292,7 +292,7 @@ makeSuite(
           // 4000000 - pass
           // 4100000 - fails
 
-          userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+          userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
           console.log("USER DATA AFTER WAITING LONG TIME: ", userData);
 
           // // updates state of weth and tricrypto2 reserve
@@ -301,7 +301,7 @@ makeSuite(
           await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.001'), await borrower.getAddress(), '0');
           console.log("after borrower deposit");
 
-          let userDataBeforeWithdraw = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+          let userDataBeforeWithdraw = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1,false)
           console.log("USER DATA BEFORE WITHDRAW: ", userDataBeforeWithdraw);
           // user withdraws 0.1 tricrypto2
           const tx = await lendingPool.connect(borrower)
@@ -350,7 +350,7 @@ makeSuite(
         //   //   await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
         //   // // // check that the user is still healthy after strategy withdraws
-        //   // let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   // let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
         //   // console.log("USER DATA BEFORE WAITING LONG TIME: ", userData);
 
         //   // await increaseTime(4100000);
@@ -370,7 +370,7 @@ makeSuite(
         //   // await lendingPool.connect(emergency).deposit(WETH_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('1'), await emergency.getAddress(), '0');
         //   // await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.0000001'), await borrower.getAddress(), '0');
 
-        //   // userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   // userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
         //   // console.log("USER DATA AFTER WAITING LONG TIME: ", userData);
 
         //   // // var tendData = await strategy.tend();
@@ -379,7 +379,7 @@ makeSuite(
         //   // // var postBalance = await strategy.balanceOf();
         //   // // console.log("strategy post balance: ", postBalance);
 
-        //   let userDataBeforeWithdraw = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+        //   let userDataBeforeWithdraw = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1,false)
         //   console.log("USER DATA BEFORE WITHDRAW: ", userDataBeforeWithdraw);
 
         //   // user withdraws 0.1 tricrypto2
@@ -397,7 +397,7 @@ makeSuite(
         //   console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
 
         //   // check that the user is still healthy after strategy withdraws
-        //   const userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1)
+        //   const userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,1,false)
         //   console.log("USER DATA: ", userData);
         // });
 
@@ -407,7 +407,7 @@ makeSuite(
         //   const lendingPool = await contractGetters.getLendingPool();
 
         //   // check that the user is still healthy after strategy withdraws
-        //   let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
         //   console.log("USER DATA BEFORE WAITING LONG TIME: ", userData);
 
         //   // increase time by 1000000 hours
@@ -425,7 +425,7 @@ makeSuite(
         //   await lendingPool.connect(emergency).deposit(WETH_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('1'), await emergency.getAddress(), '0');
         //   await lendingPool.connect(borrower).deposit(TRICRYPTO2_ADDR, TRANCHE, DRE.ethers.utils.parseUnits('0.0000001'), await borrower.getAddress(), '0');
 
-        //   userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE)
+        //   userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
         //   console.log("USER DATA AFTER WAITING LONG TIME: ", userData);
 
         //   expect(userData.healthFactor.toString()).to.be.bignumber.lt(

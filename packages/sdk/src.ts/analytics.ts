@@ -133,7 +133,7 @@ export async function userAggregatedTrancheData(
   );
   return await lendingPool.getUserAccountData(
     await params.signer.getAddress(),
-    params.tranche
+    params.tranche, false
   );
 }
 
