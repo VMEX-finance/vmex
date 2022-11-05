@@ -65,7 +65,8 @@ library DepositWithdrawLogic {
     function _deposit(
         DataTypes.ReserveData storage self,
         DataTypes.DepositVars memory vars,
-        DataTypes.UserConfigurationMap storage user
+        DataTypes.UserConfigurationMap storage user,
+        mapping(address => DataTypes.ReserveAssetType) storage assetDatas //can be memory too
     ) external {
         ValidationLogic.validateDeposit(self, vars.amount);
 
@@ -75,6 +76,12 @@ library DepositWithdrawLogic {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
         self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
         self.updateState();
+        {
+            address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle(
+                        assetDatas[vars.asset]
+                    );
+            IPriceOracleGetter(oracle).updateTWAP(vars.asset);
+        }
 
         // }
 
@@ -164,6 +171,13 @@ library DepositWithdrawLogic {
         reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount);
         reserve.updateState();
 
+        {
+            address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
+                        assetDatas[vars.asset]
+                    );
+            IPriceOracleGetter(oracle).updateTWAP(vars.asset);
+        }
+
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
             emit ReserveUsedAsCollateralDisabled(vars.asset, msg.sender);
@@ -211,6 +225,13 @@ library DepositWithdrawLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) public {
+        {
+            address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
+                        assetDatas[vars.asset]
+                    );
+            IPriceOracleGetter(oracle).updateTWAP(vars.asset);
+        }
+        
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][
             vars.trancheId
         ];

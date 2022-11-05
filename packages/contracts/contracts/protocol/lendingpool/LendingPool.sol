@@ -27,6 +27,7 @@ import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
 
+import "hardhat/console.sol";
 /**
  * @title LendingPool contract
  * @dev Main point of interaction with an Aave protocol's market
@@ -191,7 +192,8 @@ contract LendingPool is
         {
             _reserves[asset][trancheId]._deposit(
                 vars,
-                _usersConfig[onBehalfOf][trancheId]
+                _usersConfig[onBehalfOf][trancheId],
+                assetDatas
             );
         }
         lastUserDeposit[msg.sender][trancheId] = block.number;
@@ -263,6 +265,8 @@ contract LendingPool is
         whenNotPaused(trancheId)
         onlyWhitelistedDepositBorrow(trancheId)
     {
+        console.log("Borrow sender: ", msg.sender);
+        console.log("Borrow tranche: ", trancheId);
         if(isUsingWhitelist){
             require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
         }
@@ -462,41 +466,41 @@ contract LendingPool is
      * @param asset The address of the underlying asset borrowed
      * @param user The address of the user to be rebalanced
      **/
-    function rebalanceStableBorrowRate(
-        address asset,
-        uint64 trancheId,
-        address user
-    ) external override whenNotPaused(trancheId) {
-        DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
+    // function rebalanceStableBorrowRate(
+    //     address asset,
+    //     uint64 trancheId,
+    //     address user
+    // ) external override whenNotPaused(trancheId) {
+    //     DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
-        IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
-        IERC20 variableDebtToken = IERC20(reserve.variableDebtTokenAddress);
-        address aTokenAddress = reserve.aTokenAddress;
+    //     IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
+    //     IERC20 variableDebtToken = IERC20(reserve.variableDebtTokenAddress);
+    //     address aTokenAddress = reserve.aTokenAddress;
 
-        uint256 stableDebt = IERC20(stableDebtToken).balanceOf(user);
+    //     uint256 stableDebt = IERC20(stableDebtToken).balanceOf(user);
 
-        ValidationLogic.validateRebalanceStableBorrowRate(
-            reserve,
-            asset,
-            stableDebtToken,
-            variableDebtToken,
-            aTokenAddress
-        );
+    //     ValidationLogic.validateRebalanceStableBorrowRate(
+    //         reserve,
+    //         asset,
+    //         stableDebtToken,
+    //         variableDebtToken,
+    //         aTokenAddress
+    //     );
 
-        reserve.updateState();
+    //     reserve.updateState();
 
-        IStableDebtToken(address(stableDebtToken)).burn(user, stableDebt);
-        IStableDebtToken(address(stableDebtToken)).mint(
-            user,
-            user,
-            stableDebt,
-            reserve.currentStableBorrowRate
-        );
+    //     IStableDebtToken(address(stableDebtToken)).burn(user, stableDebt);
+    //     IStableDebtToken(address(stableDebtToken)).mint(
+    //         user,
+    //         user,
+    //         stableDebt,
+    //         reserve.currentStableBorrowRate
+    //     );
 
-        reserve.updateInterestRates(asset, aTokenAddress, 0, 0);
+    //     reserve.updateInterestRates(asset, aTokenAddress, 0, 0);
 
-        emit RebalanceStableBorrowRate(asset, user);
-    }
+    //     emit RebalanceStableBorrowRate(asset, user);
+    // }
 
     /**
      * @dev Allows depositors to enable/disable a specific deposited asset as collateral
@@ -709,7 +713,7 @@ contract LendingPool is
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint64 trancheId)
+    function getUserAccountData(address user, uint64 trancheId, bool useTwap)
         external
         view
         override
@@ -735,7 +739,8 @@ contract LendingPool is
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
-            assetDatas
+            assetDatas,
+            useTwap
         );
         // (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 

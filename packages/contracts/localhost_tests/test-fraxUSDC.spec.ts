@@ -184,7 +184,7 @@ makeSuite(
             await lendingPool.connect(signer).deposit(CurveToken.address, 1, ethers.utils.parseUnits('900'), await signer.getAddress(), '0'); 
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true); 
             
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
@@ -204,7 +204,7 @@ makeSuite(
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), 1, '0', signer.address); 
             
-            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             expect(
               userDat.totalDebtETH.toString()
