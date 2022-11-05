@@ -613,4 +613,12 @@ contract LendingPoolConfigurator is
         pool.withdrawFromStrategy(asset, trancheId, amount);
         emit WithdrawFromStrategy(asset, trancheId, amount);
     }
+
+    function setWhitelist(uint64 trancheId, address user, bool isWhitelisted) external onlyPoolAdmin(trancheId) {
+        pool.addToWhitelist(trancheId, user, isWhitelisted);
+    }
+
+    function setBlacklist(uint64 trancheId, address user, bool isBlacklisted) external onlyPoolAdmin(trancheId) {
+        pool.addToBlacklist(trancheId, user, isBlacklisted);
+    }
 }
