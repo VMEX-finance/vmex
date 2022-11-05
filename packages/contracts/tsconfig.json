@@ -9,7 +9,7 @@
     "noImplicitAny": false,
     "esModuleInterop": true,
     "sourceMap": true,
-    "outDir": "lib",
+    "outDir": "dist",
     "declaration": true,
     "types": [
       // "node"
