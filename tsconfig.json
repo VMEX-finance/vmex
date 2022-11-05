@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"outDir": "dist",
+		"module": "commonjs",
+		"noUnusedLocals": false,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"strictNullChecks": false,
+		"strict": false,
+		"allowJs": true,
+		"importsNotUsedAsValues": "preserve",
+		"isolatedModules": false,
+		"checkJs": false,
+		"types": []
+	},
+	"include": [
+		"packages/**"
+	],
+	"exclude": [
+		"node_modules"
+	],
+	"typeAcquisition": {
+		"enable": true
+	},
+}

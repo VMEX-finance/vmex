@@ -1,8 +1,10 @@
 import { ethers } from "ethers";
 import { deployments } from "./constants";
+import _ from "lodash";
 import ILendingPoolAddressesProvider from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
-import ILendingPool from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json"
-import { LendingPoolConfiguratorFactory } from "@vmex/contracts/types";
+import ILendingPool from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
+import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingPool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
+// import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 /**
  * network agnostic function for getting the correct LendingPool address
  * @param signer 
@@ -29,8 +31,9 @@ export async function lendingPoolPause(approvedSigner: ethers.Signer, setPause: 
     if (await approvedSigner.getAddress() !== await LPAddressProvider.getPoolAdmin(tranche)) throw new Error("signer must be pool admin");
     let lendingPool = await getLendingPoolImpl(approvedSigner, network);
     try {
-        let LendingPoolConfiguratorProxy = await LendingPoolConfiguratorFactory.connect(deployments.LendingPoolConfigurator[`${network}`].address, approvedSigner);
-        await LendingPoolConfiguratorProxy.setPoolPause(false, tranche);
+        let _LendingPoolConfiguratorProxy = new ethers.Contract(deployments.LendingPoolConfigurator[`${network}`].address, ILendingPoolConfigurator.abi, approvedSigner);
+        // let LendingPoolConfiguratorProxy = await LendingPoolConfiguratorFactory.connect(deployments.LendingPoolConfigurator[`${network}`].address, approvedSigner);
+        await _LendingPoolConfiguratorProxy.setPoolPause(false, tranche);
         return await lendingPool.paused(tranche)
     } catch (error) {
         console.log(error)

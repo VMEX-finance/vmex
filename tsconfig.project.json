@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "lib": [
+        "es2015",
+        "es5",
+        "dom"
+      ],
+      "preserveWatchOutput": true,
+      "pretty": false
+    },
+    "references": [
+        {
+          "path": "./packages/contracts"
+        },
+        {
+          "path": "./packages/sdk"
+        },
+  ],
+  "files": []
+  }
