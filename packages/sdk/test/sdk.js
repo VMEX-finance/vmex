@@ -150,7 +150,7 @@ describe("Borrow - end-to-end test", () => {
             network: "localhost"
         });
         console.log(totalCollateralETH, availableBorrowsETH);
-        expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("1.0"));
+        expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("0"));
     })
 
     it("7 - should test borrowing WETH with borrow() fn", async () => {
@@ -165,7 +165,7 @@ describe("Borrow - end-to-end test", () => {
         await borrow({
             underlying: WETHadd,
             trancheId: 0,
-            amount: availableBorrowsETH,
+            amount: ethers.utils.parseEther("0.1"),
             interestRateMode: 1,
             signer: temp,
             network: "localhost",
