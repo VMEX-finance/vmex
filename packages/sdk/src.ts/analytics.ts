@@ -1,15 +1,22 @@
 import { deployments } from "./constants";
 import "@vmex/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
 import { BigNumber, ethers } from "ethers";
-import { getLendingPoolImpl, approveUnderlying } from "./utils";
-//PROTOCOL ANALYTICS
-// export async function totalValueLocked(params?: {
-//     network: string;
-//     test: boolean;
-// }, callback?: () => Promise<UserReserveData>) {
-//     let lendingPool = await getLendingPool();
-//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-// }
+import { getLendingPoolImpl, getUnsignedLP, approveUnderlying } from "./utils";
+
+/**
+ * calcProtocolTVL()
+ * @params { network: string, test: bool }
+ * @returns uint(aTokens, underlying)
+ * returns a tuple containing the sum of all aTokens in all pools - reflects total supplied, and the sum of underlying amounts - reflecting total borrowed
+ */
+export async function calcProtocolTVL(params?: {
+    network?: string;
+    test: boolean;
+}, callback?: () => Promise<any>) {
+    const _lp = getUnsignedLP({ network: params.network || undefined, test: params.test });
+    
+}
+
 
 /**
  * userAggregatedTrancheData
@@ -36,7 +43,7 @@ export async function userAggregatedTrancheData( params: {
 /**
  * userTrancheBalances
  * @params { signer: ethers.Signer, tranche: number, network?: string }
- * @returns tuple(address, uint256);
+ * @returns tuple(address, uint256)[];
  */
 export async function userTrancheBalances( params: {
     signer: ethers.Signer,

@@ -1,6 +1,16 @@
 import "@vmex/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
 import { ethers } from "ethers";
 /**
+ * calcProtocolTVL()
+ * @params { network: string, test: bool }
+ * @returns uint(aTokens, underlying)
+ * returns a tuple containing the sum of all aTokens in all pools - reflects total supplied, and the sum of underlying amounts - reflecting total borrowed
+ */
+export declare function calcProtocolTVL(params?: {
+    network?: string;
+    test: boolean;
+}, callback?: () => Promise<any>): Promise<void>;
+/**
  * userAggregatedTrancheData
  * @params { signer: ethers.Signer, tranche: number, network?: string }
  * @returns Promise {
@@ -21,7 +31,7 @@ export declare function userAggregatedTrancheData(params: {
 /**
  * userTrancheBalances
  * @params { signer: ethers.Signer, tranche: number, network?: string }
- * @returns tuple(address, uint256);
+ * @returns tuple(address, uint256)[];
  */
 export declare function userTrancheBalances(params: {
     signer: ethers.Signer;
