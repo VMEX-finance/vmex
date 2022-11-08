@@ -19,11 +19,46 @@ export async function getLendingPoolImpl(signer: ethers.Signer, network: string,
 }
 
 /**
+ * unsignedLendingPool
+ * a modified lendingPoolImpl fn doesnt require a signer or network
+ */
+export async function getUnsignedLP(params?: { signer?: ethers.Signer, network?: string, test?: boolean }) {
+    let LPAddressProvider = new ethers.Contract(deployments.LendingPoolAddressesProvider[`${params.network || 'mainnet'}`].address, ILendingPoolAddressesProvider.abi);
+    if (params.signer) LPAddressProvider.connect(await params.signer);
+    let { abi } = ILendingPool;
+    const _lp = new ethers.Contract(await LPAddressProvider.getLendingPool(), abi);
+    if (params.signer) _lp.connect(params.signer);
+    return _lp
+}
+
+/**
  * 
  */
 export async function approveUnderlying(signer: ethers.Signer, amount: any, underlying: string, spender: string) {
     let _underlying = new ethers.Contract(underlying, ["function approve(address spender, uint256 value) external returns (bool success)"], signer);
     return await _underlying.connect(signer).approve(spender, amount);
+}
+
+//temp function
+function getNetworkProvider(network) {
+    return new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") //TODO implement
+}
+
+/**
+ * utility function to query number of tranches present in lending pool
+ * @param network 
+ * @returns BigNumber
+ */
+export async function getTrancheNames(network?: string) {
+    let provider = network == 'localhost' ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : getNetworkProvider(network);
+    let signer = new ethers.VoidSigner(ethers.constants.AddressZero, provider);
+    const _lpConfiguratorProxy = new ethers.Contract(deployments.LendingPoolConfigurator[`${network || "mainnet"}`].address, ILendingPoolConfigurator.abi, signer);
+    let trancheIds = (await _lpConfiguratorProxy.totalTranches()).toNumber()
+    let x = [...Array(trancheIds).keys()]
+    return Promise.all(x.map(async (x) => await _lpConfiguratorProxy.trancheNames(x)
+    ));
+
+    
 }
 
 export async function lendingPoolPause(approvedSigner: ethers.Signer, setPause: boolean, network: string, tranche: number) {
