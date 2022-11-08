@@ -17,7 +17,7 @@ const WETHabi = [
     "function withdraw(uint wad) public"
 ];
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-const UNISWAP_ROUTER_ABI = require("../abis/uniswapAbi.json");
+const UNISWAP_ROUTER_ABI = require("@vmex/contracts/localhost_tests/abis/uniswapAbi.json");
 const USDCadd = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 async function startMockEnvironment(signer) {
     const provider = new ethers_1.ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");

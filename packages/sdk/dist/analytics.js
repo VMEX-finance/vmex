@@ -1,18 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userTrancheBalances = exports.userAggregatedTrancheData = void 0;
+exports.userTrancheBalances = exports.userAggregatedTrancheData = exports.calcProtocolTVL = void 0;
 const constants_1 = require("./constants");
 require("@vmex/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json");
 const ethers_1 = require("ethers");
 const utils_1 = require("./utils");
-//PROTOCOL ANALYTICS
-// export async function totalValueLocked(params?: {
-//     network: string;
-//     test: boolean;
-// }, callback?: () => Promise<UserReserveData>) {
-//     let lendingPool = await getLendingPool();
-//     //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed). 
-// }
+/**
+ * calcProtocolTVL()
+ * @params { network: string, test: bool }
+ * @returns uint(aTokens, underlying)
+ * returns a tuple containing the sum of all aTokens in all pools - reflects total supplied, and the sum of underlying amounts - reflecting total borrowed
+ */
+async function calcProtocolTVL(params, callback) {
+    const _lp = (0, utils_1.getUnsignedLP)({ network: params.network || undefined, test: params.test });
+}
+exports.calcProtocolTVL = calcProtocolTVL;
 /**
  * userAggregatedTrancheData
  * @params { signer: ethers.Signer, tranche: number, network?: string }
@@ -33,7 +35,7 @@ exports.userAggregatedTrancheData = userAggregatedTrancheData;
 /**
  * userTrancheBalances
  * @params { signer: ethers.Signer, tranche: number, network?: string }
- * @returns tuple(address, uint256);
+ * @returns tuple(address, uint256)[];
  */
 async function userTrancheBalances(params, callback) {
     const provider = constants_1.deployments.LendingPoolAddressesProvider[`${params.network || "localhost"}`].address;
