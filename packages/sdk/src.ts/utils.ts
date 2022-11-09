@@ -48,7 +48,9 @@ function getNetworkProvider(network) {
  * utility function to query number of tranches present in lending pool
  * @param network 
  * @returns BigNumber
+ * by using an eth_call contract this can be done in one rpc call*
  */
+
 export async function getTrancheNames(network?: string) {
     let provider = network == 'localhost' ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : getNetworkProvider(network);
     let signer = new ethers.VoidSigner(ethers.constants.AddressZero, provider);
@@ -57,8 +59,14 @@ export async function getTrancheNames(network?: string) {
     let x = [...Array(trancheIds).keys()]
     return Promise.all(x.map(async (x) => await _lpConfiguratorProxy.trancheNames(x)
     ));
+}
 
-    
+export async function totalTranches(network?: string) {
+    let provider = network == 'localhost' ? new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545') : getNetworkProvider(network);
+    let signer = new ethers.VoidSigner(ethers.constants.AddressZero, provider);
+    const _configurator = new ethers.Contract(deployments.LendingPoolConfigurator[`${network || 'mainnet'}`].address, ILendingPoolConfigurator.abi, signer);
+    const tIds = (await _configurator.totalTranches()).toNumber()
+    return [...Array(tIds).keys()]
 }
 
 export async function lendingPoolPause(approvedSigner: ethers.Signer, setPause: boolean, network: string, tranche: number) {
