@@ -5,12 +5,13 @@ import { getVariableDebtToken } from '../../helpers/contracts-getters';
 
 makeSuite('Variable debt token tests', (testEnv: TestEnv) => {
   const { CT_CALLER_MUST_BE_LENDING_POOL } = ProtocolErrors;
+  const tranche = 0;
 
   it('Tries to invoke mint not being the LendingPool', async () => {
     const { deployer, pool, dai, helpersContract } = testEnv;
 
     const daiVariableDebtTokenAddress = (
-      await helpersContract.getReserveTokensAddresses(dai.address)
+      await helpersContract.getReserveTokensAddresses(dai.address, tranche)
     ).variableDebtTokenAddress;
 
     const variableDebtContract = await getVariableDebtToken(daiVariableDebtTokenAddress);
@@ -24,7 +25,7 @@ makeSuite('Variable debt token tests', (testEnv: TestEnv) => {
     const { deployer, pool, dai, helpersContract } = testEnv;
 
     const daiVariableDebtTokenAddress = (
-      await helpersContract.getReserveTokensAddresses(dai.address)
+      await helpersContract.getReserveTokensAddresses(dai.address, tranche)
     ).variableDebtTokenAddress;
 
     const variableDebtContract = await getVariableDebtToken(daiVariableDebtTokenAddress);

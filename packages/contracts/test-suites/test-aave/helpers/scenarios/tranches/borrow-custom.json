@@ -1,6 +1,6 @@
 {
-  "title": "LendingPool: Borrow/repay (stable rate) custom test 1",
-  "description": "Test cases for the borrow function, stable mode.",
+  "title": "LendingPool: Borrow/repay (variable rate) custom test 1",
+  "description": "Test cases for the borrow function, variable mode.",
   "stories": [
     {
       "description": "User 0 deposits 1000 DAI (risk 0) in all three tranches",
@@ -45,7 +45,7 @@
       ]
     },
     {
-      "description": "user 1 deposits 1 WETH (risk 1) as collateral in tranche 1 and borrows 100 DAI at stable rate. Tries to borrow from tranches 0 and 1 (revert) ",
+      "description": "user 1 deposits 1 WETH (risk 1) as collateral in tranche 1 and borrows 100 DAI at variable rate. Tries to borrow from tranches 0 and 1 (revert) ",
       "actions": [
         {
           "name": "mint",
@@ -68,7 +68,7 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "tranche": "1",  
+            "tranche": "1",
             "amount": "1",
             "user": "1"
           },
@@ -77,7 +77,7 @@
       ]
     },
     {
-      "description": "user 1 borrows 100 DAI at stable rate from wrong tranches (revert). ",
+      "description": "user 1 borrows 100 DAI at variable rate from wrong tranches (revert). ",
       "actions": [
         {
           "name": "borrow",
@@ -85,7 +85,7 @@
             "reserve": "DAI",
             "tranche": "0",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "1",
             "timeTravel": "365"
           },
@@ -94,7 +94,7 @@
       ]
     },
     {
-      "description": "user 1 borrows 100 DAI at stable rate. ",
+      "description": "user 1 borrows 100 DAI at variable rate. ",
       "actions": [
         {
           "name": "borrow",
@@ -102,7 +102,7 @@
             "reserve": "DAI",
             "tranche": "1",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "1",
             "timeTravel": "365"
           },

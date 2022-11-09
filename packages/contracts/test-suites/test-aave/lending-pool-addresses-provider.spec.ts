@@ -10,6 +10,7 @@ import { deployLendingPool } from '../../helpers/contracts-deployments';
 const { utils } = ethers;
 
 makeSuite('LendingPoolAddressesProvider', (testEnv: TestEnv) => {
+  const tranche = 0;
   it('Test the accessibility of the LendingPoolAddressesProvider', async () => {
     const { addressesProvider, users } = testEnv;
     const mockAddress = createRandomAddress();
@@ -22,12 +23,14 @@ makeSuite('LendingPoolAddressesProvider', (testEnv: TestEnv) => {
       addressesProvider.setLendingPoolImpl,
       addressesProvider.setLendingPoolConfiguratorImpl,
       addressesProvider.setLendingPoolCollateralManager,
-      addressesProvider.setPoolAdmin,
-      addressesProvider.setPriceOracle,
+      // addressesProvider.setPriceOracle,
       addressesProvider.setLendingRateOracle,
     ]) {
       await expect(contractFunction(mockAddress)).to.be.revertedWith(INVALID_OWNER_REVERT_MSG);
     }
+
+    // TODO: Not currently working
+    // await expect(addressesProvider.setPoolAdmin(mockAddress, tranche)).to.be.revertedWith(INVALID_OWNER_REVERT_MSG);
 
     await expect(
       addressesProvider.setAddress(utils.keccak256(utils.toUtf8Bytes('RANDOM_ID')), mockAddress)

@@ -126,7 +126,6 @@ export const initReservesByHelper = async (
       reserveDecimals,
       assetType,
       collateralCap, //1,000,000
-      hasStrategy,
       usingGovernanceSetInterestRate,
       governanceSetInterestRate,
     } = params;
