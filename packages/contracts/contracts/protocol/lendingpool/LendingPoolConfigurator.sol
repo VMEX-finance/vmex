@@ -218,13 +218,13 @@ contract LendingPoolConfigurator is
     /**
      * @dev Updates the aToken implementation for the reserve
      **/
-    function updateAToken(UpdateATokenInput calldata input, uint64 trancheID)
+    function updateAToken(UpdateATokenInput calldata input)
         external
     {
         {
             //placed here instead of modifier because of stack too deep
             require(
-                addressesProvider.getPoolAdmin(trancheID) == msg.sender ||
+                addressesProvider.getPoolAdmin(input.trancheId) == msg.sender ||
                     addressesProvider.getGlobalAdmin() == msg.sender, //getPoolAdmin(trancheId) gets the admin for a specific tranche
                 Errors.CALLER_NOT_POOL_ADMIN
             );
@@ -275,9 +275,8 @@ contract LendingPoolConfigurator is
      * @dev Updates the stable debt token implementation for the reserve
      **/
     function updateStableDebtToken(
-        UpdateDebtTokenInput calldata input,
-        uint64 trancheID
-    ) external onlyPoolAdmin(trancheID) {
+        UpdateDebtTokenInput calldata input
+    ) external onlyPoolAdmin(input.trancheId) {
         ILendingPool cachedPool = pool;
 
         DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
@@ -317,9 +316,8 @@ contract LendingPoolConfigurator is
      * @dev Updates the variable debt token implementation for the asset
      **/
     function updateVariableDebtToken(
-        UpdateDebtTokenInput calldata input,
-        uint64 trancheID
-    ) external onlyPoolAdmin(trancheID) {
+        UpdateDebtTokenInput calldata input
+    ) external onlyPoolAdmin(input.trancheId) {
         ILendingPool cachedPool = pool;
 
         DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(

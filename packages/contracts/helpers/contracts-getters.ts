@@ -48,7 +48,8 @@ import {
 } from "./types";
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];
-export const getEmergencyAdmin = async () => (await getEthersSigners())[1];
+export const getEmergencyAdminT0 = async () => (await getEthersSigners())[0];
+export const getEmergencyAdminT1 = async () => (await getEthersSigners())[7];
 
 export const getLendingPoolAddressesProvider = async (
   address?: tEthereumAddress
