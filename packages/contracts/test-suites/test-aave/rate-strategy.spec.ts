@@ -42,16 +42,17 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       0: currentLiquidityRate,
       1: currentStableBorrowRate,
       2: currentVariableBorrowRate,
-    } = await strategyInstance['calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)'](
-      dai.address,
-      aDai.address,
-      0,
-      0,
-      0,
-      0,
-      0,
-      strategyDAI.reserveFactor
-    );
+    } = await strategyInstance.calculateInterestRates({
+      reserve: dai.address,
+      aToken: aDai.address,
+      liquidityAdded: 0,
+      liquidityTaken: 0,
+      totalStableDebt: 0,
+      totalVariableDebt: 0,
+      averageStableBorrowRate: 0,
+      reserveFactor: strategyDAI.reserveFactor,
+      globalVMEXReserveFactor: 0
+    });
 
     expect(currentLiquidityRate.toString()).to.be.equal('0', 'Invalid liquidity rate');
     expect(currentStableBorrowRate.toString()).to.be.equal(
@@ -69,16 +70,17 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       0: currentLiquidityRate,
       1: currentStableBorrowRate,
       2: currentVariableBorrowRate,
-    } = await strategyInstance['calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)'](
-      dai.address,
-      aDai.address,
-      '200000000000000000',
-      '0',
-      '0',
-      '800000000000000000',
-      '0',
-      strategyDAI.reserveFactor
-    );
+    } = await strategyInstance.calculateInterestRates({
+      reserve: dai.address,
+      aToken: aDai.address,
+      liquidityAdded: '200000000000000000',
+      liquidityTaken: 0,
+      totalStableDebt: 0,
+      totalVariableDebt: '800000000000000000',
+      averageStableBorrowRate: 0,
+      reserveFactor: strategyDAI.reserveFactor,
+      globalVMEXReserveFactor: 0
+    });
 
     const expectedVariableRate = new BigNumber(rateStrategyStableOne.baseVariableBorrowRate).plus(
       rateStrategyStableOne.variableRateSlope1
@@ -108,16 +110,17 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       0: currentLiquidityRate,
       1: currentStableBorrowRate,
       2: currentVariableBorrowRate,
-    } = await strategyInstance['calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)'](
-      dai.address,
-      aDai.address,
-      '0',
-      '0',
-      '0',
-      '800000000000000000',
-      '0',
-      strategyDAI.reserveFactor
-    );
+    } = await strategyInstance.calculateInterestRates({
+      reserve: dai.address,
+      aToken: aDai.address,
+      liquidityAdded: 0,
+      liquidityTaken: 0,
+      totalStableDebt: 0,
+      totalVariableDebt: '800000000000000000',
+      averageStableBorrowRate: 0,
+      reserveFactor: strategyDAI.reserveFactor,
+      globalVMEXReserveFactor: 0
+    });
 
     const expectedVariableRate = new BigNumber(rateStrategyStableOne.baseVariableBorrowRate)
       .plus(rateStrategyStableOne.variableRateSlope1)
@@ -150,16 +153,17 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       0: currentLiquidityRate,
       1: currentStableBorrowRate,
       2: currentVariableBorrowRate,
-    } = await strategyInstance['calculateInterestRates(address,address,uint256,uint256,uint256,uint256,uint256,uint256)'](
-      dai.address,
-      aDai.address,
-      '0',
-      '0',
-      '400000000000000000',
-      '400000000000000000',
-      '100000000000000000000000000',
-      strategyDAI.reserveFactor
-    );
+    } = await strategyInstance.calculateInterestRates({
+      reserve: dai.address,
+      aToken: aDai.address,
+      liquidityAdded: 0,
+      liquidityTaken: 0,
+      totalStableDebt: '400000000000000000',
+      totalVariableDebt: '400000000000000000',
+      averageStableBorrowRate: '100000000000000000000000000',
+      reserveFactor: strategyDAI.reserveFactor,
+      globalVMEXReserveFactor: 0
+    });
 
     const expectedVariableRate = new BigNumber(rateStrategyStableOne.baseVariableBorrowRate)
       .plus(rateStrategyStableOne.variableRateSlope1)

@@ -71,6 +71,8 @@ import {
 import AaveConfig from "../../markets/aave";
 import { oneEther, ZERO_ADDRESS } from "../../helpers/constants";
 import {
+  getEmergencyAdminT0,
+  getEmergencyAdminT1,
   getLendingPool,
   getLendingPoolConfiguratorProxy,
   getPairsTokenAggregator,
@@ -123,7 +125,7 @@ const deployAllMockTokens = async (deployer: Signer) => {
   return tokens;
 };
 
-const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
+const buildTestEnv = async (deployer: Signer) => {
   console.time("setup");
   const aaveAdmin = await deployer.getAddress();
   var config = await loadCustomAavePoolConfig("0"); //loadPoolConfig(ConfigNames.Aave);
@@ -384,7 +386,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     await addressesProvider.addWhitelistedAddress(addressList[2], true)
   );
 
-  const admin = await DRE.ethers.getSigner(await deployer.getAddress());
+  const admin = await DRE.ethers.getSigner(await
+    (await getEmergencyAdminT0()).getAddress());
 
   const {
     ATokenNamePrefix,
@@ -432,7 +435,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     ...config.ReservesConfig,
   };
 
-  const user1 = await DRE.ethers.getSigner(addressList[7]);
+  const user1 =  await DRE.ethers.getSigner(await
+    (await getEmergencyAdminT1()).getAddress());
   console.log("$$$$$$$$$$$$ addressList: ", addressList);
   console.log("$$$$$$$$$$ admin of tranche 1: ", user1.address);
   treasuryAddress = user1.address;
@@ -562,7 +566,7 @@ before(async () => {
     await rawBRE.run("aave:mainnet", { skipRegistry: true });
   } else {
     console.log("-> Deploying test environment...");
-    await buildTestEnv(deployer, secondaryWallet);
+    await buildTestEnv(deployer);
   }
 
   await initializeMakeSuite();

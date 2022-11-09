@@ -30,14 +30,16 @@ makeSuite('AToken: underlying delegation', (testEnv: TestEnv) => {
   let delegationERC20 = <MintableDelegationERC20>{};
 
   it('Deploys a new MintableDelegationERC20 and a DelegationAwareAToken', async () => {
-    const { pool } = testEnv;
+    const { pool, configurator } = testEnv;
 
     delegationERC20 = await deployMintableDelegationERC20(['DEL', 'DEL', '18']);
 
     delegationAToken = await deployDelegationAwareAToken(
       [
         pool.address,
+        configurator.address,
         delegationERC20.address,
+        await getTreasuryAddress(AaveConfig),
         await getTreasuryAddress(AaveConfig),
         ZERO_ADDRESS,
         'aDEL',

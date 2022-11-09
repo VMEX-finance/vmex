@@ -112,16 +112,10 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     /**
      * @dev Calculates the interest rates depending on the reserve's state and configurations
      * @param calvars: reserves The address of the reserve  * liquidityAdded The liquidity added during the operation. liquidityTaken The liquidity taken during the operation reserveFactor The reserve portion of the interest that goes to the treasury of the market
-     * @param totalStableDebt The total borrowed from the reserve a stable rate
-     * @param totalVariableDebt The total borrowed from the reserve at a variable rate
-     * @param averageStableBorrowRate The weighted average of all the stable rate loans
      * @return The liquidity rate, the stable borrow rate and the variable borrow rate
      **/
     function calculateInterestRates(
-        DataTypes.calculateInterestRatesVars memory calvars,
-        uint256 totalStableDebt,
-        uint256 totalVariableDebt,
-        uint256 averageStableBorrowRate
+        DataTypes.calculateInterestRatesVars memory calvars
     )
         external
         view
@@ -154,7 +148,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         CalcInterestRatesLocalVars memory vars;
         {
-            vars.totalDebt = totalStableDebt.add(totalVariableDebt);
+            vars.totalDebt = calvars.totalStableDebt.add(calvars.totalVariableDebt);
             vars.currentVariableBorrowRate = 0;
             vars.currentStableBorrowRate = 0;
             vars.currentLiquidityRate = 0;
@@ -195,10 +189,10 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         }
 
         vars.currentLiquidityRate = _getOverallBorrowRate(
-            totalStableDebt,
-            totalVariableDebt,
+            calvars.totalStableDebt,
+            calvars.totalVariableDebt,
             vars.currentVariableBorrowRate,
-            averageStableBorrowRate
+            calvars.averageStableBorrowRate
         )
         .rayMul(vars.utilizationRate) // % return per asset borrowed * amount borrowed = total expected return in pool
         .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(calvars.reserveFactor)) //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.

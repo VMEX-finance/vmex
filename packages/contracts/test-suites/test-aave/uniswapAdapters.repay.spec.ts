@@ -25,6 +25,7 @@ const { expect } = require('chai');
 makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
   let mockUniswapRouter: MockUniswapV2Router02;
   let evmSnapshotId: string;
+  const tranche = "0";
 
   before(async () => {
     mockUniswapRouter = await getMockUniswapRouter();
@@ -46,33 +47,33 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
       // Provide liquidity
       await dai.mint(parseEther('20000'));
       await dai.approve(pool.address, parseEther('20000'));
-      await pool.deposit(dai.address, parseEther('20000'), deployer.address, 0);
+      await pool.deposit(dai.address, tranche, parseEther('20000'), deployer.address, 0);
 
       const usdcLiquidity = await convertToCurrencyDecimals(usdc.address, '2000000');
       await usdc.mint(usdcLiquidity);
       await usdc.approve(pool.address, usdcLiquidity);
-      await pool.deposit(usdc.address, usdcLiquidity, deployer.address, 0);
+      await pool.deposit(usdc.address, tranche, usdcLiquidity, deployer.address, 0);
 
       await weth.mint(parseEther('100'));
       await weth.approve(pool.address, parseEther('100'));
-      await pool.deposit(weth.address, parseEther('100'), deployer.address, 0);
+      await pool.deposit(weth.address, tranche, parseEther('100'), deployer.address, 0);
 
       await aave.mint(parseEther('1000000'));
       await aave.approve(pool.address, parseEther('1000000'));
-      await pool.deposit(aave.address, parseEther('1000000'), deployer.address, 0);
+      await pool.deposit(aave.address, tranche, parseEther('1000000'), deployer.address, 0);
 
       // Make a deposit for user
       await weth.mint(parseEther('1000'));
       await weth.approve(pool.address, parseEther('1000'));
-      await pool.deposit(weth.address, parseEther('1000'), userAddress, 0);
+      await pool.deposit(weth.address, tranche, parseEther('1000'), userAddress, 0);
 
       await aave.mint(parseEther('1000000'));
       await aave.approve(pool.address, parseEther('1000000'));
-      await pool.deposit(aave.address, parseEther('1000000'), userAddress, 0);
+      await pool.deposit(aave.address, tranche, parseEther('1000000'), userAddress, 0);
 
       await usdc.mint(usdcLiquidity);
       await usdc.approve(pool.address, usdcLiquidity);
-      await pool.deposit(usdc.address, usdcLiquidity, userAddress, 0);
+      await pool.deposit(usdc.address, tranche, usdcLiquidity, userAddress, 0);
     });
 
     describe('constructor', () => {
@@ -121,10 +122,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -215,10 +216,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -321,7 +322,7 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const liquidityToSwap = amountWETHtoSwap;
         await aWETH.connect(user).approve(uniswapRepayAdapter.address, liquidityToSwap);
@@ -370,7 +371,7 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 2, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 2, 0, userAddress);
 
         const liquidityToSwap = amountWETHtoSwap;
         await aWETH.connect(user).approve(uniswapRepayAdapter.address, liquidityToSwap);
@@ -466,7 +467,7 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const bigMaxAmountToSwap = amountWETHtoSwap.mul(2);
         await aWETH.connect(user).approve(uniswapRepayAdapter.address, bigMaxAmountToSwap);
@@ -534,10 +535,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -637,10 +638,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -728,10 +729,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 2, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 2, 0, userAddress);
 
         const daiStableVariableTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).variableDebtTokenAddress;
 
         const daiVariableDebtContract = await getContract<StableDebtToken>(
@@ -806,16 +807,16 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Add deposit for user
         await dai.mint(parseEther('30'));
         await dai.approve(pool.address, parseEther('30'));
-        await pool.deposit(dai.address, parseEther('30'), userAddress, 0);
+        await pool.deposit(dai.address, tranche, parseEther('30'), userAddress, 0);
 
         const amountCollateralToSwap = parseEther('10');
         const debtAmount = parseEther('10');
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, debtAmount, 2, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, debtAmount, 2, 0, userAddress);
 
         const daiVariableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).variableDebtTokenAddress;
 
         const daiVariableDebtContract = await getContract<VariableDebtToken>(
@@ -911,10 +912,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -933,8 +934,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         await mockUniswapRouter.setDefaultMockValue(liquidityToSwap);
 
         await uniswapRepayAdapter.connect(user).swapAndRepay(
-          weth.address,
-          dai.address,
+          {
+            asset: weth.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          },
           liquidityToSwap,
           expectedDaiAmount,
           1,
@@ -984,10 +991,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -1027,8 +1034,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
         await uniswapRepayAdapter.connect(user).swapAndRepay(
-          weth.address,
-          dai.address,
+          {
+            asset: weth.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          },
           liquidityToSwap,
           expectedDaiAmount,
           1,
@@ -1076,8 +1089,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapRepayAdapter.connect(user).swapAndRepay(
-            weth.address,
-            dai.address,
+            {
+              asset: weth.address,
+              trancheId: tranche
+            },
+            {
+              asset: dai.address,
+              trancheId: tranche
+            },
             liquidityToSwap,
             expectedDaiAmount,
             1,
@@ -1107,7 +1126,7 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const bigMaxAmountToSwap = amountWETHtoSwap.mul(2);
         await aWETH.connect(user).approve(uniswapRepayAdapter.address, bigMaxAmountToSwap);
@@ -1118,8 +1137,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapRepayAdapter.connect(user).swapAndRepay(
-            weth.address,
-            dai.address,
+            {
+              asset: weth.address,
+              trancheId: tranche
+            },
+            {
+              asset: dai.address,
+              trancheId: tranche
+            },
             bigMaxAmountToSwap,
             expectedDaiAmount,
             1,
@@ -1158,10 +1183,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -1185,8 +1210,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         await mockUniswapRouter.setDefaultMockValue(actualWEthSwapped);
 
         await uniswapRepayAdapter.connect(user).swapAndRepay(
-          weth.address,
-          dai.address,
+          {
+            asset: weth.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          },
           liquidityToSwap,
           expectedDaiAmount,
           1,
@@ -1240,10 +1271,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 1, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 1, 0, userAddress);
 
         const daiStableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).stableDebtTokenAddress;
 
         const daiStableDebtContract = await getContract<StableDebtToken>(
@@ -1270,8 +1301,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         await mockUniswapRouter.setDefaultMockValue(amountWETHtoSwap);
 
         await uniswapRepayAdapter.connect(user).swapAndRepay(
-          weth.address,
-          dai.address,
+          {
+            asset: weth.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          },
           liquidityToSwap,
           amountToRepay,
           1,
@@ -1323,10 +1360,10 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, expectedDaiAmount, 2, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, expectedDaiAmount, 2, 0, userAddress);
 
         const daiStableVariableTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).variableDebtTokenAddress;
 
         const daiVariableDebtContract = await getContract<StableDebtToken>(
@@ -1355,8 +1392,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         await mockUniswapRouter.setDefaultMockValue(amountWETHtoSwap);
 
         await uniswapRepayAdapter.connect(user).swapAndRepay(
-          weth.address,
-          dai.address,
+          {
+            asset: weth.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          },
           liquidityToSwap,
           amountToRepay,
           2,
@@ -1393,17 +1436,17 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Add deposit for user
         await dai.mint(parseEther('30'));
         await dai.approve(pool.address, parseEther('30'));
-        await pool.deposit(dai.address, parseEther('30'), userAddress, 0);
+        await pool.deposit(dai.address, tranche, parseEther('30'), userAddress, 0);
 
         const amountCollateralToSwap = parseEther('4');
 
         const debtAmount = parseEther('3');
 
         // Open user Debt
-        await pool.connect(user).borrow(dai.address, debtAmount, 2, 0, userAddress);
+        await pool.connect(user).borrow(dai.address, tranche, debtAmount, 2, 0, userAddress);
 
         const daiVariableDebtTokenAddress = (
-          await helpersContract.getReserveTokensAddresses(dai.address)
+          await helpersContract.getReserveTokensAddresses(dai.address, tranche)
         ).variableDebtTokenAddress;
 
         const daiVariableDebtContract = await getContract<StableDebtToken>(
@@ -1420,8 +1463,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         const userDaiBalanceBefore = await dai.balanceOf(userAddress);
 
         await uniswapRepayAdapter.connect(user).swapAndRepay(
-          dai.address,
-          dai.address,
+          {
+            asset: dai.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          },
           amountCollateralToSwap,
           amountCollateralToSwap,
           2,

@@ -24,6 +24,7 @@ const { expect } = require('chai');
 makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
   let mockUniswapRouter: MockUniswapV2Router02;
   let evmSnapshotId: string;
+  const tranche = "0";
 
   before(async () => {
     mockUniswapRouter = await getMockUniswapRouter();
@@ -68,17 +69,17 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Provide liquidity
         await dai.mint(parseEther('20000'));
         await dai.approve(pool.address, parseEther('20000'));
-        await pool.deposit(dai.address, parseEther('20000'), deployer.address, 0);
+        await pool.deposit(dai.address, tranche, parseEther('20000'), deployer.address, 0);
 
         const usdcAmount = await convertToCurrencyDecimals(usdc.address, '10');
         await usdc.mint(usdcAmount);
         await usdc.approve(pool.address, usdcAmount);
-        await pool.deposit(usdc.address, usdcAmount, deployer.address, 0);
+        await pool.deposit(usdc.address, tranche, usdcAmount, deployer.address, 0);
 
         // Make a deposit for user
         await weth.mint(parseEther('100'));
         await weth.approve(pool.address, parseEther('100'));
-        await pool.deposit(weth.address, parseEther('100'), userAddress, 0);
+        await pool.deposit(weth.address, tranche, parseEther('100'), userAddress, 0);
       });
 
       it('should correctly swap tokens and deposit the out tokens in the pool', async () => {
@@ -203,9 +204,9 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Make a deposit for user
         await usdc.connect(user).mint(amountUSDCtoSwap);
         await usdc.connect(user).approve(pool.address, amountUSDCtoSwap);
-        await pool.connect(user).deposit(usdc.address, amountUSDCtoSwap, userAddress, 0);
+        await pool.connect(user).deposit(usdc.address, tranche, amountUSDCtoSwap, userAddress, 0);
 
-        const aUsdcData = await pool.getReserveData(usdc.address);
+        const aUsdcData = await pool.getReserveData(usdc.address, tranche);
         const aUsdc = await getContract<AToken>(eContractid.AToken, aUsdcData.aTokenAddress);
 
         await mockUniswapRouter.setAmountToReturn(weth.address, expectedDaiAmountForEth);
@@ -326,9 +327,9 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Make a deposit for user
         await usdc.connect(user).mint(amountUSDCtoSwap);
         await usdc.connect(user).approve(pool.address, amountUSDCtoSwap);
-        await pool.connect(user).deposit(usdc.address, amountUSDCtoSwap, userAddress, 0);
+        await pool.connect(user).deposit(usdc.address, tranche, amountUSDCtoSwap, userAddress, 0);
 
-        const aUsdcData = await pool.getReserveData(usdc.address);
+        const aUsdcData = await pool.getReserveData(usdc.address, tranche);
         const aUsdc = await getContract<AToken>(eContractid.AToken, aUsdcData.aTokenAddress);
 
         await mockUniswapRouter.setAmountToReturn(weth.address, expectedDaiAmountForEth);
@@ -850,12 +851,12 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Provide liquidity
         await usdc.mint(liquidity);
         await usdc.approve(pool.address, liquidity);
-        await pool.deposit(usdc.address, liquidity, deployer.address, 0);
+        await pool.deposit(usdc.address, tranche, liquidity, deployer.address, 0);
 
         // Make a deposit for user
         await usdc.connect(user).mint(amountUSDCtoSwap);
         await usdc.connect(user).approve(pool.address, amountUSDCtoSwap);
-        await pool.connect(user).deposit(usdc.address, amountUSDCtoSwap, userAddress, 0);
+        await pool.connect(user).deposit(usdc.address, tranche, amountUSDCtoSwap, userAddress, 0);
 
         const usdcPrice = await oracle.getAssetPrice(usdc.address);
         const daiPrice = await oracle.getAssetPrice(dai.address);
@@ -879,7 +880,7 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await mockUniswapRouter.connect(user).setAmountToReturn(usdc.address, expectedDaiAmount);
 
-        const aUsdcData = await pool.getReserveData(usdc.address);
+        const aUsdcData = await pool.getReserveData(usdc.address, tranche);
         const aUsdc = await getContract<AToken>(eContractid.AToken, aUsdcData.aTokenAddress);
         const aUsdcBalance = await aUsdc.balanceOf(userAddress);
         await aUsdc.connect(user).approve(uniswapLiquiditySwapAdapter.address, aUsdcBalance);
@@ -1173,12 +1174,12 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Provide liquidity
         await dai.mint(parseEther('20000'));
         await dai.approve(pool.address, parseEther('20000'));
-        await pool.deposit(dai.address, parseEther('20000'), deployer.address, 0);
+        await pool.deposit(dai.address, tranche, parseEther('20000'), deployer.address, 0);
 
         // Make a deposit for user
         await weth.mint(parseEther('100'));
         await weth.approve(pool.address, parseEther('100'));
-        await pool.deposit(weth.address, parseEther('100'), userAddress, 0);
+        await pool.deposit(weth.address, tranche, parseEther('100'), userAddress, 0);
       });
 
       it('should correctly swap tokens and deposit the out tokens in the pool', async () => {
@@ -1203,8 +1204,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [amountWETHtoSwap],
             [expectedDaiAmount],
             [
@@ -1282,8 +1289,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [amountWETHtoSwap],
             [expectedDaiAmount],
             [
@@ -1331,8 +1344,18 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address, dai.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            },
+            {
+              asset: dai.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [amountWETHtoSwap],
             [expectedDaiAmount],
             [
@@ -1350,8 +1373,18 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address, weth.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            },
+            {
+              asset: weth.address,
+              trancheId: tranche
+            }],
             [amountWETHtoSwap],
             [expectedDaiAmount],
             [
@@ -1369,8 +1402,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [amountWETHtoSwap, amountWETHtoSwap],
             [expectedDaiAmount],
             [
@@ -1390,8 +1429,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
           uniswapLiquiditySwapAdapter
             .connect(user)
             .swapAndDeposit(
-              [weth.address],
-              [dai.address],
+              [{
+                asset: weth.address,
+                trancheId: tranche
+              }],
+              [{
+                asset: dai.address,
+                trancheId: tranche
+              }],
               [amountWETHtoSwap],
               [expectedDaiAmount],
               [],
@@ -1401,8 +1446,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [amountWETHtoSwap],
             [expectedDaiAmount, expectedDaiAmount],
             [
@@ -1440,8 +1491,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [amountWETHtoSwap],
             [smallExpectedDaiAmount],
             [
@@ -1503,9 +1560,9 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Make a deposit for user
         await usdc.connect(user).mint(amountUSDCtoSwap);
         await usdc.connect(user).approve(pool.address, amountUSDCtoSwap);
-        await pool.connect(user).deposit(usdc.address, amountUSDCtoSwap, userAddress, 0);
+        await pool.connect(user).deposit(usdc.address, tranche, amountUSDCtoSwap, userAddress, 0);
 
-        const aUsdcData = await pool.getReserveData(usdc.address);
+        const aUsdcData = await pool.getReserveData(usdc.address, tranche);
         const aUsdc = await getContract<AToken>(eContractid.AToken, aUsdcData.aTokenAddress);
 
         await mockUniswapRouter.setAmountToReturn(weth.address, expectedDaiAmountForEth);
@@ -1517,8 +1574,22 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         const userAUsdcBalanceBefore = await aUsdc.balanceOf(userAddress);
 
         await uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-          [weth.address, usdc.address],
-          [dai.address, dai.address],
+          [{
+            asset: weth.address,
+            trancheId: tranche
+          },
+          {
+            asset: usdc.address,
+            trancheId: tranche
+          }],
+          [{
+            asset: dai.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          }],
           [amountWETHtoSwap, amountUSDCtoSwap],
           [expectedDaiAmountForEth, expectedDaiAmountForUsdc],
           [
@@ -1612,9 +1683,9 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         // Make a deposit for user
         await usdc.connect(user).mint(amountUSDCtoSwap);
         await usdc.connect(user).approve(pool.address, amountUSDCtoSwap);
-        await pool.connect(user).deposit(usdc.address, amountUSDCtoSwap, userAddress, 0);
+        await pool.connect(user).deposit(usdc.address, tranche, amountUSDCtoSwap, userAddress, 0);
 
-        const aUsdcData = await pool.getReserveData(usdc.address);
+        const aUsdcData = await pool.getReserveData(usdc.address, tranche);
         const aUsdc = await getContract<AToken>(eContractid.AToken, aUsdcData.aTokenAddress);
 
         await mockUniswapRouter.setAmountToReturn(weth.address, expectedDaiAmountForEth);
@@ -1658,8 +1729,22 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
         );
 
         await uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-          [weth.address, usdc.address],
-          [dai.address, dai.address],
+          [{
+            asset: weth.address,
+            trancheId: tranche
+          },
+          {
+            asset: usdc.address,
+            trancheId: tranche
+          }],
+          [{
+            asset: dai.address,
+            trancheId: tranche
+          },
+          {
+            asset: dai.address,
+            trancheId: tranche
+          }],
           [amountWETHtoSwap, amountUSDCtoSwap],
           [expectedDaiAmountForEth, expectedDaiAmountForUsdc],
           [
@@ -1732,8 +1817,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [bigAmountToSwap],
             [expectedDaiAmount],
             [
@@ -1818,8 +1909,14 @@ makeSuite('Uniswap adapters', (testEnv: TestEnv) => {
 
         await expect(
           uniswapLiquiditySwapAdapter.connect(user).swapAndDeposit(
-            [weth.address],
-            [dai.address],
+            [{
+              asset: weth.address,
+              trancheId: tranche
+            }],
+            [{
+              asset: dai.address,
+              trancheId: tranche
+            }],
             [bigAmountToSwap],
             [expectedDaiAmount],
             [

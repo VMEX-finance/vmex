@@ -277,6 +277,9 @@ library ReserveLogic {
                     aTokenAddress,
                     liquidityAdded,
                     liquidityTaken,
+                    vars.totalStableDebt,
+                    vars.totalVariableDebt,
+                    vars.avgStableRate,
                     reserve.configuration.getReserveFactor(),
                     reserve.configuration.getVMEXReserveFactor()
                 );
@@ -288,12 +291,7 @@ library ReserveLogic {
                     vars.newVariableRate
                 ) = IReserveInterestRateStrategy(
                     reserve.interestRateStrategyAddress
-                ).calculateInterestRates(
-                        calvars,
-                        vars.totalStableDebt,
-                        vars.totalVariableDebt,
-                        vars.avgStableRate
-                    );
+                ).calculateInterestRates(calvars);
             }
 
             require(

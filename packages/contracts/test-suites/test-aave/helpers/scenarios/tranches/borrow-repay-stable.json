@@ -1,9 +1,9 @@
 {
-  "title": "LendingPool: Borrow/repay (stable rate)",
-  "description": "Test cases for the borrow function, stable mode.",
+  "title": "LendingPool: Borrow/repay (variable rate)",
+  "description": "Test cases for the borrow function, variable mode.",
   "stories": [
     {
-      "description": "User 0 deposits 1000 DAI, user 1 deposits 1 WETH as collateral and borrows 100 DAI at stable rate",
+      "description": "User 0 deposits 1000 DAI, user 1 deposits 1 WETH as collateral and borrows 100 DAI at variable rate",
       "actions": [
         {
           "name": "mint",
@@ -63,7 +63,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "1",
             "timeTravel": "365"
           },
@@ -79,7 +79,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "900",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "1"
           },
           "expected": "revert",
@@ -113,10 +113,10 @@
           "args": {
             "reserve": "DAI",
             "amount": "50",
-            "tranche": "0", 
+            "tranche": "0",
             "user": "1",
             "onBehalfOf": "1",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "revert"
         },
@@ -127,7 +127,7 @@
             "amount": "50",
             "user": "1",
             "onBehalfOf": "1",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "success"
         }
@@ -161,7 +161,7 @@
             "amount": "-1",
             "user": "1",
             "onBehalfOf": "1",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "success"
         }
@@ -182,7 +182,7 @@
       ]
     },
     {
-      "description": "User 1 deposits 1000 DAI, user 2 tries to borrow 1000 DAI at a stable rate without any collateral (revert expected) User 1 withdrawws",
+      "description": "User 1 deposits 1000 DAI, user 2 tries to borrow 1000 DAI at a variable rate without any collateral (revert expected) User 1 withdrawws",
       "actions": [
         {
           "name": "mint",
@@ -215,7 +215,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "1000",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "2"
           },
           "expected": "revert",
@@ -233,7 +233,7 @@
       ]
     },
     {
-      "description": "User 0 deposits 1000 DAI, user 1,2,3,4 deposit 1 WETH each and borrow 100 DAI at stable rate. Everything is repaid, user 0 withdraws",
+      "description": "User 0 deposits 1000 DAI, user 1,2,3,4 deposit 1 WETH each and borrow 100 DAI at variable rate. Everything is repaid, user 0 withdraws",
       "actions": [
         {
           "name": "mint",
@@ -292,7 +292,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "tranche": "0",
             "user": "1",
             "timeTravel": "365"
@@ -304,7 +304,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "1",
             "timeTravel": "365"
           },
@@ -341,7 +341,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "tranche": "0",
             "user": "2",
             "timeTravel": "365"
@@ -353,7 +353,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "2",
             "timeTravel": "365"
           },
@@ -390,7 +390,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "tranche": "0",
             "user": "3",
             "timeTravel": "365"
@@ -402,7 +402,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "3",
             "timeTravel": "365"
           },
@@ -439,7 +439,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "tranche": "0",
             "user": "4",
             "timeTravel": "365"
@@ -451,7 +451,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "4",
             "timeTravel": "365"
           },
@@ -483,7 +483,7 @@
             "tranche": "0",
             "user": "1",
             "onBehalfOf": "1",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "revert"
         },
@@ -494,7 +494,7 @@
             "amount": "-1",
             "user": "1",
             "onBehalfOf": "1",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "success"
         },
@@ -524,7 +524,7 @@
             "tranche": "0",
             "user": "2",
             "onBehalfOf": "2",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "revert"
         },
@@ -535,7 +535,7 @@
             "amount": "-1",
             "user": "2",
             "onBehalfOf": "2",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "success"
         },
@@ -565,7 +565,7 @@
             "tranche": "0",
             "user": "3",
             "onBehalfOf": "3",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "revert"
         },
@@ -576,7 +576,7 @@
             "amount": "-1",
             "user": "3",
             "onBehalfOf": "3",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "success"
         },
@@ -606,7 +606,7 @@
             "tranche": "0",
             "user": "4",
             "onBehalfOf": "4",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "revert"
         },
@@ -617,7 +617,7 @@
             "amount": "-1",
             "user": "4",
             "onBehalfOf": "4",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "success"
         },
@@ -633,7 +633,7 @@
       ]
     },
     {
-      "description": "User 0 deposits 1000 DAI, user 1 deposits 2 WETH and borrow 100 DAI at stable rate first, then 100 DAI at variable rate, repays everything. User 0 withdraws",
+      "description": "User 0 deposits 1000 DAI, user 1 deposits 2 WETH and borrow 100 DAI at variable rate first, then 100 DAI at variable rate, repays everything. User 0 withdraws",
       "actions": [
         {
           "name": "mint",
@@ -693,7 +693,7 @@
             "reserve": "DAI",
             "amount": "100",
             "tranche": "0",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "1",
             "timeTravel": "365"
           },
@@ -716,7 +716,7 @@
           "args": {
             "reserve": "DAI",
             "amount": "100",
-            "borrowRateMode": "stable",
+            "borrowRateMode": "variable",
             "user": "1",
             "timeTravel": "365"
           },
@@ -759,7 +759,7 @@
             "tranche": "0",
             "user": "1",
             "onBehalfOf": "1",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "revert"
         },
@@ -782,7 +782,7 @@
             "amount": "-1",
             "user": "1",
             "onBehalfOf": "1",
-            "borrowRateMode": "stable"
+            "borrowRateMode": "variable"
           },
           "expected": "success"
         },
