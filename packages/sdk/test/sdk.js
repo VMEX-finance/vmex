@@ -13,7 +13,7 @@ const {
     getLendingPoolReservesList,
     getReserveData
 } = require("../dist/utils.js");
-const { 
+const {
     borrow,
     marketReserveAsCollateral,
     withdraw,
@@ -23,11 +23,11 @@ const {
     markReserveAsCollateral
 } = require("../dist/protocol.js");
 const {
-    userAggregatedTrancheData
+    userAggregatedTrancheData, getTVL, getTrancheTVL
 } = require("../dist/analytics.js");
 
 const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-const WETHabi = [
+const IERC20abi = [
     "function allowance(address owner, address spender) external view returns (uint256 remaining)",
     "function approve(address spender, uint256 value) external returns (bool success)",
     "function balanceOf(address owner) external view returns (uint256 balance)",
@@ -47,33 +47,33 @@ const Crv3Crypto = "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff";
 
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 const UNISWAP_ROUTER_ABI = require("@vmex/contracts/localhost_tests/abis/uniswapAbi.json")
-const USDCadd = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+const USDCaddr = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+
+const network = "localhost";
 
 describe("Supply - end-to-end test", () => {
     let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
     const owner = provider.getSigner();
-    
+
     it("1 - signer should receive 3 WETH so he can transact for LP tokens", async () => {
-        const WETH = new ethers.Contract(WETHadd, WETHabi, owner);
+        const WETH = new ethers.Contract(WETHadd, IERC20abi, owner);
         await WETH.connect(owner).deposit({ value: ethers.utils.parseEther("3.0")});
         expect(await WETH.balanceOf(await owner.getAddress())).to.be.above(ethers.utils.parseEther("1.0"))
     });
 
     it("2 - should test the approveUnderlying util", async () => {
-        let lendingPool = await getLendingPoolImpl(owner, "localhost");
+        let lendingPool = await getLendingPoolImpl(owner, network);
         await approveUnderlying(owner, ethers.utils.parseEther("3.0"), WETHadd, lendingPool.address);
     })
 
-    
-    
     it("3 - should test lendingPoolSetPause() function", async () => {
         expect(await lendingPoolPause(owner, false, 'localhost', 0)).to.be.false;
-        
+
     })
-    
+
     it("4 - should test whether the lending Pool is paused or not", async () => {
         let lendingPool = await getLendingPoolImpl(owner, 'localhost');
-        expect(await lendingPool.paused(0)).to.be.false;    
+        expect(await lendingPool.paused(0)).to.be.false;
     })
 
     it("5 - should test the protocol supply function", async () => {
@@ -92,11 +92,36 @@ describe("Supply - end-to-end test", () => {
         let { totalCollateralETH } = await userAggregatedTrancheData({
             signer: owner,
             tranche: 0,
-            network: "localhost"
+            network: network
         });
         expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("1.0"));
     })
 
+    it("7 - test that tranche 0 has non zero TVL", async () => {
+        let trancheTvl0 = await getTrancheTVL({
+            tranche: 0,
+            network: network
+        });
+        console.log("tranche 0 tvl is", trancheTvl0.toString());
+        expect(trancheTvl0).to.be.above(ethers.utils.parseEther("1.0"));
+    })
+
+    it("8 - test tranche 1 has zero TVL", async () => {
+        let trancheTvl1 = await getTrancheTVL({
+            tranche: 1,
+            network: network
+        });
+
+        expect(trancheTvl1).to.be.equal(0);
+    })
+
+    it("9 - test that the protocol has non zero TVL", async () => {
+        let protocolTvl = await getTVL({
+            numTranches: 2,
+            network: network
+        });
+        expect(protocolTvl).to.be.above(ethers.utils.parseEther("1.0"));
+    })
 })
 
 describe("Borrow - end-to-end test", () => {
@@ -104,16 +129,16 @@ describe("Borrow - end-to-end test", () => {
     const temp = provider.getSigner(1);
 
     it("1 - should give temp 1 WETH", async () => {
-        const WETH = new ethers.Contract(WETHadd, WETHabi, temp);
+        const WETH = new ethers.Contract(WETHadd, IERC20abi, temp);
         await WETH.connect(temp).deposit({ value: ethers.utils.parseEther("2.0")});
         await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("1.0"));
         expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(ethers.utils.parseEther("1.0"))
     })
 
     it("2 - should swap for USDC with UNISWAP", async () => {
-        var path = [WETHadd, USDCadd];
+        var path = [WETHadd, USDCaddr];
         var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-        const USDC = new ethers.Contract(USDCadd, WETHabi, temp);
+        const USDC = new ethers.Contract(USDCaddr, IERC20abi, temp);
 
         const UNISWAP = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI, temp);
         await UNISWAP.swapExactETHForTokens(1, path, await temp.getAddress(), deadline, { value: ethers.utils.parseEther("0.5"), gasLimit: "8000000"} );
@@ -122,13 +147,13 @@ describe("Borrow - end-to-end test", () => {
 
 
     it("4 - should supply USDC tokens for aTokens with fn supply()", async () => {
-        USDC = new ethers.Contract(USDCadd, WETHabi, temp)
+        USDC = new ethers.Contract(USDCaddr, IERC20abi, temp)
         expect(await supply({
-            underlying: USDCadd,
+            underlying: USDCaddr,
             trancheId: 0,
             amount: ethers.utils.formatUnits(await USDC.balanceOf(await temp.getAddress())),
             signer: temp,
-            network: "localhost",
+            network: network,
             test: true
         }, () => { return true })).to.be.true;
     })
@@ -136,8 +161,8 @@ describe("Borrow - end-to-end test", () => {
     it("5 - should mark supplied asset for collateral with fn markReserveAsCollateral", async () => {
         markReserveAsCollateral({
             signer: temp,
-            network: "localhost",
-            asset: USDCadd,
+            network: network,
+            asset: USDCaddr,
             trancheId: 0,
             useAsCollateral: true
         }, () => { return true });
@@ -147,19 +172,19 @@ describe("Borrow - end-to-end test", () => {
         let { totalCollateralETH, availableBorrowsETH } = await userAggregatedTrancheData({
             signer: temp,
             tranche: 0,
-            network: "localhost"
+            network: network
         });
         console.log(totalCollateralETH, availableBorrowsETH);
         expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("0"));
     })
 
     it("7 - should test borrowing WETH with borrow() fn", async () => {
-        const WETHContract = new ethers.Contract(WETHadd, WETHabi, temp);
+        const WETHContract = new ethers.Contract(WETHadd, IERC20abi, temp);
         let originalBalance = await WETHContract.balanceOf(await temp.getAddress());
         let { availableBorrowsETH } = await userAggregatedTrancheData({
             signer: temp,
             tranche: 0,
-            network: "localhost"
+            network: network
         })
 
         await borrow({
@@ -168,7 +193,7 @@ describe("Borrow - end-to-end test", () => {
             amount: ethers.utils.parseEther("0.1"),
             interestRateMode: 1,
             signer: temp,
-            network: "localhost",
+            network: network,
             test: true
         })
 
