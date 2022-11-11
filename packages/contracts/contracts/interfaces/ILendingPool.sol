@@ -245,11 +245,11 @@ interface ILendingPool {
      * @param asset The address of the underlying asset borrowed
      * @param user The address of the user to be rebalanced
      **/
-    function rebalanceStableBorrowRate(
-        address asset,
-        uint64 trancheId,
-        address user
-    ) external;
+    // function rebalanceStableBorrowRate(
+    //     address asset,
+    //     uint64 trancheId,
+    //     address user
+    // ) external;
 
     /**
      * @dev Allows depositors to enable/disable a specific deposited asset as collateral
@@ -320,7 +320,7 @@ interface ILendingPool {
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint64 trancheId)
+    function getUserAccountData(address user, uint64 trancheId, bool useTwap)
         external
         view
         returns (
