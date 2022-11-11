@@ -181,7 +181,7 @@ makeSuite(
       const userGlobalData = await pool.getUserAccountData(
         borrower.address,
         tranche
-      );
+      ,false);
       const daiPrice = await oracle.getAssetPrice(dai.address);
 
       const amountDAIToBorrow = await convertToCurrencyDecimals(
@@ -212,7 +212,7 @@ makeSuite(
       const userGlobalDataAfter = await pool.getUserAccountData(
         borrower.address,
         tranche
-      );
+      ,false);
       console.log("user data after", userGlobalDataAfter);
 
       expect(
@@ -234,7 +234,7 @@ makeSuite(
       const userGlobalData = await pool.getUserAccountData(
         borrower.address,
         tranche
-      );
+      ,false);
 
       expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
         oneEther.toFixed(0),
@@ -476,7 +476,7 @@ makeSuite(
       const userGlobalData = await pool.getUserAccountData(
         borrower.address,
         tranche
-      );
+      ,false);
 
       const usdcPrice = await oracle.getAssetPrice(usdc.address);
 
@@ -558,7 +558,7 @@ makeSuite(
       const userGlobalDataAfter = await pool.getUserAccountData(
         borrower.address,
         tranche
-      );
+      ,false);
 
       const usdcReserveDataAfter = await helpersContract.getReserveData(
         usdc.address,
@@ -731,7 +731,7 @@ makeSuite(
       const userGlobalDataAfter = await pool.getUserAccountData(
         borrower.address,
         tranche
-      );
+      ,false);
 
       const usdcReserveDataAfter = await helpersContract.getReserveData(
         usdc.address,

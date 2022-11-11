@@ -215,7 +215,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("801"), "Reserve doesn't have liquidity");
 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             expect(
                 userDat.totalDebtETH.toString()

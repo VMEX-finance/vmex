@@ -26,14 +26,14 @@ import { executeStory } from "./helpers/scenario-engine";
 //   await evmRevert(buidlerevmSnapshotId);
 // };
 
-const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/tranches";
+const scenarioFolder = "./test-suites/test-aave/helpers/scenarios/oldAaveTests";
 
 const selectedScenarios: string[] = [];
 
 fs.readdirSync(scenarioFolder).forEach((file) => {
   if (selectedScenarios.length > 0 && !selectedScenarios.includes(file)) return;
 
-  const scenario = require(`./helpers/scenarios/tranches/${file}`);
+  const scenario = require(`./helpers/scenarios/oldAaveTests/${file}`);
 
   makeSuite(scenario.title, async (testEnv) => {
     //each file resets the state before moving on to the next file. I don't think each story within a file will revert state

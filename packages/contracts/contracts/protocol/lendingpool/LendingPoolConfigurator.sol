@@ -213,6 +213,7 @@ contract LendingPoolConfigurator is
         uint256 decimals;
         ILendingPool cachedPool;
         DataTypes.ReserveData reserveData;
+        UpdateATokenInput input;
     }
 
     /**
@@ -231,43 +232,46 @@ contract LendingPoolConfigurator is
         }
         updateATokenVars memory vars;
         {
+            vars.input  = input;
             vars.cachedPool = pool;
+            vars.DefaultVMEXTreasury = DefaultVMEXTreasury;
 
             vars.reserveData = vars.cachedPool.getReserveData(
-                input.asset,
-                input.trancheId
+                vars.input.asset,
+                vars.input.trancheId
             );
 
             (, , , vars.decimals, ) = vars
                 .cachedPool
-                .getConfiguration(input.asset, input.trancheId)
+                .getConfiguration(vars.input.asset, vars.input.trancheId)
                 .getParamsMemory();
         }
 
         bytes memory encodedCall = abi.encodeWithSelector(
-            IInitializableAToken.initialize.selector,
+            IInitializableAToken.initialize.selector, //selects that we want to call the initialize function
             vars.cachedPool,
             address(this),
-            input.treasury,
-            DefaultVMEXTreasury,
-            input.asset,
-            input.incentivesController,
+            vars.input.treasury,
+            vars.DefaultVMEXTreasury,
+            vars.input.asset,
+            vars.input.trancheId,
+            vars.input.incentivesController,
             vars.decimals,
-            input.name,
-            input.symbol,
-            input.params
+            vars.input.name,
+            vars.input.symbol,
+            vars.input.params
         );
 
         _upgradeTokenImplementation(
             vars.reserveData.aTokenAddress,
-            input.implementation,
+            vars.input.implementation,
             encodedCall
         );
 
         emit ATokenUpgraded(
-            input.asset,
+            vars.input.asset,
             vars.reserveData.aTokenAddress,
-            input.implementation
+            vars.input.implementation
         );
     }
 
@@ -292,6 +296,7 @@ contract LendingPoolConfigurator is
             IInitializableDebtToken.initialize.selector,
             cachedPool,
             input.asset,
+            input.trancheId,
             input.incentivesController,
             decimals,
             input.name,
@@ -333,6 +338,7 @@ contract LendingPoolConfigurator is
             IInitializableDebtToken.initialize.selector,
             cachedPool,
             input.asset,
+            input.trancheId,
             input.incentivesController,
             decimals,
             input.name,
@@ -567,7 +573,7 @@ contract LendingPoolConfigurator is
     }
 
     function _upgradeTokenImplementation(
-        address proxyAddress,
+        address proxyAddress, //current address of the token
         address implementation,
         bytes memory initParams
     ) internal {

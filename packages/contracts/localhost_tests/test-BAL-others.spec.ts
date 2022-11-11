@@ -160,7 +160,7 @@ var triCryptoDepositAbi = [
 
             await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             expect(
                 userDat.totalDebtETH.toString()
@@ -220,7 +220,7 @@ var triCryptoDepositAbi = [
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             // expect(
             //     userDat.totalDebtETH.toString()
@@ -328,7 +328,7 @@ var triCryptoDepositAbi = [
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             // expect(
             //     userDat.totalDebtETH.toString()
@@ -386,7 +386,7 @@ var triCryptoDepositAbi = [
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             // expect(
             //     userDat.totalDebtETH.toString()
@@ -495,7 +495,7 @@ var triCryptoDepositAbi = [
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             // expect(
             //     userDat.totalDebtETH.toString()
@@ -553,7 +553,7 @@ var triCryptoDepositAbi = [
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             // expect(
             //     userDat.totalDebtETH.toString()
@@ -618,7 +618,7 @@ var triCryptoDepositAbi = [
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.01"), 1, '0', await signer.getAddress()); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             console.log(userDat)
 
