@@ -227,7 +227,7 @@ makeSuite(
           // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
           // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "User still needs the aTokens of original deposit");
 
-          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
           // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0"), "Admin starts with nothing");
 
           
@@ -248,7 +248,7 @@ makeSuite(
 
                 var userReserveDataSignerBefore = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
                 var userReserveDataEmergBefore = await dataProv.getUserReserveData(CurveToken.address, 1, emergencyAdmin.address);
-                var userReserveDataAdminBefore = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+                var userReserveDataAdminBefore = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
 
                 var signerStake = calculateUserStake(userReserveDataSignerBefore.currentATokenBalance, aTokenBalance )
                 var emergStake = calculateUserStake(userReserveDataEmergBefore.currentATokenBalance, aTokenBalance )
@@ -297,7 +297,7 @@ makeSuite(
                   .to.be.lessThan(10).and.greaterThan(-10);
 
 
-                var userReserveDataAdmin = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+                var userReserveDataAdmin = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
               console.log("vmex admin userReserveData.currentATokenBalance: ",userReserveDataAdmin.currentATokenBalance )
               var actualAdminInterest = userReserveDataAdmin.currentATokenBalance.sub(userReserveDataAdminBefore.currentATokenBalance);
               var expectedAdminInterest = calculateExpectedInterest(strategyBoostedBalance, strategyStartBoostedBalance, reserveFactor, adminStake)
@@ -350,7 +350,7 @@ makeSuite(
 
           var strategyBoostedBalance = await strategy.balanceOfPool();
           console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
-          expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c")).currentATokenBalance).to.be.almostEqualOrEqual(strategyBoostedBalance)
+          expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")).currentATokenBalance).to.be.almostEqualOrEqual(strategyBoostedBalance)
         });
     }
 )
