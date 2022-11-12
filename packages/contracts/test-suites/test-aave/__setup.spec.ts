@@ -5,6 +5,7 @@ import {
   getEthersSigners,
   registerContractInJsonDb,
   getEthersSignersAddresses,
+  getContractAddressWithJsonFallback
 } from "../../helpers/contracts-helpers";
 import {
   deployLendingPoolAddressesProvider,
@@ -76,6 +77,9 @@ import {
   getLendingPool,
   getLendingPoolConfiguratorProxy,
   getPairsTokenAggregator,
+  getAToken,
+  getStableDebtToken,
+  getVariableDebtToken
 } from "../../helpers/contracts-getters";
 import { WETH9Mocked } from "../../types/WETH9Mocked";
 
@@ -370,6 +374,33 @@ const buildTestEnv = async (deployer: Signer) => {
   );
 
   await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
+
+  await waitForTx(
+    await addressesProvider.setATokenImpl(
+      await getContractAddressWithJsonFallback(
+        eContractid.AToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setVariableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.VariableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setStableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.StableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
 
   await waitForTx(
     await addressesProvider.addWhitelistedAddress(

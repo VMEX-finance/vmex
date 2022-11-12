@@ -117,7 +117,13 @@ contract LendingPoolConfigurator is
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
                 cachedPool,
-                DataTypes.InitReserveInputInternal(input[i], trancheId)
+                DataTypes.InitReserveInputInternal(
+                    input[i], 
+                    trancheId,
+                    addressesProvider.getAToken(),
+                    addressesProvider.getStableDebtToken(),
+                    addressesProvider.getVariableDebtToken()
+                )
             );
         }
     }

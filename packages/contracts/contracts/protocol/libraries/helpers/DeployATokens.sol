@@ -26,13 +26,13 @@ library DeployATokens {
     {
         {
             aTokenProxyAddress = _initTokenWithProxy(
-                vars.internalInput.input.aTokenImpl,
+                vars.internalInput.aTokenImpl,
                 getAbiEncodedAToken(vars)
             );
         }
         {
             stableDebtTokenProxyAddress = _initTokenWithProxy(
-                vars.internalInput.input.stableDebtTokenImpl,
+                vars.internalInput.stableDebtTokenImpl,
                 abi.encodeWithSelector(
                     IInitializableDebtToken.initialize.selector,
                     vars.pool,
@@ -61,7 +61,7 @@ library DeployATokens {
 
         {
             variableDebtTokenProxyAddress = _initTokenWithProxy(
-                vars.internalInput.input.variableDebtTokenImpl,
+                vars.internalInput.variableDebtTokenImpl,
                 abi.encodeWithSelector(
                     IInitializableDebtToken.initialize.selector,
                     vars.pool,

@@ -5,23 +5,29 @@ library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
 
     struct InitReserveInput {
-        address aTokenImpl;
-        address stableDebtTokenImpl;
-        address variableDebtTokenImpl;
+        // address aTokenImpl; //individual tranche users should not have control over this
+        // address stableDebtTokenImpl;
+        // address variableDebtTokenImpl;
+
+        //choose asset, these come with asset
         uint8 underlyingAssetDecimals;
         address interestRateStrategyAddress;
         address underlyingAsset;
-        address treasury;
-        address incentivesController;
         string underlyingAssetName;
-        string aTokenName;
+        string aTokenName; //needs to be unique per asset per tranche. This just provides the same name regardless of tranche, but user inputs the tranche so should give unique name in the end
         string aTokenSymbol;
         string variableDebtTokenName;
         string variableDebtTokenSymbol;
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
-        bytes params;
         uint8 assetType;
+
+        address treasury; //this can be chosen by user
+        address incentivesController;
+        
+        
+        bytes params;
+        
         uint256 collateralCap;
         bool usingGovernanceSetInterestRate; //if true, then the reserves that has this asset will
         uint256 governanceSetInterestRate;
@@ -30,6 +36,9 @@ library DataTypes {
     struct InitReserveInputInternal {
         InitReserveInput input;
         uint64 trancheId;
+        address aTokenImpl;
+        address stableDebtTokenImpl;
+        address variableDebtTokenImpl;
     }
 
     enum ReserveAssetType {
