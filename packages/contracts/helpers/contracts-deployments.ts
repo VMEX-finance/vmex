@@ -1,5 +1,5 @@
 import { Contract } from "ethers";
-import { DRE, notFalsyOrZeroAddress } from "./misc-utils";
+import { DRE, notFalsyOrZeroAddress, waitForTx } from "./misc-utils";
 import {
   tEthereumAddress,
   eContractid,
@@ -67,6 +67,7 @@ import {
   BaseRewardPoolFactory,
   VStrategyHelperFactory,
   CrvLpStrategyFactory,
+  LendingPoolAddressesProvider,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -1101,6 +1102,7 @@ export const chooseATokenDeployment = (id: eContractid) => {
 export const deployATokenImplementations = async (
   pool: ConfigNames,
   reservesConfig: { [key: string]: IReserveParams },
+  // addressesProvider: LendingPoolAddressesProvider,
   verify = false
 ) => {
   const poolConfig = loadPoolConfig(pool);
@@ -1128,6 +1130,13 @@ export const deployATokenImplementations = async (
       );
       console.log(`Deploying implementation`, aTokenImplementations[x]);
       await deployImplementationMethod(verify);
+      // if(aTokenImplementations[x] == eContractid.AToken){
+      //   await waitForTx(
+      //     await addressesProvider.setATokenImpl(
+            
+      //     )
+      //   );
+      // }
     }
   }
 

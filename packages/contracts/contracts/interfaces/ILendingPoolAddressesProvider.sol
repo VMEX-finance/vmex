@@ -13,6 +13,7 @@ import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 interface ILendingPoolAddressesProvider {
     event MarketIdSet(string newMarketId);
     event LendingPoolUpdated(address indexed newAddress);
+
     event ATokensAndRatesHelperUpdated(address indexed newAddress);
     event ConfigurationAdminUpdated(
         address indexed newAddress,
@@ -28,6 +29,11 @@ interface ILendingPoolAddressesProvider {
     event LendingRateOracleUpdated(address indexed newAddress);
     event ProxyCreated(bytes32 id, address indexed newAddress);
     event AddressSet(bytes32 id, address indexed newAddress, bool hasProxy);
+
+
+    event ATokenUpdated(address indexed newAddress);
+    event StableDebtUpdated(address indexed newAddress);
+    event VariableDebtUpdated(address indexed newAddress);
 
     function getMarketId() external view returns (string memory);
 
@@ -108,4 +114,13 @@ interface ILendingPoolAddressesProvider {
     function getLendingRateOracle() external view returns (address); //this oracle determines the stable borrow rate for a reserve. Should only need one, since it is based off the address of the reserve, which is unique for every asset in each tranche in each pool. Governance manually sets this
 
     function setLendingRateOracle(address lendingRateOracle) external;
+
+
+    function getAToken() external view returns (address);
+    function setATokenImpl(address pool) external;
+
+    function getStableDebtToken() external view returns (address);
+    function setStableDebtToken(address pool) external;
+    function getVariableDebtToken() external view returns (address);
+    function setVariableDebtToken(address pool) external;
 }

@@ -29,6 +29,9 @@ contract LendingPoolAddressesProvider is
 
     bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
     bytes32 private constant LENDING_POOL = "LENDING_POOL";
+    bytes32 private constant ATOKEN = "ATOKEN";
+    bytes32 private constant STABLE_DEBT = "STABLE_DEBT";
+    bytes32 private constant VARIABLE_DEBT = "VARIABLE_DEBT";
     bytes32 private constant ATOKEN_AND_RATES_HELPER =
         "ATOKEN_AND_RATES_HELPER";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
@@ -176,6 +179,62 @@ contract LendingPoolAddressesProvider is
     function setLendingPoolImpl(address pool) external override onlyOwner {
         _updateImpl(LENDING_POOL, pool);
         emit LendingPoolUpdated(pool);
+    }
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The aToken proxy address
+     **/
+    function getAToken() external view override returns (address) {
+        return getAddress(ATOKEN);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param aToken The new aToken implementation
+     **/
+    function setATokenImpl(address aToken) external override onlyOwner {
+        _addresses[ATOKEN] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        emit ATokenUpdated(aToken);
+    }
+
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The aToken proxy address
+     **/
+    function getStableDebtToken() external view override returns (address) {
+        return getAddress(STABLE_DEBT);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param aToken The new aToken implementation
+     **/
+    function setStableDebtToken(address aToken) external override onlyOwner {
+        _addresses[STABLE_DEBT] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        emit StableDebtUpdated(aToken);
+    }
+
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The aToken proxy address
+     **/
+    function getVariableDebtToken() external view override returns (address) {
+        return getAddress(VARIABLE_DEBT);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param aToken The new aToken implementation
+     **/
+    function setVariableDebtToken(address aToken) external override onlyOwner {
+        _addresses[VARIABLE_DEBT] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        emit VariableDebtUpdated(aToken);
     }
 
     /**
