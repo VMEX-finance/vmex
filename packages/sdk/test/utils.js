@@ -5,13 +5,13 @@ const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
 
 const {
-    getTrancheNames 
-} = require("../dist");
+    getAllTrancheNames
+} = require("../dist/analytics");
 
 
 describe("Utils - unit tests", () => {
     it("1 - should be able to get number of tranches without using a signer", async () => {
-        const data = await getTrancheNames('localhost');
+        const data = await getAllTrancheNames({network: 'localhost'});
         console.log(data);
     })
 })
