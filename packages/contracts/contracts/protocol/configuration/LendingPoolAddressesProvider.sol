@@ -47,6 +47,7 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
 
     bytes32 private constant CURVE_ADDRESS_PROVIDER = "CURVE_ADDRESS_PROVIDER";
+    bytes32 private constant ASSET_MAPPINGS = "ASSET_MAPPINGS";
 
     constructor(string memory marketId) public {
         _setMarketId(marketId);
@@ -373,18 +374,18 @@ contract LendingPoolAddressesProvider is
         return getAddressTranche(EMERGENCY_ADMIN, trancheId);
     }
 
-    function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
-        external
-        override
-    {
-        require(
-            _msgSender() == owner() ||
-                _msgSender() == getAddressTranche(EMERGENCY_ADMIN, trancheId),
-            "Sender is not VMEX admin or the original admin of the tranche"
-        );
-        _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
-        emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
-    }
+    // function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
+    //     external
+    //     override
+    // {
+    //     require(
+    //         _msgSender() == owner() ||
+    //             _msgSender() == getAddressTranche(EMERGENCY_ADMIN, trancheId),
+    //         "Sender is not VMEX admin or the original admin of the tranche"
+    //     );
+    //     _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
+    //     emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
+    // }
 
     function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
         external
@@ -533,5 +534,12 @@ contract LendingPoolAddressesProvider is
     function _setMarketId(string memory marketId) internal {
         _marketId = marketId;
         emit MarketIdSet(marketId);
+    }
+
+    function getAssetMappings() external view override returns (address){
+        return getAddress(ASSET_MAPPINGS);
+    }
+    function setAssetMappings(address pool) external override onlyOwner{
+        _addresses[ASSET_MAPPINGS] = pool;
     }
 }

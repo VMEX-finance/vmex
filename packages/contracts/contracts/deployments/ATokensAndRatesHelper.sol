@@ -15,6 +15,8 @@ import {ILendingPool} from "../interfaces/ILendingPool.sol";
 
 import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
 
+import {AssetMappings} from "../protocol/lendingpool/AssetMappings.sol";
+
 contract ATokensAndRatesHelper is Ownable {
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
 
@@ -55,12 +57,7 @@ contract ATokensAndRatesHelper is Ownable {
 
     struct ConfigureReserveInput {
         address asset;
-        uint256 baseLTV;
-        uint256 liquidationThreshold;
-        uint256 liquidationBonus;
         uint256 reserveFactor;
-        bool stableBorrowingEnabled;
-        bool borrowingEnabled;
     }
 
     constructor(
@@ -105,19 +102,18 @@ contract ATokensAndRatesHelper is Ownable {
             poolConfigurator
         );
         for (uint256 i = 0; i < inputParams.length; i++) {
+            DataTypes.AssetDataConfiguration memory vars = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings()).getAssetConfigurationMapping(inputParams[i].asset);
             configurator.configureReserveAsCollateral(
                 inputParams[i].asset,
                 trancheId,
-                inputParams[i].baseLTV,
-                inputParams[i].liquidationThreshold,
-                inputParams[i].liquidationBonus
+                vars
             );
 
-            if (inputParams[i].borrowingEnabled) {
+            if (vars.borrowingEnabled) {
                 configurator.enableBorrowingOnReserve(
                     inputParams[i].asset,
                     trancheId,
-                    inputParams[i].stableBorrowingEnabled
+                    vars.stableBorrowingEnabled
                 );
             }
             setReserveFactor(

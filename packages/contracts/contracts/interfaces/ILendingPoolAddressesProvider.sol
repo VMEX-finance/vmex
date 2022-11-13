@@ -76,7 +76,7 @@ interface ILendingPoolAddressesProvider {
         view
         returns (address); //this depends on trancheId
 
-    function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
+    // function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
     function addPoolAdmin(address admin, uint64 trancheId) external;
 
@@ -123,4 +123,8 @@ interface ILendingPoolAddressesProvider {
     function setStableDebtToken(address pool) external;
     function getVariableDebtToken() external view returns (address);
     function setVariableDebtToken(address pool) external;
+
+
+    function getAssetMappings() external view returns (address);
+    function setAssetMappings(address pool) external;
 }

@@ -8,6 +8,7 @@ import {
   getContractAddressWithJsonFallback
 } from "../../helpers/contracts-helpers";
 import {
+  deployAssetMapping,
   deployLendingPoolAddressesProvider,
   deployMintableERC20,
   deployLendingPoolAddressesProviderRegistry,
@@ -68,6 +69,8 @@ import {
   initReservesByHelper,
   configureReservesByHelper,
   claimTrancheId,
+  initAssetData,
+  initAssetConfigurationData
 } from "../../helpers/init-helpers";
 import AaveConfig from "../../markets/aave";
 import { oneEther, ZERO_ADDRESS } from "../../helpers/constants";
@@ -132,7 +135,7 @@ const deployAllMockTokens = async (deployer: Signer) => {
 const buildTestEnv = async (deployer: Signer) => {
   console.time("setup");
   const aaveAdmin = await deployer.getAddress();
-  var config = await loadCustomAavePoolConfig("0"); //loadPoolConfig(ConfigNames.Aave);
+  var config = loadPoolConfig(ConfigNames.Aave);
 
   const mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
@@ -428,12 +431,14 @@ const buildTestEnv = async (deployer: Signer) => {
   } = config;
   var treasuryAddress = admin.address;
 
-  //-------------------------------------------------------------
-  //deploy tranche 0
+  //deploy AssetMappings
+  const AssetMapping = await deployAssetMapping(addressesProvider.address);
 
-  await claimTrancheId("Vmex tranche 0", admin, admin);
+  await waitForTx(
+    await addressesProvider.setAssetMappings(AssetMapping.address)
+  );
 
-  await initReservesByHelper(
+  await initAssetData(
     reservesParams,
     allReservesAddresses,
     ATokenNamePrefix,
@@ -441,9 +446,31 @@ const buildTestEnv = async (deployer: Signer) => {
     VariableDebtTokenNamePrefix,
     SymbolPrefix,
     admin,
+    false
+  );
+
+  await initAssetConfigurationData(
+    reservesParams,
+    allReservesAddresses,
+    testHelpers,
+    0,
+    admin
+  );
+
+  //-------------------------------------------------------------
+  //deploy tranche 0
+  config = await loadCustomAavePoolConfig("0");
+  reservesParams = {
+    ...config.ReservesConfig,
+  };
+  await claimTrancheId("Vmex tranche 0", admin, admin);
+
+  await initReservesByHelper(
+    reservesParams,
+    allReservesAddresses,
+    admin,
     treasuryAddress,
     ZERO_ADDRESS,
-    ConfigNames.Aave,
     0,
     false
   );
@@ -476,14 +503,9 @@ const buildTestEnv = async (deployer: Signer) => {
   await initReservesByHelper(
     reservesParams,
     allReservesAddresses,
-    ATokenNamePrefix,
-    StableDebtTokenNamePrefix,
-    VariableDebtTokenNamePrefix,
-    SymbolPrefix,
     user1,
     treasuryAddress,
     ZERO_ADDRESS,
-    ConfigNames.Aave,
     1,
     false
   );

@@ -333,14 +333,13 @@ interface ILendingPool {
         );
 
     function initReserve(
-        DataTypes.InitReserveInput calldata input,
+        address underlyingAsset,
+        uint64 trancheId,
+        address interestRateStrategyAddress,
         address aTokenAddress,
         address stableDebtAddress,
-        address variableDebtAddress,
-        uint64 trancheId
+        address variableDebtAddress
     ) external;
-
-    function setAssetData(address asset, uint8 _assetType) external;
 
     function setReserveInterestRateStrategyAddress(
         address reserve,
@@ -421,10 +420,6 @@ interface ILendingPool {
 
     // function getReservesList(uint64 trancheId) external view returns (address[] memory);
 
-    function getAssetData(address asset)
-        external
-        view
-        returns (DataTypes.ReserveAssetType);
 
     function getAddressesProvider()
         external

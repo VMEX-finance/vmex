@@ -69,8 +69,7 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        ILendingPoolAddressesProvider _addressesProvider
     ) external view {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
@@ -95,8 +94,7 @@ library ValidationLogic {
                 reservesData,
                 userConfig,
                 reserves,
-                reservesCount,
-                assetDatas
+                reservesCount
             ),
             Errors.VL_TRANSFER_NOT_ALLOWED
         );
@@ -126,8 +124,7 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        ILendingPoolAddressesProvider _addressesProvider
     ) external view {
         ValidateBorrowLocalVars memory vars;
 
@@ -166,7 +163,6 @@ library ValidationLogic {
             reserves,
             reservesCount,
             _addressesProvider,
-            assetDatas,
             true //borrows need to use twap
         );
 
@@ -393,8 +389,7 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        ILendingPoolAddressesProvider _addressesProvider
     ) external view {
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
             msg.sender
@@ -418,8 +413,7 @@ library ValidationLogic {
                     reservesData,
                     userConfig,
                     reserves,
-                    reservesCount,
-                    assetDatas
+                    reservesCount
                 ),
             Errors.VL_DEPOSIT_ALREADY_IN_USE
         );
@@ -525,8 +519,7 @@ library ValidationLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        ILendingPoolAddressesProvider _addressesProvider
     ) internal view {
         (, , , , uint256 healthFactor) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(from, trancheId),
@@ -535,7 +528,6 @@ library ValidationLogic {
             reserves,
             reservesCount,
             _addressesProvider,
-            assetDatas,
             true //same logic as withdraws
         );
         // uint256 healthFactor = 1;

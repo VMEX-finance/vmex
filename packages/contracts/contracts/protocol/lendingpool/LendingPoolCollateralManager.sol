@@ -24,6 +24,7 @@ import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
 import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 
+import {AssetMappings} from "./AssetMappings.sol";
 import "hardhat/console.sol";
 
 /**
@@ -122,7 +123,6 @@ contract LendingPoolCollateralManager is
                 _reservesList[trancheId],
                 _reservesCount[trancheId],
                 _addressesProvider,
-                assetDatas,
                 false //liquidations don't want to use twap
             );
         }
@@ -354,14 +354,14 @@ contract LendingPoolCollateralManager is
         AvailableCollateralToLiquidateLocalVars memory vars;
         {
             address oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[collateralAsset]
+                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(collateralAsset)
             ); //using just chainlink current price oracle, not using 24 hour twap
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
             oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[debtAsset]
+                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(debtAsset)
             );
 
             oracle = IPriceOracleGetter(oracleAddress);

@@ -1,4 +1,5 @@
 import {
+  AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
   ATokenFactory,
   ATokensAndRatesHelperFactory,
@@ -74,6 +75,20 @@ export const getLendingPoolConfiguratorProxy = async (
       (
         await getDb()
           .get(`${eContractid.LendingPoolConfigurator}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+};
+
+export const getAssetMappings = async (
+  address?: tEthereumAddress
+) => {
+  return await AssetMappingsFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.AssetMappings}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

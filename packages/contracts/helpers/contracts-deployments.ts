@@ -20,6 +20,7 @@ import {
 } from "./configuration";
 import { getFirstSigner } from "./contracts-getters";
 import {
+  AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
   ATokenFactory,
   ATokensAndRatesHelperFactory,
@@ -1203,3 +1204,16 @@ export const deployParaSwapLiquiditySwapAdapter = async (
     args,
     verify
   );
+
+  export const deployAssetMapping = async (
+    addressesProvider: tEthereumAddress,
+    verify?: boolean
+  ) =>
+    withSaveAndVerify(
+      await new AssetMappingsFactory(await getFirstSigner()).deploy(
+        addressesProvider
+      ),
+      eContractid.AssetMappings,
+      [addressesProvider],
+      verify
+    );

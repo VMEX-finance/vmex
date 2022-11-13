@@ -5,6 +5,7 @@ import {
   deployWalletBalancerProvider,
   authorizeWETHGateway,
   deployUiPoolDataProviderV2,
+  deployAssetMapping
 } from "../../helpers/contracts-deployments";
 import {
   loadPoolConfig,
@@ -45,6 +46,8 @@ task(
   .setAction(async ({ verify, pool }, DRE) => {
     try {
       await DRE.run("set-DRE");
+
+  
       const network = <eNetwork>DRE.network.name;
       const poolConfig = await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
@@ -65,7 +68,9 @@ task(
         network
       );
       const addressesProvider = await getLendingPoolAddressesProvider();
-
+      //deploy AssetMappings
+      await deployAssetMapping(addressesProvider.address);
+      
       const lendingPoolConfiguratorProxy =
         await getLendingPoolConfiguratorProxy(
           await addressesProvider.getLendingPoolConfigurator()
