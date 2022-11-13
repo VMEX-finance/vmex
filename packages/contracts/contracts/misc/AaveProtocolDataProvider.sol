@@ -153,6 +153,7 @@ contract AaveProtocolDataProvider {
         view
         returns (
             uint256 availableLiquidity,
+            uint256 totalSupplied,
             uint256 totalStableDebt,
             uint256 totalVariableDebt,
             uint256 liquidityRate,
@@ -170,6 +171,7 @@ contract AaveProtocolDataProvider {
 
         return (
             IERC20Detailed(asset).balanceOf(reserve.aTokenAddress),
+            IERC20Detailed(reserve.aTokenAddress).totalSupply(),
             IERC20Detailed(reserve.stableDebtTokenAddress).totalSupply(),
             IERC20Detailed(reserve.variableDebtTokenAddress).totalSupply(),
             reserve.currentLiquidityRate,
