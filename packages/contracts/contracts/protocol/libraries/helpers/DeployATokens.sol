@@ -41,20 +41,19 @@ library DeployATokens {
                     IAaveIncentivesController(
                         vars.internalInput.input.incentivesController
                     ),
-                    vars.internalInput.input.underlyingAssetDecimals,
+                    vars.internalInput.assetdata.underlyingAssetDecimals,
                     string(
                         abi.encodePacked(
-                            vars.internalInput.input.stableDebtTokenName,
+                            vars.internalInput.assetdata.stableDebtTokenName,
                             Strings.toString(vars.internalInput.trancheId)
                         )
                     ), //abi.encodePacked(input.stableDebtTokenName, trancheId),
                     string(
                         abi.encodePacked(
-                            vars.internalInput.input.stableDebtTokenSymbol,
+                            vars.internalInput.assetdata.stableDebtTokenSymbol,
                             Strings.toString(vars.internalInput.trancheId)
                         )
-                    ), //abi.encodePacked(input.stableDebtTokenSymbol, trancheId),
-                    vars.internalInput.input.params
+                    )
                 )
             );
         }
@@ -70,20 +69,19 @@ library DeployATokens {
                     IAaveIncentivesController(
                         vars.internalInput.input.incentivesController
                     ),
-                    vars.internalInput.input.underlyingAssetDecimals,
+                    vars.internalInput.assetdata.underlyingAssetDecimals,
                     string(
                         abi.encodePacked(
-                            vars.internalInput.input.variableDebtTokenName,
+                            vars.internalInput.assetdata.variableDebtTokenName,
                             Strings.toString(vars.internalInput.trancheId)
                         )
                     ), //abi.encodePacked(input.variableDebtTokenName, trancheId),
                     string(
                         abi.encodePacked(
-                            vars.internalInput.input.variableDebtTokenSymbol,
+                            vars.internalInput.assetdata.variableDebtTokenSymbol,
                             Strings.toString(vars.internalInput.trancheId)
                         )
-                    ), //abi.encodePacked(input.variableDebtTokenSymbol,trancheId),
-                    vars.internalInput.input.params
+                    )
                 )
             );
         }
@@ -106,20 +104,19 @@ library DeployATokens {
                 IAaveIncentivesController(
                     vars.internalInput.input.incentivesController
                 ),
-                vars.internalInput.input.underlyingAssetDecimals,
+                vars.internalInput.assetdata.underlyingAssetDecimals,
                 string(
                     abi.encodePacked(
-                        vars.internalInput.input.aTokenName,
+                        vars.internalInput.assetdata.aTokenName,
                         Strings.toString(vars.internalInput.trancheId)
                     )
                 ),
                 string(
                     abi.encodePacked(
-                        vars.internalInput.input.aTokenSymbol,
+                        vars.internalInput.assetdata.aTokenSymbol,
                         Strings.toString(vars.internalInput.trancheId)
                     )
-                ),
-                vars.internalInput.input.params
+                )
             );
     }
 

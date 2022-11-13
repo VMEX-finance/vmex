@@ -192,8 +192,7 @@ contract LendingPool is
         {
             _reserves[asset][trancheId]._deposit(
                 vars,
-                _usersConfig[onBehalfOf][trancheId],
-                assetDatas
+                _usersConfig[onBehalfOf][trancheId]
             );
         }
         lastUserDeposit[msg.sender][trancheId] = block.number;
@@ -232,8 +231,7 @@ contract LendingPool is
                     amount,
                     to
                 ),
-                _addressesProvider,
-                assetDatas
+                _addressesProvider
             );
     }
 
@@ -308,7 +306,6 @@ contract LendingPool is
             _reserves,
             _reservesList[trancheId],
             userConfig,
-            assetDatas,
             _addressesProvider,
             vars
         );
@@ -527,8 +524,7 @@ contract LendingPool is
                 _usersConfig[msg.sender][trancheId],
                 _reservesList[trancheId],
                 _reservesCount[trancheId],
-                _addressesProvider,
-                assetDatas
+                _addressesProvider
             );
         }
 
@@ -694,15 +690,6 @@ contract LendingPool is
         reserve.liquidityIndex = newLiquidityIndex;
     }
 
-    function getAssetData(address asset)
-        external
-        view
-        override
-        returns (DataTypes.ReserveAssetType)
-    {
-        return assetDatas[asset];
-    }
-
     /**
      * @dev Returns the user account data across all the reserves in a specific trancheId
      * @param user The address of the user
@@ -739,7 +726,6 @@ contract LendingPool is
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
-            assetDatas,
             useTwap
         );
         // (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
@@ -919,8 +905,7 @@ contract LendingPool is
             _usersConfig[from][trancheId],
             _reservesList[trancheId],
             _reservesCount[trancheId],
-            _addressesProvider,
-            assetDatas
+            _addressesProvider
         );
 
         uint256 reserveId = _reserves[asset][trancheId].id;
@@ -952,37 +937,38 @@ contract LendingPool is
      * @param aTokenAddress The address of the VariableDebtToken that will be assigned to the reserve
      **/
     function initReserve(
-        DataTypes.InitReserveInput calldata input,
+        address underlyingAsset,
+        uint64 trancheId,
+        address interestRateStrategyAddress,
         address aTokenAddress,
         address stableDebtAddress,
-        address variableDebtAddress,
-        uint64 trancheId
+        address variableDebtAddress
     ) external override onlyLendingPoolConfigurator {
         require(
-            Address.isContract(input.underlyingAsset),
+            Address.isContract(underlyingAsset),
             Errors.LP_NOT_CONTRACT
         );
         //considering requiring _reservesCount[trancheId] = 0, but you can add another asset to an existing tranche too.
-        _reserves[input.underlyingAsset][trancheId].init(
+        _reserves[underlyingAsset][trancheId].init(
             aTokenAddress,
             stableDebtAddress,
             variableDebtAddress,
-            input,
+            interestRateStrategyAddress,
             trancheId
         );
 
         // TODO: update for tranches
-        _addReserveToList(input.underlyingAsset, trancheId);
+        _addReserveToList(underlyingAsset, trancheId);
     }
 
-    function setAssetData(address asset, uint8 _assetType)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
-        assetDatas[asset] = DataTypes.ReserveAssetType(_assetType);
-    }
+    // function setAssetData(address asset, uint8 _assetType)
+    //     external
+    //     override
+    //     onlyLendingPoolConfigurator
+    // {
+    //     //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
+    //     assetDatas[asset] = DataTypes.ReserveAssetType(_assetType);
+    // }
 
     /**
      * @dev Updates the address of the interest rate strategy contract
