@@ -26,7 +26,6 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
-
 import "hardhat/console.sol";
 /**
  * @title LendingPool contract
@@ -1036,11 +1035,13 @@ contract LendingPool is
         }
     }
 
-    function addStrategy(
+    
+
+    function setAndApproveStrategy(
         address asset,
         uint64 trancheId,
         address strategy
-    ) external override onlyLendingPoolConfigurator {
+    ) external override{
         IAToken(_reserves[asset][trancheId].aTokenAddress)
             .setAndApproveStrategy(strategy);
     }

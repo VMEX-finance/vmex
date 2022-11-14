@@ -18,6 +18,8 @@ import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurato
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
 import {AssetMappings} from "./AssetMappings.sol";
+import {CrvLpStrategy} from "../strategies/strats/CrvLpStrategy.sol";
+
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 
 /**
@@ -388,7 +390,7 @@ contract LendingPoolConfigurator is
         address asset,
         uint64 trancheId,
         bool stableBorrowRateEnabled
-    ) external onlyGlobalAdmin {
+    ) external onlyATokensAndRatesHelperOrGlobalAdmin {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
@@ -627,9 +629,29 @@ contract LendingPoolConfigurator is
         uint8 strategyId
     ) external onlyPoolAdmin(trancheId) {
         address strategy = AssetMappings(addressesProvider.getAssetMappings()).getCurveStrategyAddress(asset,strategyId);
-        pool.addStrategy(asset, trancheId, strategy);
+        address impl = DeployATokens._initTokenWithProxy(
+            strategy, 
+            abi.encodeWithSelector(
+                CrvLpStrategy.initialize.selector,
+                address(addressesProvider),
+                asset,
+                trancheId
+            )
+        );
+
+        pool.setAndApproveStrategy(asset,trancheId,impl);
         emit StrategyAdded(asset, trancheId, strategy);
     }
+
+    // function addStrategy(
+    //     address asset,
+    //     uint64 trancheId,
+    //     uint8 strategyId
+    // ) external onlyPoolAdmin(trancheId) {
+    //     address strategy = AssetMappings(addressesProvider.getAssetMappings()).getCurveStrategyAddress(asset,strategyId);
+    //     pool.addStrategy(asset, trancheId, strategy);
+    //     emit StrategyAdded(asset, trancheId, strategy);
+    // }
 
     function setWhitelist(uint64 trancheId, address user, bool isWhitelisted) external onlyPoolAdmin(trancheId) {
         pool.addToWhitelist(trancheId, user, isWhitelisted);

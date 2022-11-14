@@ -430,7 +430,7 @@ interface ILendingPool {
 
     function paused(uint64 trancheId) external view returns (bool);
 
-    function addStrategy(
+    function setAndApproveStrategy(
         address asset,
         uint64 trancheId,
         address strategy

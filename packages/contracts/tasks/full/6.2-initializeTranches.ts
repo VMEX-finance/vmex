@@ -7,7 +7,6 @@ import {
   getTreasuryAddress,
   getEmergencyAdmin,
 } from "../../helpers/configuration";
-import { deployTricrypto2Strategy } from "../../helpers/contracts-deployments";
 import { getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
@@ -24,7 +23,7 @@ import {
 } from "../../helpers/contracts-getters";
 
 task(
-  "full:initialize-lending-pool-tranche-1",
+  "full:initialize-lending-pool-tranches-1",
   "Initialize lending pool tranche 1 configuration."
 )
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -37,6 +36,7 @@ task(
   .setAction(async ({ verify, pool }, DRE) => {
     try {
       await DRE.run("set-DRE");
+      
       const network = <eNetwork>DRE.network.name;
       const poolConfig = await loadCustomAavePoolConfig("1"); //this is only for mainnet
       const {
@@ -89,14 +89,9 @@ task(
       await initReservesByHelper(
         ReservesConfig,
         reserveAssets,
-        ATokenNamePrefix,
-        StableDebtTokenNamePrefix,
-        VariableDebtTokenNamePrefix,
-        SymbolPrefix,
         emergAdmin,
         treasuryAddress,
         incentivesController,
-        pool,
         1, //tranche id
         verify
       );
@@ -108,31 +103,8 @@ task(
         emergAdmin.address
       );
 
-      // deploy strategies
-      const tricrypto2Strat = await deployTricrypto2Strategy();
+
       const tricrypto2StratTranche = 1;
-
-      console.log(
-        "DEPLOYED tricrypto Strat at address",
-        tricrypto2Strat.address
-      );
-
-      await waitForTx(
-        await tricrypto2Strat.connect(emergAdmin).initialize(
-          addressesProvider.address,
-          reserveAssets["Tricrypto2"],
-          tricrypto2StratTranche,
-          38,
-          3,
-          "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool
-          "0xF403C135812408BFbE8713b5A23a04b3D48AAE31" // address of convex booster
-        )
-      );
-
-      console.log(
-        "Initialized cvxCrv Strat at address",
-        tricrypto2Strat.address
-      );
 
       // admin grants strategy access to all funds
       await waitForTx(
@@ -141,9 +113,11 @@ task(
           .addStrategy(
             reserveAssets["Tricrypto2"],
             tricrypto2StratTranche,
-            tricrypto2Strat.address
+            "0" //default
           )
       );
+
+      console.log("Finished deploying strategy in tranche 1");
     } catch (err) {
       console.error(err);
       exit(1);

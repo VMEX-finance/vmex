@@ -43,8 +43,13 @@ task("aave:mainnet", "Deploy development enviroment")
     console.log("6. Initialize lending pool");
     await DRE.run("full:initialize-lending-pool", { pool: POOL_NAME });
 
-    console.log("6.1. Initialize lending pool tranche 1");
-    await DRE.run("full:initialize-lending-pool-tranche-1", {
+    console.log("6.1. Initialize lending pool tranche 0");
+    await DRE.run("full:initialize-lending-pool-tranches-0", {
+      pool: POOL_NAME,
+    });
+
+    console.log("6.2. Initialize lending pool tranche 1");
+    await DRE.run("full:initialize-lending-pool-tranches-1", {
       pool: POOL_NAME,
     });
 

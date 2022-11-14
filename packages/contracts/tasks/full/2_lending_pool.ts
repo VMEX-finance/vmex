@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import {
   getParamPerNetwork,
   insertContractAddressInDb,
+  getContractAddressWithJsonFallback
 } from "../../helpers/contracts-helpers";
 import {
   deployATokenImplementations,
@@ -147,6 +148,36 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
         poolConfig.ReservesConfig,
         verify
       );
+
+
+  await waitForTx(
+    await addressesProvider.setATokenImpl(
+      await getContractAddressWithJsonFallback(
+        eContractid.AToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setVariableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.VariableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setStableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.StableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+
     } catch (error) {
       if (DRE.network.name.includes("tenderly")) {
         const transactionLink = `https://dashboard.tenderly.co/${

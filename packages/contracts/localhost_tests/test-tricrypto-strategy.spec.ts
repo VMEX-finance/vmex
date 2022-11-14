@@ -154,7 +154,7 @@ makeSuite(
 
         it("strategy pulls LP and invests", async () => {
           const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
+          
           const signer = await contractGetters.getFirstSigner();
           const emergencyAdmin = (await DRE.ethers.getSigners())[1]
           var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
@@ -172,6 +172,8 @@ makeSuite(
 
           const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
           console.log("tricrypto2 atoken total supply: ", aTokenBalance);
+
+          const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           const vTokenAddress = await strategy.connect(signer).vToken(); //this should be the same as tricrypto2Tranch1AToken
           console.log("vtoken address: ", vTokenAddress);
@@ -212,7 +214,7 @@ makeSuite(
 
         it("strategy booster earns interest redeposits", async () => {
           const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
+          
           const signer = await contractGetters.getFirstSigner();
           const emergencyAdmin = (await DRE.ethers.getSigners())[1]
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
@@ -238,6 +240,8 @@ makeSuite(
 
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
+
+            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
             for(let i = 0; i<3;i++){
                 var strategyStartBoostedBalance = await strategy.balanceOfPool();
@@ -321,7 +325,6 @@ makeSuite(
 
         it("all users withdraws which withdraws from the booster", async () => {
           const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
           const signer = await contractGetters.getFirstSigner();
           const emergencyAdmin = (await DRE.ethers.getSigners())[1]
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
@@ -333,6 +336,8 @@ makeSuite(
 
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
+
+            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           await lendingPool.connect(signer)
             .withdraw(

@@ -9,7 +9,10 @@ import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {vStrategyHelper} from "../deps/vStrategyHelper.sol";
 import {ICurveFi} from "../deps/curve/ICurveFi.sol";
 import {IUniswapV2Router02} from "../deps/sushi/IUniswapV2Router02.sol";
-
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {AssetMappings} from "../../../protocol/lendingpool/AssetMappings.sol";
+import {DataTypes} from "../../../protocol/libraries/types/DataTypes.sol";
+// import {IStrategy} from "./IStrategy.sol";
 import "hardhat/console.sol";
 
 //need modifiers for permissioned actors after built into lending pool
@@ -33,8 +36,7 @@ contract CrvLpStrategy is BaseStrategy {
     address[] public extraTokens;
 
     //Sushi
-    IUniswapV2Router02 internal sushiRouter =
-        IUniswapV2Router02(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
+    IUniswapV2Router02 internal constant sushiRouter = IUniswapV2Router02(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
     uint256 public pid;
     uint8 public poolSize;
@@ -44,23 +46,25 @@ contract CrvLpStrategy is BaseStrategy {
     function initialize(
         address _addressProvider,
         address _underlying,
-        uint64 _tranche,
-        uint256 _pid,
-        uint8 _poolSize,
-        address _curvePool,
-        address _boosterAddr
+        uint64 _tranche
+        // uint256 _pid,
+        // uint8 _poolSize,
+        // address _curvePool,
+        // address _boosterAddr
     ) public {
         //note: need initializer modifier?? So can't be called multiple times
         __BaseStrategy_init(_addressProvider, _underlying, _tranche);
 
-        pid = _pid;
-        poolSize = _poolSize;
-        booster = IBooster(_boosterAddr);
+        DataTypes.CurveMetadata memory vars = AssetMappings(ILendingPoolAddressesProvider(_addressProvider).getAssetMappings()).getCurveMetadata(_underlying);
+
+        pid = vars._pid;
+        poolSize = vars._poolSize;
+        booster = IBooster(vars._boosterAddr);
 
         IBooster.PoolInfo memory poolInfo = booster.poolInfo(pid);
         baseRewardsPool = IBaseRewardsPool(poolInfo.crvRewards);
 
-        curvePool = ICurveFi(_curvePool);
+        curvePool = ICurveFi(vars._curvePool);
         curvePoolTokens = new address[](poolSize);
         curveTokenBalances = new uint256[](poolSize);
 
