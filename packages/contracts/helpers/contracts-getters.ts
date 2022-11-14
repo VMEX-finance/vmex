@@ -363,7 +363,7 @@ export const getATokensAndRatesHelper = async (address?: tEthereumAddress) =>
           .get(`${eContractid.ATokensAndRatesHelper}.${DRE.network.name}`)
           .value()
       ).address,
-    await getFirstSigner()
+    await getFirstSigner() //automatically connects the admin
   );
 
 export const getWETHGateway = async (address?: tEthereumAddress) =>

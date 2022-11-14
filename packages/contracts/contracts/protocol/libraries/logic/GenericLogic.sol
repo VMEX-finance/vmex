@@ -14,6 +14,7 @@ import {Errors} from "../helpers/Errors.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 
+import "hardhat/console.sol";
 /**
  * @title GenericLogic library
  * @author Aave
@@ -277,6 +278,8 @@ library GenericLogic {
                         vars.liquidityBalanceETH = vars.liquidityBalanceETHTWAP; 
                     }
                 }
+
+                console.log("collateral cap: ",AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress));
 
                 if (vars.liquidityBalanceETH > AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress)) {
                     vars.liquidityBalanceETH = AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress);

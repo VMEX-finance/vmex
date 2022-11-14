@@ -453,7 +453,6 @@ const buildTestEnv = async (deployer: Signer) => {
     reservesParams,
     allReservesAddresses,
     testHelpers,
-    0,
     admin
   );
 

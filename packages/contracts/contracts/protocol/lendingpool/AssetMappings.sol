@@ -11,7 +11,7 @@ contract AssetMappings {
     mapping(address => DataTypes.AssetDataConfiguration) internal assetConfigurationMappings;
     mapping(address => mapping(uint8=>address)) internal interestRateStrategyAddress;
     mapping(address => mapping(uint8=>address)) internal curveStrategyAddress;
-    
+    mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -75,6 +75,15 @@ contract AssetMappings {
     function getCurveStrategyAddress(address underlying, uint8 index) external view returns (address) {
         require(curveStrategyAddress[underlying][index]!=address(0), "No strategy is associated");
         return curveStrategyAddress[underlying][index];
+    }
+
+    function setCurveMetadata(address underlying, DataTypes.CurveMetadata calldata vars) external onlyGlobalAdmin {
+        curveMetadata[underlying] = vars;
+    }
+
+    function getCurveMetadata(address underlying) external view returns (DataTypes.CurveMetadata memory) {
+        require(curveMetadata[underlying].isAllowed, "Strategy doesn't have metadata");
+        return curveMetadata[underlying];
     }
     //TODO: add governance functions to add or edit config
 }

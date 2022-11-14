@@ -300,7 +300,6 @@ export const initAssetConfigurationData = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
   helpers: AaveProtocolDataProvider,
-  trancheId: BigNumberish,
   admin: SignerWithAddress
 ) => {
   const addressProvider = await getLendingPoolAddressesProvider();
@@ -342,15 +341,7 @@ export const initAssetConfigurationData = async (
     const [, tokenAddress] = (
       Object.entries(tokenAddresses) as [string, string][]
     )[assetAddressIndex];
-    const { usageAsCollateralEnabled: alreadyEnabled } =
-      await helpers.getReserveConfigurationData(tokenAddress, trancheId);
-
-    if (alreadyEnabled) {
-      console.log(
-        `- Reserve ${assetSymbol} is already enabled as collateral, skipping`
-      );
-      continue;
-    }
+    
     // Push data
     underlying.push(tokenAddress)
     inputParams.push({
@@ -487,3 +478,8 @@ const isErc20SymbolCorrect = async (
   const erc20Symbol = await erc20.symbol();
   return symbol === erc20Symbol;
 };
+
+
+
+
+
