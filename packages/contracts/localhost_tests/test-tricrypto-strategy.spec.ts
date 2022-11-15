@@ -307,8 +307,8 @@ makeSuite(
               expect(
                 userReserveDataSigner.currentATokenBalance
                 .add(userReserveDataAdmin.currentATokenBalance)
-                .add(userReserveDataEmerg.currentATokenBalance)
-                ).to.be.almostEqualOrEqual(strategyBoostedBalance); 
+                .add(userReserveDataEmerg.currentATokenBalance).div(100)
+                ).to.be.almostEqualOrEqual(strategyBoostedBalance.div(100)); 
             }
           var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
           console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
@@ -348,7 +348,7 @@ makeSuite(
 
           var strategyBoostedBalance = await strategy.balanceOfPool();
           console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
-          expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")).currentATokenBalance).to.be.almostEqualOrEqual(strategyBoostedBalance)
+          expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")).currentATokenBalance.div(100)).to.be.almostEqualOrEqual(strategyBoostedBalance.div(100))
         });
     }
 )
