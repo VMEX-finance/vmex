@@ -245,11 +245,11 @@ interface ILendingPool {
      * @param asset The address of the underlying asset borrowed
      * @param user The address of the user to be rebalanced
      **/
-    function rebalanceStableBorrowRate(
-        address asset,
-        uint64 trancheId,
-        address user
-    ) external;
+    // function rebalanceStableBorrowRate(
+    //     address asset,
+    //     uint64 trancheId,
+    //     address user
+    // ) external;
 
     /**
      * @dev Allows depositors to enable/disable a specific deposited asset as collateral
@@ -320,7 +320,7 @@ interface ILendingPool {
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint64 trancheId)
+    function getUserAccountData(address user, uint64 trancheId, bool useTwap)
         external
         view
         returns (
@@ -333,14 +333,13 @@ interface ILendingPool {
         );
 
     function initReserve(
-        DataTypes.InitReserveInput calldata input,
+        address underlyingAsset,
+        uint64 trancheId,
+        address interestRateStrategyAddress,
         address aTokenAddress,
         address stableDebtAddress,
-        address variableDebtAddress,
-        uint64 trancheId
+        address variableDebtAddress
     ) external;
-
-    function setAssetData(address asset, uint8 _assetType) external;
 
     function setReserveInterestRateStrategyAddress(
         address reserve,
@@ -421,10 +420,6 @@ interface ILendingPool {
 
     // function getReservesList(uint64 trancheId) external view returns (address[] memory);
 
-    function getAssetData(address asset)
-        external
-        view
-        returns (DataTypes.ReserveAssetType);
 
     function getAddressesProvider()
         external
@@ -435,7 +430,7 @@ interface ILendingPool {
 
     function paused(uint64 trancheId) external view returns (bool);
 
-    function addStrategy(
+    function setAndApproveStrategy(
         address asset,
         uint64 trancheId,
         address strategy

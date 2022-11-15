@@ -197,7 +197,7 @@ library ReserveLogic {
         address aTokenAddress,
         address stableDebtTokenAddress,
         address variableDebtTokenAddress,
-        DataTypes.InitReserveInput memory input,
+        address interestRateStrategyAddress,
         uint64 trancheId
     ) external {
         require(
@@ -212,18 +212,9 @@ library ReserveLogic {
             reserve.variableDebtTokenAddress = variableDebtTokenAddress;
         }
         {
-            reserve.interestRateStrategyAddress = input
-                .interestRateStrategyAddress;
+            reserve.interestRateStrategyAddress = interestRateStrategyAddress;
             //TODO: users choose from governance approved set of strategies
             reserve.trancheId = trancheId;
-        }
-        {
-            reserve.collateralCap = input.collateralCap;
-            //check that if hasStrategy is true, borrowingEnabled is false
-            //check that this is only true if governance has a strategy for the asset (Ex: if USDC doesn't have a strategy, then this can't be set true)
-            reserve.usingGovernanceSetInterestRate = input
-                .usingGovernanceSetInterestRate;
-            reserve.governanceSetInterestRate = input.governanceSetInterestRate;
         }
     }
 
@@ -277,6 +268,9 @@ library ReserveLogic {
                     aTokenAddress,
                     liquidityAdded,
                     liquidityTaken,
+                    vars.totalStableDebt,
+                    vars.totalVariableDebt,
+                    vars.avgStableRate,
                     reserve.configuration.getReserveFactor(),
                     reserve.configuration.getVMEXReserveFactor()
                 );
@@ -288,12 +282,7 @@ library ReserveLogic {
                     vars.newVariableRate
                 ) = IReserveInterestRateStrategy(
                     reserve.interestRateStrategyAddress
-                ).calculateInterestRates(
-                        calvars,
-                        vars.totalStableDebt,
-                        vars.totalVariableDebt,
-                        vars.avgStableRate
-                    );
+                ).calculateInterestRates(calvars);
             }
 
             require(

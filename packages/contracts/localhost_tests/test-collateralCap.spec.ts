@@ -39,11 +39,7 @@ makeSuite(
             "function withdraw(uint wad) public"
         ];
         
-        it("unpause lending pools", async () => {
-            const emergency = (await DRE.ethers.getSigners())[1]
-            const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-            await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
-          });
+        
 
           it("give WETH to users", async () => {
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
@@ -68,7 +64,7 @@ makeSuite(
             await lendingPool.connect(signer).deposit(myWETH.address, 1,  ethers.utils.parseEther('500'), await signer.getAddress(), '0'); 
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(myWETH.address, 1, true); 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             expect(
               userDat.totalCollateralETH.toString()
@@ -78,7 +74,7 @@ makeSuite(
             await lendingPool.connect(signer).deposit(myWETH.address, 1,  ethers.utils.parseEther('2000'), await signer.getAddress(), '0'); 
 
             
-            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
             
             expect(
               userDat.totalCollateralETH.toString()

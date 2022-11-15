@@ -23,6 +23,27 @@ interface ILendingPoolConfigurator {
         bytes params;
     }
 
+
+    /**
+     * @dev Emitted when a reserve factor is updated
+     * @param asset The address of the underlying asset of the reserve
+     * @param factor The new reserve factor
+     **/
+    event ReserveFactorChanged(address indexed asset, uint256 factor);
+
+
+    /**
+     * @dev Emitted when a reserve is frozen
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    event ReserveFrozen(address indexed asset);
+
+    /**
+     * @dev Emitted when a reserve is unfrozen
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    event ReserveUnfrozen(address indexed asset);
+
     /**
      * @dev Emitted when a reserve is initialized.
      * @param asset The address of the underlying asset of the reserve
@@ -42,11 +63,9 @@ interface ILendingPoolConfigurator {
     /**
      * @dev Emitted when borrowing is enabled on a reserve
      * @param asset The address of the underlying asset of the reserve
-     * @param stableRateEnabled True if stable rate borrowing is enabled, false otherwise
      **/
     event BorrowingEnabledOnReserve(
-        address indexed asset,
-        bool stableRateEnabled
+        address indexed asset
     );
 
     /**

@@ -13,10 +13,7 @@ interface IReserveInterestRateStrategy {
     function getMaxVariableBorrowRate() external view returns (uint256);
 
     function calculateInterestRates(
-        DataTypes.calculateInterestRatesVars memory calvars,
-        uint256 totalStableDebt,
-        uint256 totalVariableDebt,
-        uint256 averageStableBorrowRate
+        DataTypes.calculateInterestRatesVars memory calvars
     )
         external
         view

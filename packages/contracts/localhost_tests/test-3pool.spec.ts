@@ -68,11 +68,7 @@ var triCryptoDepositAbi = [
 ]
 
 
-        it("unpause lending pools", async () => {
-            const emergency = (await DRE.ethers.getSigners())[1]
-            const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-            await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
-          });
+        
 
         //   it("give WETH to users", async () => {
         //     const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
@@ -182,7 +178,7 @@ var triCryptoDepositAbi = [
             await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('1000'), await signer.getAddress(), '0');
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true);
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
@@ -202,7 +198,7 @@ var triCryptoDepositAbi = [
 
             await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), 1, '0', signer.address);
 
-            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             expect(
               userDat.totalDebtETH.toString()

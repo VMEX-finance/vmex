@@ -11,7 +11,7 @@ contract PriceOracle is IPriceOracle {
     event EthPriceUpdated(uint256 _price, uint256 timestamp);
 
     function getAssetPrice(address _asset)
-        external
+        public
         view
         override
         returns (uint256)
@@ -31,5 +31,23 @@ contract PriceOracle is IPriceOracle {
     function setEthUsdPrice(uint256 _price) external {
         ethPriceUsd = _price;
         emit EthPriceUpdated(_price, block.timestamp);
+    }
+
+    //updateTWAP (average O(1))
+    //recent +=1 and cover case where it goes over
+    //cumulatedPrices[asset][recent] = 
+    //If block.timestamp - cumulatedPrices[asset][last].timestamp > 24 hours, 
+    //  then keep increasing last until you find until find cumulatedPrices[asset][last].timestamp < 24 hours (most likely close to O(1))
+    function updateTWAP(address asset) public override{
+        require(numPrices[asset]<type(uint16).max, "Overflow updateTWAP");
+        uint256 currentPrice = getAssetPrice(asset);
+        _updateState(asset,currentPrice);
+    }
+
+    //getAssetTWAPPrice
+    //first call updateTWAP
+    //return (cumulatedPrices[asset][recent].cumulatedPrice - cumulatedPrices[asset][last].cumulatedPrice)/(cumulatedPrices[asset][recent].timestamp - cumulatedPrices[asset][last].timestamp)
+    function getAssetTWAPPrice(address asset) external view override returns (uint256){
+        return _getAssetTWAPPrice(asset, getAssetPrice(asset));
     }
 }

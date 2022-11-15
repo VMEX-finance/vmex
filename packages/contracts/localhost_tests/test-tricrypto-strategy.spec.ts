@@ -73,13 +73,6 @@ makeSuite(
         var triCryptoDepositAdd = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" //0xD51a44d3FaE010294C616388b506AcdA1bfAAE46 this is the address given on curve.fi/contracts
         var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/abis/tricrypto.json").toString()
 
-
-        it("unpause lending pools", async () => {
-          const emergency = (await DRE.ethers.getSigners())[1];
-          const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-          await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
-        });
-
         it("give WETH to users", async () => {
           const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
           var signer = await contractGetters.getFirstSigner();
@@ -154,7 +147,7 @@ makeSuite(
 
         it("strategy pulls LP and invests", async () => {
           const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
+          
           const signer = await contractGetters.getFirstSigner();
           const emergencyAdmin = (await DRE.ethers.getSigners())[1]
           var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
@@ -162,7 +155,7 @@ makeSuite(
 
           const userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
 
-          var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+          var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
           const tricrypto2Tranch1ATokenAddress =
             (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
           // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
@@ -172,6 +165,8 @@ makeSuite(
 
           const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
           console.log("tricrypto2 atoken total supply: ", aTokenBalance);
+
+          const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           const vTokenAddress = await strategy.connect(signer).vToken(); //this should be the same as tricrypto2Tranch1AToken
           console.log("vtoken address: ", vTokenAddress);
@@ -203,7 +198,7 @@ makeSuite(
           expect(origBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.5"), "Did not transfer tricypto2 to the booster")
 
           // check that the user is still healthy after strategy withdraws
-          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
           console.log("USER DATA: ", userData);
 
           
@@ -212,7 +207,7 @@ makeSuite(
 
         it("strategy booster earns interest redeposits", async () => {
           const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
+          
           const signer = await contractGetters.getFirstSigner();
           const emergencyAdmin = (await DRE.ethers.getSigners())[1]
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
@@ -227,7 +222,7 @@ makeSuite(
           // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
           // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "User still needs the aTokens of original deposit");
 
-          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
           // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0"), "Admin starts with nothing");
 
           
@@ -239,6 +234,8 @@ makeSuite(
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
+            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
+
             for(let i = 0; i<3;i++){
                 var strategyStartBoostedBalance = await strategy.balanceOfPool();
                 console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
@@ -248,7 +245,7 @@ makeSuite(
 
                 var userReserveDataSignerBefore = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
                 var userReserveDataEmergBefore = await dataProv.getUserReserveData(CurveToken.address, 1, emergencyAdmin.address);
-                var userReserveDataAdminBefore = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+                var userReserveDataAdminBefore = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
 
                 var signerStake = calculateUserStake(userReserveDataSignerBefore.currentATokenBalance, aTokenBalance )
                 var emergStake = calculateUserStake(userReserveDataEmergBefore.currentATokenBalance, aTokenBalance )
@@ -297,7 +294,7 @@ makeSuite(
                   .to.be.lessThan(10).and.greaterThan(-10);
 
 
-                var userReserveDataAdmin = await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c");
+                var userReserveDataAdmin = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
               console.log("vmex admin userReserveData.currentATokenBalance: ",userReserveDataAdmin.currentATokenBalance )
               var actualAdminInterest = userReserveDataAdmin.currentATokenBalance.sub(userReserveDataAdminBefore.currentATokenBalance);
               var expectedAdminInterest = calculateExpectedInterest(strategyBoostedBalance, strategyStartBoostedBalance, reserveFactor, adminStake)
@@ -313,7 +310,7 @@ makeSuite(
                 .add(userReserveDataEmerg.currentATokenBalance)
                 ).to.be.almostEqualOrEqual(strategyBoostedBalance); 
             }
-          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
           console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
           // NOTICE: confirmed that oracle price will increase after tending
         });
@@ -321,7 +318,6 @@ makeSuite(
 
         it("all users withdraws which withdraws from the booster", async () => {
           const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
           const signer = await contractGetters.getFirstSigner();
           const emergencyAdmin = (await DRE.ethers.getSigners())[1]
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
@@ -333,6 +329,8 @@ makeSuite(
 
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
+
+            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           await lendingPool.connect(signer)
             .withdraw(
@@ -350,7 +348,7 @@ makeSuite(
 
           var strategyBoostedBalance = await strategy.balanceOfPool();
           console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
-          expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c")).currentATokenBalance).to.be.almostEqualOrEqual(strategyBoostedBalance)
+          expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")).currentATokenBalance).to.be.almostEqualOrEqual(strategyBoostedBalance)
         });
     }
 )
