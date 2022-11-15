@@ -32,8 +32,6 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant ATOKEN = "ATOKEN";
     bytes32 private constant STABLE_DEBT = "STABLE_DEBT";
     bytes32 private constant VARIABLE_DEBT = "VARIABLE_DEBT";
-    bytes32 private constant ATOKEN_AND_RATES_HELPER =
-        "ATOKEN_AND_RATES_HELPER";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
         "LENDING_POOL_CONFIGURATOR";
     bytes32 private constant POOL_ADMIN = "POOL_ADMIN";
@@ -135,33 +133,6 @@ contract LendingPoolAddressesProvider is
         returns (address)
     {
         return _addressesTranche[id][trancheId];
-    }
-
-    /**
-     * @dev Returns the address of the LendingPool proxy
-     * @return The LendingPool proxy address
-     **/
-    function getATokenAndRatesHelper()
-        external
-        view
-        override
-        returns (address)
-    {
-        return getAddress(ATOKEN_AND_RATES_HELPER);
-    }
-
-    /**
-     * @dev Updates the implementation of the LendingPool, or creates the proxy
-     * setting the new `pool` implementation on the first time calling it
-     * @param newAdd The new LendingPool implementation
-     **/
-    function setATokenAndRatesHelper(address newAdd)
-        external
-        override
-        onlyOwner
-    {
-        _addresses[ATOKEN_AND_RATES_HELPER] = newAdd;
-        emit ATokensAndRatesHelperUpdated(newAdd);
     }
 
     /**
@@ -365,14 +336,14 @@ contract LendingPoolAddressesProvider is
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
-    function getEmergencyAdmin(uint64 trancheId)
-        external
-        view
-        override
-        returns (address)
-    {
-        return getAddressTranche(EMERGENCY_ADMIN, trancheId);
-    }
+    // function getEmergencyAdmin(uint64 trancheId)
+    //     external
+    //     view
+    //     override
+    //     returns (address)
+    // {
+    //     return getAddressTranche(EMERGENCY_ADMIN, trancheId);
+    // }
 
     // function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
     //     external
@@ -387,23 +358,23 @@ contract LendingPoolAddressesProvider is
     //     emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
     // }
 
-    function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
-        external
-        override
-    {
-        //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
-        require(
-            msg.sender == getAddress(LENDING_POOL_CONFIGURATOR) ||
-                _msgSender() == owner(),
-            "Caller must be lending pool configurator that is creating a new tranche"
-        );
-        require(
-            _addressesTranche[EMERGENCY_ADMIN][trancheId] == address(0),
-            "Emergency admin trancheId input is already in use"
-        );
-        _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
-        emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
-    }
+    // function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
+    //     external
+    //     override
+    // {
+    //     //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
+    //     require(
+    //         msg.sender == getAddress(LENDING_POOL_CONFIGURATOR) ||
+    //             _msgSender() == owner(),
+    //         "Caller must be lending pool configurator that is creating a new tranche"
+    //     );
+    //     require(
+    //         _addressesTranche[EMERGENCY_ADMIN][trancheId] == address(0),
+    //         "Emergency admin trancheId input is already in use"
+    //     );
+    //     _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
+    //     emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
+    // }
 
     function getPriceOracle(DataTypes.ReserveAssetType assetType)
         external

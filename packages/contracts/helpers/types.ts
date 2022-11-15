@@ -95,7 +95,7 @@ export enum eContractid {
   FeeProvider = "FeeProvider",
   TokenDistributor = "TokenDistributor",
   StableAndVariableTokensHelper = "StableAndVariableTokensHelper",
-  ATokensAndRatesHelper = "ATokensAndRatesHelper",
+  // ATokensAndRatesHelper = "ATokensAndRatesHelper",
   UiPoolDataProvider = "UiPoolDataProvider",
   UiPoolDataProviderV2 = "UiPoolDataProviderV2",
   UiPoolDataProviderV2V3 = "UiPoolDataProviderV2V3",

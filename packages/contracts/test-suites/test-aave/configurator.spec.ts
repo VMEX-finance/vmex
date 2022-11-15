@@ -18,12 +18,12 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   } = ProtocolErrors;
 
   it("Reverts trying to set an invalid reserve factor", async () => {
-    const { aTokensAndRatesHelper, weth } = testEnv;
+    const { configurator, weth } = testEnv;
 
     const invalidReserveFactor = 65536;
 
     await expect(
-      aTokensAndRatesHelper.setReserveFactor(weth.address, 0, invalidReserveFactor)
+      configurator.setReserveFactor(weth.address, 0, invalidReserveFactor)
     ).to.be.revertedWith(RC_INVALID_RESERVE_FACTOR);
   });
 
@@ -61,22 +61,22 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     const { configurator, users, weth } = testEnv;
     await expect(
       configurator.connect(users[2].signer).deactivateReserve(weth.address, 0),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      "Caller not global VMEX admin"
+    ).to.be.revertedWith("Caller not global VMEX admin");
   });
 
   it("Check the onlyAaveAdmin on activateReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
       configurator.connect(users[2].signer).activateReserve(weth.address, 0),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      "Caller not global VMEX admin"
+    ).to.be.revertedWith("Caller not global VMEX admin");
   });
 
   it("Freezes the ETH0 reserve", async () => {
-    const { aTokensAndRatesHelper, weth, helpersContract } = testEnv;
+    const { configurator, weth, helpersContract } = testEnv;
 
-    await aTokensAndRatesHelper.freezeReserve(weth.address, 0);
+    await configurator.freezeReserve(weth.address, 0);
     const {
       decimals,
       ltv,
@@ -103,8 +103,8 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   });
 
   it("Unfreezes the ETH0 reserve", async () => {
-    const { aTokensAndRatesHelper, helpersContract, weth } = testEnv;
-    await aTokensAndRatesHelper.unfreezeReserve(weth.address, 0);
+    const { configurator, helpersContract, weth } = testEnv;
+    await configurator.unfreezeReserve(weth.address, 0);
 
     const {
       decimals,
@@ -132,17 +132,17 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   });
 
   it("Check the onlyAaveAdmin on freezeReserve ", async () => {
-    const { aTokensAndRatesHelper, users, weth } = testEnv;
+    const { configurator, users, weth } = testEnv;
     await expect(
-      aTokensAndRatesHelper.connect(users[2].signer).freezeReserve(weth.address, 0),
+      configurator.connect(users[2].signer).freezeReserve(weth.address, 0),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
   it("Check the onlyAaveAdmin on unfreezeReserve ", async () => {
-    const { aTokensAndRatesHelper, users, weth } = testEnv;
+    const { configurator, users, weth } = testEnv;
     await expect(
-      aTokensAndRatesHelper.connect(users[2].signer).unfreezeReserve(weth.address, 0),
+      configurator.connect(users[2].signer).unfreezeReserve(weth.address, 0),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -216,7 +216,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       configurator
         .connect(users[2].signer)
         .disableBorrowingOnReserve(weth.address, 0),
-      CALLER_NOT_POOL_ADMIN
+        CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
@@ -226,7 +226,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       configurator
         .connect(users[2].signer)
         .enableBorrowingOnReserve(weth.address, 0, true),
-      CALLER_NOT_POOL_ADMIN
+        CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
@@ -292,15 +292,15 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
   });
 
-  it("Check the onlyAaveAdmin on configureReserveAsCollateral ", async () => {
-    const { configurator, users, weth } = testEnv;
-    await expect(
-      configurator
-        .connect(users[2].signer)
-        .configureReserveAsCollateral(weth.address, 0, "7500", "8000", "10500"),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
-  });
+  // it("Check the onlyAaveAdmin on configureReserveAsCollateral ", async () => {
+  //   const { configurator, users, weth } = testEnv;
+  //   await expect(
+  //     configurator
+  //       .connect(users[2].signer)
+  //       .configureReserveAsCollateral(weth.address, 0, "7500", "8000", "10500"),
+  //       "Caller is not ATokensAndRatesHelper or global admin"
+  //   ).to.be.revertedWith("Caller is not ATokensAndRatesHelper or global admin");
+  // });
 
   it("Disable stable borrow rate on the ETH reserve", async () => {
     const { configurator, helpersContract, weth } = testEnv;
@@ -360,8 +360,8 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       configurator
         .connect(users[2].signer)
         .disableReserveStableRate(weth.address, 0),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+        'Caller not global VMEX admin'
+    ).to.be.revertedWith('Caller not global VMEX admin');
   });
 
   it("Check the onlyAaveAdmin on enableReserveStableRate", async () => {
@@ -370,13 +370,13 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       configurator
         .connect(users[2].signer)
         .enableReserveStableRate(weth.address, 0),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+        'Caller not global VMEX admin'
+    ).to.be.revertedWith('Caller not global VMEX admin');
   });
 
   it("Changes the reserve factor of WETH0", async () => {
-    const { aTokensAndRatesHelper, helpersContract, weth } = testEnv;
-    await aTokensAndRatesHelper.setReserveFactor(weth.address, 0, "1000");
+    const { configurator, helpersContract, weth } = testEnv;
+    await configurator.setReserveFactor(weth.address, 0, "1000");
     const {
       decimals,
       ltv,
@@ -403,9 +403,9 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   });
 
   it("Check the onlyLendingPoolManager on setReserveFactor", async () => {
-    const { aTokensAndRatesHelper, users, weth } = testEnv;
+    const { configurator, users, weth } = testEnv;
     await expect(
-      aTokensAndRatesHelper
+      configurator
         .connect(users[2].signer)
         .setReserveFactor(weth.address, 0, "2000"),
       CALLER_NOT_POOL_ADMIN

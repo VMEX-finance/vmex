@@ -21,7 +21,7 @@ import {
   deployAaveProtocolDataProvider,
   deployLendingRateOracle,
   deployStableAndVariableTokensHelper,
-  deployATokensAndRatesHelper,
+  // deployATokensAndRatesHelper,
   deployWETHGateway,
   deployWETHMocked,
   deployMockUniswapRouter,
@@ -202,18 +202,6 @@ const buildTestEnv = async (deployer: Signer) => {
     lendingPoolProxy.address,
     addressesProvider.address,
   ]);
-  const ATokensAndRatesHelper = await deployATokensAndRatesHelper([
-    lendingPoolProxy.address,
-    addressesProvider.address,
-    lendingPoolConfiguratorProxy.address,
-    await getGlobalVMEXReserveFactor(),
-  ]);
-
-  await waitForTx(
-    await addressesProvider.setATokenAndRatesHelper(
-      ATokensAndRatesHelper.address
-    )
-  );
 
   const fallbackOracle = await deployPriceOracle();
   await waitForTx(await fallbackOracle.setEthUsdPrice(MOCK_USD_PRICE_IN_WEI));
@@ -449,20 +437,13 @@ const buildTestEnv = async (deployer: Signer) => {
     false
   );
 
-  await initAssetConfigurationData(
-    reservesParams,
-    allReservesAddresses,
-    testHelpers,
-    admin
-  );
-
   //-------------------------------------------------------------
   //deploy tranche 0
   config = await loadCustomAavePoolConfig("0");
   reservesParams = {
     ...config.ReservesConfig,
   };
-  await claimTrancheId("Vmex tranche 0", admin, admin);
+  await claimTrancheId("Vmex tranche 0", admin);
 
   await initReservesByHelper(
     reservesParams,
@@ -472,14 +453,6 @@ const buildTestEnv = async (deployer: Signer) => {
     ZERO_ADDRESS,
     0,
     false
-  );
-
-  await configureReservesByHelper(
-    reservesParams,
-    allReservesAddresses,
-    testHelpers,
-    0,
-    admin.address
   );
 
   //-------------------------------------------------------------
@@ -497,7 +470,7 @@ const buildTestEnv = async (deployer: Signer) => {
   console.log("$$$$$$$$$$$$ addressList: ", addressList);
   console.log("$$$$$$$$$$ admin of tranche 1: ", user1.address);
   treasuryAddress = user1.address;
-  await claimTrancheId("Vmex tranche 1", user1, user1);
+  await claimTrancheId("Vmex tranche 1", user1);
 
   await initReservesByHelper(
     reservesParams,
@@ -507,14 +480,6 @@ const buildTestEnv = async (deployer: Signer) => {
     ZERO_ADDRESS,
     1,
     false
-  );
-
-  await configureReservesByHelper(
-    reservesParams,
-    allReservesAddresses,
-    testHelpers,
-    1,
-    user1.address
   );
 
   //-------------------------------------------------------------

@@ -82,20 +82,20 @@ contract LendingPool is
         );
     }
 
-    modifier onlyATokensAndRatesHelperOrConfigurator() {
-        //this contract handles the updates to the configuration
-        _onlyATokensAndRatesHelperOrConfigurator();
-        _;
-    }
+    // modifier onlyATokensAndRatesHelperOrConfigurator() {
+    //     //this contract handles the updates to the configuration
+    //     _onlyATokensAndRatesHelperOrConfigurator();
+    //     _;
+    // }
 
-    function _onlyATokensAndRatesHelperOrConfigurator() internal view {
-        //this contract handles the updates to the configuration
-        require(
-            _addressesProvider.getATokenAndRatesHelper() == msg.sender ||
-                _addressesProvider.getLendingPoolConfigurator() == msg.sender,
-            "Caller is not ATokensAndRatesHelper"
-        );
-    }
+    // function _onlyATokensAndRatesHelperOrConfigurator() internal view {
+    //     //this contract handles the updates to the configuration
+    //     require(
+    //         _addressesProvider.getATokenAndRatesHelper() == msg.sender ||
+    //             _addressesProvider.getLendingPoolConfigurator() == msg.sender,
+    //         "Caller is not ATokensAndRatesHelper"
+    //     );
+    // }
 
     modifier onlyWhitelistedDepositBorrow(uint64 trancheId) {
         _onlyWhitelistedDepositBorrow(trancheId);
@@ -994,7 +994,7 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         uint256 configuration
-    ) external override onlyATokensAndRatesHelperOrConfigurator {
+    ) external override onlyLendingPoolConfigurator {
         _reserves[asset][trancheId].configuration.data = configuration;
     }
 

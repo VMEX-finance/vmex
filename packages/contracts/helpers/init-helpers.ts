@@ -9,7 +9,7 @@ import { AaveProtocolDataProvider } from "../types/AaveProtocolDataProvider";
 import { chunk, getDb, waitForTx } from "./misc-utils";
 import {
   getAToken,
-  getATokensAndRatesHelper,
+  // getATokensAndRatesHelper,
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
   getAssetMappings,
@@ -38,16 +38,14 @@ export const getATokenExtraParams = async (
 
 export const claimTrancheId = async (
   name: string,
-  admin: SignerWithAddress,
-  emergencyAdmin: SignerWithAddress
+  admin: SignerWithAddress
 ) => {
   const configurator = await getLendingPoolConfiguratorProxy();
 
   let ret = await waitForTx(
     await configurator.claimTrancheId(
       name,
-      admin.address,
-      emergencyAdmin.address
+      admin.address
     )
   );
 
@@ -89,6 +87,11 @@ export const initAssetData = async (
     stableDebtTokenSymbol: string;
     assetType: BigNumberish;
     collateralCap: string; //1,000,000
+    baseLTV: BigNumberish;
+    liquidationThreshold: BigNumberish;
+    liquidationBonus: BigNumberish;
+    stableBorrowingEnabled: boolean;
+    borrowingEnabled: boolean;
     isAllowed: boolean;
   }[] = [];
 
@@ -123,6 +126,11 @@ export const initAssetData = async (
       collateralCap, //1,000,000
       usingGovernanceSetInterestRate,
       governanceSetInterestRate,
+      baseLTVAsCollateral,
+      liquidationBonus,
+      liquidationThreshold,
+      stableBorrowRateEnabled,
+      borrowingEnabled,
     } = params;
 
     const {
@@ -172,6 +180,11 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       assetType: assetType,
       collateralCap: collateralCap, //1,000,000
+      baseLTV: baseLTVAsCollateral,
+      liquidationThreshold: liquidationThreshold,
+      liquidationBonus: liquidationBonus,
+      stableBorrowingEnabled: stableBorrowRateEnabled,
+      borrowingEnabled: borrowingEnabled,
       isAllowed: true
     });
   }
@@ -205,9 +218,6 @@ export const initReservesByHelper = async (
   trancheId: BigNumberish,
   verify: boolean
 ) => {
-  // initTrancheMultiplier();
-  const addressProvider = await getLendingPoolAddressesProvider();
-
   // Initialize variables for future reserves initialization
   let reserveSymbols: string[] = [];
 
@@ -216,6 +226,9 @@ export const initReservesByHelper = async (
     treasury: string;
     incentivesController: string;
     interestRateChoice: string; //1,000,000
+    reserveFactor: string;
+    forceDisabledBorrow: boolean;
+    forceDisabledCollateral: boolean;
   }[] = [];
 
 
@@ -228,7 +241,9 @@ export const initReservesByHelper = async (
       );
       continue;
     }
-    
+    const {
+      reserveFactor
+    } = params;
     // Prepare input parameters
     reserveSymbols.push(symbol);
     initInputParams.push({
@@ -236,6 +251,9 @@ export const initReservesByHelper = async (
       treasury: treasuryAddress,
       incentivesController: incentivesController,
       interestRateChoice: "0",
+      reserveFactor: reserveFactor,
+      forceDisabledBorrow: false,
+      forceDisabledCollateral: false
     });
   }
 
@@ -293,174 +311,6 @@ export const getPairsTokenAggregator = (
   const mappedAggregators = pairs.map(([, source]) => source);
 
   return [mappedPairs, mappedAggregators];
-};
-
-
-export const initAssetConfigurationData = async (
-  reservesParams: iMultiPoolsAssets<IReserveParams>,
-  tokenAddresses: { [symbol: string]: tEthereumAddress },
-  helpers: AaveProtocolDataProvider,
-  admin: SignerWithAddress
-) => {
-  const addressProvider = await getLendingPoolAddressesProvider();
-  const assetMappings = await getAssetMappings();
-  const tokens: string[] = [];
-  const symbols: string[] = [];
-
-  let underlying: string[] = [];
-  const inputParams: {
-    baseLTV: BigNumberish;
-    liquidationThreshold: BigNumberish;
-    liquidationBonus: BigNumberish;
-    stableBorrowingEnabled: boolean;
-    borrowingEnabled: boolean;
-  }[] = [];
-
-  for (const [
-    assetSymbol,
-    {
-      baseLTVAsCollateral,
-      liquidationBonus,
-      liquidationThreshold,
-      reserveFactor,
-      stableBorrowRateEnabled,
-      borrowingEnabled,
-    },
-  ] of Object.entries(reservesParams) as [string, IReserveParams][]) {
-    if (!tokenAddresses[assetSymbol]) {
-      console.log(
-        `- Skipping init of ${assetSymbol} due token address is not set at markets config`
-      );
-      continue;
-    }
-    if (baseLTVAsCollateral === "-1") continue;
-
-    const assetAddressIndex = Object.keys(tokenAddresses).findIndex(
-      (value) => value === assetSymbol
-    );
-    const [, tokenAddress] = (
-      Object.entries(tokenAddresses) as [string, string][]
-    )[assetAddressIndex];
-    
-    // Push data
-    underlying.push(tokenAddress)
-    inputParams.push({
-      baseLTV: baseLTVAsCollateral,
-      liquidationThreshold: liquidationThreshold,
-      liquidationBonus: liquidationBonus,
-      stableBorrowingEnabled: stableBorrowRateEnabled,
-      borrowingEnabled: borrowingEnabled,
-    });
-
-    tokens.push(tokenAddress);
-    symbols.push(assetSymbol);
-  }
-  if (tokens.length) {
-
-    await waitForTx(
-      await assetMappings.connect(admin).setAssetConfigurationMapping(
-        underlying,
-        inputParams
-      )
-    );
-    console.log(`  - Init AssetMapping configuration complete:`);
-    
-  }
-};
-
-export const configureReservesByHelper = async (
-  reservesParams: iMultiPoolsAssets<IReserveParams>,
-  tokenAddresses: { [symbol: string]: tEthereumAddress },
-  helpers: AaveProtocolDataProvider,
-  trancheId: BigNumberish,
-  admin: tEthereumAddress
-) => {
-  const addressProvider = await getLendingPoolAddressesProvider();
-  const atokenAndRatesDeployer = await getATokensAndRatesHelper();
-  const tokens: string[] = [];
-  const symbols: string[] = [];
-
-  const inputParams: {
-    asset: string;
-    reserveFactor: BigNumberish;
-  }[] = [];
-
-  for (const [
-    assetSymbol,
-    {
-      baseLTVAsCollateral,
-      liquidationBonus,
-      liquidationThreshold,
-      reserveFactor,
-      stableBorrowRateEnabled,
-      borrowingEnabled,
-    },
-  ] of Object.entries(reservesParams) as [string, IReserveParams][]) {
-    if (!tokenAddresses[assetSymbol]) {
-      console.log(
-        `- Skipping init of ${assetSymbol} due token address is not set at markets config`
-      );
-      continue;
-    }
-    if (baseLTVAsCollateral === "-1") continue;
-
-    const assetAddressIndex = Object.keys(tokenAddresses).findIndex(
-      (value) => value === assetSymbol
-    );
-    const [, tokenAddress] = (
-      Object.entries(tokenAddresses) as [string, string][]
-    )[assetAddressIndex];
-    const { usageAsCollateralEnabled: alreadyEnabled } =
-      await helpers.getReserveConfigurationData(tokenAddress, trancheId);
-
-    if (alreadyEnabled) {
-      console.log(
-        `- Reserve ${assetSymbol} is already enabled as collateral, skipping`
-      );
-      continue;
-    }
-    // Push data
-
-    inputParams.push({
-      asset: tokenAddress,
-      reserveFactor: reserveFactor,
-    });
-
-    tokens.push(tokenAddress);
-    symbols.push(assetSymbol);
-  }
-  if (tokens.length) {
-    // Set aTokenAndRatesDeployer as temporal admin
-    // VMEX fix: atoken rates and helper can also access now
-    // await waitForTx(
-    //   await addressProvider.setPoolAdmin(
-    //     atokenAndRatesDeployer.address,
-    //     trancheId
-    //   )
-    // );
-
-    // Deploy init per chunks
-    const enableChunks = 20;
-    const chunkedSymbols = chunk(symbols, enableChunks);
-    const chunkedInputParams = chunk(inputParams, enableChunks);
-
-    console.log(`- Configure reserves in ${chunkedInputParams.length} txs`);
-    for (
-      let chunkIndex = 0;
-      chunkIndex < chunkedInputParams.length;
-      chunkIndex++
-    ) {
-      await waitForTx(
-        await atokenAndRatesDeployer.configureReserves(
-          chunkedInputParams[chunkIndex],
-          trancheId
-        )
-      );
-      console.log(`  - Init for: ${chunkedSymbols[chunkIndex].join(", ")}`);
-    }
-    // Set deployer back as admin
-    // await waitForTx(await addressProvider.setPoolAdmin(admin, trancheId));
-  }
 };
 
 const getAddressById = async (

@@ -73,13 +73,6 @@ makeSuite(
         var triCryptoDepositAdd = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46" //0xD51a44d3FaE010294C616388b506AcdA1bfAAE46 this is the address given on curve.fi/contracts
         var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/abis/tricrypto.json").toString()
 
-
-        it("unpause lending pools", async () => {
-          const emergency = (await DRE.ethers.getSigners())[1];
-          const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-          await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
-        });
-
         it("give WETH to users", async () => {
           const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
           var signer = await contractGetters.getFirstSigner();
