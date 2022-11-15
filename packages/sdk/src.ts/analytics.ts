@@ -14,7 +14,7 @@ export async function calcProtocolTVL(params?: {
     test: boolean;
 }, callback?: () => Promise<any>) {
     const _lp = getUnsignedLP({ network: params.network || undefined, test: params.test });
-    
+    // TODO: implement protocol tvl calculation function from lending pool contract 
 }
 
 
