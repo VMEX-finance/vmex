@@ -41,6 +41,24 @@ export async function getTVL(
 }
 
 /**
+* getWalletBalanceAcrossTranches
+*
+*/
+export async function getWalletBalanceAcrossTranches(
+	params: {
+		signer: ethers.Signer;
+		network?: string;
+		test?: boolean;
+}, callback?: () => Promise<any>
+) {
+	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/UserBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
+	let user_address = await signer.getAddress();
+	let add_provider_address = deployments.LendingPoolAddressesProvider.[params.network || "mainnet"].address;
+	let wallet_data_address = deployments.WalletBalanceProvider.[params.network || "mainnet"].address;
+	data = await decodeConstructorBytecode(abi, provider, [user_address, add_provider_address, wallet_data_address]);
+
+}
+/**
  * TRANCHE LEVEL ANALYTICS
  */
 
