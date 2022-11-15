@@ -1,5 +1,5 @@
 import { Contract } from "ethers";
-import { DRE, notFalsyOrZeroAddress } from "./misc-utils";
+import { DRE, notFalsyOrZeroAddress, waitForTx } from "./misc-utils";
 import {
   tEthereumAddress,
   eContractid,
@@ -20,9 +20,10 @@ import {
 } from "./configuration";
 import { getFirstSigner } from "./contracts-getters";
 import {
+  AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
   ATokenFactory,
-  ATokensAndRatesHelperFactory,
+  // ATokensAndRatesHelperFactory,
   AaveOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   DelegationAwareATokenFactory,
@@ -67,6 +68,7 @@ import {
   BaseRewardPoolFactory,
   VStrategyHelperFactory,
   CrvLpStrategyFactory,
+  LendingPoolAddressesProvider,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -878,18 +880,18 @@ export const deployStableAndVariableTokensHelper = async (
     verify
   );
 
-export const deployATokensAndRatesHelper = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new ATokensAndRatesHelperFactory(await getFirstSigner()).deploy(
-      ...args
-    ),
-    eContractid.ATokensAndRatesHelper,
-    args,
-    verify
-  );
+// export const deployATokensAndRatesHelper = async (
+//   args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string],
+//   verify?: boolean
+// ) =>
+//   withSaveAndVerify(
+//     await new ATokensAndRatesHelperFactory(await getFirstSigner()).deploy(
+//       ...args
+//     ),
+//     eContractid.ATokensAndRatesHelper,
+//     args,
+//     verify
+//   );
 
 export const deployWETHGateway = async (
   args: [tEthereumAddress],
@@ -1101,6 +1103,7 @@ export const chooseATokenDeployment = (id: eContractid) => {
 export const deployATokenImplementations = async (
   pool: ConfigNames,
   reservesConfig: { [key: string]: IReserveParams },
+  // addressesProvider: LendingPoolAddressesProvider,
   verify = false
 ) => {
   const poolConfig = loadPoolConfig(pool);
@@ -1128,6 +1131,13 @@ export const deployATokenImplementations = async (
       );
       console.log(`Deploying implementation`, aTokenImplementations[x]);
       await deployImplementationMethod(verify);
+      // if(aTokenImplementations[x] == eContractid.AToken){
+      //   await waitForTx(
+      //     await addressesProvider.setATokenImpl(
+            
+      //     )
+      //   );
+      // }
     }
   }
 
@@ -1194,3 +1204,16 @@ export const deployParaSwapLiquiditySwapAdapter = async (
     args,
     verify
   );
+
+  export const deployAssetMapping = async (
+    addressesProvider: tEthereumAddress,
+    verify?: boolean
+  ) =>
+    withSaveAndVerify(
+      await new AssetMappingsFactory(await getFirstSigner()).deploy(
+        addressesProvider
+      ),
+      eContractid.AssetMappings,
+      [addressesProvider],
+      verify
+    );

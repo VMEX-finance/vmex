@@ -12,7 +12,9 @@ import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 
+import "hardhat/console.sol";
 /**
  * @title GenericLogic library
  * @author Aave
@@ -66,8 +68,7 @@ library GenericLogic {
             storage reservesData,
         DataTypes.UserConfigurationMap calldata userConfig,
         mapping(uint256 => address) storage reserves,
-        uint256 reservesCount,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        uint256 reservesCount
     ) external view returns (bool) {
         if (
             !userConfig.isBorrowingAny() ||
@@ -101,7 +102,6 @@ library GenericLogic {
             reserves,
             reservesCount,
             params._addressesProvider,
-            assetDatas,
             true //this function is only used in the context of withdrawing or setting as not collateral, so it should be true
         );
 
@@ -112,7 +112,9 @@ library GenericLogic {
         //here, need to check if the reserve is a curve reserve. If so
         //using current price instead of 24 hour average
         vars.amountToDecreaseInETH = IPriceOracleGetter(
-            params._addressesProvider.getPriceOracle(assetDatas[params.asset])
+            params._addressesProvider.getPriceOracle(
+                AssetMappings(params._addressesProvider.getAssetMappings()).getAssetType(params.asset)
+            )
         ).getAssetPrice(params.asset).mul(params.amount).div(10**vars.decimals);
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
@@ -190,7 +192,6 @@ library GenericLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas,
         bool useTwap
     )
         internal
@@ -227,7 +228,7 @@ library GenericLogic {
 
             {
                 vars.oracle = _addressesProvider.getPriceOracle(
-                    assetDatas[vars.currentReserveAddress]
+                    AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.currentReserveAddress)
                 );
             }
 
@@ -278,8 +279,8 @@ library GenericLogic {
                     }
                 }
 
-                if (vars.liquidityBalanceETH > currentReserve.collateralCap) {
-                    vars.liquidityBalanceETH = currentReserve.collateralCap;
+                if (vars.liquidityBalanceETH > AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress)) {
+                    vars.liquidityBalanceETH = AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress);
                 }
 
                 vars.totalCollateralInETH = vars.totalCollateralInETH.add(

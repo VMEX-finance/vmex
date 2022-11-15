@@ -29,8 +29,9 @@ contract LendingPoolAddressesProvider is
 
     bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
     bytes32 private constant LENDING_POOL = "LENDING_POOL";
-    bytes32 private constant ATOKEN_AND_RATES_HELPER =
-        "ATOKEN_AND_RATES_HELPER";
+    bytes32 private constant ATOKEN = "ATOKEN";
+    bytes32 private constant STABLE_DEBT = "STABLE_DEBT";
+    bytes32 private constant VARIABLE_DEBT = "VARIABLE_DEBT";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
         "LENDING_POOL_CONFIGURATOR";
     bytes32 private constant POOL_ADMIN = "POOL_ADMIN";
@@ -44,6 +45,7 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
 
     bytes32 private constant CURVE_ADDRESS_PROVIDER = "CURVE_ADDRESS_PROVIDER";
+    bytes32 private constant ASSET_MAPPINGS = "ASSET_MAPPINGS";
 
     constructor(string memory marketId) public {
         _setMarketId(marketId);
@@ -137,33 +139,6 @@ contract LendingPoolAddressesProvider is
      * @dev Returns the address of the LendingPool proxy
      * @return The LendingPool proxy address
      **/
-    function getATokenAndRatesHelper()
-        external
-        view
-        override
-        returns (address)
-    {
-        return getAddress(ATOKEN_AND_RATES_HELPER);
-    }
-
-    /**
-     * @dev Updates the implementation of the LendingPool, or creates the proxy
-     * setting the new `pool` implementation on the first time calling it
-     * @param newAdd The new LendingPool implementation
-     **/
-    function setATokenAndRatesHelper(address newAdd)
-        external
-        override
-        onlyOwner
-    {
-        _addresses[ATOKEN_AND_RATES_HELPER] = newAdd;
-        emit ATokensAndRatesHelperUpdated(newAdd);
-    }
-
-    /**
-     * @dev Returns the address of the LendingPool proxy
-     * @return The LendingPool proxy address
-     **/
     function getLendingPool() external view override returns (address) {
         return getAddress(LENDING_POOL);
     }
@@ -176,6 +151,62 @@ contract LendingPoolAddressesProvider is
     function setLendingPoolImpl(address pool) external override onlyOwner {
         _updateImpl(LENDING_POOL, pool);
         emit LendingPoolUpdated(pool);
+    }
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The aToken proxy address
+     **/
+    function getAToken() external view override returns (address) {
+        return getAddress(ATOKEN);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param aToken The new aToken implementation
+     **/
+    function setATokenImpl(address aToken) external override onlyOwner {
+        _addresses[ATOKEN] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        emit ATokenUpdated(aToken);
+    }
+
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The aToken proxy address
+     **/
+    function getStableDebtToken() external view override returns (address) {
+        return getAddress(STABLE_DEBT);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param aToken The new aToken implementation
+     **/
+    function setStableDebtToken(address aToken) external override onlyOwner {
+        _addresses[STABLE_DEBT] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        emit StableDebtUpdated(aToken);
+    }
+
+
+    /**
+     * @dev Returns the address of the LendingPool proxy
+     * @return The aToken proxy address
+     **/
+    function getVariableDebtToken() external view override returns (address) {
+        return getAddress(VARIABLE_DEBT);
+    }
+
+    /**
+     * @dev Updates the implementation of the LendingPool, or creates the proxy
+     * setting the new `pool` implementation on the first time calling it
+     * @param aToken The new aToken implementation
+     **/
+    function setVariableDebtToken(address aToken) external override onlyOwner {
+        _addresses[VARIABLE_DEBT] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        emit VariableDebtUpdated(aToken);
     }
 
     /**
@@ -305,45 +336,45 @@ contract LendingPoolAddressesProvider is
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
-    function getEmergencyAdmin(uint64 trancheId)
-        external
-        view
-        override
-        returns (address)
-    {
-        return getAddressTranche(EMERGENCY_ADMIN, trancheId);
-    }
+    // function getEmergencyAdmin(uint64 trancheId)
+    //     external
+    //     view
+    //     override
+    //     returns (address)
+    // {
+    //     return getAddressTranche(EMERGENCY_ADMIN, trancheId);
+    // }
 
-    function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
-        external
-        override
-    {
-        require(
-            _msgSender() == owner() ||
-                _msgSender() == getAddressTranche(EMERGENCY_ADMIN, trancheId),
-            "Sender is not VMEX admin or the original admin of the tranche"
-        );
-        _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
-        emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
-    }
+    // function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
+    //     external
+    //     override
+    // {
+    //     require(
+    //         _msgSender() == owner() ||
+    //             _msgSender() == getAddressTranche(EMERGENCY_ADMIN, trancheId),
+    //         "Sender is not VMEX admin or the original admin of the tranche"
+    //     );
+    //     _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
+    //     emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
+    // }
 
-    function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
-        external
-        override
-    {
-        //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
-        require(
-            msg.sender == getAddress(LENDING_POOL_CONFIGURATOR) ||
-                _msgSender() == owner(),
-            "Caller must be lending pool configurator that is creating a new tranche"
-        );
-        require(
-            _addressesTranche[EMERGENCY_ADMIN][trancheId] == address(0),
-            "Emergency admin trancheId input is already in use"
-        );
-        _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
-        emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
-    }
+    // function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
+    //     external
+    //     override
+    // {
+    //     //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
+    //     require(
+    //         msg.sender == getAddress(LENDING_POOL_CONFIGURATOR) ||
+    //             _msgSender() == owner(),
+    //         "Caller must be lending pool configurator that is creating a new tranche"
+    //     );
+    //     require(
+    //         _addressesTranche[EMERGENCY_ADMIN][trancheId] == address(0),
+    //         "Emergency admin trancheId input is already in use"
+    //     );
+    //     _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
+    //     emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
+    // }
 
     function getPriceOracle(DataTypes.ReserveAssetType assetType)
         external
@@ -474,5 +505,12 @@ contract LendingPoolAddressesProvider is
     function _setMarketId(string memory marketId) internal {
         _marketId = marketId;
         emit MarketIdSet(marketId);
+    }
+
+    function getAssetMappings() external view override returns (address){
+        return getAddress(ASSET_MAPPINGS);
+    }
+    function setAssetMappings(address pool) external override onlyOwner{
+        _addresses[ASSET_MAPPINGS] = pool;
     }
 }

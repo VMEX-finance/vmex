@@ -13,7 +13,8 @@ import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 interface ILendingPoolAddressesProvider {
     event MarketIdSet(string newMarketId);
     event LendingPoolUpdated(address indexed newAddress);
-    event ATokensAndRatesHelperUpdated(address indexed newAddress);
+
+    // event ATokensAndRatesHelperUpdated(address indexed newAddress);
     event ConfigurationAdminUpdated(
         address indexed newAddress,
         uint64 trancheId
@@ -29,6 +30,11 @@ interface ILendingPoolAddressesProvider {
     event ProxyCreated(bytes32 id, address indexed newAddress);
     event AddressSet(bytes32 id, address indexed newAddress, bool hasProxy);
 
+
+    event ATokenUpdated(address indexed newAddress);
+    event StableDebtUpdated(address indexed newAddress);
+    event VariableDebtUpdated(address indexed newAddress);
+
     function getMarketId() external view returns (string memory);
 
     function setMarketId(string calldata marketId) external;
@@ -43,9 +49,9 @@ interface ILendingPoolAddressesProvider {
 
     function setLendingPoolImpl(address pool) external;
 
-    function getATokenAndRatesHelper() external view returns (address);
+    // function getATokenAndRatesHelper() external view returns (address);
 
-    function setATokenAndRatesHelper(address newAdd) external;
+    // function setATokenAndRatesHelper(address newAdd) external;
 
     function getLendingPoolConfigurator() external view returns (address);
 
@@ -65,16 +71,16 @@ interface ILendingPoolAddressesProvider {
 
     function setPoolAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
-    function getEmergencyAdmin(uint64 trancheId)
-        external
-        view
-        returns (address); //this depends on trancheId
+    // function getEmergencyAdmin(uint64 trancheId)
+    //     external
+    //     view
+    //     returns (address); //this depends on trancheId
 
-    function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
+    // function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
     function addPoolAdmin(address admin, uint64 trancheId) external;
 
-    function addEmergencyAdmin(address admin, uint64 trancheId) external;
+    // function addEmergencyAdmin(address admin, uint64 trancheId) external;
 
     function getAddressTranche(bytes32 id, uint64 trancheId)
         external
@@ -108,4 +114,17 @@ interface ILendingPoolAddressesProvider {
     function getLendingRateOracle() external view returns (address); //this oracle determines the stable borrow rate for a reserve. Should only need one, since it is based off the address of the reserve, which is unique for every asset in each tranche in each pool. Governance manually sets this
 
     function setLendingRateOracle(address lendingRateOracle) external;
+
+
+    function getAToken() external view returns (address);
+    function setATokenImpl(address pool) external;
+
+    function getStableDebtToken() external view returns (address);
+    function setStableDebtToken(address pool) external;
+    function getVariableDebtToken() external view returns (address);
+    function setVariableDebtToken(address pool) external;
+
+
+    function getAssetMappings() external view returns (address);
+    function setAssetMappings(address pool) external;
 }

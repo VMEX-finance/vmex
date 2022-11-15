@@ -13,7 +13,7 @@ import {
   getWETHGateway,
   getTricrypto2Strategy,
   getCurvePriceOracleWrapper,
-  getATokensAndRatesHelper,
+  // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
   eEthereumNetwork,
@@ -43,7 +43,7 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { ATokensAndRatesHelper, CurveWrapper, FlashLiquidationAdapter } from "../../../types";
+import { CurveWrapper, FlashLiquidationAdapter } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -61,7 +61,7 @@ export interface TestEnv {
   users: SignerWithAddress[];
   pool: LendingPool;
   configurator: LendingPoolConfigurator;
-  aTokensAndRatesHelper: ATokensAndRatesHelper;
+  // aTokensAndRatesHelper: ATokensAndRatesHelper;
   oracle: PriceOracle;
   curveOracle: CurveWrapper;
   helpersContract: AaveProtocolDataProvider;
@@ -92,7 +92,7 @@ const testEnv: TestEnv = {
   users: [] as SignerWithAddress[],
   pool: {} as LendingPool,
   configurator: {} as LendingPoolConfigurator,
-  aTokensAndRatesHelper: {} as ATokensAndRatesHelper,
+  // aTokensAndRatesHelper: {} as ATokensAndRatesHelper,
   helpersContract: {} as AaveProtocolDataProvider,
   oracle: {} as PriceOracle,
   curveOracle: {} as CurveWrapper,
@@ -130,7 +130,7 @@ export async function initializeMakeSuite() {
   testEnv.pool = await getLendingPool();
 
   testEnv.configurator = await getLendingPoolConfiguratorProxy();
-  testEnv.aTokensAndRatesHelper = await getATokensAndRatesHelper();
+  // testEnv.aTokensAndRatesHelper = await getATokensAndRatesHelper();
 
   testEnv.addressesProvider = await getLendingPoolAddressesProvider();
 

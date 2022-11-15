@@ -20,7 +20,7 @@ contract LendingPoolStorage {
     mapping(address => mapping(uint64 => DataTypes.UserConfigurationMap))
         internal _usersConfig; //user address to trancheId to user configuration
 
-    mapping(address => DataTypes.ReserveAssetType) internal assetDatas;
+    // mapping(address => DataTypes.ReserveAssetType) internal assetDatas;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
     mapping(uint64 => mapping(uint256 => address)) internal _reservesList; //trancheId id -> array of available reserves

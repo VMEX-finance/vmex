@@ -8,6 +8,7 @@ import "../deps/convex/ICvxRewardsPool.sol";
 import {vStrategyHelper} from "../deps/vStrategyHelper.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {IUniswapV2Router02} from "../deps/sushi/IUniswapV2Router02.sol";
+import {IStrategy} from "./IStrategy.sol";
 
 //need modifiers for permissioned actors
 contract CvxStrategy is BaseStrategy {
@@ -26,12 +27,16 @@ contract CvxStrategy is BaseStrategy {
         ICvxRewardsPool(0xCF50b810E57Ac33B91dCF525C6ddd9881B139332);
 
     //Sushi
-    IUniswapV2Router02 internal sushiRouter =
+    IUniswapV2Router02 internal constant sushiRouter =
         IUniswapV2Router02(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
     //no constructor so we can link contract to vault after deploy, instead we use an init function
     //add modifiers as needed
-    function initialize(address _addressProvider, uint64 _tranche) public {
+    function initialize(
+        address _addressProvider, 
+        address asset, //unused, but to satisfy requirements
+        uint64 _tranche
+    ) public { 
         __BaseStrategy_init(_addressProvider, address(cvxToken), _tranche);
 
         // Approvals

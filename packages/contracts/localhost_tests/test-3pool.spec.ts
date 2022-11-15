@@ -68,11 +68,7 @@ var triCryptoDepositAbi = [
 ]
 
 
-        it("unpause lending pools", async () => {
-            const emergency = (await DRE.ethers.getSigners())[1]
-            const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-            await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
-          });
+        
 
         //   it("give WETH to users", async () => {
         //     const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
