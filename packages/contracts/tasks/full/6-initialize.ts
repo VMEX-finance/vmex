@@ -5,6 +5,8 @@ import {
   deployWalletBalancerProvider,
   authorizeWETHGateway,
   deployUiPoolDataProviderV2,
+  deployAssetMapping,
+  deployTricrypto2Strategy
 } from "../../helpers/contracts-deployments";
 import {
   loadPoolConfig,
@@ -12,19 +14,18 @@ import {
   ConfigNames,
   getEmergencyAdmin,
 } from "../../helpers/configuration";
-import { getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
-  claimTrancheId,
-  initReservesByHelper,
-  configureReservesByHelper,
+  initAssetData,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
   getAaveProtocolDataProvider,
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
+  getAssetMappings,
+  getWETHGateway
 } from "../../helpers/contracts-getters";
 import {
   chainlinkAggregatorProxy,
@@ -45,8 +46,10 @@ task(
   .setAction(async ({ verify, pool }, DRE) => {
     try {
       await DRE.run("set-DRE");
+      
+  
       const network = <eNetwork>DRE.network.name;
-      const poolConfig = await loadCustomAavePoolConfig("0"); //this is only for mainnet
+      const poolConfig = loadPoolConfig(ConfigNames.Aave);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
         ATokenNamePrefix,
         StableDebtTokenNamePrefix,
@@ -89,34 +92,25 @@ task(
       //TODO: change vmex treasuryAddress to the same address as the global address
       console.log("before initReservesByHelper");
 
-      await claimTrancheId("Vmex tranche 0", admin, admin);
+      //deploy AssetMappings
+  const AssetMapping = await deployAssetMapping(addressesProvider.address);
 
-      // Pause market during deployment
-      await waitForTx(
-        await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
-      );
+  await waitForTx(
+    await addressesProvider.setAssetMappings(AssetMapping.address)
+  );
 
-      await initReservesByHelper(
-        ReservesConfig,
-        reserveAssets,
-        ATokenNamePrefix,
-        StableDebtTokenNamePrefix,
-        VariableDebtTokenNamePrefix,
-        SymbolPrefix,
-        admin,
-        treasuryAddress,
-        incentivesController,
-        pool,
-        0, //tranche id
-        verify
-      );
-      await configureReservesByHelper(
-        ReservesConfig,
-        reserveAssets,
-        testHelpers,
-        0,
-        admin.address
-      );
+  const assetMappings = await getAssetMappings();
+
+  await initAssetData(
+    ReservesConfig,
+    reserveAssets,
+    ATokenNamePrefix,
+    StableDebtTokenNamePrefix,
+    VariableDebtTokenNamePrefix,
+    SymbolPrefix,
+    admin,
+    false
+  );
 
       let collateralManagerAddress = await getParamPerNetwork(
         LendingPoolCollateralManager,
@@ -177,6 +171,40 @@ task(
       }
       console.log("GATEWAY", gateWay);
       await authorizeWETHGateway(gateWay, lendingPoolAddress);
+
+
+
+      // deploy strategies
+      const tricrypto2Strat = await deployTricrypto2Strategy();
+
+      console.log(
+        "DEPLOYED tricrypto Strat at address",
+        tricrypto2Strat.address
+      );
+
+
+      await waitForTx(
+        await assetMappings.connect(admin).setCurveStrategyAddress("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",0,tricrypto2Strat.address)
+      ); //0 is default strategy
+
+      let initInputParams: {
+        _pid: string;
+        _poolSize: string;
+        _curvePool: string;
+        _boosterAddr: string; 
+        isAllowed: boolean; 
+      } = {
+        _pid: "38",
+        _poolSize: "3",
+        _curvePool: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46",
+        _boosterAddr: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+        isAllowed: true
+      }
+
+      await waitForTx(
+        await assetMappings.connect(admin).setCurveMetadata("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",initInputParams)
+      ); //0 is default strategy
+
     } catch (err) {
       console.error(err);
       exit(1);

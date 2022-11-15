@@ -19,7 +19,6 @@ interface IInitializableAToken {
      * @param aTokenDecimals the decimals of the underlying
      * @param aTokenName the name of the aToken
      * @param aTokenSymbol the symbol of the aToken
-     * @param params A set of encoded parameters for additional initialization
      **/
     event Initialized(
         address indexed underlyingAsset,
@@ -28,8 +27,7 @@ interface IInitializableAToken {
         address incentivesController,
         uint8 aTokenDecimals,
         string aTokenName,
-        string aTokenSymbol,
-        bytes params
+        string aTokenSymbol
     );
 
     struct InitializeTreasuryVars {
@@ -55,7 +53,6 @@ interface IInitializableAToken {
         IAaveIncentivesController incentivesController,
         uint8 aTokenDecimals,
         string calldata aTokenName,
-        string calldata aTokenSymbol,
-        bytes calldata params
+        string calldata aTokenSymbol
     ) external;
 }

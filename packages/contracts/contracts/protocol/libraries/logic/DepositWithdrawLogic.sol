@@ -20,7 +20,7 @@ import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 import {IFlashLoanReceiver} from "../../../flashloan/interfaces/IFlashLoanReceiver.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {GenericLogic} from "./GenericLogic.sol";
-
+import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 /**
  * @title DepositWithdrawLogic library
  * @author VMEX
@@ -65,8 +65,7 @@ library DepositWithdrawLogic {
     function _deposit(
         DataTypes.ReserveData storage self,
         DataTypes.DepositVars memory vars,
-        DataTypes.UserConfigurationMap storage user,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas //can be memory too
+        DataTypes.UserConfigurationMap storage user
     ) external {
         ValidationLogic.validateDeposit(self, vars.amount);
 
@@ -78,7 +77,7 @@ library DepositWithdrawLogic {
         self.updateState();
         {
             address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle(
-                        assetDatas[vars.asset]
+                        AssetMappings(ILendingPoolAddressesProvider(vars._addressesProvider).getAssetMappings()).getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
@@ -137,8 +136,7 @@ library DepositWithdrawLogic {
         DataTypes.UserConfigurationMap storage user,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.WithdrawParams memory vars,
-        ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        ILendingPoolAddressesProvider _addressesProvider
     ) public returns (uint256) {
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][
             vars.trancheId
@@ -164,8 +162,7 @@ library DepositWithdrawLogic {
             user,
             _reservesList,
             vars._reservesCount,
-            _addressesProvider,
-            assetDatas
+            _addressesProvider
         );
 
         reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount);
@@ -173,7 +170,7 @@ library DepositWithdrawLogic {
 
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                        assetDatas[vars.asset]
+                        AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
@@ -221,13 +218,12 @@ library DepositWithdrawLogic {
             storage _reserves,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.UserConfigurationMap storage userConfig,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas,
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) public {
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                        assetDatas[vars.asset]
+                        AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
@@ -241,7 +237,9 @@ library DepositWithdrawLogic {
         //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
 
         uint256 amountInETH = IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
-            _addressesProvider.getPriceOracle(assetDatas[vars.asset])
+            _addressesProvider.getPriceOracle(
+                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.asset)
+            )
         ).getAssetPrice(vars.asset).mul(vars.amount).div(
                 10**reserve.configuration.getDecimals()
             ); //lp token decimals are 18, like ETH
@@ -255,8 +253,7 @@ library DepositWithdrawLogic {
             userConfig,
             _reservesList,
             vars._reservesCount,
-            _addressesProvider,
-            assetDatas
+            _addressesProvider
         );
 
         reserve.updateState();

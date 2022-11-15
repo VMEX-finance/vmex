@@ -5,8 +5,10 @@ import {
   getEthersSigners,
   registerContractInJsonDb,
   getEthersSignersAddresses,
+  getContractAddressWithJsonFallback
 } from "../../helpers/contracts-helpers";
 import {
+  deployAssetMapping,
   deployLendingPoolAddressesProvider,
   deployMintableERC20,
   deployLendingPoolAddressesProviderRegistry,
@@ -19,7 +21,7 @@ import {
   deployAaveProtocolDataProvider,
   deployLendingRateOracle,
   deployStableAndVariableTokensHelper,
-  deployATokensAndRatesHelper,
+  // deployATokensAndRatesHelper,
   deployWETHGateway,
   deployWETHMocked,
   deployMockUniswapRouter,
@@ -67,6 +69,8 @@ import {
   initReservesByHelper,
   configureReservesByHelper,
   claimTrancheId,
+  initAssetData,
+  initAssetConfigurationData
 } from "../../helpers/init-helpers";
 import AaveConfig from "../../markets/aave";
 import { oneEther, ZERO_ADDRESS } from "../../helpers/constants";
@@ -76,6 +80,9 @@ import {
   getLendingPool,
   getLendingPoolConfiguratorProxy,
   getPairsTokenAggregator,
+  getAToken,
+  getStableDebtToken,
+  getVariableDebtToken
 } from "../../helpers/contracts-getters";
 import { WETH9Mocked } from "../../types/WETH9Mocked";
 
@@ -128,7 +135,7 @@ const deployAllMockTokens = async (deployer: Signer) => {
 const buildTestEnv = async (deployer: Signer) => {
   console.time("setup");
   const aaveAdmin = await deployer.getAddress();
-  var config = await loadCustomAavePoolConfig("0"); //loadPoolConfig(ConfigNames.Aave);
+  var config = loadPoolConfig(ConfigNames.Aave);
 
   const mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
@@ -195,18 +202,6 @@ const buildTestEnv = async (deployer: Signer) => {
     lendingPoolProxy.address,
     addressesProvider.address,
   ]);
-  const ATokensAndRatesHelper = await deployATokensAndRatesHelper([
-    lendingPoolProxy.address,
-    addressesProvider.address,
-    lendingPoolConfiguratorProxy.address,
-    await getGlobalVMEXReserveFactor(),
-  ]);
-
-  await waitForTx(
-    await addressesProvider.setATokenAndRatesHelper(
-      ATokensAndRatesHelper.address
-    )
-  );
 
   const fallbackOracle = await deployPriceOracle();
   await waitForTx(await fallbackOracle.setEthUsdPrice(MOCK_USD_PRICE_IN_WEI));
@@ -372,6 +367,33 @@ const buildTestEnv = async (deployer: Signer) => {
   await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
 
   await waitForTx(
+    await addressesProvider.setATokenImpl(
+      await getContractAddressWithJsonFallback(
+        eContractid.AToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setVariableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.VariableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setStableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.StableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
     await addressesProvider.addWhitelistedAddress(
       await deployer.getAddress(),
       true
@@ -397,12 +419,14 @@ const buildTestEnv = async (deployer: Signer) => {
   } = config;
   var treasuryAddress = admin.address;
 
-  //-------------------------------------------------------------
-  //deploy tranche 0
+  //deploy AssetMappings
+  const AssetMapping = await deployAssetMapping(addressesProvider.address);
 
-  await claimTrancheId("Vmex tranche 0", admin, admin);
+  await waitForTx(
+    await addressesProvider.setAssetMappings(AssetMapping.address)
+  );
 
-  await initReservesByHelper(
+  await initAssetData(
     reservesParams,
     allReservesAddresses,
     ATokenNamePrefix,
@@ -410,19 +434,25 @@ const buildTestEnv = async (deployer: Signer) => {
     VariableDebtTokenNamePrefix,
     SymbolPrefix,
     admin,
-    treasuryAddress,
-    ZERO_ADDRESS,
-    ConfigNames.Aave,
-    0,
     false
   );
 
-  await configureReservesByHelper(
+  //-------------------------------------------------------------
+  //deploy tranche 0
+  config = await loadCustomAavePoolConfig("0");
+  reservesParams = {
+    ...config.ReservesConfig,
+  };
+  await claimTrancheId("Vmex tranche 0", admin);
+
+  await initReservesByHelper(
     reservesParams,
     allReservesAddresses,
-    testHelpers,
+    admin,
+    treasuryAddress,
+    ZERO_ADDRESS,
     0,
-    admin.address
+    false
   );
 
   //-------------------------------------------------------------
@@ -440,29 +470,16 @@ const buildTestEnv = async (deployer: Signer) => {
   console.log("$$$$$$$$$$$$ addressList: ", addressList);
   console.log("$$$$$$$$$$ admin of tranche 1: ", user1.address);
   treasuryAddress = user1.address;
-  await claimTrancheId("Vmex tranche 1", user1, user1);
+  await claimTrancheId("Vmex tranche 1", user1);
 
   await initReservesByHelper(
     reservesParams,
     allReservesAddresses,
-    ATokenNamePrefix,
-    StableDebtTokenNamePrefix,
-    VariableDebtTokenNamePrefix,
-    SymbolPrefix,
     user1,
     treasuryAddress,
     ZERO_ADDRESS,
-    ConfigNames.Aave,
     1,
     false
-  );
-
-  await configureReservesByHelper(
-    reservesParams,
-    allReservesAddresses,
-    testHelpers,
-    1,
-    user1.address
   );
 
   //-------------------------------------------------------------

@@ -305,20 +305,20 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
   });
 
-  it('RebalanceStableBorrowRate', async () => {
-    const { pool, dai, users, configurator } = testEnv;
-    const user = users[1];
-    const t0EmergencyAdmin = await getEmergencyAdminT0();
-    // Pause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+  // it('RebalanceStableBorrowRate', async () => {
+  //   const { pool, dai, users, configurator } = testEnv;
+  //   const user = users[1];
+  //   const t0EmergencyAdmin = await getEmergencyAdminT0();
+  //   // Pause pool
+  //   await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
 
-    await expect(
-      pool.connect(user.signer).rebalanceStableBorrowRate(dai.address, tranche, user.address)
-    ).revertedWith(LP_IS_PAUSED);
+  //   await expect(
+  //     pool.connect(user.signer).rebalanceStableBorrowRate(dai.address, tranche, user.address)
+  //   ).revertedWith(LP_IS_PAUSED);
 
-    // Unpause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
-  });
+  //   // Unpause pool
+  //   await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+  // });
 
   it('setUserUseReserveAsCollateral', async () => {
     const { pool, weth, users, configurator } = testEnv;

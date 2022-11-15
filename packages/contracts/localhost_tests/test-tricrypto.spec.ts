@@ -102,11 +102,6 @@ makeSuite(
           BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
         });
 
-        it("unpause lending pools", async () => {
-          const emergency = (await DRE.ethers.getSigners())[1];
-          const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-          await lendingPoolConfig.connect(emergency).setPoolPause(false, TRANCHE);
-        });
 
         it("give WETH to users", async () => {
           const weth = new DRE.ethers.Contract(WETH_ADDR,WETH_ABI)
