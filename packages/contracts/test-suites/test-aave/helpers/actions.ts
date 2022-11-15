@@ -298,7 +298,8 @@ export const deposit = async (
 
     const userAccountData = await pool.getUserAccountData(
       sender.address,
-      tranche
+      tranche,
+      false
     );
 
     console.log("userAccountData: ", userAccountData);
@@ -361,7 +362,7 @@ export const withdraw = async (
   } = await getDataBeforeAction(
     reserveSymbol,
     tranche,
-    "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c",
+    "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
     testEnv
   );
 
@@ -441,7 +442,8 @@ export const withdraw = async (
 
     const userAccountData = await pool.getUserAccountData(
       user.address,
-      tranche
+      tranche,
+      false
     );
 
     console.log("userAccountData: ", JSON.stringify(userAccountData));
@@ -455,7 +457,7 @@ export const withdraw = async (
     } = await getContractsData(
       reserve,
       tranche,
-      "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c",
+      "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
       testEnv
     );
 
@@ -775,7 +777,7 @@ export const borrow = async (
   } = await getDataBeforeAction(
     reserveSymbol,
     tranche,
-    "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c",
+    "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
     testEnv
   );
 
@@ -860,7 +862,8 @@ export const borrow = async (
 
     const userAccountData = await pool.getUserAccountData(
       user.address,
-      tranche
+      tranche,
+      false
     );
 
     console.log("userAccountData: ", JSON.stringify(userAccountData));
@@ -874,7 +877,7 @@ export const borrow = async (
     } = await getContractsData(
       reserve,
       tranche,
-      "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c",
+      "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
       testEnv
     );
 
@@ -977,7 +980,7 @@ export const repay = async (
   } = await getDataBeforeAction(
     reserveSymbol,
     tranche,
-    "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c",
+    "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
     testEnv
   );
 
@@ -1074,7 +1077,7 @@ export const repay = async (
     } = await getContractsData(
       reserve,
       tranche,
-      "0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c",
+      "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
       testEnv
     );
 

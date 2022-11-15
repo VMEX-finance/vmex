@@ -2,10 +2,11 @@ import { task } from "hardhat/config";
 import {
   getParamPerNetwork,
   insertContractAddressInDb,
+  getContractAddressWithJsonFallback
 } from "../../helpers/contracts-helpers";
 import {
   deployATokenImplementations,
-  deployATokensAndRatesHelper,
+  // deployATokensAndRatesHelper,
   deployLendingPool,
   deployLendingPoolConfigurator,
   deployStableAndVariableTokensHelper,
@@ -106,7 +107,7 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       );
 
       //****** SETS DEFAULT VMEX TREASURY TO THAT PROVIDED IN THE POOL CONFIG */
-      /// 0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c for main
+      /// 0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49 for main
       await lendingPoolConfiguratorProxy.setDefaultVMEXTreasury(
         await getTreasuryAddress(poolConfig)
       );
@@ -116,37 +117,67 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
         [lendingPoolProxy.address, addressesProvider.address],
         verify
       );
-      const ATokensAndRatesHelper = await deployATokensAndRatesHelper(
-        [
-          lendingPoolProxy.address,
-          addressesProvider.address,
-          lendingPoolConfiguratorProxy.address,
-          await getGlobalVMEXReserveFactor(),
-        ],
-        verify
-      );
+      // const ATokensAndRatesHelper = await deployATokensAndRatesHelper(
+      //   [
+      //     lendingPoolProxy.address,
+      //     addressesProvider.address,
+      //     lendingPoolConfiguratorProxy.address,
+      //     await getGlobalVMEXReserveFactor(),
+      //   ],
+      //   verify
+      // );
 
-      if (!notFalsyOrZeroAddress(ATokensAndRatesHelper.address)) {
-        //bad address
-        throw "deploying ATokensAndRatesHelper error, address is falsy or zero";
-      } else {
-        console.log(
-          "ATokensAndRatesHelper deployed at ",
-          ATokensAndRatesHelper.address
-        );
-      }
+      // if (!notFalsyOrZeroAddress(ATokensAndRatesHelper.address)) {
+      //   //bad address
+      //   throw "deploying ATokensAndRatesHelper error, address is falsy or zero";
+      // } else {
+      //   console.log(
+      //     "ATokensAndRatesHelper deployed at ",
+      //     ATokensAndRatesHelper.address
+      //   );
+      // }
 
-      await waitForTx(
-        await addressesProvider.setATokenAndRatesHelper(
-          ATokensAndRatesHelper.address
-        )
-      );
+      // await waitForTx(
+      //   await addressesProvider.setATokenAndRatesHelper(
+      //     ATokensAndRatesHelper.address
+      //   )
+      // );
 
       await deployATokenImplementations(
         pool,
         poolConfig.ReservesConfig,
         verify
       );
+
+
+  await waitForTx(
+    await addressesProvider.setATokenImpl(
+      await getContractAddressWithJsonFallback(
+        eContractid.AToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setVariableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.VariableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+  await waitForTx(
+    await addressesProvider.setStableDebtToken(
+      await getContractAddressWithJsonFallback(
+        eContractid.StableDebtToken,
+        ConfigNames.Aave
+      )
+    )
+  );
+
+
     } catch (error) {
       if (DRE.network.name.includes("tenderly")) {
         const transactionLink = `https://dashboard.tenderly.co/${

@@ -25,10 +25,13 @@ contract AaveOracle is IPriceOracleGetter, Ownable {
     event AssetSourceUpdated(address indexed asset, address indexed source);
     event FallbackOracleUpdated(address indexed fallbackOracle);
 
+
+    
     mapping(address => IChainlinkAggregator) private assetsSources;
     IPriceOracleGetter private _fallbackOracle;
     address public immutable BASE_CURRENCY;
     uint256 public immutable BASE_CURRENCY_UNIT;
+
 
     /// @notice Constructor
     /// @param assets The addresses of the assets
@@ -48,6 +51,7 @@ contract AaveOracle is IPriceOracleGetter, Ownable {
         _setAssetsSources(assets, sources);
         BASE_CURRENCY = baseCurrency;
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
+
         emit BaseCurrencySet(baseCurrency, baseCurrencyUnit);
     }
 
@@ -111,6 +115,24 @@ contract AaveOracle is IPriceOracleGetter, Ownable {
                 return _fallbackOracle.getAssetPrice(asset);
             }
         }
+    }
+
+    //updateTWAP (average O(1))
+    //recent +=1 and cover case where it goes over
+    //cumulatedPrices[asset][recent] = 
+    //If block.timestamp - cumulatedPrices[asset][last].timestamp > 24 hours, 
+    //  then keep increasing last until you find until find cumulatedPrices[asset][last].timestamp < 24 hours (most likely close to O(1))
+    function updateTWAP(address asset) public override{
+        require(numPrices[asset]<type(uint16).max, "Overflow updateTWAP");
+        uint256 currentPrice = getAssetPrice(asset);
+        _updateState(asset,currentPrice);
+    }
+
+    //getAssetTWAPPrice
+    //first call updateTWAP
+    //return (cumulatedPrices[asset][recent].cumulatedPrice - cumulatedPrices[asset][last].cumulatedPrice)/(cumulatedPrices[asset][recent].timestamp - cumulatedPrices[asset][last].timestamp)
+    function getAssetTWAPPrice(address asset) external view override returns (uint256){
+        return _getAssetTWAPPrice(asset, getAssetPrice(asset));
     }
 
     /// @notice Gets a list of prices from a list of assets addresses

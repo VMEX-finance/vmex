@@ -47,8 +47,7 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,
-        string memory debtTokenSymbol,
-        bytes calldata params
+        string memory debtTokenSymbol
     ) public override initializer {
         _setName(debtTokenName);
         _setSymbol(debtTokenSymbol);
@@ -64,8 +63,7 @@ contract StableDebtToken is IStableDebtToken, DebtTokenBase {
             address(incentivesController),
             debtTokenDecimals,
             debtTokenName,
-            debtTokenSymbol,
-            params
+            debtTokenSymbol
         );
     }
 

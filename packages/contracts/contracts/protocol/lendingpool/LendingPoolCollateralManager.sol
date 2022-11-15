@@ -24,6 +24,7 @@ import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
 import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 
+import {AssetMappings} from "./AssetMappings.sol";
 import "hardhat/console.sol";
 
 /**
@@ -114,7 +115,7 @@ contract LendingPoolCollateralManager is
 
         LiquidationCallLocalVars memory vars;
 
-        {
+        { //health factor is based on lowest collateral value between twap and chainlink
             (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
                 DataTypes.AcctTranche(user, trancheId),
                 _reserves,
@@ -122,7 +123,7 @@ contract LendingPoolCollateralManager is
                 _reservesList[trancheId],
                 _reservesCount[trancheId],
                 _addressesProvider,
-                assetDatas
+                false //liquidations don't want to use twap
             );
         }
 
@@ -159,6 +160,7 @@ contract LendingPoolCollateralManager is
 
         vars.userCollateralBalance = vars.collateralAtoken.balanceOf(user);
 
+        //user's total debt * 50% (you can only liquidate half of user's debt)
         vars.maxLiquidatableDebt = vars
             .userStableDebt
             .add(vars.userVariableDebt)
@@ -169,7 +171,7 @@ contract LendingPoolCollateralManager is
             : debtToCover;
 
         (
-            vars.maxCollateralToLiquidate,
+            vars.maxCollateralToLiquidate, //considers exchange rate between debt token and collateral
             vars.debtAmountNeeded
         ) = _calculateAvailableCollateralToLiquidate(
             collateralReserve,
@@ -352,14 +354,14 @@ contract LendingPoolCollateralManager is
         AvailableCollateralToLiquidateLocalVars memory vars;
         {
             address oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[collateralAsset]
-            );
+                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(collateralAsset)
+            ); //using just chainlink current price oracle, not using 24 hour twap
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
             oracleAddress = _addressesProvider.getPriceOracle(
-                assetDatas[debtAsset]
+                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(debtAsset)
             );
 
             oracle = IPriceOracleGetter(oracleAddress);

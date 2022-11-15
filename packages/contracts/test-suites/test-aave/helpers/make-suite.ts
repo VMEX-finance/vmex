@@ -13,7 +13,7 @@ import {
   getWETHGateway,
   getTricrypto2Strategy,
   getCurvePriceOracleWrapper,
-  getEmergencyAdmin,
+  // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
   eEthereumNetwork,
@@ -61,6 +61,7 @@ export interface TestEnv {
   users: SignerWithAddress[];
   pool: LendingPool;
   configurator: LendingPoolConfigurator;
+  // aTokensAndRatesHelper: ATokensAndRatesHelper;
   oracle: PriceOracle;
   curveOracle: CurveWrapper;
   helpersContract: AaveProtocolDataProvider;
@@ -91,6 +92,7 @@ const testEnv: TestEnv = {
   users: [] as SignerWithAddress[],
   pool: {} as LendingPool,
   configurator: {} as LendingPoolConfigurator,
+  // aTokensAndRatesHelper: {} as ATokensAndRatesHelper,
   helpersContract: {} as AaveProtocolDataProvider,
   oracle: {} as PriceOracle,
   curveOracle: {} as CurveWrapper,
@@ -128,6 +130,7 @@ export async function initializeMakeSuite() {
   testEnv.pool = await getLendingPool();
 
   testEnv.configurator = await getLendingPoolConfiguratorProxy();
+  // testEnv.aTokensAndRatesHelper = await getATokensAndRatesHelper();
 
   testEnv.addressesProvider = await getLendingPoolAddressesProvider();
 

@@ -18,7 +18,6 @@ interface IInitializableDebtToken {
      * @param debtTokenDecimals the decimals of the debt token
      * @param debtTokenName the name of the debt token
      * @param debtTokenSymbol the symbol of the debt token
-     * @param params A set of encoded parameters for additional initialization
      **/
     event Initialized(
         address indexed underlyingAsset,
@@ -26,8 +25,7 @@ interface IInitializableDebtToken {
         address incentivesController,
         uint8 debtTokenDecimals,
         string debtTokenName,
-        string debtTokenSymbol,
-        bytes params
+        string debtTokenSymbol
     );
 
     /**
@@ -46,7 +44,6 @@ interface IInitializableDebtToken {
         IAaveIncentivesController incentivesController,
         uint8 debtTokenDecimals,
         string memory debtTokenName,
-        string memory debtTokenSymbol,
-        bytes calldata params
+        string memory debtTokenSymbol
     ) external;
 }

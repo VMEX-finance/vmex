@@ -103,8 +103,7 @@ contract AToken is
         IAaveIncentivesController incentivesController,
         uint8 aTokenDecimals,
         string calldata aTokenName,
-        string calldata aTokenSymbol,
-        bytes calldata params
+        string calldata aTokenSymbol
     ) external override initializer {
         uint256 chainId;
 
@@ -142,8 +141,7 @@ contract AToken is
             address(incentivesController),
             aTokenDecimals,
             aTokenName,
-            aTokenSymbol,
-            params
+            aTokenSymbol
         );
     }
 

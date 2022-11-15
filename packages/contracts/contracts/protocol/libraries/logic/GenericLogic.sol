@@ -12,7 +12,9 @@ import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 
+import "hardhat/console.sol";
 /**
  * @title GenericLogic library
  * @author Aave
@@ -66,8 +68,7 @@ library GenericLogic {
             storage reservesData,
         DataTypes.UserConfigurationMap calldata userConfig,
         mapping(uint256 => address) storage reserves,
-        uint256 reservesCount,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        uint256 reservesCount
     ) external view returns (bool) {
         if (
             !userConfig.isBorrowingAny() ||
@@ -101,18 +102,19 @@ library GenericLogic {
             reserves,
             reservesCount,
             params._addressesProvider,
-            assetDatas
+            true //this function is only used in the context of withdrawing or setting as not collateral, so it should be true
         );
-
-        // (uint256(14), uint256(14), uint256(14));
 
         if (vars.totalDebtInETH == 0) {
             return true;
         }
 
         //here, need to check if the reserve is a curve reserve. If so
+        //using current price instead of 24 hour average
         vars.amountToDecreaseInETH = IPriceOracleGetter(
-            params._addressesProvider.getPriceOracle(assetDatas[params.asset])
+            params._addressesProvider.getPriceOracle(
+                AssetMappings(params._addressesProvider.getAssetMappings()).getAssetType(params.asset)
+            )
         ).getAssetPrice(params.asset).mul(params.amount).div(10**vars.decimals);
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
@@ -165,6 +167,10 @@ library GenericLogic {
         address oracle;
         address user;
         uint64 trancheId;
+
+        bool useTwap;
+        uint256 reserveTwapUnitPrice;
+        uint256 liquidityBalanceETHTWAP;
     }
 
     /**
@@ -186,7 +192,7 @@ library GenericLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        mapping(address => DataTypes.ReserveAssetType) storage assetDatas
+        bool useTwap
     )
         internal
         view
@@ -202,6 +208,7 @@ library GenericLogic {
         {
             vars.user = actTranche.user;
             vars.trancheId = actTranche.trancheId;
+            vars.useTwap = useTwap;
         }
 
         // require(!userConfig.isEmpty(), "userConfig is empty");
@@ -221,7 +228,7 @@ library GenericLogic {
 
             {
                 vars.oracle = _addressesProvider.getPriceOracle(
-                    assetDatas[vars.currentReserveAddress]
+                    AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.currentReserveAddress)
                 );
             }
 
@@ -242,6 +249,10 @@ library GenericLogic {
             vars.reserveUnitPrice = IPriceOracleGetter(vars.oracle)
                 .getAssetPrice(vars.currentReserveAddress);
 
+            //decide whether to do on or off chain
+            vars.reserveTwapUnitPrice = IPriceOracleGetter(vars.oracle)
+                .getAssetTWAPPrice(vars.currentReserveAddress); //from uniswap
+
             if (
                 vars.liquidationThreshold != 0 &&
                 userConfig.isUsingAsCollateral(vars.i)
@@ -255,9 +266,21 @@ library GenericLogic {
                     .reserveUnitPrice
                     .mul(vars.compoundedLiquidityBalance)
                     .div(vars.tokenUnit);
+                
+                if(vars.useTwap){
+                    vars.liquidityBalanceETHTWAP = vars
+                        .reserveTwapUnitPrice
+                        .mul(vars.compoundedLiquidityBalance)
+                        .div(vars.tokenUnit);
+                    
+                    //this means the borrow must satisfy both current price and twap price
+                    if(vars.liquidityBalanceETHTWAP < vars.liquidityBalanceETH){
+                        vars.liquidityBalanceETH = vars.liquidityBalanceETHTWAP; 
+                    }
+                }
 
-                if (vars.liquidityBalanceETH > currentReserve.collateralCap) {
-                    vars.liquidityBalanceETH = currentReserve.collateralCap;
+                if (vars.liquidityBalanceETH > AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress)) {
+                    vars.liquidityBalanceETH = AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress);
                 }
 
                 vars.totalCollateralInETH = vars.totalCollateralInETH.add(
@@ -282,11 +305,21 @@ library GenericLogic {
                     )
                 );
 
-                vars.totalDebtInETH = vars.totalDebtInETH.add(
-                    vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
-                        vars.tokenUnit
-                    )
-                );
+                if(!useTwap || vars.reserveTwapUnitPrice<vars.reserveUnitPrice){ //debt uses the larger value of price
+                //if not using twap or if not using twap has higher price, then use the regular price
+                    vars.totalDebtInETH = vars.totalDebtInETH.add(
+                        vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
+                            vars.tokenUnit
+                        )
+                    );
+                }
+                else{
+                    vars.totalDebtInETH = vars.totalDebtInETH.add(
+                        vars.reserveTwapUnitPrice.mul(vars.compoundedBorrowBalance).div(
+                            vars.tokenUnit
+                        )
+                    );
+                }
             }
         }
 

@@ -71,11 +71,7 @@ var triCryptoDepositAbi = [
 ]
 
         
-        it("unpause lending pools", async () => {
-            const emergency = (await DRE.ethers.getSigners())[1]
-            const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-            await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
-          });
+        
 
           it("give WETH to signer", async () => {
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
@@ -215,7 +211,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("801"), "Reserve doesn't have liquidity");
 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
             expect(
                 userDat.totalDebtETH.toString()
