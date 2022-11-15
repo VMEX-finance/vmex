@@ -18,7 +18,6 @@ import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   initAssetData,
-  initAssetConfigurationData,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -111,13 +110,6 @@ task(
     SymbolPrefix,
     admin,
     false
-  );
-
-  await initAssetConfigurationData(
-    ReservesConfig,
-    reserveAssets,
-    testHelpers,
-    admin
   );
 
       let collateralManagerAddress = await getParamPerNetwork(

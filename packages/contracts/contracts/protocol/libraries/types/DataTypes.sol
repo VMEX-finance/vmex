@@ -21,19 +21,22 @@ library DataTypes {
         string stableDebtTokenSymbol;
         uint8 assetType;
         uint256 collateralCap;
+
+        uint256 baseLTV;
+        uint256 liquidationThreshold; //if this is zero, then disabled as collateral
+        uint256 liquidationBonus;
+
+        bool stableBorrowingEnabled;
+        bool borrowingEnabled;
+
         bool isAllowed; //default to false, unless set
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
         //the only difference between the different strategies is the value of the slopes and optimal utilization
         
     }
 
-    struct AssetDataConfiguration {
-        uint256 baseLTV;
-        uint256 liquidationThreshold;
-        uint256 liquidationBonus;
-        bool stableBorrowingEnabled;
-        bool borrowingEnabled;
-    }
+    // struct AssetDataConfiguration {
+    // }
 
     struct InitReserveInput {
         // address aTokenImpl; //individual tranche users should not have control over this
@@ -48,6 +51,9 @@ library DataTypes {
         address incentivesController;
 
         uint8 interestRateChoice; //0 for default, others are undefined until set
+        uint256 reserveFactor;
+        bool forceDisabledBorrow; 
+        bool forceDisabledCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
     }
 
     struct InitReserveInputInternal {
@@ -102,12 +108,20 @@ library DataTypes {
         //bit 16-31: Liq. threshold
         //bit 32-47: Liq. bonus
         //bit 48-55: Decimals
+
+        //the above will not be set because they are properties of the asset as a whole
+        //update: each reserve will have their own values. Just in case there needs to be a change, 
+        //we can't set them all at the same time cause some reserves may satisfy the conditions but other reserves may not
+
+        //update 2: we can just use the global version for ltv and liquidation bonus
+
         //bit 56: Reserve is active
         //bit 57: reserve is frozen
         //bit 58: borrowing is enabled
         //bit 59: stable rate borrowing enabled
         //bit 60-63: reserved
         //bit 64-79: reserve factor
+
         //bit 80-95: vmex reserve factor
         uint256 data;
     }

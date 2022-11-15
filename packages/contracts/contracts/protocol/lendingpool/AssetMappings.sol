@@ -4,11 +4,16 @@ pragma solidity >=0.8.0;
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
+import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
 contract AssetMappings {
+    using PercentageMath for uint256;
+
+
     ILendingPoolAddressesProvider internal addressesProvider;
     mapping(address => DataTypes.AssetData) internal assetMappings;
-    mapping(address => DataTypes.AssetDataConfiguration) internal assetConfigurationMappings;
+    // mapping(address => DataTypes.AssetDataConfiguration) internal assetConfigurationMappings;
     mapping(address => mapping(uint8=>address)) internal interestRateStrategyAddress;
     mapping(address => mapping(uint8=>address)) internal curveStrategyAddress;
     mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
@@ -28,27 +33,44 @@ contract AssetMappings {
 
     function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] calldata input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
         require(underlying.length==input.length);
+
+        
         for(uint256 i = 0;i<input.length;i++){
+            //validation of the parameters: the LTV can
+            //only be lower or equal than the liquidation threshold
+            //(otherwise a loan against the asset would cause instantaneous liquidation)
+            require(input[i].baseLTV <= input[i].liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+
+            if (input[i].liquidationThreshold != 0) {
+                //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
+                //collateral than needed to cover the debt
+                require(
+                    input[i].liquidationBonus > PercentageMath.PERCENTAGE_FACTOR,
+                    Errors.LPC_INVALID_CONFIGURATION
+                );
+
+                //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
+                //a loan is taken there is enough collateral available to cover the liquidation bonus
+                require(
+                    input[i].liquidationThreshold.percentMul(input[i].liquidationBonus) <=
+                        PercentageMath.PERCENTAGE_FACTOR,
+                    Errors.LPC_INVALID_CONFIGURATION
+                );
+            } 
             assetMappings[underlying[i]] = input[i];
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
         }
     }
+
+    
 
     function getAssetMapping(address underlying) view external returns(DataTypes.AssetData memory){
         require(assetMappings[underlying].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return assetMappings[underlying];
     }
 
-    function setAssetConfigurationMapping(address[] calldata underlying, DataTypes.AssetDataConfiguration[] calldata input) external onlyGlobalAdmin {
-        require(underlying.length==input.length);
-        for(uint256 i = 0;i<input.length;i++){
-            assetConfigurationMappings[underlying[i]] = input[i];
-        }
-    }
-
-    function getAssetConfigurationMapping(address underlying) view external returns(DataTypes.AssetDataConfiguration memory){
-        require(assetMappings[underlying].isAllowed, "Asset is not allowed in asset mappings"); //not existing
-        return assetConfigurationMappings[underlying];
+    function getAssetBorrowable(address asset) view external returns (bool){
+        return assetMappings[asset].borrowingEnabled;
     }
 
     function getInterestRateStrategyAddress(address underlying, uint8 choice) view external returns(address){

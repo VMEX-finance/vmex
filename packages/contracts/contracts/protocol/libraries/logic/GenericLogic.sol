@@ -279,8 +279,6 @@ library GenericLogic {
                     }
                 }
 
-                console.log("collateral cap: ",AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress));
-
                 if (vars.liquidityBalanceETH > AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress)) {
                     vars.liquidityBalanceETH = AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress);
                 }

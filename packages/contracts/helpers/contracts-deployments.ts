@@ -23,7 +23,7 @@ import {
   AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
   ATokenFactory,
-  ATokensAndRatesHelperFactory,
+  // ATokensAndRatesHelperFactory,
   AaveOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   DelegationAwareATokenFactory,
@@ -880,18 +880,18 @@ export const deployStableAndVariableTokensHelper = async (
     verify
   );
 
-export const deployATokensAndRatesHelper = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new ATokensAndRatesHelperFactory(await getFirstSigner()).deploy(
-      ...args
-    ),
-    eContractid.ATokensAndRatesHelper,
-    args,
-    verify
-  );
+// export const deployATokensAndRatesHelper = async (
+//   args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string],
+//   verify?: boolean
+// ) =>
+//   withSaveAndVerify(
+//     await new ATokensAndRatesHelperFactory(await getFirstSigner()).deploy(
+//       ...args
+//     ),
+//     eContractid.ATokensAndRatesHelper,
+//     args,
+//     verify
+//   );
 
 export const deployWETHGateway = async (
   args: [tEthereumAddress],

@@ -2,7 +2,7 @@ import {
   AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
   ATokenFactory,
-  ATokensAndRatesHelperFactory,
+  // ATokensAndRatesHelperFactory,
   AaveOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   GenericLogicFactory,
@@ -355,16 +355,16 @@ export const getStableAndVariableTokensHelper = async (
     await getFirstSigner()
   );
 
-export const getATokensAndRatesHelper = async (address?: tEthereumAddress) =>
-  await ATokensAndRatesHelperFactory.connect(
-    address ||
-      (
-        await getDb()
-          .get(`${eContractid.ATokensAndRatesHelper}.${DRE.network.name}`)
-          .value()
-      ).address,
-    await getFirstSigner() //automatically connects the admin
-  );
+// export const getATokensAndRatesHelper = async (address?: tEthereumAddress) =>
+//   await ATokensAndRatesHelperFactory.connect(
+//     address ||
+//       (
+//         await getDb()
+//           .get(`${eContractid.ATokensAndRatesHelper}.${DRE.network.name}`)
+//           .value()
+//       ).address,
+//     await getFirstSigner() //automatically connects the admin
+//   );
 
 export const getWETHGateway = async (address?: tEthereumAddress) =>
   await WETHGatewayFactory.connect(

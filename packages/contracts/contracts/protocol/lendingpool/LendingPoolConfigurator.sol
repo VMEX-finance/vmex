@@ -39,48 +39,36 @@ contract LendingPoolConfigurator is
     ILendingPoolAddressesProvider internal addressesProvider;
     ILendingPool internal pool;
     address internal DefaultVMEXTreasury;
+    uint256 internal DefaultVMEXReserveFactor;
     uint64 public totalTranches;
     mapping(uint64 => string) public trancheNames; //just for frontend purposes
 
-    modifier onlyATokensAndRatesHelperOrGlobalAdmin() {
-        //this contract handles the updates to the configuration
-        _onlyATokensAndRatesHelperOrGlobalAdmin();
+    modifier onlyGlobalAdmin() {
+        //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
+        _onlyGlobalAdmin();
         _;
     }
 
-    function _onlyATokensAndRatesHelperOrGlobalAdmin() internal view {
+    function _onlyGlobalAdmin() internal view {
         //this contract handles the updates to the configuration
-        require(
-            addressesProvider.getATokenAndRatesHelper() == msg.sender ||
-                addressesProvider.getGlobalAdmin() == msg.sender,
-            "Caller is not ATokensAndRatesHelper"
-        );
-    }
-
-    modifier onlyGlobalAdmin() {
-        //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         require(
             addressesProvider.getGlobalAdmin() == msg.sender,
             "Caller not global VMEX admin"
         );
-        _;
     }
 
     modifier onlyPoolAdmin(uint64 trancheId) {
+        _onlyPoolAdmin(trancheId);
+        _;
+    }
+
+    function _onlyPoolAdmin(uint64 trancheId) internal view {
+        //this contract handles the updates to the configuration
         require(
             addressesProvider.getPoolAdmin(trancheId) == msg.sender ||
                 addressesProvider.getGlobalAdmin() == msg.sender, //getPoolAdmin(trancheId) gets the admin for a specific tranche
             Errors.CALLER_NOT_POOL_ADMIN
         );
-        _;
-    }
-
-    modifier onlyEmergencyAdmin(uint64 trancheId) {
-        require(
-            addressesProvider.getEmergencyAdmin(trancheId) == msg.sender,
-            Errors.LPC_CALLER_NOT_EMERGENCY_ADMIN
-        );
-        _;
     }
 
     modifier whitelistedAddress() {
@@ -101,6 +89,7 @@ contract LendingPoolConfigurator is
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
         DefaultVMEXTreasury = 0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49; //in case we forget to set
+        DefaultVMEXReserveFactor = 1000;
     }
 
     function setDefaultVMEXTreasury(address add) external onlyGlobalAdmin {
@@ -113,13 +102,11 @@ contract LendingPoolConfigurator is
      **/
     function claimTrancheId(
         string calldata name,
-        address admin,
-        address emergencyAdmin
+        address admin
     ) external whitelistedAddress returns (uint256 trancheId) {
         //whitelist only
         uint64 givenTranche = totalTranches;
         addressesProvider.addPoolAdmin(admin, givenTranche);
-        addressesProvider.addEmergencyAdmin(emergencyAdmin, givenTranche);
         trancheNames[givenTranche] = name;
         totalTranches += 1;
         return givenTranche;
@@ -147,9 +134,6 @@ contract LendingPoolConfigurator is
             );
         }
     }
-
-    //vmex assisted edits
-    //modifier onlyGlobalAdmin()
 
     function _initReserve(
         ILendingPool pool,
@@ -182,6 +166,26 @@ contract LendingPoolConfigurator is
                 internalInput.trancheId
             );
 
+        currentConfig.setLtv(internalInput.assetdata.baseLTV);
+        if(internalInput.input.forceDisabledCollateral){
+            currentConfig.setLiquidationThreshold(0);
+        }
+        else{
+            currentConfig.setLiquidationThreshold(internalInput.assetdata.liquidationThreshold);
+        }
+        
+        currentConfig.setLiquidationBonus(internalInput.assetdata.liquidationBonus);
+        currentConfig.setStableRateBorrowingEnabled(internalInput.assetdata.stableBorrowingEnabled);
+        if(internalInput.input.forceDisabledBorrow){
+            currentConfig.setBorrowingEnabled(false);
+        }
+        else{
+            currentConfig.setBorrowingEnabled(internalInput.assetdata.borrowingEnabled);
+        }
+        
+        currentConfig.setReserveFactor(internalInput.input.reserveFactor);
+        currentConfig.setVMEXReserveFactor(DefaultVMEXReserveFactor);
+
         currentConfig.setDecimals(internalInput.assetdata.underlyingAssetDecimals);
 
         currentConfig.setActive(true);
@@ -192,13 +196,6 @@ contract LendingPoolConfigurator is
             internalInput.trancheId,
             currentConfig.data
         );
-
-
-        // pool.setAssetData(
-        //     internalInput.input.underlyingAsset,
-        //     internalInput.assetdata.assetType
-        // ); //this may not need to be called every time a reserve is added, this only needs to happen for new assets
-        // //TODO: or, just hardcode this
 
         emit ReserveInitialized(
             internalInput.input.underlyingAsset,
@@ -382,15 +379,69 @@ contract LendingPoolConfigurator is
     }
 
     /**
+   * @dev Configures the reserve collateralization parameters
+   * all the values are expressed in percentages with two decimals of precision. A valid value is 10000, which means 100.00%
+   * @param asset The address of the underlying asset of the reserve
+   * @param ltv The loan to value of the asset when used as collateral
+   * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
+   * @param liquidationBonus The bonus liquidators receive to liquidate this asset. The values is always above 100%. A value of 105%
+   * means the liquidator will receive a 5% bonus
+   **/
+  function configureReserveAsCollateral(
+    address asset,
+    uint64 trancheId,
+    uint256 ltv,
+    uint256 liquidationThreshold,
+    uint256 liquidationBonus
+  ) external onlyGlobalAdmin {
+    DataTypes.ReserveConfigurationMap memory currentConfig = pool.getConfiguration(asset,trancheId);
+
+    //validation of the parameters: the LTV can
+    //only be lower or equal than the liquidation threshold
+    //(otherwise a loan against the asset would cause instantaneous liquidation)
+    require(ltv <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+
+    if (liquidationThreshold != 0) {
+      //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
+      //collateral than needed to cover the debt
+      require(
+        liquidationBonus > PercentageMath.PERCENTAGE_FACTOR,
+        Errors.LPC_INVALID_CONFIGURATION
+      );
+
+      //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
+      //a loan is taken there is enough collateral available to cover the liquidation bonus
+      require(
+        liquidationThreshold.percentMul(liquidationBonus) <= PercentageMath.PERCENTAGE_FACTOR,
+        Errors.LPC_INVALID_CONFIGURATION
+      );
+    } else {
+      require(liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
+      //if the liquidation threshold is being set to 0,
+      // the reserve is being disabled as collateral. To do so,
+      //we need to ensure no liquidity is deposited
+      _checkNoLiquidity(asset,trancheId);
+    }
+
+    currentConfig.setLtv(ltv);
+    currentConfig.setLiquidationThreshold(liquidationThreshold);
+    currentConfig.setLiquidationBonus(liquidationBonus);
+
+    pool.setConfiguration(asset,trancheId, currentConfig.data);
+
+    emit CollateralConfigurationChanged(asset, ltv, liquidationThreshold, liquidationBonus);
+  }
+
+    /**
      * @dev Enables borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
-     * @param stableBorrowRateEnabled True if stable borrow rate needs to be enabled by default on this reserve
      **/
     function enableBorrowingOnReserve(
         address asset,
         uint64 trancheId,
         bool stableBorrowRateEnabled
-    ) external onlyATokensAndRatesHelperOrGlobalAdmin {
+    ) public onlyPoolAdmin(trancheId) {
+        require(AssetMappings(addressesProvider.getAssetMappings()).getAssetBorrowable(asset), "Asset is not approved to be set as borrowable");
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
@@ -399,7 +450,7 @@ contract LendingPoolConfigurator is
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit BorrowingEnabledOnReserve(asset, stableBorrowRateEnabled);
+        emit BorrowingEnabledOnReserve(asset);
     }
 
     /**
@@ -408,7 +459,7 @@ contract LendingPoolConfigurator is
      **/
     function disableBorrowingOnReserve(address asset, uint64 trancheId)
         external
-        onlyGlobalAdmin
+        onlyPoolAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -419,64 +470,116 @@ contract LendingPoolConfigurator is
         emit BorrowingDisabledOnReserve(asset);
     }
 
-    /**
-     * @dev Configures the reserve collateralization parameters
-     * all the values are expressed in percentages with two decimals of precision. A valid value is 10000, which means 100.00%
-     * @param asset The address of the underlying asset of the reserve
-     * @param vars contains below data
-     ltv: The loan to value of the asset when used as collateral
-     iquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
-     iquidationBonus The bonus liquidators receive to liquidate this asset. The values is always above 100%. A value of 105%
-     * means the liquidator will receive a 5% bonus
-     **/
-    function configureReserveAsCollateral(
-        address asset,
-        uint64 trancheId,
-        DataTypes.AssetDataConfiguration memory vars
-    ) external onlyATokensAndRatesHelperOrGlobalAdmin {
+    function enableCollateralOnReserve(address asset, uint64 trancheId)
+        external
+        onlyPoolAdmin(trancheId)
+    {
+        require(AssetMappings(addressesProvider.getAssetMappings()).getAssetBorrowable(asset), "Asset is not approved to be set as collateral");
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        //validation of the parameters: the LTV can
-        //only be lower or equal than the liquidation threshold
-        //(otherwise a loan against the asset would cause instantaneous liquidation)
-        require(vars.baseLTV <= vars.liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
-
-        if (vars.liquidationThreshold != 0) {
-            //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
-            //collateral than needed to cover the debt
-            require(
-                vars.liquidationBonus > PercentageMath.PERCENTAGE_FACTOR,
-                Errors.LPC_INVALID_CONFIGURATION
-            );
-
-            //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
-            //a loan is taken there is enough collateral available to cover the liquidation bonus
-            require(
-                vars.liquidationThreshold.percentMul(vars.liquidationBonus) <=
-                    PercentageMath.PERCENTAGE_FACTOR,
-                Errors.LPC_INVALID_CONFIGURATION
-            );
-        } else {
-            require(vars.liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
-            //if the liquidation threshold is being set to 0,
-            // the reserve is being disabled as collateral. To do so,
-            //we need to ensure no liquidity is deposited
-            _checkNoLiquidity(asset, trancheId);
-        }
-
-        currentConfig.setLtv(vars.baseLTV);
-        currentConfig.setLiquidationThreshold(vars.liquidationThreshold);
-        currentConfig.setLiquidationBonus(vars.liquidationBonus);
+        currentConfig.setBorrowingEnabled(false);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
+        // emit BorrowingDisabledOnReserve(asset);
+    }
 
-        emit CollateralConfigurationChanged(
+    /**
+     * @dev Updates the reserve factor of a reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @param reserveFactor The new reserve factor of the reserve
+     **/
+    function setReserveFactor(
+        address asset,
+        uint64 trancheId,
+        uint256 reserveFactor
+    ) public onlyPoolAdmin(trancheId) {
+        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+            pool
+        ).getConfiguration(asset, trancheId);
+
+        currentConfig.setReserveFactor(reserveFactor);
+
+        ILendingPool(pool).setConfiguration(
             asset,
-            vars.baseLTV,
-            vars.liquidationThreshold,
-            vars.liquidationBonus
+            trancheId,
+            currentConfig.data
         );
+
+        emit ReserveFactorChanged(asset, reserveFactor);
+    }
+
+    /**
+     * @dev Updates the vmex reserve factor of a reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @param reserveFactor The new reserve factor of the reserve
+     **/
+    function setVMEXReserveFactor(
+        address asset,
+        uint64 trancheId,
+        uint256 reserveFactor //the value here should only occupy 16 bits
+    ) public onlyGlobalAdmin {
+        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+            pool
+        ).getConfiguration(asset, trancheId);
+
+        currentConfig.setVMEXReserveFactor(reserveFactor);
+
+        ILendingPool(pool).setConfiguration(
+            asset,
+            trancheId,
+            currentConfig.data
+        );
+
+        emit ReserveFactorChanged(asset, reserveFactor);
+    }
+
+
+    /**
+     * @dev Freezes a reserve. A frozen reserve doesn't allow any new deposit, borrow or rate swap
+     *  but allows repayments, liquidations, rate rebalances and withdrawals
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    function freezeReserve(address asset, uint64 trancheId)
+        external
+        onlyPoolAdmin(trancheId)
+    {
+        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+            pool
+        ).getConfiguration(asset, trancheId);
+
+        currentConfig.setFrozen(true);
+
+        ILendingPool(pool).setConfiguration(
+            asset,
+            trancheId,
+            currentConfig.data
+        );
+
+        emit ReserveFrozen(asset);
+    }
+
+    /**
+     * @dev Unfreezes a reserve
+     * @param asset The address of the underlying asset of the reserve
+     **/
+    function unfreezeReserve(address asset, uint64 trancheId)
+        external
+        onlyPoolAdmin(trancheId)
+    {
+        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+            pool
+        ).getConfiguration(asset, trancheId);
+
+        currentConfig.setFrozen(false);
+
+        ILendingPool(pool).setConfiguration(
+            asset,
+            trancheId,
+            currentConfig.data
+        );
+
+        emit ReserveUnfrozen(asset);
     }
 
     /**
@@ -554,17 +657,6 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Note this can only be called by global admin. Individual pool owners can't set the data for the asset, but can set the data for their own reserves
-     **/
-    // function setAssetData(address asset, uint8 _assetType)
-    //     external
-    //     onlyGlobalAdmin
-    // {
-    //     pool.setAssetData(asset, _assetType);
-    //     emit AssetDataChanged(asset, _assetType);
-    // }
-
-    /**
      * @dev Sets the interest rate strategy of a reserve
      * @param asset The address of the underlying asset of the reserve
      * @param rateStrategyAddressId The new address of the interest strategy contract
@@ -590,7 +682,7 @@ contract LendingPoolConfigurator is
      **/
     function setPoolPause(bool val, uint64 trancheId)
         external
-        onlyEmergencyAdmin(trancheId)
+        onlyGlobalAdmin
     {
         pool.setPause(val, trancheId);
     }

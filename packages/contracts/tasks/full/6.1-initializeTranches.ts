@@ -13,7 +13,6 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
-  configureReservesByHelper,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -72,7 +71,7 @@ task(
       console.log("before initReservesByHelper");
 
       
-      await claimTrancheId("Vmex tranche 0", admin, admin);
+      await claimTrancheId("Vmex tranche 0", admin);
 
       // Pause market during deployment
       await waitForTx(
@@ -87,13 +86,6 @@ task(
         incentivesController,
         0, //tranche id
         verify
-      );
-      await configureReservesByHelper(
-        ReservesConfig,
-        reserveAssets,
-        testHelpers,
-        0,
-        admin.address
       );
     } catch (err) {
       console.error(err);

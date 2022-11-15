@@ -13,7 +13,6 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
-  configureReservesByHelper,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -65,6 +64,9 @@ task(
 
       const testHelpers = await getAaveProtocolDataProvider();
 
+      const admin = await DRE.ethers.getSigner(
+        await addressesProvider.getGlobalAdmin()
+      );
       const emergAdmin = await DRE.ethers.getSigner(
         await getEmergencyAdmin(poolConfig)
       );
@@ -77,12 +79,12 @@ task(
       const treasuryAddress = emergAdmin.address;
       console.log("before initReservesByHelper");
 
-      await claimTrancheId("Vmex tranche 1", emergAdmin, emergAdmin);
+      await claimTrancheId("Vmex tranche 1", emergAdmin);
 
       // Pause market during deployment
       await waitForTx(
         await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
+          .connect(admin)
           .setPoolPause(true, 1)
       );
 
@@ -95,14 +97,6 @@ task(
         1, //tranche id
         verify
       );
-      await configureReservesByHelper(
-        ReservesConfig,
-        reserveAssets,
-        testHelpers,
-        1,
-        emergAdmin.address
-      );
-
 
       const tricrypto2StratTranche = 1;
 
@@ -118,6 +112,20 @@ task(
       );
 
       console.log("Finished deploying strategy in tranche 1");
+
+      // Unpause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(admin)
+          .setPoolPause(false, 0)
+      );
+      // Unpause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(admin)
+          .setPoolPause(false, 1)
+      );
+
     } catch (err) {
       console.error(err);
       exit(1);

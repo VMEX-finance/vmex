@@ -14,7 +14,7 @@ interface ILendingPoolAddressesProvider {
     event MarketIdSet(string newMarketId);
     event LendingPoolUpdated(address indexed newAddress);
 
-    event ATokensAndRatesHelperUpdated(address indexed newAddress);
+    // event ATokensAndRatesHelperUpdated(address indexed newAddress);
     event ConfigurationAdminUpdated(
         address indexed newAddress,
         uint64 trancheId
@@ -49,9 +49,9 @@ interface ILendingPoolAddressesProvider {
 
     function setLendingPoolImpl(address pool) external;
 
-    function getATokenAndRatesHelper() external view returns (address);
+    // function getATokenAndRatesHelper() external view returns (address);
 
-    function setATokenAndRatesHelper(address newAdd) external;
+    // function setATokenAndRatesHelper(address newAdd) external;
 
     function getLendingPoolConfigurator() external view returns (address);
 
@@ -71,16 +71,16 @@ interface ILendingPoolAddressesProvider {
 
     function setPoolAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
-    function getEmergencyAdmin(uint64 trancheId)
-        external
-        view
-        returns (address); //this depends on trancheId
+    // function getEmergencyAdmin(uint64 trancheId)
+    //     external
+    //     view
+    //     returns (address); //this depends on trancheId
 
     // function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
     function addPoolAdmin(address admin, uint64 trancheId) external;
 
-    function addEmergencyAdmin(address admin, uint64 trancheId) external;
+    // function addEmergencyAdmin(address admin, uint64 trancheId) external;
 
     function getAddressTranche(bytes32 id, uint64 trancheId)
         external

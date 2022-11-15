@@ -58,11 +58,7 @@ makeSuite(
 var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/abis/stethEth.json").toString()
 
         
-        it("unpause lending pools", async () => {
-            const emergency = (await DRE.ethers.getSigners())[1]
-            const lendingPoolConfig = await contractGetters.getLendingPoolConfiguratorProxy()
-            await lendingPoolConfig.connect(emergency).setPoolPause(false,1)
-          });
+        
 
           it("deposit WETH", async () => {
             //emergency deposits 100 WETH to pool to provide liquidity
