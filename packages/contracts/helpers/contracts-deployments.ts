@@ -918,7 +918,6 @@ export const deployMockStableDebtToken = async (
     tEthereumAddress,
     tEthereumAddress,
     string,
-    string,
     string
   ],
   verify?: boolean
@@ -937,8 +936,7 @@ export const deployMockStableDebtToken = async (
     args[2],
     "18",
     args[3],
-    args[4],
-    args[5]
+    args[4]
   );
 
   return instance;
@@ -958,7 +956,6 @@ export const deployMockVariableDebtToken = async (
     tEthereumAddress,
     tEthereumAddress,
     string,
-    string,
     string
   ],
   verify?: boolean
@@ -977,8 +974,7 @@ export const deployMockVariableDebtToken = async (
     args[2],
     "18",
     args[3],
-    args[4],
-    args[5]
+    args[4]
   );
 
   return instance;
@@ -1027,8 +1023,7 @@ export const deployMockAToken = async (
     incentivesController,
     "18",
     name,
-    symbol,
-    "0x10"
+    symbol
   );
 
   return instance;

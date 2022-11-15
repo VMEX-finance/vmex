@@ -48,8 +48,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       dai.address,
       ZERO_ADDRESS,
       'Aave stable debt bearing DAI updated',
-      'stableDebtDAI',
-      '0x10'
+      'stableDebtDAI'
     ]);
 
     const variableDebtTokenInstance = await deployMockVariableDebtToken([
@@ -57,8 +56,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       dai.address,
       ZERO_ADDRESS,
       'Aave variable debt bearing DAI updated',
-      'variableDebtDAI',
-      '0x10'
+      'variableDebtDAI'
     ]);
 
     newATokenAddress = aTokenInstance.address;
@@ -94,7 +92,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     };
     await expect(
       configurator.connect(users[1].signer).updateAToken(updateATokenInputParams)
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+    ).to.be.revertedWith('Caller not global VMEX admin');
   });
 
   it('Upgrades the DAI Atoken implementation ', async () => {
@@ -158,7 +156,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       configurator
         .connect(users[1].signer)
         .updateStableDebtToken(updateDebtTokenInput)
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+    ).to.be.revertedWith('Caller not global VMEX admin');
   });
 
   it('Upgrades the DAI stable debt token implementation ', async () => {
@@ -225,7 +223,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       configurator
         .connect(users[1].signer)
         .updateVariableDebtToken(updateDebtTokenInput)
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+    ).to.be.revertedWith('Caller not global VMEX admin');
   });
 
   it('Upgrades the DAI variable debt token implementation ', async () => {
