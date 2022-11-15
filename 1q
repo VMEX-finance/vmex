@@ -12,7 +12,7 @@ const {
     getUserSingleReserveData,
     getLendingPoolReservesList,
     getReserveData
-} = require("../dist/src.ts");
+} = require("../dist");
 const {
     borrow,
     marketReserveAsCollateral,
@@ -21,10 +21,10 @@ const {
     swapBorrowRateMode,
     supply,
     markReserveAsCollateral
-} = require("../dist/src.ts");
+} = require("../dist");
 const {
     userAggregatedTrancheData, getTVL, getTrancheTVL
-} = require("../dist/src.ts");
+} = require("../dist");
 
 const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const IERC20abi = [
