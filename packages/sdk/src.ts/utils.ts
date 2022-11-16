@@ -144,6 +144,20 @@ export async function getTrancheNames(network?: string) {
   );
 }
 
+export async function totalTranches(network?: string) {
+    let provider =
+	network == "localhost"
+	   ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
+	   : getNetworkProvider(network);
+    let signer = new ethers.VoidSigner(ethers.constants.AddressZero, provider);
+    const _lpConfiguratorProxy = new ethers.Contract(
+	deployments.LendingPoolConfigurator[`${network || "mainnet"}`].address,
+	ILendingPoolConfigurator.abi,
+	signer
+   );
+   return (await _lpConfiguratorProxy.totalTranches()).toNumber();
+}
+
 export async function lendingPoolPause(
   approvedSigner: ethers.Signer,
   setPause: boolean,
