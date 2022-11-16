@@ -26,22 +26,18 @@ import {
  */
 export async function getTVL(
   params: {
-    numTranches: number;
     network?: string;
+    test?: boolean
   },
   callback?: () => Promise<any>
 ) {
-  var tvl = BigNumber.from(0);
-  for (var i = 0; i < params.numTranches; i++) {
-    const trancheTvl = await getTrancheTVL({
-        tranche: i,
-        network: params.network
-    });
-    tvl = tvl.add(trancheTvl);
+	const provider = params.test ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : null;
+	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/QueryLendingPoolTVL.sol/QueryTrancheTVL.json");
+	let _aaveProvider = deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
+	let _addressProvider = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
+	let [ data ] = await decodeConstructorBytecode(abi, bytecode, provider, [_addressProvider, _aaveProvider])
+	return data;
   }
-
-  return tvl;
-}
 
 /**
 * getWalletBalanceAcrossTranches
