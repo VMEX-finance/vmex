@@ -1,10 +1,12 @@
+// import { BigNumber, utils } from "ethers";
+
 const { ethers } = require("ethers");
 const chai = require("chai");
 const { expect } = require("chai");
 const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
+chai.use(require('chai-bignumber')());
 // require("@nomicfoundation/hardhat-chai-matchers");
-
 const {
     approveUnderlying,
     getLendingPoolImpl,
@@ -20,11 +22,14 @@ const {
     repay,
     swapBorrowRateMode,
     supply,
-    markReserveAsCollateral
+    markReserveAsCollateral,
+    claimTrancheId,
+    initTranche
 } = require("../dist/protocol.js");
 const {
-    userAggregatedTrancheData, getTVL, getTrancheTVL
+    userAggregatedTrancheData, getTVL, getTrancheTVL, getTotalTranches
 } = require("../dist/analytics.js");
+const {TOKEN_ADDR_MAINNET} = require("../dist/constants.js");
 
 const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const IERC20abi = [
@@ -50,6 +55,58 @@ const UNISWAP_ROUTER_ABI = require("@vmex/contracts/localhost_tests/abis/uniswap
 const USDCaddr = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
 const network = "localhost";
+
+describe("Tranche creation - end-to-end test", () => {
+    let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+    const temp = provider.getSigner(2);
+    var mytranche;
+
+    it("1 - claim tranche", async () => {
+        mytranche = (await getTotalTranches({
+            network: network
+        })).toString();
+        expect(await claimTrancheId({
+            name: "New test tranche",
+            admin: temp,
+            network: network
+        }, () => { return true }
+        )).to.be.true;
+        //can't do this check since state doesn't revert so this will keep increasing
+        // expect(await getTotalTranches({
+        //     network: 'localhost'
+        // })).to.be.bignumber.equals(3);
+        console.log("My tranche num: ",mytranche)
+    });
+
+    it("2 - init reserves in this tranche", async () => {
+        let assets0 = [
+            TOKEN_ADDR_MAINNET.AAVE,
+            TOKEN_ADDR_MAINNET.DAI
+        ]
+        let reserveFactors0 = [];
+        let forceDisabledBorrow0 = [];
+        let forceDisabledCollateral0 = [];
+        for(let i =0;i<assets0.length;i++){
+            reserveFactors0.push("1000")
+            forceDisabledBorrow0.push(false);
+            forceDisabledCollateral0.push(false);
+        }
+        expect(await initTranche({
+            assetAddresses: assets0,
+            reserveFactors: reserveFactors0,
+            forceDisabledBorrow: forceDisabledBorrow0,
+            forceDisabledCollateral: forceDisabledCollateral0,
+            admin: temp,
+            treasuryAddress: "0x0000000000000000000000000000000000000000",
+            incentivesController: "0x0000000000000000000000000000000000000000",
+            trancheId: mytranche,
+            network: network
+        }, () => { return true }
+        )).to.be.true;
+        
+    });
+    // initTranche
+})
 
 describe("Supply - end-to-end test", () => {
     let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
