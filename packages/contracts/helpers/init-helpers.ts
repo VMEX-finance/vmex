@@ -4,6 +4,7 @@ import {
   iMultiPoolsAssets,
   IReserveParams,
   tEthereumAddress,
+  ITrancheInitParams
 } from "./types";
 import { AaveProtocolDataProvider } from "../types/AaveProtocolDataProvider";
 import { chunk, getDb, waitForTx } from "./misc-utils";
@@ -124,8 +125,6 @@ export const initAssetData = async (
       reserveDecimals,
       assetType,
       collateralCap, //1,000,000
-      usingGovernanceSetInterestRate,
-      governanceSetInterestRate,
       baseLTVAsCollateral,
       liquidationBonus,
       liquidationThreshold,
@@ -210,16 +209,16 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
 //called by aave:fork mainnet setup where they know the addresses of the tokens.
 // initializes more reserves that are not lendable, have no stable and variable debt, no interest rate strategy, governance needs to give them a risk
 export const initReservesByHelper = async (
-  reservesParams: iMultiPoolsAssets<IReserveParams>,
-  tokenAddresses: { [symbol: string]: tEthereumAddress },
+  assetAddresses: tEthereumAddress[],
+  reserveFactors: string[],
+  forceDisabledBorrow: boolean[],
+  forceDisabledCollateral: boolean[],
   admin: SignerWithAddress,
   treasuryAddress: tEthereumAddress,
   incentivesController: tEthereumAddress,
-  trancheId: BigNumberish,
-  verify: boolean
+  trancheId: BigNumberish
 ) => {
   // Initialize variables for future reserves initialization
-  let reserveSymbols: string[] = [];
 
   let initInputParams: {
     underlyingAsset: string;
@@ -230,30 +229,15 @@ export const initReservesByHelper = async (
     forceDisabledBorrow: boolean;
     forceDisabledCollateral: boolean;
   }[] = [];
-
-
-  const reserves = Object.entries(reservesParams);
-
-  for (let [symbol, params] of reserves) {
-    if (!tokenAddresses[symbol]) {
-      console.log(
-        `- Skipping init of ${symbol} due token address is not set at markets config`
-      );
-      continue;
-    }
-    const {
-      reserveFactor
-    } = params;
-    // Prepare input parameters
-    reserveSymbols.push(symbol);
+  for (let i=0;i<assetAddresses.length; i++) {
     initInputParams.push({
-      underlyingAsset: tokenAddresses[symbol],
+      underlyingAsset: assetAddresses[i],
       treasury: treasuryAddress,
       incentivesController: incentivesController,
       interestRateChoice: "0",
-      reserveFactor: reserveFactor,
-      forceDisabledBorrow: false,
-      forceDisabledCollateral: false
+      reserveFactor: reserveFactors[i],
+      forceDisabledBorrow: forceDisabledBorrow[i],
+      forceDisabledCollateral: forceDisabledCollateral[i]
     });
   }
 
@@ -261,7 +245,7 @@ export const initReservesByHelper = async (
   // tranche CONFIGURATION
   const configurator = await getLendingPoolConfiguratorProxy();
   let initChunks = 20;
-  const chunkedSymbols = chunk(reserveSymbols, initChunks);
+  const chunkedSymbols = chunk(assetAddresses, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
   console.log(
@@ -329,7 +313,92 @@ const isErc20SymbolCorrect = async (
   return symbol === erc20Symbol;
 };
 
+export const getTranche0MockedData = (
+  allReservesAddresses: { [symbol: string]: tEthereumAddress },
+): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0:tEthereumAddress[] = [
+    allReservesAddresses["DAI"],
+    allReservesAddresses["TUSD"],
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDT"],
+    allReservesAddresses["SUSD"],
+    allReservesAddresses["AAVE"],
+    allReservesAddresses["BAT"],
+    allReservesAddresses["LINK"],
+    allReservesAddresses["KNC"],
+    allReservesAddresses["WBTC"],
+    allReservesAddresses["MANA"],
+    allReservesAddresses["ZRX"],
+    allReservesAddresses["SNX"],
+    allReservesAddresses["BUSD"],
+    allReservesAddresses["WETH"],
+    allReservesAddresses["YFI"],
+    allReservesAddresses["UNI"],
+    allReservesAddresses["REN"],
+    allReservesAddresses["ENJ"],
+  ];
+
+  let reserveFactors0:string[] = [];
+  let forceDisabledBorrow0:boolean[] = [];
+  let forceDisabledCollateral0:boolean[] = [];
+  for(let i =0;i<assets0.length;i++){
+    reserveFactors0.push("1000")
+    forceDisabledBorrow0.push(false);
+    forceDisabledCollateral0.push(false);
+  }
+
+  return [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0]
+}
 
 
 
+export const getTranche1MockedData = (
+  allReservesAddresses: { [symbol: string]: tEthereumAddress },
+): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0:tEthereumAddress[] = [
+    allReservesAddresses["DAI"],
+    allReservesAddresses["TUSD"],
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDT"],
+    allReservesAddresses["SUSD"],
+    allReservesAddresses["AAVE"],
+    allReservesAddresses["BAT"],
+    allReservesAddresses["LINK"],
+    allReservesAddresses["KNC"],
+    allReservesAddresses["WBTC"],
+    allReservesAddresses["MANA"],
+    allReservesAddresses["ZRX"],
+    allReservesAddresses["SNX"],
+    allReservesAddresses["BUSD"],
+    allReservesAddresses["WETH"],
+    allReservesAddresses["YFI"],
+    allReservesAddresses["UNI"],
+    allReservesAddresses["REN"],
+    allReservesAddresses["ENJ"],
+    allReservesAddresses["Tricrypto2"],
+    allReservesAddresses["ThreePool"],
+    allReservesAddresses["StethEth"],
+    allReservesAddresses["Steth"],
+    allReservesAddresses["FraxUSDC"],
+    allReservesAddresses["Frax3Crv"],
+    allReservesAddresses["Frax"],
+    allReservesAddresses["BAL"],
+    allReservesAddresses["CRV"],
+    allReservesAddresses["CVX"],
+    allReservesAddresses["BADGER"],
+    allReservesAddresses["LDO"],
+    allReservesAddresses["ALCX"],
+    allReservesAddresses["Oneinch"],
+  ];
 
+  let reserveFactors0:string[] = [];
+  let forceDisabledBorrow0:boolean[] = [];
+  let forceDisabledCollateral0:boolean[] = [];
+  for(let i =0;i<assets0.length;i++){
+    reserveFactors0.push("1000")
+    forceDisabledBorrow0.push(false);
+    forceDisabledCollateral0.push(false);
+  }
+
+  return [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0]
+}

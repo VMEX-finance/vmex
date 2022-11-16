@@ -64,6 +64,13 @@ task(
         true
       )
     );
+
+    //dev: enable anyone to create tranche
+    await waitForTx(
+      await addressesProvider.setPermissionlessTranches(
+        true
+      )
+    );
     //await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
 
     console.log("Pool Admin", await addressesProvider.getGlobalAdmin());
