@@ -1,11 +1,8 @@
 import { task } from "hardhat/config";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
-  loadPoolConfig,
-  loadCustomAavePoolConfig,
   ConfigNames,
-  getTreasuryAddress,
-  getEmergencyAdmin,
+  loadPoolConfig
 } from "../../helpers/configuration";
 import { getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
@@ -13,6 +10,7 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
+  getTranche0MockedData,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -37,13 +35,18 @@ task(
       await DRE.run("set-DRE");
       
       const network = <eNetwork>DRE.network.name;
-      const poolConfig = await loadCustomAavePoolConfig("0"); //this is only for mainnet
+      const poolConfig = loadPoolConfig(ConfigNames.Aave);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
+        ATokenNamePrefix,
+        StableDebtTokenNamePrefix,
+        VariableDebtTokenNamePrefix,
+        SymbolPrefix,
         ReserveAssets,
         ReservesConfig,
+        LendingPoolCollateralManager,
+        WethGateway,
         IncentivesController,
       } = poolConfig as ICommonConfiguration;
-
       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
       const incentivesController = await getParamPerNetwork(
         IncentivesController,
@@ -55,8 +58,6 @@ task(
         await getLendingPoolConfiguratorProxy(
           await addressesProvider.getLendingPoolConfigurator()
         );
-
-      const testHelpers = await getAaveProtocolDataProvider();
 
       const admin = await DRE.ethers.getSigner(
         await addressesProvider.getGlobalAdmin()
@@ -78,14 +79,16 @@ task(
         await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
       );
 
+      let [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0] = getTranche0MockedData(reserveAssets);
       await initReservesByHelper(
-        ReservesConfig,
-        reserveAssets,
+        assets0,
+        reserveFactors0,
+        forceDisabledBorrow0,
+        forceDisabledCollateral0,
         admin,
         treasuryAddress,
         incentivesController,
-        0, //tranche id
-        verify
+        0
       );
     } catch (err) {
       console.error(err);

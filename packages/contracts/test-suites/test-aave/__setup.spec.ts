@@ -455,8 +455,7 @@ const buildTestEnv = async (deployer: Signer) => {
     admin,
     treasuryAddress,
     ZERO_ADDRESS,
-    0,
-    false
+    0
   );
 
   //-------------------------------------------------------------
@@ -478,8 +477,7 @@ const buildTestEnv = async (deployer: Signer) => {
     user1,
     treasuryAddress,
     ZERO_ADDRESS,
-    1,
-    false
+    1
   );
 
   //-------------------------------------------------------------
