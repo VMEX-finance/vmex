@@ -53,7 +53,7 @@ import {
   getReservesConfigByPool,
   getTreasuryAddress,
   loadPoolConfig,
-  loadCustomAavePoolConfig,
+  // loadCustomAavePoolConfig,
   getGlobalVMEXReserveFactor,
   isHardhatTestingStrategies,
 } from "../../helpers/configuration";
@@ -67,10 +67,10 @@ import {
 import { DRE, waitForTx } from "../../helpers/misc-utils";
 import {
   initReservesByHelper,
-  configureReservesByHelper,
   claimTrancheId,
   initAssetData,
-  initAssetConfigurationData
+  getTranche0MockedData,
+  getTranche1MockedData
 } from "../../helpers/init-helpers";
 import AaveConfig from "../../markets/aave";
 import { oneEther, ZERO_ADDRESS } from "../../helpers/constants";
@@ -439,15 +439,19 @@ const buildTestEnv = async (deployer: Signer) => {
 
   //-------------------------------------------------------------
   //deploy tranche 0
-  config = await loadCustomAavePoolConfig("0");
-  reservesParams = {
-    ...config.ReservesConfig,
-  };
+  // config = await loadCustomAavePoolConfig("0");
+  // reservesParams = {
+  //   ...config.ReservesConfig,
+  // };
   await claimTrancheId("Vmex tranche 0", admin);
 
+  let [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0] = getTranche0MockedData(allReservesAddresses);
+
   await initReservesByHelper(
-    reservesParams,
-    allReservesAddresses,
+    assets0,
+    reserveFactors0,
+    forceDisabledBorrow0,
+    forceDisabledCollateral0,
     admin,
     treasuryAddress,
     ZERO_ADDRESS,
@@ -459,22 +463,18 @@ const buildTestEnv = async (deployer: Signer) => {
 
   //-------------------------------------------------------------
   //deploy tranche 1 with tricrypto
-  config = await loadCustomAavePoolConfig("1");
-
-  reservesParams = {
-    ...config.ReservesConfig,
-  };
-
   const user1 =  await DRE.ethers.getSigner(await
     (await getEmergencyAdminT1()).getAddress());
-  console.log("$$$$$$$$$$$$ addressList: ", addressList);
-  console.log("$$$$$$$$$$ admin of tranche 1: ", user1.address);
   treasuryAddress = user1.address;
   await claimTrancheId("Vmex tranche 1", user1);
 
+  let [assets1, reserveFactors1, forceDisabledBorrow1, forceDisabledCollateral1] = getTranche1MockedData(allReservesAddresses);
+
   await initReservesByHelper(
-    reservesParams,
-    allReservesAddresses,
+    assets1,
+    reserveFactors1,
+    forceDisabledBorrow1,
+    forceDisabledCollateral1,
     user1,
     treasuryAddress,
     ZERO_ADDRESS,
@@ -523,53 +523,53 @@ const buildTestEnv = async (deployer: Signer) => {
   // TODO: mock the curve pool (needs deposit function), convex booster, sushiswap
   // right now the tend() function for strategies is unusable in hardhat tests
   // deploy tricrypto2 strategy
-  if (isHardhatTestingStrategies) {
-    const baseRewardPool = await deployConvexBaseRewardPool();
-    console.log("DEPLOYED baserewardpool at address", baseRewardPool.address);
+  // if (isHardhatTestingStrategies) {
+  //   const baseRewardPool = await deployConvexBaseRewardPool();
+  //   console.log("DEPLOYED baserewardpool at address", baseRewardPool.address);
 
-    const booster = await deployConvexBooster();
-    console.log("DEPLOYED booster at address", booster.address);
+  //   const booster = await deployConvexBooster();
+  //   console.log("DEPLOYED booster at address", booster.address);
 
-    const tricrypto2Strategy = await deployTricrypto2Strategy();
-    console.log(
-      "DEPLOYED tricrypto Strat at address",
-      tricrypto2Strategy.address
-    );
+  //   const tricrypto2Strategy = await deployTricrypto2Strategy();
+  //   console.log(
+  //     "DEPLOYED tricrypto Strat at address",
+  //     tricrypto2Strategy.address
+  //   );
 
-    const pid = 38;
-    const numTokensInPool = 0;
-    const tranche = 1;
+  //   const pid = 38;
+  //   const numTokensInPool = 0;
+  //   const tranche = 1;
 
-    await waitForTx(
-      await booster.addPool(pid.toString(), baseRewardPool.address)
-    );
-    console.log("Finished booster add pool");
+  //   await waitForTx(
+  //     await booster.addPool(pid.toString(), baseRewardPool.address)
+  //   );
+  //   console.log("Finished booster add pool");
 
-    // have to comment out cvx, crv, underlying token allow all inside CrvLpStrategy.sol in order for this to work
-    await waitForTx(
-      await tricrypto2Strategy.initialize(
-        addressesProvider.address,
-        allReservesAddresses["Tricrypto2"],
-        tranche,
-        pid,
-        numTokensInPool,
-        "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool, will not work for hardhat test, do not tend
-        booster.address
-      )
-    );
-    console.log("Finished strategy initialize");
+  //   // have to comment out cvx, crv, underlying token allow all inside CrvLpStrategy.sol in order for this to work
+  //   await waitForTx(
+  //     await tricrypto2Strategy.initialize(
+  //       addressesProvider.address,
+  //       allReservesAddresses["Tricrypto2"],
+  //       tranche,
+  //       pid,
+  //       numTokensInPool,
+  //       "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool, will not work for hardhat test, do not tend
+  //       booster.address
+  //     )
+  //   );
+  //   console.log("Finished strategy initialize");
 
-    // admin grants strategy access to all funds
-    await waitForTx(
-      await lendingPoolConfiguratorProxy.addStrategy(
-        allReservesAddresses["Tricrypto2"],
-        1,
-        tricrypto2Strategy.address
-      )
-    );
+  //   // admin grants strategy access to all funds
+  //   await waitForTx(
+  //     await lendingPoolConfiguratorProxy.addStrategy(
+  //       allReservesAddresses["Tricrypto2"],
+  //       1,
+  //       tricrypto2Strategy.address
+  //     )
+  //   );
 
-    console.log("deployed strategies");
-  }
+  //   console.log("deployed strategies");
+  // }
 
   console.timeEnd("setup");
 };
