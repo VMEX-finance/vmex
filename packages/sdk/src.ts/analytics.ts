@@ -11,6 +11,9 @@ import {
   getIErc20,
 } from "./utils";
 
+import {
+  decodeConstructorBytecode
+} from "./decode-bytecode";
 /**
  * PROTOCOL LEVEL ANALYTICS
  */
@@ -52,10 +55,11 @@ export async function getWalletBalanceAcrossTranches(
 }, callback?: () => Promise<any>
 ) {
 	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/UserBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
-	let user_address = await signer.getAddress();
-	let add_provider_address = deployments.LendingPoolAddressesProvider.[params.network || "mainnet"].address;
-	let wallet_data_address = deployments.WalletBalanceProvider.[params.network || "mainnet"].address;
-	data = await decodeConstructorBytecode(abi, provider, [user_address, add_provider_address, wallet_data_address]);
+	let user_address = await params.signer.getAddress();
+	let provider = params.test ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : null;
+	let add_provider_address = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
+	let wallet_data_address = deployments.WalletBalanceProvider[params.network || "mainnet"].address;
+	return decodeConstructorBytecode(abi, bytecode, provider, [user_address, add_provider_address, wallet_data_address]);
 
 }
 /**
