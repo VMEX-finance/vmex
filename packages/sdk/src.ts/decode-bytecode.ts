@@ -1,4 +1,4 @@
-import ethers from "ethers";
+import { ethers } from "ethers";
 
 export async function decodeConstructorBytecode(abi: any, bytecode: any, provider: any, params: any) {
 	let contractFactory = new ethers.ContractFactory(abi, bytecode);
@@ -10,7 +10,7 @@ export async function decodeConstructorBytecode(abi: any, bytecode: any, provide
 		let _data = await iface.decodeFunctionResult("getType", data);
 		return(_data);
 	} catch (error) {
-		throw new Error("failed to make eth_call_query");
+		throw error
 	}
 
 }
