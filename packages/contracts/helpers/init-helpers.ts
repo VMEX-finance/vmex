@@ -216,8 +216,7 @@ export const initReservesByHelper = async (
   admin: SignerWithAddress,
   treasuryAddress: tEthereumAddress,
   incentivesController: tEthereumAddress,
-  trancheId: BigNumberish,
-  verify: boolean
+  trancheId: BigNumberish
 ) => {
   // Initialize variables for future reserves initialization
 
