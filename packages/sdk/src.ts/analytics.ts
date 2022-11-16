@@ -9,7 +9,9 @@ import {
   getAaveProtocolDataProvider,
   getAToken,
   getIErc20,
+  getLendingPoolConfigurationImpl
 } from "./utils";
+
 
 /**
  * PROTOCOL LEVEL ANALYTICS
@@ -100,6 +102,14 @@ export async function getTrancheTokens(
   }
 
   return [vTokenAddresses, underlyingAddresses];
+}
+
+export async function getTotalTranches(params: {
+    network: string;
+}) {
+  let configurator = await getLendingPoolConfigurationImpl(params.network);
+    return await configurator.totalTranches();
+    //sum of atoken amounts in all pools (this will reflect total supplied)? Or sum of actual underlying amounts (which will be total supplied - total borrowed).
 }
 
 /**

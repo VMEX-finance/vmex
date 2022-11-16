@@ -33,6 +33,25 @@ export async function getLendingPoolImpl(
 }
 
 /**
+ * network agnostic function for getting the correct LendingPool address
+ * @param signer
+ * @param network
+ * @param test
+ */
+ export async function getLendingPoolConfigurationImpl(
+  // signer: ethers.Signer,
+  network: string,
+  test?: boolean
+) {
+  return new ethers.Contract(
+    deployments.LendingPoolConfigurator[`${network || "mainnet"}`].address,
+    ILendingPoolConfigurator.abi,
+    defaultProvider
+  );
+}
+
+
+/**
  * unsignedLendingPool
  * a modified lendingPoolImpl fn doesnt require a signer or network
  */

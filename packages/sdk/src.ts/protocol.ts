@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { deployments } from "./constants";
-import { getLendingPoolImpl, approveUnderlying } from "./utils";
-
+import { getLendingPoolImpl, approveUnderlying, getLendingPoolConfigurationImpl } from "./utils";
 export async function borrow(params: {
     underlying: string;
     trancheId: number;
@@ -190,3 +189,88 @@ export async function supply(params: {
         return await callback()
     }
 }
+
+export async function claimTrancheId(params: {
+    name: string;
+    admin: ethers.Signer;
+    network: string;
+}, callback?: () => Promise<any>) {
+    let configurator = await getLendingPoolConfigurationImpl(params.network);
+
+    try {
+        await configurator.connect(params.admin).claimTrancheId(
+            params.name,
+            await params.admin.getAddress(),
+            {
+                gasLimit: "8000000"
+            }
+        );
+
+    } catch (error) {
+        throw new Error("Configurator Failed with " + error);
+    }
+
+    if (callback) {
+        return await callback()
+    }
+}
+
+export async function initTranche(params: {
+    underlying: string;
+    trancheId: number;
+    amount: string;
+    signer: ethers.Signer;
+    network: string;
+    referrer?: number;
+    collateral?: boolean;
+    test?: boolean;
+}, callback?: () => Promise<any>) {
+    let client = await params.signer.getAddress();
+    let amount = ethers.utils.parseEther(params.amount);
+    let lendingPool = await getLendingPoolImpl(params.signer, params.network);
+
+    try {
+        await approveUnderlying(params.signer, amount, params.underlying, lendingPool.address);
+    } catch (error) {
+        throw(new Error("failed to approve spend for underlying asset"));
+    }
+
+    try {
+        if (!params.test) {
+            await lendingPool.deposit(
+                params.underlying,
+                params.trancheId,
+                amount,
+                client,
+                params.referrer || 0
+            );
+        }
+
+        await lendingPool.deposit(
+            params.underlying,
+            params.trancheId,
+            amount,
+            client,
+            params.referrer || 0,
+            {
+                gasLimit: "8000000"
+            }
+        );
+
+    } catch (error) {
+        throw new Error("Lending Pool Failed with " + error);
+    }
+
+    if (params.collateral) {
+        await lendingPool.setUserUseReserveAsCollateral(
+            params.underlying, 
+            params.trancheId, 
+            params.collateral
+        );
+    }
+
+    if (callback) {
+        return await callback()
+    }
+}
+
