@@ -56,7 +56,7 @@ export async function getWalletBalanceAcrossTranches(
 		test?: boolean;
 }, callback?: () => Promise<any>
 ) {
-	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/UserBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
+	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/userBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
 	let user_address = await params.signer.getAddress();
 	let provider = params.test ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : null;
 	let add_provider_address = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
