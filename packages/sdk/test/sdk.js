@@ -14,7 +14,7 @@ const {
     getUserSingleReserveData,
     getLendingPoolReservesList,
     getReserveData
-} = require("../dist/src.ts");
+} = require("../dist");
 const {
     borrow,
     marketReserveAsCollateral,
