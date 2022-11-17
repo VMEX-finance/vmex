@@ -230,47 +230,47 @@ makeSuite(
           ).to.be.bignumber.equal(amountWETHToBorrow, "Did not deposit tricypto2");
         });
 
-        it("strategy pulls LP and invests", async () => {
-          const lendingPool = await contractGetters.getLendingPool();
-          const strategy = await contractGetters.getTricrypto2Strategy();
-          const borrower = await contractGetters.getFirstSigner();
-          const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI)
-          const dataProv = await contractGetters.getAaveProtocolDataProvider();
+        // it("strategy pulls LP and invests", async () => {
+        //   const lendingPool = await contractGetters.getLendingPool();
+        //   const strategy = await contractGetters.getTricrypto2Strategy();
+        //   const borrower = await contractGetters.getFirstSigner();
+        //   const tricrypto2Token = new DRE.ethers.Contract(TRICRYPTO2_ADDR,CURVE_TOKEN_ABI)
+        //   const dataProv = await contractGetters.getAaveProtocolDataProvider();
 
-          const userReserveData = await dataProv.getUserReserveData(tricrypto2Token.address, TRANCHE, borrower.address);
-          const tricrypto2Tranch1ATokenAddress =
-            (await lendingPool.getReserveData(tricrypto2Token.address, TRANCHE)).aTokenAddress;
-          // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
+        //   const userReserveData = await dataProv.getUserReserveData(tricrypto2Token.address, TRANCHE, borrower.address);
+        //   const tricrypto2Tranch1ATokenAddress =
+        //     (await lendingPool.getReserveData(tricrypto2Token.address, TRANCHE)).aTokenAddress;
+        //   // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
 
-          const tricrypto2Tranch1AToken =
-            await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
+        //   const tricrypto2Tranch1AToken =
+        //     await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
-          const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
-          console.log("tricrypto2 atoken total supply: ", aTokenBalance);
+        //   const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
+        //   console.log("tricrypto2 atoken total supply: ", aTokenBalance);
 
-          const vTokenAddress = await strategy.connect(borrower).vToken();
-          console.log("vtoken address: ", vTokenAddress);
-          const underlying = await strategy.connect(borrower).underlying();
-          console.log("underlying address: ", underlying);
+        //   const vTokenAddress = await strategy.connect(borrower).vToken();
+        //   console.log("vtoken address: ", vTokenAddress);
+        //   const underlying = await strategy.connect(borrower).underlying();
+        //   console.log("underlying address: ", underlying);
 
-          var CurveToken2 = new DRE.ethers.Contract(underlying,CURVE_TOKEN_ABI)
-          const aTokenHolds = await CurveToken2.connect(borrower).balanceOf(vTokenAddress);
-          console.log("atoken is holding : ", aTokenHolds);
+        //   var CurveToken2 = new DRE.ethers.Contract(underlying,CURVE_TOKEN_ABI)
+        //   const aTokenHolds = await CurveToken2.connect(borrower).balanceOf(vTokenAddress);
+        //   console.log("atoken is holding : ", aTokenHolds);
 
-          const amount = await strategy.connect(borrower).pull();
+        //   const amount = await strategy.connect(borrower).pull();
 
-          const aTokenHoldsAfter = await tricrypto2Token.connect(borrower).balanceOf(tricrypto2Tranch1ATokenAddress);
-          const strategyHolds = await tricrypto2Token.connect(borrower).balanceOf(strategy.address);
-          console.log("after atoken is holding : ", aTokenHoldsAfter, " after strategy: ", strategyHolds);
+        //   const aTokenHoldsAfter = await tricrypto2Token.connect(borrower).balanceOf(tricrypto2Tranch1ATokenAddress);
+        //   const strategyHolds = await tricrypto2Token.connect(borrower).balanceOf(strategy.address);
+        //   console.log("after atoken is holding : ", aTokenHoldsAfter, " after strategy: ", strategyHolds);
 
-          var origBalance = await strategy.balanceOfPool();
+        //   var origBalance = await strategy.balanceOfPool();
 
-          console.log("strategy boosted balance: " + origBalance);
+        //   console.log("strategy boosted balance: " + origBalance);
 
-          // check that the user is still healthy after strategy withdraws
-          let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
-          console.log("USER DATA: ", userData);
-        });
+        //   // check that the user is still healthy after strategy withdraws
+        //   let userData = await lendingPool.connect(borrower).getUserAccountData(borrower.address,TRANCHE,false)
+        //   console.log("USER DATA: ", userData);
+        // });
 
         // it("perform a small withdrawal after some time", async () => {
         //   const lendingPool = await contractGetters.getLendingPool();

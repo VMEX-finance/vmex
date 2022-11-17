@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { deployments } from "./constants";
-import { getLendingPoolImpl, approveUnderlying } from "./utils";
+import { getLendingPoolImpl, approveUnderlying, getLendingPoolConfigurationImpl } from "./utils";
+
 
 export async function borrow(params: {
     underlying: string;
@@ -190,3 +191,93 @@ export async function supply(params: {
         return await callback()
     }
 }
+
+export async function claimTrancheId(params: {
+    name: string;
+    admin: ethers.Signer;
+    network: string;
+}, callback?: () => Promise<any>) {
+    let configurator = await getLendingPoolConfigurationImpl(params.network);
+
+    try {
+        await configurator.connect(params.admin).claimTrancheId(
+            params.name,
+            await params.admin.getAddress(),
+            {
+                gasLimit: "8000000"
+            }
+        );
+
+    } catch (error) {
+        throw new Error("Configurator Failed with " + error);
+    }
+
+    if (callback) {
+        return await callback()
+    }
+}
+
+export async function initTranche(params: {
+    assetAddresses: string[],
+    reserveFactors: string[],
+    forceDisabledBorrow: boolean[],
+    forceDisabledCollateral: boolean[],
+    admin: ethers.Signer,
+    treasuryAddress: string,
+    incentivesController: string,
+    trancheId: string,
+    network: string
+}, callback?: () => Promise<any>) {
+    let initInputParams: {
+        underlyingAsset: string;
+        treasury: string;
+        incentivesController: string;
+        interestRateChoice: string; //1,000,000
+        reserveFactor: string;
+        forceDisabledBorrow: boolean;
+        forceDisabledCollateral: boolean;
+    }[] = [];
+    for (let i=0;i<params.assetAddresses.length; i++) {
+        initInputParams.push({
+        underlyingAsset: params.assetAddresses[i],
+        treasury: params.treasuryAddress,
+        incentivesController: params.incentivesController,
+        interestRateChoice: "0",
+        reserveFactor: params.reserveFactors[i],
+        forceDisabledBorrow: params.forceDisabledBorrow[i],
+        forceDisabledCollateral: params.forceDisabledCollateral[i]
+        });
+    }
+
+    const configurator = await getLendingPoolConfigurationImpl(params.network);
+
+    try {
+        // Deploy init reserves per tranche
+        // tranche CONFIGURATION
+        console.log(
+            `- Reserves initialization in ${initInputParams.length} txs`
+        );
+            const tx3 = await configurator
+                .connect(params.admin)
+                .batchInitReserve(
+                    initInputParams, 
+                    params.trancheId,
+                    {
+                        gasLimit: "80000000"
+                    }
+                );
+
+            console.log(
+            `  - Reserve ready for: ${params.assetAddresses.join(", ")}`
+            );
+            console.log("    * gasUsed", (await tx3.wait(1)).gasUsed.toString());
+
+    } catch (error) {
+        throw new Error("Configurator Failed with " + error);
+    }
+
+    if (callback) {
+        return await callback()
+    }
+}
+
