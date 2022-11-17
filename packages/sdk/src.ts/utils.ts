@@ -6,7 +6,7 @@ import AaveProtocolDataProvider from "@vmex/contracts/artifacts/contracts/misc/A
 import IERC20 from "@vmex/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20.sol/IERC20.json";
 import IAToken from "@vmex/contracts/artifacts/contracts/interfaces/IAToken.sol/IAToken.json";
 import ILendingPool from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
-import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingPool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
+import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
 // import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
 const defaultProvider = ethers.getDefaultProvider("http://localhost:8545");
@@ -142,7 +142,9 @@ function getNetworkProvider(network) {
  * utility function to query number of tranches present in lending pool
  * @param network
  * @returns BigNumber
+ * by using an eth_call contract this can be done in one rpc call*
  */
+
 export async function getTrancheNames(network?: string) {
   let provider =
     network == "localhost"
@@ -159,6 +161,20 @@ export async function getTrancheNames(network?: string) {
   return Promise.all(
     x.map(async (x) => await _lpConfiguratorProxy.trancheNames(x))
   );
+}
+
+export async function totalTranches(network?: string) {
+    let provider =
+	network == "localhost"
+	   ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
+	   : getNetworkProvider(network);
+    let signer = new ethers.VoidSigner(ethers.constants.AddressZero, provider);
+    const _lpConfiguratorProxy = new ethers.Contract(
+	deployments.LendingPoolConfigurator[`${network || "mainnet"}`].address,
+	ILendingPoolConfigurator.abi,
+	signer
+   );
+   return (await _lpConfiguratorProxy.totalTranches()).toNumber();
 }
 
 export async function lendingPoolPause(

@@ -12,6 +12,11 @@ import {
   getLendingPoolConfigurationImpl
 } from "./utils";
 
+import {
+  decodeConstructorBytecode
+} from "./decode-bytecode";
+
+
 
 /**
  * PROTOCOL LEVEL ANALYTICS
@@ -19,29 +24,46 @@ import {
 
 /**
  * getTVL()
- * @params { network: string, test: bool }
+ * @params { network?: string, test?: bool }
  * @returns uint(aTokens, underlying)
  * returns a tuple containing the sum of the balances of all aTokens in all pools
  */
 export async function getTVL(
   params: {
-    numTranches: number;
     network?: string;
+    test?: boolean
   },
   callback?: () => Promise<any>
 ) {
-  var tvl = BigNumber.from(0);
-  for (var i = 0; i < params.numTranches; i++) {
-    const trancheTvl = await getTrancheTVL({
-        tranche: i,
-        network: params.network
-    });
-    tvl = tvl.add(trancheTvl);
-  }
-
-  return tvl;
+	const provider = params.test ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : null;
+	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/QueryLendingPoolTVL.sol/QueryTrancheTVL.json");
+	let _aaveProvider = deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
+	let _addressProvider = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
+	let [ data ] = await decodeConstructorBytecode(abi, bytecode, provider, [_addressProvider, _aaveProvider])
+	return data;
 }
 
+
+
+/**
+* getWalletBalanceAcrossTranches
+*
+*/
+export async function getWalletBalanceAcrossTranches(
+	params: {
+		signer: ethers.Signer;
+		network?: string;
+		test?: boolean;
+}, callback?: () => Promise<any>
+) {
+	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/userBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
+	let user_address = await params.signer.getAddress();
+	let provider = params.test ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : null;
+	let add_provider_address = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
+	let wallet_data_address = deployments.WalletBalanceProvider[params.network || "mainnet"].address;
+	return decodeConstructorBytecode(abi, bytecode, provider, [user_address, add_provider_address, wallet_data_address]);
+
+}
 /**
  * TRANCHE LEVEL ANALYTICS
  */
