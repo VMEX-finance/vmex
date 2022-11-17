@@ -14,13 +14,13 @@ import {
 import {
   decodeConstructorBytecode
 } from "./decode-bytecode";
-/**
- * PROTOCOL LEVEL ANALYTICS
- */
+
+
+
 
 /**
  * getTVL()
- * @params { network: string, test: bool }
+ * @params { network?: string, test?: bool }
  * @returns uint(aTokens, underlying)
  * returns a tuple containing the sum of the balances of all aTokens in all pools
  */
@@ -37,7 +37,9 @@ export async function getTVL(
 	let _addressProvider = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
 	let [ data ] = await decodeConstructorBytecode(abi, bytecode, provider, [_addressProvider, _aaveProvider])
 	return data;
-  }
+}
+
+
 
 /**
 * getWalletBalanceAcrossTranches
