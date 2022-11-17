@@ -30,13 +30,6 @@ export enum ConfigNames {
   Avalanche = "Avalanche",
 }
 
-export const loadCustomAavePoolConfig = (
-  trancheId: string
-): PoolConfiguration => {
-  const { AaveConfig } = require("../markets/aave_" + trancheId);
-  return AaveConfig;
-};
-
 export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
   switch (configName) {
     case ConfigNames.Aave:
