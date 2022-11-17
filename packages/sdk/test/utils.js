@@ -6,7 +6,7 @@ chai.use(solidity);
 
 const {
     getTrancheNames 
-} = require("../dist/utils.js");
+} = require("../dist");
 
 
 describe("Utils - unit tests", () => {

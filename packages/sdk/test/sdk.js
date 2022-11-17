@@ -14,7 +14,7 @@ const {
     getUserSingleReserveData,
     getLendingPoolReservesList,
     getReserveData
-} = require("../dist/utils.js");
+} = require("../dist");
 const {
     borrow,
     marketReserveAsCollateral,
@@ -174,9 +174,10 @@ describe("Supply - end-to-end test", () => {
 
     it("9 - test that the protocol has non zero TVL", async () => {
         let protocolTvl = await getTVL({
-            numTranches: 2,
-            network: network
+            network: network,
+	    test: true
         });
+	console.log(protocolTvl);
         expect(protocolTvl).to.be.above(ethers.utils.parseEther("1.0"));
     })
 })
