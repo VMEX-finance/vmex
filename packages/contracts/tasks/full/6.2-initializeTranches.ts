@@ -2,7 +2,6 @@ import { task } from "hardhat/config";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   loadPoolConfig,
-  loadCustomAavePoolConfig,
   ConfigNames,
   getTreasuryAddress,
   getEmergencyAdmin,
@@ -13,6 +12,7 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
+  getTranche1MockedData,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -37,7 +37,7 @@ task(
       await DRE.run("set-DRE");
       
       const network = <eNetwork>DRE.network.name;
-      const poolConfig = await loadCustomAavePoolConfig("1"); //this is only for mainnet
+      const poolConfig = loadPoolConfig(ConfigNames.Aave);
       const {
         ATokenNamePrefix,
         StableDebtTokenNamePrefix,
@@ -88,14 +88,16 @@ task(
           .setPoolPause(true, 1)
       );
 
+      let [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0] = getTranche1MockedData(reserveAssets);
       await initReservesByHelper(
-        ReservesConfig,
-        reserveAssets,
+        assets0,
+        reserveFactors0,
+        forceDisabledBorrow0,
+        forceDisabledCollateral0,
         emergAdmin,
         treasuryAddress,
         incentivesController,
-        1, //tranche id
-        verify
+        1
       );
 
       const tricrypto2StratTranche = 1;

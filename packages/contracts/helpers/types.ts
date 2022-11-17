@@ -431,16 +431,16 @@ export enum TokenContractId {
   Oneinch = "Oneinch",
 }
 
+export interface ITrancheInitParams {
+  reserveFactor: string;
+}
 export interface IReserveParams
   extends IReserveBorrowParams,
     IReserveCollateralParams {
   aTokenImpl: eContractid;
-  reserveFactor: string;
+  // reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   collateralCap: string;
-  // hasStrategy: boolean; // address of strategist, 0 if no strategy
-  usingGovernanceSetInterestRate: boolean;
-  governanceSetInterestRate: string;
 }
 
 export interface IInterestRateStrategyParams {
