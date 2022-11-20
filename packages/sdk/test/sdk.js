@@ -20,11 +20,12 @@ const {
   getTrancheTVL,
   getTotalTranches,
   getUserTrancheData,
+  getTrancheAssetData
 } = require("../dist/analytics.js");
 const { RateMode } = require("../dist/interfaces.js");
 const { TOKEN_ADDR_MAINNET } = require("../dist/constants.js");
 
-const WETHadd = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+const WETHaddr = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const IERC20abi = [
   "function allowance(address owner, address spender) external view returns (uint256 remaining)",
   "function approve(address spender, uint256 value) external returns (bool success)",
@@ -120,7 +121,7 @@ describe("Supply - end-to-end test", () => {
   });
 
   it("1 - signer should receive 3 WETH so he can transact for LP tokens", async () => {
-    const WETH = new ethers.Contract(WETHadd, IERC20abi, owner);
+    const WETH = new ethers.Contract(WETHaddr, IERC20abi, owner);
     await WETH.connect(owner).deposit({
       value: ethers.utils.parseEther("3.0"),
     });
@@ -134,7 +135,7 @@ describe("Supply - end-to-end test", () => {
   //     await approveUnderlying(
   //       owner,
   //       ethers.utils.parseEther("3.0"),
-  //       WETHadd,
+  //       WETHaddr,
   //       lendingPool.address
   //     );
   //   });
@@ -162,7 +163,7 @@ describe("Supply - end-to-end test", () => {
     expect(
       await supply(
         {
-          underlying: WETHadd,
+          underlying: WETHaddr,
           trancheId: 0,
           amount: "2.0",
           signer: owner,
@@ -220,7 +221,7 @@ describe("Borrow - end-to-end test", () => {
   const tranche = 0;
 
   it("1 - should give temp 1 WETH", async () => {
-    const WETH = new ethers.Contract(WETHadd, IERC20abi, temp);
+    const WETH = new ethers.Contract(WETHaddr, IERC20abi, temp);
     await WETH.connect(temp).deposit({ value: ethers.utils.parseEther("5.0") });
     await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("1.0"));
     expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(
@@ -229,7 +230,7 @@ describe("Borrow - end-to-end test", () => {
   });
 
   it("2 - should swap for USDC with UNISWAP", async () => {
-    var path = [WETHadd, USDCaddr];
+    var path = [WETHaddr, USDCaddr];
     var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
     const USDC = new ethers.Contract(USDCaddr, IERC20abi, temp);
 
@@ -308,11 +309,11 @@ describe("Borrow - end-to-end test", () => {
   });
 
   it("7 - should test borrowing WETH with borrow() fn", async () => {
-    const WETHContract = new ethers.Contract(WETHadd, IERC20abi, temp);
+    const WETHContract = new ethers.Contract(WETHaddr, IERC20abi, temp);
     let originalBalance = await WETHContract.balanceOf(await temp.getAddress());
 
     await borrow({
-      underlying: WETHadd,
+      underlying: WETHaddr,
       trancheId: tranche,
       amount: ethers.utils.parseEther("0.1"),
       interestRateMode: RateMode.Variable,
@@ -344,11 +345,11 @@ describe("Borrow - end-to-end test", () => {
     );
   });
 
-  it("8 - supply some more tokens and check user data", async () => {
+  it("8 - supply some more tokens and check user/tranche data", async () => {
     expect(
       await supply(
         {
-          underlying: WETHadd,
+          underlying: WETHaddr,
           trancheId: tranche,
           amount: "1",
           signer: temp,
@@ -375,5 +376,23 @@ describe("Borrow - end-to-end test", () => {
 
     assert(borrowedAssetData.length == 1, "borrowedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
     expect(borrowedAssetData[0].amount).to.be.above(0);
+
+    const trancheAssetData = await getTrancheAssetData({
+        asset: WETHaddr,
+        tranche: tranche,
+        network: network,
+        test: true
+    });
+
+    expect(trancheAssetData.ltv).to.be.above(0);
+    expect(trancheAssetData.liquidationThreshold).to.be.above(0);
+    expect(trancheAssetData.liquidationPenalty).to.be.above(0);
+    expect(trancheAssetData.canBeCollateral).to.be.eq(true);
+    expect(trancheAssetData.totalSupplied).to.be.above(0);
+    expect(trancheAssetData.utilization).to.be.above(0);
+    expect(trancheAssetData.totalBorrowed).to.be.above(0);
+    expect(trancheAssetData.strategyAddress).to.be.eq(ethers.BigNumber.from(0));
+    expect(trancheAssetData.adminFee).to.be.above(0);
+    expect(trancheAssetData.platformFee).to.be.above(0);
   });
 });

@@ -57,9 +57,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The loan to value
      **/
-    function getLtv(DataTypes.ReserveConfigurationMap storage self)
+    function getLtv(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (uint256)
     {
         return self.data & ~LTV_MASK;
@@ -90,8 +90,8 @@ library ReserveConfiguration {
      * @return The liquidation threshold
      **/
     function getLiquidationThreshold(
-        DataTypes.ReserveConfigurationMap storage self
-    ) internal view returns (uint256) {
+        DataTypes.ReserveConfigurationMap memory self
+    ) internal pure returns (uint256) {
         return
             (self.data & ~LIQUIDATION_THRESHOLD_MASK) >>
             LIQUIDATION_THRESHOLD_START_BIT_POSITION;
@@ -121,9 +121,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The liquidation bonus
      **/
-    function getLiquidationBonus(DataTypes.ReserveConfigurationMap storage self)
+    function getLiquidationBonus(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (uint256)
     {
         return
@@ -152,9 +152,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The decimals of the asset
      **/
-    function getDecimals(DataTypes.ReserveConfigurationMap storage self)
+    function getDecimals(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (uint256)
     {
         return
@@ -180,9 +180,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The active state
      **/
-    function getActive(DataTypes.ReserveConfigurationMap storage self)
+    function getActive(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (bool)
     {
         return (self.data & ~ACTIVE_MASK) != 0;
@@ -207,9 +207,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The frozen state
      **/
-    function getFrozen(DataTypes.ReserveConfigurationMap storage self)
+    function getFrozen(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (bool)
     {
         return (self.data & ~FROZEN_MASK) != 0;
@@ -234,9 +234,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The borrowing state
      **/
-    function getBorrowingEnabled(DataTypes.ReserveConfigurationMap storage self)
+    function getBorrowingEnabled(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (bool)
     {
         return (self.data & ~BORROWING_MASK) != 0;
@@ -263,8 +263,8 @@ library ReserveConfiguration {
      * @return The stable rate borrowing state
      **/
     function getStableRateBorrowingEnabled(
-        DataTypes.ReserveConfigurationMap storage self
-    ) internal view returns (bool) {
+        DataTypes.ReserveConfigurationMap memory self
+    ) internal pure returns (bool) {
         return (self.data & ~STABLE_BORROWING_MASK) != 0;
     }
 
@@ -292,9 +292,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The reserve factor
      **/
-    function getReserveFactor(DataTypes.ReserveConfigurationMap storage self)
+    function getReserveFactor(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (uint256)
     {
         return
@@ -327,8 +327,8 @@ library ReserveConfiguration {
      * @return The reserve factor
      **/
     function getVMEXReserveFactor(
-        DataTypes.ReserveConfigurationMap storage self
-    ) internal view returns (uint256) {
+        DataTypes.ReserveConfigurationMap memory self
+    ) internal pure returns (uint256) {
         return
             (self.data & ~VMEX_RESERVE_FACTOR_MASK) >>
             VMEX_RESERVE_FACTOR_START_BIT_POSITION;
@@ -354,9 +354,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The state flags representing active, frozen, borrowing enabled, stableRateBorrowing enabled
      **/
-    function getFlags(DataTypes.ReserveConfigurationMap storage self)
+    function getFlags(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (
             bool,
             bool,
@@ -379,9 +379,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The state params representing ltv, liquidation threshold, liquidation bonus, the reserve decimals
      **/
-    function getParams(DataTypes.ReserveConfigurationMap storage self)
+    function getParams(DataTypes.ReserveConfigurationMap memory self)
         internal
-        view
+        pure
         returns (
             uint256,
             uint256,

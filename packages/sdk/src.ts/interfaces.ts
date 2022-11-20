@@ -45,6 +45,31 @@ export enum RateMode {
   Variable = "2",
 }
 
+export interface AssetData {
+  trancheId: BigNumber;
+  name: string;
+  ltv: BigNumber;
+  liquidationThreshold: BigNumber;
+  liquidationPenalty: BigNumber;
+  canBeCollateral: boolean;
+  oracle: BigNumber;
+  totalSupplied: BigNumber;
+  utilization: BigNumber;
+  totalBorrowed: BigNumber;   // aka totalVariableDebt
+  strategyAddress: BigNumber;
+  adminFee: BigNumber;
+  platformFee: BigNumber;
+  // liquidityIndex: BigNumber;
+  // variableBorrowIndex: BigNumber;
+  // currentLiquidityRate: BigNumber;
+  // currentVariableBorrowRate: BigNumber;
+  // currentStableBorrowRate: BigNumber;
+  // lastUpdateTimestamp: BigNumber;
+  // aTokenAddress: BigNumber;
+  // variableDebtTokenAddress: BigNumber;
+  // interestRateStrategyAddress: BigNumber;
+  // availableLiquidity: BigNumber;
+}
 export interface ReserveData {
   availableLiquidity: BigNumber;
   totalSupplied: BigNumber;

@@ -9,9 +9,10 @@ import {
   defaultTestProvider,
 } from "./contract-getters";
 import {
+  AssetData,
   ReserveData,
   UserReserveData,
-  UserSummaryData
+  UserSummaryData,
 } from "./interfaces";
 
 import { decodeConstructorBytecode } from "./decode-bytecode";
@@ -217,35 +218,61 @@ export async function getTrancheTokens(
  * ASSET LEVEL ANALYTICS
  */
 
-export async function getReserveData(
+export async function getTrancheAssetData(
   params: {
-    underlying: string;
+    asset: string;
     tranche: string;
     network?: string;
     test?: boolean;
   },
   callback?: () => Promise<any>
-): Promise<ReserveData> {
-  const helperContract = await getAaveProtocolDataProvider({
-    network: params.network,
-  });
+): Promise<AssetData> {
+  const provider = params.test ? defaultTestProvider : null;
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/GetTrancheAssetData.sol/GetTrancheAssetData.json");
+  let _addressProvider =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
+    _addressProvider,
+    params.asset,
+    params.tranche,
+  ]);
 
-  return await helperContract.getReserveData(params.underlying, params.tranche);
+  return data;
 }
 
-export async function getReserveDataBase(
-  params: {
-    underlying: string;
-    tranche: string;
-    network?: string;
-    test?: boolean;
-  },
-  callback?: () => Promise<any>
-): Promise<ReserveData> {
-  const lendingPool = await getLendingPool({ network: params.network });
+// export async function getReserveData(
+//   params: {
+//     underlying: string;
+//     tranche: string;
+//     network?: string;
+//     test?: boolean;
+//   },
+//   callback?: () => Promise<any>
+// ): Promise<ReserveData> {
+//   const helperContract = await getAaveProtocolDataProvider({
+//     network: params.network,
+//   });
 
-  return await lendingPool.getReserveData(params.underlying, params.tranche);
-}
+//   return await helperContract.getReserveData(params.underlying, params.tranche);
+// }
+
+// export async function getReserveDataBase(
+//   params: {
+//     underlying: string;
+//     tranche: string;
+//     network?: string;
+//     test?: boolean;
+//   },
+//   callback?: () => Promise<any>
+// ): Promise<ReserveData> {
+//   const lendingPool = await getLendingPool({ network: params.network });
+
+//   return await lendingPool.getReserveData(params.underlying, params.tranche);
+// }
 
 /**
  * USER LEVEL ANALYTICS
