@@ -10,7 +10,7 @@ import ILendingPoolAddressesProvider from "@vmex/contracts/artifacts/contracts/i
 import WalletBalanceProvider from "@vmex/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
 // import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
-export const defaultProvider = ethers.getDefaultProvider(
+export const defaultTestProvider = ethers.getDefaultProvider(
   "http://localhost:8545"
 );
 
@@ -29,7 +29,7 @@ export async function getLendingPool(params?: {
       `${params && params.network ? params.network : "mainnet"}`
     ].address,
     ILendingPool.abi,
-    defaultProvider
+    defaultTestProvider
   );
 
   if (params.signer) return lendingPool.connect(params.signer);
@@ -47,7 +47,7 @@ export async function getAaveProtocolDataProvider(params?: {
       `${params.network || "mainnet"}`
     ].address,
     AaveProtocolDataProvider.abi,
-    defaultProvider
+    defaultTestProvider
   );
   if (params.signer) return helperContract.connect(params.signer);
   return helperContract;
@@ -60,7 +60,7 @@ export async function getAToken(params?: {
   let aToken = new ethers.Contract(
     params.address,
     IAToken.abi,
-    defaultProvider
+    defaultTestProvider
   );
   if (params.signer) return aToken.connect(params.signer);
   return aToken;
@@ -73,7 +73,7 @@ export async function getIErc20(params?: {
   let ercToken = new ethers.Contract(
     params.address,
     IERC20.abi,
-    defaultProvider
+    defaultTestProvider
   );
   if (params.signer) return ercToken.connect(params.signer);
   return ercToken;
@@ -88,7 +88,7 @@ export async function getLendingPoolConfiguratorProxy(params?: {
       `${params.network || "mainnet"}`
     ].address,
     ILendingPoolConfigurator.abi,
-    defaultProvider
+    defaultTestProvider
   );
   if (params.signer) return configurator.connect(params.signer);
   return configurator;
@@ -103,7 +103,7 @@ export async function getLendingPoolAddressesProvider(params?: {
       `${params.network || "mainnet"}`
     ].address,
     ILendingPoolAddressesProvider.abi,
-    defaultProvider
+    defaultTestProvider
   );
   if (params.signer) return addressProvider.connect(params.signer);
   return addressProvider;
@@ -118,7 +118,7 @@ export async function getWalletBalanceProvider(params?: {
       `${params.network || "mainnet"}`
     ].address,
     WalletBalanceProvider.abi,
-    defaultProvider
+    defaultTestProvider
   );
   if (params.signer) return balanceProvider.connect(params.signer);
   return balanceProvider;
