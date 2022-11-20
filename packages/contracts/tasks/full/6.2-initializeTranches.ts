@@ -100,7 +100,7 @@ task(
         1
       );
 
-      const tricrypto2StratTranche = 1;
+      const tranche = 1;
 
       // admin grants strategy access to all funds
       await waitForTx(
@@ -108,7 +108,70 @@ task(
           .connect(emergAdmin)
           .addStrategy(
             reserveAssets["Tricrypto2"],
-            tricrypto2StratTranche,
+            tranche,
+            "0" //default
+          )
+      );
+
+      // admin grants strategy access to all funds
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .addStrategy(
+            reserveAssets["ThreePool"],
+            tranche,
+            "0" //default
+          )
+      );
+
+      // admin grants strategy access to all funds
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .addStrategy(
+            reserveAssets["StethEth"],
+            tranche,
+            "0" //default
+          )
+      );
+
+      // admin grants strategy access to all funds
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .addStrategy(
+            reserveAssets["FraxUSDC"],
+            tranche,
+            "0" //default
+          )
+      );
+      // admin grants strategy access to all funds
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .addStrategy(
+            reserveAssets["Frax3Crv"],
+            tranche,
+            "0" //default
+          )
+      );
+      // admin grants strategy access to all funds
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .addStrategy(
+            reserveAssets["StethEth"],
+            tranche,
+            "0" //default
+          )
+      );
+      // admin grants strategy access to all funds
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(emergAdmin)
+          .addStrategy(
+            reserveAssets["CVX"],
+            tranche,
             "0" //default
           )
       );

@@ -43,6 +43,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
 
     uint256 public constant MAX_BPS = 10_000; // MAX_BPS in terms of BPS = 100%
     uint256 public constant LEFTOVER = 1000; //amount to be kept in the strategy contract for quick withdrawals
+    uint256 public constant EFFICIENCY = 2;
 
     ILendingPoolAddressesProvider public addressProvider; // lending pool address provider
     address public lendingPool; // address of the lending pool
@@ -501,10 +502,9 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     ///         This can only be called by keeper or governance.
     ///         Note that tend doesn't work when the strategy is paused.
     /// @dev Is only called by the keeper when `isTendable` is true.
-    /// @return tended An array of `TokenAmount` containing the address and amount tended for each token.
-    function tend() external override whenNotPaused returns (TendData memory) {
+    /// @return amountTended An array of `TokenAmount` containing the address and amount tended for each token.
+    function tend() external override whenNotPaused returns (uint256 amountTended) {
         //_onlyAuthorizedActors();
-
         return _tend();
     }
 
@@ -522,7 +522,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
 
     /// @dev Virtual function that should be overridden with the logic for tending.
     ///      Also see `tend`.
-    function _tend() internal virtual returns (TendData memory);
+    function _tend() internal virtual returns (uint256 amountTended);
 
     /// @notice Fetches the name of the strategy.
     /// @dev Should be user-friendly and easy to read.

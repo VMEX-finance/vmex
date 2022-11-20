@@ -6,7 +6,7 @@ import {
   authorizeWETHGateway,
   deployUiPoolDataProviderV2,
   deployAssetMapping,
-  deployTricrypto2Strategy
+  deployStrategies,
 } from "../../helpers/contracts-deployments";
 import {
   loadPoolConfig,
@@ -175,35 +175,77 @@ task(
 
 
       // deploy strategies
-      const tricrypto2Strat = await deployTricrypto2Strategy();
+      const [CrvLpStrategy,CrvLpEthStrategy, CvxStrategy] = await deployStrategies();
 
       console.log(
-        "DEPLOYED tricrypto Strat at address",
-        tricrypto2Strat.address
+        "DEPLOYED CrvLp Strat at address",
+        CrvLpStrategy.address
       );
 
-
       await waitForTx(
-        await assetMappings.connect(admin).addCurveStrategyAddress("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",tricrypto2Strat.address)
+        await assetMappings.
+        connect(admin).
+        addCurveStrategyAddress(//tricrypto uses this
+          "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+          CrvLpStrategy.address
+        ) 
       ); //0 is default strategy
 
-      let initInputParams: {
-        _pid: string;
-        _poolSize: string;
-        _curvePool: string;
-        _boosterAddr: string; 
-        isAllowed: boolean; 
-      } = {
-        _pid: "38",
-        _poolSize: "3",
-        _curvePool: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46",
-        _boosterAddr: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
-        isAllowed: true
-      }
+      await waitForTx(
+        await assetMappings.connect(admin).addCurveStrategyAddress("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",CrvLpStrategy.address) //threepool uses this
+      ); //0 is default strategy
+
 
       await waitForTx(
-        await assetMappings.connect(admin).setCurveMetadata("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",initInputParams)
+        await assetMappings.
+        connect(admin).
+        addCurveStrategyAddress(//steth uses eth
+          "0x06325440D014e39736583c165C2963BA99fAf14E",
+          CrvLpEthStrategy.address
+        ) 
       ); //0 is default strategy
+      await waitForTx(
+        await assetMappings.
+        connect(admin).
+        addCurveStrategyAddress(//fraxusdc uses this
+          "0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC",
+          CrvLpStrategy.address
+        ) 
+      ); //0 is default strategy
+      await waitForTx(
+        await assetMappings.
+        connect(admin).
+        addCurveStrategyAddress(//frax3crv uses this
+          "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+          CrvLpStrategy.address
+        ) 
+      ); //0 is default strategy
+
+      await waitForTx(
+        await assetMappings.
+        connect(admin).
+        addCurveStrategyAddress(//cvx uses this
+          "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",
+          CvxStrategy.address
+        ) 
+      ); //0 is default strategy
+
+      // var tricryptoParams: {
+      //   _pid: string;
+      //   _poolSize: string;
+      //   _curvePool: string;
+      //   _boosterAddr: string; 
+      //   isAllowed: boolean; 
+      // } = {
+      //   _pid: "38",
+      //   _poolSize: "3",
+      //   _curvePool: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46",
+      //   _boosterAddr: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31"
+      // }
+
+      // await waitForTx(
+      //   await assetMappings.connect(admin).setCurveMetadata("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",tricryptoParams)
+      // ); //0 is default strategy
 
     } catch (err) {
       console.error(err);
