@@ -1,5 +1,29 @@
 import BigNumber from "bignumber.js";
 
+export interface SuppliedAssetData {
+  asset: BigNumber;
+  tranche: BigNumber;
+  amount: BigNumber;
+  isCollateral: boolean;
+}
+
+export interface BorrowedAssetData {
+  asset: BigNumber;
+  tranche: BigNumber;
+  amount: BigNumber;
+  apy: BigNumber;
+}
+
+export interface UserSummaryData {
+  totalCollateralETH: BigNumber;
+  totalDebtETH: BigNumber;
+  availableBorrowsETH: BigNumber;
+  currentLiquidityThreshold: BigNumber;
+  ltv: BigNumber;
+  healthFactor: BigNumber;
+  suppliedAssetData: SuppliedAssetData[];
+  borrowedAssetData: BorrowedAssetData[];
+}
 export interface UserReserveData {
   scaledATokenBalance: BigNumber;
   currentATokenBalance: BigNumber;
@@ -15,32 +39,10 @@ export interface UserReserveData {
   [key: string]: BigNumber | string | Boolean;
 }
 
-export interface UserAccountData {
-  totalCollateralETH: BigNumber;
-  totalDebtETH: BigNumber;
-  availableBorrowsETH: BigNumber;
-  currentLiquidityThreshold: BigNumber;
-  ltv: BigNumber;
-  healthFactor: BigNumber;
-}
-
 export enum RateMode {
   None = "0",
   Stable = "1",
   Variable = "2",
-}
-
-export interface UserSuppliedData {
-  asset: string;
-  tranche: string;
-  currentATokenBalance: BigNumber;
-  usageAsCollateralEnabled: Boolean;
-}
-
-export interface UserBorrowedData {
-  asset: string;
-  tranche: string;
-  currentVariableDebt: BigNumber;
 }
 
 export interface ReserveData {

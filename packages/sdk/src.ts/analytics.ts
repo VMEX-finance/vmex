@@ -6,20 +6,16 @@ import {
   getIErc20,
   getLendingPoolConfiguratorProxy,
   getLendingPool,
+  defaultTestProvider,
 } from "./contract-getters";
 import {
   ReserveData,
-  UserAccountData,
-  UserBorrowedData,
   UserReserveData,
-  UserSuppliedData,
+  UserSummaryData
 } from "./interfaces";
 
-import {
-  decodeConstructorBytecode
-} from "./decode-bytecode";
-
-
+import { decodeConstructorBytecode } from "./decode-bytecode";
+import { generateFinalUserSummary } from "./utils";
 
 /**
  * PROTOCOL LEVEL ANALYTICS
@@ -57,23 +53,33 @@ export async function getTotalMarkets(
 export async function getTVL(
   params?: {
     network?: string;
-    test?: boolean
+    test?: boolean;
   },
   callback?: () => Promise<any>
 ) {
-	const provider = params.test ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : null;
-	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/QueryLendingPoolTVL.sol/QueryTrancheTVL.json");
-	let _aaveProvider = deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
-	let _addressProvider = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
-	let [ data ] = await decodeConstructorBytecode(abi, bytecode, provider, [_addressProvider, _aaveProvider])
-	return data;
+  const provider = params.test
+    ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
+    : null;
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/QueryLendingPoolTVL.sol/QueryTrancheTVL.json");
+  let _aaveProvider =
+    deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
+  let _addressProvider =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
+    _addressProvider,
+    _aaveProvider,
+  ]);
+  return data;
 }
-
 
 export async function getAllTrancheNames(
   params: {
     network?: string;
-		test?: boolean;
+    test?: boolean;
   },
   callback?: () => Promise<any>
 ) {
@@ -83,34 +89,43 @@ export async function getAllTrancheNames(
 
   let trancheIds = (await configurator.totalTranches()).toNumber();
   let x = [...Array(trancheIds).keys()];
-  return Promise.all(
-    x.map(async (x) => await configurator.trancheNames(x))
-  );
+  return Promise.all(x.map(async (x) => await configurator.trancheNames(x)));
 }
 
 /**
-* getWalletBalanceAcrossTranches
-*
-*/
+ * getWalletBalanceAcrossTranches
+ *
+ */
 export async function getWalletBalanceAcrossTranches(
-	params: {
-		signer: ethers.Signer;
-		network?: string;
-		test?: boolean;
-}, callback?: () => Promise<any>
+  params: {
+    signer: ethers.Signer;
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<any>
 ) {
-	const { abi, bytecode } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/userBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
-	let user_address = await params.signer.getAddress();
-	let provider = params.test ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545") : null;
-	let add_provider_address = deployments.LendingPoolAddressesProvider[params.network || "mainnet"].address;
-	let wallet_data_address = deployments.WalletBalanceProvider[params.network || "mainnet"].address;
-	return decodeConstructorBytecode(abi, bytecode, provider, [user_address, add_provider_address, wallet_data_address]);
-
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/userBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
+  let user_address = await params.signer.getAddress();
+  let provider = params.test
+    ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
+    : null;
+  let add_provider_address =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let wallet_data_address =
+    deployments.WalletBalanceProvider[params.network || "mainnet"].address;
+  return decodeConstructorBytecode(abi, bytecode, provider, [
+    user_address,
+    add_provider_address,
+    wallet_data_address,
+  ]);
 }
 /**
  * TRANCHE LEVEL ANALYTICS
  */
-
 
 export async function getTrancheName(
   params: {
@@ -120,7 +135,6 @@ export async function getTrancheName(
   },
   callback?: () => Promise<any>
 ) {
-
   const configurator = await getLendingPoolConfiguratorProxy({
     network: params.network,
   });
@@ -145,7 +159,7 @@ export async function getTrancheTVL(
   params: {
     tranche: string;
     network?: string;
-		test?: boolean;
+    test?: boolean;
   },
   callback?: () => Promise<any>
 ) {
@@ -153,7 +167,7 @@ export async function getTrancheTVL(
   const [allvTokens, reserveAddresses] = await getTrancheTokens({
     tranche: params.tranche,
     network: params.network,
-    test: params.test
+    test: params.test,
   });
 
   var tvl = BigNumber.from(0);
@@ -172,7 +186,7 @@ export async function getTrancheTokens(
   params: {
     tranche: string;
     network?: string;
-		test?: boolean;
+    test?: boolean;
   },
   callback?: () => Promise<any>
 ) {
@@ -237,123 +251,60 @@ export async function getReserveDataBase(
  * USER LEVEL ANALYTICS
  */
 
-export async function getUserInfoForAsset(
+export async function getUserSummaryData(
   params: {
-    underlying: string;
+    user: string;
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<UserSummaryData>
+): Promise<UserSummaryData> {
+  const provider = params.test ? defaultTestProvider : null;
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/GetUserSummaryData.sol/GetUserSummaryData.json");
+  let _addressProvider =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let _dataProvider =
+    deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
+  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
+    _addressProvider,
+    _dataProvider,
+    params.user,
+    true,
+    0,
+  ]);
+  return generateFinalUserSummary(data);
+}
+
+export async function getUserTrancheData(
+  params: {
     tranche: string;
     user: string;
     network?: string;
     test?: boolean;
   },
-  callback?: () => Promise<UserReserveData>
-): Promise<UserReserveData> {
-  let helperContract = await getAaveProtocolDataProvider({
-    network: params.network,
-  });
-
-  return helperContract.getUserReserveData(
-    params.underlying,
+  callback?: () => Promise<UserSummaryData>
+): Promise<UserSummaryData> {
+  const provider = params.test ? defaultTestProvider : null;
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/GetUserSummaryData.sol/GetUserSummaryData.json");
+  let _addressProvider =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let _dataProvider =
+    deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
+  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
+    _addressProvider,
+    _dataProvider,
+    params.user,
+    false,
     params.tranche,
-    params.user
-  );
+  ]);
+
+  return generateFinalUserSummary(data);
 }
-
-/**
- * getUserAggregatedTrancheData
- * @params { signer: ethers.Signer, tranche: number, network?: string }
- * @returns Promise {
- *  totalCollateralETH: BigNumber
- *  totalDebtETH: BigNumber
- *  availableBorrowsETH: BigNumber
- *  currentLiquidationThreshold: BigNumber
- *  ltv: BigNumber
- *  healthFactor: BigNumber
- * }
- */
-export async function getUserAggregatedTrancheData(
-  params: {
-    user: string;
-    tranche: string;
-    network?: string;
-    test?: boolean;
-  },
-  callback?: () => Promise<UserAccountData>
-): Promise<UserAccountData> {
-  const lendingPool = await getLendingPool({ network: params.network });
-  return lendingPool.getUserAccountData(params.user, params.tranche, false);
-}
-
-/**
- * getUserPositions
- * @params { signer: ethers.Signer, tranche: number, network?: string }
- * @returns tuple(address, uint256)[];
- */
-export async function getUserSuppliedForTranche(
-  params: {
-    user: string;
-    tranche: string;
-    network?: string;
-  },
-  callback?: () => Promise<any>
-) {
-  const lendingPool = await getLendingPool({ network: params.network });
-  const reserves: string[] = await lendingPool.getReservesList(params.tranche);
-
-  var userPositions: UserSuppliedData[] = [];
-  for (const asset of reserves) {
-    const reserveInfo = await getUserInfoForAsset({
-      underlying: asset,
-      tranche: params.tranche,
-      user: params.user,
-      network: params.network,
-    });
-
-    if (reserveInfo.currentATokenBalance.gt(0)) {
-      userPositions.push({
-        asset: asset,
-        tranche: params.tranche,
-        currentATokenBalance: reserveInfo.currentATokenBalance,
-        usageAsCollateralEnabled: reserveInfo.usageAsCollateralEnabled,
-      });
-    }
-  }
-
-  return userPositions;
-}
-
-export async function getUserBorrowedForTranche(
-  params: {
-    user: string;
-    tranche: string;
-    network?: string;
-  },
-  callback?: () => Promise<any>
-) {
-  const lendingPool = await getLendingPool({ network: params.network });
-  const reserves: string[] = await lendingPool.getReservesList(params.tranche);
-
-  var userPositions: UserBorrowedData[] = [];
-  for (const asset of reserves) {
-    const reserveInfo = await getUserInfoForAsset({
-      underlying: asset,
-      tranche: params.tranche,
-      user: params.user,
-      network: params.network,
-    });
-
-    if (reserveInfo.currentVariableDebt.gt(0)) {
-      userPositions.push({
-        asset: asset,
-        tranche: params.tranche,
-        currentVariableDebt: reserveInfo.currentVariableDebt,
-      });
-    }
-  }
-
-  return userPositions;
-}
-
-/**
- * getUserReserveConfig
- * @params { signer: ethers.Signer, underlying: address, network?: string }
- */

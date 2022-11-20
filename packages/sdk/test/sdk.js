@@ -2,7 +2,7 @@
 
 const { ethers } = require("ethers");
 const chai = require("chai");
-const { expect } = require("chai");
+const { expect, assert } = require("chai");
 const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
 chai.use(require("chai-bignumber")());
@@ -16,13 +16,10 @@ const {
   lendingPoolPause,
 } = require("../dist/protocol.js");
 const {
-  getUserAggregatedTrancheData,
   getTVL,
   getTrancheTVL,
   getTotalTranches,
-  getUserInfoForAsset,
-  getUserSuppliedForTranche,
-  getUserBorrowedForTranche,
+  getUserTrancheData,
 } = require("../dist/analytics.js");
 const { RateMode } = require("../dist/interfaces.js");
 const { TOKEN_ADDR_MAINNET } = require("../dist/constants.js");
@@ -79,7 +76,6 @@ describe("Tranche creation - end-to-end test", () => {
     // expect(await getTotalTranches({
     //     network: 'localhost'
     // })).to.be.bignumber.equals(3);
-    console.log("My tranche num: ", mytranche);
   });
 
   it("2 - init reserves in this tranche", async () => {
@@ -120,7 +116,6 @@ describe("Supply - end-to-end test", () => {
 
   it("0 - total tranches is correct", async () => {
     const totalTranches = await getTotalTranches({ network: network });
-    console.log(totalTranches);
     expect(totalTranches == 2, "Incorrect number of tranches");
   });
 
@@ -182,8 +177,8 @@ describe("Supply - end-to-end test", () => {
   });
 
   it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
-    let { totalCollateralETH } = await getUserAggregatedTrancheData({
-      user: owner.getAddress(),
+    let { totalCollateralETH } = await getUserTrancheData({
+      user: await owner.getAddress(),
       tranche: 0,
       network: network,
       test: true,
@@ -197,7 +192,6 @@ describe("Supply - end-to-end test", () => {
       network: network,
       test: true,
     });
-    console.log("tranche 0 tvl is", trancheTvl0.toString());
     expect(trancheTvl0).to.be.above(ethers.utils.parseEther("1.0"));
   });
 
@@ -274,14 +268,18 @@ describe("Borrow - end-to-end test", () => {
         }
       )
     ).to.be.true;
-    const allBalances = await getUserSuppliedForTranche({
+    const { suppliedAssetData } = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: tranche,
       network: network,
+      test: true,
     });
 
-    expect(allBalances[0].currentATokenBalance).to.be.above(0);
-    expect(allBalances[0].usageAsCollateralEnabled).to.be.equal(true);
+    assert(suppliedAssetData.length == 2, "suppliedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
+    expect(suppliedAssetData[0].asset).to.be.eq(USDCaddr);
+    expect(suppliedAssetData[0].tranche).to.be.eq(0);
+    expect(suppliedAssetData[0].amount).to.be.above(0);
+    expect(suppliedAssetData[0].isCollateral).to.be.equal(true);
   });
 
   it("5 - should mark supplied asset for collateral with fn markReserveAsCollateral", async () => {
@@ -300,24 +298,18 @@ describe("Borrow - end-to-end test", () => {
   });
 
   it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
-    let { totalCollateralETH, availableBorrowsETH } =
-      await getUserAggregatedTrancheData({
-        user: await temp.getAddress(),
-        tranche: tranche,
-        network: network,
-      });
-    console.log(totalCollateralETH, availableBorrowsETH);
+    let { totalCollateralETH, availableBorrowsETH } = await getUserTrancheData({
+      user: await temp.getAddress(),
+      tranche: tranche,
+      network: network,
+      test: true,
+    });
     expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("0"));
   });
 
   it("7 - should test borrowing WETH with borrow() fn", async () => {
     const WETHContract = new ethers.Contract(WETHadd, IERC20abi, temp);
     let originalBalance = await WETHContract.balanceOf(await temp.getAddress());
-    let { availableBorrowsETH } = await getUserAggregatedTrancheData({
-      user: await temp.getAddress(),
-      tranche: tranche,
-      network: network,
-    });
 
     await borrow({
       underlying: WETHadd,
@@ -333,32 +325,23 @@ describe("Borrow - end-to-end test", () => {
       originalBalance
     );
 
-    const userReserveDataWETH = await getUserInfoForAsset({
-      underlying: WETHadd, // borrows WETH, so WETH asset will show debt
-      tranche: tranche,
-      user: await temp.getAddress(),
-      network: network,
-    });
-
-    expect(userReserveDataWETH.currentVariableDebt).to.be.above(0);
-
-    const userAccountData = await getUserAggregatedTrancheData({
+    const userAccountData = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: tranche,
       network: network,
+      test: true,
     });
 
     expect(userAccountData.totalCollateralETH).to.be.gte(
       ethers.utils.parseEther("0.1")
     );
+    expect(userAccountData.totalDebtETH).to.be.above(0);
     expect(userAccountData.totalDebtETH).to.be.above(
       ethers.utils.parseEther("0.1")
     );
     expect(userAccountData.healthFactor).to.be.above(
       ethers.utils.parseEther("1")
     );
-
-    console.log("user t0 data", userAccountData);
   });
 
   it("8 - supply some more tokens and check user data", async () => {
@@ -377,24 +360,20 @@ describe("Borrow - end-to-end test", () => {
         }
       )
     ).to.be.true;
-    const userSupplied = await getUserSuppliedForTranche({
+    const { suppliedAssetData, borrowedAssetData } = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: tranche,
       network: network,
+      test: true,
     });
 
-    userSupplied.map((assetData) => {
-      expect(assetData.currentATokenBalance).to.be.above(0);
+    suppliedAssetData.map((assetData) => {
+      expect(assetData.amount).to.be.above(0);
       expect(assetData.tranche).to.be.equal(tranche);
-      expect(assetData.usageAsCollateralEnabled).to.be.equal(true);
+      expect(assetData.isCollateral).to.be.equal(true);
     });
 
-    const allBorrows = await getUserBorrowedForTranche({
-      user: await temp.getAddress(),
-      tranche: tranche,
-      network: network,
-    });
-
-    expect(allBorrows[0].currentVariableDebt).to.be.above(0);
+    assert(borrowedAssetData.length == 1, "borrowedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
+    expect(borrowedAssetData[0].amount).to.be.above(0);
   });
 });

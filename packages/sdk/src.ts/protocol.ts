@@ -189,7 +189,6 @@ export async function supply(
 ) {
   let client = await params.signer.getAddress();
   let amount = ethers.utils.parseEther(params.amount);
-  console.log("amount to deposit is", amount);
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
