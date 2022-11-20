@@ -18,7 +18,7 @@ import {
   getReservesConfigByPool,
   loadPoolConfig,
 } from "./configuration";
-import { getFirstSigner } from "./contracts-getters";
+import { getFirstSigner, getvStrategyHelper } from "./contracts-getters";
 import {
   AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
@@ -68,6 +68,8 @@ import {
   BaseRewardPoolFactory,
   VStrategyHelperFactory,
   CrvLpStrategyFactory,
+  CrvLpEthStrategyFactory,
+  CvxStrategyFactory,
   LendingPoolAddressesProvider,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
@@ -474,22 +476,54 @@ export const deployStrategyLibraries = async (
   };
 };
 
-export const deployTricrypto2Strategy = async (verify?: boolean) => {
+export const deployStrategies = async (verify?: boolean) => {
   const libraries = await deployStrategyLibraries(verify);
-  const tricrypto2StrategyImpl = await new CrvLpStrategyFactory(
+  const crvLpStrategyImpl = await new CrvLpStrategyFactory(
     libraries,
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
-    eContractid.tricrypto2Strategy,
-    tricrypto2StrategyImpl.address
+    eContractid.CrvLpStrategy,
+    crvLpStrategyImpl.address
   );
-  return withSaveAndVerify(
-    tricrypto2StrategyImpl,
-    eContractid.tricrypto2Strategy,
-    [],
-    verify
+
+  const crvLpEthStrategyImpl = await new CrvLpEthStrategyFactory(
+    libraries,
+    await getFirstSigner()
+  ).deploy();
+  await insertContractAddressInDb(
+    eContractid.CrvLpEthStrategy,
+    crvLpEthStrategyImpl.address
   );
+
+  const cvxStrategyImpl = await new CvxStrategyFactory(
+    libraries,
+    await getFirstSigner()
+  ).deploy();
+  await insertContractAddressInDb(
+    eContractid.CvxStrategy,
+    cvxStrategyImpl.address
+  );
+  return [
+    await withSaveAndVerify(
+      crvLpStrategyImpl,
+      eContractid.CrvLpStrategy,
+      [],
+      verify
+    ),
+    await withSaveAndVerify(
+      crvLpEthStrategyImpl,
+      eContractid.CrvLpEthStrategy,
+      [],
+      verify
+    ),
+    await withSaveAndVerify(
+      cvxStrategyImpl,
+      eContractid.CvxStrategy,
+      [],
+      verify
+    ),
+  ]
 };
 
 export const deployConvexBooster = async (verify?: boolean) => {

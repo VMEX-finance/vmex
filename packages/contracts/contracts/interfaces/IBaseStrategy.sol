@@ -52,12 +52,7 @@ interface IBaseStrategy {
 
     function harvest() external returns (TokenAmount[] memory harvested);
 
-    function tend() external returns (TendData memory);
-
-    // function tend() external returns (uint256 crvTended,
-    //     uint256 cvxTended,
-    //     uint256 cvxCrvTended,
-    //     uint256 extraRewardsTended);
+    function tend() external returns (uint256);
 
     function getName() external returns (string memory);
 

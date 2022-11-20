@@ -70,7 +70,7 @@
     "vmex:node:fork:main": "FORK=main npx hardhat node --hostname 0.0.0.0",
     "vmex:deploy": "npm run compile && FORK=main hardhat aave:mainnet --network localhost",
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/*.spec.ts --network localhost",
-    "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/test-variable-debt.spec.ts --network localhost",
+    "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/test-frax3crv.spec.ts --network localhost",
     "aave:fork:kovan": "npm run compile && FORK=kovan hardhat aave:mainnet",
     "amm:fork:main": "npm run compile && FORK=main hardhat amm:mainnet",
     "amm:fork:kovan": "npm run compile && FORK=kovan hardhat amm:mainnet",

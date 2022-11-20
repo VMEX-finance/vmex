@@ -166,7 +166,7 @@ makeSuite(
           const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
           console.log("tricrypto2 atoken total supply: ", aTokenBalance);
 
-          const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
+          const strategy = await contractGetters.getCrvLpStrategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           const vTokenAddress = await strategy.connect(signer).vToken(); //this should be the same as tricrypto2Tranch1AToken
           console.log("vtoken address: ", vTokenAddress);
@@ -213,20 +213,6 @@ makeSuite(
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
           var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
 
-          
-
-          // var strategyStartBoostedBalance = await strategy.balanceOfPool();
-          // console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
-          // expect(strategyStartBoostedBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.5"), "Booster starts with one");
-          
-          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
-          // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "User still needs the aTokens of original deposit");
-
-          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
-          // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0"), "Admin starts with nothing");
-
-          
-
           const tricrypto2Tranch1ATokenAddress =
             (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
           // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
@@ -234,7 +220,7 @@ makeSuite(
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
-            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
+            const strategy = await contractGetters.getCrvLpStrategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
             for(let i = 0; i<3;i++){
                 var strategyStartBoostedBalance = await strategy.balanceOfPool();
@@ -330,7 +316,7 @@ makeSuite(
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
-            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
+            const strategy = await contractGetters.getCrvLpStrategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           await lendingPool.connect(signer)
             .withdraw(
