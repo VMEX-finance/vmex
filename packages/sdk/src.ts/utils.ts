@@ -1,9 +1,10 @@
 import { ethers } from "ethers";
+import BigNumber from "bignumber.js";
 import { deployments } from "./constants";
 import _ from "lodash";
-import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingPool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
-import { getLendingPool } from "./contract-getters";
+import { getLendingPoolConfiguratorProxy } from "./contract-getters";
 import { UserSummaryData } from "./interfaces";
+import { decodeConstructorBytecode } from "./decode-bytecode";
 // import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
 /**
@@ -50,6 +51,110 @@ export function generateFinalUserSummary(data: UserSummaryData): UserSummaryData
 
   return finalData;
 }
+
+export async function getTotalTranches(
+  params?: {
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<BigNumber>
+) {
+  let configurator = await getLendingPoolConfiguratorProxy({
+    network: params.network,
+  });
+  return configurator.totalTranches();
+}
+
+export async function getTotalMarkets(
+  params?: {
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<BigNumber>
+) {
+  return getTotalTranches(params);
+}
+
+/**
+ * getTVL()
+ * @params { network?: string, test?: bool }
+ * @returns uint(aTokens, underlying)
+ * returns a tuple containing the sum of the balances of all aTokens in all pools
+ */
+export async function getTVL(
+  params?: {
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<any>
+) {
+  const provider = params.test
+    ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
+    : null;
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/QueryLendingPoolTVL.sol/QueryTrancheTVL.json");
+  let _aaveProvider =
+    deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
+  let _addressProvider =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
+    _addressProvider,
+    _aaveProvider,
+  ]);
+  return data;
+}
+
+export async function getAllTrancheNames(
+  params: {
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<any>
+) {
+  const configurator = await getLendingPoolConfiguratorProxy({
+    network: params.network,
+  });
+
+  let trancheIds = (await configurator.totalTranches()).toNumber();
+  let x = [...Array(trancheIds).keys()];
+  return Promise.all(x.map(async (x) => await configurator.trancheNames(x)));
+}
+
+/**
+ * getWalletBalanceAcrossTranches
+ *
+ */
+export async function getWalletBalanceAcrossTranches(
+  params: {
+    signer: ethers.Signer;
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<any>
+) {
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/userBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
+  let user_address = await params.signer.getAddress();
+  let provider = params.test
+    ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
+    : null;
+  let add_provider_address =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let wallet_data_address =
+    deployments.WalletBalanceProvider[params.network || "mainnet"].address;
+  return decodeConstructorBytecode(abi, bytecode, provider, [
+    user_address,
+    add_provider_address,
+    wallet_data_address,
+  ]);
+}
+
 
 // // Convert a hex string to a byte array
 // export function hexToBytes(hex) {

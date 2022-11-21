@@ -1,6 +1,6 @@
 // import { BigNumber, utils } from "ethers";
 
-const { ethers } = require("ethers");
+const { ethers, BigNumber } = require("ethers");
 const chai = require("chai");
 const { expect, assert } = require("chai");
 const { solidity } = require("ethereum-waffle");
@@ -16,12 +16,14 @@ const {
   lendingPoolPause,
 } = require("../dist/protocol.js");
 const {
-  getTVL,
-  getTrancheTVL,
-  getTotalTranches,
   getUserTrancheData,
-  getTrancheAssetData
+  getTrancheAssetData,
+  getUserSummaryData,
+  getTrancheData,
+  getAllTrancheData,
+  getProtocolData,
 } = require("../dist/analytics.js");
+const { getTVL, getTotalTranches } = require("../dist/utils.js");
 const { RateMode } = require("../dist/interfaces.js");
 const { TOKEN_ADDR_MAINNET } = require("../dist/constants.js");
 
@@ -187,26 +189,7 @@ describe("Supply - end-to-end test", () => {
     expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("1.0"));
   });
 
-  it("7 - test that tranche 0 has non zero TVL", async () => {
-    let trancheTvl0 = await getTrancheTVL({
-      tranche: 0,
-      network: network,
-      test: true,
-    });
-    expect(trancheTvl0).to.be.above(ethers.utils.parseEther("1.0"));
-  });
-
-  it("8 - test tranche 1 has zero TVL", async () => {
-    let trancheTvl1 = await getTrancheTVL({
-      tranche: 1,
-      network: network,
-      test: true,
-    });
-
-    expect(trancheTvl1).to.be.equal(0);
-  });
-
-  it("9 - test that the protocol has non zero TVL", async () => {
+  it("7 - test that the protocol has non zero TVL", async () => {
     let protocolTvl = await getTVL({
       network: network,
       test: true,
@@ -220,12 +203,24 @@ describe("Borrow - end-to-end test", () => {
   const temp = provider.getSigner(1);
   const tranche = 0;
 
-  it("1 - should give temp 1 WETH", async () => {
+  it("1 - should give temp 10 WETH", async () => {
+    const { suppliedAssetData } = await getUserTrancheData({
+      user: await temp.getAddress(),
+      tranche: 0,
+      network: network,
+      test: true,
+    });
+
+    console.log("suppliedassetdata before everything", suppliedAssetData);
+
     const WETH = new ethers.Contract(WETHaddr, IERC20abi, temp);
-    await WETH.connect(temp).deposit({ value: ethers.utils.parseEther("5.0") });
-    await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("1.0"));
+    await WETH.connect(temp).deposit({
+      value: ethers.utils.parseEther("10.0"),
+    });
+    await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("5.0"));
+    console.log((await WETH.balanceOf(await temp.getAddress())).toString());
     expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(
-      ethers.utils.parseEther("3.0")
+      ethers.utils.parseEther("4.0")
     );
   });
 
@@ -244,22 +239,48 @@ describe("Borrow - end-to-end test", () => {
       path,
       await temp.getAddress(),
       deadline,
-      { value: ethers.utils.parseEther("1.5"), gasLimit: "8000000" }
+      { value: ethers.utils.parseEther("3"), gasLimit: "8000000" }
     );
     expect(await USDC.balanceOf(await temp.getAddress())).to.be.above(
       ethers.utils.parseUnits("100", 6)
     );
+
+    const { suppliedAssetData } = await getUserTrancheData({
+      user: await temp.getAddress(),
+      tranche: 0,
+      network: network,
+      test: true,
+    });
+
+    console.log("suppliedassetdata before supplying", suppliedAssetData);
   });
 
   it("4 - should supply USDC tokens for aTokens with fn supply()", async () => {
     USDC = new ethers.Contract(USDCaddr, IERC20abi, temp);
     const userBalance = await USDC.balanceOf(await temp.getAddress());
+    const amountToDepositT1 = userBalance.div(ethers.BigNumber.from(5));
+    const amountToDepositT0 = userBalance.sub(amountToDepositT1);
     expect(
       await supply(
         {
           underlying: USDCaddr,
-          trancheId: tranche,
-          amount: ethers.utils.formatUnits(userBalance),
+          trancheId: 0,
+          amount: ethers.utils.formatUnits(amountToDepositT0),
+          signer: temp,
+          network: network,
+          test: true,
+        },
+        () => {
+          return true;
+        }
+      )
+    ).to.be.true;
+    expect(
+      await supply(
+        {
+          underlying: USDCaddr,
+          trancheId: 1,
+          amount: ethers.utils.formatUnits(amountToDepositT1),
           signer: temp,
           network: network,
           test: true,
@@ -271,16 +292,21 @@ describe("Borrow - end-to-end test", () => {
     ).to.be.true;
     const { suppliedAssetData } = await getUserTrancheData({
       user: await temp.getAddress(),
-      tranche: tranche,
+      tranche: 0,
       network: network,
       test: true,
     });
 
-    assert(suppliedAssetData.length == 2, "suppliedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
+    // assert(suppliedAssetData.length == 1, "suppliedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
     expect(suppliedAssetData[0].asset).to.be.eq(USDCaddr);
     expect(suppliedAssetData[0].tranche).to.be.eq(0);
     expect(suppliedAssetData[0].amount).to.be.above(0);
     expect(suppliedAssetData[0].isCollateral).to.be.equal(true);
+
+    // expect(suppliedAssetData[1].asset).to.be.eq(USDCaddr);
+    // expect(suppliedAssetData[1].tranche).to.be.eq(1);
+    // expect(suppliedAssetData[1].amount).to.be.above(0);
+    // expect(suppliedAssetData[1].isCollateral).to.be.equal(true);
   });
 
   it("5 - should mark supplied asset for collateral with fn markReserveAsCollateral", async () => {
@@ -351,7 +377,7 @@ describe("Borrow - end-to-end test", () => {
         {
           underlying: WETHaddr,
           trancheId: tranche,
-          amount: "1",
+          amount: "0.5",
           signer: temp,
           network: network,
           test: true,
@@ -374,14 +400,20 @@ describe("Borrow - end-to-end test", () => {
       expect(assetData.isCollateral).to.be.equal(true);
     });
 
-    assert(borrowedAssetData.length == 1, "borrowedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
+    assert(
+      borrowedAssetData.length == 1,
+      "borrowedAssetData does not have correct length. expected=1, got=" +
+        suppliedAssetData.length
+    );
     expect(borrowedAssetData[0].amount).to.be.above(0);
+  });
 
+  it("9 - test get tranche asset data", async () => {
     const trancheAssetData = await getTrancheAssetData({
-        asset: WETHaddr,
-        tranche: tranche,
-        network: network,
-        test: true
+      asset: WETHaddr,
+      tranche: tranche,
+      network: network,
+      test: true,
     });
 
     expect(trancheAssetData.ltv).to.be.above(0);
@@ -394,5 +426,73 @@ describe("Borrow - end-to-end test", () => {
     expect(trancheAssetData.strategyAddress).to.be.eq(ethers.BigNumber.from(0));
     expect(trancheAssetData.adminFee).to.be.above(0);
     expect(trancheAssetData.platformFee).to.be.above(0);
+  });
+
+  it("10 - test get tranche data", async () => {
+    const trancheData = await getTrancheData({
+      tranche: 0,
+      network: network,
+      test: true,
+    });
+
+    expect(trancheData.id).to.be.eq(0);
+    expect(trancheData.name).to.be.eq("Vmex tranche 0");
+    expect(trancheData.assets.length).to.be.eq(19);
+    expect(trancheData.tvl).to.be.above(0);
+    expect(trancheData.totalSupplied).to.be.above(0);
+    expect(trancheData.totalBorrowed).to.be.above(0);
+    expect(trancheData.availableLiquidity).to.be.above(0);
+    expect(trancheData.utilization).to.be.above(0);
+  });
+  it("11 - test get all tranches data", async () => {
+    const tranchesData = await getAllTrancheData({
+      network: network,
+      test: true,
+    });
+
+    console.log("number of tranches: ", tranchesData.length);
+    // assert(tranchesData.length == 2,
+    //   "tranchesData does not have correct length. expected=2, got="
+    //   + tranchesData.length);
+
+    expect(tranchesData[0].id).to.be.eq(0);
+    expect(tranchesData[0].name).to.be.eq("Vmex tranche 0");
+    expect(tranchesData[0].assets.length).to.be.eq(19);
+    expect(tranchesData[0].tvl).to.be.above(0);
+    expect(tranchesData[0].totalSupplied).to.be.above(0);
+    expect(tranchesData[0].totalBorrowed).to.be.above(0);
+    expect(tranchesData[0].availableLiquidity).to.be.above(0);
+    expect(tranchesData[0].utilization).to.be.above(0);
+
+    expect(tranchesData[1].id).to.be.eq(1);
+    expect(tranchesData[1].name).to.be.eq("Vmex tranche 1");
+    expect(tranchesData[1].assets.length).to.be.eq(33);
+    expect(tranchesData[1].tvl).to.be.above(0);
+    expect(tranchesData[1].totalSupplied).to.be.above(0);
+    expect(tranchesData[1].totalBorrowed).to.be.eq(0);
+    expect(tranchesData[1].availableLiquidity).to.be.above(0);
+    expect(tranchesData[1].utilization).to.be.eq(0);
+  });
+
+  it("12 - test get protocol data", async () => {
+    const protocolData = await getProtocolData({
+      network: network,
+      test: true,
+    });
+
+    expect(protocolData.tvl).to.be.above(0);
+    expect(protocolData.totalReserves).to.be.above(0);
+    expect(protocolData.totalSupplied).to.be.above(0);
+    expect(protocolData.totalBorrowed).to.be.above(0);
+    expect(protocolData.topSuppliedAssets.length).to.be.eq(2);
+    expect(protocolData.topSuppliedAssets[0]).to.be.eq(USDCaddr);
+    expect(protocolData.topSuppliedAssets[1]).to.be.eq(WETHaddr);
+    expect(protocolData.topBorrowedAssets.length).to.be.eq(0);
+    expect(protocolData.topBorrowedAssets[0]).to.be.eq(WETHaddr);
+    expect(protocolData.numTranches).to.be.above(
+      await getTotalTranches({ network: network })
+    );
+    expect(protocolData.topTranches[0].name).to.be.eq("VMEX tranche 0");
+    expect(protocolData.topTranches[1].name).to.be.eq("VMEX tranche 1");
   });
 });
