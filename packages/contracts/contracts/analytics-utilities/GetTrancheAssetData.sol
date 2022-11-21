@@ -1,5 +1,4 @@
 import { AaveProtocolDataProvider } from "../misc/AaveProtocolDataProvider.sol";
-import { LendingPoolConfigurator } from "../protocol/lendingpool/LendingPoolConfigurator.sol";
 import { DataTypes } from "../protocol/libraries/types/DataTypes.sol";
 import { ReserveConfiguration } from "../protocol/libraries/configuration/ReserveConfiguration.sol";
 import { WadRayMath } from "../protocol/libraries/math/WadRayMath.sol";
@@ -35,7 +34,6 @@ contract GetTrancheAssetData {
     }
 
     ILendingPool private lendingPool;
-    LendingPoolConfigurator private configurator;
 
 	constructor(
         address providerAddr,

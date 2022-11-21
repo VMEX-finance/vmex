@@ -11,9 +11,15 @@ export interface BorrowedAssetData {
   asset: BigNumber;
   tranche: BigNumber;
   amount: BigNumber;
-  apy: BigNumber;
+  apy: BigNumber;       // TODO
 }
 
+/**
+ * Overview tab, after user connects wallet
+ *
+ * Provides data about a user either inside a specific
+ * tranche or a summary across all tranches (depending on sdk call)
+ */
 export interface UserSummaryData {
   totalCollateralETH: BigNumber;
   totalDebtETH: BigNumber;
@@ -24,27 +30,12 @@ export interface UserSummaryData {
   suppliedAssetData: SuppliedAssetData[];
   borrowedAssetData: BorrowedAssetData[];
 }
-export interface UserReserveData {
-  scaledATokenBalance: BigNumber;
-  currentATokenBalance: BigNumber;
-  currentStableDebt: BigNumber;
-  currentVariableDebt: BigNumber;
-  principalStableDebt: BigNumber;
-  scaledVariableDebt: BigNumber;
-  liquidityRate: BigNumber;
-  stableBorrowRate: BigNumber;
-  stableRateLastUpdated: BigNumber;
-  usageAsCollateralEnabled: Boolean;
-  walletBalance: BigNumber;
-  [key: string]: BigNumber | string | Boolean;
-}
 
-export enum RateMode {
-  None = "0",
-  Stable = "1",
-  Variable = "2",
-}
-
+/**
+ * Tranche view tab: Viewing a specific asset inside the graph inset
+ *
+ * Provides data about a specific asset in a specific tranche.
+ */
 export interface AssetData {
   trancheId: BigNumber;
   name: string;
@@ -70,32 +61,48 @@ export interface AssetData {
   // interestRateStrategyAddress: BigNumber;
   // availableLiquidity: BigNumber;
 }
-export interface ReserveData {
-  availableLiquidity: BigNumber;
+
+/**
+ * Tranche view tab: statistics surrouding the graph inset
+ *
+ * Provides data about a tranche, summary across all assets in the tranche
+ */
+export interface TrancheData {
+  id: BigNumber;
+  name: string;
+  assets: BigNumber[];
+  tvl: BigNumber;
   totalSupplied: BigNumber;
-  totalStableDebt: BigNumber;
-  totalVariableDebt: BigNumber;
-  liquidityRate: BigNumber;
-  variableBorrowRate: BigNumber;
-  stableBorrowRate: BigNumber;
-  averageStableBorrowRate: BigNumber;
-  liquidityIndex: BigNumber;
-  variableBorrowIndex: BigNumber;
-  lastUpdateTimestamp: BigNumber;
+  totalBorrowed: BigNumber;
+  availableLiquidity: BigNumber;
+  upgradeable: boolean;
+  utilization: BigNumber;
+  admin: BigNumber;
+  whitelist: boolean;
+  grade: string;
 }
 
-export interface ReserveDataBase {
-  configuration: BigNumber;
-  liquidityIndex: BigNumber;
-  variableBorrowIndex: BigNumber;
-  currentLiquidityRate: BigNumber;
-  currentVariableBorrowRate: BigNumber;
-  currentStableBorrowRate: BigNumber;
-  lastUpdateTimestamp: BigNumber;
-  aTokenAddress: BigNumber;
-  stableDebtTokenAddress: BigNumber;
-  variableDebtTokenAddress: BigNumber;
-  interestRateStrategyAddress: BigNumber;
-  id: BigNumber;
-  trancheId: BigNumber;
+/**
+ * Overview tab
+ *
+ * Provides information about the entire VMEX protocol, a summary
+ * of the data across all tranches in the protocol.
+ */
+export interface ProtocolData {
+  tvl: BigNumber;
+  totalReserves: BigNumber;
+  totalSupplied: BigNumber;
+  totalBorrowed: BigNumber;
+  topSuppliedAssets: SuppliedAssetData[];     // TODO
+  topBorrowedAssets: BorrowedAssetData[];     // TODO
+  numLenders: BigNumber;                      // TODO
+  numBorrowers: BigNumber;                    // TODO
+  numTranches: number;
+  topTranches: TrancheData[];
+}
+
+export enum RateMode {
+  None = "0",
+  Stable = "1",
+  Variable = "2",
 }
