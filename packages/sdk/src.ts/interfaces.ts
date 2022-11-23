@@ -1,4 +1,4 @@
-import BigNumber from "bignumber.js";
+import {BigNumber} from "ethers";
 
 export interface SuppliedAssetData {
   asset: BigNumber;
@@ -24,6 +24,13 @@ export interface UserSummaryData {
   totalCollateralETH: BigNumber;
   totalDebtETH: BigNumber;
   availableBorrowsETH: BigNumber;
+  suppliedAssetData: SuppliedAssetData[];
+  borrowedAssetData: BorrowedAssetData[];
+}
+export interface UserTrancheData {
+  totalCollateralETH: BigNumber;
+  totalDebtETH: BigNumber;
+  availableBorrowsETH: BigNumber;
   currentLiquidityThreshold: BigNumber;
   ltv: BigNumber;
   healthFactor: BigNumber;
@@ -38,7 +45,7 @@ export interface UserSummaryData {
  */
 export interface AssetData {
   trancheId: BigNumber;
-  name: string;
+  asset: BigNumber;
   ltv: BigNumber;
   liquidationThreshold: BigNumber;
   liquidationPenalty: BigNumber;
@@ -93,12 +100,21 @@ export interface ProtocolData {
   totalReserves: BigNumber;
   totalSupplied: BigNumber;
   totalBorrowed: BigNumber;
-  topSuppliedAssets: SuppliedAssetData[];     // TODO
-  topBorrowedAssets: BorrowedAssetData[];     // TODO
+  topSuppliedAssets: AssetBalance[];     // TODO
+  topBorrowedAssets: AssetBalance[];     // TODO
   numLenders: BigNumber;                      // TODO
   numBorrowers: BigNumber;                    // TODO
   numTranches: number;
   topTranches: TrancheData[];
+}
+
+export interface AssetBalance {
+  asset: string;
+  amount: BigNumber;
+}
+export interface TopAssetsData {
+  topSuppliedAssets: AssetBalance[];
+  topBorrowedAssets: AssetBalance[];
 }
 
 export enum RateMode {

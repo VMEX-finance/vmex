@@ -3,7 +3,6 @@ import BigNumber from "bignumber.js";
 import { deployments } from "./constants";
 import _ from "lodash";
 import { getLendingPoolConfiguratorProxy } from "./contract-getters";
-import { UserSummaryData } from "./interfaces";
 import { decodeConstructorBytecode } from "./decode-bytecode";
 // import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
@@ -24,32 +23,6 @@ export async function approveUnderlying(
     signer
   );
   return await _underlying.connect(signer).approve(spender, amount);
-}
-
-export function generateFinalUserSummary(data: UserSummaryData): UserSummaryData {
-  let finalData : UserSummaryData = {
-    totalCollateralETH : data.totalCollateralETH,
-    totalDebtETH : data.totalDebtETH,
-    availableBorrowsETH : data.availableBorrowsETH,
-    currentLiquidityThreshold : data.currentLiquidityThreshold,
-    ltv : data.ltv,
-    healthFactor : data.healthFactor,
-    suppliedAssetData: [],
-    borrowedAssetData: [],
-  };
-
-  for (let i = 0; i<data.suppliedAssetData.length; i++) {
-    if (data.suppliedAssetData[i].amount.gt(0)) {
-      finalData.suppliedAssetData.push(data.suppliedAssetData[i]);
-    }
-  }
-  for (let i = 0; i<data.borrowedAssetData.length; i++) {
-    if (data.borrowedAssetData[i].amount.gt(0)) {
-      finalData.borrowedAssetData.push(data.borrowedAssetData[i]);
-    }
-  }
-
-  return finalData;
 }
 
 export async function getTotalTranches(
@@ -154,7 +127,6 @@ export async function getWalletBalanceAcrossTranches(
     wallet_data_address,
   ]);
 }
-
 
 // // Convert a hex string to a byte array
 // export function hexToBytes(hex) {
