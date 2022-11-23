@@ -22,6 +22,7 @@ const {
   getTrancheData,
   getAllTrancheData,
   getProtocolData,
+  getTopAssets,
 } = require("../dist/analytics.js");
 const { getTVL, getTotalTranches } = require("../dist/utils.js");
 const { RateMode } = require("../dist/interfaces.js");
@@ -484,15 +485,28 @@ describe("Borrow - end-to-end test", () => {
     expect(protocolData.totalReserves).to.be.above(0);
     expect(protocolData.totalSupplied).to.be.above(0);
     expect(protocolData.totalBorrowed).to.be.above(0);
-    expect(protocolData.topSuppliedAssets.length).to.be.eq(2);
-    expect(protocolData.topSuppliedAssets[0]).to.be.eq(USDCaddr);
-    expect(protocolData.topSuppliedAssets[1]).to.be.eq(WETHaddr);
-    expect(protocolData.topBorrowedAssets.length).to.be.eq(0);
-    expect(protocolData.topBorrowedAssets[0]).to.be.eq(WETHaddr);
     expect(protocolData.numTranches).to.be.above(
       await getTotalTranches({ network: network })
     );
     expect(protocolData.topTranches[0].name).to.be.eq("VMEX tranche 0");
     expect(protocolData.topTranches[1].name).to.be.eq("VMEX tranche 1");
+
+    // expect(protocolData.topSuppliedAssets.length).to.be.eq(2);
+    // expect(protocolData.topSuppliedAssets[0]).to.be.eq(USDCaddr);
+    // expect(protocolData.topSuppliedAssets[1]).to.be.eq(WETHaddr);
+    // expect(protocolData.topBorrowedAssets.length).to.be.eq(0);
+    // expect(protocolData.topBorrowedAssets[0]).to.be.eq(WETHaddr);
+  });
+
+  it("13 - test top assets", async () => {
+    const topAssets = await getTopAssets({
+      network: network,
+      test: true
+    })
+    expect(topAssets.topSuppliedAssets.length).to.be.eq(2);
+    expect(topAssets.topSuppliedAssets[0]).to.be.eq(USDCaddr);
+    expect(topAssets.topSuppliedAssets[1]).to.be.eq(WETHaddr);
+    expect(topAssets.topBorrowedAssets.length).to.be.eq(0);
+    expect(topAssets.topBorrowedAssets[0]).to.be.eq(WETHaddr);
   });
 });
