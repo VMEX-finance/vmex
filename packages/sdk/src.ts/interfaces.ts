@@ -11,7 +11,7 @@ export interface BorrowedAssetData {
   asset: BigNumber;
   tranche: BigNumber;
   amount: BigNumber;
-  apy: BigNumber;       // TODO
+  apy: BigNumber;
 }
 
 /**
@@ -100,8 +100,8 @@ export interface ProtocolData {
   totalReserves: BigNumber;
   totalSupplied: BigNumber;
   totalBorrowed: BigNumber;
-  topSuppliedAssets: AssetBalance[];     // TODO
-  topBorrowedAssets: AssetBalance[];     // TODO
+  topSuppliedAssets: AssetBalance[];
+  topBorrowedAssets: AssetBalance[];
   numLenders: BigNumber;                      // TODO
   numBorrowers: BigNumber;                    // TODO
   numTranches: number;
