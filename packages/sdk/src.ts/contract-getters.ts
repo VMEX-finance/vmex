@@ -5,10 +5,9 @@ import AaveProtocolDataProvider from "@vmex/contracts/artifacts/contracts/misc/A
 import IERC20 from "@vmex/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20.sol/IERC20.json";
 import IAToken from "@vmex/contracts/artifacts/contracts/interfaces/IAToken.sol/IAToken.json";
 import ILendingPool from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
-import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingPool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
+import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
 import ILendingPoolAddressesProvider from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
 import WalletBalanceProvider from "@vmex/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
-// import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
 export const defaultTestProvider = ethers.getDefaultProvider(
   "http://localhost:8545"
