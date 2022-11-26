@@ -46,6 +46,7 @@ export interface UserTrancheData {
 export interface MarketData {
   tranche: BigNumber;
   asset: string;
+  decimals: BigNumber;
   ltv: BigNumber;
   liquidationThreshold: BigNumber;
   liquidationPenalty: BigNumber;
@@ -58,6 +59,9 @@ export interface MarketData {
   strategyAddress: string;
   adminFee: BigNumber;
   platformFee: BigNumber;
+  supplyApy: BigNumber;
+  borrowApy: BigNumber;
+  totalReserves: BigNumber;
   // liquidityIndex: BigNumber;
   // variableBorrowIndex: BigNumber;
   // currentLiquidityRate: BigNumber;

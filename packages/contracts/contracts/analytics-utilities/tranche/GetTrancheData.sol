@@ -1,4 +1,4 @@
-import { QueryTrancheHelpers } from "./libs/QueryTrancheHelpers.sol";
+import { QueryTrancheHelpers } from "../libs/QueryTrancheHelpers.sol";
 
 import "hardhat/console.sol";
 

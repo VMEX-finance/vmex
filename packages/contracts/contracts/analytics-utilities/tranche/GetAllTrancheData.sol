@@ -1,6 +1,6 @@
-import { QueryTrancheHelpers } from "./libs/QueryTrancheHelpers.sol";
-import { ILendingPoolAddressesProvider } from "../interfaces/ILendingPoolAddressesProvider.sol";
-import { LendingPoolConfigurator } from "../protocol/lendingpool/LendingPoolConfigurator.sol";
+import { QueryTrancheHelpers } from "../libs/QueryTrancheHelpers.sol";
+import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import { LendingPoolConfigurator } from "../../protocol/lendingpool/LendingPoolConfigurator.sol";
 
 import "hardhat/console.sol";
 

@@ -1,6 +1,6 @@
-import { QueryUserHelpers } from "./libs/QueryUserHelpers.sol";
-import { LendingPoolConfigurator } from "../protocol/lendingpool/LendingPoolConfigurator.sol";
-import { ILendingPoolAddressesProvider } from "../interfaces/ILendingPoolAddressesProvider.sol";
+import { QueryUserHelpers } from "../libs/QueryUserHelpers.sol";
+import { LendingPoolConfigurator } from "../../protocol/lendingpool/LendingPoolConfigurator.sol";
+import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 
 import "hardhat/console.sol";
 
