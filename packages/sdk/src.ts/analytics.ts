@@ -1,8 +1,6 @@
 import { deployments } from "./constants";
-import {BigNumber} from "ethers";
-import {
-  defaultTestProvider,
-} from "./contract-getters";
+import { BigNumber } from "ethers";
+import { defaultTestProvider, getLendingPoolConfiguratorProxy } from "./contract-getters";
 import {
   MarketData,
   ProtocolData,
@@ -12,47 +10,75 @@ import {
   UserTrancheData,
   AssetBalance,
 } from "./interfaces";
-import { CacheContainer } from 'node-ts-cache';
-import { MemoryStorage } from 'node-ts-cache-storage-memory';
+import { CacheContainer } from "node-ts-cache";
+import { MemoryStorage } from "node-ts-cache-storage-memory";
 
 const cache = new CacheContainer(new MemoryStorage());
 
 import { decodeConstructorBytecode } from "./decode-bytecode";
-
 /**
  * PROTOCOL LEVEL ANALYTICS
  */
- export async function getAllMarketsData(
+
+export async function getTotalTranches(
+  params?: {
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<number>
+) {
+  const cacheKey = "total-tranches";
+  const cachedTotalTranches = await cache.getItem<number>(cacheKey);
+  if (cachedTotalTranches) {
+    return cachedTotalTranches;
+  }
+  let configurator = await getLendingPoolConfiguratorProxy({
+    network: params.network,
+  });
+  const totalTranches = (await configurator.totalTranches()).toNumber();
+  await cache.setItem(cacheKey, totalTranches, { ttl: 60 });
+  return totalTranches;
+}
+
+export async function getTotalMarkets(
+  params?: {
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<number>
+) {
+  const cacheKey = "total-markets";
+  const cachedTotalMarkets = await cache.getItem<number>(cacheKey);
+  if (cachedTotalMarkets) {
+    return cachedTotalMarkets;
+  }
+  await getAllMarketsData(params);
+  return await cache.getItem<number>(cacheKey);
+}
+
+export async function getAllMarketsData(
   params: {
     network?: string;
     test?: boolean;
   },
   callback?: () => Promise<MarketData[]>
 ): Promise<MarketData[]> {
-  const cachedMarketsData = await cache.getItem<MarketData[]>("all-markets");
-  if (cachedMarketsData) {
-    // found in cache!
-    console.log("CACHE HIT!");
-    return cachedMarketsData;
+
+  const numTranches = await getTotalTranches(params);
+  const allMarketsData: MarketData[] = [];
+  for (let i = 0; i < numTranches; i++) {
+    allMarketsData.push(
+      ...(await getTrancheMarketsData({
+        tranche: i,
+        network: params.network,
+        test: params.test,
+      }))
+    );
   }
 
-  // not in cache (expired)
-  const provider = params.test ? defaultTestProvider : null;
-  const {
-    abi,
-    bytecode,
-  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/GetAllAssetsData.sol/GetAllAssetsData.json");
-  let _addressProvider =
-    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
-      .address;
-  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
-    _addressProvider,
-  ]);
+  await cache.setItem("total-markets", allMarketsData.length, { ttl: 60 });
 
-  // ttl of 60 seconds
-  console.log("NO CACHE HIT, SETTING CACHE");
-  await cache.setItem("all-markets", data, {ttl: 60});
-  return data;
+  return allMarketsData;
 }
 
 export async function getProtocolData(
@@ -62,10 +88,9 @@ export async function getProtocolData(
   },
   callback?: () => Promise<ProtocolData>
 ): Promise<ProtocolData> {
-
   let allTrancheData = await getAllTrancheData(params);
 
-  let protocolData : ProtocolData = {
+  let protocolData: ProtocolData = {
     tvl: BigNumber.from(0),
     totalReserves: BigNumber.from(0),
     totalSupplied: BigNumber.from(0),
@@ -81,20 +106,30 @@ export async function getProtocolData(
 
   allTrancheData.map((data: TrancheData) => {
     protocolData.tvl = protocolData.tvl.add(data.tvl);
-    protocolData.totalReserves = protocolData.totalReserves.add(data.availableLiquidity);
-    protocolData.totalSupplied = protocolData.totalSupplied.add(data.totalSupplied);
-    protocolData.totalBorrowed = protocolData.totalBorrowed.add(data.totalBorrowed);
+    protocolData.totalReserves = protocolData.totalReserves.add(
+      data.availableLiquidity
+    );
+    protocolData.totalSupplied = protocolData.totalSupplied.add(
+      data.totalSupplied
+    );
+    protocolData.totalBorrowed = protocolData.totalBorrowed.add(
+      data.totalBorrowed
+    );
     protocolData.numMarkets += data.assets.length;
   });
 
   let topTranches = [...allTrancheData].sort((a, b) => {
-    return a.totalSupplied.add(a.totalBorrowed)
+    return a.totalSupplied
+      .add(a.totalBorrowed)
       .gt(b.totalSupplied.add(b.totalBorrowed))
       ? -1
       : 1;
   });
 
-  protocolData.topTranches = topTranches.slice(0,Math.min(5,topTranches.length));
+  protocolData.topTranches = topTranches.slice(
+    0,
+    Math.min(5, topTranches.length)
+  );
 
   try {
     let topAssets = await getTopAssets(params);
@@ -123,53 +158,86 @@ export async function getTopAssets(
   data.map((assetData: MarketData) => {
     let asset = assetData.asset.toString();
     if (asset in aggregatedSuppliedAssetData) {
-      aggregatedSuppliedAssetData[asset].totalSupplied += assetData.totalSupplied;
+      aggregatedSuppliedAssetData[asset].totalSupplied +=
+        assetData.totalSupplied;
     } else {
       aggregatedSuppliedAssetData[asset] = {
         amount: assetData.totalSupplied,
-        asset: asset
+        asset: asset,
       };
     }
 
     if (asset in aggregatedBorrowedAssetData) {
-      aggregatedBorrowedAssetData[asset].amount = aggregatedBorrowedAssetData[asset].amount.add(assetData.totalBorrowed);
+      aggregatedBorrowedAssetData[asset].amount = aggregatedBorrowedAssetData[
+        asset
+      ].amount.add(assetData.totalBorrowed);
     } else {
       aggregatedBorrowedAssetData[asset] = {
         amount: assetData.totalBorrowed,
-        asset: asset
+        asset: asset,
       };
     }
   });
 
-  let supplied = Object.keys(aggregatedSuppliedAssetData)
-    .map(function(key) {
-      return aggregatedSuppliedAssetData[key];
-    });
-  let borrowed = Object.keys(aggregatedBorrowedAssetData)
-    .map(function(key) {
-      return aggregatedBorrowedAssetData[key];
-    });
-
-  supplied.sort(function(a: AssetBalance, b: AssetBalance) {
-    return a.amount.gt(b.amount)
-      ? -1
-      : 1;
+  let supplied = Object.keys(aggregatedSuppliedAssetData).map(function (key) {
+    return aggregatedSuppliedAssetData[key];
   });
-  borrowed.sort(function(a: AssetBalance, b: AssetBalance) {
-    return a.amount.gt(b.amount)
-      ? -1
-      : 1;
+  let borrowed = Object.keys(aggregatedBorrowedAssetData).map(function (key) {
+    return aggregatedBorrowedAssetData[key];
+  });
+
+  supplied.sort(function (a: AssetBalance, b: AssetBalance) {
+    return a.amount.gt(b.amount) ? -1 : 1;
+  });
+  borrowed.sort(function (a: AssetBalance, b: AssetBalance) {
+    return a.amount.gt(b.amount) ? -1 : 1;
   });
 
   return {
     topSuppliedAssets: supplied,
-    topBorrowedAssets: borrowed
-  }
+    topBorrowedAssets: borrowed,
+  };
 }
 
 /**
  * TRANCHE LEVEL ANALYTICS
  */
+
+export async function getTrancheMarketsData(
+  params: {
+    tranche: number;
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<MarketData[]>
+): Promise<MarketData[]> {
+  const cacheKey = "markets-" + params.tranche;
+  const cachedMarketsData = await cache.getItem<MarketData[]>(cacheKey);
+  if (cachedMarketsData) {
+    // found in cache!
+    console.log("CACHE HIT! for tranche", params.tranche);
+    return cachedMarketsData;
+  }
+
+  // not in cache (expired)
+  const provider = params.test ? defaultTestProvider : null;
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/GetAllTrancheAssetsData.sol/GetAllTrancheAssetsData.json");
+  let _addressProvider =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
+    _addressProvider,
+    params.tranche,
+  ]);
+
+  // ttl of 60 seconds
+  console.log("NO CACHE HIT, SETTING CACHE for tranche", params.tranche);
+  await cache.setItem(cacheKey, data, { ttl: 60 });
+  return data;
+}
 
 export async function getAllTrancheData(
   params: {
