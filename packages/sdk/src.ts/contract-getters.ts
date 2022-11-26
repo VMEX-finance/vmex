@@ -8,11 +8,14 @@ import ILendingPool from "@vmex/contracts/artifacts/contracts/interfaces/ILendin
 import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
 import ILendingPoolAddressesProvider from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
 import WalletBalanceProvider from "@vmex/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
+import IERC20Detailed from "@vmex/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
 
 export const defaultTestProvider = ethers.getDefaultProvider(
   "http://localhost:8545"
 );
 
+export const getIErc20Detailed = async (address: string) =>
+  new ethers.Contract(address, IERC20Detailed.abi, defaultTestProvider)
 
 /**
  * getLendingPool

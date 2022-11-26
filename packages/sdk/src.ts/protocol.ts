@@ -5,7 +5,7 @@ import {
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
 } from "./contract-getters";
-import { approveUnderlying } from "./utils";
+import { approveUnderlying, convertToCurrencyDecimals } from "./utils";
 
 export async function borrow(
   params: {
@@ -188,7 +188,7 @@ export async function supply(
   callback?: () => Promise<any>
 ) {
   let client = await params.signer.getAddress();
-  let amount = ethers.utils.parseEther(params.amount);
+  let amount = convertToCurrencyDecimals(params.underlying, params.amount);
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
@@ -375,4 +375,3 @@ export async function initTranche(params: {
         return await callback()
     }
 }
-
