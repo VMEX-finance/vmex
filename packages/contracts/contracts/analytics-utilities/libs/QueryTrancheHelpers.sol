@@ -7,7 +7,11 @@ import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { IAToken } from "../../interfaces/IAToken.sol";
 import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import { IERC20Detailed } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import { IBaseStrategy } from "../../interfaces/IBaseStrategy.sol";
+import { IChainlinkAggregator } from "../../interfaces/IChainlinkAggregator.sol";
+import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
+import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
 
 library QueryTrancheHelpers {
 
@@ -46,14 +50,15 @@ library QueryTrancheHelpers {
             trancheData.totalSupplied,
             trancheData.totalBorrowed,
             trancheData.availableLiquidity,
-            trancheData.utilization) = getAssetsSummaryData(tranche, lendingPool);
+            trancheData.utilization) = getAssetsSummaryData(tranche, addressesProvider);
 
         trancheData.id = tranche;
         trancheData.admin = ILendingPoolAddressesProvider(addressesProvider).getPoolAdmin(tranche);
         trancheData.name = LendingPoolConfigurator(configurator).trancheNames(tranche);
+        // trancheData.whitelist =
     }
 
-    function getAssetsSummaryData(uint64 tranche, address lendingPool)
+    function getAssetsSummaryData(uint64 tranche, address addressesProvider)
         internal
         view
         returns (
@@ -65,18 +70,19 @@ library QueryTrancheHelpers {
             uint256 utilization
         )
     {
-        assets = ILendingPool(lendingPool).getReservesList(tranche);
+        assets = ILendingPool(
+            ILendingPoolAddressesProvider(addressesProvider).getLendingPool()
+        ).getReservesList(tranche);
 
         for (uint8 i = 0; i < assets.length; i++) {
-            DataTypes.ReserveData memory reserve = ILendingPool(lendingPool).getReserveData(assets[i], tranche);
 
-            tvl += IERC20(assets[i]).balanceOf(reserve.aTokenAddress);
-            if (IAToken(reserve.aTokenAddress).getStrategy() != address(0)) {
-                // strategy associated, add the balance of strategy to tvl
-                tvl += IBaseStrategy(IAToken(reserve.aTokenAddress).getStrategy()).balanceOf();
-            }
-            totalSupplied += IERC20(reserve.aTokenAddress).totalSupply();
-            totalBorrowed += IERC20(reserve.variableDebtTokenAddress).totalSupply();
+            QueryAssetHelpers.AssetData memory assetData =
+                QueryAssetHelpers.getAssetData(assets[i], tranche, addressesProvider);
+
+            tvl += assetData.totalReserves;
+
+            totalSupplied += assetData.totalSupplied;
+            totalBorrowed += assetData.totalBorrowed;
         }
 
         availableLiquidity = tvl;

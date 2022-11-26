@@ -25,38 +25,6 @@ export async function approveUnderlying(
   return await _underlying.connect(signer).approve(spender, amount);
 }
 
-/**
- * getTVL()
- * @params { network?: string, test?: bool }
- * @returns uint(aTokens, underlying)
- * returns a tuple containing the sum of the balances of all aTokens in all pools
- */
-export async function getTVL(
-  params?: {
-    network?: string;
-    test?: boolean;
-  },
-  callback?: () => Promise<any>
-) {
-  const provider = params.test
-    ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
-    : null;
-  const {
-    abi,
-    bytecode,
-  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/QueryLendingPoolTVL.sol/QueryTrancheTVL.json");
-  let _aaveProvider =
-    deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
-  let _addressProvider =
-    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
-      .address;
-  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
-    _addressProvider,
-    _aaveProvider,
-  ]);
-  return data;
-}
-
 export async function getAllTrancheNames(
   params: {
     network?: string;
@@ -72,60 +40,6 @@ export async function getAllTrancheNames(
   let x = [...Array(trancheIds).keys()];
   return Promise.all(x.map(async (x) => await configurator.trancheNames(x)));
 }
-
-/**
- * getWalletBalanceAcrossTranches
- *
- */
-export async function getWalletBalanceAcrossTranches(
-  params: {
-    signer: ethers.Signer;
-    network?: string;
-    test?: boolean;
-  },
-  callback?: () => Promise<any>
-) {
-  const {
-    abi,
-    bytecode,
-  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/userBalanceAcrossTranches.sol/UserBalanceAcrossTranches.json");
-  let user_address = await params.signer.getAddress();
-  let provider = params.test
-    ? new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
-    : null;
-  let add_provider_address =
-    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
-      .address;
-  let wallet_data_address =
-    deployments.WalletBalanceProvider[params.network || "mainnet"].address;
-  return decodeConstructorBytecode(abi, bytecode, provider, [
-    user_address,
-    add_provider_address,
-    wallet_data_address,
-  ]);
-}
-
-// // Convert a hex string to a byte array
-// export function hexToBytes(hex) {
-//   for (var bytes = [], c = 0; c < hex.length; c += 2)
-//     bytes.push(parseInt(hex.substr(c, 2), 16));
-//   return bytes;
-// }
-
-// export function isUsingAsCollateral(
-//   userConfig: ethers.BigNumber,
-//   reserveIndex: number
-// ): boolean {
-//   if (reserveIndex >= 128) {
-//     throw new Error("Invalid reserve index");
-//   }
-//   const userConfigDataBytes = hexToBytes(userConfig.toHexString());
-//   const bitToCheck = reserveIndex * 2 + 1;
-//   const distFromBeginning = userConfigDataBytes.length - bitToCheck - 1;
-//   // equation: data >> (reserveIndex * 2 + 1) & 1 != 0
-//   return userConfigDataBytes[distFromBeginning] != 0;
-// }
-
 
 
 export const convertToCurrencyDecimals = async (

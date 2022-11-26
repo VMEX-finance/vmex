@@ -1,4 +1,4 @@
-import { QueryUserHelpers } from "./libs/QueryUserHelpers.sol";
+import { QueryUserHelpers } from "../libs/QueryUserHelpers.sol";
 
 import "hardhat/console.sol";
 

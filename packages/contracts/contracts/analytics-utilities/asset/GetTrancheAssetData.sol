@@ -1,4 +1,4 @@
-import { QueryAssetHelpers } from "./libs/QueryAssetHelpers.sol";
+import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
 
 import "hardhat/console.sol";
 
