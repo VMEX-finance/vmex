@@ -1,14 +1,14 @@
 import {BigNumber} from "ethers";
 
 export interface SuppliedAssetData {
-  asset: BigNumber;
+  asset: string;
   tranche: BigNumber;
   amount: BigNumber;
   isCollateral: boolean;
 }
 
 export interface BorrowedAssetData {
-  asset: BigNumber;
+  asset: string;
   tranche: BigNumber;
   amount: BigNumber;
   apy: BigNumber;
@@ -43,18 +43,19 @@ export interface UserTrancheData {
  *
  * Provides data about a specific asset in a specific tranche.
  */
-export interface AssetData {
-  trancheId: BigNumber;
-  asset: BigNumber;
+export interface MarketData {
+  tranche: BigNumber;
+  asset: string;
   ltv: BigNumber;
   liquidationThreshold: BigNumber;
   liquidationPenalty: BigNumber;
   canBeCollateral: boolean;
-  oracle: BigNumber;
+  canBeBorrowed: boolean;
+  oracle: string;
   totalSupplied: BigNumber;
   utilization: BigNumber;
   totalBorrowed: BigNumber;   // aka totalVariableDebt
-  strategyAddress: BigNumber;
+  strategyAddress: string;
   adminFee: BigNumber;
   platformFee: BigNumber;
   // liquidityIndex: BigNumber;
@@ -77,14 +78,14 @@ export interface AssetData {
 export interface TrancheData {
   id: BigNumber;
   name: string;
-  assets: BigNumber[];
+  assets: string[];
   tvl: BigNumber;
   totalSupplied: BigNumber;
   totalBorrowed: BigNumber;
   availableLiquidity: BigNumber;
   upgradeable: boolean;
   utilization: BigNumber;
-  admin: BigNumber;
+  admin: string;
   whitelist: boolean;
   grade: string;
 }
@@ -102,9 +103,10 @@ export interface ProtocolData {
   totalBorrowed: BigNumber;
   topSuppliedAssets: AssetBalance[];
   topBorrowedAssets: AssetBalance[];
-  numLenders: BigNumber;                      // TODO
-  numBorrowers: BigNumber;                    // TODO
+  numLenders: number;                      // TODO
+  numBorrowers: number;                    // TODO
   numTranches: number;
+  numMarkets: number;
   topTranches: TrancheData[];
 }
 
