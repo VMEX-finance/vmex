@@ -15,7 +15,8 @@
   "scripts": {
     "build": "yarn tsc",
     "test": "yarn build && mocha --reporter spec",
-    "test:specific": "mocha --reporter spec -- --grep"
+    "test:specific": "mocha --reporter spec -- --grep",
+    "fund:accounts": "mocha dev --reporter spec"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",

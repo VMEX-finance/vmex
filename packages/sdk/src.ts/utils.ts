@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 import { deployments } from "./constants";
 import _ from "lodash";
-import { getLendingPoolConfiguratorProxy } from "./contract-getters";
+import { getLendingPoolConfiguratorProxy, getIErc20Detailed } from "./contract-getters";
 import { decodeConstructorBytecode } from "./decode-bytecode";
 // import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
@@ -149,4 +149,15 @@ export async function getWalletBalanceAcrossTranches(
 //   return userConfigDataBytes[distFromBeginning] != 0;
 // }
 
+
+
+export const convertToCurrencyDecimals = async (
+  tokenAddress: string,
+  amount: string
+) => {
+  const token = await getIErc20Detailed(tokenAddress);
+  let decimals = (await token.decimals()).toString();
+
+  return ethers.utils.parseUnits(amount, decimals);
+};
 
