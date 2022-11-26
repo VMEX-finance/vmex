@@ -16,11 +16,12 @@ library QueryAssetHelpers {
 
     struct AssetData {
         uint64 tranche;
-        address asset; // TODO
+        address asset;
         uint256 ltv;
         uint256 liquidationThreshold;
         uint256 liquidationPenalty;
         bool canBeCollateral;
+        bool canBeBorrowed;
         address oracle; // TODO
         uint256 totalSupplied;
         uint256 utilization;
@@ -49,7 +50,8 @@ library QueryAssetHelpers {
         assetData.ltv = reserve.configuration.getLtv();
         assetData.liquidationThreshold = reserve.configuration.getLiquidationThreshold();
         assetData.liquidationPenalty = reserve.configuration.getLiquidationBonus();
-        assetData.canBeCollateral = reserve.configuration.getBorrowingEnabled();
+        assetData.canBeCollateral = assetData.liquidationThreshold != 0;
+        assetData.canBeBorrowed = reserve.configuration.getBorrowingEnabled();
         assetData.totalSupplied = IAToken(reserve.aTokenAddress).totalSupply();
         assetData.totalBorrowed = IAToken(reserve.variableDebtTokenAddress).totalSupply();
         assetData.strategyAddress = IAToken(reserve.aTokenAddress).getStrategy();
