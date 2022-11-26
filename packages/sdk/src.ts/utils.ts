@@ -25,29 +25,6 @@ export async function approveUnderlying(
   return await _underlying.connect(signer).approve(spender, amount);
 }
 
-export async function getTotalTranches(
-  params?: {
-    network?: string;
-    test?: boolean;
-  },
-  callback?: () => Promise<BigNumber>
-) {
-  let configurator = await getLendingPoolConfiguratorProxy({
-    network: params.network,
-  });
-  return configurator.totalTranches();
-}
-
-export async function getTotalMarkets(
-  params?: {
-    network?: string;
-    test?: boolean;
-  },
-  callback?: () => Promise<BigNumber>
-) {
-  return getTotalTranches(params);
-}
-
 /**
  * getTVL()
  * @params { network?: string, test?: bool }
