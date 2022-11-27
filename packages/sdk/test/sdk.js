@@ -202,7 +202,7 @@ describe("Supply - end-to-end test", () => {
 
 describe("Borrow - end-to-end test", () => {
   let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
-  const temp = provider.getSigner(1);
+  const temp = provider.getSigner(0);
   const tranche = 0;
 
   it("1 - should give temp 10 WETH", async () => {

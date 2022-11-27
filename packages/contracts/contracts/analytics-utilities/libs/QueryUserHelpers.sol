@@ -5,9 +5,12 @@ import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import { IAToken } from "../../interfaces/IAToken.sol";
 import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 import { UserConfiguration } from "../../protocol/libraries/configuration/UserConfiguration.sol";
+import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
+import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
+import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
 
 library QueryUserHelpers {
-
+    using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using UserConfiguration for DataTypes.UserConfigurationMap;
 
     struct SuppliedAssetData {
@@ -15,13 +18,14 @@ library QueryUserHelpers {
         uint64 tranche;
         uint256 amount;
         bool isCollateral;
+        uint128 apy;
     }
 
     struct BorrowedAssetData {
         address asset;
         uint64 tranche;
         uint256 amount;
-        uint256 apy;
+        uint128 apy;
     }
 
     struct UserSummaryData {
@@ -62,7 +66,7 @@ library QueryUserHelpers {
             userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, false);
 
         (userData.suppliedAssetData,
-            userData.borrowedAssetData) = getUserAssetData(user, tranche, lendingPool);
+            userData.borrowedAssetData) = getUserAssetData(user, tranche, addressesProvider);
     }
 
     struct getUserAssetDataVars {
@@ -80,10 +84,13 @@ library QueryUserHelpers {
     function getUserAssetData(
         address user,
         uint64 tranche,
-        ILendingPool lendingPool)
+        address addressesProvider)
     internal view returns (SuppliedAssetData[] memory s, BorrowedAssetData[] memory b)
     {
         getUserAssetDataVars memory vars;
+        ILendingPool lendingPool = ILendingPool(
+            ILendingPoolAddressesProvider(addressesProvider).getLendingPool());
+
         vars.allAssets = lendingPool.getReservesList(tranche);
         vars.tempSuppliedAssetData = new SuppliedAssetData[](vars.allAssets.length);
         vars.tempBorrowedAssetData = new BorrowedAssetData[](vars.allAssets.length);
@@ -98,13 +105,22 @@ library QueryUserHelpers {
             vars.currentATokenBalance = IERC20(vars.reserve.aTokenAddress).balanceOf(user);
             vars.currentVariableDebt = IERC20(vars.reserve.variableDebtTokenAddress).balanceOf(user);
 
+            AssetMappings a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
+            address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
+                .getPriceOracle(a.getAssetType(vars.allAssets[i]));
+
             if (vars.currentATokenBalance > 0) {
                 // asset is being supplied
                 vars.tempSuppliedAssetData[vars.s_idx++] = SuppliedAssetData ({
                     asset: vars.allAssets[i],
                     tranche: tranche,
-                    amount: vars.currentATokenBalance,
-                    isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id)
+                    amount: QueryAssetHelpers.convertAmountToUsd(
+                        assetOracle,
+                        vars.allAssets[i],
+                        vars.currentATokenBalance,
+                        vars.reserve.configuration.getDecimals()),
+                    isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
+                    apy: vars.reserve.currentLiquidityRate
                 });
             }
 
