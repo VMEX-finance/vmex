@@ -5,6 +5,7 @@ export interface SuppliedAssetData {
   tranche: BigNumber;
   amount: BigNumber;
   isCollateral: boolean;
+  apy: BigNumber;
 }
 
 export interface BorrowedAssetData {

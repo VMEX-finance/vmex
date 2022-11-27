@@ -87,7 +87,12 @@ library QueryAssetHelpers {
         assetData.borrowApy = reserve.currentVariableBorrowRate;
     }
 
-    function convertAmountToUsd(address oracle, address underlying, uint256 amount, uint256 decimals) view public returns(uint256) {
+    function convertAmountToUsd(
+        address oracle,
+        address underlying,
+        uint256 amount,
+        uint256 decimals
+    ) view internal returns(uint256) {
         uint256 assetPrice = IPriceOracleGetter(oracle).getAssetPrice(underlying);
         uint256 ethAmount = amount * assetPrice / (10**decimals);
         uint256 ethUSD = uint256(IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestAnswer());

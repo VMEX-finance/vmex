@@ -334,11 +334,8 @@ export async function getUserSummaryData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
-  let _dataProvider =
-    deployments.AaveProtocolDataProvider[params.network || "mainnet"].address;
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
-    _dataProvider,
     params.user,
   ]);
   return data;
