@@ -188,7 +188,7 @@ export async function supply(
   callback?: () => Promise<any>
 ) {
   let client = await params.signer.getAddress();
-  let amount = convertToCurrencyDecimals(params.underlying, params.amount);
+  let amount = await convertToCurrencyDecimals(params.underlying, params.amount);
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
@@ -202,7 +202,7 @@ export async function supply(
       lendingPool.address
     );
   } catch (error) {
-    throw new Error("failed to approve spend for underlying asset");
+    throw new Error("failed to approve spend for underlying asset, error: " + error + " amount is " + amount.toString());
   }
 
   try {
