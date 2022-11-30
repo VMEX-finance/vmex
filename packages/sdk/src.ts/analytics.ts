@@ -11,9 +11,9 @@ import {
   AssetBalance,
 } from "./interfaces";
 import { decodeConstructorBytecode } from "./decode-bytecode";
-// import { CacheContainer } from "node-ts-cache";
-// import { MemoryStorage } from "node-ts-cache-storage-memory";
-// const cache = new CacheContainer(new MemoryStorage());
+import { CacheContainer } from "node-ts-cache";
+import { MemoryStorage } from "node-ts-cache-storage-memory";
+const cache = new CacheContainer(new MemoryStorage());
 
 /**
  * PROTOCOL LEVEL ANALYTICS
@@ -26,16 +26,10 @@ export async function getTotalTranches(
   },
   callback?: () => Promise<number>
 ) {
-  // const cacheKey = "total-tranches";
-  // const cachedTotalTranches = await cache.getItem<number>(cacheKey);
-  // if (cachedTotalTranches) {
-  //   return cachedTotalTranches;
-  // }
   let configurator = await getLendingPoolConfiguratorProxy({
     network: params.network,
   });
   const totalTranches = (await configurator.totalTranches()).toNumber();
-  // await cache.setItem(cacheKey, totalTranches, { ttl: 60 });
   return totalTranches;
 }
 
@@ -46,13 +40,13 @@ export async function getTotalMarkets(
   },
   callback?: () => Promise<number>
 ) {
-  // const cacheKey = "total-markets";
-  // const cachedTotalMarkets = await cache.getItem<number>(cacheKey);
-  // if (cachedTotalMarkets) {
-  //   return cachedTotalMarkets;
-  // }
-  return await getAllMarketsData(params);
-  // return await cache.getItem<number>(cacheKey);
+  const cacheKey = "total-markets";
+  const cachedTotalMarkets = await cache.getItem<number>(cacheKey);
+  if (cachedTotalMarkets) {
+    return cachedTotalMarkets;
+  }
+  await getAllMarketsData(params);
+  return await cache.getItem<number>(cacheKey);
 }
 
 export async function getAllMarketsData(
@@ -210,13 +204,13 @@ export async function getTrancheMarketsData(
   },
   callback?: () => Promise<MarketData[]>
 ): Promise<MarketData[]> {
-  // const cacheKey = "markets-" + params.tranche;
-  // const cachedMarketsData = await cache.getItem<MarketData[]>(cacheKey);
-  // if (cachedMarketsData) {
-  //   // found in cache!
-  //   console.log("CACHE HIT! for tranche", params.tranche);
-  //   return cachedMarketsData;
-  // }
+  const cacheKey = "markets-" + params.tranche;
+  const cachedMarketsData = await cache.getItem<MarketData[]>(cacheKey);
+  if (cachedMarketsData) {
+    // found in cache!
+    console.log("CACHE HIT! for tranche", params.tranche);
+    return cachedMarketsData;
+  }
 
   // not in cache (expired)
   const provider = params.test ? defaultTestProvider : null;
@@ -233,8 +227,8 @@ export async function getTrancheMarketsData(
   ]);
 
   // ttl of 60 seconds
-  // console.log("NO CACHE HIT, SETTING CACHE for tranche", params.tranche);
-  // await cache.setItem(cacheKey, data, { ttl: 60 });
+  console.log("NO CACHE HIT, SETTING CACHE for tranche", params.tranche);
+  await cache.setItem(cacheKey, data, { ttl: 60 });
   return data;
 }
 

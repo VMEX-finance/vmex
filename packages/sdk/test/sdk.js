@@ -24,8 +24,8 @@ const {
   getProtocolData,
   getTopAssets,
   getAllMarketsData,
+  getTotalTranches
 } = require("../dist/analytics.js");
-const { getTVL, getTotalTranches } = require("../dist/utils.js");
 const { RateMode } = require("../dist/interfaces.js");
 const { TOKEN_ADDR_MAINNET } = require("../dist/constants.js");
 
@@ -191,12 +191,20 @@ describe("Supply - end-to-end test", () => {
     expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("1.0"));
   });
 
-  it("7 - test that the protocol has non zero TVL", async () => {
-    let protocolTvl = await getTVL({
+  it("7.1 - call get all markets to populate the cache", async () => {
+    const marketsData = await getAllMarketsData({
       network: network,
       test: true,
     });
-    expect(protocolTvl).to.be.above(ethers.utils.parseEther("1.0"));
+  });
+
+  it("7.2 - test that the protocol has non zero TVL", async () => {
+    let protocolData = await getProtocolData({
+      network: network,
+      test: true,
+    });
+    expect(protocolData.tvl).to.be.above(ethers.utils.parseEther("1.0"));
+    expect(protocolData.totalSupplied).to.be.above(ethers.utils.parseEther("1.0"));
   });
 });
 
@@ -213,14 +221,12 @@ describe("Borrow - end-to-end test", () => {
       test: true,
     });
 
-    console.log("suppliedassetdata before everything", suppliedAssetData);
-
     const WETH = new ethers.Contract(WETHaddr, IERC20abi, temp);
     await WETH.connect(temp).deposit({
       value: ethers.utils.parseEther("10.0"),
     });
     await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("5.0"));
-    console.log((await WETH.balanceOf(await temp.getAddress())).toString());
+    console.log("weth balance", (await WETH.balanceOf(await temp.getAddress())).toString());
     expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(
       ethers.utils.parseEther("4.0")
     );
@@ -253,8 +259,6 @@ describe("Borrow - end-to-end test", () => {
       network: network,
       test: true,
     });
-
-    console.log("suppliedassetdata before supplying", suppliedAssetData);
   });
 
   it("4 - should supply USDC tokens for aTokens with fn supply()", async () => {
@@ -267,7 +271,7 @@ describe("Borrow - end-to-end test", () => {
         {
           underlying: USDCaddr,
           trancheId: 0,
-          amount: ethers.utils.formatUnits(amountToDepositT0),
+          amount: ethers.utils.formatUnits(amountToDepositT0, 6),
           signer: temp,
           network: network,
           test: true,
@@ -282,7 +286,7 @@ describe("Borrow - end-to-end test", () => {
         {
           underlying: USDCaddr,
           trancheId: 1,
-          amount: ethers.utils.formatUnits(amountToDepositT1),
+          amount: ethers.utils.formatUnits(amountToDepositT1, 6),
           signer: temp,
           network: network,
           test: true,
@@ -482,8 +486,6 @@ describe("Borrow - end-to-end test", () => {
       network: network,
       test: true,
     });
-
-    console.log(marketsData);
   });
 
   it("12.2 - test get protocol data", async () => {
