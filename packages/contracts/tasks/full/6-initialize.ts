@@ -184,7 +184,7 @@ task(
 
 
       await waitForTx(
-        await assetMappings.connect(admin).setCurveStrategyAddress("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",0,tricrypto2Strat.address)
+        await assetMappings.connect(admin).addCurveStrategyAddress("0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",tricrypto2Strat.address)
       ); //0 is default strategy
 
       let initInputParams: {
