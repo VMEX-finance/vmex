@@ -9,6 +9,7 @@ import {
   UserSummaryData,
   UserTrancheData,
   AssetBalance,
+  UserWalletData,
 } from "./interfaces";
 import { decodeConstructorBytecode } from "./decode-bytecode";
 import { CacheContainer } from "node-ts-cache";
@@ -356,6 +357,30 @@ export async function getUserTrancheData(
     _addressProvider,
     params.user,
     params.tranche,
+  ]);
+
+  return data;
+}
+
+export async function getUserWalletData(
+  params: {
+    user: string;
+    network?: string;
+    test?: boolean;
+  },
+  callback?: () => Promise<UserWalletData[]>
+): Promise<UserWalletData[]> {
+  const provider = params.test ? defaultTestProvider : null;
+  const {
+    abi,
+    bytecode,
+  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/user/GetUserWalletData.sol/GetUserWalletData.json");
+  let _addressProvider =
+    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+      .address;
+  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
+    _addressProvider,
+    params.user,
   ]);
 
   return data;

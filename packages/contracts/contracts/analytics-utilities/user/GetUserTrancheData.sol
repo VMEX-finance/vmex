@@ -10,7 +10,6 @@ contract GetUserTrancheData {
     {
         QueryUserHelpers.UserTrancheData memory userData =
             QueryUserHelpers.getUserTrancheData(user, tranche, addressesProvider);
-
 	    bytes memory returnData = abi.encode(userData);
 		assembly {
 			return(add(0x20, returnData), mload(returnData))

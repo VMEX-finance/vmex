@@ -93,9 +93,39 @@ library QueryAssetHelpers {
         uint256 amount,
         uint256 decimals
     ) view internal returns(uint256) {
+        //has number of decimals equal to decimals of orig token
         uint256 assetPrice = IPriceOracleGetter(oracle).getAssetPrice(underlying);
-        uint256 ethAmount = amount * assetPrice / (10**decimals);
+        //amount is from atoken, which has same amount of tokens as underlying
+        //ethAmount thus has 18 decimals
+
+        //this has the same number of tokens as assetPrice. All ETH pairs have 18 decimals
+        uint256 ethAmount = (amount * assetPrice) / (10**(decimals));
         uint256 ethUSD = uint256(IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestAnswer());
-        return (ethAmount * ethUSD) / (10**IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).decimals());
+
+        //ethUSD/usdDecimals (unitless factor for conversion). So this is in units of chainlink aggregator. If ETH pair, it's 18
+        return (ethAmount * ethUSD) / (10**IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).decimals()) ;
+    }
+
+    function convertEthToNative(
+        address oracle,
+        address underlying,
+        uint256 ethAmount,
+        uint256 decimals
+    ) view internal returns(uint256) {
+        //has number of decimals equal to decimals of orig token
+        uint256 assetPrice = IPriceOracleGetter(oracle).getAssetPrice(underlying);
+        //amount is from atoken, which has same amount of tokens as underlying
+        //ethAmount thus has 18 decimals
+        //18 decimals in ethAmount, assetPRice has 18 decimals, so returned is number of decimals of native
+        return  (ethAmount * (10**(decimals))) / assetPrice;
+    }
+
+    function convertEthToUsd(
+        uint256 amount
+    ) view internal returns(uint256) {
+        uint256 ethUSD = uint256(IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestAnswer());
+
+        //units of amount is returned too
+        return (amount * ethUSD) / (10**IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).decimals()) ;
     }
 }

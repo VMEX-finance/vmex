@@ -24,7 +24,8 @@ const {
   getProtocolData,
   getTopAssets,
   getAllMarketsData,
-  getTotalTranches
+  getTotalTranches,
+  getUserWalletData
 } = require("../dist/analytics.js");
 const { RateMode } = require("../dist/interfaces.js");
 const { TOKEN_ADDR_MAINNET } = require("../dist/constants.js");
@@ -59,12 +60,24 @@ describe("Tranche creation - end-to-end test", () => {
   const temp = provider.getSigner(2);
   var mytranche;
 
+  it("0 - test get wallet data", async () => {
+    const dat = await getUserWalletData({
+      user: await temp.getAddress(),
+      network: network,
+      test: true,
+    });
+
+    console.log(dat)
+  });
+
+
   it("1 - claim tranche", async () => {
     mytranche = (
       await getTotalTranches({
         network: network,
       })
     ).toString();
+    console.log("Number of tranches before addition",mytranche)
     expect(
       await claimTrancheId(
         {

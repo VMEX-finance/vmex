@@ -138,7 +138,6 @@ contract LendingPool is
         _maxStableRateBorrowSizePercent = 2500;
         _flashLoanPremiumTotal = 9;
         _maxNumberOfReserves = 128; //this might actually be fine since this is max number of reserves per trancheId?
-        isUsingWhitelist = false;
     }
 
     /**
@@ -166,7 +165,7 @@ contract LendingPool is
         whenNotPaused(trancheId)
         onlyWhitelistedDepositBorrow(trancheId)
     {
-        if(isUsingWhitelist){
+        if(isUsingWhitelist[trancheId]){
             require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
         }
         require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
@@ -214,7 +213,7 @@ contract LendingPool is
         uint256 amount,
         address to
     ) public override whenNotPaused(trancheId) returns (uint256) {
-        if(isUsingWhitelist){
+        if(isUsingWhitelist[trancheId]){
             require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
         }
         require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
@@ -264,7 +263,7 @@ contract LendingPool is
     {
         console.log("Borrow sender: ", msg.sender);
         console.log("Borrow tranche: ", trancheId);
-        if(isUsingWhitelist){
+        if(isUsingWhitelist[trancheId]){
             require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
         }
         require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
@@ -558,7 +557,7 @@ contract LendingPool is
         uint256 debtToCover,
         bool receiveAToken
     ) external override whenNotPaused(trancheId) {
-        if(isUsingWhitelist){
+        if(isUsingWhitelist[trancheId]){
             require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
         }
         require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
@@ -1057,8 +1056,8 @@ contract LendingPool is
     }
 
     function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external override onlyLendingPoolConfigurator {
-        if(!isUsingWhitelist){
-            isUsingWhitelist = true;
+        if(!isUsingWhitelist[trancheId]){
+            isUsingWhitelist[trancheId] = true;
         }
         whitelist[trancheId][user] = isWhitelisted;
     }

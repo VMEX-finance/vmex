@@ -4,6 +4,7 @@ export interface SuppliedAssetData {
   asset: string;
   tranche: BigNumber;
   amount: BigNumber;
+  amountNative: BigNumber;
   isCollateral: boolean;
   apy: BigNumber;
 }
@@ -12,9 +13,15 @@ export interface BorrowedAssetData {
   asset: string;
   tranche: BigNumber;
   amount: BigNumber;
+  amountNative: BigNumber;
   apy: BigNumber;
 }
 
+export type AvailableBorrowData = {
+  asset: string;
+  amountUSD: BigNumber;
+  amountNative: BigNumber;
+};
 /**
  * Overview tab, after user connects wallet
  *
@@ -37,6 +44,12 @@ export interface UserTrancheData {
   healthFactor: BigNumber;
   suppliedAssetData: SuppliedAssetData[];
   borrowedAssetData: BorrowedAssetData[];
+  assetBorrowingPower: AvailableBorrowData[] ;
+}
+
+export interface UserWalletData {
+  asset: string;
+  amount: BigNumber;
 }
 
 /**

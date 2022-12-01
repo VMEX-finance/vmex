@@ -2,6 +2,7 @@ import { AaveProtocolDataProvider } from "../../misc/AaveProtocolDataProvider.so
 import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import { IERC20Detailed } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import { IAToken } from "../../interfaces/IAToken.sol";
 import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 import { UserConfiguration } from "../../protocol/libraries/configuration/UserConfiguration.sol";
@@ -9,6 +10,7 @@ import { ReserveConfiguration } from "../../protocol/libraries/configuration/Res
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
 
+import "hardhat/console.sol";
 library QueryUserHelpers {
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using UserConfiguration for DataTypes.UserConfigurationMap;
@@ -16,7 +18,8 @@ library QueryUserHelpers {
     struct SuppliedAssetData {
         address asset;
         uint64 tranche;
-        uint256 amount;
+        uint256 amount; //in USD
+        uint256 amountNative;
         bool isCollateral;
         uint128 apy;
     }
@@ -24,8 +27,15 @@ library QueryUserHelpers {
     struct BorrowedAssetData {
         address asset;
         uint64 tranche;
-        uint256 amount;
+        uint256 amount; //in USD
+        uint256 amountNative;
         uint128 apy;
+    }
+
+    struct AvailableBorrowData {
+        address asset;
+        uint256 amountUSD;
+        uint256 amountNative;
     }
 
     struct UserSummaryData {
@@ -47,6 +57,7 @@ library QueryUserHelpers {
         uint256 healthFactor;
         SuppliedAssetData[] suppliedAssetData;
         BorrowedAssetData[] borrowedAssetData;
+        AvailableBorrowData[] assetBorrowingPower;
     }
 
     function getUserTrancheData(
@@ -60,13 +71,22 @@ library QueryUserHelpers {
 
         (userData.totalCollateralETH,
             userData.totalDebtETH,
+            ,
+            userData.currentLiquidationThreshold,
+            userData.ltv,
+            userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, false); //for displaying on FE, this should be false, since liquidations are based on this being false
+        
+        //this may need to be true for opening new borrows. But that isn't displayed, it is factored into availableBorrowsETH
+        (userData.totalCollateralETH,
+            userData.totalDebtETH,
             userData.availableBorrowsETH,
             userData.currentLiquidationThreshold,
             userData.ltv,
-            userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, false);
+            userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, true);
 
         (userData.suppliedAssetData,
-            userData.borrowedAssetData) = getUserAssetData(user, tranche, addressesProvider);
+            userData.borrowedAssetData,
+            userData.assetBorrowingPower) = getUserAssetData(user, tranche, addressesProvider, userData.availableBorrowsETH);
     }
 
     struct getUserAssetDataVars {
@@ -84,16 +104,20 @@ library QueryUserHelpers {
     function getUserAssetData(
         address user,
         uint64 tranche,
-        address addressesProvider)
-    internal view returns (SuppliedAssetData[] memory s, BorrowedAssetData[] memory b)
+        address addressesProvider,
+        uint256 availableBorrowsETH
+    ) internal view returns (SuppliedAssetData[] memory s, BorrowedAssetData[] memory b, AvailableBorrowData[] memory c)
     {
         getUserAssetDataVars memory vars;
         ILendingPool lendingPool = ILendingPool(
             ILendingPoolAddressesProvider(addressesProvider).getLendingPool());
+        
+        
 
         vars.allAssets = lendingPool.getReservesList(tranche);
         vars.tempSuppliedAssetData = new SuppliedAssetData[](vars.allAssets.length);
         vars.tempBorrowedAssetData = new BorrowedAssetData[](vars.allAssets.length);
+        c = new AvailableBorrowData[](vars.allAssets.length);
         vars.s_idx = 0;
         vars.b_idx = 0;
 
@@ -119,6 +143,7 @@ library QueryUserHelpers {
                         vars.allAssets[i],
                         vars.currentATokenBalance,
                         vars.reserve.configuration.getDecimals()),
+                    amountNative: vars.currentATokenBalance,
                     isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
                     apy: vars.reserve.currentLiquidityRate
                 });
@@ -128,10 +153,28 @@ library QueryUserHelpers {
                 vars.tempBorrowedAssetData[vars.b_idx++] = BorrowedAssetData ({
                     asset: vars.allAssets[i],
                     tranche: tranche,
-                    amount: vars.currentATokenBalance,
+                    amount: QueryAssetHelpers.convertAmountToUsd(
+                        assetOracle,
+                        vars.allAssets[i],
+                        vars.currentVariableDebt,
+                        vars.reserve.configuration.getDecimals()),
+                    amountNative: vars.currentVariableDebt,
                     apy: vars.reserve.currentVariableBorrowRate
                 });
             }
+
+            c[i] = AvailableBorrowData({
+                asset: vars.allAssets[i],
+                amountUSD: QueryAssetHelpers.convertEthToUsd(
+                        availableBorrowsETH //18 decimals, so returned is also 18
+                    ),
+                amountNative: QueryAssetHelpers.convertEthToNative(
+                        assetOracle,
+                        vars.allAssets[i],
+                        availableBorrowsETH,
+                        vars.reserve.configuration.getDecimals()
+                    )
+            });
         }
 
         // return correctly sized arrays
@@ -143,6 +186,44 @@ library QueryUserHelpers {
         for (uint8 i = 0; i < vars.b_idx; i++) {
             b[i] = vars.tempBorrowedAssetData[i];
         }
+    }
+
+    struct WalletData {
+        address asset;
+        uint256 amount;
+    }
+
+
+    function getUserWalletData(
+        address user,
+        address addressesProvider)
+    internal view returns (WalletData[] memory)
+    {
+        AssetMappings a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
+
+        address[] memory approvedTokens = a.getAllApprovedTokens();
+
+        WalletData[] memory data = new WalletData[](approvedTokens.length);
+
+        for (uint8 i = 0; i < approvedTokens.length; i++) {
+
+            
+            address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
+                .getPriceOracle(a.getAssetType(approvedTokens[i]));
+            
+            data[i] = WalletData ({
+                asset: approvedTokens[i],
+                amount: QueryAssetHelpers.convertAmountToUsd(
+                    assetOracle,
+                    approvedTokens[i],
+                    IERC20(approvedTokens[i]).balanceOf(user),
+                    IERC20Detailed(approvedTokens[i]).decimals()
+                )
+            });
+            
+        }
+
+        return data;
     }
 
     function concatenateArrays(
