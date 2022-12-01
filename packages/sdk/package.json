@@ -10,12 +10,15 @@
     "chai": "^4.3.6",
     "chai-bignumber": "^3.1.0",
     "cross-env": "^7.0.3",
+    "node-ts-cache": "^4.4.0",
+    "node-ts-cache-storage-memory": "^4.4.0",
     "ts-node": "^10.9.1"
   },
   "scripts": {
     "build": "yarn tsc",
-    "test": "yarn build && mocha --reporter spec",
-    "test:specific": "mocha --reporter spec -- --grep"
+    "test": "yarn build && mocha --timeout 20000 --reporter spec",
+    "test:specific": "mocha --reporter spec -- --grep",
+    "fund:accounts": "mocha dev --reporter spec"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",

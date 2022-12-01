@@ -39,7 +39,7 @@ contract LendingPoolStorage {
     mapping(address => mapping(uint64 => uint256)) lastUserBorrow;
     mapping(address => mapping(uint64 => uint256)) lastUserDeposit; //user address to tranche to block number
 
-    bool isUsingWhitelist;
+    mapping(uint64 => bool) public isUsingWhitelist;
     mapping(uint64 => mapping(address=>bool)) whitelist;
     mapping(uint64 => mapping(address=>bool)) blacklist;
 }
