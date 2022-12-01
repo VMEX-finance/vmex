@@ -67,6 +67,7 @@ describe("Supply - end-to-end test", () => {
     //emergency deposits 100 WETH to pool to provide liquidity
     var options = {value: ethers.utils.parseEther("10000.0")}
 
+    //10000 usdc
     await UNISWAP_ROUTER_CONTRACT.connect(owner).swapExactETHForTokens("10000000000", path, await owner.getAddress(), deadline,options)
 
     var signerDAI = await DAI.connect(owner).balanceOf(await owner.getAddress())

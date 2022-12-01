@@ -4,6 +4,7 @@ import { ReserveConfiguration } from "../../protocol/libraries/configuration/Res
 import { WadRayMath } from "../../protocol/libraries/math/WadRayMath.sol";
 import { SafeMath } from "../../protocol/libraries/math/MathUtils.sol";
 import { ILendingPool } from "../../interfaces/ILendingPool.sol";
+import { LendingPool } from "../../protocol/lendingpool/LendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { IAToken } from "../../interfaces/IAToken.sol";
 import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
@@ -55,7 +56,7 @@ library QueryTrancheHelpers {
         trancheData.id = tranche;
         trancheData.admin = ILendingPoolAddressesProvider(addressesProvider).getPoolAdmin(tranche);
         trancheData.name = LendingPoolConfigurator(configurator).trancheNames(tranche);
-        // trancheData.whitelist =
+        trancheData.whitelist = LendingPool(lendingPool).isUsingWhitelist(tranche);
     }
 
     function getAssetsSummaryData(uint64 tranche, address addressesProvider)
