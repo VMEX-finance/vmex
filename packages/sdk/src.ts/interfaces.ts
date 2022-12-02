@@ -50,6 +50,7 @@ export interface UserTrancheData {
 export interface UserWalletData {
   asset: string;
   amount: BigNumber;
+  amountNative: BigNumber;
 }
 
 /**
@@ -76,6 +77,7 @@ export interface MarketData {
   supplyApy: BigNumber;
   borrowApy: BigNumber;
   totalReserves: BigNumber;
+  totalReservesNative: BigNumber;
   // liquidityIndex: BigNumber;
   // variableBorrowIndex: BigNumber;
   // currentLiquidityRate: BigNumber;

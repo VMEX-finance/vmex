@@ -241,7 +241,7 @@ contract LendingPool is
      *   and 100 stable/variable debt tokens, depending on the `interestRateMode`
      * @param asset The address of the underlying asset to borrow
      * @param amount The amount to be borrowed
-     * @param interestRateMode The interest rate mode at which the user wants to borrow: 1 for Stable, 2 for Variable
+     * @param interestRateMode The interest rate mode at which the user wants to borrow: 1 for Stable, 2 for Variable. Always 2 for now
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
      * @param onBehalfOf Address of the user who will receive the debt. Should be the address of the borrower itself
