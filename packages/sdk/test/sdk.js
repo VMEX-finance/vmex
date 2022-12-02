@@ -360,7 +360,7 @@ describe("Borrow - end-to-end test", () => {
     await borrow({
       underlying: WETHaddr,
       trancheId: tranche,
-      amount: ethers.utils.parseEther("0.1"),
+      amount: "0.1",
       interestRateMode: RateMode.Variable,
       signer: temp,
       network: network,
@@ -382,7 +382,7 @@ describe("Borrow - end-to-end test", () => {
       ethers.utils.parseEther("0.1")
     );
     expect(userAccountData.totalDebtETH).to.be.above(0);
-    expect(userAccountData.totalDebtETH).to.be.above(
+    expect(userAccountData.totalDebtETH).to.be.equal.or.above(
       ethers.utils.parseEther("0.1")
     );
     expect(userAccountData.healthFactor).to.be.above(

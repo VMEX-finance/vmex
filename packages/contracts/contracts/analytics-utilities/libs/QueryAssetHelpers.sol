@@ -36,6 +36,7 @@ library QueryAssetHelpers {
         uint128 supplyApy;
         uint128 borrowApy;
         uint256 totalReserves;
+        uint256 totalReservesNative;
     }
 
     function getAssetData(
@@ -69,6 +70,8 @@ library QueryAssetHelpers {
         assetData.strategyAddress = IAToken(reserve.aTokenAddress).getStrategy();
 
         assetData.totalReserves = convertAmountToUsd(assetData.oracle, assetData.asset, IERC20(asset).balanceOf(reserve.aTokenAddress), assetData.decimals);
+        assetData.totalReservesNative = IERC20(asset).balanceOf(reserve.aTokenAddress);
+        
         if (assetData.strategyAddress != address(0)) {
             // if strategy exists, add the funds the strategy holds
             // and the funds the strategy has boosted

@@ -20,6 +20,9 @@ export async function borrow(
   },
   callback?: () => Promise<any>
 ) {
+  // console.log('INSIDE BORROW')
+  // console.log(params)
+  let amount = await convertToCurrencyDecimals(params.underlying, params.amount.toString());
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
@@ -29,7 +32,7 @@ export async function borrow(
     await lendingPool.borrow(
       params.underlying,
       params.trancheId,
-      params.amount,
+      amount,
       params.interestRateMode,
       params.referrer || 0,
       client,
@@ -41,7 +44,7 @@ export async function borrow(
     await lendingPool.borrow(
       params.underlying,
       params.trancheId,
-      params.amount,
+      amount,
       params.interestRateMode,
       params.referrer || 0,
       client
@@ -224,7 +227,7 @@ export async function supply(
         amount,
         client,
         params.referrer || 0
-      );
+      ); //store transaction hash
     }
   } catch (error) {
     throw new Error("Lending Pool Failed with " + error);

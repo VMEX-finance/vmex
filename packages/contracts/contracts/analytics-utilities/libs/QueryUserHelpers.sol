@@ -77,12 +77,12 @@ library QueryUserHelpers {
             userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, false); //for displaying on FE, this should be false, since liquidations are based on this being false
         
         //this may need to be true for opening new borrows. But that isn't displayed, it is factored into availableBorrowsETH
-        (userData.totalCollateralETH,
-            userData.totalDebtETH,
+        (,
+            ,
             userData.availableBorrowsETH,
-            userData.currentLiquidationThreshold,
-            userData.ltv,
-            userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, true);
+            ,
+            ,
+            ) = lendingPool.getUserAccountData(user, tranche, true);
 
         (userData.suppliedAssetData,
             userData.borrowedAssetData,
@@ -191,6 +191,7 @@ library QueryUserHelpers {
     struct WalletData {
         address asset;
         uint256 amount;
+        uint256 amountNative;
     }
 
 
@@ -218,7 +219,8 @@ library QueryUserHelpers {
                     approvedTokens[i],
                     IERC20(approvedTokens[i]).balanceOf(user),
                     IERC20Detailed(approvedTokens[i]).decimals()
-                )
+                ),
+                amountNative: IERC20(approvedTokens[i]).balanceOf(user)
             });
             
         }
