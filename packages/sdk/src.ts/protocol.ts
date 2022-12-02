@@ -91,14 +91,17 @@ export async function withdraw(
     trancheId: number;
     signer: ethers.Signer;
     interestRateMode: number;
-    referralCode: number;
+    referralCode?: number;
     network: string;
     amount: number | ethers.BigNumberish;
   },
   callback?: () => Promise<any>
 ) {
+  let amount = await convertToCurrencyDecimals(params.asset, params.amount.toString());
   let client = await params.signer.getAddress();
   let to = params.to || client;
+  console.log("client: ",client)
+  console.log("to: ",to)
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
@@ -106,9 +109,7 @@ export async function withdraw(
   await lendingPool.withdraw(
     params.asset,
     params.trancheId,
-    params.amount,
-    params.interestRateMode,
-    params.referralCode || 0,
+    amount,
     client
   );
 
@@ -130,15 +131,29 @@ export async function repay(
   },
   callback?: () => Promise<any>
 ) {
+  
+  let amount = await convertToCurrencyDecimals(params.asset, params.amount.toString());
+  console.log("Repay amount: ", amount)
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
   });
+
+  try {
+    await approveUnderlying(
+      params.signer,
+      amount,
+      params.asset,
+      lendingPool.address
+    );
+  } catch (error) {
+    throw new Error("failed to approve spend for underlying asset, error: " + error + " amount is " + amount.toString());
+  }
   await lendingPool.repay(
     params.asset,
     params.trancheId,
-    params.amount,
+    amount,
     params.rateMode,
     client
   );
