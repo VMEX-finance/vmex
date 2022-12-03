@@ -7,6 +7,7 @@ export interface SuppliedAssetData {
   amountNative: BigNumber;
   isCollateral: boolean;
   apy: BigNumber;
+  // collateralCap: BigNumber;
 }
 
 export interface BorrowedAssetData {
@@ -39,7 +40,7 @@ export interface UserTrancheData {
   totalCollateralETH: BigNumber;
   totalDebtETH: BigNumber;
   availableBorrowsETH: BigNumber;
-  currentLiquidityThreshold: BigNumber;
+  currentLiquidationThreshold: BigNumber;
   ltv: BigNumber;
   healthFactor: BigNumber;
   suppliedAssetData: SuppliedAssetData[];
@@ -51,6 +52,7 @@ export interface UserWalletData {
   asset: string;
   amount: BigNumber;
   amountNative: BigNumber;
+  currentPrice: BigNumber;
 }
 
 /**
@@ -78,6 +80,8 @@ export interface MarketData {
   borrowApy: BigNumber;
   totalReserves: BigNumber;
   totalReservesNative: BigNumber;
+  currentPriceETH: BigNumber;
+  collateralCap: BigNumber;
   // liquidityIndex: BigNumber;
   // variableBorrowIndex: BigNumber;
   // currentLiquidityRate: BigNumber;
