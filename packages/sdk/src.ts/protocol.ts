@@ -20,8 +20,8 @@ export async function borrow(
   },
   callback?: () => Promise<any>
 ) {
-  // console.log('INSIDE BORROW')
-  // console.log(params)
+  console.log('INSIDE BORROW')
+  console.log(params)
   let amount = await convertToCurrencyDecimals(params.underlying, params.amount.toString());
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
