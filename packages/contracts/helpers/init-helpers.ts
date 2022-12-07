@@ -211,8 +211,8 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
 export const initReservesByHelper = async (
   assetAddresses: tEthereumAddress[],
   reserveFactors: string[],
-  forceDisabledBorrow: boolean[],
-  forceDisabledCollateral: boolean[],
+  canBorrow: boolean[],
+  canBeCollateral: boolean[],
   admin: SignerWithAddress,
   treasuryAddress: tEthereumAddress,
   incentivesController: tEthereumAddress,
@@ -226,8 +226,8 @@ export const initReservesByHelper = async (
     incentivesController: string;
     interestRateChoice: string; //1,000,000
     reserveFactor: string;
-    forceDisabledBorrow: boolean;
-    forceDisabledCollateral: boolean;
+    canBorrow: boolean;
+    canBeCollateral: boolean;
   }[] = [];
   for (let i=0;i<assetAddresses.length; i++) {
     initInputParams.push({
@@ -236,8 +236,8 @@ export const initReservesByHelper = async (
       incentivesController: incentivesController,
       interestRateChoice: "0",
       reserveFactor: reserveFactors[i],
-      forceDisabledBorrow: forceDisabledBorrow[i],
-      forceDisabledCollateral: forceDisabledCollateral[i]
+      canBorrow: canBorrow[i],
+      canBeCollateral: canBeCollateral[i]
     });
   }
 
@@ -339,15 +339,15 @@ export const getTranche0MockedData = (
   ];
 
   let reserveFactors0:string[] = [];
-  let forceDisabledBorrow0:boolean[] = [];
-  let forceDisabledCollateral0:boolean[] = [];
+  let canBorrow0:boolean[] = [];
+  let canBeCollateral0:boolean[] = [];
   for(let i =0;i<assets0.length;i++){
     reserveFactors0.push("1000")
-    forceDisabledBorrow0.push(false);
-    forceDisabledCollateral0.push(false);
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
   }
 
-  return [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0]
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0]
 }
 
 
@@ -392,13 +392,13 @@ export const getTranche1MockedData = (
   ];
 
   let reserveFactors0:string[] = [];
-  let forceDisabledBorrow0:boolean[] = [];
-  let forceDisabledCollateral0:boolean[] = [];
+  let canBorrow0:boolean[] = [];
+  let canBeCollateral0:boolean[] = [];
   for(let i =0;i<assets0.length;i++){
     reserveFactors0.push("1000")
-    forceDisabledBorrow0.push(false);
-    forceDisabledCollateral0.push(false);
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
   }
 
-  return [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0]
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0]
 }

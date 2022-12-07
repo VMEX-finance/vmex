@@ -52,8 +52,8 @@ library DataTypes {
 
         uint8 interestRateChoice; //0 for default, others are undefined until set
         uint256 reserveFactor;
-        bool forceDisabledBorrow; 
-        bool forceDisabledCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
+        bool canBorrow; 
+        bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
     }
 
     struct InitReserveInputInternal {

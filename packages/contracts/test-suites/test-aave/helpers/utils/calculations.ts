@@ -1390,7 +1390,7 @@ export const calcExpectedInterestRates = (
   let liquidityRate = expectedOverallRate
     .rayMul(utilizationRate)
     .percentMul(
-      new BigNumber(PERCENTAGE_FACTOR).minus(reserveConfiguration.reserveFactor)
+      new BigNumber(PERCENTAGE_FACTOR).minus("1000")// TODO: assuming that all reserves has reserve factor of 1000, not changed from default  //reserveConfiguration.reserveFactor)
     )
     .percentMul(
       new BigNumber(PERCENTAGE_FACTOR).minus("1000") //assuming default of 1000

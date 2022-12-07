@@ -9,6 +9,7 @@ import { UserConfiguration } from "../../protocol/libraries/configuration/UserCo
 import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
+import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
 
 import "hardhat/console.sol";
 library QueryUserHelpers {
@@ -22,6 +23,7 @@ library QueryUserHelpers {
         uint256 amountNative;
         bool isCollateral;
         uint128 apy;
+        // uint256 collateralCap;
     }
 
     struct BorrowedAssetData {
@@ -83,6 +85,8 @@ library QueryUserHelpers {
             ,
             ,
             ) = lendingPool.getUserAccountData(user, tranche, true);
+
+        
 
         (userData.suppliedAssetData,
             userData.borrowedAssetData,
@@ -146,6 +150,7 @@ library QueryUserHelpers {
                     amountNative: vars.currentATokenBalance,
                     isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
                     apy: vars.reserve.currentLiquidityRate
+                    // collateralCap: a.getCollateralCap(vars.allAssets[i])
                 });
             }
 
@@ -192,6 +197,7 @@ library QueryUserHelpers {
         address asset;
         uint256 amount;
         uint256 amountNative;
+        // uint256 currentPrice;
     }
 
 
@@ -206,9 +212,9 @@ library QueryUserHelpers {
 
         WalletData[] memory data = new WalletData[](approvedTokens.length);
 
-        for (uint8 i = 0; i < approvedTokens.length; i++) {
+        
 
-            
+        for (uint8 i = 0; i < approvedTokens.length; i++) {
             address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
                 .getPriceOracle(a.getAssetType(approvedTokens[i]));
             
@@ -221,6 +227,7 @@ library QueryUserHelpers {
                     IERC20Detailed(approvedTokens[i]).decimals()
                 ),
                 amountNative: IERC20(approvedTokens[i]).balanceOf(user)
+                // currentPrice: IPriceOracleGetter(assetOracle).getAssetPrice(approvedTokens[i])
             });
             
         }
