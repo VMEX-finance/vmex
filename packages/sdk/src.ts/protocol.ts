@@ -6,6 +6,8 @@ import {
   getLendingPoolConfiguratorProxy,
 } from "./contract-getters";
 import { approveUnderlying, convertToCurrencyDecimals } from "./utils";
+import {getTotalTranches} from "./analytics";
+import { assert } from "console";
 
 export async function borrow(
   params: {
@@ -20,8 +22,8 @@ export async function borrow(
   },
   callback?: () => Promise<any>
 ) {
-  console.log('INSIDE BORROW')
-  console.log(params)
+  // console.log('INSIDE BORROW')
+  // console.log(params)
   let amount = await convertToCurrencyDecimals(params.underlying, params.amount.toString());
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
@@ -299,53 +301,73 @@ export async function lendingPoolPause(
   }
 }
 
-export async function claimTrancheId(params: {
-    name: string;
-    admin: ethers.Signer;
-    network: string;
-}, callback?: () => Promise<any>) {
-    let configurator = await getLendingPoolConfiguratorProxy({
-      network: params.network,
-      signer: params.admin
-     });
+// export async function claimTrancheId(params: {
+//     name: string;
+//     admin: ethers.Signer;
+//     network: string;
+// }, callback?: () => Promise<any>) {
+//     let configurator = await getLendingPoolConfiguratorProxy({
+//       network: params.network,
+//       signer: params.admin
+//      });
 
-    try {
-        await configurator.claimTrancheId(
-            params.name,
-            await params.admin.getAddress(),
-            {
-                gasLimit: "8000000"
-            }
-        );
+    
 
-    } catch (error) {
-        throw new Error("Configurator Failed with " + error);
-    }
-
-    if (callback) {
-        return await callback()
-    }
-}
+//     if (callback) {
+//         return await callback()
+//     }
+// }
 
 export async function initTranche(params: {
+    name: string,
+    whitelisted: string[],
+    blacklisted: string[],
     assetAddresses: string[],
     reserveFactors: string[],
-    forceDisabledBorrow: boolean[],
-    forceDisabledCollateral: boolean[],
+    canBorrow: boolean[],
+    canBeCollateral: boolean[],
     admin: ethers.Signer,
     treasuryAddress: string,
     incentivesController: string,
-    trancheId: string,
     network: string
 }, callback?: () => Promise<any>) {
+  // assert(params.assetAddresses.length == params.reserveFactors.length, "array lengths not equal");
+  // assert(params.assetAddresses.length == params.canBorrow.length, "array lengths not equal");
+  // assert(params.assetAddresses.length == params.canBeCollateral.length, "array lengths not equal");
+
+  let mytranche = (
+    await getTotalTranches({
+      network: params.network,
+    })
+  ).toString();
+
+  let configurator = await getLendingPoolConfiguratorProxy({
+    network: params.network,
+    signer: params.admin
+   });
+
+   try {
+    await configurator.claimTrancheId(
+        params.name,
+        await params.admin.getAddress(),
+        {
+            gasLimit: "8000000"
+        }
+    );
+
+} catch (error) {
+    throw new Error("Configurator Failed with " + error);
+}
+
+
     let initInputParams: {
         underlyingAsset: string;
         treasury: string;
         incentivesController: string;
         interestRateChoice: string; //1,000,000
         reserveFactor: string;
-        forceDisabledBorrow: boolean;
-        forceDisabledCollateral: boolean;
+        canBorrow: boolean;
+        canBeCollateral: boolean;
     }[] = [];
     for (let i=0;i<params.assetAddresses.length; i++) {
         initInputParams.push({
@@ -354,15 +376,12 @@ export async function initTranche(params: {
         incentivesController: params.incentivesController,
         interestRateChoice: "0",
         reserveFactor: params.reserveFactors[i],
-        forceDisabledBorrow: params.forceDisabledBorrow[i],
-        forceDisabledCollateral: params.forceDisabledCollateral[i]
+        canBorrow: params.canBorrow[i],
+        canBeCollateral: params.canBeCollateral[i]
         });
     }
 
-    let configurator = await getLendingPoolConfiguratorProxy({
-      network: params.network,
-      signer: params.admin
-     });
+    console.log(initInputParams)
 
 
     try {
@@ -374,7 +393,7 @@ export async function initTranche(params: {
             const tx3 = await configurator
                 .batchInitReserve(
                     initInputParams,
-                    params.trancheId,
+                    mytranche,
                     {
                         gasLimit: "80000000"
                     }
@@ -386,7 +405,36 @@ export async function initTranche(params: {
             console.log("    * gasUsed", (await tx3.wait(1)).gasUsed.toString());
 
     } catch (error) {
-        throw new Error("Configurator Failed with " + error);
+        throw new Error("Configurator Failed durining init reserve with " + error);
+    }
+
+    if(params.whitelisted.length != 0){
+      try {
+        console.log("Setting whitelist")
+      const tx4 = await configurator
+                .setWhitelist(
+                    mytranche,
+                    params.whitelisted,
+                    new Array(params.whitelisted.length).fill(true)
+                );
+                console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+              } catch (error) {
+                throw new Error("Configurator Failed during setting whitelist with " + error);
+            }
+    }
+    if(params.blacklisted.length != 0){
+      try {
+        console.log("Setting blacklisted")
+      const tx4 = await configurator
+                .setBlacklist(
+                    mytranche,
+                    params.blacklisted,
+                    new Array(params.blacklisted.length).fill(true)
+                );
+                console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+              } catch (error) {
+                throw new Error("Configurator Failed during setting blacklisted with " + error);
+            }
     }
 
     if (callback) {

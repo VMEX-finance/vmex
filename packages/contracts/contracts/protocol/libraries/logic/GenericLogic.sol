@@ -13,6 +13,7 @@ import {DataTypes} from "../types/DataTypes.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+import {IAToken} from "../../../interfaces/IAToken.sol";
 
 import "hardhat/console.sol";
 /**
@@ -40,7 +41,12 @@ library GenericLogic {
         uint256 collateralBalanceAfterDecrease;
         uint256 liquidationThresholdAfterDecrease;
         uint256 healthFactorAfterDecrease;
+        uint256 amountCappedNotUsed; //amount that user owns but didn't count as collateral due to cap
+        uint256 userAmount;
+        uint256 collateralCap;
+        uint256 currentPrice;
         bool reserveUsageAsCollateralEnabled;
+        
     }
 
     //  * @param asset The address of the underlying asset of the reserve
@@ -84,10 +90,13 @@ library GenericLogic {
         (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[
             params.asset
         ][params.trancheId].configuration.getParams();
+        
 
         if (vars.liquidationThreshold == 0) {
             return true;
         }
+
+        
 
         (
             vars.totalCollateralInETH,
@@ -109,13 +118,32 @@ library GenericLogic {
             return true;
         }
 
-        //here, need to check if the reserve is a curve reserve. If so
+        
+
         //using current price instead of 24 hour average
-        vars.amountToDecreaseInETH = IPriceOracleGetter(
+        vars.currentPrice= IPriceOracleGetter(
             params._addressesProvider.getPriceOracle(
                 AssetMappings(params._addressesProvider.getAssetMappings()).getAssetType(params.asset)
             )
-        ).getAssetPrice(params.asset).mul(params.amount).div(10**vars.decimals);
+        ).getAssetPrice(params.asset);
+        
+        vars.amountToDecreaseInETH  = vars.currentPrice.mul(params.amount).div(10**vars.decimals);
+
+        vars.collateralCap = AssetMappings(params._addressesProvider.getAssetMappings()).getCollateralCap(params.asset); // in ETH
+
+        vars.userAmount = IAToken(reservesData[
+            params.asset
+        ][params.trancheId].aTokenAddress).balanceOf(params.user); //in units of native token
+
+        // convert to ETH
+        vars.userAmount = vars.currentPrice.mul(vars.userAmount).div(10**vars.decimals);
+
+        vars.amountCappedNotUsed = vars.userAmount>vars.collateralCap ? vars.userAmount - vars.collateralCap : 0;
+        if(vars.amountToDecreaseInETH <= vars.amountCappedNotUsed) { //withdraw only the amount that isn't even counted as collateral
+            return true;
+        } 
+
+        vars.amountToDecreaseInETH -= vars.amountCappedNotUsed; //otherwise, the user is really only getting out this much collateral
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
             vars.amountToDecreaseInETH
@@ -125,6 +153,8 @@ library GenericLogic {
         if (vars.collateralBalanceAfterDecrease == 0) {
             return false;
         }
+        
+
 
         vars.liquidationThresholdAfterDecrease = vars
             .totalCollateralInETH
@@ -278,7 +308,7 @@ library GenericLogic {
                         vars.liquidityBalanceETH = vars.liquidityBalanceETHTWAP; 
                     }
                 }
-
+                // Important: collateral cap is in ETH
                 if (vars.liquidityBalanceETH > AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress)) {
                     vars.liquidityBalanceETH = AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress);
                 }

@@ -79,12 +79,12 @@ task(
         await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
       );
 
-      let [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0] = getTranche0MockedData(reserveAssets);
+      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedData(reserveAssets);
       await initReservesByHelper(
         assets0,
         reserveFactors0,
-        forceDisabledBorrow0,
-        forceDisabledCollateral0,
+        canBorrow0,
+        canBeCollateral0,
         admin,
         treasuryAddress,
         incentivesController,

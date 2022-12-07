@@ -91,7 +91,7 @@ abstract contract IPriceOracleGetter {
         uint16 tmpNumPrices = numPrices[asset];
         //get rid of outdated prices. Average O(1)
         while(tmpNumPrices>0 && (block.timestamp - cumulatedPrices[asset][tmpLast].timestamp) > 1 days){
-            console.log("updateState removing tmpLast: ",tmpLast);
+            // console.log("updateState removing tmpLast: ",tmpLast);
             if(tmpLast==type(uint16).max){
                 tmpLast = 0;
             }

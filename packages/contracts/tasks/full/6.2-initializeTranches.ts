@@ -88,12 +88,12 @@ task(
           .setPoolPause(true, 1)
       );
 
-      let [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0] = getTranche1MockedData(reserveAssets);
+      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche1MockedData(reserveAssets);
       await initReservesByHelper(
         assets0,
         reserveFactors0,
-        forceDisabledBorrow0,
-        forceDisabledCollateral0,
+        canBorrow0,
+        canBeCollateral0,
         emergAdmin,
         treasuryAddress,
         incentivesController,

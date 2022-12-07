@@ -167,20 +167,29 @@ contract LendingPoolConfigurator is
             );
 
         currentConfig.setLtv(internalInput.assetdata.baseLTV);
-        if(internalInput.input.forceDisabledCollateral){
-            currentConfig.setLiquidationThreshold(0);
+        if(internalInput.assetdata.liquidationThreshold != 0){ //asset mappings does not force disable borrow
+            //user's choice matters
+            if(internalInput.input.canBeCollateral){
+                currentConfig.setLiquidationThreshold(internalInput.assetdata.liquidationThreshold);
+            }
+            else{
+                currentConfig.setLiquidationThreshold(0);
+            }
+            
         }
         else{
-            currentConfig.setLiquidationThreshold(internalInput.assetdata.liquidationThreshold);
+            currentConfig.setLiquidationThreshold(0);
         }
         
         currentConfig.setLiquidationBonus(internalInput.assetdata.liquidationBonus);
         currentConfig.setStableRateBorrowingEnabled(internalInput.assetdata.stableBorrowingEnabled);
-        if(internalInput.input.forceDisabledBorrow){
-            currentConfig.setBorrowingEnabled(false);
+        if(internalInput.assetdata.borrowingEnabled){
+            //user's choice matters
+            currentConfig.setBorrowingEnabled(internalInput.input.canBorrow);
         }
         else{
-            currentConfig.setBorrowingEnabled(internalInput.assetdata.borrowingEnabled);
+            //force to be disabled
+            currentConfig.setBorrowingEnabled(false);
         }
         
         currentConfig.setReserveFactor(internalInput.input.reserveFactor);
@@ -745,11 +754,17 @@ contract LendingPoolConfigurator is
     //     emit StrategyAdded(asset, trancheId, strategy);
     // }
 
-    function setWhitelist(uint64 trancheId, address user, bool isWhitelisted) external onlyPoolAdmin(trancheId) {
-        pool.addToWhitelist(trancheId, user, isWhitelisted);
+    function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyPoolAdmin(trancheId) {
+        require(user.length == isWhitelisted.length, "whitelist lengths not equal");
+        for(uint i = 0;i<user.length;i++){
+            pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
+        }
     }
 
-    function setBlacklist(uint64 trancheId, address user, bool isBlacklisted) external onlyPoolAdmin(trancheId) {
-        pool.addToBlacklist(trancheId, user, isBlacklisted);
+    function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyPoolAdmin(trancheId) {
+        require(user.length == isBlacklisted.length, "Blacklisted lengths not equal");
+        for(uint i = 0;i<user.length;i++){
+            pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
+        }
     }
 }

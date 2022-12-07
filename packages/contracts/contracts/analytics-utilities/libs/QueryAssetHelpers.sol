@@ -37,6 +37,8 @@ library QueryAssetHelpers {
         uint128 borrowApy;
         uint256 totalReserves;
         uint256 totalReservesNative;
+        uint256 currentPriceETH;
+        uint256 collateralCap;
     }
 
     function getAssetData(
@@ -88,6 +90,9 @@ library QueryAssetHelpers {
         assetData.platformFee = reserve.configuration.getVMEXReserveFactor();
         assetData.supplyApy = reserve.currentLiquidityRate;
         assetData.borrowApy = reserve.currentVariableBorrowRate;
+        assetData.currentPriceETH = IPriceOracleGetter(assetData.oracle).getAssetPrice(assetData.asset);
+        assetData.collateralCap = a.getCollateralCap(assetData.asset);
+
     }
 
     function convertAmountToUsd(
