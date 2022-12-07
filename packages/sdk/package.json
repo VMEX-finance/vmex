@@ -16,9 +16,9 @@
   },
   "scripts": {
     "build": "yarn tsc",
-    "test": "yarn build && mocha --timeout 20000 --reporter spec",
+    "test": "yarn build && mocha --timeout 0 --reporter spec",
     "test:specific": "mocha --reporter spec -- --grep",
-    "fund:accounts": "mocha dev --reporter spec"
+    "fund:accounts": "mocha dev --timeout 0 --reporter spec"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
