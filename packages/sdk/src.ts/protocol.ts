@@ -1,12 +1,11 @@
 import { ethers } from "ethers";
-import { deployments } from "./constants";
 import {
   getLendingPool,
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
 } from "./contract-getters";
 import { approveUnderlying, convertToCurrencyDecimals } from "./utils";
-import {getTotalTranches} from "./analytics";
+import { getTotalTranches } from "./analytics";
 import { assert } from "console";
 
 export async function borrow(
@@ -22,8 +21,7 @@ export async function borrow(
   },
   callback?: () => Promise<any>
 ) {
-  // console.log('INSIDE BORROW')
-  // console.log(params)
+  let tx;
   let amount = await convertToCurrencyDecimals(params.underlying, params.amount.toString());
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
@@ -31,7 +29,7 @@ export async function borrow(
     network: params.network,
   });
   if (params.test) {
-    await lendingPool.borrow(
+    tx = await lendingPool.borrow(
       params.underlying,
       params.trancheId,
       amount,
@@ -43,7 +41,7 @@ export async function borrow(
       }
     );
   } else {
-    await lendingPool.borrow(
+    tx = await lendingPool.borrow(
       params.underlying,
       params.trancheId,
       amount,
@@ -58,6 +56,7 @@ export async function borrow(
       console.error("CALLBACK_ERROR: \n", error);
     });
   }
+  return tx?.hash;
 }
 
 export async function markReserveAsCollateral(
@@ -70,20 +69,22 @@ export async function markReserveAsCollateral(
   },
   callback?: () => Promise<any>
 ) {
+  let tx;
   const client = await params.signer.getAddress();
   const lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
   });
-  await lendingPool.setUserUseReserveAsCollateral(
+  tx = await lendingPool.setUserUseReserveAsCollateral(
     params.asset,
     params.trancheId,
     params.useAsCollateral
   );
 
   if (callback) {
-    return await callback();
+    await callback();
   }
+  return tx?.hash;
 }
 
 export async function withdraw(
@@ -99,6 +100,7 @@ export async function withdraw(
   },
   callback?: () => Promise<any>
 ) {
+  let tx;
   let amount = await convertToCurrencyDecimals(params.asset, params.amount.toString());
   let client = await params.signer.getAddress();
   let to = params.to || client;
@@ -108,7 +110,7 @@ export async function withdraw(
     signer: params.signer,
     network: params.network,
   });
-  await lendingPool.withdraw(
+  tx = await lendingPool.withdraw(
     params.asset,
     params.trancheId,
     amount,
@@ -120,6 +122,8 @@ export async function withdraw(
       console.error("CALLBACK_ERROR: \n", error);
     });
   }
+
+  return tx?.hash;
 }
 
 export async function repay(
@@ -133,9 +137,8 @@ export async function repay(
   },
   callback?: () => Promise<any>
 ) {
-  
+  let tx;
   let amount = await convertToCurrencyDecimals(params.asset, params.amount.toString());
-  console.log("Repay amount: ", amount)
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
@@ -152,7 +155,7 @@ export async function repay(
   } catch (error) {
     throw new Error("failed to approve spend for underlying asset, error: " + error + " amount is " + amount.toString());
   }
-  await lendingPool.repay(
+  tx = await lendingPool.repay(
     params.asset,
     params.trancheId,
     amount,
@@ -161,10 +164,11 @@ export async function repay(
   );
 
   if (callback) {
-    callback().catch((error) => {
+    await callback().catch((error) => {
       console.error("CALLBACK_ERROR: \n", error);
     });
   }
+  return tx?.hash;
 }
 
 export async function swapBorrowRateMode(
@@ -177,21 +181,23 @@ export async function swapBorrowRateMode(
   },
   callback?: () => Promise<any>
 ) {
+  let tx;
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
   });
-  await lendingPool.swapBorrowRateMode(
+  tx = await lendingPool.swapBorrowRateMode(
     params.asset,
     params.trancheId,
     params.rateMode
   );
 
   if (callback) {
-    callback().catch((error) => {
+    await callback().catch((error) => {
       console.error("CALLBACK_ERROR: \n", error);
     });
   }
+  return tx?.hash;
 }
 
 export async function supply(
@@ -207,6 +213,7 @@ export async function supply(
   },
   callback?: () => Promise<any>
 ) {
+  let tx;
   let client = await params.signer.getAddress();
   let amount = await convertToCurrencyDecimals(params.underlying, params.amount);
   let lendingPool = await getLendingPool({
@@ -227,7 +234,7 @@ export async function supply(
 
   try {
     if (params.test) {
-      await lendingPool.deposit(
+      tx = await lendingPool.deposit(
         params.underlying,
         params.trancheId,
         amount,
@@ -238,19 +245,20 @@ export async function supply(
         }
       );
     } else {
-      await lendingPool.deposit(
+      tx = await lendingPool.deposit(
         params.underlying,
         params.trancheId,
         amount,
         client,
         params.referrer || 0
-      ); //store transaction hash
+      ); 
     }
+    
   } catch (error) {
     throw new Error("Lending Pool Failed with " + error);
   }
 
-  if (params.collateral) {
+  if (params.collateral === false) {
     await lendingPool.setUserUseReserveAsCollateral(
       params.underlying,
       params.trancheId,
@@ -259,10 +267,12 @@ export async function supply(
   }
 
   if (callback) {
-    return await callback();
+    await callback();
   }
+  return tx?.hash;
 }
 
+// TODO: return transaction hash;
 export async function lendingPoolPause(
   params: {
     approvedSigner: ethers.Signer;
@@ -334,7 +344,7 @@ export async function initTranche(params: {
   // assert(params.assetAddresses.length == params.reserveFactors.length, "array lengths not equal");
   // assert(params.assetAddresses.length == params.canBorrow.length, "array lengths not equal");
   // assert(params.assetAddresses.length == params.canBeCollateral.length, "array lengths not equal");
-
+  let tx;
   let mytranche = (
     await getTotalTranches({
       network: params.network,
@@ -403,7 +413,7 @@ export async function initTranche(params: {
             `  - Reserve ready for: ${params.assetAddresses.join(", ")}`
             );
             console.log("    * gasUsed", (await tx3.wait(1)).gasUsed.toString());
-
+      tx = tx3;
     } catch (error) {
         throw new Error("Configurator Failed durining init reserve with " + error);
     }
@@ -438,6 +448,7 @@ export async function initTranche(params: {
     }
 
     if (callback) {
-        return await callback()
+        await callback()
     }
+    return tx?.hash;
 }
