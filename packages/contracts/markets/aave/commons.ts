@@ -127,22 +127,22 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   ProviderRegistry: {
-    [eEthereumNetwork.kovan]: '0x1E40B561EC587036f9789aF83236f057D1ed2A90',
+    [eEthereumNetwork.kovan]: '', //'0x1E40B561EC587036f9789aF83236f057D1ed2A90',
     [eEthereumNetwork.ropsten]: '',
-    [eEthereumNetwork.main]: '0x52D306e36E3B6B02c153d0266ff0f85d18BCD413',
+    [eEthereumNetwork.main]: '', //0x52D306e36E3B6B02c153d0266ff0f85d18BCD413
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.tenderly]: '0x52D306e36E3B6B02c153d0266ff0f85d18BCD413',
+    [eEthereumNetwork.tenderly]: '', //0x52D306e36E3B6B02c153d0266ff0f85d18BCD413
   },
   ProviderRegistryOwner: {
-    [eEthereumNetwork.kovan]: '0x85e4A467343c0dc4aDAB74Af84448D9c45D8ae6F',
+    [eEthereumNetwork.kovan]: '', // 0x85e4A467343c0dc4aDAB74Af84448D9c45D8ae6F
     [eEthereumNetwork.ropsten]: '',
-    [eEthereumNetwork.main]: '0xB9062896ec3A615a4e4444DF183F0531a77218AE',
+    [eEthereumNetwork.main]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.tenderly]: '0xB9062896ec3A615a4e4444DF183F0531a77218AE',
+    [eEthereumNetwork.tenderly]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
   },
   LendingRateOracle: {
     [eEthereumNetwork.coverage]: '',

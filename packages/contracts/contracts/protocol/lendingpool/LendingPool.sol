@@ -176,9 +176,7 @@ contract LendingPool is
                 "User is not whitelisted to borrow and deposit in same block"
             );
         }
-        DataTypes.DepositVars memory vars;
-        {
-            vars = DataTypes.DepositVars(
+        DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
                 address(_addressesProvider),
@@ -186,14 +184,22 @@ contract LendingPool is
                 onBehalfOf,
                 referralCode
             );
-        }
-        {
-            _reserves[asset][trancheId]._deposit(
-                vars,
-                _usersConfig[onBehalfOf][trancheId]
-            );
-        }
+
+        _reserves[asset][trancheId]._deposit(
+            vars,
+            _usersConfig[onBehalfOf][trancheId]
+        );
+
         lastUserDeposit[msg.sender][trancheId] = block.number;
+
+        emit Deposit(
+            vars.asset,
+            vars.trancheId,
+            msg.sender,
+            vars.onBehalfOf,
+            vars.amount,
+            vars.referralCode
+        );
     }
 
     /**
@@ -1034,7 +1040,7 @@ contract LendingPool is
         }
     }
 
-    
+
 
     function setAndApproveStrategy(
         address asset,
