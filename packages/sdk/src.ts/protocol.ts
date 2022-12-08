@@ -224,10 +224,10 @@ export async function supply(
   } catch (error) {
     throw new Error("failed to approve spend for underlying asset, error: " + error + " amount is " + amount.toString());
   }
-
+  let tx;
   try {
     if (params.test) {
-      await lendingPool.deposit(
+      tx = await lendingPool.deposit(
         params.underlying,
         params.trancheId,
         amount,
@@ -238,19 +238,20 @@ export async function supply(
         }
       );
     } else {
-      await lendingPool.deposit(
+      tx = await lendingPool.deposit(
         params.underlying,
         params.trancheId,
         amount,
         client,
         params.referrer || 0
-      ); //store transaction hash
+      ); 
     }
+    
   } catch (error) {
     throw new Error("Lending Pool Failed with " + error);
   }
 
-  if (params.collateral) {
+  if (params.collateral === false) {
     await lendingPool.setUserUseReserveAsCollateral(
       params.underlying,
       params.trancheId,
@@ -259,8 +260,9 @@ export async function supply(
   }
 
   if (callback) {
-    return await callback();
+    await callback();
   }
+  return tx?.hash;
 }
 
 export async function lendingPoolPause(
