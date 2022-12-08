@@ -45,23 +45,6 @@ library DepositWithdrawLogic {
         address indexed user
     );
 
-    /**
-     * @dev Emitted on deposit()
-     * @param reserve The address of the underlying asset of the reserve
-     * @param user The address initiating the deposit
-     * @param onBehalfOf The beneficiary of the deposit, receiving the aTokens
-     * @param amount The amount deposited
-     * @param referral The referral code used
-     **/
-    event Deposit(
-        address indexed reserve,
-        uint64 trancheId,
-        address user,
-        address indexed onBehalfOf,
-        uint256 amount,
-        uint16 indexed referral
-    );
-
     function _deposit(
         DataTypes.ReserveData storage self,
         DataTypes.DepositVars memory vars,
@@ -95,15 +78,6 @@ library DepositWithdrawLogic {
         if (isFirstDeposit) {
             user.setUsingAsCollateral(self.id, true); //default collateral is true
         }
-
-        emit Deposit(
-            vars.asset,
-            vars.trancheId,
-            msg.sender,
-            vars.onBehalfOf,
-            vars.amount,
-            vars.referralCode
-        );
     }
 
     /**
@@ -227,7 +201,7 @@ library DepositWithdrawLogic {
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
-        
+
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][
             vars.trancheId
         ];
