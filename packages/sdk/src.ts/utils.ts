@@ -1,5 +1,4 @@
-import { ethers } from "ethers";
-import BigNumber from "bignumber.js";
+import { ethers, BigNumber } from "ethers";
 import { deployments } from "./constants";
 import _ from "lodash";
 import { getLendingPoolConfiguratorProxy, getIErc20Detailed } from "./contract-getters";
@@ -9,9 +8,8 @@ import { decodeConstructorBytecode } from "./decode-bytecode";
 /**
  *
  */
-export async function approveUnderlying(
+export async function approveUnderlyingIfFirstInteraction(
   signer: ethers.Signer,
-  amount: any,
   underlying: string,
   spender: string
 ) {
@@ -19,10 +17,14 @@ export async function approveUnderlying(
     underlying,
     [
       "function approve(address spender, uint256 value) external returns (bool success)",
+      "function allowance(address owner, address spender) external view returns (uint256)",
     ],
     signer
   );
-  return await _underlying.connect(signer).approve(spender, amount);
+  let allowance = await _underlying.connect(signer).allowance(await signer.getAddress(), spender);
+  if(allowance.eq(BigNumber.from("0"))){
+    return await _underlying.connect(signer).approve(spender, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); //approves uint256 max
+  }
 }
 
 export async function getAllTrancheNames(
@@ -51,4 +53,3 @@ export const convertToCurrencyDecimals = async (
 
   return ethers.utils.parseUnits(amount, decimals);
 };
-

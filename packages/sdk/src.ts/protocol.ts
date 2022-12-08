@@ -5,7 +5,7 @@ import {
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
 } from "./contract-getters";
-import { approveUnderlying, convertToCurrencyDecimals } from "./utils";
+import { approveUnderlyingIfFirstInteraction, convertToCurrencyDecimals } from "./utils";
 import {getTotalTranches} from "./analytics";
 import { assert } from "console";
 
@@ -143,9 +143,8 @@ export async function repay(
   });
 
   try {
-    await approveUnderlying(
+    await approveUnderlyingIfFirstInteraction(
       params.signer,
-      amount,
       params.asset,
       lendingPool.address
     );
@@ -215,9 +214,8 @@ export async function supply(
   });
 
   try {
-    await approveUnderlying(
+    await approveUnderlyingIfFirstInteraction(
       params.signer,
-      amount,
       params.underlying,
       lendingPool.address
     );
