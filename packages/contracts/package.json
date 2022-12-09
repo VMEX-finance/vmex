@@ -67,7 +67,7 @@
     "aave:ropsten:full:migration": "npm run compile && npm run hardhat:ropsten -- aave:mainnet --verify",
     "aave:fork:main:tenderly": "npm run compile && npm run hardhat:tenderly-main -- aave:mainnet",
     "aave:fork:main": "npm run compile && FORK=main hardhat aave:mainnet",
-    "vmex:node:fork:main": "FORK=main npx hardhat node",
+    "vmex:node:fork:main": "FORK=main npx hardhat node --hostname 0.0.0.0",
     "vmex:deploy": "npm run compile && FORK=main hardhat aave:mainnet --network localhost",
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/*.spec.ts --network localhost",
     "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/test-collateralCap.spec.ts --network localhost",
