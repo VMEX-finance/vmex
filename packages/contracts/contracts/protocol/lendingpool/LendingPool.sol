@@ -315,6 +315,20 @@ contract LendingPool is
         );
 
         lastUserBorrow[msg.sender][trancheId] = block.number;
+
+        emit Borrow(
+            vars.asset,
+            vars.user,
+            vars.onBehalfOf,
+            vars.amount,
+            // vars.interestRateMode,
+            // DataTypes.InterestRateMode(vars.interestRateMode) ==
+            //     DataTypes.InterestRateMode.STABLE
+            //     ? currentStableRate
+            //     : reserve.currentVariableBorrowRate,
+            reserve.currentVariableBorrowRate,
+            vars.referralCode
+        );
     }
 
     /**

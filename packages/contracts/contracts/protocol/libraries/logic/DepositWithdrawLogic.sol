@@ -166,27 +166,6 @@ library DepositWithdrawLogic {
         return vars.amount;
     }
 
-    /**
-     * @dev Emitted on borrow() and flashLoan() when debt needs to be opened
-     * @param reserve The address of the underlying asset being borrowed
-     * @param user The address of the user initiating the borrow(), receiving the funds on borrow() or just
-     * initiator of the transaction on flashLoan()
-     * @param onBehalfOf The address that will be getting the debt
-     * @param amount The amount borrowed out
-     * @param borrowRateMode The rate mode: 1 for Stable, 2 for Variable
-     * @param borrowRate The numeric rate at which the user has borrowed
-     * @param referral The referral code used
-     **/
-    event Borrow(
-        address indexed reserve,
-        address user,
-        address indexed onBehalfOf,
-        uint256 amount,
-        uint256 borrowRateMode,
-        uint256 borrowRate,
-        uint16 indexed referral
-    );
-
     function _borrowHelper(
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage _reserves,
@@ -276,33 +255,20 @@ library DepositWithdrawLogic {
                 vars.amount
             );
         }
-
-        emit Borrow(
-            vars.asset,
-            vars.user,
-            vars.onBehalfOf,
-            vars.amount,
-            vars.interestRateMode,
-            DataTypes.InterestRateMode(vars.interestRateMode) ==
-                DataTypes.InterestRateMode.STABLE
-                ? currentStableRate
-                : reserve.currentVariableBorrowRate,
-            vars.referralCode
-        );
     }
 
-    struct FlashLoanLocalVars {
-        IFlashLoanReceiver receiver;
-        ILendingPoolAddressesProvider oracle;
-        uint256 i;
-        address currentAsset;
-        uint64 currentTranche;
-        address currentATokenAddress;
-        uint256 currentAmount;
-        uint256 currentPremium;
-        uint256 currentAmountPlusPremium;
-        address debtToken;
-    }
+    // struct FlashLoanLocalVars {
+    //     IFlashLoanReceiver receiver;
+    //     ILendingPoolAddressesProvider oracle;
+    //     uint256 i;
+    //     address currentAsset;
+    //     uint64 currentTranche;
+    //     address currentATokenAddress;
+    //     uint256 currentAmount;
+    //     uint256 currentPremium;
+    //     uint256 currentAmountPlusPremium;
+    //     address debtToken;
+    // }
 
     /**
      * @dev Emitted on flashLoan()
