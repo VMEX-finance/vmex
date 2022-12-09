@@ -50,6 +50,12 @@ library DepositWithdrawLogic {
         DataTypes.DepositVars memory vars,
         DataTypes.UserConfigurationMap storage user
     ) external {
+        uint256 userBalance = IAToken(vars.asset).balanceOf(msg.sender);
+
+        if(vars.amount > userBalance){
+            vars.amount = userBalance;
+        }
+
         ValidationLogic.validateDeposit(self, vars.amount);
 
         address aToken = self.aTokenAddress;
@@ -123,7 +129,7 @@ library DepositWithdrawLogic {
         //User B deposits another amount into the same pool. The liquidity index is now 1.2. User A now checks 909*1.2 = 1090.9, so he gets "interest" despite his scaled aTokens remaining the same
         //liquidityIndex is not 1 to 1 with pool amount. So there are additional funds left in pool in above case.
 
-        if (vars.amount == type(uint256).max) {
+        if (vars.amount > userBalance) {//== type(uint256).max) {
             vars.amount = userBalance; //amount to withdraw
         }
 

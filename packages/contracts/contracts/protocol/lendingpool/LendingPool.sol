@@ -353,6 +353,14 @@ contract LendingPool is
         {
             require(!_paused[trancheId], Errors.LP_IS_PAUSED);
         }
+        {
+            uint256 userBalance = IAToken(asset).balanceOf(msg.sender);
+
+            if(amount > userBalance){
+                amount = userBalance;
+            }
+        }
+        
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         (uint256 stableDebt, uint256 variableDebt) = Helpers.getUserCurrentDebt(
