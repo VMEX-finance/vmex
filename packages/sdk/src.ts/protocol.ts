@@ -114,7 +114,7 @@ export async function withdraw(
     signer: params.signer,
     network: params.network,
   });
-  if(params.isMax !== undefined && params.isMax){
+  if(params.isMax){
     tx = await lendingPool.withdraw(
       params.asset,
       params.trancheId,
@@ -170,7 +170,7 @@ export async function repay(
   } catch (error) {
     throw new Error("failed to approve spend for underlying asset, error: " + error + " amount is " + amount.toString());
   }
-  if(params.isMax !== undefined && params.isMax){
+  if(params.isMax){
     tx = await lendingPool.repay(
       params.asset,
       params.trancheId,
