@@ -8,6 +8,9 @@ import { approveUnderlyingIfFirstInteraction, convertToCurrencyDecimals } from "
 import {getTotalTranches} from "./analytics";
 import { assert } from "console";
 
+const MAX_UINT_AMOUNT =
+  "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+
 export async function borrow(
   params: {
     underlying: string;
@@ -97,6 +100,7 @@ export async function withdraw(
     referralCode?: number;
     network: string;
     amount: number | ethers.BigNumberish;
+    isMax?: boolean
   },
   callback?: () => Promise<any>
 ) {
@@ -110,12 +114,23 @@ export async function withdraw(
     signer: params.signer,
     network: params.network,
   });
-  tx = await lendingPool.withdraw(
-    params.asset,
-    params.trancheId,
-    amount,
-    client
-  );
+  if(params.isMax){
+    tx = await lendingPool.withdraw(
+      params.asset,
+      params.trancheId,
+      MAX_UINT_AMOUNT,
+      client
+    );
+  }
+  else{
+    tx = await lendingPool.withdraw(
+      params.asset,
+      params.trancheId,
+      amount,
+      client
+    );
+  }
+  
 
   if (callback) {
     await callback().catch((error) => {
@@ -134,6 +149,7 @@ export async function repay(
     rateMode: number;
     amount: number | ethers.BigNumberish;
     network: string;
+    isMax?: boolean
   },
   callback?: () => Promise<any>
 ) {
@@ -154,13 +170,24 @@ export async function repay(
   } catch (error) {
     throw new Error("failed to approve spend for underlying asset, error: " + error + " amount is " + amount.toString());
   }
-  tx = await lendingPool.repay(
-    params.asset,
-    params.trancheId,
-    amount,
-    params.rateMode,
-    client
-  );
+  if(params.isMax){
+    tx = await lendingPool.repay(
+      params.asset,
+      params.trancheId,
+      MAX_UINT_AMOUNT,
+      params.rateMode,
+      client
+    );
+  }
+  else{
+    tx = await lendingPool.repay(
+      params.asset,
+      params.trancheId,
+      amount,
+      params.rateMode,
+      client
+    );
+  }
 
   if (callback) {
     await callback().catch((error) => {
