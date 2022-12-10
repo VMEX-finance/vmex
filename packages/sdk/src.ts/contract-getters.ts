@@ -14,8 +14,6 @@ export const defaultTestProvider = ethers.getDefaultProvider(
   "http://localhost:8545"
 );
 
-console.log("defaultTestProvider: ",defaultTestProvider);
-
 export const getIErc20Detailed = async (address: string) =>
   new ethers.Contract(address, IERC20Detailed.abi, defaultTestProvider)
 

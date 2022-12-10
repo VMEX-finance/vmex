@@ -360,6 +360,7 @@ contract LendingPool is
             reserve
         );
 
+
         DataTypes.InterestRateMode interestRateMode = DataTypes
             .InterestRateMode(rateMode);
 
@@ -392,7 +393,7 @@ contract LendingPool is
             IVariableDebtToken(reserve.variableDebtTokenAddress).burn(
                 onBehalfOf,
                 paybackAmount,
-                reserve.variableBorrowIndex
+                reserve.variableBorrowIndex //new borrow index that is updated in updateState
             );
         }
 

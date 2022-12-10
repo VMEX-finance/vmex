@@ -17,6 +17,7 @@
   "scripts": {
     "build": "yarn tsc",
     "test": "yarn build && mocha --timeout 0 --reporter spec",
+    "test:analytics": "yarn build && mocha --timeout 0 --reporter spec --grep Analytics",
     "test:specific": "mocha --reporter spec -- --grep",
     "fund:accounts": "mocha dev --timeout 0 --reporter spec"
   },
