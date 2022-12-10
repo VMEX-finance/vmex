@@ -137,7 +137,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Try to execute liquidation
     await expect(
-      pool.connect(user.signer).borrow(dai.address, tranche, '1', '1', '0', user.address)
+      pool.connect(user.signer).borrow(dai.address, tranche, '1', '0', user.address)
     ).revertedWith(LP_IS_PAUSED);
 
     // Unpause the pool
@@ -291,7 +291,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     await dai.connect(user.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
     await pool.connect(user.signer).deposit(dai.address, tranche, amountDAIToDeposit, user.address, '0');
 
-    await pool.connect(user.signer).borrow(usdc.address, tranche, amountToBorrow, 2, 0, user.address);
+    await pool.connect(user.signer).borrow(usdc.address, tranche, amountToBorrow, 0, user.address);
 
     // Pause pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);

@@ -135,8 +135,6 @@ contract LendingPool is
         initializer
     {
         _addressesProvider = provider;
-        _maxStableRateBorrowSizePercent = 2500;
-        _flashLoanPremiumTotal = 9;
         _maxNumberOfReserves = 128; //this might actually be fine since this is max number of reserves per trancheId?
     }
 
@@ -144,6 +142,7 @@ contract LendingPool is
      * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
      * - E.g. User deposits 100 USDC and gets in return 100 aUSDC
      * @param asset The address of the underlying asset to deposit
+     * @param trancheId The trancheId of the underlying asset to deposit
      * @param amount The amount to be deposited
      * @param onBehalfOf The address that will receive the aTokens, same as msg.sender if the user
      *   wants to receive them on his own wallet, or a different address if the beneficiary of aTokens
@@ -152,7 +151,8 @@ contract LendingPool is
      *   0 if the action is executed directly by the user, without any middle-man
      **/
     function deposit(
-        //allowing collateral changes here opens up possibility of attack where someone can try to change the collateral status of someone else, but this can only be done for the initial deposit
+        //TODO: has this been addressed yet?
+        // allowing collateral changes here opens up possibility of attack where someone can try to change the collateral status of someone else, but this can only be done for the initial deposit
         //confusing interface where users can choose their isCollateral but it only matters for the first deposit
         address asset,
         uint64 trancheId,
@@ -206,6 +206,7 @@ contract LendingPool is
      * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent aTokens owned
      * E.g. User has 100 aUSDC, calls withdraw() and receives 100 USDC, burning the 100 aUSDC
      * @param asset The address of the underlying asset to withdraw
+     * @param trancheId The trancheId of the underlying asset to withdraw
      * @param amount The underlying amount to be withdrawn
      *   - Send the value type(uint256).max in order to withdraw the whole aToken balance
      * @param to Address that will receive the underlying, same as msg.sender if the user
@@ -223,8 +224,8 @@ contract LendingPool is
             require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
         }
         require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
-        return
-            DepositWithdrawLogic._withdraw(
+
+        uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
                 _usersConfig[msg.sender][trancheId],
                 _reservesList[trancheId],
@@ -237,6 +238,9 @@ contract LendingPool is
                 ),
                 _addressesProvider
             );
+
+        emit Withdraw(asset, trancheId, msg.sender, to, actualAmount);
+        return actualAmount;
     }
 
     /**
@@ -246,8 +250,8 @@ contract LendingPool is
      * - E.g. User borrows 100 USDC passing as `onBehalfOf` his own address, receiving the 100 USDC in his wallet
      *   and 100 stable/variable debt tokens, depending on the `interestRateMode`
      * @param asset The address of the underlying asset to borrow
+     * @param trancheId The trancheId of the underlying asset to borrow
      * @param amount The amount to be borrowed
-     * @param interestRateMode The interest rate mode at which the user wants to borrow: 1 for Stable, 2 for Variable. Always 2 for now
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
      * @param onBehalfOf Address of the user who will receive the debt. Should be the address of the borrower itself
@@ -258,7 +262,6 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         uint256 amount,
-        uint256 interestRateMode,
         uint16 referralCode,
         address onBehalfOf
     )
@@ -267,8 +270,6 @@ contract LendingPool is
         whenNotPaused(trancheId)
         onlyWhitelistedDepositBorrow(trancheId)
     {
-        console.log("Borrow sender: ", msg.sender);
-        console.log("Borrow tranche: ", trancheId);
         if(isUsingWhitelist[trancheId]){
             require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
         }
@@ -279,28 +280,20 @@ contract LendingPool is
                 "User is not whitelisted to borrow and deposit in same block"
             );
         }
-        DataTypes.ReserveData storage reserve;
-        DataTypes.ExecuteBorrowParams memory vars;
+        DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
-        {
-            reserve = _reserves[asset][trancheId];
-        }
-
-        {
-            vars = DataTypes.ExecuteBorrowParams(
+        DataTypes.ExecuteBorrowParams memory vars = DataTypes.ExecuteBorrowParams(
                 asset,
                 trancheId,
                 msg.sender,
                 onBehalfOf,
                 amount,
-                interestRateMode,
                 reserve.aTokenAddress,
                 referralCode,
                 true,
-                _maxStableRateBorrowSizePercent,
                 _reservesCount[trancheId]
             );
-        }
+
 
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
             onBehalfOf
@@ -318,14 +311,10 @@ contract LendingPool is
 
         emit Borrow(
             vars.asset,
+            trancheId,
             vars.user,
             vars.onBehalfOf,
             vars.amount,
-            // vars.interestRateMode,
-            // DataTypes.InterestRateMode(vars.interestRateMode) ==
-            //     DataTypes.InterestRateMode.STABLE
-            //     ? currentStableRate
-            //     : reserve.currentVariableBorrowRate,
             reserve.currentVariableBorrowRate,
             vars.referralCode
         );
@@ -335,9 +324,9 @@ contract LendingPool is
      * @notice Repays a borrowed `amount` on a specific reserve, burning the equivalent debt tokens owned
      * - E.g. User repays 100 USDC, burning 100 variable/stable debt tokens of the `onBehalfOf` address
      * @param asset The address of the borrowed underlying asset previously borrowed
+     * @param trancheId The trancheId of the borrowed underlying asset previously borrowed
      * @param amount The amount to repay
      * - Send the value type(uint256).max in order to repay the whole debt for `asset` on the specific `debtMode`
-     * @param rateMode The interest rate mode at of the debt the user wants to repay: 1 for Stable, 2 for Variable
      * @param onBehalfOf Address of the user who will get his debt reduced/removed. Should be the address of the
      * user calling the function if he wants to reduce/remove his own debt, or the address of any other
      * other borrower whose debt should be removed
@@ -347,36 +336,24 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         uint256 amount,
-        uint256 rateMode,
         address onBehalfOf
     ) external override returns (uint256) {
-        {
-            require(!_paused[trancheId], Errors.LP_IS_PAUSED);
-        }
+        require(!_paused[trancheId], Errors.LP_IS_PAUSED);
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
-        (uint256 stableDebt, uint256 variableDebt) = Helpers.getUserCurrentDebt(
+        (, uint256 variableDebt) = Helpers.getUserCurrentDebt(
             onBehalfOf,
             reserve
         );
 
-
-        DataTypes.InterestRateMode interestRateMode = DataTypes
-            .InterestRateMode(rateMode);
-
         ValidationLogic.validateRepay(
             reserve,
             amount,
-            interestRateMode,
             onBehalfOf,
-            stableDebt,
             variableDebt
         );
 
-        uint256 paybackAmount = interestRateMode ==
-            DataTypes.InterestRateMode.STABLE
-            ? stableDebt
-            : variableDebt;
+        uint256 paybackAmount = variableDebt;
 
         if (amount < paybackAmount) {
             paybackAmount = amount;
@@ -384,23 +361,16 @@ contract LendingPool is
 
         reserve.updateState();
 
-        if (interestRateMode == DataTypes.InterestRateMode.STABLE) {
-            IStableDebtToken(reserve.stableDebtTokenAddress).burn(
-                onBehalfOf,
-                paybackAmount
-            );
-        } else {
-            IVariableDebtToken(reserve.variableDebtTokenAddress).burn(
-                onBehalfOf,
-                paybackAmount,
-                reserve.variableBorrowIndex //new borrow index that is updated in updateState
-            );
-        }
+        IVariableDebtToken(reserve.variableDebtTokenAddress).burn(
+            onBehalfOf,
+            paybackAmount,
+            reserve.variableBorrowIndex
+        );
 
         address aToken = reserve.aTokenAddress;
         reserve.updateInterestRates(asset, aToken, paybackAmount, 0);
 
-        if (stableDebt.add(variableDebt).sub(paybackAmount) == 0) {
+        if (variableDebt.sub(paybackAmount) == 0) {
             _usersConfig[onBehalfOf][trancheId].setBorrowing(reserve.id, false);
         }
 
@@ -408,115 +378,10 @@ contract LendingPool is
 
         IAToken(aToken).handleRepayment(msg.sender, paybackAmount);
 
-        emit Repay(asset, onBehalfOf, msg.sender, paybackAmount);
+        emit Repay(asset, trancheId, onBehalfOf, msg.sender, paybackAmount);
 
         return paybackAmount;
     }
-
-    /**
-     * @dev Allows a borrower to swap his debt between stable and variable mode, or viceversa
-     * @param asset The address of the underlying asset borrowed
-     * @param rateMode The rate mode that the user wants to swap to
-     **/
-    function swapBorrowRateMode(
-        address asset,
-        uint64 trancheId,
-        uint256 rateMode
-    ) external override whenNotPaused(trancheId) {
-        DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
-
-        (uint256 stableDebt, uint256 variableDebt) = Helpers.getUserCurrentDebt(
-            msg.sender,
-            reserve
-        );
-
-        DataTypes.InterestRateMode interestRateMode = DataTypes
-            .InterestRateMode(rateMode);
-
-        ValidationLogic.validateSwapRateMode(
-            reserve,
-            _usersConfig[msg.sender][trancheId],
-            stableDebt,
-            variableDebt,
-            interestRateMode
-        );
-
-        reserve.updateState();
-
-        if (interestRateMode == DataTypes.InterestRateMode.STABLE) {
-            IStableDebtToken(reserve.stableDebtTokenAddress).burn(
-                msg.sender,
-                stableDebt
-            );
-            IVariableDebtToken(reserve.variableDebtTokenAddress).mint(
-                msg.sender,
-                msg.sender,
-                stableDebt,
-                reserve.variableBorrowIndex
-            );
-        } else {
-            IVariableDebtToken(reserve.variableDebtTokenAddress).burn(
-                msg.sender,
-                variableDebt,
-                reserve.variableBorrowIndex
-            );
-            IStableDebtToken(reserve.stableDebtTokenAddress).mint(
-                msg.sender,
-                msg.sender,
-                variableDebt,
-                reserve.currentStableBorrowRate
-            );
-        }
-
-        reserve.updateInterestRates(asset, reserve.aTokenAddress, 0, 0);
-
-        emit Swap(asset, msg.sender, rateMode);
-    }
-
-    /**
-     * @dev Rebalances the stable interest rate of a user to the current stable rate defined on the reserve.
-     * - Users can be rebalanced if the following conditions are satisfied:
-     *     1. Usage ratio is above 95%
-     *     2. the current deposit APY is below REBALANCE_UP_THRESHOLD * maxVariableBorrowRate, which means that too much has been
-     *        borrowed at a stable rate and depositors are not earning enough
-     * @param asset The address of the underlying asset borrowed
-     * @param user The address of the user to be rebalanced
-     **/
-    // function rebalanceStableBorrowRate(
-    //     address asset,
-    //     uint64 trancheId,
-    //     address user
-    // ) external override whenNotPaused(trancheId) {
-    //     DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
-
-    //     IERC20 stableDebtToken = IERC20(reserve.stableDebtTokenAddress);
-    //     IERC20 variableDebtToken = IERC20(reserve.variableDebtTokenAddress);
-    //     address aTokenAddress = reserve.aTokenAddress;
-
-    //     uint256 stableDebt = IERC20(stableDebtToken).balanceOf(user);
-
-    //     ValidationLogic.validateRebalanceStableBorrowRate(
-    //         reserve,
-    //         asset,
-    //         stableDebtToken,
-    //         variableDebtToken,
-    //         aTokenAddress
-    //     );
-
-    //     reserve.updateState();
-
-    //     IStableDebtToken(address(stableDebtToken)).burn(user, stableDebt);
-    //     IStableDebtToken(address(stableDebtToken)).mint(
-    //         user,
-    //         user,
-    //         stableDebt,
-    //         reserve.currentStableBorrowRate
-    //     );
-
-    //     reserve.updateInterestRates(asset, aTokenAddress, 0, 0);
-
-    //     emit RebalanceStableBorrowRate(asset, user);
-    // }
 
     /**
      * @dev Allows depositors to enable/disable a specific deposited asset as collateral
@@ -531,21 +396,19 @@ contract LendingPool is
         // require(
         //     assetDatas[asset].isLendable,
         //     "nonlendable assets must be set as collateral"
-        // ); //not sure if something like this is needed
+        // ); // TODO: not sure if something like this is needed
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
-        {
-            ValidationLogic.validateSetUseReserveAsCollateral(
-                reserve,
-                asset,
-                useAsCollateral,
-                _reserves,
-                _usersConfig[msg.sender][trancheId],
-                _reservesList[trancheId],
-                _reservesCount[trancheId],
-                _addressesProvider
-            );
-        }
+        ValidationLogic.validateSetUseReserveAsCollateral(
+            reserve,
+            asset,
+            useAsCollateral,
+            _reserves,
+            _usersConfig[msg.sender][trancheId],
+            _reservesList[trancheId],
+            _reservesCount[trancheId],
+            _addressesProvider
+        );
 
         _usersConfig[msg.sender][trancheId].setUsingAsCollateral(
             reserve.id,
@@ -553,9 +416,9 @@ contract LendingPool is
         );
 
         if (useAsCollateral) {
-            emit ReserveUsedAsCollateralEnabled(asset, msg.sender);
+            emit ReserveUsedAsCollateralEnabled(asset, trancheId, msg.sender);
         } else {
-            emit ReserveUsedAsCollateralDisabled(asset, msg.sender);
+            emit ReserveUsedAsCollateralDisabled(asset, trancheId, msg.sender);
         }
     }
 
@@ -565,6 +428,7 @@ contract LendingPool is
      *   a proportionally amount of the `collateralAsset` plus a bonus to cover market risk
      * @param collateralAsset The address of the underlying asset used as collateral, to receive as result of the liquidation
      * @param debtAsset The address of the underlying borrowed asset to be repaid with the liquidation
+     * @param trancheId The trancheId of the tranche this liquidation is occurring in
      * @param user The address of the borrower getting liquidated
      * @param debtToCover The debt amount of borrowed `asset` the liquidator wants to cover
      * @param receiveAToken `true` if the liquidators wants to receive the collateral aTokens, `false` if he wants
@@ -608,83 +472,10 @@ contract LendingPool is
         require(returnCode == 0, string(abi.encodePacked(returnMessage)));
     }
 
-    // struct FlashLoanLocalVars {
-    //     IFlashLoanReceiver receiver;
-    //     address oracle;
-    //     uint256 i;
-    //     address currentAsset;
-    //     uint64 currentTranche;
-    //     address currentATokenAddress;
-    //     uint256 currentAmount;
-    //     uint256 currentPremium;
-    //     uint256 currentAmountPlusPremium;
-    //     address debtToken;
-    // }
-
-    /**
-     * @dev Allows smartcontracts to access the liquidity of the pool within one transaction,
-     * as long as the amount taken plus a fee is returned.
-     * IMPORTANT There are security concerns for developers of flashloan receiver contracts that must be kept into consideration.
-     * For further details please visit https://developers.aave.com
-     * @param receiverAddress The address of the contract receiving the funds, implementing the IFlashLoanReceiver interface
-     * @param assets The addresses of the assets being flash-borrowed
-     * @param amounts The amounts amounts being flash-borrowed
-     * @param modes Types of the debt to open if the flash loan is not returned:
-     *   0 -> Don't open any debt, just revert if funds can't be transferred from the receiver
-     *   1 -> Open debt at stable rate for the value of the amount flash-borrowed to the `onBehalfOf` address
-     *   2 -> Open debt at variable rate for the value of the amount flash-borrowed to the `onBehalfOf` address
-     * @param onBehalfOf The address  that will receive the debt in the case of using on `modes` 1 or 2
-     * @param params Variadic packed params to pass to the receiver as extra information
-     * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-     *   0 if the action is executed directly by the user, without any middle-man
-     **/
-    // function flashLoan(
-    //     address receiverAddress,
-    //     address[] calldata assets,
-    //     uint64 trancheId,
-    //     uint256[] calldata amounts,
-    //     uint256[] calldata modes,
-    //     address onBehalfOf,
-    //     bytes calldata params,
-    //     uint16 referralCode
-    // ) external override {
-    //     {
-    //         require(!_paused[trancheId], Errors.LP_IS_PAUSED);
-    //     }
-    //     DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
-    //         onBehalfOf
-    //     ][trancheId];
-    //     DataTypes.flashLoanVars memory callvars;
-
-    //     {
-    //         callvars = DataTypes.flashLoanVars(
-    //             receiverAddress,
-    //             assets,
-    //             trancheId,
-    //             amounts,
-    //             modes,
-    //             onBehalfOf,
-    //             params,
-    //             referralCode,
-    //             _flashLoanPremiumTotal,
-    //             _addressesProvider.getAavePriceOracle(), //TODO: For now we are assuming that the assets we are flashloaning are not lendable so it would always be this oracle. Also this isn't even used lol
-    //             _maxStableRateBorrowSizePercent,
-    //             address(_addressesProvider)
-    //         );
-    //     }
-    //     DepositWithdrawLogic._flashLoan(
-    //         callvars,
-    //         assetDatas,
-    //         _reserves,
-    //         _reservesList,
-    //         _reservesCount,
-    //         userConfig
-    //     );
-    // }
-
     /**
      * @dev Returns the state and configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @return The state of the reserve
      **/
     function getReserveData(address asset, uint64 trancheId)
@@ -698,6 +489,9 @@ contract LendingPool is
 
     /**
      * @dev Sets the liquidity index calculated from strategy
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
+     * @param newLiquidityIndex The new liquidity index of the reserve
      **/
     function setReserveDataLI(address asset, uint64 trancheId, uint128 newLiquidityIndex)
         external
@@ -712,6 +506,8 @@ contract LendingPool is
     /**
      * @dev Returns the user account data across all the reserves in a specific trancheId
      * @param user The address of the user
+     * @param trancheId The trancheId
+     * @param useTwap 'true' if calculations should use TWAP, 'false' otherwise
      * @return totalCollateralETH the total collateral in ETH of the user
      * @return totalDebtETH the total debt in ETH of the user
      * @return availableBorrowsETH the borrowing power left of the user
@@ -747,7 +543,6 @@ contract LendingPool is
             _addressesProvider,
             useTwap
         );
-        // (uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
         availableBorrowsETH = GenericLogic.calculateAvailableBorrowsETH(
             totalCollateralETH,
@@ -759,6 +554,7 @@ contract LendingPool is
     /**
      * @dev Returns the configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @return The configuration of the reserve
      **/
     function getConfiguration(address asset, uint64 trancheId)
@@ -773,6 +569,7 @@ contract LendingPool is
     /**
      * @dev Returns the configuration of the user across all the reserves
      * @param user The user address
+     * @param trancheId The trancheId of all the reserves
      * @return The configuration of the user
      **/
     function getUserConfiguration(address user, uint64 trancheId)
@@ -787,6 +584,7 @@ contract LendingPool is
     /**
      * @dev Returns the normalized income per unit of asset
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @return The reserve's normalized income
      */
     function getReserveNormalizedIncome(address asset, uint64 trancheId)
@@ -802,6 +600,7 @@ contract LendingPool is
     /**
      * @dev Returns the normalized variable debt per unit of asset
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @return The reserve normalized variable debt
      */
     function getReserveNormalizedVariableDebt(address asset, uint64 trancheId)
@@ -814,14 +613,16 @@ contract LendingPool is
     }
 
     /**
-     * @dev Returns if the LendingPool is paused
+     * @dev Returns if the LendingPool tranche is paused
+     * @param trancheId The trancheId
      */
     function paused(uint64 trancheId) external view override returns (bool) {
         return _paused[trancheId];
     }
 
     /**
-     * @dev Returns the list of the initialized reserves. This is just placeholder, looking at tranche 0.
+     * @dev Returns the list of the initialized reserves.
+     * @param trancheId The trancheId of the reserves to look at
      **/
     function getReservesList(uint64 trancheId)
         external
@@ -866,24 +667,6 @@ contract LendingPool is
         returns (ILendingPoolAddressesProvider)
     {
         return _addressesProvider;
-    }
-
-    /**
-     * @dev Returns the percentage of available liquidity that can be borrowed at once at stable rate
-     */
-    // function MAX_STABLE_RATE_BORROW_SIZE_PERCENT()
-    //     public
-    //     view
-    //     returns (uint256)
-    // {
-    //     return _maxStableRateBorrowSizePercent;
-    // }
-
-    /**
-     * @dev Returns the fee on flash loans
-     */
-    function FLASHLOAN_PREMIUM_TOTAL() public view returns (uint256) {
-        return _flashLoanPremiumTotal;
     }
 
     /**
@@ -934,7 +717,7 @@ contract LendingPool is
                 DataTypes.UserConfigurationMap
                     storage fromConfig = _usersConfig[from][trancheId];
                 fromConfig.setUsingAsCollateral(reserveId, false);
-                emit ReserveUsedAsCollateralDisabled(asset, from);
+                emit ReserveUsedAsCollateralDisabled(asset, trancheId, from);
             }
 
             if (balanceToBefore == 0 && amount != 0) {
@@ -942,7 +725,7 @@ contract LendingPool is
                     to
                 ][trancheId];
                 toConfig.setUsingAsCollateral(reserveId, true);
-                emit ReserveUsedAsCollateralEnabled(asset, to);
+                emit ReserveUsedAsCollateralEnabled(asset, trancheId, to);
             }
         }
     }

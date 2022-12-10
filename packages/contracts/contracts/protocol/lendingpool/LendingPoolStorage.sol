@@ -28,10 +28,6 @@ contract LendingPoolStorage {
 
     mapping(uint64 => bool) internal _paused; //trancheId -> paused
 
-    uint256 internal _maxStableRateBorrowSizePercent;
-
-    uint256 internal _flashLoanPremiumTotal;
-
     uint256 internal _maxNumberOfReserves;
 
     mapping(address => bool) isWhitelistedDepositBorrow;

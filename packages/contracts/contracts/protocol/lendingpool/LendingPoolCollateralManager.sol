@@ -263,6 +263,7 @@ contract LendingPoolCollateralManager is
                 );
                 emit ReserveUsedAsCollateralEnabled(
                     collateralAsset,
+                    trancheId,
                     msg.sender
                 );
             }
@@ -274,7 +275,6 @@ contract LendingPoolCollateralManager is
                 0,
                 vars.maxCollateralToLiquidate
             );
-            console.log("trying to burn", vars.maxCollateralToLiquidate);
             // Burn the equivalent amount of aToken, sending the underlying to the liquidator
             vars.collateralAtoken.burn(
                 user,
@@ -282,14 +282,13 @@ contract LendingPoolCollateralManager is
                 vars.maxCollateralToLiquidate,
                 collateralReserve.liquidityIndex
             );
-            console.log("done with burn");
         }
 
         // If the collateral being liquidated is equal to the user balance,
         // we set the currency as not being used as collateral anymore
         if (vars.maxCollateralToLiquidate == vars.userCollateralBalance) {
             userConfig.setUsingAsCollateral(collateralReserve.id, false);
-            emit ReserveUsedAsCollateralDisabled(collateralAsset, user);
+            emit ReserveUsedAsCollateralDisabled(collateralAsset, trancheId, user);
         }
 
         // Transfers the debt asset being repaid to the aToken, where the liquidity is kept
@@ -302,6 +301,7 @@ contract LendingPoolCollateralManager is
         emit LiquidationCall(
             collateralAsset,
             debtAsset,
+            trancheId,
             user,
             vars.actualDebtToLiquidate,
             vars.maxCollateralToLiquidate,

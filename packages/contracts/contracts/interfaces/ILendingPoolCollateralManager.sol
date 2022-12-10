@@ -8,18 +8,23 @@ pragma solidity >=0.8.0;
  **/
 interface ILendingPoolCollateralManager {
     /**
-     * @dev Emitted when a borrower is liquidated
-     * @param collateral The address of the collateral being liquidated
-     * @param principal The address of the reserve
-     * @param user The address of the user being liquidated
-     * @param debtToCover The total amount liquidated
-     * @param liquidatedCollateralAmount The amount of collateral being liquidated
+     * @dev Emitted when a borrower is liquidated. This event is emitted by the LendingPool via
+     * LendingPoolCollateral manager using a DELEGATECALL
+     * This allows to have the events in the generated ABI for LendingPool.
+     * @param collateralAsset The address of the underlying asset used as collateral, to receive as result of the liquidation
+     * @param debtAsset The address of the underlying borrowed asset to be repaid with the liquidation
+     * @param trancheId The trancheId of the liquidation
+     * @param user The address of the borrower getting liquidated
+     * @param debtToCover The debt amount of borrowed `asset` the liquidator wants to cover
+     * @param liquidatedCollateralAmount The amount of collateral received by the liiquidator
      * @param liquidator The address of the liquidator
-     * @param receiveAToken true if the liquidator wants to receive aTokens, false otherwise
+     * @param receiveAToken `true` if the liquidators wants to receive the collateral aTokens, `false` if he wants
+     * to receive the underlying collateral asset directly
      **/
     event LiquidationCall(
-        address indexed collateral,
-        address indexed principal,
+        address indexed collateralAsset,
+        address indexed debtAsset,
+        uint64 trancheId,
         address indexed user,
         uint256 debtToCover,
         uint256 liquidatedCollateralAmount,
@@ -28,22 +33,26 @@ interface ILendingPoolCollateralManager {
     );
 
     /**
-     * @dev Emitted when a reserve is disabled as collateral for an user
-     * @param reserve The address of the reserve
-     * @param user The address of the user
+     * @dev Emitted on setUserUseReserveAsCollateral()
+     * @param reserve The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
+     * @param user The address of the user enabling the usage as collateral
      **/
     event ReserveUsedAsCollateralDisabled(
         address indexed reserve,
+        uint64 trancheId,
         address indexed user
     );
 
     /**
-     * @dev Emitted when a reserve is enabled as collateral for an user
-     * @param reserve The address of the reserve
-     * @param user The address of the user
+     * @dev Emitted on setUserUseReserveAsCollateral()
+     * @param reserve The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
+     * @param user The address of the user enabling the usage as collateral
      **/
     event ReserveUsedAsCollateralEnabled(
         address indexed reserve,
+        uint64 trancheId,
         address indexed user
     );
 
