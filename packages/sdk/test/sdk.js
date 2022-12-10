@@ -55,7 +55,7 @@ const USDCaddr = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
 const network = "localhost";
 
-describe("Tranche creation - end-to-end test", () => {
+describe("Analytics", () => {
   let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
   const temp = provider.getSigner(2);
   var mytranche;
@@ -69,6 +69,23 @@ describe("Tranche creation - end-to-end test", () => {
 
     // console.log(dat)
   });
+
+  it("1 - test get tranche data", async () => {
+    const dat = await getUserTrancheData({
+      tranche: "0",
+      user: await temp.getAddress(),
+      network: network,
+      test: true,
+    });
+
+    console.log(JSON.stringify(dat))
+  });
+});
+
+describe("Tranche creation - end-to-end test", () => {
+  let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+  const temp = provider.getSigner(2);
+  var mytranche;
 
   it("1 - init reserves in this tranche", async () => {
     let assets0 = [TOKEN_ADDR_MAINNET.AAVE, TOKEN_ADDR_MAINNET.DAI];
@@ -102,7 +119,7 @@ describe("Tranche creation - end-to-end test", () => {
     ).to.be.true;
   });
 
-  
+
   // initTranche
 });
 

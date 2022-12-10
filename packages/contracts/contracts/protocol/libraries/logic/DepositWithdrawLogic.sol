@@ -56,8 +56,8 @@ library DepositWithdrawLogic {
 
         // if (assetData.isLendable) {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
-        self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
         self.updateState();
+        self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
         {
             address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle(
                         AssetMappings(ILendingPoolAddressesProvider(vars._addressesProvider).getAssetMappings()).getAssetType(vars.asset)
@@ -139,8 +139,8 @@ library DepositWithdrawLogic {
             _addressesProvider
         );
 
-        reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount);
         reserve.updateState();
+        reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount);
 
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
