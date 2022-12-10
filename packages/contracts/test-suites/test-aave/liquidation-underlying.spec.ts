@@ -92,7 +92,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(borrower.signer)
-      .borrow(dai.address, tranche, amountDAIToBorrow, RateMode.Stable, '0', borrower.address);
+      .borrow(dai.address, tranche, amountDAIToBorrow, '0', borrower.address);
 
     const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche,false);
 
@@ -278,7 +278,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     await pool
       .connect(borrower.signer)
-      .borrow(usdc.address, tranche, amountUSDCToBorrow, RateMode.Stable, '0', borrower.address);
+      .borrow(usdc.address, tranche, amountUSDCToBorrow, '0', borrower.address);
 
     //drops HF below 1
     await oracle.setAssetPrice(
