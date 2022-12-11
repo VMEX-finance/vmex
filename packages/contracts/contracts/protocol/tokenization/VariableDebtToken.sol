@@ -53,6 +53,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
         emit Initialized(
             underlyingAsset,
+            trancheId,
             address(pool),
             address(incentivesController),
             debtTokenDecimals,

@@ -802,20 +802,38 @@ contract LendingPool is
     }
 
     /**
-     * @dev Set the _pause state of a reserve
+     * @dev Set the _pause state of the entire lending pool
+     * - Only callable by the LendingPoolConfigurator contract
+     * @param val `true` to pause the reserve, `false` to un-pause it
+     */
+    function setPauseEverything(bool val)
+        external
+        override
+        onlyLendingPoolConfigurator
+    {
+        _everythingPaused = val;
+        if (_everythingPaused) {
+            emit EverythingPaused();
+        } else {
+            emit EverythingUnpaused();
+        }
+    }
+
+    /**
+     * @dev Set the _pause state of a tranche
      * - Only callable by the LendingPoolConfigurator contract
      * @param val `true` to pause the reserve, `false` to un-pause it
      */
     function setPause(bool val, uint64 trancheId)
         external
         override
-        onlyLendingPoolConfigurator
+        onlyLendingPoolConfigurator     // TODO: change to onlyTrancheAdmin
     {
         _paused[trancheId] = val;
         if (_paused[trancheId]) {
-            emit Paused();
+            emit Paused(trancheId);
         } else {
-            emit Unpaused();
+            emit Unpaused(trancheId);
         }
     }
 
