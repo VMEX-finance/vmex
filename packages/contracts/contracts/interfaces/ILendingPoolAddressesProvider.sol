@@ -17,9 +17,9 @@ interface ILendingPoolAddressesProvider {
     // event ATokensAndRatesHelperUpdated(address indexed newAddress);
     event ConfigurationAdminUpdated(
         address indexed newAddress,
-        uint64 trancheId
+        uint64 indexed trancheId
     );
-    event EmergencyAdminUpdated(address indexed newAddress, uint64 trancheId);
+    event EmergencyAdminUpdated(address indexed newAddress, uint64 indexed trancheId);
     event LendingPoolConfiguratorUpdated(address indexed newAddress);
     event LendingPoolCollateralManagerUpdated(address indexed newAddress);
     event PriceOracleUpdated(address indexed newAddress);

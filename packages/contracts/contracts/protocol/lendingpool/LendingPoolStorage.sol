@@ -27,6 +27,7 @@ contract LendingPoolStorage {
     mapping(uint64 => uint256) internal _reservesCount; //trancheId id -> number of reserves per that trancheId
 
     mapping(uint64 => bool) internal _paused; //trancheId -> paused
+    bool internal _everythingPaused; //true if all tranches in the lendingpool is paused
 
     uint256 internal _maxNumberOfReserves;
 

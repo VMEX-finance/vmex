@@ -98,12 +98,22 @@ interface ILendingPool {
     /**
      * @dev Emitted when the pause is triggered.
      */
-    event Paused();
+    event Paused(uint64 indexed trancheId);
 
     /**
      * @dev Emitted when the pause is lifted.
      */
-    event Unpaused();
+    event Unpaused(uint64 indexed trancheId);
+
+    /**
+     * @dev Emitted when the pause is triggered.
+     */
+    event EverythingPaused();
+
+    /**
+     * @dev Emitted when the pause is lifted.
+     */
+    event EverythingUnpaused();
 
     /**
      * @dev Emitted when a borrower is liquidated. This event is emitted by the LendingPool via
@@ -407,6 +417,8 @@ interface ILendingPool {
         external
         view
         returns (ILendingPoolAddressesProvider);
+
+    function setPauseEverything(bool val) external;
 
     function setPause(bool val, uint64 trancheId) external;
 
