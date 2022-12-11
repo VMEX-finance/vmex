@@ -487,7 +487,7 @@ contract LendingPoolConfigurator is
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        currentConfig.setBorrowingEnabled(false);
+        currentConfig.setBorrowingEnabled(true);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
         // emit BorrowingDisabledOnReserve(asset);
