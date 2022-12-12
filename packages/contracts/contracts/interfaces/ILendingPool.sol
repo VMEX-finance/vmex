@@ -146,6 +146,7 @@ interface ILendingPool {
      * the event will actually be fired by the LendingPool contract. The event is therefore replicated here so it
      * gets added to the LendingPool ABI
      * @param reserve The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @param liquidityRate The new liquidity rate
      * @param stableBorrowRate The new stable borrow rate
      * @param variableBorrowRate The new variable borrow rate
@@ -154,6 +155,7 @@ interface ILendingPool {
      **/
     event ReserveDataUpdated(
         address indexed reserve,
+        uint64 indexed trancheId,
         uint256 liquidityRate,
         uint256 stableBorrowRate,
         uint256 variableBorrowRate,

@@ -30,7 +30,8 @@ library ReserveLogic {
 
     /**
      * @dev Emitted when the state of a reserve is updated
-     * @param asset The address of the underlying asset of the reserve
+     * @param reserve The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @param liquidityRate The new liquidity rate
      * @param stableBorrowRate The new stable borrow rate
      * @param variableBorrowRate The new variable borrow rate
@@ -38,7 +39,8 @@ library ReserveLogic {
      * @param variableBorrowIndex The new variable borrow index
      **/
     event ReserveDataUpdated(
-        address indexed asset,
+        address indexed reserve,
+        uint64 indexed trancheId,
         uint256 liquidityRate,
         uint256 stableBorrowRate,
         uint256 variableBorrowRate,
@@ -244,46 +246,39 @@ library ReserveLogic {
     ) internal {
         if (IAToken(reserve.aTokenAddress).getStrategy() == address(0)) {
             UpdateInterestRatesLocalVars memory vars;
-            {
-                vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
 
-                (vars.totalStableDebt, vars.avgStableRate) = IStableDebtToken(
-                    vars.stableDebtTokenAddress
-                ).getTotalSupplyAndAvgRate();
-            }
+            vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
 
-            {
-                //calculates the total variable debt locally using the scaled total supply instead
-                //of totalSupply(), as it's noticeably cheaper. Also, the index has been
-                //updated by the previous updateState() call
-                vars.totalVariableDebt = IVariableDebtToken(
-                    reserve.variableDebtTokenAddress
-                ).scaledTotalSupply().rayMul(reserve.variableBorrowIndex);
-            }
+            (vars.totalStableDebt, vars.avgStableRate) = IStableDebtToken(
+                vars.stableDebtTokenAddress
+            ).getTotalSupplyAndAvgRate();
 
-            DataTypes.calculateInterestRatesVars memory calvars;
-            {
-                calvars = DataTypes.calculateInterestRatesVars(
-                    reserveAddress,
-                    aTokenAddress,
-                    liquidityAdded,
-                    liquidityTaken,
-                    vars.totalStableDebt,
-                    vars.totalVariableDebt,
-                    vars.avgStableRate,
-                    reserve.configuration.getReserveFactor(),
-                    reserve.configuration.getVMEXReserveFactor()
-                );
-            }
-            {
-                (
-                    vars.newLiquidityRate,
-                    vars.newStableRate,
-                    vars.newVariableRate
-                ) = IReserveInterestRateStrategy(
-                    reserve.interestRateStrategyAddress
-                ).calculateInterestRates(calvars);
-            }
+            //calculates the total variable debt locally using the scaled total supply instead
+            //of totalSupply(), as it's noticeably cheaper. Also, the index has been
+            //updated by the previous updateState() call
+            vars.totalVariableDebt = IVariableDebtToken(
+                reserve.variableDebtTokenAddress
+            ).scaledTotalSupply().rayMul(reserve.variableBorrowIndex);
+
+            DataTypes.calculateInterestRatesVars memory calvars =
+                DataTypes.calculateInterestRatesVars(
+                        reserveAddress,
+                        aTokenAddress,
+                        liquidityAdded,
+                        liquidityTaken,
+                        vars.totalStableDebt,
+                        vars.totalVariableDebt,
+                        vars.avgStableRate,
+                        reserve.configuration.getReserveFactor(),
+                        reserve.configuration.getVMEXReserveFactor()
+                    );
+            (
+                vars.newLiquidityRate,
+                vars.newStableRate,
+                vars.newVariableRate
+            ) = IReserveInterestRateStrategy(
+                reserve.interestRateStrategyAddress
+            ).calculateInterestRates(calvars);
 
             require(
                 vars.newLiquidityRate <= type(uint128).max,
@@ -304,6 +299,7 @@ library ReserveLogic {
 
             emit ReserveDataUpdated(
                 reserveAddress,
+                reserve.trancheId,
                 vars.newLiquidityRate,
                 vars.newStableRate,
                 vars.newVariableRate,
