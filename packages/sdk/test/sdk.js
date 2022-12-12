@@ -356,7 +356,6 @@ describe("Borrow - end-to-end test", () => {
       underlying: WETHaddr,
       trancheId: tranche,
       amount: "0.1",
-      interestRateMode: RateMode.Variable,
       signer: temp,
       network: network,
       test: true,
