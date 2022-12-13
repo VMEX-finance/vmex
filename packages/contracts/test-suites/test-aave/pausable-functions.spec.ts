@@ -137,7 +137,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Try to execute liquidation
     await expect(
-      pool.connect(user.signer).borrow(dai.address, tranche, '1', '0', user.address)
+      pool.connect(user.signer).borrow(dai.address, tranche, '0', user.address)
     ).revertedWith(LP_IS_PAUSED);
 
     // Unpause the pool
@@ -153,7 +153,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
 
     // Try to execute liquidation
-    await expect(pool.connect(user.signer).repay(dai.address, tranche, '1', '1', user.address)).revertedWith(
+    await expect(pool.connect(user.signer).repay(dai.address, tranche, '1', user.address)).revertedWith(
       LP_IS_PAUSED
     );
 
@@ -241,7 +241,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(usdc.address, tranche, amountUSDCToBorrow, RateMode.Stable, '0', borrower.address);
+      .borrow(usdc.address, tranche, amountUSDCToBorrow, '0', borrower.address);
 
     // Drops HF below 1
     await oracle.setAssetPrice(
@@ -295,11 +295,6 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Pause pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
-
-    // Try to repay
-    await expect(
-      pool.connect(user.signer).swapBorrowRateMode(usdc.address, tranche, RateMode.Stable)
-    ).revertedWith(LP_IS_PAUSED);
 
     // Unpause pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
