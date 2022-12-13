@@ -16,6 +16,7 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import {AssetMappings} from "../../../protocol/lendingpool/AssetMappings.sol";
 import {DataTypes} from "../../../protocol/libraries/types/DataTypes.sol";
 
+import "hardhat/console.sol";
 //need modifiers for permissioned actors after built into lending pool
 contract CrvLpEthStrategy is BaseStrategy {
     //NOTE: underlying and lendingPool are inherited from BaseStrategy.sol
@@ -206,6 +207,8 @@ contract CrvLpEthStrategy is BaseStrategy {
                 ethBalance,
                 depositAmountWanted
             );
+        console.log("amounts[0]: ",amounts[0]);
+        console.log("amounts[1]: ",amounts[1]);
         //in eth pools, eth seems to always be index 0
         curvePool.add_liquidity{value: ethBalance}(amounts, 0);
 

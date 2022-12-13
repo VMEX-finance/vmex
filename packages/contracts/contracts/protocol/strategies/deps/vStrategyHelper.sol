@@ -1,6 +1,7 @@
 pragma solidity >=0.8.0;
 
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
+import {IWETH} from "../../../../contracts/misc/interfaces/IWETH.sol";
 import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IBaseRewardsPool} from "./convex/IBaseRewardsPool.sol";
 import {IVirtualBalanceRewardPool} from "./convex/IVirtualBalanceRewardPool.sol";
@@ -210,7 +211,13 @@ library vStrategyHelper {
             highestPayingIdx = 0;
             
         }
-        require(curvePoolTokens[highestPayingIdx]==wantedDepositToken, "Inconsistent index and token");
+        if(wantedDepositToken==ethNative){
+            wantedDepositToken = WETH; 
+        }
+        else{
+            require(curvePoolTokens[highestPayingIdx]==wantedDepositToken, "Inconsistent index and token");
+        }
+        
         console.log("wantedDepositToken: ", wantedDepositToken);
 
 
@@ -308,6 +315,10 @@ library vStrategyHelper {
                     console.log("Swap cvx Unknown error: ", string(reason));
                 }
         }
+
+        // if(wantedDepositToken == ethNative){ //should all be WETH now, convert WETH to ETH
+        //     IWETH(WETH).withdraw(IERC20(WETH).balanceOf(address(this)));
+        // }
 
         //get the lowest balance coin in the pool for max lp tokens on deposit
         depositAmountWanted = IERC20(wantedDepositToken).balanceOf(

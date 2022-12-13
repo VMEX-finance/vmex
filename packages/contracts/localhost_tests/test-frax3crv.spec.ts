@@ -11,6 +11,7 @@ import {getCurvePrice} from "./helpers/curve-calculation";
 import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
 import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
+
 chai.use(function (chai: any, utils: any) {
   chai.Assertion.overwriteMethod(
     "almostEqualOrEqual",
@@ -439,12 +440,12 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
             console.log("strategy AFTER WITHDRAW boosted balance: " + strategyBoostedBalance);
             expect((await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")).currentATokenBalance.div(100)).to.be.almostEqualOrEqual(strategyBoostedBalance.div(100))
 
-            await lendingPool.connect(ethers.getSigner("0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49"))
-                .withdraw(
-                  CurveToken.address,
-                  1,
-                  (await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")).currentATokenBalance, //withdraw all
-                  "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
+            // await lendingPool.connect(strategy.provider.getSigner("0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49"))
+            //     .withdraw(
+            //       CurveToken.address,
+            //       1,
+            //       (await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")).currentATokenBalance, //withdraw all
+            //       "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
           });
     }
 )
