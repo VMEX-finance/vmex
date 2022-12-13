@@ -107,7 +107,7 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
       users[1].address
     );
 
-    expect(userReserveData.currentStableDebt.toString()).to.be.eq(
+    expect(userReserveData.currentVariableDebt.toString()).to.be.eq(
       ethers.utils.parseEther("0.1")
     );
   });

@@ -238,7 +238,7 @@ makeSuite(
       await waitForTx(
         await wethGateway
           .connect(user.signer)
-          .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, "2", user.address, {
+          .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, user.address, {
             value: repaySize,
           })
       );
