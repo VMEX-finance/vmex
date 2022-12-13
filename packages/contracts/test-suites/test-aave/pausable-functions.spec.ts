@@ -137,7 +137,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Try to execute liquidation
     await expect(
-      pool.connect(user.signer).borrow(dai.address, tranche, '0', user.address)
+      pool.connect(user.signer).borrow(dai.address, tranche, '1', '0', user.address)
     ).revertedWith(LP_IS_PAUSED);
 
     // Unpause the pool
