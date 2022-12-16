@@ -28,7 +28,7 @@ makeSuite(
       const { dai, users, pool, oracle } = testEnv;
       await oracle.updateTWAP(dai.address); //zeros it
 
-      
+
       var expected:BigNumber =  BigNumber.from("0"); //trapezoid rule, where first and last points are multiplied by 1 but all other points are multiplied by 2
 
       // expected = expected.add(daiPrice);
@@ -44,13 +44,13 @@ makeSuite(
         await oracle.updateTWAP(dai.address);
         let avgPrice = (daiPriceBefore.add(daiPriceAfter)).div(2)
         expected = expected.add(avgPrice.mul(3600))
-        
+
       }
       expected = expected.div(3600*23);
       console.log("oracle.getAssetTWAPPrice(dai.address).div(10000): ", await oracle.getAssetTWAPPrice(dai.address));
       console.log("expected: ", expected)
       expect(BigNumber.from(await oracle.getAssetTWAPPrice(dai.address)).div(1000000000000)).to.be.bignumber.equal(expected.div(1000000000000));
-      
+
     });
 
     it("Mock dai price manipulation to try to borrow more than collateral", async () => {
@@ -62,7 +62,7 @@ makeSuite(
       await dai
         .connect(depositor.signer)
         .mint(await convertToCurrencyDecimals(dai.address, "1000"));
-      
+
       console.log("HERE!")
 
       //approve protocol to access depositor wallet
@@ -144,12 +144,11 @@ makeSuite(
           weth.address,
           "1",
           amountEthToBorrow,
-          RateMode.Variable,
           "0",
           depositor.address
         )).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
-      
+
     });
 
     it("don't update for a while", async () => {
@@ -184,7 +183,7 @@ makeSuite(
       expect(BigNumber.from(await oracle.getAssetTWAPPrice(dai.address))).to.be.bignumber.equal(daiPrice1); //last also equals recent
 
       await DRE.ethers.provider.send("evm_increaseTime", [43200]) //half a day
-      
+
       await oracle.setAssetPrice(
         dai.address,
         BigNumber.from(daiPrice1.toString()).mul(105).div(100)
@@ -204,8 +203,8 @@ makeSuite(
 
 
       await DRE.ethers.provider.send("evm_increaseTime", [3600]) //an hour
-      
-      
+
+
       await oracle.setAssetPrice(
         dai.address,
         BigNumber.from(daiPrice.toString()).mul(105).div(100)

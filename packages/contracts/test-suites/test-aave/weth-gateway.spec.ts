@@ -158,7 +158,7 @@ makeSuite(
       await waitForTx(
         await pool
           .connect(user.signer)
-          .borrow(weth.address, tranche, borrowSize, "1", "0", user.address)
+          .borrow(weth.address, tranche, borrowSize, "0", user.address)
       );
 
       const debtBalance = await stableDebtToken.balanceOf(user.address);
@@ -169,7 +169,7 @@ makeSuite(
       await waitForTx(
         await wethGateway
           .connect(user.signer)
-          .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, "1", user.address, {
+          .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, user.address, {
             value: repaySize,
           })
       );
@@ -212,7 +212,7 @@ makeSuite(
       await waitForTx(
         await pool
           .connect(user.signer)
-          .borrow(weth.address, tranche, borrowSize, "2", "0", user.address)
+          .borrow(weth.address, tranche, borrowSize, "0", user.address)
       );
 
       const debtBalance = await varDebtToken.balanceOf(user.address);
@@ -224,7 +224,7 @@ makeSuite(
       await waitForTx(
         await wethGateway
           .connect(user.signer)
-          .repayETH(pool.address, tranche, partialPayment, "2", user.address, {
+          .repayETH(pool.address, tranche, partialPayment, user.address, {
             value: partialPayment,
           })
       );
@@ -238,7 +238,7 @@ makeSuite(
       await waitForTx(
         await wethGateway
           .connect(user.signer)
-          .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, "2", user.address, {
+          .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, user.address, {
             value: repaySize,
           })
       );

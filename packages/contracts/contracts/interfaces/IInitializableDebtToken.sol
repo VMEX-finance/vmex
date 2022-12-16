@@ -13,6 +13,7 @@ interface IInitializableDebtToken {
     /**
      * @dev Emitted when a debt token is initialized
      * @param underlyingAsset The address of the underlying asset
+     * @param trancheId The tranche of the underlying asset
      * @param pool The address of the associated lending pool
      * @param incentivesController The address of the incentives controller for this aToken
      * @param debtTokenDecimals the decimals of the debt token
@@ -21,6 +22,7 @@ interface IInitializableDebtToken {
      **/
     event Initialized(
         address indexed underlyingAsset,
+        uint64 indexed trancheId,
         address indexed pool,
         address incentivesController,
         uint8 debtTokenDecimals,

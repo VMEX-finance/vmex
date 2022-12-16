@@ -136,6 +136,7 @@ contract AToken is
 
         emit Initialized(
             vars.underlyingAsset,
+            vars.trancheId,
             address(pool),
             vars.treasury,
             address(incentivesController),
@@ -183,9 +184,7 @@ contract AToken is
 
         if (_strategy != address(0x0)) {
             // withdraw from strategy
-            console.log("trying to withdraw from strat", amount);
             IBaseStrategy(_strategy).withdraw(amount);
-            console.log("done");
 
             // NOTE: the strategist should adjust the supply to stay above 5%, however in the case where the strategist
             // is not able to adjust, the first user who wants to withdraw past 5% will pay the gas to fix the rate

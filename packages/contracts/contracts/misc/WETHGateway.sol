@@ -91,15 +91,14 @@ contract WETHGateway is IWETHGateway, Ownable {
     /**
      * @dev repays a borrow on the WETH reserve, for the specified amount (or for the whole amount, if type(uint256).max is specified).
      * @param lendingPool address of the targeted underlying lending pool
+     * @param trancheId trancheId to repay ETH to
      * @param amount the amount to repay, or type(uint256).max if the user wants to repay everything
-     * @param rateMode the rate mode to repay
      * @param onBehalfOf the address for which msg.sender is repaying
      */
     function repayETH(
         address lendingPool,
         uint64 trancheId,
         uint256 amount,
-        uint256 rateMode,
         address onBehalfOf
     ) external payable override {
         (uint256 stableDebt, uint256 variableDebt) = Helpers
@@ -111,10 +110,7 @@ contract WETHGateway is IWETHGateway, Ownable {
                 )
             );
 
-        uint256 paybackAmount = DataTypes.InterestRateMode(rateMode) ==
-            DataTypes.InterestRateMode.STABLE
-            ? stableDebt
-            : variableDebt;
+        uint256 paybackAmount = variableDebt;
 
         if (amount < paybackAmount) {
             paybackAmount = amount;
@@ -128,7 +124,6 @@ contract WETHGateway is IWETHGateway, Ownable {
             address(WETH),
             trancheId,
             msg.value,
-            rateMode,
             onBehalfOf
         );
 
@@ -140,22 +135,20 @@ contract WETHGateway is IWETHGateway, Ownable {
     /**
      * @dev borrow WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender, via `approveDelegation` and onBehalf argument in `LendingPool.borrow`.
      * @param lendingPool address of the targeted underlying lending pool
+     * @param trancheId trancheId of the targeted underlying lending pool
      * @param amount the amount of ETH to borrow
-     * @param interesRateMode the interest rate mode
      * @param referralCode integrators are assigned a referral code and can potentially receive rewards
      */
     function borrowETH(
         address lendingPool,
         uint64 trancheId,
         uint256 amount,
-        uint256 interesRateMode,
         uint16 referralCode
     ) external override {
         ILendingPool(lendingPool).borrow(
             address(WETH),
             trancheId,
             amount,
-            interesRateMode,
             referralCode,
             msg.sender
         );

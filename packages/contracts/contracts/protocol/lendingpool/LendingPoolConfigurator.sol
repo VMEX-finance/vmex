@@ -124,7 +124,7 @@ contract LendingPoolConfigurator is
             _initReserve(
                 cachedPool,
                 DataTypes.InitReserveInputInternal(
-                    input[i], 
+                    input[i],
                     trancheId,
                     addressesProvider.getAToken(),
                     addressesProvider.getStableDebtToken(),
@@ -175,12 +175,12 @@ contract LendingPoolConfigurator is
             else{
                 currentConfig.setLiquidationThreshold(0);
             }
-            
+
         }
         else{
             currentConfig.setLiquidationThreshold(0);
         }
-        
+
         currentConfig.setLiquidationBonus(internalInput.assetdata.liquidationBonus);
         currentConfig.setStableRateBorrowingEnabled(internalInput.assetdata.stableBorrowingEnabled);
         if(internalInput.assetdata.borrowingEnabled){
@@ -191,7 +191,7 @@ contract LendingPoolConfigurator is
             //force to be disabled
             currentConfig.setBorrowingEnabled(false);
         }
-        
+
         currentConfig.setReserveFactor(internalInput.input.reserveFactor);
         currentConfig.setVMEXReserveFactor(DefaultVMEXReserveFactor);
 
@@ -208,6 +208,7 @@ contract LendingPoolConfigurator is
 
         emit ReserveInitialized(
             internalInput.input.underlyingAsset,
+            internalInput.trancheId,
             aTokenProxyAddress,
             stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress,
@@ -298,50 +299,9 @@ contract LendingPoolConfigurator is
 
         emit ATokenUpgraded(
             vars.input.asset,
+            vars.input.trancheId,
             vars.reserveData.aTokenAddress,
             vars.input.implementation
-        );
-    }
-
-    /**
-     * @dev Updates the stable debt token implementation for the reserve
-     **/
-    function updateStableDebtToken(
-        UpdateDebtTokenInput calldata input
-    ) external onlyGlobalAdmin {
-        ILendingPool cachedPool = pool;
-
-        DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
-            input.asset,
-            input.trancheId
-        );
-
-        (, , , uint256 decimals, ) = cachedPool
-            .getConfiguration(input.asset, input.trancheId)
-            .getParamsMemory();
-
-        bytes memory encodedCall = abi.encodeWithSelector(
-            IInitializableDebtToken.initialize.selector,
-            cachedPool,
-            input.asset,
-            input.trancheId,
-            input.incentivesController,
-            decimals,
-            input.name,
-            input.symbol,
-            input.params
-        );
-
-        _upgradeTokenImplementation(
-            reserveData.stableDebtTokenAddress,
-            input.implementation,
-            encodedCall
-        );
-
-        emit StableDebtTokenUpgraded(
-            input.asset,
-            reserveData.stableDebtTokenAddress,
-            input.implementation
         );
     }
 
@@ -382,6 +342,7 @@ contract LendingPoolConfigurator is
 
         emit VariableDebtTokenUpgraded(
             input.asset,
+            input.trancheId,
             reserveData.variableDebtTokenAddress,
             input.implementation
         );
@@ -438,7 +399,7 @@ contract LendingPoolConfigurator is
 
     pool.setConfiguration(asset,trancheId, currentConfig.data);
 
-    emit CollateralConfigurationChanged(asset, ltv, liquidationThreshold, liquidationBonus);
+    emit CollateralConfigurationChanged(asset, trancheId, ltv, liquidationThreshold, liquidationBonus);
   }
 
     /**
@@ -459,7 +420,7 @@ contract LendingPoolConfigurator is
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit BorrowingEnabledOnReserve(asset);
+        emit BorrowingEnabledOnReserve(asset, trancheId);
     }
 
     /**
@@ -476,7 +437,7 @@ contract LendingPoolConfigurator is
         currentConfig.setBorrowingEnabled(false);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
-        emit BorrowingDisabledOnReserve(asset);
+        emit BorrowingDisabledOnReserve(asset, trancheId);
     }
 
     function enableCollateralOnReserve(address asset, uint64 trancheId)
@@ -490,7 +451,7 @@ contract LendingPoolConfigurator is
         currentConfig.setBorrowingEnabled(true);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
-        // emit BorrowingDisabledOnReserve(asset);
+        emit CollateralEnabledOnReserve(asset, trancheId);
     }
 
     /**
@@ -515,7 +476,7 @@ contract LendingPoolConfigurator is
             currentConfig.data
         );
 
-        emit ReserveFactorChanged(asset, reserveFactor);
+        emit ReserveFactorChanged(asset, trancheId, reserveFactor);
     }
 
     /**
@@ -540,7 +501,7 @@ contract LendingPoolConfigurator is
             currentConfig.data
         );
 
-        emit ReserveFactorChanged(asset, reserveFactor);
+        emit VMEXReserveFactorChanged(asset, trancheId, reserveFactor);
     }
 
 
@@ -565,7 +526,7 @@ contract LendingPoolConfigurator is
             currentConfig.data
         );
 
-        emit ReserveFrozen(asset);
+        emit ReserveFrozen(asset, trancheId);
     }
 
     /**
@@ -588,7 +549,7 @@ contract LendingPoolConfigurator is
             currentConfig.data
         );
 
-        emit ReserveUnfrozen(asset);
+        emit ReserveUnfrozen(asset, trancheId);
     }
 
     /**
@@ -606,7 +567,7 @@ contract LendingPoolConfigurator is
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit ReserveActivated(asset);
+        emit ReserveActivated(asset, trancheId);
     }
 
     /**
@@ -626,43 +587,7 @@ contract LendingPoolConfigurator is
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit ReserveDeactivated(asset);
-    }
-
-    /**
-     * @dev Enable stable rate borrowing on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function enableReserveStableRate(address asset, uint64 trancheId)
-        external
-        onlyGlobalAdmin
-    {
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setStableRateBorrowingEnabled(true);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-
-        emit StableRateEnabledOnReserve(asset);
-    }
-
-    /**
-     * @dev Disable stable rate borrowing on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function disableReserveStableRate(address asset, uint64 trancheId)
-        external
-        onlyGlobalAdmin
-    {
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setStableRateBorrowingEnabled(false);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-
-        emit StableRateDisabledOnReserve(asset);
+        emit ReserveDeactivated(asset, trancheId);
     }
 
     /**
@@ -682,7 +607,7 @@ contract LendingPoolConfigurator is
             trancheId,
             rateStrategyAddress
         );
-        emit ReserveInterestRateStrategyChanged(asset, rateStrategyAddress);
+        emit ReserveInterestRateStrategyChanged(asset, trancheId, rateStrategyAddress);
     }
 
     /**
@@ -731,7 +656,7 @@ contract LendingPoolConfigurator is
     ) external onlyPoolAdmin(trancheId) {
         address strategy = AssetMappings(addressesProvider.getAssetMappings()).getCurveStrategyAddress(asset,strategyId);
         address impl = DeployATokens._initTokenWithProxy(
-            strategy, 
+            strategy,
             abi.encodeWithSelector(
                 CrvLpStrategy.initialize.selector,
                 address(addressesProvider),

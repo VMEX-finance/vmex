@@ -744,7 +744,7 @@ export const borrow = async (
   tranche: string,
   trancheAdmin: SignerWithAddress,
   amount: string,
-  interestRateMode: string,
+  interestRateMode: string,   // TODO: not used
   user: SignerWithAddress,
   onBehalfOf: tEthereumAddress,
   timeTravel: string,
@@ -809,7 +809,6 @@ export const borrow = async (
           reserve,
           tranche,
           amountToBorrow,
-          interestRateMode,
           "0",
           onBehalfOf
         )
@@ -936,7 +935,6 @@ export const borrow = async (
           reserve,
           tranche,
           amountToBorrow,
-          interestRateMode,
           "0",
           onBehalfOf
         ),
@@ -1030,7 +1028,6 @@ export const repay = async (
           reserve,
           tranche,
           amountToRepay,
-          rateMode,
           onBehalfOf.address,
           txOptions
         )
@@ -1125,7 +1122,6 @@ export const repay = async (
           reserve,
           tranche,
           amountToRepay,
-          rateMode,
           onBehalfOf.address,
           txOptions
         ),
