@@ -43,7 +43,6 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
      * @param params Additional variadic field to include extra params. Expected parameters:
      *   address collateralAsset Address of the reserve to be swapped
      *   uint256 collateralAmount Amount of reserve to be swapped
-     *   uint256 rateMode Rate modes of the debt to be repaid
      *   uint256 permitAmount Amount for the permit signature
      *   uint256 deadline Deadline for the permit signature
      *   uint8 v V param for the permit signature
@@ -70,7 +69,6 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             assets[0],
             amounts[0],
             decodedParams.collateralAmount,
-            decodedParams.rateMode,
             initiator,
             premiums[0],
             decodedParams.permitSignature,
@@ -89,17 +87,14 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
    * @param debtAsset Address of debt asset
    * @param collateralAmount Amount of the collateral to be swapped
    * @param debtRepayAmount Amount of the debt to be repaid
-   * @param debtRateMode Rate mode of the debt to be repaid
    * @param permitSignature struct containing the permit signature
-   * @param useEthPath struct containing the permit signature
-
+   * @param useEthPath 'true' to use path that swaps to Weth, 'false' to directly swap from collateral to debt asset
    */
     function swapAndRepay(
         DataTypes.TrancheAddress calldata collateralAsset,
         DataTypes.TrancheAddress calldata debtAsset,
         uint256 collateralAmount,
         uint256 debtRepayAmount,
-        uint256 debtRateMode,
         PermitSignature calldata permitSignature,
         bool useEthPath
     ) external {
@@ -112,10 +107,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             collateralAsset.trancheId
         );
 
-        address debtToken = DataTypes.InterestRateMode(debtRateMode) ==
-            DataTypes.InterestRateMode.STABLE
-            ? debtReserveData.stableDebtTokenAddress
-            : debtReserveData.variableDebtTokenAddress;
+        address debtToken = debtReserveData.variableDebtTokenAddress;
 
         uint256 currentDebt = IERC20(debtToken).balanceOf(msg.sender);
         uint256 amountToRepay = debtRepayAmount <= currentDebt
@@ -176,7 +168,6 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             debtAsset.asset,
             debtAsset.trancheId,
             amountToRepay,
-            debtRateMode,
             msg.sender
         );
     }
@@ -188,17 +179,16 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
      * @param debtAsset Address of debt token to be received from the swap
      * @param amount Amount of the debt to be repaid
      * @param collateralAmount Amount of the reserve to be swapped
-     * @param rateMode Rate mode of the debt to be repaid
      * @param initiator Address of the user
      * @param premium Fee of the flash loan
      * @param permitSignature struct containing the permit signature
+     * @param useEthPath 'true' to use path that swaps to Weth, 'false' to directly swap from collateral to debt asset
      */
     function _swapAndRepay(
         DataTypes.TrancheAddress memory collateralAsset,
         address debtAsset,
         uint256 amount,
         uint256 collateralAmount,
-        uint256 rateMode,
         address initiator,
         uint256 premium,
         PermitSignature memory permitSignature,
@@ -217,7 +207,6 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             debtAsset,
             collateralAsset.trancheId, //debt and collateral trancheId are the same
             amount,
-            rateMode,
             initiator
         );
         repaidAmount = repaidAmount.sub(
@@ -299,7 +288,7 @@ contract UniswapRepayAdapter is BaseUniswapAdapter {
             address collateralAsset,
             uint64 collateralTranche,
             uint256 collateralAmount,
-            uint256 rateMode,
+            uint256 rateMode,           // TODO: Figure out where this is called and remove this param
             uint256 permitAmount,
             uint256 deadline,
             uint8 v,

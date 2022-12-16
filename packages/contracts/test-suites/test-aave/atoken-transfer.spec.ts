@@ -88,7 +88,6 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
         weth.address,
         0,
         ethers.utils.parseEther("0.1"),
-        RateMode.Stable,
         AAVE_REFERRAL,
         users[1].address
       );
@@ -98,7 +97,6 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
       weth.address,
       0,
       ethers.utils.parseEther("0.1"),
-      RateMode.Stable,
       AAVE_REFERRAL,
       users[1].address
     );
@@ -109,7 +107,7 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
       users[1].address
     );
 
-    expect(userReserveData.currentStableDebt.toString()).to.be.eq(
+    expect(userReserveData.currentVariableDebt.toString()).to.be.eq(
       ethers.utils.parseEther("0.1")
     );
   });

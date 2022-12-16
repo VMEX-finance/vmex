@@ -32,7 +32,7 @@ library DataTypes {
         bool isAllowed; //default to false, unless set
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
         //the only difference between the different strategies is the value of the slopes and optimal utilization
-        
+
     }
 
     // struct AssetDataConfiguration {
@@ -47,12 +47,12 @@ library DataTypes {
         address underlyingAsset;
 
         //these can be chosen by user to be any address
-        address treasury; 
+        address treasury;
         address incentivesController;
 
         uint8 interestRateChoice; //0 for default, others are undefined until set
         uint256 reserveFactor;
-        bool canBorrow; 
+        bool canBorrow;
         bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
     }
 
@@ -110,7 +110,7 @@ library DataTypes {
         //bit 48-55: Decimals
 
         //the above will not be set because they are properties of the asset as a whole
-        //update: each reserve will have their own values. Just in case there needs to be a change, 
+        //update: each reserve will have their own values. Just in case there needs to be a change,
         //we can't set them all at the same time cause some reserves may satisfy the conditions but other reserves may not
 
         //update 2: we can just use the global version for ltv and liquidation bonus
@@ -156,11 +156,9 @@ library DataTypes {
         address user;
         address onBehalfOf;
         uint256 amount;
-        uint256 interestRateMode;
         address aTokenAddress;
         uint16 referralCode;
         bool releaseUnderlying;
-        uint256 _maxStableRateBorrowSizePercent;
         uint256 _reservesCount;
     }
 
@@ -182,21 +180,5 @@ library DataTypes {
         uint256 averageStableBorrowRate;
         uint256 reserveFactor;
         uint256 globalVMEXReserveFactor;
-    }
-
-    struct flashLoanVars {
-        address receiverAddress;
-        address[] assets;
-        uint64 trancheId;
-        uint256[] amounts;
-        uint256[] modes;
-        address onBehalfOf;
-        bytes params;
-        uint16 referralCode;
-        uint256 _flashLoanPremiumTotal;
-        address oracle;
-        uint256 _maxStableRateBorrowSizePercent;
-        address _addressesprovider;
-        // mapping(uint8 => uint256) _reservesCount;
     }
 }

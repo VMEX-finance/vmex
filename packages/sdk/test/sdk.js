@@ -97,26 +97,21 @@ describe("Tranche creation - end-to-end test", () => {
       canBorrow0.push(true);
       canBeCollateral0.push(true);
     }
-    expect(
-      await initTranche(
-        {
-          name: "New test tranche",
-          whitelisted: [await temp.getAddress()],
-          blacklisted: [],
-          assetAddresses: assets0,
-          reserveFactors: reserveFactors0,
-          canBorrow: canBorrow0,
-          canBeCollateral: canBeCollateral0,
-          admin: temp,
-          treasuryAddress: "0x0000000000000000000000000000000000000000",
-          incentivesController: "0x0000000000000000000000000000000000000000",
-          network: network,
-        },
-        () => {
-          return true;
-        }
-      )
-    ).to.be.true;
+    await initTranche(
+      {
+        name: "New test tranche",
+        whitelisted: [await temp.getAddress()],
+        blacklisted: [],
+        assetAddresses: assets0,
+        reserveFactors: reserveFactors0,
+        canBorrow: canBorrow0,
+        canBeCollateral: canBeCollateral0,
+        admin: temp,
+        treasuryAddress: "0x0000000000000000000000000000000000000000",
+        incentivesController: "0x0000000000000000000000000000000000000000",
+        network: network,
+      }
+    )
   });
 
 
@@ -172,21 +167,19 @@ describe("Supply - end-to-end test", () => {
   });
 
   it("5 - should test the protocol supply function", async () => {
-    expect(
-      await supply(
-        {
-          underlying: WETHaddr,
-          trancheId: 0,
-          amount: "2.0",
-          signer: owner,
-          network: network,
-          test: true,
-        },
-        () => {
-          return true;
-        }
-      )
-    ).to.be.true;
+    await supply(
+      {
+        underlying: WETHaddr,
+        trancheId: 0,
+        amount: "2.0",
+        signer: owner,
+        network: network,
+        test: true,
+      },
+      () => {
+        return true;
+      }
+    )
   });
 
   it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
@@ -274,36 +267,26 @@ describe("Borrow - end-to-end test", () => {
     const userBalance = await USDC.balanceOf(await temp.getAddress());
     const amountToDepositT1 = userBalance.div(ethers.BigNumber.from(5));
     const amountToDepositT0 = userBalance.sub(amountToDepositT1);
-    expect(
-      await supply(
-        {
-          underlying: USDCaddr,
-          trancheId: 0,
-          amount: ethers.utils.formatUnits(amountToDepositT0, 6),
-          signer: temp,
-          network: network,
-          test: true,
-        },
-        () => {
-          return true;
-        }
-      )
-    ).to.be.true;
-    expect(
-      await supply(
-        {
-          underlying: USDCaddr,
-          trancheId: 1,
-          amount: ethers.utils.formatUnits(amountToDepositT1, 6),
-          signer: temp,
-          network: network,
-          test: true,
-        },
-        () => {
-          return true;
-        }
-      )
-    ).to.be.true;
+    await supply(
+      {
+        underlying: USDCaddr,
+        trancheId: 0,
+        amount: ethers.utils.formatUnits(amountToDepositT0, 6),
+        signer: temp,
+        network: network,
+        test: true,
+      }
+    )
+    await supply(
+      {
+        underlying: USDCaddr,
+        trancheId: 1,
+        amount: ethers.utils.formatUnits(amountToDepositT1, 6),
+        signer: temp,
+        network: network,
+        test: true,
+      }
+    )
     const { suppliedAssetData } = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: 0,
@@ -356,7 +339,6 @@ describe("Borrow - end-to-end test", () => {
       underlying: WETHaddr,
       trancheId: tranche,
       amount: "0.1",
-      interestRateMode: RateMode.Variable,
       signer: temp,
       network: network,
       test: true,
@@ -386,21 +368,16 @@ describe("Borrow - end-to-end test", () => {
   });
 
   it("8 - supply some more tokens and check user/tranche data", async () => {
-    expect(
-      await supply(
-        {
-          underlying: WETHaddr,
-          trancheId: tranche,
-          amount: "0.5",
-          signer: temp,
-          network: network,
-          test: true,
-        },
-        () => {
-          return true;
-        }
-      )
-    ).to.be.true;
+    await supply(
+      {
+        underlying: WETHaddr,
+        trancheId: tranche,
+        amount: "0.5",
+        signer: temp,
+        network: network,
+        test: true,
+      }
+    )
     const { suppliedAssetData, borrowedAssetData } = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: tranche,

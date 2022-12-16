@@ -99,7 +99,6 @@ makeSuite(
           dai.address,
           tranche,
           amountDAIToBorrow,
-          RateMode.Variable,
           "0",
           borrower.address
         );
@@ -444,7 +443,6 @@ makeSuite(
           usdc.address,
           tranche,
           amountUSDCToBorrow,
-          RateMode.Stable,
           "0",
           borrower.address
         );

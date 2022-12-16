@@ -20,7 +20,6 @@ interface IWETHGateway {
         address lendingPool,
         uint64 trancheId,
         uint256 amount,
-        uint256 rateMode,
         address onBehalfOf
     ) external payable;
 
@@ -28,7 +27,6 @@ interface IWETHGateway {
         address lendingPool,
         uint64 trancheId,
         uint256 amount,
-        uint256 interesRateMode,
         uint16 referralCode
     ) external;
 }

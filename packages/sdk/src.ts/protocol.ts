@@ -16,7 +16,6 @@ export async function borrow(
     underlying: string;
     trancheId: number;
     amount: ethers.BigNumber | number | string;
-    interestRateMode: number;
     referrer?: number;
     signer: ethers.Signer;
     network: string;
@@ -36,7 +35,6 @@ export async function borrow(
       params.underlying,
       params.trancheId,
       amount,
-      params.interestRateMode,
       params.referrer || 0,
       client,
       {
@@ -48,7 +46,6 @@ export async function borrow(
       params.underlying,
       params.trancheId,
       amount,
-      params.interestRateMode,
       params.referrer || 0,
       client
     );
@@ -130,7 +127,7 @@ export async function withdraw(
       client
     );
   }
-  
+
 
   if (callback) {
     await callback().catch((error) => {
@@ -146,7 +143,6 @@ export async function repay(
     asset: string;
     trancheId: number;
     signer: ethers.Signer;
-    rateMode: number;
     amount: number | ethers.BigNumberish;
     network: string;
     isMax?: boolean
@@ -175,7 +171,6 @@ export async function repay(
       params.asset,
       params.trancheId,
       MAX_UINT_AMOUNT,
-      params.rateMode,
       client
     );
   }
@@ -184,7 +179,6 @@ export async function repay(
       params.asset,
       params.trancheId,
       amount,
-      params.rateMode,
       client
     );
   }
@@ -276,9 +270,9 @@ export async function supply(
         amount,
         client,
         params.referrer || 0
-      ); 
+      );
     }
-    
+
   } catch (error) {
     throw new Error("Lending Pool Failed with " + error);
   }
@@ -346,7 +340,7 @@ export async function lendingPoolPause(
 //       signer: params.admin
 //      });
 
-    
+
 
 //     if (callback) {
 //         return await callback()

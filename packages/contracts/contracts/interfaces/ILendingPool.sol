@@ -31,27 +31,27 @@ interface ILendingPool {
      **/
     event Withdraw(
         address indexed reserve,
+        uint64 trancheId,
         address indexed user,
         address indexed to,
         uint256 amount
     );
 
     /**
-     * @dev Emitted on borrow() and flashLoan() when debt needs to be opened
+     * @dev Emitted on borrow() when debt needs to be opened
      * @param reserve The address of the underlying asset being borrowed
      * @param user The address of the user initiating the borrow(), receiving the funds on borrow() or just
      * initiator of the transaction on flashLoan()
      * @param onBehalfOf The address that will be getting the debt
      * @param amount The amount borrowed out
-     * @param borrowRate The numeric rate at which the user has borrowed
      * @param referral The referral code used
      **/
     event Borrow(
         address indexed reserve,
+        uint64 trancheId,
         address user,
         address indexed onBehalfOf,
         uint256 amount,
-        // uint256 borrowRateMode,
         uint256 borrowRate,
         uint16 indexed referral
     );
@@ -65,58 +65,55 @@ interface ILendingPool {
      **/
     event Repay(
         address indexed reserve,
+        uint64 trancheId,
         address indexed user,
         address indexed repayer,
         uint256 amount
     );
 
     /**
-     * @dev Emitted on swapBorrowRateMode()
-     * @param reserve The address of the underlying asset of the reserve
-     * @param user The address of the user swapping his rate mode
-     * @param rateMode The rate mode that the user wants to swap to
-     **/
-    event Swap(address indexed reserve, address indexed user, uint256 rateMode);
-
-    /**
      * @dev Emitted on setUserUseReserveAsCollateral()
      * @param reserve The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @param user The address of the user enabling the usage as collateral
      **/
     event ReserveUsedAsCollateralEnabled(
         address indexed reserve,
+        uint64 trancheId,
         address indexed user
     );
 
     /**
      * @dev Emitted on setUserUseReserveAsCollateral()
      * @param reserve The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @param user The address of the user enabling the usage as collateral
      **/
     event ReserveUsedAsCollateralDisabled(
         address indexed reserve,
-        address indexed user
-    );
-
-    /**
-     * @dev Emitted on rebalanceStableBorrowRate()
-     * @param reserve The address of the underlying asset of the reserve
-     * @param user The address of the user for which the rebalance has been executed
-     **/
-    event RebalanceStableBorrowRate(
-        address indexed reserve,
+        uint64 trancheId,
         address indexed user
     );
 
     /**
      * @dev Emitted when the pause is triggered.
      */
-    event Paused();
+    event Paused(uint64 indexed trancheId);
 
     /**
      * @dev Emitted when the pause is lifted.
      */
-    event Unpaused();
+    event Unpaused(uint64 indexed trancheId);
+
+    /**
+     * @dev Emitted when the pause is triggered.
+     */
+    event EverythingPaused();
+
+    /**
+     * @dev Emitted when the pause is lifted.
+     */
+    event EverythingUnpaused();
 
     /**
      * @dev Emitted when a borrower is liquidated. This event is emitted by the LendingPool via
@@ -124,6 +121,7 @@ interface ILendingPool {
      * This allows to have the events in the generated ABI for LendingPool.
      * @param collateralAsset The address of the underlying asset used as collateral, to receive as result of the liquidation
      * @param debtAsset The address of the underlying borrowed asset to be repaid with the liquidation
+     * @param trancheId The trancheId of the liquidation
      * @param user The address of the borrower getting liquidated
      * @param debtToCover The debt amount of borrowed `asset` the liquidator wants to cover
      * @param liquidatedCollateralAmount The amount of collateral received by the liiquidator
@@ -134,6 +132,7 @@ interface ILendingPool {
     event LiquidationCall(
         address indexed collateralAsset,
         address indexed debtAsset,
+        uint64 trancheId,
         address indexed user,
         uint256 debtToCover,
         uint256 liquidatedCollateralAmount,
@@ -147,6 +146,7 @@ interface ILendingPool {
      * the event will actually be fired by the LendingPool contract. The event is therefore replicated here so it
      * gets added to the LendingPool ABI
      * @param reserve The address of the underlying asset of the reserve
+     * @param trancheId The trancheId of the reserve
      * @param liquidityRate The new liquidity rate
      * @param stableBorrowRate The new stable borrow rate
      * @param variableBorrowRate The new variable borrow rate
@@ -155,6 +155,7 @@ interface ILendingPool {
      **/
     event ReserveDataUpdated(
         address indexed reserve,
+        uint64 indexed trancheId,
         uint256 liquidityRate,
         uint256 stableBorrowRate,
         uint256 variableBorrowRate,
@@ -208,8 +209,8 @@ interface ILendingPool {
      * - E.g. User borrows 100 USDC passing as `onBehalfOf` his own address, receiving the 100 USDC in his wallet
      *   and 100 stable/variable debt tokens, depending on the `interestRateMode`
      * @param asset The address of the underlying asset to borrow
+     * @param trancheId The trancheId of the underlying asset to borrow
      * @param amount The amount to be borrowed
-     * @param interestRateMode The interest rate mode at which the user wants to borrow: 1 for Stable, 2 for Variable
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
      * @param onBehalfOf Address of the user who will receive the debt. Should be the address of the borrower itself
@@ -220,7 +221,6 @@ interface ILendingPool {
         address asset,
         uint64 trancheId,
         uint256 amount,
-        uint256 interestRateMode,
         uint16 referralCode,
         address onBehalfOf
     ) external;
@@ -229,9 +229,9 @@ interface ILendingPool {
      * @notice Repays a borrowed `amount` on a specific reserve, burning the equivalent debt tokens owned
      * - E.g. User repays 100 USDC, burning 100 variable/stable debt tokens of the `onBehalfOf` address
      * @param asset The address of the borrowed underlying asset previously borrowed
+     * @param trancheId The trancheId of the borrowed underlying asset previously borrowed
      * @param amount The amount to repay
      * - Send the value type(uint256).max in order to repay the whole debt for `asset` on the specific `debtMode`
-     * @param rateMode The interest rate mode at of the debt the user wants to repay: 1 for Stable, 2 for Variable
      * @param onBehalfOf Address of the user who will get his debt reduced/removed. Should be the address of the
      * user calling the function if he wants to reduce/remove his own debt, or the address of any other
      * other borrower whose debt should be removed
@@ -241,35 +241,9 @@ interface ILendingPool {
         address asset,
         uint64 trancheId,
         uint256 amount,
-        uint256 rateMode,
         address onBehalfOf
     ) external returns (uint256);
 
-    /**
-     * @dev Allows a borrower to swap his debt between stable and variable mode, or viceversa
-     * @param asset The address of the underlying asset borrowed
-     * @param rateMode The rate mode that the user wants to swap to
-     **/
-    function swapBorrowRateMode(
-        address asset,
-        uint64 trancheId,
-        uint256 rateMode
-    ) external;
-
-    /**
-     * @dev Rebalances the stable interest rate of a user to the current stable rate defined on the reserve.
-     * - Users can be rebalanced if the following conditions are satisfied:
-     *     1. Usage ratio is above 95%
-     *     2. the current deposit APY is below REBALANCE_UP_THRESHOLD * maxVariableBorrowRate, which means that too much has been
-     *        borrowed at a stable rate and depositors are not earning enough
-     * @param asset The address of the underlying asset borrowed
-     * @param user The address of the user to be rebalanced
-     **/
-    // function rebalanceStableBorrowRate(
-    //     address asset,
-    //     uint64 trancheId,
-    //     address user
-    // ) external;
 
     /**
      * @dev Allows depositors to enable/disable a specific deposited asset as collateral
@@ -445,6 +419,8 @@ interface ILendingPool {
         external
         view
         returns (ILendingPoolAddressesProvider);
+
+    function setPauseEverything(bool val) external;
 
     function setPause(bool val, uint64 trancheId) external;
 

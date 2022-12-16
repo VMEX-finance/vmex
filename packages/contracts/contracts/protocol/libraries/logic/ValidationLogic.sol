@@ -118,7 +118,6 @@ library ValidationLogic {
         DataTypes.ExecuteBorrowParams memory exvars,
         DataTypes.ReserveData storage reserve,
         uint256 amountInETH,
-        uint256 maxStableLoanPercent,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
@@ -140,15 +139,6 @@ library ValidationLogic {
         require(exvars.amount != 0, Errors.VL_INVALID_AMOUNT);
 
         require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
-
-        //validate interest rate mode
-        require(
-            uint256(DataTypes.InterestRateMode.VARIABLE) ==
-                exvars.interestRateMode ||
-                uint256(DataTypes.InterestRateMode.STABLE) ==
-                exvars.interestRateMode,
-            Errors.VL_INVALID_INTEREST_RATE_MODE_SELECTED
-        );
 
         (
             vars.userCollateralBalanceETH,
@@ -189,49 +179,6 @@ library ValidationLogic {
             vars.amountOfCollateralNeededETH <= vars.userCollateralBalanceETH,
             Errors.VL_COLLATERAL_CANNOT_COVER_NEW_BORROW
         );
-
-        /**
-         * Following conditions need to be met if the user is borrowing at a stable rate:
-         * 1. Reserve must be enabled for stable rate borrowing
-         * 2. Users cannot borrow from the reserve if their collateral is (mostly) the same currency
-         *    they are borrowing, to prevent abuses.
-         * 3. Users will be able to borrow only a portion of the total available liquidity
-         **/
-
-        if (
-            exvars.interestRateMode ==
-            uint256(DataTypes.InterestRateMode.STABLE)
-        ) {
-            //check if the borrow mode is stable and if stable rate borrowing is enabled on this reserve
-
-            require(
-                vars.stableRateBorrowingEnabled,
-                Errors.VL_STABLE_BORROWING_NOT_ENABLED
-            );
-
-            require(
-                !userConfig.isUsingAsCollateral(reserve.id) ||
-                    reserve.configuration.getLtv() == 0 ||
-                    exvars.amount >
-                    IERC20(reserve.aTokenAddress).balanceOf(exvars.user),
-                Errors.VL_COLLATERAL_SAME_AS_BORROWING_CURRENCY
-            );
-
-            vars.availableLiquidity = IERC20(exvars.asset).balanceOf( //asset is the asset we are trying to borrow
-                reserve.aTokenAddress
-            );
-
-            //calculate the max available loan size in stable rate mode as a percentage of the
-            //available liquidity
-            uint256 maxLoanSizeStable = vars.availableLiquidity.percentMul(
-                maxStableLoanPercent
-            );
-
-            require(
-                exvars.amount <= maxLoanSizeStable,
-                Errors.VL_AMOUNT_BIGGER_THAN_MAX_LOAN_SIZE_STABLE
-            );
-        }
     }
 
     /**
@@ -239,15 +186,12 @@ library ValidationLogic {
      * @param reserve The reserve state from which the user is repaying
      * @param amountSent The amount sent for the repayment. Can be an actual value or type(uint256).max
      * @param onBehalfOf The address of the user msg.sender is repaying for
-     * @param stableDebt The borrow balance of the user
      * @param variableDebt The borrow balance of the user
      */
     function validateRepay(
         DataTypes.ReserveData storage reserve,
         uint256 amountSent,
-        DataTypes.InterestRateMode rateMode,
         address onBehalfOf,
-        uint256 stableDebt,
         uint256 variableDebt
     ) external view {
         bool isActive = reserve.configuration.getActive();
@@ -256,15 +200,7 @@ library ValidationLogic {
 
         require(amountSent > 0, Errors.VL_INVALID_AMOUNT);
 
-        require(
-            (stableDebt > 0 &&
-                DataTypes.InterestRateMode(rateMode) ==
-                DataTypes.InterestRateMode.STABLE) ||
-                (variableDebt > 0 &&
-                    DataTypes.InterestRateMode(rateMode) ==
-                    DataTypes.InterestRateMode.VARIABLE),
-            Errors.VL_NO_DEBT_OF_SELECTED_TYPE
-        );
+        require(variableDebt > 0, Errors.VL_NO_DEBT_OF_SELECTED_TYPE);
 
         require(
             amountSent != type(uint256).max || msg.sender == onBehalfOf,
