@@ -13,7 +13,7 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import {AssetMappings} from "../../../protocol/lendingpool/AssetMappings.sol";
 import {DataTypes} from "../../../protocol/libraries/types/DataTypes.sol";
 // import {IStrategy} from "./IStrategy.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 //need modifiers for permissioned actors after built into lending pool
 contract CrvLpStrategy is BaseStrategy {
@@ -127,7 +127,7 @@ contract CrvLpStrategy is BaseStrategy {
     //keeping in just in case something happens and we need to remove all funds and/or migrate the strategy
     //can withdraw directly from the rewards contract itself and avoid paying extra gas for using booster?
     function _withdrawAll() internal override {
-        console.log("trying to withdraw all");
+//        console.log("trying to withdraw all");
         baseRewardsPool.withdrawAllAndUnwrap(true);
         // Note: All want is automatically withdrawn outside this "inner hook" in base strategy function
     }
@@ -140,12 +140,12 @@ contract CrvLpStrategy is BaseStrategy {
             return amountBoosted;
         }
 
-        console.log("amount boosted is", amountBoosted);
-        console.log("trying to withdraw", amount);
-        console.log("amount earned is", baseRewardsPool.earned(address(this)));
+//        console.log("amount boosted is", amountBoosted);
+//        console.log("trying to withdraw", amount);
+//        console.log("amount earned is", baseRewardsPool.earned(address(this)));
         uint256 periodFinish = baseRewardsPool.periodFinish();
-        console.log("period finish is: ", periodFinish);
-        console.log("current timestamp is: ", block.timestamp);
+//        console.log("period finish is: ", periodFinish);
+//        console.log("current timestamp is: ", block.timestamp);
         baseRewardsPool.withdrawAndUnwrap(amount, false);
         return amount;
     }

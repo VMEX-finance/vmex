@@ -26,7 +26,7 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 /**
  * @title LendingPool contract
  * @dev Main point of interaction with an Aave protocol's market
@@ -461,6 +461,8 @@ contract LendingPool is
                 receiveAToken
             )
         );
+
+//        console.log(string(abi.encodePacked(result)));
 
         require(success, Errors.LP_LIQUIDATION_CALL_FAILED);
 

@@ -686,7 +686,7 @@ export const calcExpectedUserDataAfterBorrow = (
       userDataBeforeAction.scaledVariableDebt;
   } else {
     expectedUserData.scaledVariableDebt =
-      reserveDataBeforeAction.scaledVariableDebt.plus(
+    userDataBeforeAction.scaledVariableDebt.plus(
         amountBorrowedBN.rayDiv(expectedDataAfterAction.variableBorrowIndex)
       );
 
@@ -705,6 +705,8 @@ export const calcExpectedUserDataAfterBorrow = (
       currentTimestamp
     );
   }
+
+  console.log("Before calcExpectedVariableDebtTokenBalance, expectedUserData: ", JSON.stringify(expectedUserData))
 
   expectedUserData.currentVariableDebt = calcExpectedVariableDebtTokenBalance(
     expectedDataAfterAction,
