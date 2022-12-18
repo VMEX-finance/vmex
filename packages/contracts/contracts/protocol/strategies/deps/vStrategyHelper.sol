@@ -1,11 +1,14 @@
 pragma solidity >=0.8.0;
 
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
+import {IWETH} from "../../../../contracts/misc/interfaces/IWETH.sol";
 import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IBaseRewardsPool} from "./convex/IBaseRewardsPool.sol";
 import {IVirtualBalanceRewardPool} from "./convex/IVirtualBalanceRewardPool.sol";
 import {IUniswapV2Router02} from "./sushi/IUniswapV2Router02.sol";
 import {IBaseStrategy} from "../../../interfaces/IBaseStrategy.sol";
+
+import "hardhat/console.sol";
 
 library vStrategyHelper {
     using SafeERC20 for IERC20;
@@ -155,13 +158,22 @@ library vStrategyHelper {
         return extraRewardsTokens;
     }
 
+    struct tendVars {
+        uint256 EFFICIENCY;
+        uint8 i;
+        address[] tokenPath;
+    }
+
+    event TendError(bytes message);
+
     function tend(
         IBaseRewardsPool baseRewardsPool,
         address[] storage curvePoolTokens,
         uint256[] storage curveTokenBalances,
         address[] storage extraTokens,
         mapping(address => uint256) storage extraRewardsTended,
-        IUniswapV2Router02 sushiRouter
+        IUniswapV2Router02 sushiRouter,
+        uint256 EFFICIENCY
     )
         public
         returns (
@@ -176,6 +188,10 @@ library vStrategyHelper {
 
         // Harvest CRV, CVX, and extra rewards tokens from staking positions
         // Note: Always claim extras
+        tendVars memory vars;
+        {
+            vars.EFFICIENCY=EFFICIENCY; //unused for now
+        }
         baseRewardsPool.getReward(address(this), true);
 
         //TODO: implement generic function to track extraRewardsToken balances to return them with tendData
@@ -189,25 +205,61 @@ library vStrategyHelper {
             uint256 highestPayingIdx
         ) = checkForHighestPayingToken(curvePoolTokens, curveTokenBalances);
 
-        for (uint8 i = 0; i < extraTokens.length; i++) {
-            extraRewardsTended[extraTokens[i]] = IERC20(extraTokens[i])
+        if(wantedDepositToken==0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490){ //edge case of trying to get 3crv, which cannot be traded for
+            //either change this to frax, or optimize by swapping into usdc or something and getting 3crv
+            wantedDepositToken = 0x853d955aCEf822Db058eb8505911ED77F175b99e; 
+            highestPayingIdx = 0;
+            
+        }
+        if(wantedDepositToken==ethNative){
+            wantedDepositToken = WETH; 
+        }
+        else{
+            require(curvePoolTokens[highestPayingIdx]==wantedDepositToken, "Inconsistent index and token");
+        }
+        
+        console.log("wantedDepositToken: ", wantedDepositToken);
+
+
+
+        for (vars.i = 0; vars.i < extraTokens.length; vars.i++) {
+            extraRewardsTended[extraTokens[vars.i]] = IERC20(extraTokens[vars.i])
                 .balanceOf(address(this));
 
-            address[] memory tokenPath = computeSwapPath(
-                extraTokens[i],
+            vars.tokenPath = computeSwapPath(
+                extraTokens[vars.i],
                 wantedDepositToken
             );
-
-            sushiRouter.swapExactTokensForTokens(
-                extraRewardsTended[extraTokens[i]],
-                0,
-                tokenPath,
-                address(this),
-                block.timestamp
-            );
+            console.log("Sushi router input amount: ", extraRewardsTended[extraTokens[vars.i]]);
+            console.log("Sushi router extra token: ", extraTokens[vars.i]);
+            if(extraRewardsTended[extraTokens[vars.i]]>0){
+                console.log("attempt swap of ",extraTokens[vars.i]);
+                //issue with using efficiency is that the current token can have different value than target token. 
+                //If current token is like usdc and target is eth, 50% of 1000 usdc is 500, and you're not getting that much eth out
+                //Can do conversion using oracle but that might be overkill
+                try sushiRouter.swapExactTokensForTokens(
+                    extraRewardsTended[extraTokens[vars.i]],
+                    0,//extraRewardsTended[extraTokens[vars.i]]/EFFICIENCY,//try to get at least 50% of the input amount, or else don't tend
+                    vars.tokenPath,
+                    address(this),
+                    block.timestamp
+                ) returns (uint256[] memory amounts){
+                    for(uint i = 0;i<amounts.length;i++){
+                        console.log("amounts[i]: ",amounts[i]);
+                    }
+                    // 
+                } catch Error(string memory reason){
+                    console.log("Swap Error: ",reason);
+                } catch (bytes memory reason) {
+                    emit TendError(reason);
+                    console.log("Swap extra reward Unknown error: ", string(reason));
+                }
+            }
+            
         }
 
         //need to use sushi here to swap between coins without a curve pool, can optimize later perhaps?
+        
         address[] memory crvPath = computeSwapPath(
             address(crvToken),
             wantedDepositToken
@@ -218,22 +270,55 @@ library vStrategyHelper {
         );
 
         //swap crv for wanted
-        sushiRouter.swapExactTokensForTokens(
-            tendData.crvTended,
-            0, //min amount out (0 works fine)
-            crvPath,
-            address(this),
-            block.timestamp
-        );
+        console.log("crv rewards: ", tendData.crvTended);
+        
+        if(tendData.crvTended>0){
+            try sushiRouter.swapExactTokensForTokens(
+                tendData.crvTended,
+                0,//tendData.crvTended/EFFICIENCY, //min amount out (0 works fine)
+                crvPath,
+                address(this),
+                block.timestamp
+            ) returns (uint256[] memory amounts){
+                    console.log("swapped crv");
+                    for(uint i = 0;i<amounts.length;i++){
+                        console.log("amounts[i]: ",amounts[i]);
+                    }
+                    // 
+                } catch Error(string memory reason){
+                    console.log("Crv Swap Error: ",reason);
+                }  catch (bytes memory reason) {
+                    emit TendError(reason);
+                    console.log("Swap crv Unknown error: ", string(reason));
+                }
+        }
 
         //swap cvx for wanted
-        sushiRouter.swapExactTokensForTokens(
-            tendData.cvxTended,
-            0,
-            cvxPath,
-            address(this),
-            block.timestamp
-        );
+        console.log("cvx rewards: ", tendData.cvxTended);
+        if(tendData.cvxTended>0){
+            try sushiRouter.swapExactTokensForTokens(
+                tendData.cvxTended,
+                0,//tendData.cvxTended/EFFICIENCY,
+                cvxPath,
+                address(this),
+                block.timestamp
+            ) returns (uint256[] memory amounts){
+                    console.log("swapped cvx");
+                    for(uint i = 0;i<amounts.length;i++){
+                        console.log("amounts[i]: ",amounts[i]);
+                    }
+                    // 
+                } catch Error(string memory reason){
+                    console.log("Cvx Swap Error: ",reason);
+                }  catch (bytes memory reason) {
+                    emit TendError(reason);
+                    console.log("Swap cvx Unknown error: ", string(reason));
+                }
+        }
+
+        // if(wantedDepositToken == ethNative){ //should all be WETH now, convert WETH to ETH
+        //     IWETH(WETH).withdraw(IERC20(WETH).balanceOf(address(this)));
+        // }
 
         //get the lowest balance coin in the pool for max lp tokens on deposit
         depositAmountWanted = IERC20(wantedDepositToken).balanceOf(

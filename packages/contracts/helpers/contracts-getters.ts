@@ -37,6 +37,7 @@ import {
   CurveWrapperFactory,
   CrvLpStrategyFactory,
   BoosterFactory,
+  VStrategyHelperFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -519,13 +520,22 @@ export const getAaveOracle = async (address?: tEthereumAddress) =>
       ).address,
     await getFirstSigner()
   );
-
-export const getTricrypto2Strategy = async (address?: tEthereumAddress) =>
+  export const getvStrategyHelper = async (address?: tEthereumAddress) =>
+  await VStrategyHelperFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.vStrategyHelper}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+export const getCrvLpStrategy = async (address?: tEthereumAddress) =>
   await CrvLpStrategyFactory.connect(
     address ||
       (
         await getDb()
-          .get(`${eContractid.tricrypto2Strategy}.${DRE.network.name}`)
+          .get(`${eContractid.CrvLpStrategy}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

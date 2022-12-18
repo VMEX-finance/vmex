@@ -154,7 +154,7 @@ var triCryptoDepositAbi = [
 
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("800"), "Reserve doesn't have liquidity");
 
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -165,7 +165,7 @@ var triCryptoDepositAbi = [
 
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -214,7 +214,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("801"), "Reserve doesn't have liquidity");
 
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -223,7 +223,7 @@ var triCryptoDepositAbi = [
             //   ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.1"), "Did not get debt token");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -272,7 +272,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther(".0001"), "Reserve doesn't have liquidity");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -322,7 +322,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("803"), "Reserve doesn't have liquidity");
 
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -331,7 +331,7 @@ var triCryptoDepositAbi = [
             //   ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.1"), "Did not get debt token");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -380,7 +380,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("804"), "Reserve doesn't have liquidity");
 
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -389,7 +389,7 @@ var triCryptoDepositAbi = [
             //   ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.1"), "Did not get debt token");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -440,7 +440,7 @@ var triCryptoDepositAbi = [
             
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -489,7 +489,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("805"), "Reserve doesn't have liquidity");
 
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -498,7 +498,7 @@ var triCryptoDepositAbi = [
             //   ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.1"), "Did not get debt token");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -547,7 +547,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("805"), "Reserve doesn't have liquidity");
 
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -556,7 +556,7 @@ var triCryptoDepositAbi = [
             //   ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.1"), "Did not get debt token");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
@@ -612,7 +612,7 @@ var triCryptoDepositAbi = [
             expect(comp1).to.be.bignumber.equal(exp, "Reserve doesn't have liquidity");
 
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.01"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.01"), '0', await signer.getAddress()); 
 
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -623,7 +623,7 @@ var triCryptoDepositAbi = [
             //   ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.1"), "Did not get debt token");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
 
