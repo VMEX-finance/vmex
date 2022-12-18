@@ -15,7 +15,7 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 /**
  * @title GenericLogic library
  * @author Aave
