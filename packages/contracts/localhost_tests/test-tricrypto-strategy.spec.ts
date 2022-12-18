@@ -22,13 +22,7 @@ chai.use(function (chai: any, utils: any) {
     }
   );
 });
-before(async () => {
-    await rawBRE.run("set-DRE");
 
-    console.log("\n***************");
-    console.log("DRE finished");
-    console.log("***************\n");
-  });
 makeSuite(
     "Tricrypto2 ",
     () => {
@@ -77,12 +71,12 @@ makeSuite(
           const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
           var signer = await contractGetters.getFirstSigner();
           //give signer 1 WETH so he can get LP tokens
-          var options = {value: DRE.ethers.utils.parseEther("1.0")}
+          var options = {value: DRE.ethers.utils.parseEther("100.0")}
           await myWETH.connect(signer).deposit(options);
           var signerWeth = await myWETH.connect(signer).balanceOf(signer.address);
           expect(
             signerWeth.toString()
-          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.0"), "Did not get WETH");
+          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("100.0"), "Did not get WETH");
         });
 
         it("get LP tokens", async () => {
@@ -97,11 +91,11 @@ makeSuite(
 
           var triCryptoDeposit = new DRE.ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
-          var amounts = [DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("1.0")]
+          var amounts = [DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("10.0")]
 
-          await myWETH.connect(signer).approve(triCryptoDeposit.address,DRE.ethers.utils.parseEther("1.0"))
+          await myWETH.connect(signer).approve(triCryptoDeposit.address,DRE.ethers.utils.parseEther("10000.0"))
 
-          await triCryptoDeposit.connect(signer).add_liquidity(amounts,DRE.ethers.utils.parseEther("0.1"))
+          await triCryptoDeposit.connect(signer).add_liquidity(amounts,DRE.ethers.utils.parseEther("10"))
 
           // 0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF (this is EXACT MATCH, used to be deployed in our system),
           // 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff  (this is similar match, THIS IS ADDRESS ON CURVE FRONTEND, WHICH IS WHAT WE NEED TO USE),  however, this is the address that triCryptoDeposit address uses. So I think we need to redeploy with this token

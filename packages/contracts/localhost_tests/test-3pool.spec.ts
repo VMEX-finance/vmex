@@ -3,7 +3,7 @@ const chai = require("chai");
 const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
-import rawBRE from "hardhat";
+
 import { BigNumber, utils } from "ethers";
 import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
@@ -23,13 +23,7 @@ chai.use(function (chai: any, utils: any) {
   );
 });
 
-before(async () => {
-    await rawBRE.run("set-DRE");
 
-    console.log("\n***************");
-    console.log("DRE finished");
-    console.log("***************\n");
-  });
 makeSuite(
     "3pool ",
     () => {
@@ -218,7 +212,11 @@ var triCryptoDepositAbi = [
               userDat.totalCollateralETH.toString()
             ).to.be.bignumber.equal(col.toString(), "Did not deposit 3crv");
 
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), 1, '0', signer.address);
+            await lendingPool.connect(signer).borrow(myWETH.address, 
+              1, 
+              DRE.ethers.utils.parseEther("0.01"), 
+              '0', 
+              signer.address);
 
             userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -234,7 +232,7 @@ var triCryptoDepositAbi = [
             ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.01"), "Did not get WETH");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("1000"), 1, '0', signer.address)
+                lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("1000"), '0', signer.address)
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
           });
 
@@ -414,7 +412,6 @@ var triCryptoDepositAbi = [
                 myWETH.address,
                 1,
                 DRE.ethers.utils.parseEther("1.0"),
-                1,
                 await signer.getAddress());
                 var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
                 console.log("USER DATA after repay: ", userData);
