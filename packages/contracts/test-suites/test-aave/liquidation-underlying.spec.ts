@@ -306,7 +306,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
     const ethReserveDataBefore = await helpersContract.getReserveData(weth.address, tranche);
 
     const amountToLiquidate = DRE.ethers.BigNumber.from(
-      userReserveDataBefore.currentStableDebt.toString()
+      userReserveDataBefore.currentVariableDebt.toString()
     )
       .div(2)
       .toString();
@@ -350,8 +350,8 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       'Invalid health factor'
     );
 
-    expect(userReserveDataAfter.currentStableDebt.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(userReserveDataBefore.currentStableDebt.toString())
+    expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
+      new BigNumber(userReserveDataBefore.currentVariableDebt.toString())
         .minus(amountToLiquidate)
         .toFixed(0),
       'Invalid user borrow balance after liquidation'
@@ -428,7 +428,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
     const usdcReserveDataBefore = await helpersContract.getReserveData(usdc.address, tranche);
     const aaveReserveDataBefore = await helpersContract.getReserveData(aave.address, tranche);
 
-    const amountToLiquidate = new BigNumber(userReserveDataBefore.currentStableDebt.toString())
+    const amountToLiquidate = new BigNumber(userReserveDataBefore.currentVariableDebt.toString())
       .div(2)
       .decimalPlaces(0, BigNumber.ROUND_DOWN)
       .toFixed(0);
@@ -476,8 +476,8 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       'Invalid health factor'
     );
 
-    expect(userReserveDataAfter.currentStableDebt.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(userReserveDataBefore.currentStableDebt.toString())
+    expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
+      new BigNumber(userReserveDataBefore.currentVariableDebt.toString())
         .minus(expectedPrincipal)
         .toFixed(0),
       'Invalid user borrow balance after liquidation'

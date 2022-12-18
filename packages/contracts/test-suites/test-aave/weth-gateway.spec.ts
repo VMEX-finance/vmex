@@ -122,69 +122,69 @@ makeSuite(
       );
     });
 
-    it("Borrow stable WETH and Full Repay with ETH", async () => {
-      const { users, wethGateway, aDai, weth, dai, pool, helpersContract } =
-        testEnv;
-      const borrowSize = parseEther("1");
-      const repaySize = borrowSize.add(borrowSize.mul(5).div(100));
-      const user = users[1];
-      const depositor = users[0];
+    // it("Borrow stable WETH and Full Repay with ETH", async () => {
+    //   const { users, wethGateway, aDai, weth, dai, pool, helpersContract } =
+    //     testEnv;
+    //   const borrowSize = parseEther("1");
+    //   const repaySize = borrowSize.add(borrowSize.mul(5).div(100));
+    //   const user = users[1];
+    //   const depositor = users[0];
 
-      // Deposit with native ETH
-      await wethGateway
-        .connect(depositor.signer)
-        .depositETH(pool.address, tranche, depositor.address, "0", {
-          value: depositSize,
-        });
+    //   // Deposit with native ETH
+    //   await wethGateway
+    //     .connect(depositor.signer)
+    //     .depositETH(pool.address, tranche, depositor.address, "0", {
+    //       value: depositSize,
+    //     });
 
-      const { stableDebtTokenAddress } =
-        await helpersContract.getReserveTokensAddresses(weth.address, tranche);
+    //   const { stableDebtTokenAddress } =
+    //     await helpersContract.getReserveTokensAddresses(weth.address, tranche);
 
-      const stableDebtToken = await getStableDebtToken(stableDebtTokenAddress);
+    //   const stableDebtToken = await getStableDebtToken(stableDebtTokenAddress);
 
-      // Deposit 10000 DAI
-      await dai.connect(user.signer).mint(daiSize);
-      await dai.connect(user.signer).approve(pool.address, daiSize);
-      await pool
-        .connect(user.signer)
-        .deposit(dai.address, tranche, daiSize, user.address, "0");
+    //   // Deposit 10000 DAI
+    //   await dai.connect(user.signer).mint(daiSize);
+    //   await dai.connect(user.signer).approve(pool.address, daiSize);
+    //   await pool
+    //     .connect(user.signer)
+    //     .deposit(dai.address, tranche, daiSize, user.address, "0");
 
-      const aTokensBalance = await aDai.balanceOf(user.address);
+    //   const aTokensBalance = await aDai.balanceOf(user.address);
 
-      expect(aTokensBalance).to.be.gt(zero);
-      expect(aTokensBalance).to.be.gte(daiSize);
+    //   expect(aTokensBalance).to.be.gt(zero);
+    //   expect(aTokensBalance).to.be.gte(daiSize);
 
-      // Borrow WETH with WETH as collateral
-      await waitForTx(
-        await pool
-          .connect(user.signer)
-          .borrow(weth.address, tranche, borrowSize, "0", user.address)
-      );
+    //   // Borrow WETH with WETH as collateral
+    //   await waitForTx(
+    //     await pool
+    //       .connect(user.signer)
+    //       .borrow(weth.address, tranche, borrowSize, "0", user.address)
+    //   );
 
-      const debtBalance = await stableDebtToken.balanceOf(user.address);
+    //   const debtBalance = await stableDebtToken.balanceOf(user.address);
 
-      expect(debtBalance).to.be.gt(zero);
+    //   expect(debtBalance).to.be.gt(zero);
 
-      // Full Repay WETH with native ETH
-      await waitForTx(
-        await wethGateway
-          .connect(user.signer)
-          .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, user.address, {
-            value: repaySize,
-          })
-      );
+    //   // Full Repay WETH with native ETH
+    //   await waitForTx(
+    //     await wethGateway
+    //       .connect(user.signer)
+    //       .repayETH(pool.address, tranche, MAX_UINT_AMOUNT, user.address, {
+    //         value: repaySize,
+    //       })
+    //   );
 
-      const debtBalanceAfterRepay = await stableDebtToken.balanceOf(
-        user.address
-      );
-      expect(debtBalanceAfterRepay).to.be.eq(zero);
+    //   const debtBalanceAfterRepay = await stableDebtToken.balanceOf(
+    //     user.address
+    //   );
+    //   expect(debtBalanceAfterRepay).to.be.eq(zero);
 
-      // Withdraw DAI
-      await aDai.connect(user.signer).approve(pool.address, MAX_UINT_AMOUNT);
-      await pool
-        .connect(user.signer)
-        .withdraw(dai.address, tranche, MAX_UINT_AMOUNT, user.address);
-    });
+    //   // Withdraw DAI
+    //   await aDai.connect(user.signer).approve(pool.address, MAX_UINT_AMOUNT);
+    //   await pool
+    //     .connect(user.signer)
+    //     .withdraw(dai.address, tranche, MAX_UINT_AMOUNT, user.address);
+    // });
 
     it("Borrow variable WETH and Full Repay with ETH", async () => {
       const { users, wethGateway, aWETH, weth, pool, helpersContract } =

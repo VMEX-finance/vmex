@@ -767,39 +767,39 @@ export const borrow = async (
   console.log("Before tx: reserve: " + JSON.stringify(reserveDataBefore));
   console.log("Before tx: user: " + JSON.stringify(userDataBefore));
 
-  console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
+  // console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
 
-  var {
-    aTokenInstance: aTokenInstance1,
-    reserve: r1,
-    userData: userDataBefore1,
-    reserveData: reserveDataBefore1,
-  } = await getDataBeforeAction(
-    reserveSymbol,
-    tranche,
-    "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
-    testEnv
-  );
+  // var {
+  //   aTokenInstance: aTokenInstance1,
+  //   reserve: r1,
+  //   userData: userDataBefore1,
+  //   reserveData: reserveDataBefore1,
+  // } = await getDataBeforeAction(
+  //   reserveSymbol,
+  //   tranche,
+  //   "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
+  //   testEnv
+  // );
 
-  console.log(
-    "Before tx: global vmex admin: " + JSON.stringify(userDataBefore1)
-  );
+  // console.log(
+  //   "Before tx: global vmex admin: " + JSON.stringify(userDataBefore1)
+  // );
 
-  console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
+  // console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
 
-  var {
-    aTokenInstance: aTokenInstance1,
-    reserve: r1,
-    userData: userDataBefore2,
-    reserveData: reserveDataBefore1,
-  } = await getDataBeforeAction(
-    reserveSymbol,
-    tranche,
-    trancheAdmin.address,
-    testEnv
-  );
+  // var {
+  //   aTokenInstance: aTokenInstance1,
+  //   reserve: r1,
+  //   userData: userDataBefore2,
+  //   reserveData: reserveDataBefore1,
+  // } = await getDataBeforeAction(
+  //   reserveSymbol,
+  //   tranche,
+  //   trancheAdmin.address,
+  //   testEnv
+  // );
 
-  console.log("Before tx: tranche admin: " + JSON.stringify(userDataBefore2));
+  // console.log("Before tx: tranche admin: " + JSON.stringify(userDataBefore2));
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(
@@ -839,7 +839,7 @@ export const borrow = async (
 
     const expectedReserveData = calcExpectedReserveDataAfterBorrow(
       amountToBorrow.toString(),
-      interestRateMode,
+      RateMode.Variable,
       reserveDataBefore,
       userDataBefore,
       txTimestamp,
@@ -848,7 +848,7 @@ export const borrow = async (
 
     const expectedUserData = calcExpectedUserDataAfterBorrow(
       amountToBorrow.toString(),
-      interestRateMode,
+      RateMode.Variable,
       reserveDataBefore,
       expectedReserveData,
       userDataBefore,
@@ -859,48 +859,49 @@ export const borrow = async (
     console.log("After borrow: reserve: " + JSON.stringify(reserveDataAfter));
     console.log("After borrow: user: " + JSON.stringify(userDataAfter));
 
-    const userAccountData = await pool.getUserAccountData(
-      user.address,
-      tranche,
-      false
-    );
+    console.log("After borrow: expectedUserData: " + JSON.stringify(expectedUserData));
+    // const userAccountData = await pool.getUserAccountData(
+    //   user.address,
+    //   tranche,
+    //   false
+    // );
 
-    console.log("userAccountData: ", JSON.stringify(userAccountData));
+    // console.log("userAccountData: ", JSON.stringify(userAccountData));
 
-    console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
+    // console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
 
-    var {
-      reserveData: reserveDataAfter1,
-      userData: userDataAfter1,
-      timestamp: timestampe1,
-    } = await getContractsData(
-      reserve,
-      tranche,
-      "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
-      testEnv
-    );
+    // var {
+    //   reserveData: reserveDataAfter1,
+    //   userData: userDataAfter1,
+    //   timestamp: timestampe1,
+    // } = await getContractsData(
+    //   reserve,
+    //   tranche,
+    //   "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
+    //   testEnv
+    // );
 
-    console.log(
-      "After withdraw: vmex global admin: " + JSON.stringify(userDataAfter1)
-    );
+    // console.log(
+    //   "After borrow: vmex global admin: " + JSON.stringify(userDataAfter1)
+    // );
 
-    console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
+    // console.log("\n!!!!!!!!!!!!!!!!!!!!!\n");
 
-    var {
-      reserveData: reserveDataAfter1,
-      userData: userDataAfter2,
-      timestamp: timestampe1,
-    } = await getContractsData(reserve, tranche, trancheAdmin.address, testEnv);
+    // var {
+    //   reserveData: reserveDataAfter1,
+    //   userData: userDataAfter2,
+    //   timestamp: timestampe1,
+    // } = await getContractsData(reserve, tranche, trancheAdmin.address, testEnv);
 
-    console.log(
-      "After withdraw: tranche admin: " + JSON.stringify(userDataAfter2)
-    );
+    // console.log(
+    //   "After borrow: tranche admin: " + JSON.stringify(userDataAfter2)
+    // );
 
-    console.log("reserveDataBefore: ", reserveDataBefore);
+    // console.log("reserveDataBefore: ", reserveDataBefore);
 
-    console.log("reserveDataAfter: ", reserveDataAfter);
+    // console.log("reserveDataAfter: ", reserveDataAfter);
 
-    console.log("expectedReserveData: ", expectedReserveData);
+    // console.log("expectedReserveData: ", expectedReserveData);
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
@@ -1043,7 +1044,7 @@ export const repay = async (
 
     const expectedReserveData = calcExpectedReserveDataAfterRepay(
       amountToRepay,
-      <RateMode>rateMode,
+      <RateMode>RateMode.Variable,
       reserveDataBefore,
       userDataBefore,
       txTimestamp,
@@ -1052,7 +1053,7 @@ export const repay = async (
 
     const expectedUserData = calcExpectedUserDataAfterRepay(
       amountToRepay,
-      <RateMode>rateMode,
+      <RateMode>RateMode.Variable,
       reserveDataBefore,
       expectedReserveData,
       userDataBefore,

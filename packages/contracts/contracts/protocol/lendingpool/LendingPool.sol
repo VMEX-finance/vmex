@@ -462,6 +462,8 @@ contract LendingPool is
             )
         );
 
+        console.log(string(abi.encodePacked(result)));
+
         require(success, Errors.LP_LIQUIDATION_CALL_FAILED);
 
         (uint256 returnCode, string memory returnMessage) = abi.decode(

@@ -127,73 +127,73 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     expect(tokenName).to.be.eq('Aave Interest bearing DAI updated', 'Invalid token name');
   });
 
-  it('Tries to update the DAI Stable debt token implementation with a different address than the lendingPoolManager', async () => {
-    const { dai, configurator, users } = testEnv;
+  // it('Tries to update the DAI Stable debt token implementation with a different address than the lendingPoolManager', async () => {
+  //   const { dai, configurator, users } = testEnv;
 
-    const name = await (await getStableDebtToken(newStableTokenAddress)).name();
-    const symbol = await (await getStableDebtToken(newStableTokenAddress)).symbol();
-
-
-    const updateDebtTokenInput: {
-      asset: string;
-      trancheId: BigNumberish;
-      incentivesController: string;
-      name: string;
-      symbol: string;
-      implementation: string;
-      params: string;
-    } = {
-      asset: dai.address,
-      trancheId: tranche,
-      incentivesController: ZERO_ADDRESS,
-      name: name,
-      symbol: symbol,
-      implementation: newStableTokenAddress,
-      params: '0x10'
-    }
-
-    await expect(
-      configurator
-        .connect(users[1].signer)
-        .updateStableDebtToken(updateDebtTokenInput)
-    ).to.be.revertedWith('Caller not global VMEX admin');
-  });
-
-  it('Upgrades the DAI stable debt token implementation ', async () => {
-    const { dai, configurator, pool, helpersContract } = testEnv;
-
-    const name = await (await getStableDebtToken(newStableTokenAddress)).name();
-    const symbol = await (await getStableDebtToken(newStableTokenAddress)).symbol();
+  //   const name = await (await getStableDebtToken(newStableTokenAddress)).name();
+  //   const symbol = await (await getStableDebtToken(newStableTokenAddress)).symbol();
 
 
-    const updateDebtTokenInput: {
-      asset: string;
-      trancheId: BigNumberish;
-      incentivesController: string;
-      name: string;
-      symbol: string;
-      implementation: string;
-      params: string;
-    } = {
-      asset: dai.address,
-      trancheId: tranche,
-      incentivesController: ZERO_ADDRESS,
-      name: name,
-      symbol: symbol,
-      implementation: newStableTokenAddress,
-      params: '0x10'
-    }
+  //   const updateDebtTokenInput: {
+  //     asset: string;
+  //     trancheId: BigNumberish;
+  //     incentivesController: string;
+  //     name: string;
+  //     symbol: string;
+  //     implementation: string;
+  //     params: string;
+  //   } = {
+  //     asset: dai.address,
+  //     trancheId: tranche,
+  //     incentivesController: ZERO_ADDRESS,
+  //     name: name,
+  //     symbol: symbol,
+  //     implementation: newStableTokenAddress,
+  //     params: '0x10'
+  //   }
 
-    await configurator.updateStableDebtToken(updateDebtTokenInput);
+  //   await expect(
+  //     configurator
+  //       .connect(users[1].signer)
+  //       .updateStableDebtToken(updateDebtTokenInput)
+  //   ).to.be.revertedWith('Caller not global VMEX admin');
+  // });
 
-    const { stableDebtTokenAddress } = await helpersContract.getReserveTokensAddresses(dai.address, tranche);
+  // it('Upgrades the DAI stable debt token implementation ', async () => {
+  //   const { dai, configurator, pool, helpersContract } = testEnv;
 
-    const debtToken = await getMockStableDebtToken(stableDebtTokenAddress);
+  //   const name = await (await getStableDebtToken(newStableTokenAddress)).name();
+  //   const symbol = await (await getStableDebtToken(newStableTokenAddress)).symbol();
 
-    const tokenName = await debtToken.name();
 
-    expect(tokenName).to.be.eq('Aave stable debt bearing DAI updated', 'Invalid token name');
-  });
+  //   const updateDebtTokenInput: {
+  //     asset: string;
+  //     trancheId: BigNumberish;
+  //     incentivesController: string;
+  //     name: string;
+  //     symbol: string;
+  //     implementation: string;
+  //     params: string;
+  //   } = {
+  //     asset: dai.address,
+  //     trancheId: tranche,
+  //     incentivesController: ZERO_ADDRESS,
+  //     name: name,
+  //     symbol: symbol,
+  //     implementation: newStableTokenAddress,
+  //     params: '0x10'
+  //   }
+
+  //   await configurator.updateStableDebtToken(updateDebtTokenInput);
+
+  //   const { stableDebtTokenAddress } = await helpersContract.getReserveTokensAddresses(dai.address, tranche);
+
+  //   const debtToken = await getMockStableDebtToken(stableDebtTokenAddress);
+
+  //   const tokenName = await debtToken.name();
+
+  //   expect(tokenName).to.be.eq('Aave stable debt bearing DAI updated', 'Invalid token name');
+  // });
 
   it('Tries to update the DAI variable debt token implementation with a different address than the lendingPoolManager', async () => {
     const {dai, configurator, users} = testEnv;

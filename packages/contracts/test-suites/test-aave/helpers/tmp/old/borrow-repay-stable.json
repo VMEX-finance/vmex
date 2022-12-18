@@ -26,7 +26,6 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
-            "isCollateral": "true",
             "amount": "1000",
             "user": "0"
           },
@@ -53,7 +52,6 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "isCollateral": "true",
 
             "amount": "1",
             "user": "1"
@@ -195,7 +193,6 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
-            "isCollateral": "true",
             "amount": "1000",
             "user": "1"
           },
@@ -247,7 +244,6 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
-            "isCollateral": "true",
             "amount": "1000",
             "user": "0"
           },
@@ -274,7 +270,6 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "isCollateral": "true",
             "amount": "1",
             "user": "1"
           },
@@ -312,7 +307,6 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "isCollateral": "true",
             "amount": "1",
             "user": "2"
           },
@@ -350,7 +344,6 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "isCollateral": "true",
             "amount": "1",
             "user": "3"
           },
@@ -388,7 +381,6 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "isCollateral": "true",
             "amount": "1",
             "user": "4"
           },
@@ -556,7 +548,6 @@
           "name": "deposit",
           "args": {
             "reserve": "DAI",
-            "isCollateral": "true",
             "amount": "1000",
             "user": "0"
           },
@@ -583,7 +574,6 @@
           "name": "deposit",
           "args": {
             "reserve": "WETH",
-            "isCollateral": "true",
             "amount": "2",
             "user": "1"
           },
