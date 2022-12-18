@@ -11,7 +11,7 @@ import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
 import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 library QueryUserHelpers {
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using UserConfiguration for DataTypes.UserConfigurationMap;

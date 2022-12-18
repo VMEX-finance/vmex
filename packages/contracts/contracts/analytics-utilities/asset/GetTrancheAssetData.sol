@@ -1,6 +1,6 @@
 import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 contract GetTrancheAssetData {
 	constructor(

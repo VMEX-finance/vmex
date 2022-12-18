@@ -25,7 +25,7 @@ import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 
 import {AssetMappings} from "./AssetMappings.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 /**
  * @title LendingPoolCollateralManager contract
@@ -153,7 +153,7 @@ contract LendingPoolCollateralManager is
             Errors.CollateralManagerErrors(vars.errorCode) !=
             Errors.CollateralManagerErrors.NO_ERROR
         ) {
-            console.log("Error in validating liquidation: ", vars.errorMsg);
+//            console.log("Error in validating liquidation: ", vars.errorMsg);
             return (vars.errorCode, vars.errorMsg);
         }
 
@@ -167,8 +167,8 @@ contract LendingPoolCollateralManager is
             .add(vars.userVariableDebt)
             .percentMul(LIQUIDATION_CLOSE_FACTOR_PERCENT);
 
-        console.log("maxLiquidatableDebt: ",vars.maxLiquidatableDebt);
-        console.log("debtToCover: ",debtToCover);
+//        console.log("maxLiquidatableDebt: ",vars.maxLiquidatableDebt);
+//        console.log("debtToCover: ",debtToCover);
 
         vars.actualDebtToLiquidate = debtToCover > vars.maxLiquidatableDebt
             ? vars.maxLiquidatableDebt
@@ -185,7 +185,7 @@ contract LendingPoolCollateralManager is
             vars.actualDebtToLiquidate,
             vars.userCollateralBalance
         );
-        console.log("vars.debtAmountNeeded: ",vars.debtAmountNeeded);
+//        console.log("vars.debtAmountNeeded: ",vars.debtAmountNeeded);
 
         // If debtAmountNeeded < actualDebtToLiquidate, there isn't enough
         // collateral to cover the actual amount that is being liquidated, hence we liquidate
@@ -210,7 +210,7 @@ contract LendingPoolCollateralManager is
                 );
             }
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
-                console.log("Error in validating liquidation 2: LPCM_NOT_ENOUGH_LIQUIDITY_TO_LIQUIDATE");
+//                console.log("Error in validating liquidation 2: LPCM_NOT_ENOUGH_LIQUIDITY_TO_LIQUIDATE");
                 return (
                     uint256(
                         Errors.CollateralManagerErrors.NOT_ENOUGH_LIQUIDITY
@@ -223,7 +223,7 @@ contract LendingPoolCollateralManager is
         debtReserve.updateState();
 
         if (vars.userVariableDebt >= vars.actualDebtToLiquidate) {
-            console.log("actualDebtToLiquidate", vars.actualDebtToLiquidate);
+//            console.log("actualDebtToLiquidate", vars.actualDebtToLiquidate);
             IVariableDebtToken(debtReserve.variableDebtTokenAddress).burn(
                 user,
                 vars.actualDebtToLiquidate,
@@ -316,7 +316,7 @@ contract LendingPoolCollateralManager is
             receiveAToken
         );
 
-        console.log("Liquidation no error!");
+//        console.log("Liquidation no error!");
 
         return (
             uint256(Errors.CollateralManagerErrors.NO_ERROR),
