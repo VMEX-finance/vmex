@@ -18,7 +18,6 @@ before(async () => {
 makeSuite(
     "collateralCap ",
     () => {
-        const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');
         const contractGetters = require('../helpers/contracts-getters.ts');
         // const lendingPool = await contractGetters.getLendingPool();

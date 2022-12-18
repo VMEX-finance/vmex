@@ -16,6 +16,7 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import {AssetMappings} from "../../../protocol/lendingpool/AssetMappings.sol";
 import {DataTypes} from "../../../protocol/libraries/types/DataTypes.sol";
 
+import "hardhat/console.sol";
 //need modifiers for permissioned actors after built into lending pool
 contract CrvLpEthStrategy is BaseStrategy {
     //NOTE: underlying and lendingPool are inherited from BaseStrategy.sol
@@ -107,6 +108,10 @@ contract CrvLpEthStrategy is BaseStrategy {
         }
     }
 
+    function earned() external view returns (uint256){
+        return baseRewardsPool.earned(address(this));
+    }
+
     function getName() external pure override returns (string memory) {
         return "VMEX (LP Token Name Goes Here) Strategy";
     }
@@ -159,72 +164,12 @@ contract CrvLpEthStrategy is BaseStrategy {
 
     // By farm and dump strategy, tend() will swap all rewards back into base LP token,
     // then deposit the LP back into the booster.
-    function _tend() internal override returns (TendData memory) {
+    function _tend() internal override returns (uint256) {
         //check to see if rewards have stopped streaming
         require(
             baseRewardsPool.earned(address(this)) != 0,
             "rewards not streaming"
         );
-
-        // TendData memory tendData;
-
-        // // 1. Harvest gains from positions
-
-        // uint256 balanceBefore = balanceOfPool();
-
-        // // Harvest CRV, CVX, and extra rewards tokens from staking positions
-        // // Note: Always claim extras
-        // baseRewardsPool.getReward(address(this), true);
-
-        // // Track harvested coins, before conversion
-        // tendData.crvTended = crvToken.balanceOf(address(this));
-        // tendData.cvxTended = cvxToken.balanceOf(address(this));
-
-        // //first we swap for the current lowest amount in the pool
-        // (address wantedDepositToken, uint256 index) = vStrategyHelper
-        // 	.checkForHighestPayingToken(curvePoolTokens, curveTokenBalances);
-
-        // for (uint8 i = 0; i < extraTokens.length; i ++) {
-        // 	extraRewardsTended[extraTokens[i]] =
-        // 		IERC20(extraTokens[i]).balanceOf(address(this));
-
-        // 	address[] memory tokenPath = vStrategyHelper.computeSwapPath(
-        // 		extraTokens[i], wantedDepositToken);
-
-        // 	sushiRouter.swapExactTokensForTokens(
-        // 		extraRewardsTended[extraTokens[i]],
-        // 		0,
-        // 		tokenPath,
-        // 		address(this),
-        // 		block.timestamp
-        // 	);
-        // }
-
-        // //need to use sushi here to swap between coins without a curve pool, can optimize later perhaps?
-        // address[] memory crvPath = vStrategyHelper.computeSwapPath(address(crvToken), wantedDepositToken);
-        // address[] memory cvxPath = vStrategyHelper.computeSwapPath(address(cvxToken), wantedDepositToken);
-
-        // //swap crv for wanted
-        // sushiRouter.swapExactTokensForTokens(
-        // 	tendData.crvTended,
-        // 	0, //min amount out (0 works fine)
-        // 	crvPath,
-        // 	address(this),
-        // 	block.timestamp
-        // );
-
-        // //swap cvx for wanted
-        // sushiRouter.swapExactTokensForTokens(
-        // 	tendData.cvxTended,
-        // 	0,
-        // 	cvxPath,
-        // 	address(this),
-        // 	block.timestamp
-        // );
-
-        // //get the lowest balance coin in the pool for max lp tokens on deposit
-        // uint256 depositAmountWanted = IERC20(wantedDepositToken).balanceOf(address(this));
-
         uint256 balanceBefore = balanceOfPool();
 
         (
@@ -237,8 +182,14 @@ contract CrvLpEthStrategy is BaseStrategy {
                 curveTokenBalances,
                 extraTokens,
                 extraRewardsTended,
-                sushiRouter
+                sushiRouter,
+                EFFICIENCY
             );
+        // if(depositAmountWanted==0){
+        //     return 0;
+        // }
+        //decide if we want to revert or return 0
+        require(depositAmountWanted>0, "Strategy tend error: Not enough rewards to tend efficiently");
 
         //now we need to unwrap any weth we might have after swap
         //using weth so we don't have to implement a seperate uni call for swapping directly to eth
@@ -256,6 +207,8 @@ contract CrvLpEthStrategy is BaseStrategy {
                 ethBalance,
                 depositAmountWanted
             );
+        console.log("amounts[0]: ",amounts[0]);
+        console.log("amounts[1]: ",amounts[1]);
         //in eth pools, eth seems to always be index 0
         curvePool.add_liquidity{value: ethBalance}(amounts, 0);
 
@@ -266,14 +219,15 @@ contract CrvLpEthStrategy is BaseStrategy {
         uint256 timeDifference =
             block.timestamp - (uint256(lastHarvestTime));
         lastHarvestTime = block.timestamp;
+        uint256 amountEarned = (balanceAfter - balanceBefore);
         //update globals, inherited from BaseStrategy.sol
-        interestRate((balanceAfter - balanceBefore), balanceBefore, timeDifference);
+        interestRate(amountEarned, balanceBefore, timeDifference);
         
 
         //mint to treasury and update LI
-        _updateState((balanceAfter - balanceBefore));
+        _updateState(amountEarned);
 
-        return tendData;
+        return amountEarned;
     }
 
     /// @dev Return the balance (in underlying) that the strategy has invested somewhere

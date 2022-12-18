@@ -22,13 +22,7 @@ chai.use(function (chai: any, utils: any) {
     }
   );
 });
-before(async () => {
-    await rawBRE.run("set-DRE");
 
-    console.log("\n***************");
-    console.log("DRE finished");
-    console.log("***************\n");
-  });
 makeSuite(
     "Tricrypto2 ",
     () => {
@@ -77,12 +71,12 @@ makeSuite(
           const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
           var signer = await contractGetters.getFirstSigner();
           //give signer 1 WETH so he can get LP tokens
-          var options = {value: DRE.ethers.utils.parseEther("1.0")}
+          var options = {value: DRE.ethers.utils.parseEther("100.0")}
           await myWETH.connect(signer).deposit(options);
           var signerWeth = await myWETH.connect(signer).balanceOf(signer.address);
           expect(
             signerWeth.toString()
-          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.0"), "Did not get WETH");
+          ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("100.0"), "Did not get WETH");
         });
 
         it("get LP tokens", async () => {
@@ -97,11 +91,11 @@ makeSuite(
 
           var triCryptoDeposit = new DRE.ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
-          var amounts = [DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("1.0")]
+          var amounts = [DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("0"),DRE.ethers.utils.parseEther("10.0")]
 
-          await myWETH.connect(signer).approve(triCryptoDeposit.address,DRE.ethers.utils.parseEther("1.0"))
+          await myWETH.connect(signer).approve(triCryptoDeposit.address,DRE.ethers.utils.parseEther("10000.0"))
 
-          await triCryptoDeposit.connect(signer).add_liquidity(amounts,DRE.ethers.utils.parseEther("0.1"))
+          await triCryptoDeposit.connect(signer).add_liquidity(amounts,DRE.ethers.utils.parseEther("10"))
 
           // 0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF (this is EXACT MATCH, used to be deployed in our system),
           // 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff  (this is similar match, THIS IS ADDRESS ON CURVE FRONTEND, WHICH IS WHAT WE NEED TO USE),  however, this is the address that triCryptoDeposit address uses. So I think we need to redeploy with this token
@@ -166,7 +160,7 @@ makeSuite(
           const aTokenBalance = await tricrypto2Tranch1AToken.totalSupply();
           console.log("tricrypto2 atoken total supply: ", aTokenBalance);
 
-          const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
+          const strategy = await contractGetters.getCrvLpStrategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           const vTokenAddress = await strategy.connect(signer).vToken(); //this should be the same as tricrypto2Tranch1AToken
           console.log("vtoken address: ", vTokenAddress);
@@ -213,20 +207,6 @@ makeSuite(
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
           var CurveToken = new DRE.ethers.Contract(CurveTokenAdd,CurveTokenAddabi)
 
-          
-
-          // var strategyStartBoostedBalance = await strategy.balanceOfPool();
-          // console.log("strategy START boosted balance: " + strategyStartBoostedBalance);
-          // expect(strategyStartBoostedBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.5"), "Booster starts with one");
-          
-          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
-          // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1"), "User still needs the aTokens of original deposit");
-
-          // var userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49");
-          // expect(userReserveData.currentATokenBalance).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0"), "Admin starts with nothing");
-
-          
-
           const tricrypto2Tranch1ATokenAddress =
             (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
           // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
@@ -234,7 +214,7 @@ makeSuite(
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
-            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
+            const strategy = await contractGetters.getCrvLpStrategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
             for(let i = 0; i<3;i++){
                 var strategyStartBoostedBalance = await strategy.balanceOfPool();
@@ -330,7 +310,7 @@ makeSuite(
           const tricrypto2Tranch1AToken =
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
-            const strategy = await contractGetters.getTricrypto2Strategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
+            const strategy = await contractGetters.getCrvLpStrategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
 
           await lendingPool.connect(signer)
             .withdraw(

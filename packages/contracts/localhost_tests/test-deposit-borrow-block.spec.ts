@@ -161,7 +161,7 @@ var triCryptoDepositAbi = [
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 1, true); 
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther(".1"), 1, '0', await signer.getAddress())
+                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther(".1"), '0', await signer.getAddress())
               ).to.be.revertedWith("User is not whitelisted to borrow and deposit in same block");
 
             
@@ -196,7 +196,7 @@ var triCryptoDepositAbi = [
             await lendingPool.connect(signer).deposit(USDC.address, 1, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
 
 
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), 1, '0', await signer.getAddress()); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
 
 
             block.advance();

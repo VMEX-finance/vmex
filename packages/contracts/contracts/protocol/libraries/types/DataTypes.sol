@@ -6,8 +6,6 @@ library DataTypes {
         uint256 _pid;
         uint8 _poolSize;
         address _curvePool;
-        address _boosterAddr;
-        bool isAllowed;
     }
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
     struct AssetData {

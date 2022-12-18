@@ -50,6 +50,10 @@ contract CvxStrategy is BaseStrategy {
         );
     }
 
+    function earned() external view returns (uint256){
+        return cvxRewardsPool.earned(address(this));
+    }
+
     //do we need this? would assist with devs interfacing with these contracts
     function getName() external pure override returns (string memory) {
         return "VMEX CVX Strategy";
@@ -99,7 +103,7 @@ contract CvxStrategy is BaseStrategy {
 
     // By farm and dump strategy, tend() will swap all rewards back into CRV token,
     // then deposit the CRV into the reward pool.
-    function _tend() internal override returns (TendData memory) {
+    function _tend() internal override returns (uint256) {
         uint256 balanceBefore = balanceOfPool();
         TendData memory tendData;
 
@@ -118,13 +122,22 @@ contract CvxStrategy is BaseStrategy {
         path[3] = address(cvxToken);
 
         // swap cvxCRV for CVX
-        sushiRouter.swapExactTokensForTokens(
+        try sushiRouter.swapExactTokensForTokens(
             tendData.cvxCrvTended,
-            0,
+            0,//tendData.cvxCrvTended/EFFICIENCY,
             path,
             address(this),
             block.timestamp
-        );
+        ) returns (uint256[] memory amounts){
+            console.log("swapped cvx");
+            for(uint i = 0;i<amounts.length;i++){
+                console.log("amounts[i]: ",amounts[i]);
+            }
+            // 
+        } catch Error(string memory reason){
+            console.log("Cvx Swap Error: ",reason);
+            revert("Strategy tend error: Not enough rewards to tend efficiently");
+        }
 
         // TODO: potentially call pull() so we pull from lending pools
         // deposit all swapped CVX back into the
@@ -138,13 +151,14 @@ contract CvxStrategy is BaseStrategy {
             block.timestamp - (uint256(lastHarvestTime));
         lastHarvestTime = block.timestamp;
         //update globals, inherited from BaseStrategy.sol
-        interestRate((balanceAfter - balanceBefore), balanceBefore, timeDifference);
+        uint256 amountEarned = (balanceAfter - balanceBefore);
+        interestRate(amountEarned, balanceBefore, timeDifference);
         
 
         //mint to treasury and update LI
-        _updateState((balanceAfter - balanceBefore));
+        _updateState(amountEarned);
 
-        return tendData;
+        return amountEarned;
     }
 
     /// @dev Return the balance (in underlying) that the strategy has invested somewhere

@@ -51,6 +51,7 @@ export const claimTrancheId = async (
   );
 
   console.log(`-${ret}:${name} claimed for ${admin.address}`);
+  console.log("    * gasUsed", ret.gasUsed.toString());
 };
 
 //create another initReserves that initializes the curve v2, or just use this.
