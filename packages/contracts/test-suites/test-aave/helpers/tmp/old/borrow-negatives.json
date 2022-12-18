@@ -1,3 +1,5 @@
+// Don't need to test this, since user can't choose the borrow rate mode
+
 {
   "title": "LendingPool: Borrow negatives (reverts)",
   "description": "Test cases for the deposit function.",

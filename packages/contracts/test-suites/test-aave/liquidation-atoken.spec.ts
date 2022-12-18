@@ -422,7 +422,7 @@ makeSuite(
         );
 
       //user 4 borrows
-      const userGlobalData = await pool.getUserAccountData(
+      var userGlobalData = await pool.getUserAccountData(
         borrower.address,
         tranche
       ,false);
@@ -454,6 +454,16 @@ makeSuite(
         new BigNumber(usdcPrice.toString()).multipliedBy(1.12).toFixed(0)
       );
 
+      var userGlobalData = await pool.getUserAccountData(
+        borrower.address,
+        tranche
+      ,false);
+
+      expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
+        oneEther.toString(),
+        INVALID_HF
+      );
+
       //mints dai to the liquidator
 
       await usdc.mint(await convertToCurrencyDecimals(usdc.address, "1000"));
@@ -477,7 +487,7 @@ makeSuite(
       );
 
       const amountToLiquidate = new BigNumber(
-        userReserveDataBefore.currentStableDebt.toString()
+        userReserveDataBefore.currentVariableDebt.toString()
       )
         .multipliedBy(0.5)
         .toFixed(0);
@@ -541,9 +551,9 @@ makeSuite(
       );
 
       expect(
-        userReserveDataAfter.currentStableDebt.toString()
+        userReserveDataAfter.currentVariableDebt.toString()
       ).to.be.bignumber.almostEqual(
-        new BigNumber(userReserveDataBefore.currentStableDebt.toString())
+        new BigNumber(userReserveDataBefore.currentVariableDebt.toString())
           .minus(amountToLiquidate)
           .toFixed(0),
         "Invalid user borrow balance after liquidation"
