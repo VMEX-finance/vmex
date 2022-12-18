@@ -25,13 +25,7 @@ chai.use(function (chai: any, utils: any) {
   );
 });
 
-before(async () => {
-    await rawBRE.run("set-DRE");
-    
-    console.log("\n***************");
-    console.log("DRE finished");
-    console.log("***************\n");
-  });
+
 makeSuite(
     "frax3crv ",
     () => {
@@ -144,12 +138,12 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
             const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
 
-            var options = {value: ethers.utils.parseEther("1000.0")}
+            var options = {value: ethers.utils.parseEther("10000.0")}
 
-            await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("1000.0"), path, signer.address, deadline,options)
+            await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseEther("3000.0"), path, signer.address, deadline,options)
 
             var signerDAI = await USDC.connect(signer).balanceOf(signer.address)
-
+            console.log("Amount frax: ", signerDAI);
             expect(
                 signerDAI.toString()
             ).to.not.be.bignumber.equal(0, "Did not get Frax");
@@ -163,10 +157,10 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
             
             var triCryptoDeposit = new DRE.ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
-            var amounts = [ethers.utils.parseEther("10000"),ethers.utils.parseEther("0")]
+            var amounts = [ethers.utils.parseEther("3000"),ethers.utils.parseEther("0")]
 
             await DAI.connect(signer).approve(triCryptoDeposit.address,ethers.utils.parseEther("100000"))
-
+            
             // await triCryptoDeposit.connect(signer).calc_token_amount([10**2, 10**2,10**2],true)
             await triCryptoDeposit.connect(signer).add_liquidity(amounts,ethers.utils.parseEther("100"))
 
@@ -215,7 +209,7 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
               userDat.totalCollateralETH.toString()
             ).to.be.bignumber.equal(col.toString(), "Did not deposit 3crv");
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), 1, '0', signer.address); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), '0', signer.address); 
             
             userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -231,7 +225,7 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
             ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.01"), "Did not get WETH");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("1000"), 1, '0', signer.address)
+                lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("1000"), '0', signer.address)
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
           });
 
@@ -409,7 +403,6 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
                 myWETH.address,
                 1,
                 DRE.ethers.utils.parseEther("1.0"),
-                1,
                 await signer.getAddress());
                 var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
                 console.log("USER DATA after repay: ", userData);

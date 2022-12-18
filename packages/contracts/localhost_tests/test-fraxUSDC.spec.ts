@@ -13,13 +13,6 @@ import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
 import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
 
-before(async () => {
-    await rawBRE.run("set-DRE");
-    
-    console.log("\n***************");
-    console.log("DRE finished");
-    console.log("***************\n");
-  });
 makeSuite(
     "fraxUSDC ",
     () => {
@@ -190,7 +183,7 @@ makeSuite(
               userDat.totalCollateralETH.toString()
             ).to.be.bignumber.equal(col.toString(), "Did not deposit 3crv");
             
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), 1, '0', signer.address); 
+            await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), '0', signer.address); 
             
             userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
 
@@ -206,7 +199,7 @@ makeSuite(
             ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.01"), "Did not get WETH");
 
             await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("10"), 1, '0', signer.address)
+                lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("10"), '0', signer.address)
               ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
           });
 
@@ -396,7 +389,6 @@ makeSuite(
                 myWETH.address,
                 1,
                 DRE.ethers.utils.parseEther("1.0"),
-                1,
                 await signer.getAddress());
                 var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
                 console.log("USER DATA after repay: ", userData);
