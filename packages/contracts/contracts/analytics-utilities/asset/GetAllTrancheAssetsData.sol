@@ -2,7 +2,7 @@ import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
 import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 // NOTE: this function starts to fail if we have a large number of markets
 contract GetAllTrancheAssetsData {
 

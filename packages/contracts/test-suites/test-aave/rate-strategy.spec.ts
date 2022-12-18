@@ -129,7 +129,7 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
 
     expect(currentLiquidityRate.toString()).to.be.equal(
       expectedVariableRate
-        .percentMul(new BigNumber(PERCENTAGE_FACTOR).minus(strategyDAI.reserveFactor))
+        .percentMul(new BigNumber(PERCENTAGE_FACTOR).minus(defaultReserveFactor))
         .toFixed(0),
       'Invalid liquidity rate'
     );

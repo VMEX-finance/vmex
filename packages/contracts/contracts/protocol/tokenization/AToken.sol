@@ -13,7 +13,7 @@ import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesControl
 import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 /**
  * @title Aave ERC20 AToken

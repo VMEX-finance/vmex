@@ -1,6 +1,6 @@
 import { QueryUserHelpers } from "../libs/QueryUserHelpers.sol";
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 contract GetUserWalletData {
 	constructor(
