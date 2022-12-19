@@ -131,6 +131,10 @@ contract AssetMappings {
         return assetMappings[asset].borrowingEnabled;
     }
 
+    function getAssetCollateralizable(address asset) view external returns (bool){
+        return assetMappings[asset].liquidationThreshold != 0;
+    }
+
     function getInterestRateStrategyAddress(address underlying, uint8 choice) view external returns(address){
         require(assetMappings[underlying].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         require(interestRateStrategyAddress[underlying][choice]!=address(0), "No interest rate strategy is associated");
@@ -141,8 +145,8 @@ contract AssetMappings {
         return DataTypes.ReserveAssetType(assetMappings[asset].assetType);
     }
 
-    function getCollateralCap(address asset) view external returns(uint256){
-        return assetMappings[asset].collateralCap;
+    function getSupplyCap(address asset) view external returns(uint256){
+        return assetMappings[asset].supplyCap;
     }
 
     function addInterestRateStrategyAddress(address underlying, address strategy) external onlyGlobalAdmin {
@@ -172,6 +176,39 @@ contract AssetMappings {
     function getCurveMetadata(address underlying) external view returns (DataTypes.CurveMetadata memory) {
         require(curveMetadata[underlying]._curvePool!=address(0), "Strategy doesn't have metadata");
         return curveMetadata[underlying];
+    }
+
+
+    /**
+     * @dev Gets the configuration paramters of the reserve
+     * @param underlying Address of underlying token you want params for
+     * @return The state params representing ltv, liquidation threshold, liquidation bonus, the reserve decimals, and NEW: the borrow factor
+     **/
+    function getParams(address underlying)
+        external view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256
+        )
+    {
+        return (
+            assetMappings[underlying].baseLTV,
+            assetMappings[underlying].liquidationThreshold,
+            assetMappings[underlying].liquidationBonus,
+            assetMappings[underlying].underlyingAssetDecimals,
+            assetMappings[underlying].borrowFactor
+        );
+    }
+
+    function getDecimals(address underlying) external view
+        returns (
+            uint256
+        ){
+
+        return assetMappings[underlying].underlyingAssetDecimals;
     }
     //TODO: add governance functions to add or edit config
 }

@@ -123,6 +123,7 @@ contract LendingPoolCollateralManager is
                 _reservesList[trancheId],
                 _reservesCount[trancheId],
                 _addressesProvider,
+                _assetMappings,
                 false //liquidations don't want to use twap
             );
         }
@@ -178,8 +179,6 @@ contract LendingPoolCollateralManager is
             vars.maxCollateralToLiquidate, //considers exchange rate between debt token and collateral
             vars.debtAmountNeeded
         ) = _calculateAvailableCollateralToLiquidate(
-            collateralReserve,
-            debtReserve,
             collateralAsset,
             debtAsset,
             vars.actualDebtToLiquidate,
@@ -339,8 +338,6 @@ contract LendingPoolCollateralManager is
      * a certain amount of debt asset.
      * - This function needs to be called after all the checks to validate the liquidation have been performed,
      *   otherwise it might fail.
-     * @param collateralReserve The data of the collateral reserve
-     * @param debtReserve The data of the debt reserve
      * @param collateralAsset The address of the underlying asset used as collateral, to receive as result of the liquidation
      * @param debtAsset The address of the underlying borrowed asset to be repaid with the liquidation
      * @param debtToCover The debt amount of borrowed `asset` the liquidator wants to cover
@@ -350,8 +347,6 @@ contract LendingPoolCollateralManager is
      *         debtAmountNeeded: The amount to repay with the liquidation
      **/
     function _calculateAvailableCollateralToLiquidate(
-        DataTypes.ReserveData storage collateralReserve,
-        DataTypes.ReserveData storage debtReserve,
         address collateralAsset,
         address debtAsset,
         uint256 debtToCover,
@@ -363,14 +358,14 @@ contract LendingPoolCollateralManager is
         AvailableCollateralToLiquidateLocalVars memory vars;
         {
             address oracleAddress = _addressesProvider.getPriceOracle(
-                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(collateralAsset)
+                _assetMappings.getAssetType(collateralAsset)
             ); //using just chainlink current price oracle, not using 24 hour twap
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
             oracleAddress = _addressesProvider.getPriceOracle(
-                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(debtAsset)
+                _assetMappings.getAssetType(debtAsset)
             );
 
             oracle = IPriceOracleGetter(oracleAddress);
@@ -382,8 +377,8 @@ contract LendingPoolCollateralManager is
             vars.liquidationBonus,
             vars.collateralDecimals,
 
-        ) = collateralReserve.configuration.getParams();
-        vars.debtAssetDecimals = debtReserve.configuration.getDecimals();
+        ) = _assetMappings.getParams(collateralAsset);
+        vars.debtAssetDecimals = _assetMappings.getDecimals(debtAsset);
 
         // This is the maximum possible amount of the selected collateral that can be liquidated, given the
         // max amount of liquidatable debt

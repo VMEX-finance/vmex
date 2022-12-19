@@ -442,7 +442,9 @@ export interface IReserveParams
   aTokenImpl: eContractid;
   // reserveFactor: string;
   strategy: IInterestRateStrategyParams;
-  collateralCap: string;
+  supplyCap: string;
+  borrowCap: string;
+
 }
 
 export interface IInterestRateStrategyParams {
@@ -472,6 +474,7 @@ export interface IReserveCollateralParams {
   liquidationThreshold: string;
   liquidationBonus: string;
   assetType: BigNumberish;
+  borrowFactor: string;
 }
 export interface IMarketRates {
   borrowRate: string;

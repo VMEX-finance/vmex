@@ -43,7 +43,7 @@ library GenericLogic {
         uint256 healthFactorAfterDecrease;
         uint256 amountCappedNotUsed; //amount that user owns but didn't count as collateral due to cap
         uint256 userAmount;
-        uint256 collateralCap;
+        uint256 supplyCap;
         uint256 currentPrice;
         bool reserveUsageAsCollateralEnabled;
         
@@ -58,6 +58,7 @@ library GenericLogic {
         address user;
         uint256 amount;
         ILendingPoolAddressesProvider _addressesProvider;
+        AssetMappings _assetMappings;
     }
 
     /**
@@ -87,12 +88,10 @@ library GenericLogic {
 
         balanceDecreaseAllowedLocalVars memory vars;
 
-        (, vars.liquidationThreshold, , vars.decimals, ) = reservesData[
-            params.asset
-        ][params.trancheId].configuration.getParams();
+        (, vars.liquidationThreshold, , vars.decimals, ) = params._assetMappings.getParams(params.asset);
         
 
-        if (vars.liquidationThreshold == 0) {
+        if (reservesData[params.asset][params.trancheId].configuration.getCollateralEnabled()==false){//(vars.liquidationThreshold == 0) {
             return true;
         }
 
@@ -111,6 +110,7 @@ library GenericLogic {
             reserves,
             reservesCount,
             params._addressesProvider,
+            params._assetMappings,
             true //this function is only used in the context of withdrawing or setting as not collateral, so it should be true
         );
 
@@ -123,13 +123,13 @@ library GenericLogic {
         //using current price instead of 24 hour average
         vars.currentPrice= IPriceOracleGetter(
             params._addressesProvider.getPriceOracle(
-                AssetMappings(params._addressesProvider.getAssetMappings()).getAssetType(params.asset)
+                params._assetMappings.getAssetType(params.asset)
             )
         ).getAssetPrice(params.asset);
         
         vars.amountToDecreaseInETH  = vars.currentPrice.mul(params.amount).div(10**vars.decimals);
 
-        vars.collateralCap = AssetMappings(params._addressesProvider.getAssetMappings()).getCollateralCap(params.asset); // in ETH
+        vars.supplyCap = params._assetMappings.getSupplyCap(params.asset); // in ETH
 
         vars.userAmount = IAToken(reservesData[
             params.asset
@@ -138,7 +138,7 @@ library GenericLogic {
         // convert to ETH
         vars.userAmount = vars.currentPrice.mul(vars.userAmount).div(10**vars.decimals);
 
-        vars.amountCappedNotUsed = vars.userAmount>vars.collateralCap ? vars.userAmount - vars.collateralCap : 0;
+        vars.amountCappedNotUsed = vars.userAmount>vars.supplyCap ? vars.userAmount - vars.supplyCap : 0;
         if(vars.amountToDecreaseInETH <= vars.amountCappedNotUsed) { //withdraw only the amount that isn't even counted as collateral
             return true;
         } 
@@ -222,6 +222,7 @@ library GenericLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
+        AssetMappings _assetMappings,
         bool useTwap
     )
         internal
@@ -258,7 +259,7 @@ library GenericLogic {
 
             {
                 vars.oracle = _addressesProvider.getPriceOracle(
-                    AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.currentReserveAddress)
+                    _assetMappings.getAssetType(vars.currentReserveAddress)
                 );
             }
 
@@ -273,7 +274,7 @@ library GenericLogic {
                 ,
                 vars.decimals,
 
-            ) = currentReserve.configuration.getParams();
+            ) = _assetMappings.getParams(vars.currentReserveAddress);
 
             vars.tokenUnit = 10**vars.decimals;
             vars.reserveUnitPrice = IPriceOracleGetter(vars.oracle)
@@ -284,7 +285,7 @@ library GenericLogic {
                 .getAssetTWAPPrice(vars.currentReserveAddress); //from uniswap
 
             if (
-                vars.liquidationThreshold != 0 &&
+                currentReserve.configuration.getCollateralEnabled()==true &&//vars.liquidationThreshold != 0 &&
                 userConfig.isUsingAsCollateral(vars.i)
             ) {
                 //the check vars.liquidationThreshold != 0 means reserves that are disabled as collateral (vars.liquidationThreshold = 0) won't count
@@ -308,11 +309,7 @@ library GenericLogic {
                         vars.liquidityBalanceETH = vars.liquidityBalanceETHTWAP; 
                     }
                 }
-                // Important: collateral cap is in ETH
-                if (vars.liquidityBalanceETH > AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress)) {
-                    vars.liquidityBalanceETH = AssetMappings(_addressesProvider.getAssetMappings()).getCollateralCap(vars.currentReserveAddress);
-                }
-
+                
                 vars.totalCollateralInETH = vars.totalCollateralInETH.add(
                     vars.liquidityBalanceETH
                 );

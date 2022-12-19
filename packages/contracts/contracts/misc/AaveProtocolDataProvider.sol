@@ -11,6 +11,7 @@ import {UserConfiguration} from "../protocol/libraries/configuration/UserConfigu
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
+import {AssetMappings} from "../protocol/lendingpool/AssetMappings.sol";
 
 contract AaveProtocolDataProvider {
     using SafeMath for uint256;
@@ -135,8 +136,10 @@ contract AaveProtocolDataProvider {
             liquidationThreshold,
             liquidationBonus,
             decimals,
-            reserveFactor
-        ) = configuration.getParamsMemory();
+            //borrowFactor (not used yet)
+        ) = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()).getParams(asset);
+
+        reserveFactor = configuration.getReserveFactor();
 
         (
             isActive,
@@ -145,7 +148,7 @@ contract AaveProtocolDataProvider {
             stableBorrowRateEnabled
         ) = configuration.getFlagsMemory();
 
-        usageAsCollateralEnabled = liquidationThreshold > 0;
+        usageAsCollateralEnabled =  configuration.getCollateralEnabled();//liquidationThreshold > 0;
     }
 
     function getReserveData(address asset, uint64 trancheId)

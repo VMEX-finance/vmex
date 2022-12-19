@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity >=0.8.0;
 
+import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+
 library DataTypes {
     struct CurveMetadata {
         uint256 _pid;
@@ -18,11 +20,13 @@ library DataTypes {
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
         uint8 assetType;
-        uint256 collateralCap;
+        uint256 supplyCap;
+        uint256 borrowCap;
 
-        uint256 baseLTV;
+        uint256 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 
         uint256 liquidationThreshold; //if this is zero, then disabled as collateral
         uint256 liquidationBonus;
+        uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset
 
         bool stableBorrowingEnabled;
         bool borrowingEnabled;
@@ -110,8 +114,11 @@ library DataTypes {
         //the above will not be set because they are properties of the asset as a whole
         //update: each reserve will have their own values. Just in case there needs to be a change,
         //we can't set them all at the same time cause some reserves may satisfy the conditions but other reserves may not
+        // Even so, all reserves need to be updated to current guidelines
 
         //update 2: we can just use the global version for ltv and liquidation bonus
+
+        //update 3 (final decision): use asset mappings instead of the local variabblbes stored above.
 
         //bit 56: Reserve is active
         //bit 57: reserve is frozen
@@ -121,6 +128,7 @@ library DataTypes {
         //bit 64-79: reserve factor
 
         //bit 80-95: vmex reserve factor
+        //bit 96: collateral is enabled
         uint256 data;
     }
 
@@ -143,6 +151,7 @@ library DataTypes {
         address asset;
         uint64 trancheId;
         address _addressesProvider;
+        AssetMappings _assetMappings;
         uint256 amount;
         address onBehalfOf;
         uint16 referralCode;
@@ -158,6 +167,7 @@ library DataTypes {
         uint16 referralCode;
         bool releaseUnderlying;
         uint256 _reservesCount;
+        AssetMappings _assetMappings;
     }
 
     struct WithdrawParams {

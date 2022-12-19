@@ -37,6 +37,7 @@ contract LendingPoolConfigurator is
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
 
     ILendingPoolAddressesProvider internal addressesProvider;
+    AssetMappings internal assetMappings;
     ILendingPool internal pool;
     address internal DefaultVMEXTreasury;
     uint256 internal DefaultVMEXReserveFactor;
@@ -88,6 +89,7 @@ contract LendingPoolConfigurator is
     function initialize(address provider) public initializer {
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
+        assetMappings = AssetMappings(addressesProvider.getAssetMappings());
         DefaultVMEXTreasury = 0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49; //in case we forget to set
         DefaultVMEXReserveFactor = 1000;
     }
@@ -129,7 +131,7 @@ contract LendingPoolConfigurator is
                     addressesProvider.getAToken(),
                     addressesProvider.getStableDebtToken(),
                     addressesProvider.getVariableDebtToken(),
-                    AssetMappings(addressesProvider.getAssetMappings()).getAssetMapping(input[i].underlyingAsset)
+                    assetMappings.getAssetMapping(input[i].underlyingAsset)
                 ) //by putting assetmappings in the addresses provider, we have flexibility to upgrade it in the future
             );
         }
@@ -154,7 +156,7 @@ contract LendingPoolConfigurator is
         pool.initReserve(
             internalInput.input.underlyingAsset,
             internalInput.trancheId,
-            AssetMappings(addressesProvider.getAssetMappings()).getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
+            assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
             aTokenProxyAddress,
             stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress
@@ -165,24 +167,14 @@ contract LendingPoolConfigurator is
                 internalInput.input.underlyingAsset,
                 internalInput.trancheId
             );
-
-        currentConfig.setLtv(internalInput.assetdata.baseLTV);
         if(internalInput.assetdata.liquidationThreshold != 0){ //asset mappings does not force disable borrow
             //user's choice matters
-            if(internalInput.input.canBeCollateral){
-                currentConfig.setLiquidationThreshold(internalInput.assetdata.liquidationThreshold);
-            }
-            else{
-                currentConfig.setLiquidationThreshold(0);
-            }
-
+            currentConfig.setCollateralEnabled(internalInput.input.canBeCollateral);
         }
         else{
-            currentConfig.setLiquidationThreshold(0);
+            currentConfig.setCollateralEnabled(false);
         }
 
-        currentConfig.setLiquidationBonus(internalInput.assetdata.liquidationBonus);
-        currentConfig.setStableRateBorrowingEnabled(internalInput.assetdata.stableBorrowingEnabled);
         if(internalInput.assetdata.borrowingEnabled){
             //user's choice matters
             currentConfig.setBorrowingEnabled(internalInput.input.canBorrow);
@@ -193,9 +185,7 @@ contract LendingPoolConfigurator is
         }
 
         currentConfig.setReserveFactor(internalInput.input.reserveFactor);
-        currentConfig.setVMEXReserveFactor(DefaultVMEXReserveFactor);
-
-        currentConfig.setDecimals(internalInput.assetdata.underlyingAssetDecimals);
+        currentConfig.setVMEXReserveFactor(DefaultVMEXReserveFactor);// cause admin can change an individual reserve factor how they please
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
@@ -212,7 +202,7 @@ contract LendingPoolConfigurator is
             aTokenProxyAddress,
             stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress,
-            AssetMappings(addressesProvider.getAssetMappings()).getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice)
+            assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice)
         );
     }
 
@@ -270,10 +260,7 @@ contract LendingPoolConfigurator is
                 vars.input.trancheId
             );
 
-            (, , , vars.decimals, ) = vars
-                .cachedPool
-                .getConfiguration(vars.input.asset, vars.input.trancheId)
-                .getParamsMemory();
+            (, , , vars.decimals, ) = assetMappings.getParams(vars.input.asset);
         }
 
         bytes memory encodedCall = abi.encodeWithSelector(
@@ -318,9 +305,7 @@ contract LendingPoolConfigurator is
             input.trancheId
         );
 
-        (, , , uint256 decimals, ) = cachedPool
-            .getConfiguration(input.asset, input.trancheId)
-            .getParamsMemory();
+        (, , , uint256 decimals, ) = assetMappings.getParams(input.asset);
 
         bytes memory encodedCall = abi.encodeWithSelector(
             IInitializableDebtToken.initialize.selector,
@@ -349,109 +334,38 @@ contract LendingPoolConfigurator is
     }
 
     /**
-   * @dev Configures the reserve collateralization parameters
-   * all the values are expressed in percentages with two decimals of precision. A valid value is 10000, which means 100.00%
-   * @param asset The address of the underlying asset of the reserve
-   * @param ltv The loan to value of the asset when used as collateral
-   * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
-   * @param liquidationBonus The bonus liquidators receive to liquidate this asset. The values is always above 100%. A value of 105%
-   * means the liquidator will receive a 5% bonus
-   **/
-  function configureReserveAsCollateral(
-    address asset,
-    uint64 trancheId,
-    uint256 ltv,
-    uint256 liquidationThreshold,
-    uint256 liquidationBonus
-  ) external onlyGlobalAdmin {
-    DataTypes.ReserveConfigurationMap memory currentConfig = pool.getConfiguration(asset,trancheId);
-
-    //validation of the parameters: the LTV can
-    //only be lower or equal than the liquidation threshold
-    //(otherwise a loan against the asset would cause instantaneous liquidation)
-    require(ltv <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
-
-    if (liquidationThreshold != 0) {
-      //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
-      //collateral than needed to cover the debt
-      require(
-        liquidationBonus > PercentageMath.PERCENTAGE_FACTOR,
-        Errors.LPC_INVALID_CONFIGURATION
-      );
-
-      //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
-      //a loan is taken there is enough collateral available to cover the liquidation bonus
-      require(
-        liquidationThreshold.percentMul(liquidationBonus) <= PercentageMath.PERCENTAGE_FACTOR,
-        Errors.LPC_INVALID_CONFIGURATION
-      );
-    } else {
-      require(liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
-      //if the liquidation threshold is being set to 0,
-      // the reserve is being disabled as collateral. To do so,
-      //we need to ensure no liquidity is deposited
-      _checkNoLiquidity(asset,trancheId);
-    }
-
-    currentConfig.setLtv(ltv);
-    currentConfig.setLiquidationThreshold(liquidationThreshold);
-    currentConfig.setLiquidationBonus(liquidationBonus);
-
-    pool.setConfiguration(asset,trancheId, currentConfig.data);
-
-    emit CollateralConfigurationChanged(asset, trancheId, ltv, liquidationThreshold, liquidationBonus);
-  }
-
-    /**
      * @dev Enables borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
-    function enableBorrowingOnReserve(
+    function setBorrowingOnReserve(
         address asset,
         uint64 trancheId,
-        bool stableBorrowRateEnabled
+        bool borrowingEnabled
     ) public onlyPoolAdmin(trancheId) {
-        require(AssetMappings(addressesProvider.getAssetMappings()).getAssetBorrowable(asset), "Asset is not approved to be set as borrowable");
+        require(!borrowingEnabled || assetMappings.getAssetBorrowable(asset), "Asset is not approved to be set as borrowable");
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        currentConfig.setBorrowingEnabled(true);
-        currentConfig.setStableRateBorrowingEnabled(stableBorrowRateEnabled);
+        currentConfig.setBorrowingEnabled(borrowingEnabled);
+        // currentConfig.setStableRateBorrowingEnabled(stableBorrowRateEnabled);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
 
-        emit BorrowingEnabledOnReserve(asset, trancheId);
+        emit BorrowingSetOnReserve(asset, trancheId, borrowingEnabled);
     }
 
-    /**
-     * @dev Disables borrowing on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function disableBorrowingOnReserve(address asset, uint64 trancheId)
+    function setCollateralEnabledOnReserve(address asset, uint64 trancheId, bool collateralEnabled)
         external
         onlyPoolAdmin(trancheId)
     {
+        require(!collateralEnabled || assetMappings.getAssetCollateralizable(asset), "Asset is not approved to be set as collateral");
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
 
-        currentConfig.setBorrowingEnabled(false);
+        currentConfig.setCollateralEnabled(collateralEnabled);
 
         pool.setConfiguration(asset, trancheId, currentConfig.data);
-        emit BorrowingDisabledOnReserve(asset, trancheId);
-    }
-
-    function enableCollateralOnReserve(address asset, uint64 trancheId)
-        external
-        onlyPoolAdmin(trancheId)
-    {
-        require(AssetMappings(addressesProvider.getAssetMappings()).getAssetBorrowable(asset), "Asset is not approved to be set as collateral");
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
-
-        currentConfig.setBorrowingEnabled(true);
-
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-        emit CollateralEnabledOnReserve(asset, trancheId);
+        emit CollateralSetOnReserve(asset, trancheId, collateralEnabled);
     }
 
     /**
@@ -600,7 +514,7 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         uint8 rateStrategyAddressId
     ) external onlyPoolAdmin(trancheId) {
-        address rateStrategyAddress = AssetMappings(addressesProvider.getAssetMappings()).getInterestRateStrategyAddress(asset,rateStrategyAddressId);
+        address rateStrategyAddress =assetMappings.getInterestRateStrategyAddress(asset,rateStrategyAddressId);
 
         pool.setReserveInterestRateStrategyAddress(
             asset,
@@ -654,7 +568,7 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         uint8 strategyId
     ) external onlyPoolAdmin(trancheId) {
-        address strategy = AssetMappings(addressesProvider.getAssetMappings()).getCurveStrategyAddress(asset,strategyId);
+        address strategy =assetMappings.getCurveStrategyAddress(asset,strategyId);
         address impl = DeployATokens._initTokenWithProxy(
             strategy,
             abi.encodeWithSelector(
