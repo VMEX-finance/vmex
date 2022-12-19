@@ -57,6 +57,7 @@ library QueryUserHelpers {
         uint256 currentLiquidationThreshold;
         uint256 ltv;
         uint256 healthFactor;
+        uint256 avgBorrowFactor;
         SuppliedAssetData[] suppliedAssetData;
         BorrowedAssetData[] borrowedAssetData;
         AvailableBorrowData[] assetBorrowingPower;
@@ -76,12 +77,15 @@ library QueryUserHelpers {
             ,
             userData.currentLiquidationThreshold,
             userData.ltv,
-            userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, false); //for displaying on FE, this should be false, since liquidations are based on this being false
+            userData.healthFactor,
+            userData.avgBorrowFactor
+            ) = lendingPool.getUserAccountData(user, tranche, false); //for displaying on FE, this should be false, since liquidations are based on this being false
         
         //this may need to be true for opening new borrows. But that isn't displayed, it is factored into availableBorrowsETH
         (,
             ,
             userData.availableBorrowsETH,
+            ,
             ,
             ,
             ) = lendingPool.getUserAccountData(user, tranche, true);

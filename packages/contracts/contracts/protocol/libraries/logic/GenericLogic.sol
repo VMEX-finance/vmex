@@ -37,13 +37,11 @@ library GenericLogic {
         uint256 totalCollateralInETH;
         uint256 totalDebtInETH;
         uint256 avgLiquidationThreshold;
+        uint256 avgBorrowFactor;
         uint256 amountToDecreaseInETH;
         uint256 collateralBalanceAfterDecrease;
         uint256 liquidationThresholdAfterDecrease;
         uint256 healthFactorAfterDecrease;
-        uint256 amountCappedNotUsed; //amount that user owns but didn't count as collateral due to cap
-        uint256 userAmount;
-        uint256 supplyCap;
         uint256 currentPrice;
         bool reserveUsageAsCollateralEnabled;
         
@@ -102,7 +100,8 @@ library GenericLogic {
             vars.totalDebtInETH,
             ,
             vars.avgLiquidationThreshold,
-
+            ,
+            vars.avgBorrowFactor
         ) = calculateUserAccountData(
             DataTypes.AcctTranche(params.user, params.trancheId),
             reservesData,
@@ -129,22 +128,6 @@ library GenericLogic {
         
         vars.amountToDecreaseInETH  = vars.currentPrice.mul(params.amount).div(10**vars.decimals);
 
-        vars.supplyCap = params._assetMappings.getSupplyCap(params.asset); // in ETH
-
-        vars.userAmount = IAToken(reservesData[
-            params.asset
-        ][params.trancheId].aTokenAddress).balanceOf(params.user); //in units of native token
-
-        // convert to ETH
-        vars.userAmount = vars.currentPrice.mul(vars.userAmount).div(10**vars.decimals);
-
-        vars.amountCappedNotUsed = vars.userAmount>vars.supplyCap ? vars.userAmount - vars.supplyCap : 0;
-        if(vars.amountToDecreaseInETH <= vars.amountCappedNotUsed) { //withdraw only the amount that isn't even counted as collateral
-            return true;
-        } 
-
-        vars.amountToDecreaseInETH -= vars.amountCappedNotUsed; //otherwise, the user is really only getting out this much collateral
-
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
             vars.amountToDecreaseInETH
         );
@@ -165,7 +148,8 @@ library GenericLogic {
         vars.healthFactorAfterDecrease = calculateHealthFactorFromBalances(
             vars.collateralBalanceAfterDecrease,
             vars.totalDebtInETH,
-            vars.liquidationThresholdAfterDecrease
+            vars.liquidationThresholdAfterDecrease,
+            vars.avgBorrowFactor
         );
 
         return
@@ -175,12 +159,14 @@ library GenericLogic {
 
     struct CalculateUserAccountDataVars {
         uint64 currentTranche;
+        uint64 trancheId;
         uint256 reserveUnitPrice;
         uint256 tokenUnit;
         uint256 compoundedLiquidityBalance;
         uint256 compoundedBorrowBalance;
         uint256 decimals;
         uint256 ltv;
+        uint256 borrowFactor;
         uint256 liquidationThreshold;
         uint256 i;
         uint256 healthFactor;
@@ -188,19 +174,19 @@ library GenericLogic {
         uint256 totalDebtInETH;
         uint256 avgLtv;
         uint256 avgLiquidationThreshold;
+        uint256 thisDebtInEth;
+        uint256 avgBorrowFactor;
         uint256 reservesLength;
-        bool healthFactorBelowThreshold;
-        address currentReserveAddress;
-        bool usageAsCollateralEnabled;
-        bool userUsesReserveAsCollateral;
         uint256 liquidityBalanceETH;
-        address oracle;
-        address user;
-        uint64 trancheId;
-
-        bool useTwap;
         uint256 reserveTwapUnitPrice;
         uint256 liquidityBalanceETHTWAP;
+        address currentReserveAddress;
+        address oracle;
+        address user;
+        bool healthFactorBelowThreshold;
+        bool usageAsCollateralEnabled;
+        bool userUsesReserveAsCollateral;
+        bool useTwap;
     }
 
     /**
@@ -232,6 +218,7 @@ library GenericLogic {
             uint256,
             uint256,
             uint256,
+            uint256,
             uint256
         )
     {
@@ -244,7 +231,7 @@ library GenericLogic {
 
         // require(!userConfig.isEmpty(), "userConfig is empty");
         if (userConfig.isEmpty()) {
-            return (0, 0, 0, 0, type(uint256).max);
+            return (0, 0, 0, 0, type(uint256).max, 0);
         }
         // assert(reservesCount == reserves.length);
         for (vars.i = 0; vars.i < reservesCount; vars.i++) {
@@ -273,7 +260,7 @@ library GenericLogic {
                 vars.liquidationThreshold,
                 ,
                 vars.decimals,
-
+                vars.borrowFactor
             ) = _assetMappings.getParams(vars.currentReserveAddress);
 
             vars.tokenUnit = 10**vars.decimals;
@@ -315,10 +302,10 @@ library GenericLogic {
                 );
 
                 vars.avgLtv = vars.avgLtv.add(
-                    vars.liquidityBalanceETH.mul(vars.ltv)
+                    vars.liquidityBalanceETH.mul(vars.ltv)//.percentMul(vars.borrowFactor) //borrow factor is property of borrowed asset, not collateral asset
                 );
                 vars.avgLiquidationThreshold = vars.avgLiquidationThreshold.add(
-                    vars.liquidityBalanceETH.mul(vars.liquidationThreshold)
+                    vars.liquidityBalanceETH.mul(vars.liquidationThreshold)//.percentMul(vars.borrowFactor)
                 );
             }
 
@@ -332,19 +319,27 @@ library GenericLogic {
                     )
                 );
 
+                
+
                 if(!useTwap || vars.reserveTwapUnitPrice<vars.reserveUnitPrice){ //debt uses the larger value of price
                 //if not using twap or if not using twap has higher price, then use the regular price
-                    vars.totalDebtInETH = vars.totalDebtInETH.add(
-                        vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
+                    vars.thisDebtInEth = vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
                             vars.tokenUnit
-                        )
-                    );
+                        );
                 }
                 else{
-                    vars.totalDebtInETH = vars.totalDebtInETH.add(
-                        vars.reserveTwapUnitPrice.mul(vars.compoundedBorrowBalance).div(
+                    vars.thisDebtInEth = vars.reserveTwapUnitPrice.mul(vars.compoundedBorrowBalance).div(
                             vars.tokenUnit
-                        )
+                        );
+                }
+
+                vars.totalDebtInETH = vars.totalDebtInETH.add(
+                    vars.thisDebtInEth
+                );
+
+                if(vars.borrowFactor != 0){
+                    vars.avgBorrowFactor = vars.avgBorrowFactor.add(
+                        vars.thisDebtInEth.mul(vars.borrowFactor)
                     );
                 }
             }
@@ -352,22 +347,27 @@ library GenericLogic {
 
         vars.avgLtv = vars.totalCollateralInETH > 0
             ? vars.avgLtv.div(vars.totalCollateralInETH)
-            : 0;
+            : 0; //weighted average of all ltv's across all supplied assets
         vars.avgLiquidationThreshold = vars.totalCollateralInETH > 0
             ? vars.avgLiquidationThreshold.div(vars.totalCollateralInETH)
+            : 0;
+        vars.avgBorrowFactor = vars.totalDebtInETH > 0
+            ? vars.avgBorrowFactor.div(vars.totalDebtInETH)
             : 0;
 
         vars.healthFactor = calculateHealthFactorFromBalances(
             vars.totalCollateralInETH,
             vars.totalDebtInETH,
-            vars.avgLiquidationThreshold
+            vars.avgLiquidationThreshold,
+            vars.avgBorrowFactor
         );
         return (
             vars.totalCollateralInETH,
             vars.totalDebtInETH,
             vars.avgLtv,
             vars.avgLiquidationThreshold,
-            vars.healthFactor
+            vars.healthFactor,
+            vars.avgBorrowFactor
         );
     }
 
@@ -381,13 +381,14 @@ library GenericLogic {
     function calculateHealthFactorFromBalances(
         uint256 totalCollateralInETH,
         uint256 totalDebtInETH,
-        uint256 liquidationThreshold
+        uint256 liquidationThreshold,
+        uint256 borrowFactor
     ) internal pure returns (uint256) {
         if (totalDebtInETH == 0) return type(uint256).max;
 
         return
             (totalCollateralInETH.percentMul(liquidationThreshold)).wadDiv(
-                totalDebtInETH
+                totalDebtInETH.percentMul(borrowFactor)
             );
     }
 
@@ -403,15 +404,16 @@ library GenericLogic {
     function calculateAvailableBorrowsETH(
         uint256 totalCollateralInETH,
         uint256 totalDebtInETH,
-        uint256 ltv
+        uint256 ltv,
+        uint256 avgBorrowFactor
     ) internal pure returns (uint256) {
         uint256 availableBorrowsETH = totalCollateralInETH.percentMul(ltv);
 
-        if (availableBorrowsETH < totalDebtInETH) {
+        if (availableBorrowsETH < totalDebtInETH.percentMul(avgBorrowFactor)) {
             return 0;
         }
 
-        availableBorrowsETH = availableBorrowsETH.sub(totalDebtInETH);
+        availableBorrowsETH = availableBorrowsETH.sub(totalDebtInETH.percentMul(avgBorrowFactor));
         return availableBorrowsETH;
     }
 }

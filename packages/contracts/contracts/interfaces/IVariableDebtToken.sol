@@ -67,4 +67,5 @@ interface IVariableDebtToken is IScaledBalanceToken, IInitializableDebtToken {
         external
         view
         returns (IAaveIncentivesController);
+
 }

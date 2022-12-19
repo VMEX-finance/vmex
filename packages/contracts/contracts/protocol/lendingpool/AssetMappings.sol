@@ -85,6 +85,11 @@ contract AssetMappings {
 
                 //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
                 //a loan is taken there is enough collateral available to cover the liquidation bonus
+
+                //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need 
+                //2 times the amount of debt asset they are covering, meaning that they need twice the value of the ccollateral asset. Since liquidation threshold is 50%, this is possible
+
+                //with borrow factors, the liquidation threshold is always less than or equal to what it should be, so this still stands
                 require(
                     input[i].liquidationThreshold.percentMul(input[i].liquidationBonus) <=
                         PercentageMath.PERCENTAGE_FACTOR,
@@ -148,6 +153,15 @@ contract AssetMappings {
     function getSupplyCap(address asset) view external returns(uint256){
         return assetMappings[asset].supplyCap;
     }
+    
+    function getBorrowCap(address asset) view external returns(uint256){
+        return assetMappings[asset].borrowCap;
+    }
+
+    function getBorrowFactor(address asset) view external returns(uint256){
+        return assetMappings[asset].borrowFactor;
+    }
+
 
     function addInterestRateStrategyAddress(address underlying, address strategy) external onlyGlobalAdmin {
         while(interestRateStrategyAddress[underlying][numInterestRateStrategyAddress[underlying]]!=address(0)){
