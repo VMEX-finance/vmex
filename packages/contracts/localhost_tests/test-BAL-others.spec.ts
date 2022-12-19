@@ -3,18 +3,10 @@ const chai = require("chai");
 const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
-import rawBRE from "hardhat";
+
 import { BigNumber, utils } from "ethers";
 import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
-
-before(async () => {
-    await rawBRE.run("set-DRE");
-    
-    console.log("\n***************");
-    console.log("DRE finished");
-    console.log("***************\n");
-  });
 makeSuite(
     "Bal and other tokens",
     () => {
