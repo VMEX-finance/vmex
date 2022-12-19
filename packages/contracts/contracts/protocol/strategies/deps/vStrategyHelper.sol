@@ -7,26 +7,60 @@ import {IBaseRewardsPool} from "./convex/IBaseRewardsPool.sol";
 import {IVirtualBalanceRewardPool} from "./convex/IVirtualBalanceRewardPool.sol";
 import {IUniswapV2Router02} from "./sushi/IUniswapV2Router02.sol";
 import {IBaseStrategy} from "../../../interfaces/IBaseStrategy.sol";
+import {ICurveAddressProvider} from "../deps/curve/ICurveAddressProvider.sol"; 
+import {ICurveRegistryExchange} from "../deps/curve/ICurveExchange.sol"; 
 
 import "hardhat/console.sol";
 
 library vStrategyHelper {
     using SafeERC20 for IERC20;
 
-    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address public constant ethNative =
-        0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address internal constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address internal constant ethNative = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+	address internal constant FRAX = 0x853d955aCEf822Db058eb8505911ED77F175b99e; 
 
-    IERC20 public constant crvToken =
+    IERC20 internal constant crvToken =
         IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
-    IERC20 public constant cvxToken =
+    IERC20 internal constant cvxToken =
         IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
+	ICurveAddressProvider internal curveAddressProvider = 
+		ICurveAddressProvider(0x0000000022D53366457F9d5E68Ec105046FC4383); 
 
-    function computeSwapPath(address tokenIn, address tokenOut)
-        public
+    IUniswapV2Router02 internal constant sushiRouter = 
+		IUniswapV2Router02(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
+
+
+
+    function computeSwapPath(address tokenIn, address tokenOut, uint256 amount)
+        internal 
         pure
-        returns (address[] memory path)
+        returns (uint256 amountOut)
     {
+		//check if tokenIn is one of the tokens we want stable swaps for 
+		(address curveSwapPool, uint256 amountExpected) = swapCurve(tokenIn, tokenOut, amount); 
+		if (curveSwapPool != address(0)) {
+			amountOut = ICurveExchange(curveRegistryExchange).exchange(
+				curveSwapPool,
+				tokenIn,
+				tokenOut,
+				amount,
+				amountExpected,
+				msg.sender //this may cause some weird behavior calling the swaps now, make sure the stategy is receiving funds
+			);
+			return amountOut; 
+		} else {
+			amountOut = swapSushi(tokenIn, tokenOut, amount); 	
+			return amountOut; 
+		}
+
+    }
+
+	function swapSushi(
+		address tokenIn, 
+		address tokenOut,
+		uint256 amount) 
+		internal returns(uint256) {
+			
         if (tokenIn == WETH || tokenOut == WETH) {
             path = new address[](2);
             path[0] = tokenIn;
@@ -37,9 +71,32 @@ library vStrategyHelper {
             path[1] = WETH;
             path[2] = tokenOut;
         }
+			
+        uint256[] memory amounts = sushiRouter.swapExactTokensForTokens(
+			amount,
+            0,//tendData.crvTended/EFFICIENCY, //min amount out (0 works fine)
+            crvPath,
+            address(this),
+            block.timestamp
+		); 
 
-        return path;
-    }
+		return amounts[0]; 
+
+	}
+
+	//uses curve to swap for the indexed token we want
+	function swapCurve(
+		address tokenIn, 
+		address tokenOut, 
+		uint256 amount
+	) internal returns (address swapPool, uint256 amountExpected, address curveRegistryExchange) {
+		//use curve address provider to get registry (in case they migrate contracts ever)
+		curveRegistryExchange = curveAddressProvider.get_address(2); //the registry exchange contract will always be the second index, but the address itself can change (per curve docs) 
+		//use curve registry interface to get pool for the coins we want to swap
+		(swapPool, amountExpected) = ICurveRegistryExchange(curveRegistryExchange).get_best_rate(tokenIn, tokenOut, amount); 
+
+		return (swapPool, amountExpected, curveRegistryExchange); 
+	}
 
     //ensure that the order being passed in here is the same as the order in the coins[] array
     //needed for highest returned amount of LP tokens, the lower the amount in the pool, the more lp returned
@@ -172,7 +229,6 @@ library vStrategyHelper {
         uint256[] storage curveTokenBalances,
         address[] storage extraTokens,
         mapping(address => uint256) storage extraRewardsTended,
-        IUniswapV2Router02 sushiRouter,
         uint256 EFFICIENCY
     )
         public
@@ -221,100 +277,29 @@ library vStrategyHelper {
         console.log("wantedDepositToken: ", wantedDepositToken);
 
 
-
+		//computeSwapPath will now swap the tokens and return the amount received
         for (vars.i = 0; vars.i < extraTokens.length; vars.i++) {
             extraRewardsTended[extraTokens[vars.i]] = IERC20(extraTokens[vars.i])
                 .balanceOf(address(this));
 
             vars.tokenPath = computeSwapPath(
                 extraTokens[vars.i],
-                wantedDepositToken
+                wantedDepositToken,
+				extraRewardsTended[extraTokens[vars.i]]
             );
-            console.log("Sushi router input amount: ", extraRewardsTended[extraTokens[vars.i]]);
-            console.log("Sushi router extra token: ", extraTokens[vars.i]);
-            if(extraRewardsTended[extraTokens[vars.i]]>0){
-                console.log("attempt swap of ",extraTokens[vars.i]);
-                //issue with using efficiency is that the current token can have different value than target token. 
-                //If current token is like usdc and target is eth, 50% of 1000 usdc is 500, and you're not getting that much eth out
-                //Can do conversion using oracle but that might be overkill
-                try sushiRouter.swapExactTokensForTokens(
-                    extraRewardsTended[extraTokens[vars.i]],
-                    0,//extraRewardsTended[extraTokens[vars.i]]/EFFICIENCY,//try to get at least 50% of the input amount, or else don't tend
-                    vars.tokenPath,
-                    address(this),
-                    block.timestamp
-                ) returns (uint256[] memory amounts){
-                    for(uint i = 0;i<amounts.length;i++){
-                        console.log("amounts[i]: ",amounts[i]);
-                    }
-                    // 
-                } catch Error(string memory reason){
-                    console.log("Swap Error: ",reason);
-                } catch (bytes memory reason) {
-                    emit TendError(reason);
-                    console.log("Swap extra reward Unknown error: ", string(reason));
-                }
-            }
-            
-        }
 
         //need to use sushi here to swap between coins without a curve pool, can optimize later perhaps?
-        
+		        
         address[] memory crvPath = computeSwapPath(
             address(crvToken),
-            wantedDepositToken
+            wantedDepositToken,
+			tendDta.crvTended
         );
         address[] memory cvxPath = computeSwapPath(
             address(cvxToken),
-            wantedDepositToken
+            wantedDepositToken,
+			tendData.cvxTended
         );
-
-        //swap crv for wanted
-        console.log("crv rewards: ", tendData.crvTended);
-        
-        if(tendData.crvTended>0){
-            try sushiRouter.swapExactTokensForTokens(
-                tendData.crvTended,
-                0,//tendData.crvTended/EFFICIENCY, //min amount out (0 works fine)
-                crvPath,
-                address(this),
-                block.timestamp
-            ) returns (uint256[] memory amounts){
-                    console.log("swapped crv");
-                    for(uint i = 0;i<amounts.length;i++){
-                        console.log("amounts[i]: ",amounts[i]);
-                    }
-                    // 
-                } catch Error(string memory reason){
-                    console.log("Crv Swap Error: ",reason);
-                }  catch (bytes memory reason) {
-                    emit TendError(reason);
-                    console.log("Swap crv Unknown error: ", string(reason));
-                }
-        }
-
-        //swap cvx for wanted
-        console.log("cvx rewards: ", tendData.cvxTended);
-        if(tendData.cvxTended>0){
-            try sushiRouter.swapExactTokensForTokens(
-                tendData.cvxTended,
-                0,//tendData.cvxTended/EFFICIENCY,
-                cvxPath,
-                address(this),
-                block.timestamp
-            ) returns (uint256[] memory amounts){
-                    console.log("swapped cvx");
-                    for(uint i = 0;i<amounts.length;i++){
-                        console.log("amounts[i]: ",amounts[i]);
-                    }
-                    // 
-                } catch Error(string memory reason){
-                    console.log("Cvx Swap Error: ",reason);
-                }  catch (bytes memory reason) {
-                    emit TendError(reason);
-                    console.log("Swap cvx Unknown error: ", string(reason));
-                }
-        }
 
         // if(wantedDepositToken == ethNative){ //should all be WETH now, convert WETH to ETH
         //     IWETH(WETH).withdraw(IERC20(WETH).balanceOf(address(this)));
@@ -328,7 +313,7 @@ library vStrategyHelper {
     }
 
     function min(uint256[] memory array)
-        public
+        internal
         pure
         returns (uint256, uint256)
     {

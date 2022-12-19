@@ -185,7 +185,6 @@ contract CrvLpStrategy is BaseStrategy {
                 curveTokenBalances,
                 extraTokens,
                 extraRewardsTended,
-                sushiRouter,
                 EFFICIENCY
             );
 
@@ -199,9 +198,6 @@ contract CrvLpStrategy is BaseStrategy {
             index
         );
 
-
-
-        //TODO
         //return a fixed size array based on input within one function rather this disgusting mess
         if (poolSize == 2) {
             curvePool.add_liquidity(
@@ -220,7 +216,6 @@ contract CrvLpStrategy is BaseStrategy {
             );
         }
 
-        // TODO: potentially call pull() so we pull from lending pools
         // deposit all LP tokens into booster
         _pull(IERC20(underlying).balanceOf(address(this)));
         uint256 balanceAfter = balanceOfPool();
