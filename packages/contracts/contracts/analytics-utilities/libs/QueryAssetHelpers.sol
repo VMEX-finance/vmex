@@ -23,7 +23,7 @@ library QueryAssetHelpers {
         uint256 decimals;
         uint256 ltv;
         uint256 liquidationThreshold;
-        uint256 liquidationPenalty;
+        uint256 liquidationBonus;
         bool canBeCollateral;
         bool canBeBorrowed;
         address oracle;
@@ -38,7 +38,7 @@ library QueryAssetHelpers {
         uint256 totalReserves;
         uint256 totalReservesNative;
         uint256 currentPriceETH;
-        uint256 collateralCap;
+        uint256 supplyCap;
     }
 
     function getAssetData(
@@ -60,11 +60,14 @@ library QueryAssetHelpers {
         DataTypes.ReserveData memory reserve = lendingPool.getReserveData(asset, tranche);
         assetData.tranche = tranche;
         assetData.asset = asset;
-        assetData.decimals = reserve.configuration.getDecimals();
-        assetData.ltv = reserve.configuration.getLtv();
-        assetData.liquidationThreshold = reserve.configuration.getLiquidationThreshold();
-        assetData.liquidationPenalty = reserve.configuration.getLiquidationBonus();
-        assetData.canBeCollateral = assetData.liquidationThreshold != 0;
+        (
+            assetData.ltv,
+            assetData.liquidationThreshold,
+            assetData.liquidationBonus,
+            assetData.decimals,
+            //borrowFactor (not used yet)
+        ) = a.getParams(asset);
+        assetData.canBeCollateral = reserve.configuration.getCollateralEnabled();//assetData.liquidationThreshold != 0;
         assetData.canBeBorrowed = reserve.configuration.getBorrowingEnabled();
         assetData.oracle = ILendingPoolAddressesProvider(providerAddr).getPriceOracle(a.getAssetType(asset));
         assetData.totalSupplied = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.aTokenAddress).totalSupply(), assetData.decimals);
@@ -91,7 +94,7 @@ library QueryAssetHelpers {
         assetData.supplyApy = reserve.currentLiquidityRate;
         assetData.borrowApy = reserve.currentVariableBorrowRate;
         assetData.currentPriceETH = IPriceOracleGetter(assetData.oracle).getAssetPrice(assetData.asset);
-        assetData.collateralCap = a.getCollateralCap(assetData.asset);
+        assetData.supplyCap = a.getSupplyCap(assetData.asset);
 
     }
 

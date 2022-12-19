@@ -88,10 +88,12 @@ export const initAssetData = async (
     stableDebtTokenName: string;
     stableDebtTokenSymbol: string;
     assetType: BigNumberish;
-    collateralCap: string; //1,000,000
+    supplyCap: string; //1,000,000
+    borrowCap: string; //1,000,000
     baseLTV: BigNumberish;
     liquidationThreshold: BigNumberish;
     liquidationBonus: BigNumberish;
+    borrowFactor: string;
     stableBorrowingEnabled: boolean;
     borrowingEnabled: boolean;
     isAllowed: boolean;
@@ -125,7 +127,7 @@ export const initAssetData = async (
       aTokenImpl,
       reserveDecimals,
       assetType,
-      collateralCap, //1,000,000
+      supplyCap, //1,000,000
       baseLTVAsCollateral,
       liquidationBonus,
       liquidationThreshold,
@@ -179,10 +181,12 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       assetType: assetType,
-      collateralCap: collateralCap, //1,000,000
+      supplyCap: supplyCap, //1,000,000
+      borrowCap: supplyCap, //1,000,000
       baseLTV: baseLTVAsCollateral,
       liquidationThreshold: liquidationThreshold,
       liquidationBonus: liquidationBonus,
+      borrowFactor: baseLTVAsCollateral,
       stableBorrowingEnabled: stableBorrowRateEnabled,
       borrowingEnabled: borrowingEnabled,
       isAllowed: true

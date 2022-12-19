@@ -24,7 +24,7 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {UserConfiguration} from "../libraries/configuration/UserConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
-
+import {AssetMappings} from "./AssetMappings.sol";
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
 //import "hardhat/console.sol";
 /**
@@ -136,6 +136,7 @@ contract LendingPool is
     {
         _addressesProvider = provider;
         _maxNumberOfReserves = 128; //this might actually be fine since this is max number of reserves per trancheId?
+        _assetMappings =  AssetMappings(_addressesProvider.getAssetMappings());
     }
 
     /**
@@ -180,6 +181,7 @@ contract LendingPool is
                 asset,
                 trancheId,
                 address(_addressesProvider),
+                _assetMappings,
                 amount,
                 onBehalfOf,
                 referralCode
@@ -236,7 +238,8 @@ contract LendingPool is
                     amount,
                     to
                 ),
-                _addressesProvider
+                _addressesProvider,
+                _assetMappings
             );
 
         emit Withdraw(asset, trancheId, msg.sender, to, actualAmount);
@@ -291,7 +294,8 @@ contract LendingPool is
                 reserve.aTokenAddress,
                 referralCode,
                 true,
-                _reservesCount[trancheId]
+                _reservesCount[trancheId],
+                _assetMappings
             );
 
 
@@ -407,7 +411,8 @@ contract LendingPool is
             _usersConfig[msg.sender][trancheId],
             _reservesList[trancheId],
             _reservesCount[trancheId],
-            _addressesProvider
+            _addressesProvider,
+            _assetMappings
         );
 
         _usersConfig[msg.sender][trancheId].setUsingAsCollateral(
@@ -543,6 +548,7 @@ contract LendingPool is
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
+            _assetMappings,
             useTwap
         );
 
@@ -709,7 +715,8 @@ contract LendingPool is
             _usersConfig[from][trancheId],
             _reservesList[trancheId],
             _reservesCount[trancheId],
-            _addressesProvider
+            _addressesProvider,
+            _assetMappings
         );
 
         uint256 reserveId = _reserves[asset][trancheId].id;

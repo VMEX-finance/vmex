@@ -52,7 +52,7 @@ library DepositWithdrawLogic {
         DataTypes.DepositVars memory vars,
         DataTypes.UserConfigurationMap storage user
     ) external {
-        ValidationLogic.validateDeposit(self, vars.amount);
+        ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
 
         address aToken = self.aTokenAddress;
 
@@ -62,10 +62,11 @@ library DepositWithdrawLogic {
         self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
         {
             address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle(
-                        AssetMappings(ILendingPoolAddressesProvider(vars._addressesProvider).getAssetMappings()).getAssetType(vars.asset)
+                        vars._assetMappings.getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
+
 
         // }
 
@@ -100,7 +101,8 @@ library DepositWithdrawLogic {
         DataTypes.UserConfigurationMap storage user,
         mapping(uint256 => address) storage _reservesList,
         DataTypes.WithdrawParams memory vars,
-        ILendingPoolAddressesProvider _addressesProvider
+        ILendingPoolAddressesProvider _addressesProvider,
+        AssetMappings _assetMappings
     ) public returns (uint256) {
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][
             vars.trancheId
@@ -126,7 +128,8 @@ library DepositWithdrawLogic {
             user,
             _reservesList,
             vars._reservesCount,
-            _addressesProvider
+            _addressesProvider,
+            _assetMappings
         );
 
         reserve.updateState();
@@ -134,7 +137,7 @@ library DepositWithdrawLogic {
 
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                        AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.asset)
+                        _assetMappings.getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
@@ -164,7 +167,7 @@ library DepositWithdrawLogic {
     ) public {
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                        AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.asset)
+                        vars._assetMappings.getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
@@ -179,10 +182,10 @@ library DepositWithdrawLogic {
 
         uint256 amountInETH = IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
             _addressesProvider.getPriceOracle(
-                AssetMappings(_addressesProvider.getAssetMappings()).getAssetType(vars.asset)
+                vars._assetMappings.getAssetType(vars.asset)
             )
         ).getAssetPrice(vars.asset).mul(vars.amount).div(
-                10**reserve.configuration.getDecimals()
+                10**vars._assetMappings.getDecimals(vars.asset)
             ); //lp token decimals are 18, like ETH
 
         ValidationLogic.validateBorrow(

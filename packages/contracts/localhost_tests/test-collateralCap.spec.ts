@@ -1,3 +1,4 @@
+//TODO: Fix this test
 // import { ethers } from "ethers";
 const chai = require("chai");
 const { expect } = chai;
@@ -8,7 +9,7 @@ import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
 
 makeSuite(
-    "collateralCap ",
+    "supplyCap ",
     () => {
         const fs = require('fs');
         const contractGetters = require('../helpers/contracts-getters.ts');
