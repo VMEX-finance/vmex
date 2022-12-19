@@ -1,8 +1,9 @@
 import { ethers, BigNumber } from "ethers";
-import { deployments } from "./constants";
 import _ from "lodash";
-import { getLendingPoolConfiguratorProxy, getIErc20Detailed } from "./contract-getters";
-import { decodeConstructorBytecode } from "./decode-bytecode";
+import {
+  getLendingPoolConfiguratorProxy,
+  getIErc20Detailed,
+} from "./contract-getters";
 // import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
 /**
@@ -21,9 +22,16 @@ export async function approveUnderlyingIfFirstInteraction(
     ],
     signer
   );
-  let allowance = await _underlying.connect(signer).allowance(await signer.getAddress(), spender);
-  if(allowance.eq(BigNumber.from("0"))){
-    return await _underlying.connect(signer).approve(spender, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); //approves uint256 max
+  let allowance = await _underlying
+    .connect(signer)
+    .allowance(await signer.getAddress(), spender);
+  if (allowance.eq(BigNumber.from("0"))) {
+    return await _underlying
+      .connect(signer)
+      .approve(
+        spender,
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ); //approves uint256 max
   }
 }
 
@@ -42,7 +50,6 @@ export async function getAllTrancheNames(
   let x = [...Array(trancheIds).keys()];
   return Promise.all(x.map(async (x) => await configurator.trancheNames(x)));
 }
-
 
 export const convertToCurrencyDecimals = async (
   tokenAddress: string,
