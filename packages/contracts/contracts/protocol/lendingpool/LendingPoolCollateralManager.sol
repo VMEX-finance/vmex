@@ -116,7 +116,7 @@ contract LendingPoolCollateralManager is
         LiquidationCallLocalVars memory vars;
 
         { //health factor is based on lowest collateral value between twap and chainlink
-            (, , , , vars.healthFactor) = GenericLogic.calculateUserAccountData(
+            (, , , , vars.healthFactor,) = GenericLogic.calculateUserAccountData(
                 DataTypes.AcctTranche(user, trancheId),
                 _reserves,
                 userConfig,

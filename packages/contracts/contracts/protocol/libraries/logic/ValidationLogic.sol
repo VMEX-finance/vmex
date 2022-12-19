@@ -16,6 +16,7 @@ import {DataTypes} from "../types/DataTypes.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
+import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 
 /**
  * @title ReserveLogic library
@@ -122,6 +123,9 @@ library ValidationLogic {
         uint256 userBorrowBalanceETH;
         uint256 availableLiquidity;
         uint256 healthFactor;
+        uint256 borrowCap;
+        uint256 avgBorrowFactor;
+
         bool isActive;
         bool isFrozen;
         bool borrowingEnabled;
@@ -154,12 +158,21 @@ library ValidationLogic {
 
         require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
 
+        vars.borrowCap = exvars._assetMappings.getBorrowCap(exvars.asset);
+
+        if (vars.borrowCap != 0) {
+            unchecked {
+                require(IERC20(reserve.variableDebtTokenAddress).totalSupply() <= vars.borrowCap * 10**exvars._assetMappings.getDecimals(exvars.asset), Errors.BORROW_CAP_EXCEEDED);
+            }
+        }
+
         (
             vars.userCollateralBalanceETH,
             vars.userBorrowBalanceETH,
             vars.currentLtv,
             vars.currentLiquidationThreshold,
-            vars.healthFactor
+            vars.healthFactor,
+            vars.avgBorrowFactor
         ) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(exvars.user, exvars.trancheId),
             reservesData,
@@ -187,7 +200,8 @@ library ValidationLogic {
         //add the current already borrowed amount to the amount requested to calculate the total collateral needed.
         vars.amountOfCollateralNeededETH = vars
             .userBorrowBalanceETH
-            .add(amountInETH)
+            .percentMul(vars.avgBorrowFactor)
+            .add(amountInETH.percentMul(exvars._assetMappings.getBorrowFactor(exvars.asset))) //this amount that we are borrowing also has a borrow factor that increases the actual debt
             .percentDiv(vars.currentLtv); //LTV is calculated in percentage
 
         require(
@@ -475,7 +489,7 @@ library ValidationLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         AssetMappings _assetMappings
     ) internal view {
-        (, , , , uint256 healthFactor) = GenericLogic.calculateUserAccountData(
+        (, , , , uint256 healthFactor,) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(from, trancheId),
             reservesData,
             userConfig,

@@ -108,6 +108,7 @@ library Errors {
     string public constant SDT_BURN_EXCEEDS_BALANCE = "80";
     string public constant CT_CALLER_MUST_BE_STRATEGIST = "81";
     string public constant SUPPLY_CAP_EXCEEDED = "82";
+    string public constant BORROW_CAP_EXCEEDED = "83";
 
     enum CollateralManagerErrors {
         NO_ERROR,

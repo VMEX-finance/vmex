@@ -532,7 +532,8 @@ contract LendingPool is
             uint256 availableBorrowsETH,
             uint256 currentLiquidationThreshold,
             uint256 ltv,
-            uint256 healthFactor
+            uint256 healthFactor,
+            uint256 avgBorrowFactor
         )
     {
         (
@@ -540,7 +541,8 @@ contract LendingPool is
             totalDebtETH,
             ltv,
             currentLiquidationThreshold,
-            healthFactor
+            healthFactor,
+            avgBorrowFactor
         ) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(user, trancheId),
             _reserves,
@@ -555,8 +557,14 @@ contract LendingPool is
         availableBorrowsETH = GenericLogic.calculateAvailableBorrowsETH(
             totalCollateralETH,
             totalDebtETH,
-            ltv
+            ltv,
+            avgBorrowFactor
         );
+
+        //Then, to know how much of an asset you can borrow, 
+        //amount you are trying to borrow = x
+        //debt value = x * borrow factor = availableBorrowsEth
+        //just do availableBorrowsETH / asset borrow factor (and then convert to native amount)
     }
 
     /**
