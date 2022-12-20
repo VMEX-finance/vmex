@@ -64,6 +64,32 @@ contract AssetMappings {
 
     }
 
+    function validateCollateralParams(uint256 baseLTV, uint256 liquidationThreshold, uint256 liquidationBonus) internal pure {
+        require(baseLTV <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+
+        if (liquidationThreshold != 0) {
+            //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
+            //collateral than needed to cover the debt
+            require(
+                liquidationBonus > PercentageMath.PERCENTAGE_FACTOR,
+                Errors.LPC_INVALID_CONFIGURATION
+            );
+
+            //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
+            //a loan is taken there is enough collateral available to cover the liquidation bonus
+
+            //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need 
+            //2 times the amount of debt asset they are covering, meaning that they need twice the value of the ccollateral asset. Since liquidation threshold is 50%, this is possible
+
+            //with borrow factors, the liquidation threshold is always less than or equal to what it should be, so this still stands
+            require(
+                liquidationThreshold.percentMul(liquidationBonus) <=
+                    PercentageMath.PERCENTAGE_FACTOR,
+                Errors.LPC_INVALID_CONFIGURATION
+            );
+        }
+    }
+
     //by setting it, you automatically also approve it for the protocol
     function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] calldata input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
         require(underlying.length==input.length);
@@ -73,33 +99,30 @@ contract AssetMappings {
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
-            require(input[i].baseLTV <= input[i].liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
-
-            if (input[i].liquidationThreshold != 0) {
-                //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
-                //collateral than needed to cover the debt
-                require(
-                    input[i].liquidationBonus > PercentageMath.PERCENTAGE_FACTOR,
-                    Errors.LPC_INVALID_CONFIGURATION
-                );
-
-                //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
-                //a loan is taken there is enough collateral available to cover the liquidation bonus
-
-                //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need 
-                //2 times the amount of debt asset they are covering, meaning that they need twice the value of the ccollateral asset. Since liquidation threshold is 50%, this is possible
-
-                //with borrow factors, the liquidation threshold is always less than or equal to what it should be, so this still stands
-                require(
-                    input[i].liquidationThreshold.percentMul(input[i].liquidationBonus) <=
-                        PercentageMath.PERCENTAGE_FACTOR,
-                    Errors.LPC_INVALID_CONFIGURATION
-                );
-            } 
+            validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
+            
             assetMappings[underlying[i]] = input[i];
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
             approvedAssets[numApprovedAssets++] = underlying[i];
         }
+    }
+
+    function configureReserveAsCollateral(
+        address asset, 
+        uint256 baseLTV, 
+        uint256 liquidationThreshold, 
+        uint256 liquidationBonus, 
+        uint256 supplyCap, 
+        uint256 borrowCap, 
+        uint256 borrowFactor
+    ) external onlyGlobalAdmin {
+        validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
+        assetMappings[asset].baseLTV = baseLTV;
+        assetMappings[asset].liquidationThreshold = liquidationThreshold;
+        assetMappings[asset].liquidationBonus = liquidationBonus;
+        assetMappings[asset].supplyCap = supplyCap;
+        assetMappings[asset].borrowCap = borrowCap;
+        assetMappings[asset].borrowFactor = borrowFactor;
     }
 
     function removeAsset(address underlying) external onlyGlobalAdmin{

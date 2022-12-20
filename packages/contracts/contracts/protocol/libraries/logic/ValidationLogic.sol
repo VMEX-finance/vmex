@@ -162,7 +162,7 @@ library ValidationLogic {
 
         if (vars.borrowCap != 0) {
             unchecked {
-                require(IERC20(reserve.variableDebtTokenAddress).totalSupply() <= vars.borrowCap * 10**exvars._assetMappings.getDecimals(exvars.asset), Errors.BORROW_CAP_EXCEEDED);
+                require(IERC20(reserve.variableDebtTokenAddress).totalSupply() + exvars.amount <= vars.borrowCap * 10**exvars._assetMappings.getDecimals(exvars.asset), Errors.BORROW_CAP_EXCEEDED);
             }
         }
 

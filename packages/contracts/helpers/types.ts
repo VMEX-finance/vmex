@@ -210,6 +210,10 @@ export enum ProtocolErrors {
   RC_INVALID_RESERVE_FACTOR = "71",
   LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "72",
 
+
+  SUPPLY_CAP_EXCEEDED = "82",
+  BORROW_CAP_EXCEEDED = "83",
+
   // old
 
   INVALID_FROM_BALANCE_AFTER_TRANSFER = "Invalid from balance after transfer",

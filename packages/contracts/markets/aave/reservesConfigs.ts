@@ -23,8 +23,8 @@ export const strategyBUSD: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0, //0 is enum for Aave
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -38,8 +38,8 @@ export const strategyDAI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -53,8 +53,8 @@ export const strategySUSD: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -68,8 +68,8 @@ export const strategyTUSD: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -83,8 +83,8 @@ export const strategyUSDC: IReserveParams = {
   reserveDecimals: '6',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //a lot, 10^24 /10^6
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000',
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -98,8 +98,8 @@ export const strategyUSDT: IReserveParams = {
   reserveDecimals: '6',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -113,8 +113,8 @@ export const strategyAAVE: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -128,8 +128,8 @@ export const strategyBAT: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -143,8 +143,8 @@ export const strategyENJ: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -158,7 +158,9 @@ export const strategyWETH: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000', //1,000 for testing
+  supplyCap: '10', //10 weth for testing
+  borrowCap: '2', //1,000,000
+  borrowFactor: '10000', //100% for now
 };
 
 export const strategyKNC: IReserveParams = {
@@ -171,8 +173,8 @@ export const strategyKNC: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -186,8 +188,8 @@ export const strategyLINK: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -201,8 +203,8 @@ export const strategyMANA: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -216,8 +218,8 @@ export const strategyMKR: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -231,8 +233,8 @@ export const strategyREN: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -246,8 +248,8 @@ export const strategySNX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -262,8 +264,8 @@ export const strategyUNI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.DelegationAwareAToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -277,8 +279,8 @@ export const strategyWBTC: IReserveParams = {
   reserveDecimals: '8',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -292,8 +294,8 @@ export const strategyYFI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -307,8 +309,8 @@ export const strategyZRX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -323,8 +325,8 @@ export const strategySTETH: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0, //this is since there is a chainlink aggregator for STETH
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -338,8 +340,8 @@ export const strategyFrax: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0, //this is since there is a chainlink aggregator for Frax
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -353,8 +355,8 @@ export const strategyBAL: IReserveParams = {
   reserveDecimals: '18', //checked
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -368,8 +370,8 @@ export const strategyCRV: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -383,8 +385,8 @@ export const strategyCVX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -398,8 +400,8 @@ export const strategyBADGER: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -413,8 +415,8 @@ export const strategyLDO: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -428,8 +430,8 @@ export const strategyALCX: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -443,8 +445,8 @@ export const strategyOneinch: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -458,8 +460,8 @@ export const strategyCurveLPToken: IReserveParams = {
   reserveDecimals: '18', //this is the important information
   aTokenImpl: eContractid.AToken,
   assetType: 1, //1 is enum for Curve
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
 

@@ -20,14 +20,14 @@ library DataTypes {
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
         uint8 assetType;
+
+        //below are the things that we will change more often
         uint256 supplyCap;
         uint256 borrowCap;
-
         uint256 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 
         uint256 liquidationThreshold; //if this is zero, then disabled as collateral
         uint256 liquidationBonus;
         uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset
-
         bool stableBorrowingEnabled;
         bool borrowingEnabled;
 

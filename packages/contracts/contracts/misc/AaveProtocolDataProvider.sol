@@ -111,44 +111,54 @@ contract AaveProtocolDataProvider {
         uint256 liquidityBalanceETH;
     }
 
+    struct getReserveConfigurationDataReturn {
+            uint256 decimals;
+            uint256 ltv;
+            uint256 liquidationThreshold;
+            uint256 liquidationBonus;
+            uint256 reserveFactor;
+            uint256 supplyCap;
+            uint256 borrowCap; 
+            uint256 borrowFactor;
+            bool usageAsCollateralEnabled;
+            bool borrowingEnabled;
+            bool stableBorrowRateEnabled;
+            bool isActive;
+            bool isFrozen;
+    }
+
     function getReserveConfigurationData(address asset, uint64 trancheId)
         external
         view
         returns (
-            uint256 decimals,
-            uint256 ltv,
-            uint256 liquidationThreshold,
-            uint256 liquidationBonus,
-            uint256 reserveFactor,
-            bool usageAsCollateralEnabled,
-            bool borrowingEnabled,
-            bool stableBorrowRateEnabled,
-            bool isActive,
-            bool isFrozen
+            getReserveConfigurationDataReturn memory ret
         )
     {
+        AssetMappings a = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings());
         DataTypes.ReserveConfigurationMap memory configuration = ILendingPool(
             ADDRESSES_PROVIDER.getLendingPool()
         ).getConfiguration(asset, trancheId);
 
         (
-            ltv,
-            liquidationThreshold,
-            liquidationBonus,
-            decimals,
-            //borrowFactor (not used yet)
-        ) = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()).getParams(asset);
+            ret.ltv,
+            ret.liquidationThreshold,
+            ret.liquidationBonus,
+            ret.decimals,
+            ret.borrowFactor
+        ) = a.getParams(asset);
+        ret.supplyCap = a.getSupplyCap(asset);
+        ret.borrowCap = a.getBorrowCap(asset);
 
-        reserveFactor = configuration.getReserveFactor();
+        ret.reserveFactor = configuration.getReserveFactor();
 
         (
-            isActive,
-            isFrozen,
-            borrowingEnabled,
-            stableBorrowRateEnabled
+            ret.isActive,
+            ret.isFrozen,
+            ret.borrowingEnabled,
+            ret.stableBorrowRateEnabled
         ) = configuration.getFlagsMemory();
 
-        usageAsCollateralEnabled =  configuration.getCollateralEnabled();//liquidationThreshold > 0;
+        ret.usageAsCollateralEnabled =  configuration.getCollateralEnabled();//liquidationThreshold > 0;
     }
 
     function getReserveData(address asset, uint64 trancheId)
