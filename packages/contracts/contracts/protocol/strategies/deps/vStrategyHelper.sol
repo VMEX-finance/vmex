@@ -17,15 +17,13 @@ library vStrategyHelper {
 
     address internal constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address internal constant ethNative = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-	address internal constant FRAX = 0x853d955aCEf822Db058eb8505911ED77F175b99e; 
 
     IERC20 internal constant crvToken =
         IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
     IERC20 internal constant cvxToken =
         IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
-	ICurveAddressProvider internal curveAddressProvider = 
+	ICurveAddressProvider internal constant curveAddressProvider = 
 		ICurveAddressProvider(0x0000000022D53366457F9d5E68Ec105046FC4383); 
-
     IUniswapV2Router02 internal constant sushiRouter = 
 		IUniswapV2Router02(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
@@ -33,13 +31,12 @@ library vStrategyHelper {
 
     function computeSwapPath(address tokenIn, address tokenOut, uint256 amount)
         internal 
-        pure
         returns (uint256 amountOut)
     {
 		//check if tokenIn is one of the tokens we want stable swaps for 
-		(address curveSwapPool, uint256 amountExpected) = swapCurve(tokenIn, tokenOut, amount); 
+		(address curveSwapPool, uint256 amountExpected, address curveRegistryExchange) = swapCurve(tokenIn, tokenOut, amount); 
 		if (curveSwapPool != address(0)) {
-			amountOut = ICurveExchange(curveRegistryExchange).exchange(
+			amountOut = ICurveRegistryExchange(curveRegistryExchange).exchange(
 				curveSwapPool,
 				tokenIn,
 				tokenOut,
@@ -60,7 +57,7 @@ library vStrategyHelper {
 		address tokenOut,
 		uint256 amount) 
 		internal returns(uint256) {
-			
+		address[] memory path; 	
         if (tokenIn == WETH || tokenOut == WETH) {
             path = new address[](2);
             path[0] = tokenIn;
@@ -75,7 +72,7 @@ library vStrategyHelper {
         uint256[] memory amounts = sushiRouter.swapExactTokensForTokens(
 			amount,
             0,//tendData.crvTended/EFFICIENCY, //min amount out (0 works fine)
-            crvPath,
+			path,
             address(this),
             block.timestamp
 		); 
@@ -218,7 +215,7 @@ library vStrategyHelper {
     struct tendVars {
         uint256 EFFICIENCY;
         uint8 i;
-        address[] tokenPath;
+		uint256 amountOfTokenReceived; 
     }
 
     event TendError(bytes message);
@@ -282,20 +279,21 @@ library vStrategyHelper {
             extraRewardsTended[extraTokens[vars.i]] = IERC20(extraTokens[vars.i])
                 .balanceOf(address(this));
 
-            vars.tokenPath = computeSwapPath(
+             vars.amountOfTokenReceived = computeSwapPath(
                 extraTokens[vars.i],
                 wantedDepositToken,
 				extraRewardsTended[extraTokens[vars.i]]
             );
+		}
 
         //need to use sushi here to swap between coins without a curve pool, can optimize later perhaps?
 		        
-        address[] memory crvPath = computeSwapPath(
+        vars.amountOfTokenReceived = computeSwapPath(
             address(crvToken),
             wantedDepositToken,
-			tendDta.crvTended
+			tendData.crvTended
         );
-        address[] memory cvxPath = computeSwapPath(
+        vars.amountOfTokenReceived = computeSwapPath(
             address(cvxToken),
             wantedDepositToken,
 			tendData.cvxTended

@@ -192,6 +192,9 @@
     "David Truong <david@aave.com>"
   ],
   "license": "AGPLv3",
+  "dependencies": {
+    "hardhat": "^2.12.4"
+  },
   "keywords": [
     "aave",
     "protocol",

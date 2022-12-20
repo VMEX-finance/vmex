@@ -182,7 +182,6 @@ contract CrvLpEthStrategy is BaseStrategy {
                 curveTokenBalances,
                 extraTokens,
                 extraRewardsTended,
-                sushiRouter,
                 EFFICIENCY
             );
         // if(depositAmountWanted==0){
