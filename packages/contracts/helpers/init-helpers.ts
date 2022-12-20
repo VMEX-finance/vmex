@@ -128,7 +128,9 @@ export const initAssetData = async (
       reserveDecimals,
       assetType,
       supplyCap, //1,000,000
+      borrowCap,
       baseLTVAsCollateral,
+      borrowFactor,
       liquidationBonus,
       liquidationThreshold,
       stableBorrowRateEnabled,
@@ -182,11 +184,11 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       assetType: assetType,
       supplyCap: supplyCap, //1,000,000
-      borrowCap: supplyCap, //1,000,000
+      borrowCap: borrowCap, //1,000,000
       baseLTV: baseLTVAsCollateral,
       liquidationThreshold: liquidationThreshold,
       liquidationBonus: liquidationBonus,
-      borrowFactor: baseLTVAsCollateral,
+      borrowFactor: borrowFactor,
       stableBorrowingEnabled: stableBorrowRateEnabled,
       borrowingEnabled: borrowingEnabled,
       isAllowed: true

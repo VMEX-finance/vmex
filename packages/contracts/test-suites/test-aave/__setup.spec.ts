@@ -163,6 +163,65 @@ const buildTestEnv = async (deployer: Signer) => {
     )
   );
 
+    //-------------------------------------------------------------
+  //deploy AssetMappings
+  // Reserve params from AAVE pool + mocked tokens
+  var reservesParams = {
+    ...config.ReservesConfig,
+  };
+
+  const allTokenAddresses = Object.entries(mockTokens).reduce(
+    (
+      accum: { [tokenSymbol: string]: tEthereumAddress },
+      [tokenSymbol, tokenContract]
+    ) => ({
+      ...accum,
+      [tokenSymbol]: tokenContract.address,
+    }),
+    {}
+  );
+
+  const { USD, ...tokensAddressesWithoutUsd } = allTokenAddresses;
+
+  const allReservesAddresses = {
+    ...tokensAddressesWithoutUsd,
+  };
+
+  const testHelpers = await deployAaveProtocolDataProvider(
+    addressesProvider.address
+  );
+
+  const admin = await DRE.ethers.getSigner(await
+    (await getEmergencyAdminT0()).getAddress());
+
+  const {
+    ATokenNamePrefix,
+    StableDebtTokenNamePrefix,
+    VariableDebtTokenNamePrefix,
+    SymbolPrefix,
+  } = config;
+  var treasuryAddress = admin.address;
+
+
+  const AssetMapping = await deployAssetMapping(addressesProvider.address);
+
+  await waitForTx(
+    await addressesProvider.setAssetMappings(AssetMapping.address)
+  );
+
+  await initAssetData(
+    reservesParams,
+    allReservesAddresses,
+    ATokenNamePrefix,
+    StableDebtTokenNamePrefix,
+    VariableDebtTokenNamePrefix,
+    SymbolPrefix,
+    admin,
+    false
+  );
+
+
+
   const lendingPoolImpl = await deployLendingPool();
 
   await waitForTx(
@@ -274,16 +333,7 @@ const buildTestEnv = async (deployer: Signer) => {
   const mockAggregators = await deployAllMockAggregators(
     ALL_ASSETS_INITIAL_PRICES
   );
-  const allTokenAddresses = Object.entries(mockTokens).reduce(
-    (
-      accum: { [tokenSymbol: string]: tEthereumAddress },
-      [tokenSymbol, tokenContract]
-    ) => ({
-      ...accum,
-      [tokenSymbol]: tokenContract.address,
-    }),
-    {}
-  );
+  
   const allAggregatorsAddresses = Object.entries(mockAggregators).reduce(
     (
       accum: { [tokenSymbol: string]: tEthereumAddress },
@@ -317,10 +367,7 @@ const buildTestEnv = async (deployer: Signer) => {
     await addressesProvider.setLendingRateOracle(lendingRateOracle.address)
   );
 
-  const { USD, ...tokensAddressesWithoutUsd } = allTokenAddresses;
-  const allReservesAddresses = {
-    ...tokensAddressesWithoutUsd,
-  };
+  
   await setInitialMarketRatesInRatesOracleByHelper(
     LENDING_RATE_ORACLE_RATES_COMMON,
     allReservesAddresses,
@@ -355,14 +402,7 @@ const buildTestEnv = async (deployer: Signer) => {
 
   //---------------------------------------------------------------------------------
 
-  // Reserve params from AAVE pool + mocked tokens
-  var reservesParams = {
-    ...config.ReservesConfig,
-  };
-
-  const testHelpers = await deployAaveProtocolDataProvider(
-    addressesProvider.address
-  );
+  
 
   await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
 
@@ -406,35 +446,6 @@ const buildTestEnv = async (deployer: Signer) => {
 
   await waitForTx(
     await addressesProvider.addWhitelistedAddress(addressList[2], true)
-  );
-
-  const admin = await DRE.ethers.getSigner(await
-    (await getEmergencyAdminT0()).getAddress());
-
-  const {
-    ATokenNamePrefix,
-    StableDebtTokenNamePrefix,
-    VariableDebtTokenNamePrefix,
-    SymbolPrefix,
-  } = config;
-  var treasuryAddress = admin.address;
-
-  //deploy AssetMappings
-  const AssetMapping = await deployAssetMapping(addressesProvider.address);
-
-  await waitForTx(
-    await addressesProvider.setAssetMappings(AssetMapping.address)
-  );
-
-  await initAssetData(
-    reservesParams,
-    allReservesAddresses,
-    ATokenNamePrefix,
-    StableDebtTokenNamePrefix,
-    VariableDebtTokenNamePrefix,
-    SymbolPrefix,
-    admin,
-    false
   );
 
   //-------------------------------------------------------------

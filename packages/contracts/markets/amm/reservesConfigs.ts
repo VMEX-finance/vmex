@@ -24,8 +24,8 @@ export const strategyBUSD: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
   assetType: 0, //0 is enum for Aave
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -43,8 +43,8 @@ export const strategyDAI: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -62,8 +62,8 @@ export const strategySUSD: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -81,8 +81,8 @@ export const strategyTUSD: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -117,8 +117,8 @@ export const strategyUSDT: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -136,8 +136,8 @@ export const strategyAAVE: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '0',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -155,8 +155,8 @@ export const strategyBAT: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -174,8 +174,8 @@ export const strategyENJ: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -193,8 +193,8 @@ export const strategyWETH: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '1000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -212,8 +212,8 @@ export const strategyKNC: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -231,8 +231,8 @@ export const strategyLINK: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -250,8 +250,8 @@ export const strategyMANA: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -269,8 +269,8 @@ export const strategyMKR: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -288,8 +288,8 @@ export const strategyREN: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -307,8 +307,8 @@ export const strategySNX: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -327,8 +327,8 @@ export const strategyUNI: IReserveParams = {
   aTokenImpl: eContractid.DelegationAwareAToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -346,8 +346,8 @@ export const strategyWBTC: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -365,8 +365,8 @@ export const strategyYFI: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -384,8 +384,8 @@ export const strategyZRX: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '2000',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -404,8 +404,8 @@ export const strategySTETH: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0, //this is since there is a chainlink aggregator for STETH
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -423,8 +423,8 @@ export const strategyFrax: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0, //this is since there is a chainlink aggregator for Frax
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -442,8 +442,8 @@ export const strategyBAL: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -461,8 +461,8 @@ export const strategyCRV: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: true,
   usingGovernanceSetInterestRate: false,
@@ -480,8 +480,8 @@ export const strategyCVX: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: true,
   usingGovernanceSetInterestRate: false,
@@ -499,8 +499,8 @@ export const strategyBADGER: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -518,8 +518,8 @@ export const strategyLDO: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -537,8 +537,8 @@ export const strategyALCX: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -556,8 +556,8 @@ export const strategyOneinch: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '3500',
   assetType: 0,
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: false,
   usingGovernanceSetInterestRate: false,
@@ -575,8 +575,8 @@ export const strategyCurveLPToken: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: '0',
   assetType: 1, //1 is enum for Curve
-  supplyCap: '1000000000000000000000000', //1,000,000
-  borrowCap: '1000000000000000000000000', //1,000,000
+  supplyCap: '10000', 
+  borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
   hasStrategy: true,
   usingGovernanceSetInterestRate: true, //will use governance set rates at first?
