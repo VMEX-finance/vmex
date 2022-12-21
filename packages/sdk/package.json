@@ -1,7 +1,7 @@
 {
   "name": "@vmex/sdk",
-  "version": "1.0.1",
-  "description": "vmex finance sdk",
+  "version": "0.0.2-alpha.0",
+  "description": "VMEX Finance - Software Development Kit",
   "main": "dist/index.js",
   "author": "VMEX finance",
   "license": "MIT",
@@ -23,12 +23,13 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
+    "@types/chai": "^4.3.3",
+    "@types/node": "^18.11.9",
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "mocha": "^10.1.0",
-    "typescript": "^4.8.4",
-    "@types/chai": "^4.3.3",
-    "@types/node": "^18.11.9"
-  }
+    "typescript": "^4.8.4"
+  },
+  "gitHead": "eab75dfb177d9779bc219772f0b5d69dafd0fd69"
 }
