@@ -35,6 +35,9 @@ library vStrategyHelper {
     {
 		//check if tokenIn is one of the tokens we want stable swaps for 
 		(address curveSwapPool, uint256 amountExpected, address curveRegistryExchange) = swapCurve(tokenIn, tokenOut, amount); 
+		console.log("token in:", tokenIn); 
+		console.log("token out:", tokenOut); 
+		console.log("curve registry exchange address", curveRegistryExchange); 
 		if (curveSwapPool != address(0)) {
 			amountOut = ICurveRegistryExchange(curveRegistryExchange).exchange(
 				curveSwapPool,
@@ -44,9 +47,11 @@ library vStrategyHelper {
 				amountExpected,
 				msg.sender //this may cause some weird behavior calling the swaps now, make sure the stategy is receiving funds
 			);
+			console.log("amount returned from CURVE:", amountOut); 
 			return amountOut; 
 		} else {
 			amountOut = swapSushi(tokenIn, tokenOut, amount); 	
+			console.log("amount returned from SUSHI:", amountOut); 
 			return amountOut; 
 		}
 
@@ -57,6 +62,7 @@ library vStrategyHelper {
 		address tokenOut,
 		uint256 amount) 
 		internal returns(uint256) {
+
 		address[] memory path; 	
         if (tokenIn == WETH || tokenOut == WETH) {
             path = new address[](2);
@@ -258,12 +264,6 @@ library vStrategyHelper {
             uint256 highestPayingIdx
         ) = checkForHighestPayingToken(curvePoolTokens, curveTokenBalances);
 
-        if(wantedDepositToken==0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490){ //edge case of trying to get 3crv, which cannot be traded for
-            //either change this to frax, or optimize by swapping into usdc or something and getting 3crv
-            wantedDepositToken = 0x853d955aCEf822Db058eb8505911ED77F175b99e; 
-            highestPayingIdx = 0;
-            
-        }
         if(wantedDepositToken==ethNative){
             wantedDepositToken = WETH; 
         }
@@ -279,25 +279,25 @@ library vStrategyHelper {
             extraRewardsTended[extraTokens[vars.i]] = IERC20(extraTokens[vars.i])
                 .balanceOf(address(this));
 
-             vars.amountOfTokenReceived = computeSwapPath(
+             vars.amountOfTokenReceived += computeSwapPath(
                 extraTokens[vars.i],
                 wantedDepositToken,
 				extraRewardsTended[extraTokens[vars.i]]
             );
 		}
 
-        //need to use sushi here to swap between coins without a curve pool, can optimize later perhaps?
-		        
-        vars.amountOfTokenReceived = computeSwapPath(
+        vars.amountOfTokenReceived += computeSwapPath(
             address(crvToken),
             wantedDepositToken,
 			tendData.crvTended
         );
-        vars.amountOfTokenReceived = computeSwapPath(
+
+        vars.amountOfTokenReceived += computeSwapPath(
             address(cvxToken),
             wantedDepositToken,
 			tendData.cvxTended
         );
+		console.log(vars.amountOfTokenReceived); 
 
         // if(wantedDepositToken == ethNative){ //should all be WETH now, convert WETH to ETH
         //     IWETH(WETH).withdraw(IERC20(WETH).balanceOf(address(this)));
