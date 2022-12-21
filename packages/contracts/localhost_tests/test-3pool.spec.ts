@@ -1,4 +1,4 @@
-// import { ethers } from "ethers";
+import { ethers } from "ethers";
 const chai = require("chai");
 const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
