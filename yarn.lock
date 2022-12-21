@@ -3681,7 +3681,7 @@
   resolved "file:packages/contracts"
 
 "@vmex/sdk@file:/home/yoyobojo/Desktop/etc-projects/vmex/vmex/packages/sdk":
-  version "0.0.5-alpha.0"
+  version "0.0.6-alpha.0"
   resolved "file:packages/sdk"
   dependencies:
     chai "^4.3.6"
