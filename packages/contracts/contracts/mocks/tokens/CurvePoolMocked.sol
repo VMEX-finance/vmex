@@ -8,7 +8,7 @@ import {ICurvePool} from "../../oracles/interfaces/ICurvePoolV1.sol";
  * @title ERC20Mintable
  * @dev ERC20 minting logic
  */
-contract CurvePoolMocked is ICurvePool {
+abstract contract CurvePoolMocked is ICurvePool {
     uint256 virtual_price;
 
     constructor(uint256 _virtual_price) {
