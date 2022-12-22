@@ -28,6 +28,9 @@ task("aave:mainnet", "Deploy development enviroment")
       skipRegistry,
     });
 
+    console.log("1.5. Deploy asset mappings");
+    await DRE.run("full:deploy-asset-mappings", { pool: POOL_NAME });
+
     console.log("2. Deploy lending pool");
     await DRE.run("full:deploy-lending-pool", { pool: POOL_NAME });
 
