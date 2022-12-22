@@ -184,32 +184,32 @@ const executeAction = async (
         );
       }
       break;
-    case "transfer":
-      {
-        const { amount, originTranche, isCollateral, destTranche } =
-          action.args;
+    // case "transfer":
+    //   {
+    //     const { amount, originTranche, isCollateral, destTranche } =
+    //       action.args;
 
-        if (!amount || amount === "") {
-          throw `Invalid amount to withdraw from the ${reserve} reserve`;
-        }
-        var myCol = isCollateral === "true";
-        if (isCollateral === "") {
-          myCol = false; //if unspecified then assume false
-        }
+    //     if (!amount || amount === "") {
+    //       throw `Invalid amount to withdraw from the ${reserve} reserve`;
+    //     }
+    //     var myCol = isCollateral === "true";
+    //     if (isCollateral === "") {
+    //       myCol = false; //if unspecified then assume false
+    //     }
 
-        await transfer(
-          reserve,
-          originTranche,
-          destTranche,
-          amount,
-          myCol,
-          user,
-          expected,
-          testEnv,
-          revertMessage
-        );
-      }
-      break;
+    //     await transfer(
+    //       reserve,
+    //       originTranche,
+    //       destTranche,
+    //       amount,
+    //       myCol,
+    //       user,
+    //       expected,
+    //       testEnv,
+    //       revertMessage
+    //     );
+    //   }
+    //   break;
     case "borrow":
       {
         const { amount, timeTravel, onBehalfOf: onBehalfOfIndex } = action.args;

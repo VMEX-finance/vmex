@@ -23,7 +23,7 @@ library QueryUserHelpers {
         uint256 amountNative;
         bool isCollateral;
         uint128 apy;
-        // uint256 collateralCap;
+        // uint256 supplyCap;
     }
 
     struct BorrowedAssetData {
@@ -57,6 +57,7 @@ library QueryUserHelpers {
         uint256 currentLiquidationThreshold;
         uint256 ltv;
         uint256 healthFactor;
+        uint256 avgBorrowFactor;
         SuppliedAssetData[] suppliedAssetData;
         BorrowedAssetData[] borrowedAssetData;
         AvailableBorrowData[] assetBorrowingPower;
@@ -76,12 +77,15 @@ library QueryUserHelpers {
             ,
             userData.currentLiquidationThreshold,
             userData.ltv,
-            userData.healthFactor) = lendingPool.getUserAccountData(user, tranche, false); //for displaying on FE, this should be false, since liquidations are based on this being false
+            userData.healthFactor,
+            userData.avgBorrowFactor
+            ) = lendingPool.getUserAccountData(user, tranche, false); //for displaying on FE, this should be false, since liquidations are based on this being false
         
         //this may need to be true for opening new borrows. But that isn't displayed, it is factored into availableBorrowsETH
         (,
             ,
             userData.availableBorrowsETH,
+            ,
             ,
             ,
             ) = lendingPool.getUserAccountData(user, tranche, true);
@@ -146,11 +150,11 @@ library QueryUserHelpers {
                         assetOracle,
                         vars.allAssets[i],
                         vars.currentATokenBalance,
-                        vars.reserve.configuration.getDecimals()),
+                        a.getDecimals(vars.allAssets[i])),
                     amountNative: vars.currentATokenBalance,
                     isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
                     apy: vars.reserve.currentLiquidityRate
-                    // collateralCap: a.getCollateralCap(vars.allAssets[i])
+                    // supplyCap: a.getSupplyCap(vars.allAssets[i])
                 });
             }
 
@@ -162,7 +166,7 @@ library QueryUserHelpers {
                         assetOracle,
                         vars.allAssets[i],
                         vars.currentVariableDebt,
-                        vars.reserve.configuration.getDecimals()),
+                        a.getDecimals(vars.allAssets[i])),
                     amountNative: vars.currentVariableDebt,
                     apy: vars.reserve.currentVariableBorrowRate
                 });
@@ -177,7 +181,7 @@ library QueryUserHelpers {
                         assetOracle,
                         vars.allAssets[i],
                         availableBorrowsETH,
-                        vars.reserve.configuration.getDecimals()
+                        a.getDecimals(vars.allAssets[i])
                     )
             });
         }

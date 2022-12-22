@@ -12,6 +12,7 @@ export interface UserReserveData {
   stableRateLastUpdated: BigNumber;
   usageAsCollateralEnabled: Boolean;
   walletBalance: BigNumber;
+  healthFactor: BigNumber;
   [key: string]: BigNumber | string | Boolean;
 }
 

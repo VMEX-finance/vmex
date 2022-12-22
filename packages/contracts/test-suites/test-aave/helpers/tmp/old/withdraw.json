@@ -1,542 +1,100 @@
 {
-  "title": "LendingPool: tranche",
-  "description": "Test tranche withdrawing.",
-  "stories": [
-    {
-      "description": "User 0 Deposits 1000 DAI in an empty reserve",
-      "actions": [
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "DAI",
-            "amount": "1000",
-            "user": "0"
+    "title": "LendingPool: Withdraw test",
+    "description": "Test cases for the withdraw function",
+    "stories": [
+      {
+        "description": "User 0 deposits 300 DAI (risk 0) in all three tranches",
+        "actions": [
+          {
+            "name": "mint",
+            "args": {
+              "reserve": "DAI",
+              "amount": "1000",
+              "user": "0"
+            },
+            "expected": "success"
           },
-          "expected": "success"
+          {
+            "name": "approve",
+            "args": {
+              "reserve": "DAI",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "deposit",
+            "args": {
+              "reserve": "DAI",
+              "tranche": "0",
+              "amount": "300",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "deposit",
+            "args": {
+              "reserve": "DAI",
+              "tranche": "1",
+              "amount": "300",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "deposit",
+            "args": {
+              "reserve": "DAI",
+              "tranche": "2",
+              "amount": "300",
+              "user": "0"
+            },
+            "expected": "success"
+          },
+          {
+            "name": "withdraw",
+            "args": {
+                "reserve": "DAI",
+                "tranche": "2",
+                "amount": "400",
+                "user": "0"
+            },
+            "expected": "revert"
         },
         {
-          "name": "approve",
-          "args": {
-            "reserve": "DAI",
-            "user": "0"
+                "name": "withdraw",
+                "args": {
+                    "reserve": "DAI",
+                    "tranche": "2",
+                    "amount": "300",
+                    "user": "0"
+                },
+                "expected": "success"
+            },
+            {
+              "name": "withdraw",
+              "args": {
+                  "reserve": "DAI",
+                  "tranche": "1",
+                  "amount": "300",
+                  "user": "0"
+              },
+              "expected": "success"
           },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "DAI",
-            "isCollateral": "true",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws half of the deposited DAI from tranche 1 (revert expected)",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "tranche": "1",
-            "amount": "500",
-            "user": "0"
-          },
-          "expected": "revert"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws half of the deposited DAI",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "amount": "500",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws remaining half of the deposited DAI",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "amount": "-1",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 Deposits 1000 USDC in an empty reserve",
-      "actions": [
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "USDC",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "approve",
-          "args": {
-            "reserve": "USDC",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "USDC",
-            "isCollateral": "true",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws half of the deposited WETH in tranche 2 (revert expected)",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "WETH",
-            "tranche": "2",
-            "amount": "0.5",
-            "user": "0"
-          },
-          "expected": "revert"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws half of the deposited USDC",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "USDC",
-            "amount": "500",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws remaining half of the deposited USDC",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "USDC",
-            "amount": "-1",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 Deposits 1 WETH in an empty reserve",
-      "actions": [
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "WETH",
-            "amount": "1",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "approve",
-          "args": {
-            "reserve": "WETH",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "WETH",
-            "isCollateral": "true",
-            "amount": "1",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws half of the deposited WETH",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "WETH",
-            "amount": "0.5",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "User 0 withdraws remaining half of the deposited WETH",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "WETH",
-            "amount": "-1",
-            "user": "0"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "Users 0 and 1 Deposit 1000 DAI, both withdraw",
-      "actions": [
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "DAI",
-            "amount": "1000",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "approve",
-          "args": {
-            "reserve": "DAI",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "DAI",
-            "isCollateral": "true",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "DAI",
-            "isCollateral": "true",
-            "amount": "1000",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "tranche": "1",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "revert"
-        },
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "USDC",
-            "tranche": "0",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "revert"
-        },
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "amount": "-1",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "amount": "-1",
-            "user": "1"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "Users 0 deposits 1000 DAI in tranche 0, user 1 Deposit 1000 USDC (tranche 1) and 1 WETH (tranche 2), borrows 100 DAI (from tranche 0 = success, from tranche 1 = revert). User 1 tries to withdraw all the USDC",
-      "actions": [
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "DAI",
-            "isCollateral": "true",
-            "tranche": "0",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "USDC",
-            "amount": "1000",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "approve",
-          "args": {
-            "reserve": "USDC",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "USDC",
-            "isCollateral": "true",
-            "amount": "1000",
-            "tranche": "1",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "WETH",
-            "amount": "1",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "approve",
-          "args": {
-            "reserve": "WETH",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "WETH",
-            "isCollateral": "true",
-            "tranche": "2",
-            "amount": "1",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "borrow",
-          "args": {
-            "reserve": "DAI",
-            "tranche": "2",
-            "amount": "100",
-            "user": "1",
-            "borrowRateMode": "stable"
-          },
-          "expected": "revert"
-        },
-        {
-          "name": "borrow",
-          "args": {
-            "reserve": "DAI",
-            "amount": "100",
-            "user": "1",
-            "borrowRateMode": "stable"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "USDC",
-            "amount": "-1",
-            "user": "1"
-          },
-          "expected": "revert"
-        },
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "USDC",
-            "tranche": "1",
-            "amount": "-1",
-            "user": "1"
-          },
-          "expected": "success"
-        }
-      ]
-    },
-    {
-      "description": "Users 1 tries to withdraw 0.05 WETH, which does not bring the HF below 1 (success). User 1 withdraw WETH from diff tranche = revert, trying to withdraw 0.95 WETH = revert, User 0 trying to withdraw DAI  that is lent out = revert",
-      "actions": [
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "WETH",
-            "tranche": "2",
-            "amount": "0.05",
-            "user": "1"
-          },
-          "expected": "success"
-        }, 
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "WETH",
-            "tranche": "1",
-            "amount": "0.05",
-            "user": "1"
-          },
-          "expected": "revert"
-        }, 
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "WETH",
-            "tranche": "2",
-            "amount": "0.95",
-            "user": "1"
-          },
-          "expected": "revert"
-        }, 
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "DAI",
-            "tranche": "0",
-            "amount": "100",
-            "user": "0"
-          },
-          "expected": "revert"
-        }
-      ]
-    },
-    {
-      "description": "Users 0 deposits 1000 DAI into tranche 1, user 1 Deposit 1000 USDC and 1 WETH, borrows 100 DAI. User 1 tries to withdraw all the USDC",
-      "actions": [
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "DAI",
-            "isCollateral": "true",
-            "tranche": "1",
-            "amount": "1000",
-            "user": "0"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "USDC",
-            "amount": "1000",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "approve",
-          "args": {
-            "reserve": "USDC",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "USDC",
-            "isCollateral": "true",
-            "amount": "1000",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "mint",
-          "args": {
-            "reserve": "WETH",
-            "amount": "1",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "approve",
-          "args": {
-            "reserve": "WETH",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "deposit",
-          "args": {
-            "reserve": "WETH",
-            "amount": "1",
-            "isCollateral": "true",
-            "user": "1"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "borrow",
-          "args": {
-            "reserve": "DAI",
-            "amount": "100",
-            "user": "1",
-            "borrowRateMode": "stable"
-          },
-          "expected": "success"
-        },
-        {
-          "name": "withdraw",
-          "args": {
-            "reserve": "USDC",
-            "amount": "-1",
-            "user": "1"
-          },
-          "expected": "success"
-        }
-      ]
-    }
-  ]
-}
+          {
+            "name": "withdraw",
+            "args": {
+                "reserve": "DAI",
+                "tranche": "0",
+                "amount": "300",
+                "user": "0"
+            },
+            "expected": "success"
+          }
+        ]
+      }
+
+    ]
+  }
+  

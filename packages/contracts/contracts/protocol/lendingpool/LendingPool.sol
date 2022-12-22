@@ -24,9 +24,9 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {UserConfiguration} from "../libraries/configuration/UserConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
-
+import {AssetMappings} from "./AssetMappings.sol";
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 /**
  * @title LendingPool contract
  * @dev Main point of interaction with an Aave protocol's market
@@ -136,6 +136,7 @@ contract LendingPool is
     {
         _addressesProvider = provider;
         _maxNumberOfReserves = 128; //this might actually be fine since this is max number of reserves per trancheId?
+        _assetMappings =  AssetMappings(_addressesProvider.getAssetMappings());
     }
 
     /**
@@ -180,6 +181,7 @@ contract LendingPool is
                 asset,
                 trancheId,
                 address(_addressesProvider),
+                _assetMappings,
                 amount,
                 onBehalfOf,
                 referralCode
@@ -236,7 +238,8 @@ contract LendingPool is
                     amount,
                     to
                 ),
-                _addressesProvider
+                _addressesProvider,
+                _assetMappings
             );
 
         emit Withdraw(asset, trancheId, msg.sender, to, actualAmount);
@@ -283,21 +286,43 @@ contract LendingPool is
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         DataTypes.ExecuteBorrowParams memory vars = DataTypes.ExecuteBorrowParams(
-                asset,
+                amount,
+                _reservesCount[trancheId],
+                IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
+                    _addressesProvider.getPriceOracle(
+                        _assetMappings.getAssetType(asset)
+                    )
+                ).getAssetPrice(asset),
                 trancheId,
+                referralCode,
+                asset,
                 msg.sender,
                 onBehalfOf,
-                amount,
                 reserve.aTokenAddress,
-                referralCode,
                 true,
-                _reservesCount[trancheId]
+                _assetMappings
             );
+        if(vars.amount == type(uint256).max){
+            (
+                ,
+                ,
+                uint256 availableBorrowsETH,
+                ,
+                ,
+                ,
+            ) = getUserAccountData(msg.sender, trancheId, true);
+            
+            vars.amount = availableBorrowsETH.percentDiv(_assetMappings.getBorrowFactor(vars.asset)).mul(10**_assetMappings.getDecimals(asset)).div(vars.assetPrice);
+            console.log("amount max!! : ",vars.amount);
+
+        }
 
 
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
             onBehalfOf
         ][trancheId];
+
+        
 
         DepositWithdrawLogic._borrowHelper(
             _reserves,
@@ -376,7 +401,7 @@ contract LendingPool is
 
         IERC20(asset).safeTransferFrom(msg.sender, aToken, paybackAmount);
 
-        IAToken(aToken).handleRepayment(msg.sender, paybackAmount);
+        // IAToken(aToken).handleRepayment(msg.sender, paybackAmount); //no-op
 
         emit Repay(asset, trancheId, onBehalfOf, msg.sender, paybackAmount);
 
@@ -407,7 +432,8 @@ contract LendingPool is
             _usersConfig[msg.sender][trancheId],
             _reservesList[trancheId],
             _reservesCount[trancheId],
-            _addressesProvider
+            _addressesProvider,
+            _assetMappings
         );
 
         _usersConfig[msg.sender][trancheId].setUsingAsCollateral(
@@ -518,7 +544,7 @@ contract LendingPool is
      * @return healthFactor the current health factor of the user
      **/
     function getUserAccountData(address user, uint64 trancheId, bool useTwap)
-        external
+        public
         view
         override
         returns (
@@ -527,7 +553,8 @@ contract LendingPool is
             uint256 availableBorrowsETH,
             uint256 currentLiquidationThreshold,
             uint256 ltv,
-            uint256 healthFactor
+            uint256 healthFactor,
+            uint256 avgBorrowFactor
         )
     {
         (
@@ -535,7 +562,8 @@ contract LendingPool is
             totalDebtETH,
             ltv,
             currentLiquidationThreshold,
-            healthFactor
+            healthFactor,
+            avgBorrowFactor
         ) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(user, trancheId),
             _reserves,
@@ -543,14 +571,21 @@ contract LendingPool is
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
+            _assetMappings,
             useTwap
         );
 
         availableBorrowsETH = GenericLogic.calculateAvailableBorrowsETH(
             totalCollateralETH,
             totalDebtETH,
-            ltv
+            ltv,
+            avgBorrowFactor
         );
+
+        //Then, to know how much of an asset you can borrow, 
+        //amount you are trying to borrow = x
+        //debt value = x * borrow factor = availableBorrowsEth
+        //just do availableBorrowsETH / asset borrow factor (and then convert to native amount)
     }
 
     /**
@@ -709,7 +744,8 @@ contract LendingPool is
             _usersConfig[from][trancheId],
             _reservesList[trancheId],
             _reservesCount[trancheId],
-            _addressesProvider
+            _addressesProvider,
+            _assetMappings
         );
 
         uint256 reserveId = _reserves[asset][trancheId].id;
