@@ -1,5 +1,8 @@
 import BigNumber from "bignumber.js";
 import {
+  DRE,
+} from "../../../../helpers/misc-utils";
+import {
   ONE_YEAR,
   RAY,
   MAX_UINT_AMOUNT,
@@ -14,6 +17,8 @@ import {
 import "./math";
 import { ReserveData, UserReserveData } from "./interfaces";
 import { expect } from "chai";
+import { TestEnv } from "../make-suite";
+import { getAToken, getVariableDebtToken} from "../../../../helpers/contracts-getters"
 
 export const strToBN = (amount: string): BigNumber => new BigNumber(amount);
 
@@ -22,6 +27,48 @@ interface Configuration {
 }
 
 export const configuration: Configuration = <Configuration>{};
+
+export const calculateHF = async (testEnv: TestEnv, trancheId: string, user: tEthereumAddress):Promise<BigNumber> => {
+  const { users, pool, dai, aDai, assetMappings, oracle, helpersContract } = testEnv;
+  const reserves = await pool.getReservesList(trancheId);
+  // console.log("Reserves: ", reserves)
+  let totalSupplied = new BigNumber("0");
+  let totalBorrowed = new BigNumber("0");
+  for(let i = 0;i<reserves.length;i++){
+    const reserve = await pool.getReserveData(reserves[i], trancheId);
+    // console.log("Asset address: ", reserve)
+    // console.log("reserve.aTokenAddress: ", reserve.aTokenAddress)
+    const aToken = await getAToken(reserve.aTokenAddress);
+    const debtToken = await getVariableDebtToken(reserve.variableDebtTokenAddress);
+    const supply = await aToken.balanceOf(user);
+    const borrowed = await debtToken.balanceOf(user);
+    const price = await oracle.getAssetPrice(reserves[i]);
+    const unit = DRE.ethers.utils.parseUnits("1",(await assetMappings.getDecimals(reserves[i])))
+    const params = await assetMappings.getParams(reserves[i]);
+    const usrDat = await helpersContract.getUserReserveData(reserves[i], trancheId, user);
+    if(supply.toString() != "0" && usrDat.usageAsCollateralEnabled){
+      console.log("supply: ", supply)
+      const suppliedValue = supply.mul(price).mul(params.liquidationThreshold).div(unit);
+      console.log("suppliedValue: ", suppliedValue)
+      totalSupplied = totalSupplied.plus(new BigNumber(suppliedValue.toString()));
+      console.log("totalSupplied: ", totalSupplied)
+    }
+
+  
+    if(borrowed.toString() != "0"){
+      console.log("borrowed: ", borrowed)
+      
+      const borrowedValue = borrowed.mul(price).mul(params.borrowFactor).div(unit);
+      console.log("borrowedValue: ", borrowedValue)
+      totalBorrowed = totalBorrowed.plus(new BigNumber(borrowedValue.toString()));
+      console.log("totalBorrowed: ", totalBorrowed)
+    }
+  }
+  if(totalBorrowed.eq(new BigNumber("0"))){
+    return new BigNumber(MAX_UINT_AMOUNT);
+  }
+  return totalSupplied.wadDiv(totalBorrowed);
+}
 
 export const calcExpectedUserDataAfterDeposit = (
   amountDeposited: string,
@@ -173,6 +220,7 @@ export const calcExpectedUserDataAfterWithdraw = (
 
   return expectedUserData;
 };
+
 
 export const calcExpectedReserveDataAfterDeposit = (
   amountDeposited: string,

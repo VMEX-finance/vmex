@@ -118,6 +118,7 @@ export enum eContractid {
   UiIncentiveDataProviderV2V3 = "UiIncentiveDataProviderV2V3",
   UiIncentiveDataProviderV2 = "UiIncentiveDataProviderV2",
   AssetMappings = "AssetMappings",
+  UserConfiguration = "UserConfiguration",
 }
 
 /*
@@ -209,6 +210,10 @@ export enum ProtocolErrors {
   RC_INVALID_DECIMALS = "70",
   RC_INVALID_RESERVE_FACTOR = "71",
   LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "72",
+
+
+  SUPPLY_CAP_EXCEEDED = "82",
+  BORROW_CAP_EXCEEDED = "83",
 
   // old
 
@@ -442,7 +447,9 @@ export interface IReserveParams
   aTokenImpl: eContractid;
   // reserveFactor: string;
   strategy: IInterestRateStrategyParams;
-  collateralCap: string;
+  supplyCap: string;
+  borrowCap: string;
+
 }
 
 export interface IInterestRateStrategyParams {
@@ -472,6 +479,7 @@ export interface IReserveCollateralParams {
   liquidationThreshold: string;
   liquidationBonus: string;
   assetType: BigNumberish;
+  borrowFactor: string;
 }
 export interface IMarketRates {
   borrowRate: string;

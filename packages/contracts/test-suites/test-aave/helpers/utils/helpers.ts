@@ -105,6 +105,7 @@ export const getUserData = async (
   const walletBalance = new BigNumber(
     (await token.balanceOf(sender || user)).toString()
   );
+  const usrActData = await pool.getUserAccountData(user, tranche, false); //twap doesn't matter in these tests since prices don't change
 
   return {
     scaledATokenBalance: new BigNumber(scaledATokenBalance),
@@ -122,6 +123,7 @@ export const getUserData = async (
       userData.stableRateLastUpdated.toString()
     ),
     walletBalance,
+    healthFactor: new BigNumber(usrActData.healthFactor.toString())
   };
 };
 

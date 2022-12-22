@@ -71,24 +71,18 @@ interface ILendingPoolConfigurator {
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The trancheId of the reserve
      **/
-    event BorrowingEnabledOnReserve(
+    event BorrowingSetOnReserve(
         address indexed asset,
-        uint64 indexed trancheId
+        uint64 indexed trancheId,
+        bool indexed borrowingEnabled
     );
-
-    /**
-     * @dev Emitted when borrowing is disabled on a reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @param trancheId The trancheId of the reserve
-     **/
-    event BorrowingDisabledOnReserve(address indexed asset, uint64 indexed trancheId);
 
     /**
      * @dev Emitted when collateral is enabled on a reserve
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The trancheId of the reserve
      **/
-    event CollateralEnabledOnReserve(address indexed asset, uint64 indexed trancheId);
+    event CollateralSetOnReserve(address indexed asset, uint64 indexed trancheId, bool indexed collateralEnabled);
 
     /**
      * @dev Emitted when the collateralization risk parameters for the specified asset are updated.

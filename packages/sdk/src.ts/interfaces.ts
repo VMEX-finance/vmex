@@ -7,7 +7,7 @@ export interface SuppliedAssetData {
   amountNative: BigNumber;
   isCollateral: boolean;
   apy: BigNumber;
-  // collateralCap: BigNumber;
+  // supplyCap: BigNumber;
 }
 
 export interface BorrowedAssetData {
@@ -81,7 +81,7 @@ export interface MarketData {
   totalReserves: BigNumber;
   totalReservesNative: BigNumber;
   currentPriceETH: BigNumber;
-  collateralCap: BigNumber;
+  supplyCap: BigNumber;
   // liquidityIndex: BigNumber;
   // variableBorrowIndex: BigNumber;
   // currentLiquidityRate: BigNumber;

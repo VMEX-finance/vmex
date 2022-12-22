@@ -13,6 +13,7 @@ import {
   getWETHGateway,
   getTricrypto2Strategy,
   getCurvePriceOracleWrapper,
+  getAssetMappings,
   // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
@@ -43,7 +44,7 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { CurveWrapper, FlashLiquidationAdapter } from "../../../types";
+import { AssetMappings, CurveWrapper, FlashLiquidationAdapter } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -61,6 +62,7 @@ export interface TestEnv {
   users: SignerWithAddress[];
   pool: LendingPool;
   configurator: LendingPoolConfigurator;
+  assetMappings: AssetMappings;
   // aTokensAndRatesHelper: ATokensAndRatesHelper;
   oracle: PriceOracle;
   curveOracle: CurveWrapper;
@@ -71,6 +73,7 @@ export interface TestEnv {
   aDai: AToken;
   usdc: MintableERC20;
   aave: MintableERC20;
+  aAave: AToken;
   tricrypto2: MintableERC20;
   tricrypto2Strategy: CrvLpStrategy;
   addressesProvider: LendingPoolAddressesProvider;
@@ -131,6 +134,7 @@ export async function initializeMakeSuite() {
 
   testEnv.configurator = await getLendingPoolConfiguratorProxy();
   // testEnv.aTokensAndRatesHelper = await getATokensAndRatesHelper();
+  testEnv.assetMappings = await getAssetMappings();
 
   testEnv.addressesProvider = await getLendingPoolAddressesProvider();
 
@@ -156,6 +160,10 @@ export async function initializeMakeSuite() {
 
   const aWEthAddress = allTokensT0.find(
     (aToken) => aToken.symbol === "aWETH0"
+  )?.tokenAddress;
+
+  const aAAVEAddress = allTokensT0.find(
+    (aToken) => aToken.symbol === "aAAVE0"
   )?.tokenAddress;
 
   const reservesTokensT0 = await testEnv.helpersContract.getAllReservesTokens(
@@ -198,6 +206,7 @@ export async function initializeMakeSuite() {
 
   testEnv.aDai = await getAToken(aDaiAddress);
   testEnv.aWETH = await getAToken(aWEthAddress);
+  testEnv.aAave = await getAToken(aAAVEAddress);
 
   testEnv.dai = await getMintableERC20(daiAddress);
   testEnv.usdc = await getMintableERC20(usdcAddress);
