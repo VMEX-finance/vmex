@@ -180,11 +180,7 @@ library DepositWithdrawLogic {
         //This is really amount in WEI. getAssetPrice gets the asset price in wei
         //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
 
-        uint256 amountInETH = IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
-            _addressesProvider.getPriceOracle(
-                vars._assetMappings.getAssetType(vars.asset)
-            )
-        ).getAssetPrice(vars.asset).mul(vars.amount).div(
+        uint256 amountInETH = vars.assetPrice.mul(vars.amount).div(
                 10**vars._assetMappings.getDecimals(vars.asset)
             ); //lp token decimals are 18, like ETH
 

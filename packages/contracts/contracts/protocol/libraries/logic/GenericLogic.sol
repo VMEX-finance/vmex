@@ -15,7 +15,7 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 /**
  * @title GenericLogic library
  * @author Aave
@@ -144,6 +144,11 @@ library GenericLogic {
             .mul(vars.avgLiquidationThreshold)
             .sub(vars.amountToDecreaseInETH.mul(vars.liquidationThreshold))
             .div(vars.collateralBalanceAfterDecrease);
+        console.log("vars.collateralBalanceAfterDecrease: ", vars.collateralBalanceAfterDecrease);
+        console.log("vars.liquidationThresholdAfterDecrease: ", vars.liquidationThresholdAfterDecrease);
+        console.log("vars.totalDebtInETH: ", vars.totalDebtInETH);
+        console.log("vars.avgBorrowFactor: ", vars.avgBorrowFactor);
+
 
         vars.healthFactorAfterDecrease = calculateHealthFactorFromBalances(
             vars.collateralBalanceAfterDecrease,
@@ -151,6 +156,8 @@ library GenericLogic {
             vars.liquidationThresholdAfterDecrease,
             vars.avgBorrowFactor
         );
+
+        console.log("vars.healthFactorAfterDecrease: ", vars.healthFactorAfterDecrease);
 
         return
             vars.healthFactorAfterDecrease >=

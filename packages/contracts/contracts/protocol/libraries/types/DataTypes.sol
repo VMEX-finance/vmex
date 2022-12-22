@@ -158,16 +158,18 @@ library DataTypes {
     }
 
     struct ExecuteBorrowParams {
-        address asset;
+        uint256 amount;
+        uint256 _reservesCount;
+        uint256 assetPrice;
         uint64 trancheId; //trancheId the user wants to borrow out of
+        uint16 referralCode;
+        address asset;
         address user;
         address onBehalfOf;
-        uint256 amount;
         address aTokenAddress;
-        uint16 referralCode;
         bool releaseUnderlying;
-        uint256 _reservesCount;
         AssetMappings _assetMappings;
+
     }
 
     struct WithdrawParams {

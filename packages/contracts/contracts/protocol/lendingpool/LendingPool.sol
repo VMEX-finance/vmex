@@ -26,7 +26,7 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 import {AssetMappings} from "./AssetMappings.sol";
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 /**
  * @title LendingPool contract
  * @dev Main point of interaction with an Aave protocol's market
@@ -286,22 +286,43 @@ contract LendingPool is
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         DataTypes.ExecuteBorrowParams memory vars = DataTypes.ExecuteBorrowParams(
-                asset,
+                amount,
+                _reservesCount[trancheId],
+                IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
+                    _addressesProvider.getPriceOracle(
+                        _assetMappings.getAssetType(asset)
+                    )
+                ).getAssetPrice(asset),
                 trancheId,
+                referralCode,
+                asset,
                 msg.sender,
                 onBehalfOf,
-                amount,
                 reserve.aTokenAddress,
-                referralCode,
                 true,
-                _reservesCount[trancheId],
                 _assetMappings
             );
+        if(vars.amount == type(uint256).max){
+            (
+                ,
+                ,
+                uint256 availableBorrowsETH,
+                ,
+                ,
+                ,
+            ) = getUserAccountData(msg.sender, trancheId, true);
+            
+            vars.amount = availableBorrowsETH.percentDiv(_assetMappings.getBorrowFactor(vars.asset)).mul(10**_assetMappings.getDecimals(asset)).div(vars.assetPrice);
+            console.log("amount max!! : ",vars.amount);
+
+        }
 
 
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
             onBehalfOf
         ][trancheId];
+
+        
 
         DepositWithdrawLogic._borrowHelper(
             _reserves,
@@ -380,7 +401,7 @@ contract LendingPool is
 
         IERC20(asset).safeTransferFrom(msg.sender, aToken, paybackAmount);
 
-        IAToken(aToken).handleRepayment(msg.sender, paybackAmount);
+        // IAToken(aToken).handleRepayment(msg.sender, paybackAmount); //no-op
 
         emit Repay(asset, trancheId, onBehalfOf, msg.sender, paybackAmount);
 
@@ -523,7 +544,7 @@ contract LendingPool is
      * @return healthFactor the current health factor of the user
      **/
     function getUserAccountData(address user, uint64 trancheId, bool useTwap)
-        external
+        public
         view
         override
         returns (

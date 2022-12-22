@@ -37,7 +37,8 @@ import {
   CurveWrapperFactory,
   CrvLpStrategyFactory,
   BoosterFactory,
-  VStrategyHelperFactory
+  VStrategyHelperFactory,
+  UserConfigurationFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -90,6 +91,20 @@ export const getAssetMappings = async (
       (
         await getDb()
           .get(`${eContractid.AssetMappings}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+};
+
+export const getUserConfiguration = async (
+  address?: tEthereumAddress
+) => {
+  return await UserConfigurationFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.UserConfiguration}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

@@ -38,7 +38,7 @@ export const strategyDAI: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '10000', 
+  supplyCap: '1000000', 
   borrowCap: '10000', 
   borrowFactor: '10000', //100% for now
 };
@@ -83,8 +83,8 @@ export const strategyUSDC: IReserveParams = {
   reserveDecimals: '6',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '10000',
-  borrowCap: '10000', 
+  supplyCap: '0', //this means there is no cap
+  borrowCap: '0', 
   borrowFactor: '10000', //100% for now
 };
 
@@ -158,8 +158,8 @@ export const strategyWETH: IReserveParams = {
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
-  supplyCap: '10', //10 weth for testing
-  borrowCap: '2', //1,000,000
+  supplyCap: '1000', //10 weth for testing
+  borrowCap: '800', //1,000,000
   borrowFactor: '10000', //100% for now
 };
 

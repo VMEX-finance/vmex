@@ -22,12 +22,12 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
     BORROW_CAP_EXCEEDED,
   } = ProtocolErrors;
 
-  it("User 0 deposits 10000 DAI, Tries to deposit 1 more but will revert. Another user tries depositing and also reverts", async () => {
+  it("User 0 deposits 1000000 DAI, Tries to deposit 1 more but will revert. Another user tries depositing and also reverts", async () => {
     const { users, pool, dai, aDai } = testEnv;
 
     await dai
       .connect(users[0].signer)
-      .mint(await convertToCurrencyDecimals(dai.address, "100000"));
+      .mint(await convertToCurrencyDecimals(dai.address, "10000000"));
 
     await dai
       .connect(users[0].signer)
@@ -35,7 +35,7 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
 
       await dai
       .connect(users[1].signer)
-      .mint(await convertToCurrencyDecimals(dai.address, "100000"));
+      .mint(await convertToCurrencyDecimals(dai.address, "10000000"));
 
     await dai
       .connect(users[1].signer)
@@ -80,13 +80,25 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
         .deposit(dai.address, 1, amountDAItoDeposit, users[1].address, "0")).to.be.revertedWith(SUPPLY_CAP_EXCEEDED);
   });
 
-  it("User 1 deposits 1 WETH and user 0 tries to borrow the WETH deposited DAI as collateral, tries to borrow more than borrow cap", async () => {
-    const { users, pool, weth, helpersContract } = testEnv;
+  it("User 1 deposits 1000 WETH and user 0 tries to borrow the WETH deposited DAI as collateral, tries to borrow more than borrow cap", async () => {
+    const { users, pool, weth, usdc, helpersContract } = testEnv;
     const userAddress = await pool.signer.getAddress();
+
+    await usdc
+      .connect(users[0].signer)
+      .mint(await convertToCurrencyDecimals(usdc.address, "1000000000000"));
+
+    await usdc
+      .connect(users[0].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    
+      await pool
+      .connect(users[0].signer)
+      .deposit(usdc.address, 0, await convertToCurrencyDecimals(usdc.address, "1000000000000"), users[0].address, "0");
 
     await weth
       .connect(users[1].signer)
-      .mint(await convertToCurrencyDecimals(weth.address, "100"));
+      .mint(await convertToCurrencyDecimals(weth.address, "1000"));
 
     await weth
       .connect(users[1].signer)
@@ -97,7 +109,7 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
       .deposit(
         weth.address,
         0,
-        ethers.utils.parseEther("10.0"),
+        ethers.utils.parseEther("1000.0"),
         userAddress,
         "0"
       );
@@ -106,7 +118,7 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
       .borrow(
         weth.address,
         0,
-        ethers.utils.parseEther("2.01"),
+        ethers.utils.parseEther("800.01"),
         AAVE_REFERRAL,
         users[0].address
       )).to.be.revertedWith(BORROW_CAP_EXCEEDED);
@@ -116,7 +128,7 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
     .borrow(
       weth.address,
       0,
-      ethers.utils.parseEther("2"),
+      ethers.utils.parseEther("800"),
       AAVE_REFERRAL,
       users[0].address
     )
@@ -128,7 +140,7 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
     );
 
     expect(userReserveData.currentVariableDebt.toString()).to.be.eq(
-      ethers.utils.parseEther("2")
+      ethers.utils.parseEther("800")
     );
   });
 });

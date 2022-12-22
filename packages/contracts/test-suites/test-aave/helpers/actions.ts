@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { BigNumberish } from "ethers";
 
 import {
   calcExpectedReserveDataAfterBorrow,
@@ -15,6 +14,7 @@ import {
   calcExpectedUserDataAfterStableRateRebalance,
   calcExpectedUserDataAfterSwapRateMode,
   calcExpectedUserDataAfterWithdraw,
+  calculateHF,
 } from "./utils/calculations";
 import {
   getReserveAddressFromSymbol,
@@ -51,6 +51,9 @@ const almostEqualOrEqual = function (
   expected: ReserveData | UserReserveData,
   actual: ReserveData | UserReserveData
 ) {
+  console.log("Actual: ",actual)
+  console.log("Expected: ",expected)
+  
   const keys = Object.keys(actual);
 
   keys.forEach((key) => {
@@ -65,6 +68,11 @@ const almostEqualOrEqual = function (
       // skipping consistency check on accessory data
       return;
     }
+
+    // if(key === "healthFactor"){
+    //   expect(actual[key]).to.be.gte(ethers.utils.parseEther("1")); //expect health factor in these tests to always be greater than or equal to 1
+    //   return;
+    // }
 
     this.assert(
       actual[key] != undefined,
@@ -86,14 +94,30 @@ const almostEqualOrEqual = function (
     }
 
     if (actual[key] instanceof BigNumber) {
-      const actualValue = (<BigNumber>actual[key]).decimalPlaces(
+
+      let actualValue = (<BigNumber>actual[key]).decimalPlaces(
         0,
         BigNumber.ROUND_DOWN
       );
-      const expectedValue = (<BigNumber>expected[key]).decimalPlaces(
+      let expectedValue = (<BigNumber>expected[key]).decimalPlaces(
         0,
         BigNumber.ROUND_DOWN
       );
+
+      if(key === "healthFactor"){
+        const one = new BigNumber(DRE.ethers.utils.parseEther("1").toString())
+        console.log("actualValue: ",actualValue)
+        console.log("new BigNumber(DRE.ethers.utils.parseEther(1): ", one)
+        this.assert(actualValue.gte(one), 
+        `expected #{act} to be greater than or equal to #{exp} for property ${key}`,
+        `expected #{act} to be greater than or equal #{exp} for property ${key}`,
+        actualValue,
+        one
+        )
+
+        actualValue = actualValue.precision(4); //only can have 4 sig figs since aave rounds to that much with the liquidation threshold
+        expectedValue = expectedValue.precision(4);
+      }
 
       this.assert(
         actualValue.eq(expectedValue) ||
@@ -102,7 +126,13 @@ const almostEqualOrEqual = function (
           actualValue.plus(2).eq(expectedValue) ||
           actualValue.eq(expectedValue.plus(2)) ||
           actualValue.plus(3).eq(expectedValue) ||
-          actualValue.eq(expectedValue.plus(3)),
+          actualValue.eq(expectedValue.plus(3)) ||
+          actualValue.plus(4).eq(expectedValue) ||
+          actualValue.eq(expectedValue.plus(4)) ||
+          actualValue.plus(5).eq(expectedValue) ||
+          actualValue.eq(expectedValue.plus(5)) ||
+          actualValue.plus(6).eq(expectedValue) ||
+          actualValue.eq(expectedValue.plus(6)),
         `expected #{act} to be almost equal or equal #{exp} for property ${key}`,
         `expected #{act} to be almost equal or equal #{exp} for property ${key}`,
         expectedValue.toFixed(0),
@@ -306,6 +336,8 @@ export const deposit = async (
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
+    expectedUserReserveData.healthFactor = await calculateHF(testEnv, tranche, onBehalfOf);
+
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserReserveData);
 
@@ -485,6 +517,8 @@ export const withdraw = async (
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
+    expectedUserData.healthFactor = await calculateHF(testEnv, tranche, user.address);
+
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
 
@@ -504,193 +538,193 @@ export const withdraw = async (
   }
 };
 
-export const transfer = async (
-  reserveSymbol: string,
-  originTranche: string,
-  destinationTranche: string,
-  amount: string,
-  isCollateral: boolean,
-  user: SignerWithAddress,
-  expectedResult: string,
-  testEnv: TestEnv,
-  revertMessage?: string
-) => {
-  const { pool } = testEnv;
+// export const transfer = async (
+//   reserveSymbol: string,
+//   originTranche: string,
+//   destinationTranche: string,
+//   amount: string,
+//   isCollateral: boolean,
+//   user: SignerWithAddress,
+//   expectedResult: string,
+//   testEnv: TestEnv,
+//   revertMessage?: string
+// ) => {
+//   const { pool } = testEnv;
 
-  const {
-    aTokenInstance,
-    reserve,
-    userData: userDataBefore,
-    reserveData: reserveDataBefore,
-  } = await getDataBeforeAction(
-    reserveSymbol,
-    originTranche,
-    user.address,
-    testEnv
-  );
+//   const {
+//     aTokenInstance,
+//     reserve,
+//     userData: userDataBefore,
+//     reserveData: reserveDataBefore,
+//   } = await getDataBeforeAction(
+//     reserveSymbol,
+//     originTranche,
+//     user.address,
+//     testEnv
+//   );
 
-  const {
-    aTokenInstance: _,
-    reserve: reserveDest,
-    userData: userDataBeforeDest,
-    reserveData: reserveDataBeforeDest,
-  } = await getDataBeforeAction(
-    reserveSymbol,
-    destinationTranche,
-    user.address,
-    testEnv
-  );
+//   const {
+//     aTokenInstance: _,
+//     reserve: reserveDest,
+//     userData: userDataBeforeDest,
+//     reserveData: reserveDataBeforeDest,
+//   } = await getDataBeforeAction(
+//     reserveSymbol,
+//     destinationTranche,
+//     user.address,
+//     testEnv
+//   );
 
-  console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+//   console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
-  console.log("Transfer from " + originTranche + " to " + destinationTranche);
-  console.log("Before tx: origin reserve: " + reserveDataBefore.totalLiquidity);
-  console.log(
-    "Before tx: origin user: " +
-      userDataBefore.walletBalance +
-      ", atoken: " +
-      userDataBefore.currentATokenBalance
-  );
+//   console.log("Transfer from " + originTranche + " to " + destinationTranche);
+//   console.log("Before tx: origin reserve: " + reserveDataBefore.totalLiquidity);
+//   console.log(
+//     "Before tx: origin user: " +
+//       userDataBefore.walletBalance +
+//       ", atoken: " +
+//       userDataBefore.currentATokenBalance
+//   );
 
-  console.log(
-    "Before tx: dest reserve: " + reserveDataBeforeDest.totalLiquidity
-  );
-  console.log(
-    "Before tx: dest user: " +
-      userDataBeforeDest.walletBalance +
-      ", atoken: " +
-      userDataBeforeDest.currentATokenBalance
-  );
+//   console.log(
+//     "Before tx: dest reserve: " + reserveDataBeforeDest.totalLiquidity
+//   );
+//   console.log(
+//     "Before tx: dest user: " +
+//       userDataBeforeDest.walletBalance +
+//       ", atoken: " +
+//       userDataBeforeDest.currentATokenBalance
+//   );
 
-  let amountToWithdraw = "0";
+//   let amountToWithdraw = "0";
 
-  if (amount !== "-1") {
-    amountToWithdraw = (
-      await convertToCurrencyDecimals(reserve, amount)
-    ).toString();
-  } else {
-    amountToWithdraw = MAX_UINT_AMOUNT;
-  }
+//   if (amount !== "-1") {
+//     amountToWithdraw = (
+//       await convertToCurrencyDecimals(reserve, amount)
+//     ).toString();
+//   } else {
+//     amountToWithdraw = MAX_UINT_AMOUNT;
+//   }
 
-  if (expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool
-        .connect(user.signer)
-        .transferTranche(
-          reserve,
-          originTranche,
-          destinationTranche,
-          amountToWithdraw,
-          isCollateral
-        )
-    );
+//   if (expectedResult === "success") {
+//     const txResult = await waitForTx(
+//       await pool
+//         .connect(user.signer)
+//         .transferTranche(
+//           reserve,
+//           originTranche,
+//           destinationTranche,
+//           amountToWithdraw,
+//           isCollateral
+//         )
+//     );
 
-    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+//     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
-    //checking withdraw worked
+//     //checking withdraw worked
 
-    const {
-      reserveData: reserveDataAfter,
-      userData: userDataAfter,
-      timestamp,
-    } = await getContractsData(reserve, originTranche, user.address, testEnv);
+//     const {
+//       reserveData: reserveDataAfter,
+//       userData: userDataAfter,
+//       timestamp,
+//     } = await getContractsData(reserve, originTranche, user.address, testEnv);
 
-    const expectedReserveData = calcExpectedReserveDataAfterWithdraw(
-      amountToWithdraw,
-      reserveDataBefore,
-      userDataBefore,
-      txTimestamp
-    );
+//     const expectedReserveData = calcExpectedReserveDataAfterWithdraw(
+//       amountToWithdraw,
+//       reserveDataBefore,
+//       userDataBefore,
+//       txTimestamp
+//     );
 
-    const expectedUserData = calcExpectedUserDataAfterWithdraw(
-      amountToWithdraw,
-      reserveDataBefore,
-      expectedReserveData,
-      userDataBefore,
-      txTimestamp,
-      timestamp,
-      txCost
-    );
+//     const expectedUserData = calcExpectedUserDataAfterWithdraw(
+//       amountToWithdraw,
+//       reserveDataBefore,
+//       expectedReserveData,
+//       userDataBefore,
+//       txTimestamp,
+//       timestamp,
+//       txCost
+//     );
 
-    //checking deposit worked
+//     //checking deposit worked
 
-    const {
-      reserveData: reserveDataAfterDest,
-      userData: userDataAfterDest,
-      timestamp: timestampDest,
-    } = await getContractsData(
-      reserveDest,
-      destinationTranche,
-      user.address,
-      testEnv
-    );
+//     const {
+//       reserveData: reserveDataAfterDest,
+//       userData: userDataAfterDest,
+//       timestamp: timestampDest,
+//     } = await getContractsData(
+//       reserveDest,
+//       destinationTranche,
+//       user.address,
+//       testEnv
+//     );
 
-    const expectedReserveDataDest = calcExpectedReserveDataAfterDeposit(
-      amountToWithdraw,
-      reserveDataBeforeDest,
-      txTimestamp
-    );
+//     const expectedReserveDataDest = calcExpectedReserveDataAfterDeposit(
+//       amountToWithdraw,
+//       reserveDataBeforeDest,
+//       txTimestamp
+//     );
 
-    const expectedUserReserveDataDest = calcExpectedUserDataAfterDeposit(
-      amountToWithdraw,
-      reserveDataBeforeDest,
-      expectedReserveDataDest,
-      userDataBeforeDest,
-      txTimestamp,
-      timestampDest,
-      isCollateral,
-      txCost
-    );
+//     const expectedUserReserveDataDest = calcExpectedUserDataAfterDeposit(
+//       amountToWithdraw,
+//       reserveDataBeforeDest,
+//       expectedReserveDataDest,
+//       userDataBeforeDest,
+//       txTimestamp,
+//       timestampDest,
+//       isCollateral,
+//       txCost
+//     );
 
-    console.log("After tx: origin reserve: " + reserveDataAfter.totalLiquidity);
-    console.log(
-      "After tx: origin user: " +
-        userDataAfter.walletBalance +
-        ", atoken: " +
-        userDataAfter.currentATokenBalance
-    );
+//     console.log("After tx: origin reserve: " + reserveDataAfter.totalLiquidity);
+//     console.log(
+//       "After tx: origin user: " +
+//         userDataAfter.walletBalance +
+//         ", atoken: " +
+//         userDataAfter.currentATokenBalance
+//     );
 
-    console.log(
-      "After tx: dest reserve: " + reserveDataAfterDest.totalLiquidity
-    );
-    console.log(
-      "After tx: dest user: " +
-        userDataAfterDest.walletBalance +
-        ", atoken: " +
-        userDataAfterDest.currentATokenBalance
-    );
+//     console.log(
+//       "After tx: dest reserve: " + reserveDataAfterDest.totalLiquidity
+//     );
+//     console.log(
+//       "After tx: dest user: " +
+//         userDataAfterDest.walletBalance +
+//         ", atoken: " +
+//         userDataAfterDest.currentATokenBalance
+//     );
 
-    console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+//     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
-    expectEqual(reserveDataAfter, expectedReserveData);
-    // expectEqual(userDataAfter, expectedUserData);
-    //user data contains walletBalance which should not be compared between the two since there shouldn't be a difference in walletBalance but deposit or withdraw expects to change that.
-    //walletBalance is total balance across all tranches. But atoken balance should be the tranche specific atoken
+//     expectEqual(reserveDataAfter, expectedReserveData);
+//     // expectEqual(userDataAfter, expectedUserData);
+//     //user data contains walletBalance which should not be compared between the two since there shouldn't be a difference in walletBalance but deposit or withdraw expects to change that.
+//     //walletBalance is total balance across all tranches. But atoken balance should be the tranche specific atoken
 
-    expectEqual(reserveDataAfterDest, expectedReserveDataDest);
-    // expectEqual(userDataAfterDest, expectedUserReserveDataDest);
+//     expectEqual(reserveDataAfterDest, expectedReserveDataDest);
+//     // expectEqual(userDataAfterDest, expectedUserReserveDataDest);
 
-    // truffleAssert.eventEmitted(txResult, "Redeem", (ev: any) => {
-    //   const {_from, _value} = ev;
-    //   return (
-    //     _from === user && new BigNumber(_value).isEqualTo(actualAmountRedeemed)
-    //   );
-    // });
-  } else if (expectedResult === "revert") {
-    await expect(
-      pool
-        .connect(user.signer)
-        .transferTranche(
-          reserve,
-          originTranche,
-          destinationTranche,
-          amountToWithdraw,
-          isCollateral
-        ),
-      revertMessage
-    ).to.be.reverted;
-  }
-};
+//     // truffleAssert.eventEmitted(txResult, "Redeem", (ev: any) => {
+//     //   const {_from, _value} = ev;
+//     //   return (
+//     //     _from === user && new BigNumber(_value).isEqualTo(actualAmountRedeemed)
+//     //   );
+//     // });
+//   } else if (expectedResult === "revert") {
+//     await expect(
+//       pool
+//         .connect(user.signer)
+//         .transferTranche(
+//           reserve,
+//           originTranche,
+//           destinationTranche,
+//           amountToWithdraw,
+//           isCollateral
+//         ),
+//       revertMessage
+//     ).to.be.reverted;
+//   }
+// };
 
 export const delegateBorrowAllowance = async (
   reserve: string,
@@ -904,7 +938,9 @@ export const borrow = async (
     // console.log("expectedReserveData: ", expectedReserveData);
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+    
 
+    expectedUserData.healthFactor = await calculateHF(testEnv, tranche, onBehalfOf);
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
 
@@ -1102,6 +1138,7 @@ export const repay = async (
     console.log("expectedReserveData: ", expectedReserveData);
 
     console.log("\n@@@@@@@@@@@@@@@@@@@@@@\n");
+    expectedUserData.healthFactor = await calculateHF(testEnv, tranche, onBehalfOf.address);
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
@@ -1171,6 +1208,7 @@ export const setUseAsCollateral = async (
       userDataBefore,
       txCost
     );
+    expectedUserData.healthFactor = await calculateHF(testEnv, tranche, user.address);
 
     expectEqual(userDataAfter, expectedUserData);
     // if (useAsCollateralBool) {
@@ -1194,132 +1232,132 @@ export const setUseAsCollateral = async (
   }
 };
 
-export const swapBorrowRateMode = async (
-  reserveSymbol: string,
-  tranche: string,
-  user: SignerWithAddress,
-  rateMode: string,
-  expectedResult: string,
-  testEnv: TestEnv,
-  revertMessage?: string
-) => {
-  const { pool } = testEnv;
+// export const swapBorrowRateMode = async (
+//   reserveSymbol: string,
+//   tranche: string,
+//   user: SignerWithAddress,
+//   rateMode: string,
+//   expectedResult: string,
+//   testEnv: TestEnv,
+//   revertMessage?: string
+// ) => {
+//   const { pool } = testEnv;
 
-  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+//   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
 
-  const { reserveData: reserveDataBefore, userData: userDataBefore } =
-    await getContractsData(reserve, tranche, user.address, testEnv);
+//   const { reserveData: reserveDataBefore, userData: userDataBefore } =
+//     await getContractsData(reserve, tranche, user.address, testEnv);
 
-  if (expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool
-        .connect(user.signer)
-        .swapBorrowRateMode(reserve, tranche, rateMode)
-    );
+//   if (expectedResult === "success") {
+//     const txResult = await waitForTx(
+//       await pool
+//         .connect(user.signer)
+//         .swapBorrowRateMode(reserve, tranche, rateMode)
+//     );
 
-    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+//     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
-    const { reserveData: reserveDataAfter, userData: userDataAfter } =
-      await getContractsData(reserve, tranche, user.address, testEnv);
+//     const { reserveData: reserveDataAfter, userData: userDataAfter } =
+//       await getContractsData(reserve, tranche, user.address, testEnv);
 
-    const expectedReserveData = calcExpectedReserveDataAfterSwapRateMode(
-      reserveDataBefore,
-      userDataBefore,
-      rateMode,
-      txTimestamp
-    );
+//     const expectedReserveData = calcExpectedReserveDataAfterSwapRateMode(
+//       reserveDataBefore,
+//       userDataBefore,
+//       rateMode,
+//       txTimestamp
+//     );
 
-    const expectedUserData = calcExpectedUserDataAfterSwapRateMode(
-      reserveDataBefore,
-      expectedReserveData,
-      userDataBefore,
-      rateMode,
-      txCost,
-      txTimestamp
-    );
+//     const expectedUserData = calcExpectedUserDataAfterSwapRateMode(
+//       reserveDataBefore,
+//       expectedReserveData,
+//       userDataBefore,
+//       rateMode,
+//       txCost,
+//       txTimestamp
+//     );
 
-    expectEqual(reserveDataAfter, expectedReserveData);
-    expectEqual(userDataAfter, expectedUserData);
+//     expectEqual(reserveDataAfter, expectedReserveData);
+//     expectEqual(userDataAfter, expectedUserData);
 
-    // truffleAssert.eventEmitted(txResult, "Swap", (ev: any) => {
-    //   const {_user, _reserve, _newRateMode, _newRate} = ev;
-    //   return (
-    //     _user === user &&
-    //     _reserve == reserve &&
-    //     new BigNumber(_newRateMode).eq(expectedUserData.borrowRateMode) &&
-    //     new BigNumber(_newRate).eq(expectedUserData.borrowRate)
-    //   );
-    // });
-  } else if (expectedResult === "revert") {
-    await expect(
-      pool.connect(user.signer).swapBorrowRateMode(reserve, tranche, rateMode),
-      revertMessage
-    ).to.be.reverted;
-  }
-};
+//     // truffleAssert.eventEmitted(txResult, "Swap", (ev: any) => {
+//     //   const {_user, _reserve, _newRateMode, _newRate} = ev;
+//     //   return (
+//     //     _user === user &&
+//     //     _reserve == reserve &&
+//     //     new BigNumber(_newRateMode).eq(expectedUserData.borrowRateMode) &&
+//     //     new BigNumber(_newRate).eq(expectedUserData.borrowRate)
+//     //   );
+//     // });
+//   } else if (expectedResult === "revert") {
+//     await expect(
+//       pool.connect(user.signer).swapBorrowRateMode(reserve, tranche, rateMode),
+//       revertMessage
+//     ).to.be.reverted;
+//   }
+// };
 
-export const rebalanceStableBorrowRate = async (
-  reserveSymbol: string,
-  tranche: string,
-  user: SignerWithAddress,
-  target: SignerWithAddress,
-  expectedResult: string,
-  testEnv: TestEnv,
-  revertMessage?: string
-) => {
-  const { pool } = testEnv;
+// export const rebalanceStableBorrowRate = async (
+//   reserveSymbol: string,
+//   tranche: string,
+//   user: SignerWithAddress,
+//   target: SignerWithAddress,
+//   expectedResult: string,
+//   testEnv: TestEnv,
+//   revertMessage?: string
+// ) => {
+//   const { pool } = testEnv;
 
-  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+//   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
 
-  const { reserveData: reserveDataBefore, userData: userDataBefore } =
-    await getContractsData(reserve, tranche, target.address, testEnv);
+//   const { reserveData: reserveDataBefore, userData: userDataBefore } =
+//     await getContractsData(reserve, tranche, target.address, testEnv);
 
-  if (expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool
-        .connect(user.signer)
-        .rebalanceStableBorrowRate(reserve, tranche, target.address)
-    );
+//   if (expectedResult === "success") {
+//     const txResult = await waitForTx(
+//       await pool
+//         .connect(user.signer)
+//         .rebalanceStableBorrowRate(reserve, tranche, target.address)
+//     );
 
-    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+//     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
-    const { reserveData: reserveDataAfter, userData: userDataAfter } =
-      await getContractsData(reserve, tranche, target.address, testEnv);
+//     const { reserveData: reserveDataAfter, userData: userDataAfter } =
+//       await getContractsData(reserve, tranche, target.address, testEnv);
 
-    const expectedReserveData = calcExpectedReserveDataAfterStableRateRebalance(
-      reserveDataBefore,
-      userDataBefore,
-      txTimestamp
-    );
+//     const expectedReserveData = calcExpectedReserveDataAfterStableRateRebalance(
+//       reserveDataBefore,
+//       userDataBefore,
+//       txTimestamp
+//     );
 
-    const expectedUserData = calcExpectedUserDataAfterStableRateRebalance(
-      reserveDataBefore,
-      expectedReserveData,
-      userDataBefore,
-      txCost,
-      txTimestamp
-    );
+//     const expectedUserData = calcExpectedUserDataAfterStableRateRebalance(
+//       reserveDataBefore,
+//       expectedReserveData,
+//       userDataBefore,
+//       txCost,
+//       txTimestamp
+//     );
 
-    expectEqual(reserveDataAfter, expectedReserveData);
-    expectEqual(userDataAfter, expectedUserData);
+//     expectEqual(reserveDataAfter, expectedReserveData);
+//     expectEqual(userDataAfter, expectedUserData);
 
-    // truffleAssert.eventEmitted(txResult, 'RebalanceStableBorrowRate', (ev: any) => {
-    //   const {_user, _reserve, _newStableRate} = ev;
-    //   return (
-    //     _user.toLowerCase() === target.toLowerCase() &&
-    //     _reserve.toLowerCase() === reserve.toLowerCase() &&
-    //     new BigNumber(_newStableRate).eq(expectedUserData.borrowRate)
-    //   );
-    // });
-  } else if (expectedResult === "revert") {
-    await expect(
-      pool
-        .connect(user.signer)
-        .rebalanceStableBorrowRate(reserve, tranche, target.address),
-      revertMessage
-    ).to.be.reverted;
-  }
-};
+//     // truffleAssert.eventEmitted(txResult, 'RebalanceStableBorrowRate', (ev: any) => {
+//     //   const {_user, _reserve, _newStableRate} = ev;
+//     //   return (
+//     //     _user.toLowerCase() === target.toLowerCase() &&
+//     //     _reserve.toLowerCase() === reserve.toLowerCase() &&
+//     //     new BigNumber(_newStableRate).eq(expectedUserData.borrowRate)
+//     //   );
+//     // });
+//   } else if (expectedResult === "revert") {
+//     await expect(
+//       pool
+//         .connect(user.signer)
+//         .rebalanceStableBorrowRate(reserve, tranche, target.address),
+//       revertMessage
+//     ).to.be.reverted;
+//   }
+// };
 
 const expectEqual = (
   actual: UserReserveData | ReserveData,
