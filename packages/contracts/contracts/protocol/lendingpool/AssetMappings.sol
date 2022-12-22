@@ -219,16 +219,15 @@ contract AssetMappings {
     /**
      * @dev Gets the configuration paramters of the reserve
      * @param underlying Address of underlying token you want params for
-     * @return The state params representing ltv, liquidation threshold, liquidation bonus, the reserve decimals, and NEW: the borrow factor
      **/
     function getParams(address underlying)
         external view
         returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256
+            uint256 baseLTV,
+            uint256 liquidationThreshold,
+            uint256 liquidationBonus,
+            uint256 underlyingAssetDecimals,
+            uint256 borrowFactor
         )
     {
         return (

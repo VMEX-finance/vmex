@@ -73,6 +73,7 @@ export interface TestEnv {
   aDai: AToken;
   usdc: MintableERC20;
   aave: MintableERC20;
+  aAave: AToken;
   tricrypto2: MintableERC20;
   tricrypto2Strategy: CrvLpStrategy;
   addressesProvider: LendingPoolAddressesProvider;
@@ -161,6 +162,10 @@ export async function initializeMakeSuite() {
     (aToken) => aToken.symbol === "aWETH0"
   )?.tokenAddress;
 
+  const aAAVEAddress = allTokensT0.find(
+    (aToken) => aToken.symbol === "aAAVE0"
+  )?.tokenAddress;
+
   const reservesTokensT0 = await testEnv.helpersContract.getAllReservesTokens(
     "0"
   );
@@ -201,6 +206,7 @@ export async function initializeMakeSuite() {
 
   testEnv.aDai = await getAToken(aDaiAddress);
   testEnv.aWETH = await getAToken(aWEthAddress);
+  testEnv.aAave = await getAToken(aAAVEAddress);
 
   testEnv.dai = await getMintableERC20(daiAddress);
   testEnv.usdc = await getMintableERC20(usdcAddress);
