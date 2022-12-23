@@ -1,18 +1,6 @@
-40 error Error: Command failed with exit code 128: git commit -m v0.0.6
-40 error Author identity unknown
-40 error
-40 error *** Please tell me who you are.
-40 error
-40 error Run
-40 error
-40 error   git config --global user.email "you@example.com"
-40 error   git config --global user.name "Your Name"
-40 error
-40 error to set your account's default identity.
-40 error Omit --global to set the identity only in this repository.
-40 error
-40 error fatal: unable to auto-detect email address (got 'shell@zellebot.(none)')
-40 error     at makeError (/home/shell/.nvm/versions/node/v16.18.0/lib/node_modules/lerna/node_modules/execa/lib/error.js:60:11)
-40 error     at handlePromise (/home/shell/.nvm/versions/node/v16.18.0/lib/node_modules/lerna/node_modules/execa/index.js:118:26)
-40 error     at processTicksAndRejections (node:internal/process/task_queues:96:5)
-40 error     at async Promise.all (index 0)
+47 error Error: Command failed with exit code 128: git tag v0.0.1 -m v0.0.1
+47 error fatal: tag 'v0.0.1' already exists
+47 error     at makeError (/home/shell/vmex/node_modules/execa/lib/error.js:60:11)
+47 error     at handlePromise (/home/shell/vmex/node_modules/execa/index.js:118:26)
+47 error     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+47 error     at async Promise.all (index 0)
