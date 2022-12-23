@@ -1,6 +1,6 @@
 {
   "name": "@vmex/contracts",
-  "version": "0.0.1",
+  "version": "0.0.9",
   "description": "VMEX V1 smart contracts",
   "private": false,
   "files": [
