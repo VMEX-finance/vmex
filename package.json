@@ -7,7 +7,7 @@
   "author": "VMEX-finance",
   "license": "MIT",
   "workspaces": [
-    "packages/*"
+    "packages/**"
   ],
   "scripts": {
     "contracts": "yarn workspace @vmex/contracts",
