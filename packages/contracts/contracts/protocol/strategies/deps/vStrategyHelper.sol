@@ -39,16 +39,21 @@ library vStrategyHelper {
 		console.log("token out:", tokenOut); 
 		console.log("curve registry exchange address", curveRegistryExchange); 
 		if (curveSwapPool != address(0)) {
-			amountOut = ICurveRegistryExchange(curveRegistryExchange).exchange(
+			try ICurveRegistryExchange(curveRegistryExchange).exchange(
 				curveSwapPool,
 				tokenIn,
 				tokenOut,
 				amount,
 				amountExpected,
 				msg.sender //this may cause some weird behavior calling the swaps now, make sure the stategy is receiving funds
-			);
-			console.log("amount returned from CURVE:", amountOut); 
-			return amountOut; 
+			) returns (uint256 amountOut) {
+				console.log("amount returned from CURVE", amountOut); 	
+				return amountOut; 
+			} catch Error(string memory reason) {
+				console.log("Curve swap could not be completed", reason); 
+			} catch(bytes memory reason) {
+				console.log("unknown error", string(reason)); 	
+			}
 		} else {
 			amountOut = swapSushi(tokenIn, tokenOut, amount); 	
 			console.log("amount returned from SUSHI:", amountOut); 
@@ -75,16 +80,20 @@ library vStrategyHelper {
             path[2] = tokenOut;
         }
 			
-        uint256[] memory amounts = sushiRouter.swapExactTokensForTokens(
+        try sushiRouter.swapExactTokensForTokens(
 			amount,
             0,//tendData.crvTended/EFFICIENCY, //min amount out (0 works fine)
 			path,
             address(this),
             block.timestamp
-		); 
-
-		return amounts[0]; 
-
+		) returns (uint256[] memory amounts) {
+			console.log(amounts[0]); 
+			return amounts[0]; 
+		} catch Error(string memory reason) {
+			console.log("swap could not be completed on SUSHI", reason); 
+		} catch (bytes memory reason) {
+			console.log("unknwon error sushi swap", string(reason)); 
+		}
 	}
 
 	//uses curve to swap for the indexed token we want
