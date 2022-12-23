@@ -143,8 +143,7 @@ export interface TopAssetsData {
   topBorrowedAssets: AssetBalance[];
 }
 
-export enum RateMode {
-  None = "0",
-  Stable = "1",
-  Variable = "2",
+export interface PriceData {
+  oracle: string;
+  priceUSD: BigNumber;
 }
