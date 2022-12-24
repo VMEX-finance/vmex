@@ -111,6 +111,7 @@ contract LendingPoolConfigurator is
         addressesProvider.addPoolAdmin(admin, givenTranche);
         trancheNames[givenTranche] = name;
         totalTranches += 1;
+        emit TrancheInitialized(givenTranche, name, admin);
         return givenTranche;
     }
 
@@ -202,7 +203,12 @@ contract LendingPoolConfigurator is
             aTokenProxyAddress,
             stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress,
-            assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice)
+            assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
+            assetMappings.getAssetMapping(internalInput.input.underlyingAsset).baseLTV,
+            assetMappings.getAssetMapping(internalInput.input.underlyingAsset).liquidationThreshold,
+            assetMappings.getAssetMapping(internalInput.input.underlyingAsset).liquidationBonus,
+            currentConfig.getBorrowingEnabled(),
+            currentConfig.getReserveFactor()
         );
     }
 
