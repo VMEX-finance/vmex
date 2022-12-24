@@ -37,8 +37,15 @@ library vStrategyHelper {
 		(address curveSwapPool, uint256 amountExpected, address curveRegistryExchange) = swapCurve(tokenIn, tokenOut, amount); 
 		console.log("token in:", tokenIn); 
 		console.log("token out:", tokenOut); 
-		console.log("curve registry exchange address", curveRegistryExchange); 
+        console.log("amount: ", amount);
+		// console.log("curve registry exchange address", curveRegistryExchange); 
+		console.log("curveSwapPool address", curveSwapPool); 
 		if (curveSwapPool != address(0)) {
+            //must approve the curve pools. This function checks if already max, and if not, then makes it max
+            tokenAllowAll(
+                address(tokenIn),
+                curveSwapPool
+            );
 			try ICurveRegistryExchange(curveRegistryExchange).exchange(
 				curveSwapPool,
 				tokenIn,
@@ -52,7 +59,7 @@ library vStrategyHelper {
 			} catch Error(string memory reason) {
 				console.log("Curve swap could not be completed", reason); 
 			} catch(bytes memory reason) {
-				console.log("unknown error", string(reason)); 	
+				console.log("Curve unknown error", string(reason)); 	
 			}
 		} else {
 			amountOut = swapSushi(tokenIn, tokenOut, amount); 	
@@ -87,7 +94,7 @@ library vStrategyHelper {
             address(this),
             block.timestamp
 		) returns (uint256[] memory amounts) {
-			console.log(amounts[0]); 
+			// console.log("amount returned from SUSHI", amounts[0]); 
 			return amounts[0]; 
 		} catch Error(string memory reason) {
 			console.log("swap could not be completed on SUSHI", reason); 
@@ -282,7 +289,19 @@ library vStrategyHelper {
         
         console.log("wantedDepositToken: ", wantedDepositToken);
 
+        if(wantedDepositToken==0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490){ //edge case of trying to get 3crv, which cannot be traded for
+            //either change this to frax, or optimize by swapping into usdc or something and getting 3crv
+            wantedDepositToken = 0x853d955aCEf822Db058eb8505911ED77F175b99e; 
+            highestPayingIdx = 0;
+            
+        }
 
+        // further optimization by trying to trade for the curve token, but in our case we will just supply
+        // if(ICurveRegistryExchange(curveAddressProvider.get_address(2)).get_pool_from_lp_token(wantedDepositToken) != address(0)){
+        //     //this means wantedDepositToken is a curve token (3crv)
+        //     console.log("Wanted deposit token is a curve token");
+        //     wantedDepositToken = checkForHighestPayingToken(curvePoolTokens, curveTokenBalances);
+        // }
 		//computeSwapPath will now swap the tokens and return the amount received
         for (vars.i = 0; vars.i < extraTokens.length; vars.i++) {
             extraRewardsTended[extraTokens[vars.i]] = IERC20(extraTokens[vars.i])

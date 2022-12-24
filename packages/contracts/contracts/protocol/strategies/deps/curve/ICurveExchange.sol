@@ -59,4 +59,7 @@ interface ICurveRegistryExchange {
         address receiver
     ) external payable returns (uint256);
 
+    function get_pool_from_lp_token(
+        address lp_token
+    ) external view returns (address);
 }

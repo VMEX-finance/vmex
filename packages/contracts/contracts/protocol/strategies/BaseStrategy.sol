@@ -121,7 +121,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     /// @dev For functions that only known benign entities should call
     function _onlyAuthorizedActors() internal view {
         require(
-            msg.sender == vToken || msg.sender == governance(),
+            msg.sender == vToken || msg.sender == governance() || addressProvider.getGlobalAdmin()==msg.sender,
             "onlyAuthorizedActors"
         );
     }
@@ -129,13 +129,13 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     /// @notice Checks whether a call is from the lendingPool.
     /// @dev For functions that only the lendingPool should use
     function _onlyVault() internal view {
-        require(msg.sender == vToken, "onlyVault");
+        require(msg.sender == vToken || addressProvider.getGlobalAdmin()==msg.sender, "onlyVault");
     }
 
     /// @notice Checks whether a call is from guardian or governance.
     /// @dev Modifier used exclusively for pausing
     function _onlyAuthorizedPausers() internal view {
-        require(msg.sender == governance(), "onlyPausers");
+        require(msg.sender == governance() || addressProvider.getGlobalAdmin()==msg.sender, "onlyPausers");
     }
 
     /// ===== View Functions =====
@@ -209,7 +209,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     ///         Note that pulls don't work when the strategy is paused.
     /// @dev Is basically the same as tend, except without custom code for it
     function pull() external override whenNotPaused returns (uint256) {
-        // _onlyAuthorizedActors();
+        _onlyAuthorizedActors();
         uint256 pullFromPool = IERC20(underlying).balanceOf(address(vToken));
         if (pullFromPool > 0) {
             // do not keep 10% in pool for now
@@ -486,7 +486,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
         whenNotPaused
         returns (TokenAmount[] memory harvested)
     {
-        //_onlyAuthorizedActors();
+        _onlyAuthorizedActors();
         return _harvest();
     }
 
@@ -504,7 +504,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     /// @dev Is only called by the keeper when `isTendable` is true.
     /// @return amountTended An array of `TokenAmount` containing the address and amount tended for each token.
     function tend() external override whenNotPaused returns (uint256 amountTended) {
-        //_onlyAuthorizedActors();
+        _onlyAuthorizedActors();
         return _tend();
     }
 
