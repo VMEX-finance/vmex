@@ -67,6 +67,7 @@ interface ILendingPoolConfigurator {
      * @param liquidationThreshold The liquidation threshold of the reserve
      * @param liquidationBonus The liquidation bonus (aka liquidation penalty)
      * @param borrowingEnabled Whether or not borrowing is enabled on the reserve
+     * @param collateralEnabled Whether or not usage as collateral is enabled on the reserve
      * @param reserveFactor The reserve factor of the reserve
      **/
     event ReserveInitialized(
@@ -80,6 +81,7 @@ interface ILendingPoolConfigurator {
         uint256 liquidationThreshold,
         uint256 liquidationBonus,
         bool borrowingEnabled,
+        bool collateralEnabled,
         uint256 reserveFactor
     );
 
@@ -91,7 +93,7 @@ interface ILendingPoolConfigurator {
     event BorrowingSetOnReserve(
         address indexed asset,
         uint64 indexed trancheId,
-        bool indexed borrowingEnabled
+        bool borrowingEnabled
     );
 
     /**
@@ -99,7 +101,7 @@ interface ILendingPoolConfigurator {
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The trancheId of the reserve
      **/
-    event CollateralSetOnReserve(address indexed asset, uint64 indexed trancheId, bool indexed collateralEnabled);
+    event CollateralSetOnReserve(address indexed asset, uint64 indexed trancheId, bool collateralEnabled);
 
     /**
      * @dev Emitted when the collateralization risk parameters for the specified asset are updated.

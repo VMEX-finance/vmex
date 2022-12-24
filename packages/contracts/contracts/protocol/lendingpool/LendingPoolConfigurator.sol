@@ -208,6 +208,7 @@ contract LendingPoolConfigurator is
             assetMappings.getAssetMapping(internalInput.input.underlyingAsset).liquidationThreshold,
             assetMappings.getAssetMapping(internalInput.input.underlyingAsset).liquidationBonus,
             currentConfig.getBorrowingEnabled(),
+            currentConfig.getCollateralEnabled(),
             currentConfig.getReserveFactor()
         );
     }

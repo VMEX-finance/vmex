@@ -8,6 +8,11 @@ import {
 } from "./contract-getters";
 import { decodeConstructorBytecode } from "./decode-bytecode";
 import { PriceData } from "./interfaces";
+import { CacheContainer } from "node-ts-cache";
+import { MemoryStorage } from "node-ts-cache-storage-memory";
+
+export const cache = new CacheContainer(new MemoryStorage());
+
 // import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
 
 export async function getAssetPrices(
@@ -17,6 +22,11 @@ export async function getAssetPrices(
     test?: boolean;
   }
 ): Promise<Map<string, PriceData>> {
+  const cacheKey = "asset-prices";
+  const cachedTotalMarkets = await cache.getItem<Map<string, PriceData>>(cacheKey);
+  if (cachedTotalMarkets) {
+    return cachedTotalMarkets;
+  }
   const provider = params.test ? defaultTestProvider : null;
   const {
     abi,
@@ -35,6 +45,8 @@ export async function getAssetPrices(
   params.assets.map((asset, idx) => {
     assetPrices.set(asset, data[idx]);
   });
+
+  await cache.setItem(cacheKey, assetPrices, { ttl: 60 });
 
   return assetPrices;
 }
