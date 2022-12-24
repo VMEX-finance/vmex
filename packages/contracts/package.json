@@ -1,8 +1,11 @@
 {
-  "name": "@vmex/contracts",
+  "name": "@vmexfinance/contracts",
   "version": "0.0.15",
   "description": "VMEX V1 smart contracts",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "contracts",
     "artifacts",

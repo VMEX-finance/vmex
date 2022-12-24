@@ -1,11 +1,14 @@
 {
-  "name": "@vmex/sdk",
+  "name": "@vmexfinance/sdk",
   "version": "0.0.15",
   "description": "VMEX Finance - Software Development Kit",
   "main": "dist/index.js",
   "author": "VMEX finance",
   "license": "MIT",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "chai": "^4.3.6",
     "chai-bignumber": "^3.1.0",
