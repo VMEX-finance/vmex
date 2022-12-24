@@ -49,6 +49,13 @@ interface ILendingPoolConfigurator {
     event ReserveUnfrozen(address indexed asset, uint64 indexed trancheId);
 
     /**
+     * @dev Emitted when a tranche is initialized.
+     * @param trancheId The trancheId
+     * @param trancheName The name of the tranche
+     **/
+    event TrancheInitialized(uint256 indexed trancheId, string trancheName, address admin);
+
+    /**
      * @dev Emitted when a reserve is initialized.
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The trancheId of the reserve
@@ -56,6 +63,11 @@ interface ILendingPoolConfigurator {
      * @param stableDebtToken The address of the associated stable rate debt token
      * @param variableDebtToken The address of the associated variable rate debt token
      * @param interestRateStrategyAddress The address of the interest rate strategy for the reserve
+     * @param ltv The loan to value of the reserve
+     * @param liquidationThreshold The liquidation threshold of the reserve
+     * @param liquidationBonus The liquidation bonus (aka liquidation penalty)
+     * @param borrowingEnabled Whether or not borrowing is enabled on the reserve
+     * @param reserveFactor The reserve factor of the reserve
      **/
     event ReserveInitialized(
         address indexed asset,
@@ -63,7 +75,12 @@ interface ILendingPoolConfigurator {
         address indexed aToken,
         address stableDebtToken,
         address variableDebtToken,
-        address interestRateStrategyAddress
+        address interestRateStrategyAddress,
+        uint256 ltv,
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        bool borrowingEnabled,
+        uint256 reserveFactor
     );
 
     /**
