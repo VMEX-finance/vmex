@@ -12,9 +12,7 @@ import {
   UserWalletData,
 } from "./interfaces";
 import { decodeConstructorBytecode } from "./decode-bytecode";
-import { CacheContainer } from "node-ts-cache";
-import { MemoryStorage } from "node-ts-cache-storage-memory";
-const cache = new CacheContainer(new MemoryStorage());
+import { cache } from "./utils";
 
 /**
  * PROTOCOL LEVEL ANALYTICS
