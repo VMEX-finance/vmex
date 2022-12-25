@@ -102,6 +102,10 @@ task(
 
       const tranche = 1;
 
+      console.log("Attempt deploy Strategies: ");
+
+      console.log("  - Tricrypto");
+
       // admin grants strategy access to all funds
       await waitForTx(
         await lendingPoolConfiguratorProxy
@@ -112,6 +116,7 @@ task(
             "0" //default
           )
       );
+      console.log("  - ThreePool");
 
       // admin grants strategy access to all funds
       await waitForTx(
@@ -123,6 +128,7 @@ task(
             "0" //default
           )
       );
+      console.log("  - StethEth");
 
       // admin grants strategy access to all funds
       await waitForTx(
@@ -134,6 +140,7 @@ task(
             "0" //default
           )
       );
+      console.log("  - FraxUSDC");
 
       // admin grants strategy access to all funds
       await waitForTx(
@@ -145,6 +152,7 @@ task(
             "0" //default
           )
       );
+      console.log("  - Frax3Crv");
       // admin grants strategy access to all funds
       await waitForTx(
         await lendingPoolConfiguratorProxy
@@ -155,16 +163,7 @@ task(
             "0" //default
           )
       );
-      // admin grants strategy access to all funds
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
-          .addStrategy(
-            reserveAssets["StethEth"],
-            tranche,
-            "0" //default
-          )
-      );
+      console.log("  - CVX");
       // admin grants strategy access to all funds
       await waitForTx(
         await lendingPoolConfiguratorProxy
