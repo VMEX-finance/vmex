@@ -291,7 +291,7 @@ makeSuite(
                 ).to.be.almostEqualOrEqual(strategyBoostedBalance.div(100)); 
             }
             var strategyEndBoostedBalance = await strategy.balanceOfPool();
-            expect(strategyEndBoostedBalance).to.be.gte(DRE.ethers.utils.parseEther("1500"))
+            expect(strategyEndBoostedBalance).to.be.gte(DRE.ethers.utils.parseEther("1.5"))
           var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
           console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
           // NOTICE: confirmed that oracle price will increase after tending
