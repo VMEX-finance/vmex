@@ -450,7 +450,7 @@ export const strategyOneinch: IReserveParams = {
   borrowFactor: '0', //100% for now
 };
 
-export const strategyCurveLPToken: IReserveParams = {
+export const strategyCurveV1LPToken: IReserveParams = {
   strategy: rateStrategyCurve,
   baseLTVAsCollateral: '2500', //change
   liquidationThreshold: '4500',//change
@@ -465,3 +465,18 @@ export const strategyCurveLPToken: IReserveParams = {
   borrowFactor: '0', //100% for now
 };
 
+
+export const strategyCurveV2LPToken: IReserveParams = {
+  strategy: rateStrategyCurve,
+  baseLTVAsCollateral: '2500', //change
+  liquidationThreshold: '4500',//change
+  liquidationBonus: '11500', //change
+  borrowingEnabled: false,
+  stableBorrowRateEnabled: false,
+  reserveDecimals: '18', //this is the important information
+  aTokenImpl: eContractid.AToken,
+  assetType: 2, //1 is enum for Curve
+  supplyCap: '10000', 
+  borrowCap: '10000', 
+  borrowFactor: '0', //100% for now
+};

@@ -97,7 +97,7 @@ interface ILendingPoolAddressesProvider {
 
     function getAavePriceOracle() external view returns (address);
 
-    function getCurvePriceOracle() external view returns (address);
+    function getCurvePriceOracle(DataTypes.ReserveAssetType curveType) external view returns (address);
 
     function getCurvePriceOracleWrapper() external view returns (address);
 
@@ -107,7 +107,7 @@ interface ILendingPoolAddressesProvider {
 
     // function setCurveAddressProvider(address addressProvider) external;
 
-    function setCurvePriceOracle(address priceOracle) external;
+    function setCurvePriceOracle(address priceOracle, DataTypes.ReserveAssetType curveType) external;
 
     function setCurvePriceOracleWrapper(address priceOracle) external;
 

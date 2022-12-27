@@ -40,6 +40,7 @@ contract LendingPoolAddressesProvider is
         "COLLATERAL_MANAGER";
     bytes32 private constant AAVE_PRICE_ORACLE = "AAVE_PRICE_ORACLE";
     bytes32 private constant CURVE_PRICE_ORACLE = "CURVE_PRICE_ORACLE";
+    bytes32 private constant CURVE_PRICE_ORACLE_V2 = "CURVE_PRICE_ORACLE_V2";
     bytes32 private constant CURVE_PRICE_ORACLE_WRAPPER =
         "CURVE_PRICE_ORACLE_WRAPPER";
     bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
@@ -384,7 +385,7 @@ contract LendingPoolAddressesProvider is
     {
         if (assetType == DataTypes.ReserveAssetType.AAVE) {
             return getAavePriceOracle();
-        } else if (assetType == DataTypes.ReserveAssetType.CURVE) {
+        } else if (assetType == DataTypes.ReserveAssetType.CURVE || assetType == DataTypes.ReserveAssetType.CURVEV2) {
             return getCurvePriceOracleWrapper();
         }
         require(false, "error determining oracle address");
@@ -406,8 +407,14 @@ contract LendingPoolAddressesProvider is
     }
 
     //custom oracle to get price of curve LP tokens
-    function getCurvePriceOracle() public view override returns (address) {
-        return getAddress(CURVE_PRICE_ORACLE);
+    function getCurvePriceOracle(DataTypes.ReserveAssetType curveType) public view override returns (address) {
+        if(curveType == DataTypes.ReserveAssetType.CURVE){
+            return getAddress(CURVE_PRICE_ORACLE);
+        }
+        else if (curveType == DataTypes.ReserveAssetType.CURVEV2){
+            return getAddress(CURVE_PRICE_ORACLE_V2);
+        }
+        return address(0);
     }
 
     //custom address provider for Curve tokens
@@ -429,12 +436,17 @@ contract LendingPoolAddressesProvider is
         emit PriceOracleUpdated(priceOracle);
     }
 
-    function setCurvePriceOracle(address priceOracle)
+    function setCurvePriceOracle(address priceOracle, DataTypes.ReserveAssetType curveType)
         external
         override
         onlyOwner
     {
-        _addresses[CURVE_PRICE_ORACLE] = priceOracle;
+        if(curveType==DataTypes.ReserveAssetType.CURVE){
+            _addresses[CURVE_PRICE_ORACLE] = priceOracle;
+        }
+        else if(curveType==DataTypes.ReserveAssetType.CURVEV2){
+            _addresses[CURVE_PRICE_ORACLE_V2] = priceOracle;
+        }
         emit CurvePriceOracleUpdated(priceOracle);
     }
 

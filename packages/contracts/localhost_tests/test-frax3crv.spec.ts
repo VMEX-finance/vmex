@@ -3,7 +3,7 @@ const chai = require("chai");
 const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
-import rawBRE from "hardhat";
+import rawBRE from 'hardhat';
 import { BigNumber, utils } from "ethers";
 import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
@@ -384,6 +384,8 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
                   .add(userReserveDataEmerg.currentATokenBalance).div(100)
                   ).to.be.almostEqualOrEqual(strategyBoostedBalance.div(100)); 
               }
+              var strategyEndBoostedBalance = await strategy.balanceOfPool();
+              expect(strategyEndBoostedBalance).to.be.gt(DRE.ethers.utils.parseEther("1500"))
             var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
             console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
             // NOTICE: confirmed that oracle price will increase after tending
