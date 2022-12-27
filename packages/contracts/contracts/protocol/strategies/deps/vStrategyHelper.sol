@@ -141,10 +141,14 @@ library vStrategyHelper {
         AssetMappings a = AssetMappings(addressProvider.getAssetMappings());
         for (uint8 i = 0; i < poolSize; i++) {
             poolTokens[i] = curvePool.coins(i);
+            if(poolTokens[i]==ethNative){
+                poolTokens[i] = WETH; 
+            }
             IPriceOracleGetter oracle = IPriceOracleGetter(addressProvider.getPriceOracle(
                 a.getAssetType(poolTokens[i])
             ));
-            amountsInPool[i] = curvePool.balances(i)*oracle.getAssetPrice(poolTokens[i]);///10**a.getDecimals();
+
+            amountsInPool[i] = curvePool.balances(i)*oracle.getAssetPrice(poolTokens[i])/(10**a.getDecimals(poolTokens[i]));
         }
         (, index) = min(amountsInPool); //doesn't consider decimals or asset price
         highestPayingToken = poolTokens[index];
@@ -309,10 +313,6 @@ library vStrategyHelper {
             vars.highestPayingIdx
         ) = checkForHighestPayingToken(curvePool, poolSize, addressProvider);
         vars.targetIsCurveToken = false;
-
-        if(vars.wantedDepositToken==ethNative){
-            vars.wantedDepositToken = WETH; 
-        }
         
         console.log("wantedDepositToken: ", vars.wantedDepositToken);
 
@@ -367,18 +367,25 @@ library vStrategyHelper {
         index = vars.highestPayingIdx;
 
         if(vars.targetIsCurveToken){
+            for (uint8 i = 0; i < 3; i++) {
+                // approval for the strategy to deposit tokens into LP
+                tokenAllowAll(
+                    ThreeCrvRegistryExchange.coins(i),
+                    address(ThreeCrvRegistryExchange)
+                );
+            }
             addLiquidityToCurve(3, depositAmountWanted, index, ThreeCrvRegistryExchange);
-            depositAmountWanted = IERC20(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490).balanceOf(
+            depositAmountWanted = IERC20(ThreeCrv).balanceOf(
                 address(this)
             );
-
-		    console.log("depositAmountWanted of 3crv token: ", depositAmountWanted); 
             index = 1;
         }
     }
 
     function addLiquidityToCurve(uint256 poolSize, uint256 depositAmountWanted, uint256 index, ICurveFi curvePool) public{
-        //returns a dynamic array filled with the amounts in the index we need for curve
+       require(depositAmountWanted>0, "Strategy tend error: Not enough rewards to tend efficiently");
+       //returns a dynamic array filled with the amounts in the index we need for curve
+       
         uint256[] memory amounts = getLiquidityAmountsArray(
             poolSize,
             depositAmountWanted,

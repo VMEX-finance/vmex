@@ -176,8 +176,6 @@ contract CrvLpStrategy is BaseStrategy {
                 EFFICIENCY
             );
 
-        require(depositAmountWanted>0, "Strategy tend error: Not enough rewards to tend efficiently");
-
         vStrategyHelper.addLiquidityToCurve(poolSize, depositAmountWanted, index, curvePool);
         
 

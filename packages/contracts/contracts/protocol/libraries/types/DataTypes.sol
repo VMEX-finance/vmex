@@ -69,7 +69,8 @@ library DataTypes {
 
     enum ReserveAssetType {
         AAVE,
-        CURVE
+        CURVE,
+        CURVEV2
     } //update with other possible types of the underlying asset
     //AAVE is the original assets in the aave protocol
     //CURVE is the new LP tokens we are providing support for
