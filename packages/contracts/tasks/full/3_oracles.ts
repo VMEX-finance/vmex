@@ -2,7 +2,8 @@ import { task } from "hardhat/config";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   deployAaveOracle,
-  deployCurveOracle,
+  deployCurveV1Oracle,
+  deployCurveV2Oracle,
   deployCurveOracleWrapper,
   deployLendingRateOracle,
 } from "../../helpers/contracts-deployments";
@@ -128,17 +129,30 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       // );
 
       //Also deploy CurveOracleV2 contract and add that contract to the aave address provider
-      const curveOracle = await deployCurveOracle(verify);
+      const curveOracle = await deployCurveV1Oracle(verify);
 
       if (!notFalsyOrZeroAddress(curveOracle.address)) {
         //bad address
-        throw "deploying curve oracle error, address is falsy or zero";
+        throw "deploying curve oracle v1 error, address is falsy or zero";
       } else {
         console.log("Curve oracle deployed at ", curveOracle.address);
       }
 
       await waitForTx(
-        await addressesProvider.setCurvePriceOracle(curveOracle.address)
+        await addressesProvider.setCurvePriceOracle(curveOracle.address, 1)
+      );
+
+      const curveV2Oracle = await deployCurveV2Oracle(verify);
+
+      if (!notFalsyOrZeroAddress(curveV2Oracle.address)) {
+        //bad address
+        throw "deploying curve oracle v2 error, address is falsy or zero";
+      } else {
+        console.log("Curve oracle deployed at ", curveV2Oracle.address);
+      }
+
+      await waitForTx(
+        await addressesProvider.setCurvePriceOracle(curveV2Oracle.address, 2)
       );
 
       //Also deploy CurveOracleV2 wrapper contract and add that contract to the aave address provider

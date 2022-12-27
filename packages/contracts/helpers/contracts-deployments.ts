@@ -71,6 +71,7 @@ import {
   CrvLpEthStrategyFactory,
   CvxStrategyFactory,
   LendingPoolAddressesProvider,
+  CurveOracleV1Factory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -554,7 +555,25 @@ export const deployCurveLibraries = async (
   };
 };
 
-export const deployCurveOracle = async (verify?: boolean) => {
+export const deployCurveV1Oracle = async (verify?: boolean) => {
+  const libraries = await deployCurveLibraries(verify);
+  const curveOracleImpl = await new CurveOracleV1Factory(
+    libraries,
+    await getFirstSigner()
+  ).deploy();
+  await insertContractAddressInDb(
+    eContractid.CurveOracle,
+    curveOracleImpl.address
+  );
+  return withSaveAndVerify(
+    curveOracleImpl,
+    eContractid.CurveOracle,
+    [],
+    verify
+  );
+};
+
+export const deployCurveV2Oracle = async (verify?: boolean) => {
   const libraries = await deployCurveLibraries(verify);
   const curveOracleImpl = await new CurveOracleV2Factory(
     libraries,

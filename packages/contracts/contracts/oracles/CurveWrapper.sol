@@ -9,6 +9,8 @@ import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {AaveOracle} from "../misc/AaveOracle.sol";
 import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {ICurveOracle} from "./interfaces/ICurveOracle.sol";
+import {AssetMappings} from "../protocol/lendingpool/AssetMappings.sol";
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 // import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 // import {ICurveAddressProvider} from "./interfaces/ICurveAddressProvider.sol";
@@ -196,8 +198,10 @@ contract CurveWrapper is IPriceOracleGetter, Ownable {
             require(prices[i] > 0, "aave oracle encountered an error");
         }
 
+        AssetMappings a = AssetMappings(_addressesProvider.getAssetMappings());
+
         ICurveOracle oracle = ICurveOracle(
-            _addressesProvider.getCurvePriceOracle()
+            _addressesProvider.getCurvePriceOracle(a.getAssetType(asset))
         );
 
         uint256 price = oracle.get_price(pool, prices);

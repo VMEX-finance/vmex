@@ -31,9 +31,6 @@ contract CrvLpStrategy is BaseStrategy {
 
     //Curve Registry
     ICurveFi public curvePool; //needed for curve pool functionality
-
-    address[] public curvePoolTokens;
-    uint256[] public curveTokenBalances;
     address[] public extraTokens;
 
     //Sushi
@@ -61,17 +58,12 @@ contract CrvLpStrategy is BaseStrategy {
         baseRewardsPool = IBaseRewardsPool(poolInfo.crvRewards);
 
         curvePool = ICurveFi(vars._curvePool);
-        curvePoolTokens = new address[](poolSize);
-        curveTokenBalances = new uint256[](poolSize);
 
         //on eth pools, curve uses the 0xeeee address, and approvals will fail since it's ether and not a token
         for (uint8 i = 0; i < poolSize; i++) {
-            curvePoolTokens[i] = curvePool.coins(i);
-            curveTokenBalances[i] = curvePool.balances(i);
-
             // approval for the strategy to deposit tokens into LP
             vStrategyHelper.tokenAllowAll(
-                curvePoolTokens[i],
+                curvePool.coins(i),
                 address(curvePool)
             );
         }
@@ -170,57 +162,23 @@ contract CrvLpStrategy is BaseStrategy {
     function _tend() internal override returns (uint256 amountTended) {
         uint256 balanceBefore = balanceOfPool();
 
-        //update balances
-        for (uint8 i = 0; i < poolSize; i++) {
-            curveTokenBalances[i] = curvePool.balances(i);
-        }
-
         (
             TendData memory tendData,
             uint256 depositAmountWanted,
             uint256 index
         ) = vStrategyHelper.tend(
                 baseRewardsPool,
-                curvePoolTokens,
-                curveTokenBalances,
+                curvePool, 
+                poolSize,
                 extraTokens,
                 extraRewardsTended,
-                sushiRouter,
+                addressProvider,
                 EFFICIENCY
             );
 
-        require(depositAmountWanted>0, "Strategy tend error: Not enough rewards to tend efficiently");
+        vStrategyHelper.addLiquidityToCurve(poolSize, depositAmountWanted, index, curvePool);
+        
 
-
-        //returns a dynamic array filled with the amounts in the index we need for curve
-        uint256[] memory amounts = vStrategyHelper.getLiquidityAmountsArray(
-            poolSize,
-            depositAmountWanted,
-            index
-        );
-
-
-
-        //TODO
-        //return a fixed size array based on input within one function rather this disgusting mess
-        if (poolSize == 2) {
-            curvePool.add_liquidity(
-                vStrategyHelper.getFixedArraySizeTwo(amounts),
-                0
-            );
-        } else if (poolSize == 3) {
-            curvePool.add_liquidity(
-                vStrategyHelper.getFixedArraySizeThree(amounts),
-                0
-            );
-        } else {
-            curvePool.add_liquidity(
-                vStrategyHelper.getFixedArraySizeFour(amounts),
-                0
-            );
-        }
-
-        // TODO: potentially call pull() so we pull from lending pools
         // deposit all LP tokens into booster
         _pull(IERC20(underlying).balanceOf(address(this)));
         uint256 balanceAfter = balanceOfPool();

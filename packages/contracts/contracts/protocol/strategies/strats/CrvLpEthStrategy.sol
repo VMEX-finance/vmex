@@ -40,9 +40,6 @@ contract CrvLpEthStrategy is BaseStrategy {
 
     //Curve Registry
     ICurveFi public curvePool; //needed for curve pool functionality
-
-    address[] public curvePoolTokens;
-    uint256[] public curveTokenBalances;
     address[] public extraTokens;
 
     //Sushi
@@ -73,22 +70,17 @@ contract CrvLpEthStrategy is BaseStrategy {
         baseRewardsPool = IBaseRewardsPool(poolInfo.crvRewards);
 
         curvePool = ICurveFi(vars._curvePool);
-        curvePoolTokens = new address[](poolSize);
-        curveTokenBalances = new uint256[](poolSize);
 
         //on eth pools, curve uses the 0xeeee address, and approvals will fail since it's ether and not a token
         for (uint8 i = 0; i < poolSize; i++) {
-            curvePoolTokens[i] = curvePool.coins(i);
-            curveTokenBalances[i] = curvePool.balances(i);
-
-            if (curvePoolTokens[i] == ethNative) {
+            if (curvePool.coins(i) == ethNative) {
                 vStrategyHelper.tokenAllowAll(
                     vStrategyHelper.WETH,
                     address(sushiRouter)
                 );
             } else {
                 vStrategyHelper.tokenAllowAll(
-                    curvePoolTokens[i],
+                    curvePool.coins(i),
                     address(sushiRouter)
                 );
             }
@@ -166,10 +158,11 @@ contract CrvLpEthStrategy is BaseStrategy {
     // then deposit the LP back into the booster.
     function _tend() internal override returns (uint256) {
         //check to see if rewards have stopped streaming
-        require(
-            baseRewardsPool.earned(address(this)) != 0,
-            "rewards not streaming"
-        );
+        // other rewards might be gotten?
+        // require(
+        //     baseRewardsPool.earned(address(this)) != 0,
+        //     "rewards not streaming"
+        // );
         uint256 balanceBefore = balanceOfPool();
 
         (
@@ -178,11 +171,11 @@ contract CrvLpEthStrategy is BaseStrategy {
 
         ) = vStrategyHelper.tend(
                 baseRewardsPool,
-                curvePoolTokens,
-                curveTokenBalances,
+                curvePool,
+                poolSize,
                 extraTokens,
                 extraRewardsTended,
-                sushiRouter,
+                addressProvider,
                 EFFICIENCY
             );
         // if(depositAmountWanted==0){
