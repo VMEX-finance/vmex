@@ -28,6 +28,6 @@ contract CurveOracleV1 is ICurveOracle {
         uint256[] memory prices
     ) public pure returns (uint256) {
         uint256 min = vMath.min(prices);
-        return virtual_price * min;
+        return virtual_price * min  / 10**18;
     }
 }

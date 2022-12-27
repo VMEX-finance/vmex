@@ -24,7 +24,8 @@ import {
   strategyWETH,
   strategyYFI,
   strategyENJ,
-  strategyCurveLPToken,
+  strategyCurveV1LPToken,
+  strategyCurveV2LPToken,
   strategySTETH,
   strategyFrax,
   strategyBAL,
@@ -66,12 +67,12 @@ export const AaveConfig: IAaveConfiguration = {
     WETH: strategyWETH,
     YFI: strategyYFI,
     ZRX: strategyZRX,
-    Tricrypto2: strategyCurveLPToken, //Curve TODO: add other curve lp tokens, modify custom strategies
-    ThreePool: strategyCurveLPToken,
-    StethEth: strategyCurveLPToken,
+    Tricrypto2: strategyCurveV2LPToken, //Curve TODO: add other curve lp tokens, modify custom strategies
+    ThreePool: strategyCurveV1LPToken,
+    StethEth: strategyCurveV1LPToken,
     Steth: strategySTETH, //Change strategy
-    FraxUSDC: strategyCurveLPToken,
-    Frax3Crv: strategyCurveLPToken,
+    FraxUSDC: strategyCurveV1LPToken,
+    Frax3Crv: strategyCurveV1LPToken,
     Frax: strategyFrax,
     BAL: strategyBAL,
     CRV: strategyCRV,
