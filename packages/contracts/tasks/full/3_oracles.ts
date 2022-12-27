@@ -148,7 +148,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         //bad address
         throw "deploying curve oracle v2 error, address is falsy or zero";
       } else {
-        console.log("Curve oracle deployed at ", curveV2Oracle.address);
+        console.log("Curve oracle v2 deployed at ", curveV2Oracle.address);
       }
 
       await waitForTx(
