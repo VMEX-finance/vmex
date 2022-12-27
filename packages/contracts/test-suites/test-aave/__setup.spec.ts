@@ -34,9 +34,9 @@ import {
   authorizeWETHGateway,
   deployATokenImplementations,
   deployAaveOracle,
-  deployCurveOracle,
+  deployCurveV1Oracle,
+  deployCurveV2Oracle,
   deployCurveOracleWrapper,
-  deployTricrypto2Strategy,
   deployConvexBaseRewardPool,
   deployConvexBooster,
 } from "../../helpers/contracts-deployments";
@@ -377,11 +377,18 @@ const buildTestEnv = async (deployer: Signer) => {
 
   //---------------------------------------------------------------------------------
   //Also deploy CurveOracleV2 contract and add that contract to the aave address provider
-  const curveOracle = await deployCurveOracle();
+  const curveOracle = await deployCurveV1Oracle();
   console.log("Curve oracle deployed at ", curveOracle.address);
 
   await waitForTx(
-    await addressesProvider.setCurvePriceOracle(curveOracle.address)
+    await addressesProvider.setCurvePriceOracle(curveOracle.address, 1)
+  );
+
+  const curveV2Oracle = await deployCurveV2Oracle();
+  console.log("Curve v2 oracle deployed at ", curveV2Oracle.address);
+
+  await waitForTx(
+    await addressesProvider.setCurvePriceOracle(curveV2Oracle.address, 2)
   );
 
   //Also deploy CurveOracleV2 wrapper contract and add that contract to the aave address provider
