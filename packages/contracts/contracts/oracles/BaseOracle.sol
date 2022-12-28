@@ -10,7 +10,7 @@ contract BaseOracle {
 	address private pool; 
 	uint8 private token_to_price; 
 
-	uint32 public constant WINDOW_SIZE = 3 minutes; 
+	uint32 public constant WINDOW_SIZE = 30 minutes; 
 	uint128 private constant WAD = 1e18;  
 	uint128 private immutable scale_factor; 
 	
