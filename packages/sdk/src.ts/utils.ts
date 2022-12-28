@@ -13,7 +13,7 @@ import { MemoryStorage } from "node-ts-cache-storage-memory";
 
 export const cache = new CacheContainer(new MemoryStorage());
 
-// import { LendingPoolConfiguratorFactory } from "@vmex/contracts/dist";
+// import { LendingPoolConfiguratorFactory } from "@vmexfinance/contracts/dist";
 
 export async function getAssetPrices(
   params?: {
@@ -31,7 +31,7 @@ export async function getAssetPrices(
   const {
     abi,
     bytecode,
-  } = require("@vmex/contracts/artifacts/contracts/analytics-utilities/asset/GetAllAssetPrices.sol/GetAllAssetPrices.json");
+  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/asset/GetAllAssetPrices.sol/GetAllAssetPrices.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
