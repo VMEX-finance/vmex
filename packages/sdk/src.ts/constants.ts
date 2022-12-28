@@ -172,6 +172,6 @@ export const TOKEN: Token<typeof TOKEN_PRICE> = {
     }
 }
 
-import Deployments from "@vmex/contracts/deployed-contracts.json";
+import Deployments from "@vmexfinance/contracts/deployed-contracts.json";
 export const deployments = Deployments;
 
