@@ -10,8 +10,8 @@
     "packages/**"
   ],
   "scripts": {
-    "contracts": "yarn workspace @vmex/contracts",
-    "sdk": "yarn workspace @vmex/sdk",
+    "contracts": "yarn workspace @vmexfinance/contracts",
+    "sdk": "yarn workspace @vmexfinance/sdk",
     "start:dev": "yarn contracts compile && yarn sdk build && yarn contracts start:dev && yarn sdk fund:accounts"
   },
   "dependencies": {
