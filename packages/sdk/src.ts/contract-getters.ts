@@ -1,14 +1,14 @@
 import { ethers } from "ethers";
 import { deployments } from "./constants";
 import _ from "lodash";
-import AaveProtocolDataProvider from "@vmex/contracts/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json";
-import IERC20 from "@vmex/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20.sol/IERC20.json";
-import IAToken from "@vmex/contracts/artifacts/contracts/interfaces/IAToken.sol/IAToken.json";
-import ILendingPool from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
-import ILendingPoolConfigurator from "@vmex/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
-import ILendingPoolAddressesProvider from "@vmex/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
-import WalletBalanceProvider from "@vmex/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
-import IERC20Detailed from "@vmex/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
+import AaveProtocolDataProvider from "@vmexfinance/contracts/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json";
+import IERC20 from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20.sol/IERC20.json";
+import IAToken from "@vmexfinance/contracts/artifacts/contracts/interfaces/IAToken.sol/IAToken.json";
+import ILendingPool from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
+import ILendingPoolConfigurator from "@vmexfinance/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
+import ILendingPoolAddressesProvider from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
+import WalletBalanceProvider from "@vmexfinance/contracts/artifacts/contracts/misc/WalletBalanceProvider.sol/WalletBalanceProvider.json";
+import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
 
 export const defaultTestProvider = ethers.getDefaultProvider(
   "http://localhost:8545"

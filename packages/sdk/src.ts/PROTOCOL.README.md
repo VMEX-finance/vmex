@@ -1,5 +1,5 @@
 ### ANALYTICS
-`@vmex/sdk/dist/src.ts/analytics`
+`@vmexfinance/sdk/dist/src.ts/analytics`
 
 - `async getTVL()` returns  { BigNumber: "0x..." }
 - `async getWalletBalanceAcrossTranches()
