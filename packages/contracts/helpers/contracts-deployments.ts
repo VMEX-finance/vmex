@@ -72,6 +72,7 @@ import {
   CvxStrategyFactory,
   LendingPoolAddressesProvider,
   CurveOracleV1Factory,
+  BaseUniswapOracleFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -434,6 +435,20 @@ export const deployAaveOracle = async (
     verify
   );
 
+export const deployUniswapOracle = async (
+    args: [
+      tEthereumAddress[],
+      tEthereumAddress[],
+      string []
+    ],
+    verify?: boolean
+  ) =>
+    withSaveAndVerify(
+      await new BaseUniswapOracleFactory(await getFirstSigner()).deploy(...args),
+      eContractid.AaveOracle,
+      args,
+      verify
+    );
 export const deployLendingPoolCollateralManager = async (verify?: boolean) => {
   const collateralManagerImpl = await new LendingPoolCollateralManagerFactory(
     await getFirstSigner()
