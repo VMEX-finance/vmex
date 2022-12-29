@@ -1,6 +1,10 @@
 import BigNumber from "bignumber.js";
 import { BigNumberish } from "ethers";
 
+export interface UniswapData {
+  poolAddress: string;
+  tokenToPrice: string;
+}
 export interface SymbolMap<T> {
   [symbol: string]: T;
 }
@@ -581,6 +585,7 @@ export interface IBaseConfiguration {
   TokenDistributor: iParamsPerNetwork<tEthereumAddress>;
   AaveOracle: iParamsPerNetwork<tEthereumAddress>;
   FallbackOracle: iParamsPerNetwork<tEthereumAddress>;
+  UniswapV3Oracle: iParamsPerNetwork<ITokenAddressTarget>;
   ChainlinkAggregator: iParamsPerNetwork<ITokenAddress>;
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
@@ -624,8 +629,17 @@ export interface IAvalancheConfiguration extends ICommonConfiguration {
   ReservesConfig: iAvalanchePoolAssets<IReserveParams>;
 }
 
+export interface AddressTarget {
+  Address: tEthereumAddress;
+  TokenToPrice: Number;
+}
+
 export interface ITokenAddress {
   [token: string]: tEthereumAddress;
+}
+
+export interface ITokenAddressTarget {
+  [token: string]: AddressTarget;
 }
 
 export type PoolConfiguration = ICommonConfiguration | IAaveConfiguration;
