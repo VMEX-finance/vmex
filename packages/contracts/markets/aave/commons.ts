@@ -216,149 +216,91 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: ZERO_ADDRESS,
     [eEthereumNetwork.tenderly]: ZERO_ADDRESS,
   },
-  UniswapV3Oracle: {
+  UniswapV3OracleAddresses: {
     [eEthereumNetwork.coverage]: {},
     [eEthereumNetwork.hardhat]: {},
     [eEthereumNetwork.buidlerevm]: {},
     [eEthereumNetwork.kovan]: {},
     [eEthereumNetwork.ropsten]: {},
     [eEthereumNetwork.main]: {
-      AAVE: {
-        Address:'0x5aB53EE1d50eeF2C1DD3d5402789cd27bB52c1bB',
-        TokenToPrice: 0
-      },
-      BAT: {
-        Address: '0xAE614a7a56cB79c04Df2aeBA6f5dAB80A39CA78E',
-        TokenToPrice: 0
-      },
-      BUSD: {
-        Address:'0x4Ff7E1E713E30b0D1Fb9CD00477cEF399ff9D493',
-        TokenToPrice: 0
-      },
-      DAI: {
-        Address:'0x60594a405d53811d3BC4766596EFD80fd545A270',
-        TokenToPrice: 0
-      },
-      ENJ: {
-        Address:'0xe16Be1798F860bC1EB0FEb64cD67Ca00AE9b6E58',
-        TokenToPrice: 1
-      },
-      KNC: {
-        Address:'0x76838fD2f22Bdc1D3e96069971E65653173eDB2a',
-        TokenToPrice: 1
-      },
-      LINK: {
-        Address:'0xa6Cc3C2531FdaA6Ae1A3CA84c2855806728693e8',
-        TokenToPrice: 0
-      },
-      MANA: {
-        Address:'0x8661aE7918C0115Af9e3691662f605e9c550dDc9',
-        TokenToPrice: 0
-      },
-      MKR: {
-        Address:'0xe8c6c9227491C0a8156A0106A0204d881BB7E531',
-        TokenToPrice: 0
-      },
-      REN: {
-        Address:'0x2dD56b633FAa1A5B46107d248714C9cCB6e20920',
-        TokenToPrice: 0
-      },
-      SNX: {
-        Address:'0xEDe8dd046586d22625Ae7fF2708F879eF7bdb8CF',
-        TokenToPrice: 0
-      },
-      SUSD: {
-        Address:ZERO_ADDRESS, //no pools
-        TokenToPrice: 0
-      },
-      TUSD: {
-        Address:'0x714b8443D0ADA18eCE1fcE5702567e313bfa8f29',
-        TokenToPrice: 0
-      },
-      UNI: {
-        Address:'0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801',
-        TokenToPrice: 0
-      },
-      USDC: {
-        Address:'0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640',
-        TokenToPrice: 0
-      },
-      USDT: {
-        Address:'0x11b815efB8f581194ae79006d24E0d814B7697F6',
-        TokenToPrice: 1
-      },
-      WBTC: {
-        Address:'0x4585FE77225b41b697C938B018E2Ac67Ac5a20c0',
-        TokenToPrice: 0
-      },
-      YFI: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      ZRX: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      USD: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      Tricrypto2: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      }, //this should not be used
-      ThreePool: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      }, //this should not be used
-      StethEth: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      }, //this should not be used
-      Steth: {
-        Address:'0x63818BbDd21E69bE108A23aC1E84cBf66399Bd7D',
-        TokenToPrice: 0
-      },
-      FraxUSDC: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      }, //this should not be used
-      Frax3Crv: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      }, //this should not be used
-      Frax: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      BAL: {
-        Address:'0xDC2c21F1B54dDaF39e944689a8f90cb844135cc9',
-        TokenToPrice: 0
-      },
-      CRV: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      CVX: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      BADGER: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      LDO: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      ALCX: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
-      Oneinch: {
-        Address:ZERO_ADDRESS,
-        TokenToPrice: 0
-      },
+      AAVE: '0x5aB53EE1d50eeF2C1DD3d5402789cd27bB52c1bB',
+      BAT: '0xAE614a7a56cB79c04Df2aeBA6f5dAB80A39CA78E',
+      BUSD: '0x4Ff7E1E713E30b0D1Fb9CD00477cEF399ff9D493',
+      DAI: '0x60594a405d53811d3BC4766596EFD80fd545A270',
+      ENJ: '0xe16Be1798F860bC1EB0FEb64cD67Ca00AE9b6E58',
+      KNC: '0x76838fD2f22Bdc1D3e96069971E65653173eDB2a',
+      LINK: '0xa6Cc3C2531FdaA6Ae1A3CA84c2855806728693e8',
+      MANA: '0x8661aE7918C0115Af9e3691662f605e9c550dDc9',
+      MKR: '0xe8c6c9227491C0a8156A0106A0204d881BB7E531',
+      REN: '0x2dD56b633FAa1A5B46107d248714C9cCB6e20920',
+      SNX: '0xEDe8dd046586d22625Ae7fF2708F879eF7bdb8CF',
+      SUSD: '0x0000000000000000000000000000000000000000',
+      TUSD: '0x714b8443D0ADA18eCE1fcE5702567e313bfa8f29',
+      UNI: '0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801',
+      USDC: '0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640',
+      USDT: '0x11b815efB8f581194ae79006d24E0d814B7697F6',
+      WBTC: '0x4585FE77225b41b697C938B018E2Ac67Ac5a20c0',
+      WETH: '0x0000000000000000000000000000000000000000',
+      YFI: '0x04916039B1f59D9745Bf6E0a21f191D1e0A84287',
+      ZRX: '0x14424eEeCbfF345B38187d0B8b749E56FAA68539',
+      Tricrypto2: '0x0000000000000000000000000000000000000000',
+      ThreePool: '0x0000000000000000000000000000000000000000',
+      StethEth: '0x0000000000000000000000000000000000000000',
+      Steth: '0x0000000000000000000000000000000000000000',
+      FraxUSDC: '0x0000000000000000000000000000000000000000',
+      Frax3Crv: '0x0000000000000000000000000000000000000000',
+      Frax: '0x0000000000000000000000000000000000000000',
+      BAL: '0xDC2c21F1B54dDaF39e944689a8f90cb844135cc9',
+      CRV: '0x4c83A7f819A5c37D64B4c5A2f8238Ea082fA1f4e',
+      CVX: '0x2E4784446A0a06dF3D1A040b03e1680Ee266c35a',
+      BADGER: '0x74092c7c0024feeb3839bED5ab6189eeD86ae856',
+      LDO: '0xf4aD61dB72f114Be877E87d62DC5e7bd52DF4d9B',
+      ALCX: '0xb80946cd2B4b68beDd769A21CA2F096EAD6E0EE8',
+      Oneinch: '0x0000000000000000000000000000000000000000'
+    },
+    [eEthereumNetwork.tenderly]: {},
+  },
+  UniswapV3OracleTargets: {
+    [eEthereumNetwork.coverage]: {},
+    [eEthereumNetwork.hardhat]: {},
+    [eEthereumNetwork.buidlerevm]: {},
+    [eEthereumNetwork.kovan]: {},
+    [eEthereumNetwork.ropsten]: {},
+    [eEthereumNetwork.main]: {
+      AAVE: '0',
+      BAT: '0',
+      BUSD: '0',
+      DAI: '0',
+      ENJ: '1',
+      KNC: '1',
+      LINK: '0',
+      MANA: '0',
+      MKR: '0',
+      REN: '0',
+      SNX: '0',
+      SUSD: '0',
+      TUSD: '0',
+      UNI: '0',
+      USDC: '0',
+      USDT: '1',
+      WBTC: '0',
+      WETH: '1',
+      YFI: '0',
+      ZRX: '1',
+      Tricrypto2: '0',
+      ThreePool: '0',
+      StethEth: '0',
+      Steth: '0',
+      FraxUSDC: '0',
+      Frax3Crv: '0',
+      Frax: '0',
+      BAL: '0',
+      CRV: '1',
+      CVX: '0',
+      BADGER: '0',
+      LDO: '0',
+      ALCX: '1',
+      Oneinch: '0'
     },
     [eEthereumNetwork.tenderly]: {},
   },

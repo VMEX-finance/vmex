@@ -21,6 +21,11 @@ Run `vmex:mainnetfork:unit-tests` to test all localhost tests
 Run `npm run test`
 These are a separate set of tests than the above unit-tests
 
+### Check and update uniswapv3 pool addresses with most volume
+
+Run `yarn get-uniswap-data`
+Copy the ouput in the terminal to markets/aave/commons.ts
+
 ### VMEX supported assets
 
 BUSD (L&B only)

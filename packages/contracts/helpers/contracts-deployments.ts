@@ -439,7 +439,9 @@ export const deployUniswapOracle = async (
     args: [
       tEthereumAddress[],
       tEthereumAddress[],
-      string []
+      string [],
+      tEthereumAddress,
+      string
     ],
     verify?: boolean
   ) =>

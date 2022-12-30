@@ -587,7 +587,8 @@ export interface IBaseConfiguration {
   TokenDistributor: iParamsPerNetwork<tEthereumAddress>;
   AaveOracle: iParamsPerNetwork<tEthereumAddress>;
   FallbackOracle: iParamsPerNetwork<tEthereumAddress>;
-  UniswapV3Oracle: iParamsPerNetwork<ITokenAddressTarget>;
+  UniswapV3OracleAddresses: iParamsPerNetwork<ITokenAddress>;
+  UniswapV3OracleTargets: iParamsPerNetwork<ITokenTarget>;
   ChainlinkAggregator: iParamsPerNetwork<ITokenAddress>;
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
@@ -631,17 +632,21 @@ export interface IAvalancheConfiguration extends ICommonConfiguration {
   ReservesConfig: iAvalanchePoolAssets<IReserveParams>;
 }
 
-export interface AddressTarget {
-  Address: tEthereumAddress;
-  TokenToPrice: Number;
-}
+// export interface AddressTarget {
+//   Address: tEthereumAddress;
+//   TokenToPrice: string;
+// }
 
 export interface ITokenAddress {
   [token: string]: tEthereumAddress;
 }
 
-export interface ITokenAddressTarget {
-  [token: string]: AddressTarget;
+export interface ITokenTarget {
+  [token: string]: string;
 }
+
+// export interface ITokenAddressTarget {
+//   [token: string]: AddressTarget;
+// }
 
 export type PoolConfiguration = ICommonConfiguration | IAaveConfiguration;
