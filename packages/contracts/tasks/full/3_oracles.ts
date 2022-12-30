@@ -82,23 +82,31 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       let uniswapOracle: BaseUniswapOracle;
 
+      // for(let [tokenSymbol, tokenAddress] of Object.entries(reserveAssets)) {
+      //   await (await getUniswapAddress(tokenAddress, tokenSymbol))
+      // }
+
       const uniswapPools = await Promise.all(Object.entries(reserveAssets).map(([tokenSymbol, tokenAddress]) => getUniswapAddress(tokenAddress, tokenSymbol)))
       // if (notFalsyOrZeroAddress(fallbackOracleAddress)) {
       //   uniswapOracle = await getAaveOracle(fallbackOracleAddress);
       //   await waitForTx(await aaveOracle.setAssetSources(tokens, aggregators));
       // } else {
+        const uniswapAddresses = uniswapPools.map((el) => el.poolAddress);
+        const uniswapTokenToPrice = uniswapPools.map((el) => el.tokenToPrice);
+        console.log("uniswapAddresses: ",uniswapAddresses)
+        console.log("uniswapTokenToPrice: ",uniswapTokenToPrice)
         uniswapOracle = await deployUniswapOracle(
           [
             tokens,
-            uniswapPools.map((el) => el.poolAddress),
-            uniswapPools.map((el) => el.tokenToPrice),
+            uniswapAddresses,
+            uniswapTokenToPrice,
           ],
           verify
         );
         // await waitForTx(await uniswapOracle.setAssetSources(tokens, aggregators));
       // }
 
-      
+      console.log("Uniswap oracle deployed at: ", uniswapOracle.address)
 
       let aaveOracle: AaveOracle;
       let lendingRateOracle: LendingRateOracle;

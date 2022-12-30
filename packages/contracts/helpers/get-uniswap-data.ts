@@ -97,10 +97,14 @@ id
 }
 }
 `   
-  let poolAddress = ZERO_ADDRESS;
-  let tokenToPrice = "0";
-  await axios.post(myURL, {query: query})
-  .then(async (result)=> {
+  
+      let poolAddress = ZERO_ADDRESS;
+      let tokenToPrice = "0";
+  try {
+
+  
+  const result = await axios.post(myURL, {query: query});
+ 
       let dat;
       //console.log(result.data.data)
       if(result.data.data === undefined){
@@ -112,8 +116,7 @@ id
       
       
         // console.log("Asset not supported: ",tokenSymbol)
-        axios.post(myURL, {query: query2})
-        .then(async (result2)=> {
+    const result2 = await axios.post(myURL, {query: query2});
             //console.log(result.data.data)
             let dat2;
             if(result2.data.data === undefined)
@@ -153,26 +156,26 @@ id
             }
             else{
               console.log("Asset not supported: ",tokenSymbol)
-              return
+              return {
+                poolAddress: poolAddress, 
+                tokenToPrice: tokenToPrice
+              };
             }
             // (async () => {
-              poolAddress = await factoryContract.functions.getPool(token1Address, token2Address, poolBips);
-              console.log(tokenSymbol)
-              console.log(dataToPrint)
-              console.log("poolAddress: ",poolAddress);
-            // })();
-              console.log("----------------------")
-              return poolAddress;
-            //console.log(result.data.data.pools[0].feeTier)
-        })
-      // }
-      //console.log(result.data.data.pools[0].feeTier)
-  })
-  return {
-    poolAddress: poolAddress, 
-    tokenToPrice: tokenToPrice
-  };
-
+              poolAddress = (await factoryContract.functions.getPool(token1Address, token2Address, poolBips))[0];
+            //   console.log(tokenSymbol)
+            //   console.log(dataToPrint)
+            //   console.log("poolAddress: ",poolAddress);
+            // // })();
+            //   console.log("----------------------")
+            return {
+              poolAddress: poolAddress, 
+              tokenToPrice: tokenToPrice
+            };
+    }
+    catch (err) {
+      console.error(err)
+    }
   
 }
 
