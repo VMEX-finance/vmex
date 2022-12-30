@@ -46,6 +46,8 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         ProtocolGlobalParams: { UsdAddress },
         ReserveAssets,
         FallbackOracle,
+        UniswapV3OracleAddresses,
+        UniswapV3OracleTargets,
         ChainlinkAggregator,
       } = poolConfig as ICommonConfiguration;
       const lendingRateOracles = getLendingRateOracles(poolConfig);
@@ -65,41 +67,46 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       // );
       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
-      const chainlinkAggregators = await getParamPerNetwork(
-        ChainlinkAggregator,
+      const uniswapV3OracleAddresses = await getParamPerNetwork(
+        UniswapV3OracleAddresses,
+        network
+      );
+      const uniswapV3OracleTargets = await getParamPerNetwork(
+        UniswapV3OracleTargets,
         network
       );
 
-      const tokensToWatch: SymbolMap<string> = {
+      let tokensToWatch: SymbolMap<string> = {
         ...reserveAssets,
-        USD: UsdAddress,
+        // USD: UsdAddress,
       };
-      const [tokens, aggregators] = getPairsTokenAggregator(
+
+      console.log("uniswapV3OracleAddresses: ", uniswapV3OracleAddresses)
+
+      const [tokens, uniswapAddresses] = getPairsTokenAggregator(
         tokensToWatch,
-        chainlinkAggregators,
+        uniswapV3OracleAddresses,
+        poolConfig.OracleQuoteCurrency
+      );
+      
+      console.log("uniswapV3OracleTargets: ", uniswapV3OracleTargets)
+
+
+      const [, uniswapTokenToPrice] = getPairsTokenAggregator(
+        tokensToWatch,
+        uniswapV3OracleTargets,
         poolConfig.OracleQuoteCurrency
       );
 
       let uniswapOracle: BaseUniswapOracle;
 
-      // for(let [tokenSymbol, tokenAddress] of Object.entries(reserveAssets)) {
-      //   await (await getUniswapAddress(tokenAddress, tokenSymbol))
-      // }
-
-      const uniswapPools = await Promise.all(Object.entries(reserveAssets).map(([tokenSymbol, tokenAddress]) => getUniswapAddress(tokenAddress, tokenSymbol)))
-      // if (notFalsyOrZeroAddress(fallbackOracleAddress)) {
-      //   uniswapOracle = await getAaveOracle(fallbackOracleAddress);
-      //   await waitForTx(await aaveOracle.setAssetSources(tokens, aggregators));
-      // } else {
-        const uniswapAddresses = uniswapPools.map((el) => el.poolAddress);
-        const uniswapTokenToPrice = uniswapPools.map((el) => el.tokenToPrice);
-        console.log("uniswapAddresses: ",uniswapAddresses)
-        console.log("uniswapTokenToPrice: ",uniswapTokenToPrice)
         uniswapOracle = await deployUniswapOracle(
           [
             tokens,
             uniswapAddresses,
             uniswapTokenToPrice,
+            await getQuoteCurrency(poolConfig),
+            poolConfig.OracleQuoteUnit,
           ],
           verify
         );
@@ -108,16 +115,29 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       console.log("Uniswap oracle deployed at: ", uniswapOracle.address)
 
+      const chainlinkAggregators = await getParamPerNetwork(
+        ChainlinkAggregator,
+        network
+      );
+      tokensToWatch = {
+        ...reserveAssets,
+        USD: UsdAddress,
+      };
+      const [tokens2, aggregators] = getPairsTokenAggregator(
+        tokensToWatch,
+        chainlinkAggregators,
+        poolConfig.OracleQuoteCurrency
+      );
       let aaveOracle: AaveOracle;
       let lendingRateOracle: LendingRateOracle;
 
       if (notFalsyOrZeroAddress(aaveOracleAddress)) {
         aaveOracle = await getAaveOracle(aaveOracleAddress);
-        await waitForTx(await aaveOracle.setAssetSources(tokens, aggregators));
+        await waitForTx(await aaveOracle.setAssetSources(tokens2, aggregators));
       } else {
         aaveOracle = await deployAaveOracle(
           [
-            tokens,
+            tokens2,
             aggregators,
             uniswapOracle.address,
             await getQuoteCurrency(poolConfig),
@@ -125,7 +145,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
           ],
           verify
         );
-        await waitForTx(await aaveOracle.setAssetSources(tokens, aggregators));
+        await waitForTx(await aaveOracle.setAssetSources(tokens2, aggregators));
       }
 
       if (notFalsyOrZeroAddress(lendingRateOracleAddress)) {

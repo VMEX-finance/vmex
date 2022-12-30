@@ -49,6 +49,7 @@ import {
   PoolConfiguration,
   tEthereumAddress,
   TokenContractId,
+  AddressTarget,
 } from "./types";
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];

@@ -16,6 +16,8 @@ contract BaseUniswapOracle is IPriceOracleGetter, Ownable {
 	mapping(address=>uint8) private token_to_price; 
 
 	uint32 public constant WINDOW_SIZE = 30 minutes; 
+    address public immutable BASE_CURRENCY;
+    uint256 public immutable BASE_CURRENCY_UNIT;
 	
 	//set the pool for each oracle here to have a feed
 	//@param pool, the address of the univ3 pool
@@ -23,9 +25,13 @@ contract BaseUniswapOracle is IPriceOracleGetter, Ownable {
 	constructor(
         address[] memory assets,
         address[] memory sources, 
-		uint8[] memory _token_to_price
+		uint8[] memory _token_to_price,
+        address baseCurrency,
+        uint256 baseCurrencyUnit
 	) {
 		_setAssetsSources(assets,sources,_token_to_price);
+        BASE_CURRENCY = baseCurrency;
+        BASE_CURRENCY_UNIT = baseCurrencyUnit;
 		
 		//if returns are greater than 18 use POSTIVE if less use NEGATIVE 
 		//i.e. ETH returns a 6 digit decimal from uni pools, so we scale by -12 to get a WAD fixed number
@@ -65,6 +71,9 @@ contract BaseUniswapOracle is IPriceOracleGetter, Ownable {
 	
 	//returns the latest price in a WAD fixed number 	
 	function getAssetPrice(address asset) public view override returns(uint256) {
+        if (asset == BASE_CURRENCY) {
+            return BASE_CURRENCY_UNIT;
+		}
 		return getAssetPriceForTime(asset, WINDOW_SIZE);
 	}
 
