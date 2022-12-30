@@ -123,6 +123,8 @@ export enum eContractid {
   UiIncentiveDataProviderV2 = "UiIncentiveDataProviderV2",
   AssetMappings = "AssetMappings",
   UserConfiguration = "UserConfiguration",
+  BaseUniswapOracle = "BaseUniswapOracle",
+  
 }
 
 /*

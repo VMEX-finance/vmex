@@ -445,7 +445,7 @@ export const deployUniswapOracle = async (
   ) =>
     withSaveAndVerify(
       await new BaseUniswapOracleFactory(await getFirstSigner()).deploy(...args),
-      eContractid.AaveOracle,
+      eContractid.BaseUniswapOracle,
       args,
       verify
     );
