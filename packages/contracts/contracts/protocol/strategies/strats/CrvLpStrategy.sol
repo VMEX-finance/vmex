@@ -45,7 +45,7 @@ contract CrvLpStrategy is BaseStrategy {
         address _addressProvider,
         address _underlying,
         uint64 _tranche
-    ) public {
+    ) public initializer {
         //note: need initializer modifier?? So can't be called multiple times
         __BaseStrategy_init(_addressProvider, _underlying, _tranche);
 

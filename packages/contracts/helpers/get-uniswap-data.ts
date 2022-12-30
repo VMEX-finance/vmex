@@ -176,6 +176,9 @@ id
     catch (err) {
       console.error(err)
     }
-  
+    return {
+      poolAddress: poolAddress, 
+      tokenToPrice: tokenToPrice
+    };
 }
 

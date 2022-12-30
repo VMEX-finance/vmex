@@ -59,7 +59,7 @@ contract CrvLpEthStrategy is BaseStrategy {
         // uint256 _pid,
         // uint8 _poolSize,
         // address _curvePool
-    ) public {
+    ) public initializer{
         __BaseStrategy_init(_addressProvider, _underlying, _tranche);
         DataTypes.CurveMetadata memory vars = AssetMappings(ILendingPoolAddressesProvider(_addressProvider).getAssetMappings()).getCurveMetadata(_underlying);
 
