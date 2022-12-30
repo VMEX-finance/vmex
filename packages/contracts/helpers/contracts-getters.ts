@@ -38,7 +38,8 @@ import {
   CrvLpStrategyFactory,
   BoosterFactory,
   VStrategyHelperFactory,
-  UserConfigurationFactory
+  UserConfigurationFactory,
+  BaseUniswapOracleFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -531,6 +532,16 @@ export const getAaveOracle = async (address?: tEthereumAddress) =>
       (
         await getDb()
           .get(`${eContractid.AaveOracle}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+  export const getBaseUniswapOracle = async (address?: tEthereumAddress) =>
+  await BaseUniswapOracleFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.BaseUniswapOracle}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
