@@ -80,7 +80,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
         address _addressProvider,
         address _underlying,
         uint64 _tranche
-    ) public initializer whenNotPaused {
+    ) public onlyInitializing whenNotPaused {
         require(_addressProvider != address(0), "Address 0");
         __Pausable_init();
 

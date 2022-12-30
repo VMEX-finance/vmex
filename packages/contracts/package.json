@@ -119,7 +119,7 @@
     "external:deploy-assets-kovan": "npm run compile && hardhat --network kovan external:deploy-new-asset --symbol ${SYMBOL} --verify",
     "external:deploy-assets-main": "npm run compile && hardhat --network main external:deploy-new-asset --symbol ${SYMBOL} --verify",
     "prepublishOnly": "npm run compile",
-    "get-uniswap-data": "ts-node helpers/get-uniswap-data.ts"
+    "get-uniswap-data": "ts-node helpers/get-uniswap-data-output-legacy.ts"
   },
   "devDependencies": {
     "@nomiclabs/buidler": "^1.4.7",

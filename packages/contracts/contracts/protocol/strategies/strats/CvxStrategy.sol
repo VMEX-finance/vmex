@@ -36,7 +36,7 @@ contract CvxStrategy is BaseStrategy {
         address _addressProvider, 
         address asset, //unused, but to satisfy requirements
         uint64 _tranche
-    ) public { 
+    ) public initializer{ 
         __BaseStrategy_init(_addressProvider, address(cvxToken), _tranche);
 
         // Approvals
