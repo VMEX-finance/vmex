@@ -139,7 +139,7 @@ library QueryUserHelpers {
 
             AssetMappings a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
             address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
-                .getPriceOracle(a.getAssetType(vars.allAssets[i]));
+                .getPriceOracle();
 
             if (vars.currentATokenBalance > 0) {
                 // asset is being supplied
@@ -220,7 +220,7 @@ library QueryUserHelpers {
 
         for (uint8 i = 0; i < approvedTokens.length; i++) {
             address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
-                .getPriceOracle(a.getAssetType(approvedTokens[i]));
+                .getPriceOracle();
             
             data[i] = WalletData ({
                 asset: approvedTokens[i],

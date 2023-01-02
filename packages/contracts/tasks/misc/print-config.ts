@@ -58,7 +58,7 @@ task("print-config", "Inits the DRE, to have access to all the plugins")
     );
     console.log("Pool admin", await addressesProvider.getPoolAdmin());
     console.log("Emergency admin", await addressesProvider.getEmergencyAdmin());
-    console.log("Price Oracle", await addressesProvider.getAavePriceOracle());
+    console.log("Price Oracle", await addressesProvider.getPriceOracle());
     console.log(
       "Lending Rate Oracle",
       await addressesProvider.getLendingRateOracle()

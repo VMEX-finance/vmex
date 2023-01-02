@@ -122,7 +122,6 @@ library GenericLogic {
         //using current price instead of 24 hour average
         vars.currentPrice= IPriceOracleGetter(
             params._addressesProvider.getPriceOracle(
-                params._assetMappings.getAssetType(params.asset)
             )
         ).getAssetPrice(params.asset);
         
@@ -253,7 +252,6 @@ library GenericLogic {
 
             {
                 vars.oracle = _addressesProvider.getPriceOracle(
-                    _assetMappings.getAssetType(vars.currentReserveAddress)
                 );
             }
 

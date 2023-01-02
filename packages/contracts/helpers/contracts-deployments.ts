@@ -24,12 +24,11 @@ import {
   AaveProtocolDataProviderFactory,
   ATokenFactory,
   // ATokensAndRatesHelperFactory,
-  AaveOracleFactory,
+  VMEXOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   DelegationAwareATokenFactory,
-  CurveOracleV2Factory,
-  CurveWrapperFactory,
-  VMathFactory,
+  // CurveOracleV2Factory,
+  // CurveWrapperFactory,
   InitializableAdminUpgradeabilityProxyFactory,
   LendingPoolAddressesProviderFactory,
   LendingPoolAddressesProviderRegistryFactory,
@@ -71,7 +70,7 @@ import {
   CrvLpEthStrategyFactory,
   CvxStrategyFactory,
   LendingPoolAddressesProvider,
-  CurveOracleV1Factory,
+  // CurveOracleV1Factory,
   BaseUniswapOracleFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
@@ -418,20 +417,13 @@ export const deployMockAggregator = async (
     verify
   );
 
-export const deployAaveOracle = async (
-  args: [
-    tEthereumAddress[],
-    tEthereumAddress[],
-    tEthereumAddress,
-    tEthereumAddress,
-    string
-  ],
+export const deployVMEXOracle = async (
   verify?: boolean
 ) =>
   withSaveAndVerify(
-    await new AaveOracleFactory(await getFirstSigner()).deploy(...args),
+    await new VMEXOracleFactory(await getFirstSigner()).deploy(),
     eContractid.AaveOracle,
-    args,
+    [],
     verify
   );
 
@@ -466,14 +458,6 @@ export const deployLendingPoolCollateralManager = async (verify?: boolean) => {
     verify
   );
 };
-
-export const deployvMath = async (verify?: boolean) =>
-  withSaveAndVerify(
-    await new VMathFactory(await getFirstSigner()).deploy(),
-    eContractid.vMath,
-    [],
-    verify
-  );
 
 export const deployvStrategyHelper = async (verify?: boolean) =>
   withSaveAndVerify(
@@ -570,64 +554,6 @@ export const deployCurveLibraries = async (
   return {
     ["__$fc961522ee25e21dc45bf9241cf35e1d80$__"]: vMath.address,
   };
-};
-
-export const deployCurveV1Oracle = async (verify?: boolean) => {
-  const libraries = await deployCurveLibraries(verify);
-  const curveOracleImpl = await new CurveOracleV1Factory(
-    libraries,
-    await getFirstSigner()
-  ).deploy();
-  await insertContractAddressInDb(
-    eContractid.CurveOracle,
-    curveOracleImpl.address
-  );
-  return withSaveAndVerify(
-    curveOracleImpl,
-    eContractid.CurveOracle,
-    [],
-    verify
-  );
-};
-
-export const deployCurveV2Oracle = async (verify?: boolean) => {
-  const libraries = await deployCurveLibraries(verify);
-  const curveOracleImpl = await new CurveOracleV2Factory(
-    libraries,
-    await getFirstSigner()
-  ).deploy();
-  await insertContractAddressInDb(
-    eContractid.CurveOracle,
-    curveOracleImpl.address
-  );
-  return withSaveAndVerify(
-    curveOracleImpl,
-    eContractid.CurveOracle,
-    [],
-    verify
-  );
-};
-
-export const deployCurveOracleWrapper = async (
-  addressProvider: tEthereumAddress,
-  fallbackOracle: tEthereumAddress,
-  baseCurrency: tEthereumAddress,
-  baseCurrencyUnit: string,
-  verify?: boolean
-) => {
-  const curveOracleWrapper = await new CurveWrapperFactory(
-    await getFirstSigner()
-  ).deploy(addressProvider, fallbackOracle, baseCurrency, baseCurrencyUnit);
-  await insertContractAddressInDb(
-    eContractid.CurveWrapper,
-    curveOracleWrapper.address
-  );
-  return withSaveAndVerify(
-    curveOracleWrapper,
-    eContractid.CurveWrapper,
-    [],
-    verify
-  );
 };
 
 export const deployInitializableAdminUpgradeabilityProxy = async (

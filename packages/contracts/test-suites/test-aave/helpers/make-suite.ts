@@ -148,7 +148,7 @@ export async function initializeMakeSuite() {
   } else {
     testEnv.registry = await getLendingPoolAddressesProviderRegistry();
     testEnv.oracle = await getPriceOracle();
-    testEnv.curveOracle = await getCurvePriceOracleWrapper();
+    // testEnv.curveOracle = await getCurvePriceOracleWrapper();
   }
 
   testEnv.helpersContract = await getAaveProtocolDataProvider();

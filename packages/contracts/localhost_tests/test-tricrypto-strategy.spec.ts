@@ -87,7 +87,7 @@ makeSuite(
           const lendingPool = await contractGetters.getLendingPool();
 
           const dataProv = await contractGetters.getAaveProtocolDataProvider();
-          const aaveOracle = await contractGetters.getAaveOracle();
+          const aaveOracle = await contractGetters.getVMEXOracle();
 
           var triCryptoDeposit = new DRE.ethers.Contract(triCryptoDepositAdd,triCryptoDepositAbi)
 
@@ -124,7 +124,7 @@ makeSuite(
 
           const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
-          const curveOracleAdd = await addProv.connect(signer).getCurvePriceOracleWrapper();
+          const curveOracleAdd = await addProv.connect(signer).getPriceOracle();
           var curveOracleAbi = [
             "function getAssetPrice(address asset) public view returns (uint256)"
         ]

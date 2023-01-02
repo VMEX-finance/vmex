@@ -290,7 +290,6 @@ contract LendingPool is
                 _reservesCount[trancheId],
                 IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
                     _addressesProvider.getPriceOracle(
-                        _assetMappings.getAssetType(asset)
                     )
                 ).getAssetPrice(asset),
                 trancheId,

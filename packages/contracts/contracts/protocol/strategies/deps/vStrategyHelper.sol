@@ -145,7 +145,6 @@ library vStrategyHelper {
                 poolTokens[i] = WETH; 
             }
             IPriceOracleGetter oracle = IPriceOracleGetter(addressProvider.getPriceOracle(
-                a.getAssetType(poolTokens[i])
             ));
 
             amountsInPool[i] = curvePool.balances(i)*oracle.getAssetPrice(poolTokens[i])/(10**a.getDecimals(poolTokens[i]));

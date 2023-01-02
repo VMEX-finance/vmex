@@ -3,7 +3,7 @@ import {
   AaveProtocolDataProviderFactory,
   ATokenFactory,
   // ATokensAndRatesHelperFactory,
-  AaveOracleFactory,
+  VMEXOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   GenericLogicFactory,
   InitializableAdminUpgradeabilityProxyFactory,
@@ -527,12 +527,12 @@ export const getAddressById = async (
   (await getDb().get(`${id}.${DRE.network.name}`).value())?.address ||
   undefined;
 
-export const getAaveOracle = async (address?: tEthereumAddress) =>
-  await AaveOracleFactory.connect(
+export const getVMEXOracle = async (address?: tEthereumAddress) =>
+  await VMEXOracleFactory.connect(
     address ||
       (
         await getDb()
-          .get(`${eContractid.AaveOracle}.${DRE.network.name}`)
+          .get(`${eContractid.VMEXOracle}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
