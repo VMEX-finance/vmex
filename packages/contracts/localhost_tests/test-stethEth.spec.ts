@@ -122,21 +122,23 @@ var triCryptoDepositAbi = fs.readFileSync("./localhost_tests/abis/stethEth.json"
             await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100000.0"))
             // await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.5'), await signer.getAddress(), '0'); 
 
+            console.log("Before deposits")
             await lendingPool.connect(signer).deposit(CurveToken.address, 1, ethers.utils.parseUnits('1'), await signer.getAddress(), '0'); 
             await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('0.5'), await emergency.getAddress(), '0'); 
+            console.log("After deposits")
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true); 
-            
+            console.log("After setting collateral")
             var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
-
+            console.log("After getUserAccountData")
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
-            const curveOracleAdd = await addProv.connect(signer).getCurvePriceOracleWrapper();
+            const curveOracleAdd = await addProv.connect(signer).getPriceOracle();
             var curveOracleAbi = [
               "function getAssetPrice(address asset) public view returns (uint256)"
           ]
 
           const curveOracle = new DRE.ethers.Contract(curveOracleAdd,curveOracleAbi);
-
+          console.log("Before curve oracle call")
             const pricePerToken = await curveOracle.connect(signer).getAssetPrice(CurveToken.address);
             console.log("pricePerToken: ",pricePerToken)
             var col = BigNumber.from(pricePerToken.toString())

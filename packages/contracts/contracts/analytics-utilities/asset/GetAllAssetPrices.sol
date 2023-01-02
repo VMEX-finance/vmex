@@ -18,7 +18,7 @@ contract GetAllAssetPrices {
 
         for (uint64 i = 0; i < assets.length; i++) {
             allAssetPrices[i].oracle = ILendingPoolAddressesProvider(providerAddr)
-                .getPriceOracle(a.getAssetType(assets[i]));
+                .getPriceOracle();
 
             allAssetPrices[i].priceUSD = QueryAssetHelpers.convertAmountToUsd(
                 allAssetPrices[i].oracle,
