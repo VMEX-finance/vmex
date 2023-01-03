@@ -10,7 +10,6 @@ interface ILendingPoolConfigurator {
         string name;
         string symbol;
         address implementation;
-        bytes params;
     }
 
     struct UpdateDebtTokenInput {
@@ -20,7 +19,13 @@ interface ILendingPoolConfigurator {
         string name;
         string symbol;
         address implementation;
-        bytes params;
+    }
+
+    struct UpdateStrategyInput {
+        uint64 trancheId;
+        address asset;
+        address implementation;
+        address strategyAddress;
     }
 
 
@@ -166,6 +171,14 @@ interface ILendingPoolConfigurator {
         address indexed proxy,
         address indexed implementation
     );
+
+    event StrategyUpgraded(
+        address indexed asset,
+        uint64 trancheId,
+        address indexed proxy,
+        address indexed implementation
+    );
+
 
     /**
      * @dev Emitted when the implementation of a variable debt token is upgraded

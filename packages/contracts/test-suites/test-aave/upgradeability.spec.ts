@@ -79,7 +79,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       name: string;
       symbol: string;
       implementation: string;
-      params: string
     } = {
       asset: dai.address,
       trancheId: tranche,
@@ -88,7 +87,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       name: name,
       symbol: symbol,
       implementation: newATokenAddress,
-      params: "0x10"
     };
     await expect(
       configurator.connect(users[1].signer).updateAToken(updateATokenInputParams)
@@ -109,7 +107,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       name: string;
       symbol: string;
       implementation: string;
-      params: string
     } = {
       asset: dai.address,
       trancheId: tranche,
@@ -118,7 +115,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       name: name,
       symbol: symbol,
       implementation: newATokenAddress,
-      params: "0x10"
     };
     await configurator.updateAToken(updateATokenInputParams);
 

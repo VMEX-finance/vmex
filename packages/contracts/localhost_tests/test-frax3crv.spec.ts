@@ -194,7 +194,7 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
 
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
-            const curveOracleAdd = await addProv.connect(signer).getCurvePriceOracleWrapper();
+            const curveOracleAdd = await addProv.connect(signer).getPriceOracle();
             var curveOracleAbi = [
               "function getAssetPrice(address asset) public view returns (uint256)"
           ]

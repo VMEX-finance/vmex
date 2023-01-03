@@ -90,26 +90,12 @@ interface ILendingPoolAddressesProvider {
     function isWhitelistedAddress(address ad) external view returns (bool);
 
     //********************************************************** */
-    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+    function getPriceOracle()
         external
         view
         returns (address); //this might also depend on trancheId if some configurators choose to
 
-    function getAavePriceOracle() external view returns (address);
-
-    function getCurvePriceOracle(DataTypes.ReserveAssetType curveType) external view returns (address);
-
-    function getCurvePriceOracleWrapper() external view returns (address);
-
-    // function getCurveAddressProvider() external view returns (address);
-
-    function setAavePriceOracle(address priceOracle) external;
-
-    // function setCurveAddressProvider(address addressProvider) external;
-
-    function setCurvePriceOracle(address priceOracle, DataTypes.ReserveAssetType curveType) external;
-
-    function setCurvePriceOracleWrapper(address priceOracle) external;
+    function setPriceOracle(address priceOracle) external;
 
     function getLendingRateOracle() external view returns (address); //this oracle determines the stable borrow rate for a reserve. Should only need one, since it is based off the address of the reserve, which is unique for every asset in each tranche in each pool. Governance manually sets this
 

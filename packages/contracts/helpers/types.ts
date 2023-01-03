@@ -83,7 +83,7 @@ export enum eContractid {
   Proxy = "Proxy",
   MockAggregator = "MockAggregator",
   LendingRateOracle = "LendingRateOracle",
-  AaveOracle = "AaveOracle",
+  VMEXOracle = "VMEXOracle",
   DefaultReserveInterestRateStrategy = "DefaultReserveInterestRateStrategy",
   LendingPoolCollateralManager = "LendingPoolCollateralManager",
   InitializableAdminUpgradeabilityProxy = "InitializableAdminUpgradeabilityProxy",
@@ -124,7 +124,7 @@ export enum eContractid {
   AssetMappings = "AssetMappings",
   UserConfiguration = "UserConfiguration",
   BaseUniswapOracle = "BaseUniswapOracle",
-  
+  MockStrategy = "MockStrategy",
 }
 
 /*

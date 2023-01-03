@@ -38,11 +38,7 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant EMERGENCY_ADMIN = "EMERGENCY_ADMIN";
     bytes32 private constant LENDING_POOL_COLLATERAL_MANAGER =
         "COLLATERAL_MANAGER";
-    bytes32 private constant AAVE_PRICE_ORACLE = "AAVE_PRICE_ORACLE";
-    bytes32 private constant CURVE_PRICE_ORACLE = "CURVE_PRICE_ORACLE";
-    bytes32 private constant CURVE_PRICE_ORACLE_V2 = "CURVE_PRICE_ORACLE_V2";
-    bytes32 private constant CURVE_PRICE_ORACLE_WRAPPER =
-        "CURVE_PRICE_ORACLE_WRAPPER";
+    bytes32 private constant VMEX_PRICE_ORACLE = "VMEX_PRICE_ORACLE";
     bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
 
     bytes32 private constant CURVE_ADDRESS_PROVIDER = "CURVE_ADDRESS_PROVIDER";
@@ -233,28 +229,6 @@ contract LendingPoolAddressesProvider is
         override
         onlyOwner
     {
-        // address payable proxyAddress = payable(_addresses[LENDING_POOL_CONFIGURATOR]);
-
-        // InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
-        //         proxyAddress
-        //     );
-
-        // bytes memory params = abi.encodeWithSignature(
-        //     "initialize(address, address)",
-        //     address(this),
-        //     _DefaultVMEXTreasury
-        // );
-
-        // if (proxyAddress == address(0)) {
-        //     proxy = new InitializableImmutableAdminUpgradeabilityProxy(
-        //         address(this)
-        //     );
-        //     proxy.initialize(newAddress, params);
-        //     _addresses[LENDING_POOL_CONFIGURATOR] = address(proxy);
-        //     emit ProxyCreated(LENDING_POOL_CONFIGURATOR, address(proxy));
-        // } else {
-        //     proxy.upgradeToAndCall(newAddress, params);
-        // }
         _updateImpl(LENDING_POOL_CONFIGURATOR, newAddress);
         emit LendingPoolConfiguratorUpdated(newAddress);
     }
@@ -337,84 +311,13 @@ contract LendingPoolAddressesProvider is
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
-    // function getEmergencyAdmin(uint64 trancheId)
-    //     external
-    //     view
-    //     override
-    //     returns (address)
-    // {
-    //     return getAddressTranche(EMERGENCY_ADMIN, trancheId);
-    // }
-
-    // function setEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
-    //     external
-    //     override
-    // {
-    //     require(
-    //         _msgSender() == owner() ||
-    //             _msgSender() == getAddressTranche(EMERGENCY_ADMIN, trancheId),
-    //         "Sender is not VMEX admin or the original admin of the tranche"
-    //     );
-    //     _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
-    //     emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
-    // }
-
-    // function addEmergencyAdmin(address emergencyAdmin, uint64 trancheId)
-    //     external
-    //     override
-    // {
-    //     //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
-    //     require(
-    //         msg.sender == getAddress(LENDING_POOL_CONFIGURATOR) ||
-    //             _msgSender() == owner(),
-    //         "Caller must be lending pool configurator that is creating a new tranche"
-    //     );
-    //     require(
-    //         _addressesTranche[EMERGENCY_ADMIN][trancheId] == address(0),
-    //         "Emergency admin trancheId input is already in use"
-    //     );
-    //     _addressesTranche[EMERGENCY_ADMIN][trancheId] = emergencyAdmin;
-    //     emit EmergencyAdminUpdated(emergencyAdmin, trancheId);
-    // }
-
-    function getPriceOracle(DataTypes.ReserveAssetType assetType)
+    function getPriceOracle()
         external
         view
         override
         returns (address)
     {
-        if (assetType == DataTypes.ReserveAssetType.AAVE) {
-            return getAavePriceOracle();
-        } else if (assetType == DataTypes.ReserveAssetType.CURVE || assetType == DataTypes.ReserveAssetType.CURVEV2) {
-            return getCurvePriceOracleWrapper();
-        }
-        require(false, "error determining oracle address");
-        return address(0);
-    }
-
-    function getAavePriceOracle() public view override returns (address) {
-        return getAddress(AAVE_PRICE_ORACLE);
-    }
-
-    //custom oracle to get price of curve LP tokens
-    function getCurvePriceOracleWrapper()
-        public
-        view
-        override
-        returns (address)
-    {
-        return getAddress(CURVE_PRICE_ORACLE_WRAPPER);
-    }
-
-    //custom oracle to get price of curve LP tokens
-    function getCurvePriceOracle(DataTypes.ReserveAssetType curveType) public view override returns (address) {
-        if(curveType == DataTypes.ReserveAssetType.CURVE){
-            return getAddress(CURVE_PRICE_ORACLE);
-        }
-        else if (curveType == DataTypes.ReserveAssetType.CURVEV2){
-            return getAddress(CURVE_PRICE_ORACLE_V2);
-        }
-        return address(0);
+        return getAddress(VMEX_PRICE_ORACLE);
     }
 
     //custom address provider for Curve tokens
@@ -427,46 +330,15 @@ contract LendingPoolAddressesProvider is
     //     return getAddress(CURVE_ADDRESS_PROVIDER);
     // }
 
-    function setAavePriceOracle(address priceOracle)
+    function setPriceOracle(address priceOracle)
         external
         override
         onlyOwner
     {
-        _addresses[AAVE_PRICE_ORACLE] = priceOracle;
+        // _addresses[VMEX_PRICE_ORACLE] = priceOracle;
+        _updateImpl(VMEX_PRICE_ORACLE, priceOracle);
         emit PriceOracleUpdated(priceOracle);
     }
-
-    function setCurvePriceOracle(address priceOracle, DataTypes.ReserveAssetType curveType)
-        external
-        override
-        onlyOwner
-    {
-        if(curveType==DataTypes.ReserveAssetType.CURVE){
-            _addresses[CURVE_PRICE_ORACLE] = priceOracle;
-        }
-        else if(curveType==DataTypes.ReserveAssetType.CURVEV2){
-            _addresses[CURVE_PRICE_ORACLE_V2] = priceOracle;
-        }
-        emit CurvePriceOracleUpdated(priceOracle);
-    }
-
-    function setCurvePriceOracleWrapper(address priceOracle)
-        external
-        override
-        onlyOwner
-    {
-        _addresses[CURVE_PRICE_ORACLE_WRAPPER] = priceOracle;
-        emit CurvePriceOracleWrapperUpdated(priceOracle);
-    }
-
-    // function setCurveAddressProvider(address addressProvider)
-    //     external
-    //     override
-    //     onlyOwner
-    // {
-    //     _addresses[CURVE_ADDRESS_PROVIDER] = addressProvider;
-    //     emit CurveAddressProviderUpdated(addressProvider);
-    // }
 
     function getLendingRateOracle() external view override returns (address) {
         return getAddress(LENDING_RATE_ORACLE);

@@ -61,9 +61,7 @@ library DepositWithdrawLogic {
         self.updateState();
         self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
         {
-            address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle(
-                        vars._assetMappings.getAssetType(vars.asset)
-                    );
+            address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle();
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
 
@@ -137,7 +135,6 @@ library DepositWithdrawLogic {
 
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                        _assetMappings.getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
@@ -167,7 +164,6 @@ library DepositWithdrawLogic {
     ) public {
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                        vars._assetMappings.getAssetType(vars.asset)
                     );
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }

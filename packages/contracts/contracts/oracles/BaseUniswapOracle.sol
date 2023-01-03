@@ -7,7 +7,7 @@ import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
 import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 //this contract needs to calculate a price for a given LP token and return a 3 min TWAP
 contract BaseUniswapOracle is IPriceOracleGetter, Ownable {
 
@@ -87,7 +87,7 @@ contract BaseUniswapOracle is IPriceOracleGetter, Ownable {
 	}
 
 	function getAssetPriceForTime(address asset, uint32 time) internal view returns (uint256) {
-		console.log("Address of pool: ", address(assetsSources[asset]));
+		// console.log("Address of pool: ", address(assetsSources[asset]));
 		int24 twap_tick = OracleLibrary.consult(address(assetsSources[asset]), time); 	
 		address token0 = assetsSources[asset].token0(); 
 		address token1 = assetsSources[asset].token1(); 
