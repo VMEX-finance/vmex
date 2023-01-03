@@ -144,6 +144,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     function baseStrategyVersion()
         external
         pure
+        virtual
         override
         returns (string memory)
     {

@@ -18,10 +18,10 @@ import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurato
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
 import {AssetMappings} from "./AssetMappings.sol";
-import {CrvLpStrategy} from "../strategies/strats/CrvLpStrategy.sol";
+import {IStrategy} from "../strategies/strats/IStrategy.sol";
 
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-
+import "hardhat/console.sol";
 /**
  * @title LendingPoolConfigurator contract
  * @author Aave
@@ -252,6 +252,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Updates the aToken implementation for the reserve
      **/
+     //note that this only updates the implementation for a specific aToken in a specific tranche
     function updateAToken(UpdateATokenInput calldata input)
         external
         onlyGlobalAdmin
@@ -281,8 +282,7 @@ contract LendingPoolConfigurator is
             vars.input.incentivesController,
             vars.decimals,
             vars.input.name,
-            vars.input.symbol,
-            vars.input.params
+            vars.input.symbol
         );
 
         _upgradeTokenImplementation(
@@ -322,8 +322,7 @@ contract LendingPoolConfigurator is
             input.incentivesController,
             decimals,
             input.name,
-            input.symbol,
-            input.params
+            input.symbol
         );
 
         _upgradeTokenImplementation(
@@ -550,7 +549,6 @@ contract LendingPoolConfigurator is
         InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
                 payable(proxyAddress)
             );
-
         proxy.upgradeToAndCall(implementation, initParams);
     }
 
@@ -576,29 +574,56 @@ contract LendingPoolConfigurator is
         uint8 strategyId
     ) external onlyPoolAdmin(trancheId) {
         address strategy =assetMappings.getCurveStrategyAddress(asset,strategyId);
-        address impl = DeployATokens._initTokenWithProxy(
+        address proxy = DeployATokens._initTokenWithProxy(
             strategy,
             abi.encodeWithSelector(
-                CrvLpStrategy.initialize.selector,
+                IStrategy.initialize.selector,
                 address(addressesProvider),
                 asset,
                 trancheId
             )
         );
 
-        pool.setAndApproveStrategy(asset,trancheId,impl);
+        pool.setAndApproveStrategy(asset,trancheId,proxy);
+        console.log("Proxy address: ", proxy);
         emit StrategyAdded(asset, trancheId, strategy);
     }
 
-    // function addStrategy(
-    //     address asset,
-    //     uint64 trancheId,
-    //     uint8 strategyId
-    // ) external onlyPoolAdmin(trancheId) {
-    //     address strategy = AssetMappings(addressesProvider.getAssetMappings()).getCurveStrategyAddress(asset,strategyId);
-    //     pool.addStrategy(asset, trancheId, strategy);
-    //     emit StrategyAdded(asset, trancheId, strategy);
-    // }
+    /**
+     * @dev Updates the aToken implementation for the reserve
+     **/
+     // note that this only updates one strategy for an asset of a specific tranche
+     // alternatively, we could publish a new strategy with a new strategyId, and users 
+     // can choose to use that strategy by setting strategyId in initialization
+    function updateStrategy(UpdateStrategyInput calldata input)
+        external
+        onlyGlobalAdmin
+    {
+        // cannot do the below call because aTokens proxy admin is this contract, and by transparent proxy pattern, to use delegatecall you must call from account that is not admin
+        // also cannot do delegatecall because we need the context of the atoken
+        // address strategyAddress = IAToken(reserveData.aTokenAddress).getStrategy();
+        require(input.strategyAddress!=address(0), "Upgrading reserve that doesn't have a strategy");
+        bytes memory encodedCall;
+        //  = abi.encodeWithSelector(
+        //     IStrategy.initialize.selector, //selects that we want to call the initialize function
+        //     address(addressesProvider),
+        //     input.asset,
+        //     input.trancheId
+        // );
+
+        _upgradeTokenImplementation(
+            input.strategyAddress,//address of proxy
+            input.implementation,
+            encodedCall
+        );
+
+        emit StrategyUpgraded(
+            input.asset,
+            input.trancheId,
+            input.strategyAddress,
+            input.implementation
+        );
+    }
 
     function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyPoolAdmin(trancheId) {
         require(user.length == isWhitelisted.length, "whitelist lengths not equal");

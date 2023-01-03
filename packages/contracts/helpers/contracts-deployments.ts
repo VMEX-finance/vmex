@@ -59,8 +59,8 @@ import {
   WETH9MockedFactory,
   WETHGatewayFactory,
   FlashLiquidationAdapterFactory,
-  UiPoolDataProviderV2Factory,
-  UiPoolDataProviderV2V3Factory,
+  // UiPoolDataProviderV2Factory,
+  // UiPoolDataProviderV2V3Factory,
   UiIncentiveDataProviderV2V3,
   UiIncentiveDataProviderV2Factory,
   BoosterFactory,
@@ -72,6 +72,7 @@ import {
   LendingPoolAddressesProvider,
   // CurveOracleV1Factory,
   BaseUniswapOracleFactory,
+  MockStrategyFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -422,7 +423,7 @@ export const deployVMEXOracle = async (
 ) =>
   withSaveAndVerify(
     await new VMEXOracleFactory(await getFirstSigner()).deploy(),
-    eContractid.AaveOracle,
+    eContractid.VMEXOracle,
     [],
     verify
   );
@@ -1020,6 +1021,35 @@ export const deployMockAToken = async (
     "18",
     name,
     symbol
+  );
+
+  return instance;
+};
+
+export const deployMockStrategy = async (
+  [
+    addressProvider,
+    underlyingAssetAddress,
+    tranche,
+  ]: [
+    tEthereumAddress,
+    tEthereumAddress,
+    string
+  ],
+  verify?: boolean
+) => {
+  const libraries = await deployStrategyLibraries(verify);
+  const instance = await withSaveAndVerify(
+    await new MockStrategyFactory(libraries, await getFirstSigner()).deploy(),
+    eContractid.MockStrategy,
+    [],
+    verify
+  );
+
+  await instance.initialize(
+    addressProvider,
+    underlyingAssetAddress,
+    tranche
   );
 
   return instance;

@@ -12,11 +12,11 @@ import {IUniswapV2Router02} from "../deps/sushi/IUniswapV2Router02.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {AssetMappings} from "../../../protocol/lendingpool/AssetMappings.sol";
 import {DataTypes} from "../../../protocol/libraries/types/DataTypes.sol";
-// import {IStrategy} from "./IStrategy.sol";
-//import "hardhat/console.sol";
+import {IStrategy} from "./IStrategy.sol";
+import "hardhat/console.sol";
 
 //need modifiers for permissioned actors after built into lending pool
-contract CrvLpStrategy is BaseStrategy {
+contract CrvLpStrategy is BaseStrategy, IStrategy {
     //NOTE: underlying and lendingPool are inherited from BaseStrategy.sol
 
     //Tokens included in strategy
@@ -45,9 +45,10 @@ contract CrvLpStrategy is BaseStrategy {
         address _addressProvider,
         address _underlying,
         uint64 _tranche
-    ) public initializer {
-        //note: need initializer modifier?? So can't be called multiple times
+    ) public override initializer {
+        console.log("Inside initialize for CrvLpStrategy");
         __BaseStrategy_init(_addressProvider, _underlying, _tranche);
+        console.log("After base strat init");
 
         DataTypes.CurveMetadata memory vars = AssetMappings(ILendingPoolAddressesProvider(_addressProvider).getAssetMappings()).getCurveMetadata(_underlying);
 

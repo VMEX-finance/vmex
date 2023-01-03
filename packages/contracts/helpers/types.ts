@@ -124,7 +124,7 @@ export enum eContractid {
   AssetMappings = "AssetMappings",
   UserConfiguration = "UserConfiguration",
   BaseUniswapOracle = "BaseUniswapOracle",
-  
+  MockStrategy = "MockStrategy",
 }
 
 /*
