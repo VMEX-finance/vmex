@@ -21,7 +21,7 @@ import {AssetMappings} from "./AssetMappings.sol";
 import {IStrategy} from "../strategies/strats/IStrategy.sol";
 
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 /**
  * @title LendingPoolConfigurator contract
  * @author Aave
@@ -585,7 +585,7 @@ contract LendingPoolConfigurator is
         );
 
         pool.setAndApproveStrategy(asset,trancheId,proxy);
-        console.log("Proxy address: ", proxy);
+        // console.log("Proxy address: ", proxy);
         emit StrategyAdded(asset, trancheId, strategy);
     }
 

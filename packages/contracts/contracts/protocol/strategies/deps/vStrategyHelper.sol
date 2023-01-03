@@ -41,11 +41,7 @@ library vStrategyHelper {
     {
 		//check if tokenIn is one of the tokens we want stable swaps for 
 		(address curveSwapPool, uint256 amountExpected, address curveRegistryExchange) = swapCurve(tokenIn, tokenOut, amount); 
-		console.log("token in:", tokenIn); 
-		console.log("token out:", tokenOut); 
-        console.log("amount: ", amount);
-		// console.log("curve registry exchange address", curveRegistryExchange); 
-		console.log("curveSwapPool address", curveSwapPool); 
+		
 		if (curveSwapPool != address(0)) {
             //must approve the curve pools. This function checks if already max, and if not, then makes it max
             tokenAllowAll(
