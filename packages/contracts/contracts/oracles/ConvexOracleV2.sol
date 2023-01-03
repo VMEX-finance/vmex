@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0; 
 
 import {IVoterProxy} from "./interfaces/IVoterProxy.sol"; 
-import {CurveOracleV2} from "./CurveOracleV2.sol";  
+import {CurveOracle} from "./CurveOracle.sol";  
 import {FixedPointMathLib} from "./libs/FixedPointMathLib.sol";
 import {IERC20} from "./interfaces/IERC20.sol"; 
 
@@ -13,7 +13,6 @@ contract ConvexOracleV2 {
 	//address private constant BOOSTER = 0xF403C135812408BFbE8713b5A23a04b3D48AAE31; //convex deposit contract
 	address private immutable PROXY = 0x989AEb4d175e16225E39E87d0D97A3360524AD80; //convex's staker is immutable, so ours can be too, no need to add ability to change
 
-	CurveOracleV2 private curve_oracle; 
 	mapping(address=>uint256) public curve_supply_cumulative_last; //maps the curve lp address to the supply_cumulative
 	mapping(uint16=>uint256) public convex_supply_cumulative_last; //maps the convex pid to the supply_cumulative 
 	mapping(uint256=>uint256) public timestamp_last; //store the last timestamp for each given convex pool for twas 
@@ -24,10 +23,6 @@ contract ConvexOracleV2 {
 
 	uint256 private constant PERIOD = 3 minutes; 
 
-	constructor(CurveOracleV2 _curve_oracle) { 
-		curve_oracle = _curve_oracle; 
-	}
-
 	//get curve lp tokens price, get convex lp token "depositToken", divide
 	function get_convex_price(
 		address curve_pool, 
@@ -36,7 +31,8 @@ contract ConvexOracleV2 {
 		address curve_lp, 
 		address convex_lp,
 		address curve_gauge) external returns(uint256) {
-			uint256 curve_lp_price = curve_oracle.get_price(curve_pool, prices); //returns 1e36 scaled uint
+			//TODO: consider v1 as well
+			uint256 curve_lp_price = CurveOracle.get_price_v2(curve_pool, prices); //returns 1e36 scaled uint
 
 			uint time_elapsed = block.timestamp - timestamp_last[pid]; 	
 			uint256 curve_supply; 

@@ -33,10 +33,7 @@ import {
   deployParaSwapLiquiditySwapAdapter,
   authorizeWETHGateway,
   deployATokenImplementations,
-  deployAaveOracle,
-  deployCurveV1Oracle,
-  deployCurveV2Oracle,
-  deployCurveOracleWrapper,
+  deployVMEXOracle,
   deployConvexBaseRewardPool,
   deployConvexBooster,
 } from "../../helpers/contracts-deployments";
@@ -82,7 +79,8 @@ import {
   getPairsTokenAggregator,
   getAToken,
   getStableDebtToken,
-  getVariableDebtToken
+  getVariableDebtToken,
+  getVMEXOracle,
 } from "../../helpers/contracts-getters";
 import { WETH9Mocked } from "../../types/WETH9Mocked";
 
@@ -351,16 +349,39 @@ const buildTestEnv = async (deployer: Signer) => {
     config.OracleQuoteCurrency
   );
 
-  await deployAaveOracle([
-    tokens,
-    aggregators,
-    fallbackOracle.address,
-    mockTokens.WETH.address,
-    oneEther.toString(),
-  ]);
+  const vmexOracleImpl = await deployVMEXOracle();
+
+
   await waitForTx(
-    await addressesProvider.setAavePriceOracle(fallbackOracle.address)
+    await addressesProvider.setPriceOracle(vmexOracleImpl.address)
   );
+
+
+  const VMEXOracleAddress = await addressesProvider.getPriceOracle(); //returns address of the proxy
+  const VMEXOracleProxy = await getVMEXOracle(VMEXOracleAddress);
+
+  await insertContractAddressInDb(
+    eContractid.VMEXOracle,
+    VMEXOracleProxy.address
+  );
+
+  console.log("Set addresses provider price oracle as vmex oracle")
+
+  await waitForTx(
+    await VMEXOracleProxy.connect(admin).setBaseCurrency(
+      mockTokens.WETH.address,
+      oneEther.toString()
+      )
+  );
+
+  console.log("Set vmex oracle base currency")
+  await waitForTx(
+    await VMEXOracleProxy.connect(admin).setFallbackOracle(
+      fallbackOracle.address
+      )
+  );
+
+  console.log("Set vmex oracle fallback oracle")
 
   const lendingRateOracle = await deployLendingRateOracle();
   await waitForTx(
@@ -374,41 +395,6 @@ const buildTestEnv = async (deployer: Signer) => {
     lendingRateOracle,
     aaveAdmin
   );
-
-  //---------------------------------------------------------------------------------
-  //Also deploy CurveOracleV2 contract and add that contract to the aave address provider
-  const curveOracle = await deployCurveV1Oracle();
-  console.log("Curve oracle deployed at ", curveOracle.address);
-
-  await waitForTx(
-    await addressesProvider.setCurvePriceOracle(curveOracle.address, 1)
-  );
-
-  const curveV2Oracle = await deployCurveV2Oracle();
-  console.log("Curve v2 oracle deployed at ", curveV2Oracle.address);
-
-  await waitForTx(
-    await addressesProvider.setCurvePriceOracle(curveV2Oracle.address, 2)
-  );
-
-  //Also deploy CurveOracleV2 wrapper contract and add that contract to the aave address provider
-  const curveOracleWrapper = await deployCurveOracleWrapper(
-    addressesProvider.address,
-    fallbackOracle.address, //in this test, the fallback oracle is the aave oracle
-    mockTokens.WETH.address,
-    oneEther.toString()
-  );
-
-  console.log("Curve oracle wrapper deployed at ", curveOracleWrapper.address);
-
-  await waitForTx(
-    await addressesProvider.setCurvePriceOracleWrapper(
-      curveOracleWrapper.address
-    )
-  );
-
-  //---------------------------------------------------------------------------------
-
   
 
   await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);

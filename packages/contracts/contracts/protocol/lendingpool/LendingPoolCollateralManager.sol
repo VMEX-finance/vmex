@@ -357,15 +357,12 @@ contract LendingPoolCollateralManager is
 
         AvailableCollateralToLiquidateLocalVars memory vars;
         {
-            address oracleAddress = _addressesProvider.getPriceOracle(
-                _assetMappings.getAssetType(collateralAsset)
-            ); //using just chainlink current price oracle, not using 24 hour twap
+            address oracleAddress = _addressesProvider.getPriceOracle(); //using just chainlink current price oracle, not using 24 hour twap
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
             oracleAddress = _addressesProvider.getPriceOracle(
-                _assetMappings.getAssetType(debtAsset)
             );
 
             oracle = IPriceOracleGetter(oracleAddress);

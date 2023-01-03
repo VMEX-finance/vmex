@@ -14,8 +14,6 @@ import {Errors} from "../helpers/Errors.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
-
-import "hardhat/console.sol";
 /**
  * @title GenericLogic library
  * @author Aave
@@ -122,7 +120,6 @@ library GenericLogic {
         //using current price instead of 24 hour average
         vars.currentPrice= IPriceOracleGetter(
             params._addressesProvider.getPriceOracle(
-                params._assetMappings.getAssetType(params.asset)
             )
         ).getAssetPrice(params.asset);
         
@@ -144,10 +141,6 @@ library GenericLogic {
             .mul(vars.avgLiquidationThreshold)
             .sub(vars.amountToDecreaseInETH.mul(vars.liquidationThreshold))
             .div(vars.collateralBalanceAfterDecrease);
-        console.log("vars.collateralBalanceAfterDecrease: ", vars.collateralBalanceAfterDecrease);
-        console.log("vars.liquidationThresholdAfterDecrease: ", vars.liquidationThresholdAfterDecrease);
-        console.log("vars.totalDebtInETH: ", vars.totalDebtInETH);
-        console.log("vars.avgBorrowFactor: ", vars.avgBorrowFactor);
 
 
         vars.healthFactorAfterDecrease = calculateHealthFactorFromBalances(
@@ -156,9 +149,6 @@ library GenericLogic {
             vars.liquidationThresholdAfterDecrease,
             vars.avgBorrowFactor
         );
-
-        console.log("vars.healthFactorAfterDecrease: ", vars.healthFactorAfterDecrease);
-
         return
             vars.healthFactorAfterDecrease >=
             GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD;
@@ -253,7 +243,6 @@ library GenericLogic {
 
             {
                 vars.oracle = _addressesProvider.getPriceOracle(
-                    _assetMappings.getAssetType(vars.currentReserveAddress)
                 );
             }
 

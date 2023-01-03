@@ -26,7 +26,7 @@ makeSuite(
         it("Test if uniswap oracle has same price as chainlink", async () => {
           var signer = await contractGetters.getFirstSigner();
           const uniswapOracle = await contractGetters.getBaseUniswapOracle();
-          const chainlinkOracle = await contractGetters.getAaveOracle();
+          const chainlinkOracle = await contractGetters.getVMEXOracle();
             for(let [tokenSymbol, tokenAddress] of reserveAssets) {
                 if(tokenSymbol == "SUSD"){
                     return; //skip this since uniswap doesn't support this apparently
