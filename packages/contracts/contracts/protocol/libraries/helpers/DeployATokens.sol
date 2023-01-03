@@ -8,7 +8,7 @@ import {IAaveIncentivesController} from "../../../interfaces/IAaveIncentivesCont
 import {IInitializableDebtToken} from "../../../interfaces/IInitializableDebtToken.sol";
 
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-
+import "hardhat/console.sol";
 library DeployATokens {
     struct deployATokensVars {
         ILendingPool pool;
@@ -126,6 +126,7 @@ library DeployATokens {
         address implementation,
         bytes memory initParams
     ) public returns (address) {
+        // console.log("Admin of token or strategy proxy: ", address(this));
         InitializableImmutableAdminUpgradeabilityProxy proxy = new InitializableImmutableAdminUpgradeabilityProxy(
                 address(this)
             );

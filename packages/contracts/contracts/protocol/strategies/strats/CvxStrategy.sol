@@ -11,7 +11,7 @@ import {IUniswapV2Router02} from "../deps/sushi/IUniswapV2Router02.sol";
 import {IStrategy} from "./IStrategy.sol";
 
 //need modifiers for permissioned actors
-contract CvxStrategy is BaseStrategy {
+contract CvxStrategy is BaseStrategy, IStrategy {
     //NOTE: underlying and lendingPool are inherited from BaseStrategy.sol
 
     // ===== Tokens =====
@@ -36,7 +36,7 @@ contract CvxStrategy is BaseStrategy {
         address _addressProvider, 
         address asset, //unused, but to satisfy requirements
         uint64 _tranche
-    ) public initializer{ 
+    ) public override initializer{ 
         __BaseStrategy_init(_addressProvider, address(cvxToken), _tranche);
 
         // Approvals
