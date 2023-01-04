@@ -11,7 +11,6 @@ const {
   borrow,
   supply,
   markReserveAsCollateral,
-  claimTrancheId,
   initTranche,
   lendingPoolPause,
 } = require("../dist/protocol.js");
@@ -110,6 +109,7 @@ describe("Tranche creation - end-to-end test", () => {
         treasuryAddress: "0x0000000000000000000000000000000000000000",
         incentivesController: "0x0000000000000000000000000000000000000000",
         network: network,
+        test: true
       }
     )
   });
@@ -154,6 +154,7 @@ describe("Supply - end-to-end test", () => {
         setPause: false,
         network: network,
         tranche: 0,
+        test: true
       })
     ).to.be.false;
   });
@@ -314,6 +315,7 @@ describe("Borrow - end-to-end test", () => {
         asset: USDCaddr,
         trancheId: tranche,
         useAsCollateral: true,
+        test: true
       },
       () => {
         return true;
