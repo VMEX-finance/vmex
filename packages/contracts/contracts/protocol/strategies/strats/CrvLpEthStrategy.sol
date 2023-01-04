@@ -156,7 +156,7 @@ contract CrvLpEthStrategy is BaseStrategy, IStrategy {
 
     // By farm and dump strategy, tend() will swap all rewards back into base LP token,
     // then deposit the LP back into the booster.
-    function _tend() internal override returns (uint256) {
+    function _tend(uint256 minOut) internal override returns (uint256) {
         //check to see if rewards have stopped streaming
         // other rewards might be gotten?
         // require(
@@ -213,6 +213,7 @@ contract CrvLpEthStrategy is BaseStrategy, IStrategy {
             block.timestamp - (uint256(lastHarvestTime));
         lastHarvestTime = block.timestamp;
         uint256 amountEarned = (balanceAfter - balanceBefore);
+        require(amountEarned>=minOut, "Strategy error: insufficient output");
         //update globals, inherited from BaseStrategy.sol
         interestRate(amountEarned, balanceBefore, timeDifference);
         

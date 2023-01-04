@@ -103,7 +103,7 @@ contract CvxStrategy is BaseStrategy, IStrategy {
 
     // By farm and dump strategy, tend() will swap all rewards back into CRV token,
     // then deposit the CRV into the reward pool.
-    function _tend() internal override returns (uint256) {
+    function _tend(uint256 minOut) internal override returns (uint256) {
         uint256 balanceBefore = balanceOfPool();
         TendData memory tendData;
 
@@ -152,6 +152,7 @@ contract CvxStrategy is BaseStrategy, IStrategy {
         lastHarvestTime = block.timestamp;
         //update globals, inherited from BaseStrategy.sol
         uint256 amountEarned = (balanceAfter - balanceBefore);
+        require(amountEarned>=minOut, "Strategy error: insufficient output");
         interestRate(amountEarned, balanceBefore, timeDifference);
         
 
