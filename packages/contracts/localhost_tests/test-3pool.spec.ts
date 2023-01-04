@@ -330,8 +330,9 @@ var triCryptoDepositAbi = [
   
                   console.log("signerStake: ", signerStake)
                   console.log("Amount earned: ",(await strategy.earned()))
+                  await expect(strategy.tend(DRE.ethers.utils.parseEther("150000000"))).to.be.revertedWith("Strategy error: insufficient output")
                   try{
-                      await strategy.tend(); //this will update the interest rate
+                      await strategy.tend(1); //this will update the interest rate
                   } catch {
                     i--;
                     continue;

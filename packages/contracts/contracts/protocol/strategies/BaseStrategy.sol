@@ -504,9 +504,9 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     ///         Note that tend doesn't work when the strategy is paused.
     /// @dev Is only called by the keeper when `isTendable` is true.
     /// @return amountTended An array of `TokenAmount` containing the address and amount tended for each token.
-    function tend() external override whenNotPaused returns (uint256 amountTended) {
+    function tend(uint256 minOut) external override whenNotPaused returns (uint256 amountTended) {
         _onlyAuthorizedActors();
-        return _tend();
+        return _tend(minOut);
     }
 
     // function tend() external override whenNotPaused returns (uint256 crvTended,
@@ -523,7 +523,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
 
     /// @dev Virtual function that should be overridden with the logic for tending.
     ///      Also see `tend`.
-    function _tend() internal virtual returns (uint256 amountTended);
+    function _tend(uint256 minOut) internal virtual returns (uint256 amountTended);
 
     /// @notice Fetches the name of the strategy.
     /// @dev Should be user-friendly and easy to read.
