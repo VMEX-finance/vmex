@@ -21,12 +21,8 @@ const IERC20abi = [
   "function withdraw(uint wad) public",
 ];
 
-const TricryptoDeposit = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
-const TricryptoABI = require("@vmex/contracts/localhost_tests/abis/tricrypto.json");
-const Crv3Crypto = "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff";
-
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-const UNISWAP_ROUTER_ABI = require("@vmex/contracts/localhost_tests/abis/uniswapAbi.json");
+const UNISWAP_ROUTER_ABI = require("@vmexfinance/contracts/localhost_tests/abis/uniswapAbi.json");
 const USDCaddr = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
 const network = "localhost";
@@ -35,7 +31,7 @@ const network = "localhost";
 describe("Supply - end-to-end test", () => {
   let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
   const owner = provider.getSigner(0);
-  
+
 
   it("1 - signer should receive 3 WETH so he can transact for LP tokens", async () => {
     // console.log(await owner.getAddress())

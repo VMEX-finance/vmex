@@ -11,8 +11,15 @@ import WalletBalanceProvider from "@vmexfinance/contracts/artifacts/contracts/mi
 import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
 
 export const defaultTestProvider = ethers.getDefaultProvider(
-  "http://localhost:8545"
+  "http://0.0.0.0:8545"
 );
+
+export function getProvider(providerRpc: string, test: boolean) {
+  return providerRpc
+  ? ethers.getDefaultProvider(providerRpc)
+  : test
+    ? defaultTestProvider : null;
+}
 
 export const getIErc20Detailed = async (address: string) =>
   new ethers.Contract(address, IERC20Detailed.abi, defaultTestProvider)
@@ -111,19 +118,19 @@ export async function getLendingPoolAddressesProvider(params?: {
   return addressProvider;
 }
 
-export async function getWalletBalanceProvider(params?: {
-  signer?: ethers.Signer;
-  network?: string;
-}) {
-  let balanceProvider = new ethers.Contract(
-    deployments.WalletBalanceProvider[
-      `${params.network || "mainnet"}`
-    ].address,
-    WalletBalanceProvider.abi,
-    defaultTestProvider
-  );
-  if (params.signer) return balanceProvider.connect(params.signer);
-  return balanceProvider;
-}
+// export async function getWalletBalanceProvider(params?: {
+//   signer?: ethers.Signer;
+//   network?: string;
+// }) {
+//   let balanceProvider = new ethers.Contract(
+//     deployments.WalletBalanceProvider[
+//       `${params.network || "mainnet"}`
+//     ].address,
+//     WalletBalanceProvider.abi,
+//     defaultTestProvider
+//   );
+//   if (params.signer) return balanceProvider.connect(params.signer);
+//   return balanceProvider;
+// }
 
 
