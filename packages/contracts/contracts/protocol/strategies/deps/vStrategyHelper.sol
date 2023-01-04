@@ -39,6 +39,9 @@ library vStrategyHelper {
         internal 
         returns (uint256 amountOut)
     {
+        if(tokenIn==0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7){
+            console.log("cvxCRV is input");
+        }
 		//check if tokenIn is one of the tokens we want stable swaps for 
 		(address curveSwapPool, uint256 amountExpected, address curveRegistryExchange) = swapCurve(tokenIn, tokenOut, amount); 
 		
