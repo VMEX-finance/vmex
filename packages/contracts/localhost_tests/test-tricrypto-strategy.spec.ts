@@ -232,7 +232,7 @@ makeSuite(
                 var adminStake = calculateUserStake(userReserveDataAdminBefore.currentATokenBalance, aTokenBalance)
 
                 console.log("signerStake: ", signerStake)
-                var tendData = (await strategy.tend()); //this will update the interest rate
+                var tendData = (await strategy.tend(1)); //this will update the interest rate
                 // var rc = await tendData.wait();
                 // var event = rc.events.find(event => event.event === 'InterestRateUpdated');
                 // console.log("InterestRateUpdated data: ",event)
