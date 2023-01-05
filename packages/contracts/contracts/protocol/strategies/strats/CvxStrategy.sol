@@ -153,9 +153,7 @@ contract CvxStrategy is BaseStrategy, IStrategy {
         // TODO: potentially call pull() so we pull from lending pools
         // deposit all swapped CVX back into the
 
-        console.log("Before pull");
         _pull(cvxToken.balanceOf(address(this)));
-        console.log("After pull");
 
         uint256 balanceAfter = balanceOfPool();
 
