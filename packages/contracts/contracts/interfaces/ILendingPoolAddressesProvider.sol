@@ -19,7 +19,7 @@ interface ILendingPoolAddressesProvider {
         address indexed newAddress,
         uint64 indexed trancheId
     );
-    event EmergencyAdminUpdated(address indexed newAddress, uint64 indexed trancheId);
+    event EmergencyAdminUpdated(address indexed newAddress);
     event LendingPoolConfiguratorUpdated(address indexed newAddress);
     event LendingPoolCollateralManagerUpdated(address indexed newAddress);
     event PriceOracleUpdated(address indexed newAddress);
@@ -71,12 +71,12 @@ interface ILendingPoolAddressesProvider {
 
     function setPoolAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
 
-    // function getEmergencyAdmin(uint64 trancheId)
-    //     external
-    //     view
-    //     returns (address); //this depends on trancheId
+    function getEmergencyAdmin()
+        external
+        view
+        returns (address); //this depends on trancheId
 
-    // function setEmergencyAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
+    function setEmergencyAdmin(address admin) external; //this depends on trancheId
 
     function addPoolAdmin(address admin, uint64 trancheId) external;
 

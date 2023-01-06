@@ -146,6 +146,7 @@ const buildTestEnv = async (deployer: Signer) => {
     AaveConfig.MarketId
   );
   await waitForTx(await addressesProvider.setGlobalAdmin(aaveAdmin));
+  await waitForTx(await addressesProvider.setEmergencyAdmin(aaveAdmin));
 
   //setting users[1] as emergency admin, which is in position 2 in the DRE addresses list
   const addressList = await getEthersSignersAddresses();

@@ -397,4 +397,13 @@ contract LendingPoolAddressesProvider is
     function setAssetMappings(address pool) external override onlyOwner{
         _addresses[ASSET_MAPPINGS] = pool;
     }
+
+    function getEmergencyAdmin() external view override returns (address) {
+        return getAddress(EMERGENCY_ADMIN);
+    }
+
+    function setEmergencyAdmin(address emergencyAdmin) external override onlyOwner {
+        _addresses[EMERGENCY_ADMIN] = emergencyAdmin;
+        emit EmergencyAdminUpdated(emergencyAdmin);
+    }
 }
