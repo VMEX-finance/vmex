@@ -44,6 +44,14 @@ contract LendingPoolConfigurator is
     uint64 public totalTranches;
     mapping(uint64 => string) public trancheNames; //just for frontend purposes
 
+    modifier onlyEmergencyAdmin {
+        require(
+            addressesProvider.getEmergencyAdmin() == msg.sender,
+            Errors.LPC_CALLER_NOT_EMERGENCY_ADMIN
+        );
+        _;
+    }
+
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         _onlyGlobalAdmin();
@@ -536,7 +544,7 @@ contract LendingPoolConfigurator is
      **/
     function setPoolPause(bool val, uint64 trancheId)
         external
-        onlyGlobalAdmin
+        onlyEmergencyAdmin
     {
         pool.setPause(val, trancheId);
     }

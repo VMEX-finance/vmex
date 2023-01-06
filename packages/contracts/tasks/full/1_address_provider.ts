@@ -53,6 +53,11 @@ task(
       )
     );
     await waitForTx(
+      await addressesProvider.setEmergencyAdmin(
+        await getGenesisPoolAdmin(poolConfig)
+      )
+    );
+    await waitForTx(
       await addressesProvider.addWhitelistedAddress(
         await getGenesisPoolAdmin(poolConfig),
         true
