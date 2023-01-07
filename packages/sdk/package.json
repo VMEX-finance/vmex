@@ -1,6 +1,6 @@
 {
   "name": "@vmexfinance/sdk",
-  "version": "1.0.1-alpha",
+  "version": "1.0.2-alpha",
   "description": "VMEX Finance - Software Development Kit",
   "main": "dist/index.js",
   "author": "VMEX finance",

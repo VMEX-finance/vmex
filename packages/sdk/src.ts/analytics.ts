@@ -35,6 +35,7 @@ export async function getTotalMarkets(
   params?: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<number>
 ) {
@@ -51,6 +52,7 @@ export async function getAllMarketsData(
   params: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<MarketData[]>
 ): Promise<MarketData[]> {
@@ -76,6 +78,7 @@ export async function getProtocolData(
   params?: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<ProtocolData>
 ): Promise<ProtocolData> {

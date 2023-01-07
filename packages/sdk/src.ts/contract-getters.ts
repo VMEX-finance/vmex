@@ -13,7 +13,7 @@ const defaultTestProvider = ethers.getDefaultProvider(
   "http://0.0.0.0:8545"
 );
 
-export function getProvider(providerRpc: string, test: boolean) {
+export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc
   ? ethers.getDefaultProvider(providerRpc)
   : test
