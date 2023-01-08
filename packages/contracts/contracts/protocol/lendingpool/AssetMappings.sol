@@ -6,8 +6,9 @@ import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddres
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
+import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 
-contract AssetMappings {
+contract AssetMappings is VersionedInitializable{
     using PercentageMath for uint256;
 
 
@@ -67,7 +68,14 @@ contract AssetMappings {
         _;
     }
 
-    constructor(address provider) {
+    function getRevision() internal pure override returns (uint256) {
+        return 0x1;
+    }
+
+    function initialize(ILendingPoolAddressesProvider provider)
+        public
+        initializer
+    {
         addressesProvider = ILendingPoolAddressesProvider(provider);
         numApprovedAssets=0;
         curveMetadata[0xc4AD29ba4B3c580e6D59105FFf484999997675Ff] = DataTypes.CurveMetadata( //tricrypto2
@@ -95,8 +103,6 @@ contract AssetMappings {
             2,
             0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B
         );
-
-
     }
 
     function validateCollateralParams(uint256 baseLTV, uint256 liquidationThreshold, uint256 liquidationBonus) internal pure {
