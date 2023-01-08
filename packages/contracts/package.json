@@ -1,6 +1,6 @@
 {
   "name": "@vmexfinance/contracts",
-  "version": "1.0.0-alpha",
+  "version": "1.0.1-alpha",
   "description": "VMEX V1 smart contracts",
   "private": false,
   "files": [
