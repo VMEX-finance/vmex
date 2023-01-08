@@ -24,34 +24,36 @@ contract AssetMappings {
     mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
 
     event AssetDataSet(
+        address indexed asset,
         uint8 underlyingAssetDecimals,
         string underlyingAssetName,
         uint256 supplyCap,
         uint256 borrowCap,
-        uint256 baseLTV, 
+        uint256 baseLTV,
         uint256 liquidationThreshold,
         uint256 liquidationBonus,
         uint256 borrowFactor,
-        bool stableBorrowingEnabled,
         bool borrowingEnabled
     );
 
     event ConfiguredReserves(
-        address asset, 
-        uint256 baseLTV, 
-        uint256 liquidationThreshold, 
-        uint256 liquidationBonus, 
-        uint256 supplyCap, 
-        uint256 borrowCap, 
+        address indexed asset,
+        uint256 baseLTV,
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        uint256 supplyCap,
+        uint256 borrowCap,
         uint256 borrowFactor
     );
 
-    event addedInterestRateStrategyAddress(
+    event AddedInterestRateStrategyAddress(
+        address indexed asset,
         uint256 index,
         address strategyAddress
     );
 
-    event addedCurveStrategyAddress(
+    event AddedCurveStrategyAddress(
+        address indexed asset,
         uint256 index,
         address curveStrategyAddress
     );
@@ -111,7 +113,7 @@ contract AssetMappings {
             //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
             //a loan is taken there is enough collateral available to cover the liquidation bonus
 
-            //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need 
+            //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need
             //2 times the amount of debt asset they are covering, meaning that they need twice the value of the ccollateral asset. Since liquidation threshold is 50%, this is possible
 
             //with borrow factors, the liquidation threshold is always less than or equal to what it should be, so this still stands
@@ -127,38 +129,38 @@ contract AssetMappings {
     function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] calldata input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
         require(underlying.length==input.length);
 
-        
+
         for(uint256 i = 0;i<input.length;i++){
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
-            
+
             assetMappings[underlying[i]] = input[i];
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
             approvedAssets[numApprovedAssets++] = underlying[i];
             emit AssetDataSet(
+                underlying[i],
                 input[i].underlyingAssetDecimals,
                 input[i].underlyingAssetName,
                 input[i].supplyCap,
                 input[i].borrowCap,
-                input[i].baseLTV, 
+                input[i].baseLTV,
                 input[i].liquidationThreshold,
                 input[i].liquidationBonus,
                 input[i].borrowFactor,
-                input[i].stableBorrowingEnabled,
                 input[i].borrowingEnabled
             );
         }
     }
 
     function configureReserveAsCollateral(
-        address asset, 
-        uint256 baseLTV, 
-        uint256 liquidationThreshold, 
-        uint256 liquidationBonus, 
-        uint256 supplyCap, 
-        uint256 borrowCap, 
+        address asset,
+        uint256 baseLTV,
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        uint256 supplyCap,
+        uint256 borrowCap,
         uint256 borrowFactor
     ) external onlyGlobalAdmin {
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
@@ -222,7 +224,7 @@ contract AssetMappings {
     function getSupplyCap(address asset) view external returns(uint256){
         return assetMappings[asset].supplyCap;
     }
-    
+
     function getBorrowCap(address asset) view external returns(uint256){
         return assetMappings[asset].borrowCap;
     }
@@ -237,7 +239,11 @@ contract AssetMappings {
             numInterestRateStrategyAddress[underlying]++;
         }
         interestRateStrategyAddress[underlying][numInterestRateStrategyAddress[underlying]] = strategy;
-        emit addedInterestRateStrategyAddress(numInterestRateStrategyAddress[underlying], strategy);
+        emit AddedInterestRateStrategyAddress(
+            underlying,
+            numInterestRateStrategyAddress[underlying],
+            strategy
+        );
     }
 
     function addCurveStrategyAddress(address underlying, address strategy) external onlyGlobalAdmin {
@@ -245,7 +251,11 @@ contract AssetMappings {
             numCurveStrategyAddress[underlying]++;
         }
         curveStrategyAddress[underlying][numCurveStrategyAddress[underlying]] = strategy;
-        emit addedCurveStrategyAddress(numInterestRateStrategyAddress[underlying], strategy);
+        emit AddedCurveStrategyAddress(
+            underlying,
+            numInterestRateStrategyAddress[underlying],
+            strategy
+        );
     }
 
     function getCurveStrategyAddress(address underlying, uint8 index) external view returns (address) {

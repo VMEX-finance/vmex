@@ -209,7 +209,6 @@ contract LendingPoolConfigurator is
             internalInput.input.underlyingAsset,
             internalInput.trancheId,
             aTokenProxyAddress,
-            stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress,
             assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
             currentConfig.getBorrowingEnabled(),
@@ -598,7 +597,7 @@ contract LendingPoolConfigurator is
      * @dev Updates the aToken implementation for the reserve
      **/
      // note that this only updates one strategy for an asset of a specific tranche
-     // alternatively, we could publish a new strategy with a new strategyId, and users 
+     // alternatively, we could publish a new strategy with a new strategyId, and users
      // can choose to use that strategy by setting strategyId in initialization
     function updateStrategy(UpdateStrategyInput calldata input)
         external
