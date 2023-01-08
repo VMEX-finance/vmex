@@ -1227,14 +1227,11 @@ export const deployParaSwapLiquiditySwapAdapter = async (
   );
 
   export const deployAssetMapping = async (
-    addressesProvider: tEthereumAddress,
     verify?: boolean
   ) =>
     withSaveAndVerify(
-      await new AssetMappingsFactory(await getFirstSigner()).deploy(
-        addressesProvider
-      ),
+      await new AssetMappingsFactory(await getFirstSigner()).deploy(),
       eContractid.AssetMappings,
-      [addressesProvider],
+      [],
       verify
     );

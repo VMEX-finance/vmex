@@ -81,6 +81,7 @@ import {
   getStableDebtToken,
   getVariableDebtToken,
   getVMEXOracle,
+  getAssetMappings,
 } from "../../helpers/contracts-getters";
 import { WETH9Mocked } from "../../types/WETH9Mocked";
 
@@ -202,10 +203,18 @@ const buildTestEnv = async (deployer: Signer) => {
   var treasuryAddress = admin.address;
 
 
-  const AssetMapping = await deployAssetMapping(addressesProvider.address);
+  const AssetMappingImpl = await deployAssetMapping();
 
   await waitForTx(
-    await addressesProvider.setAssetMappings(AssetMapping.address)
+    await addressesProvider.setAssetMappingsImpl(AssetMappingImpl.address)
+  );
+
+  const AssetMappingProxy = await getAssetMappings(
+    await addressesProvider.getAssetMappings()
+  );
+  await insertContractAddressInDb(
+    eContractid.AssetMappings,
+    AssetMappingProxy.address
   );
 
   await initAssetData(
