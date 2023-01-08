@@ -68,9 +68,6 @@ interface ILendingPoolConfigurator {
      * @param stableDebtToken The address of the associated stable rate debt token
      * @param variableDebtToken The address of the associated variable rate debt token
      * @param interestRateStrategyAddress The address of the interest rate strategy for the reserve
-     * @param ltv The loan to value of the reserve
-     * @param liquidationThreshold The liquidation threshold of the reserve
-     * @param liquidationBonus The liquidation bonus (aka liquidation penalty)
      * @param borrowingEnabled Whether or not borrowing is enabled on the reserve
      * @param collateralEnabled Whether or not usage as collateral is enabled on the reserve
      * @param reserveFactor The reserve factor of the reserve
@@ -82,9 +79,6 @@ interface ILendingPoolConfigurator {
         address stableDebtToken,
         address variableDebtToken,
         address interestRateStrategyAddress,
-        uint256 ltv,
-        uint256 liquidationThreshold,
-        uint256 liquidationBonus,
         bool borrowingEnabled,
         bool collateralEnabled,
         uint256 reserveFactor

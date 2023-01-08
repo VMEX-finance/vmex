@@ -23,6 +23,39 @@ contract AssetMappings {
     mapping(address => uint8) public numCurveStrategyAddress;
     mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
 
+    event AssetDataSet(
+        uint8 underlyingAssetDecimals,
+        string underlyingAssetName,
+        uint256 supplyCap,
+        uint256 borrowCap,
+        uint256 baseLTV, 
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        uint256 borrowFactor,
+        bool stableBorrowingEnabled,
+        bool borrowingEnabled
+    );
+
+    event ConfiguredReserves(
+        address asset, 
+        uint256 baseLTV, 
+        uint256 liquidationThreshold, 
+        uint256 liquidationBonus, 
+        uint256 supplyCap, 
+        uint256 borrowCap, 
+        uint256 borrowFactor
+    );
+
+    event addedInterestRateStrategyAddress(
+        uint256 index,
+        address strategyAddress
+    );
+
+    event addedCurveStrategyAddress(
+        uint256 index,
+        address curveStrategyAddress
+    );
+
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         require(
@@ -104,6 +137,18 @@ contract AssetMappings {
             assetMappings[underlying[i]] = input[i];
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
             approvedAssets[numApprovedAssets++] = underlying[i];
+            emit AssetDataSet(
+                input[i].underlyingAssetDecimals,
+                input[i].underlyingAssetName,
+                input[i].supplyCap,
+                input[i].borrowCap,
+                input[i].baseLTV, 
+                input[i].liquidationThreshold,
+                input[i].liquidationBonus,
+                input[i].borrowFactor,
+                input[i].stableBorrowingEnabled,
+                input[i].borrowingEnabled
+            );
         }
     }
 
@@ -123,6 +168,7 @@ contract AssetMappings {
         assetMappings[asset].supplyCap = supplyCap;
         assetMappings[asset].borrowCap = borrowCap;
         assetMappings[asset].borrowFactor = borrowFactor;
+        emit ConfiguredReserves(asset, baseLTV, liquidationThreshold, liquidationBonus, supplyCap, borrowCap, borrowFactor);
     }
 
     function removeAsset(address underlying) external onlyGlobalAdmin{
@@ -191,6 +237,7 @@ contract AssetMappings {
             numInterestRateStrategyAddress[underlying]++;
         }
         interestRateStrategyAddress[underlying][numInterestRateStrategyAddress[underlying]] = strategy;
+        emit addedInterestRateStrategyAddress(numInterestRateStrategyAddress[underlying], strategy);
     }
 
     function addCurveStrategyAddress(address underlying, address strategy) external onlyGlobalAdmin {
@@ -198,6 +245,7 @@ contract AssetMappings {
             numCurveStrategyAddress[underlying]++;
         }
         curveStrategyAddress[underlying][numCurveStrategyAddress[underlying]] = strategy;
+        emit addedCurveStrategyAddress(numInterestRateStrategyAddress[underlying], strategy);
     }
 
     function getCurveStrategyAddress(address underlying, uint8 index) external view returns (address) {
