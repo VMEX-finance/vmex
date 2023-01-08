@@ -4,7 +4,7 @@ import { deployments } from "./constants";
 import {
   getLendingPoolConfiguratorProxy,
   getIErc20Detailed,
-  defaultTestProvider,
+  getProvider,
 } from "./contract-getters";
 import { decodeConstructorBytecode } from "./decode-bytecode";
 import { PriceData } from "./interfaces";
@@ -20,6 +20,7 @@ export async function getAssetPrices(
     assets: string[];
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   }
 ): Promise<Map<string, PriceData>> {
   const cacheKey = "asset-prices";
@@ -27,7 +28,7 @@ export async function getAssetPrices(
   if (cachedTotalMarkets) {
     return cachedTotalMarkets;
   }
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,
@@ -98,9 +99,11 @@ export async function getAllTrancheNames(
 
 export const convertToCurrencyDecimals = async (
   tokenAddress: string,
-  amount: string
+  amount: string,
+  test?: boolean,
+  providerRpc?: string,
 ) => {
-  const token = await getIErc20Detailed(tokenAddress);
+  const token = await getIErc20Detailed(tokenAddress, providerRpc, test);
   let decimals = (await token.decimals()).toString();
 
   return ethers.utils.parseUnits(amount, decimals);

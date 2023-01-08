@@ -22,18 +22,23 @@ export async function borrow(
     signer: ethers.Signer;
     network: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.underlying,
-    params.amount.toString()
+    params.amount.toString(),
+    params.test,
+    params.providerRpc
   );
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
   if (params.test) {
     tx = await lendingPool.borrow(
@@ -71,6 +76,8 @@ export async function markReserveAsCollateral(
     asset: string;
     trancheId: number;
     useAsCollateral: boolean;
+    test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
@@ -79,6 +86,8 @@ export async function markReserveAsCollateral(
   const lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
   tx = await lendingPool.setUserUseReserveAsCollateral(
     params.asset,
@@ -103,13 +112,17 @@ export async function withdraw(
     network: string;
     amount: number | ethers.BigNumberish;
     isMax?: boolean;
+    test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.asset,
-    params.amount.toString()
+    params.amount.toString(),
+    params.test,
+    params.providerRpc
   );
   let client = await params.signer.getAddress();
   let to = params.to || client;
@@ -118,6 +131,8 @@ export async function withdraw(
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
   if (params.isMax) {
     tx = await lendingPool.withdraw(
@@ -152,18 +167,24 @@ export async function repay(
     amount: number | ethers.BigNumberish;
     network: string;
     isMax?: boolean;
+    test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.asset,
-    params.amount.toString()
+    params.amount.toString(),
+    params.test,
+    params.providerRpc
   );
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
 
   try {
@@ -214,6 +235,7 @@ export async function supply(
     referrer?: number;
     collateral?: boolean;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
@@ -221,11 +243,15 @@ export async function supply(
   let client = await params.signer.getAddress();
   let amount = await convertToCurrencyDecimals(
     params.underlying,
-    params.amount
+    params.amount,
+    params.test,
+    params.providerRpc
   );
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
 
   try {
@@ -289,12 +315,16 @@ export async function lendingPoolPause(
     setPause: boolean;
     network: string;
     tranche: number;
+    test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
   const addressProvider = await getLendingPoolAddressesProvider({
     network: params.network,
     signer: params.approvedSigner,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
   if (
     (await params.approvedSigner.getAddress()) !==
@@ -304,12 +334,16 @@ export async function lendingPoolPause(
   const lendingPool = await getLendingPool({
     signer: params.approvedSigner,
     network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
 
   try {
     const configurator = await getLendingPoolConfiguratorProxy({
       network: params.network,
       signer: params.approvedSigner,
+      test: params.test,
+      providerRpc: params.providerRpc,
     });
 
     await configurator.setPoolPause(false, params.tranche);
@@ -349,6 +383,8 @@ export async function initTranche(
     treasuryAddress: string;
     incentivesController: string;
     network: string;
+    test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
@@ -365,6 +401,8 @@ export async function initTranche(
   let configurator = await getLendingPoolConfiguratorProxy({
     network: params.network,
     signer: params.admin,
+    test: params.test,
+    providerRpc: params.providerRpc,
   });
 
   try {

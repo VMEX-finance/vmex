@@ -1,6 +1,6 @@
 import { deployments } from "./constants";
 import { BigNumber } from "ethers";
-import { defaultTestProvider, getLendingPoolConfiguratorProxy } from "./contract-getters";
+import { getLendingPoolConfiguratorProxy, getProvider } from "./contract-getters";
 import {
   MarketData,
   ProtocolData,
@@ -22,12 +22,11 @@ export async function getTotalTranches(
   params?: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<number>
 ) {
-  let configurator = await getLendingPoolConfiguratorProxy({
-    network: params.network,
-  });
+  let configurator = await getLendingPoolConfiguratorProxy(params);
   const totalTranches = (await configurator.totalTranches()).toNumber();
   return totalTranches;
 }
@@ -36,6 +35,7 @@ export async function getTotalMarkets(
   params?: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<number>
 ) {
@@ -52,6 +52,7 @@ export async function getAllMarketsData(
   params: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<MarketData[]>
 ): Promise<MarketData[]> {
@@ -77,6 +78,7 @@ export async function getProtocolData(
   params?: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<ProtocolData>
 ): Promise<ProtocolData> {
@@ -200,6 +202,7 @@ export async function getTrancheMarketsData(
     tranche: number;
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<MarketData[]>
 ): Promise<MarketData[]> {
@@ -212,7 +215,7 @@ export async function getTrancheMarketsData(
   }
 
   // not in cache (expired)
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,
@@ -235,10 +238,11 @@ export async function getAllTrancheData(
   params: {
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<TrancheData[]>
 ): Promise<TrancheData[]> {
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,
@@ -258,10 +262,11 @@ export async function getTrancheData(
     tranche: string;
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<TrancheData>
 ): Promise<TrancheData> {
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,
@@ -287,10 +292,11 @@ export async function getTrancheAssetData(
     tranche: string;
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<any>
 ): Promise<MarketData> {
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,
@@ -316,10 +322,11 @@ export async function getUserSummaryData(
     user: string;
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<UserSummaryData>
 ): Promise<UserSummaryData> {
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,
@@ -340,10 +347,11 @@ export async function getUserTrancheData(
     user: string;
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<UserTrancheData>
 ): Promise<UserTrancheData> {
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,
@@ -365,10 +373,11 @@ export async function getUserWalletData(
     user: string;
     network?: string;
     test?: boolean;
+    providerRpc?: string;
   },
   callback?: () => Promise<UserWalletData[]>
 ): Promise<UserWalletData[]> {
-  const provider = params.test ? defaultTestProvider : null;
+  const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
     bytecode,

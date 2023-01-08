@@ -1,6 +1,6 @@
 {
   "name": "@vmexfinance/contracts",
-  "version": "1.0.0-alpha",
+  "version": "1.0.1-alpha",
   "description": "VMEX V1 smart contracts",
   "private": false,
   "files": [
@@ -183,14 +183,12 @@
       "pre-commit": "pretty-quick --staged --pattern 'contracts/**/*.sol' --pattern 'helpers/**/*.ts'  --pattern 'test-suites/test-aave/**/*.ts' --pattern 'tasks/**/*.ts'"
     }
   },
-  "author": "Aave",
+  "author": "VMEX Finance",
   "contributors": [
-    "Ernesto Boado <ernesto@aave.com>",
-    "Emilio Frangella <emilio@aave.com>",
-    "Andrey Kozlov <andrey@aave.com>",
-    "David Racero <david.k@aave.com>",
-    "Pol Sendra <pol@aave.com>",
-    "David Truong <david@aave.com>"
+    "Kevin Yao <kevin@vmex.finance>",
+    "Steven Yao <steven@vmex.finance>",
+    "Jay <jay@vmex.finance>",
+    "Flex <flex@vmex.finance>"
   ],
   "license": "AGPLv3",
   "dependencies": {
@@ -198,9 +196,8 @@
     "mocha": "^10.2.0"
   },
   "keywords": [
-    "aave",
+    "vmex",
     "protocol",
-    "protocol-v2",
     "ethereum",
     "solidity"
   ],

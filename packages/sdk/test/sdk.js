@@ -11,7 +11,6 @@ const {
   borrow,
   supply,
   markReserveAsCollateral,
-  claimTrancheId,
   initTranche,
   lendingPoolPause,
 } = require("../dist/protocol.js");
@@ -46,11 +45,13 @@ const IERC20abi = [
 ];
 
 const TricryptoDeposit = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
-const TricryptoABI = require("@vmex/contracts/localhost_tests/abis/tricrypto.json");
+const TricryptoABI = require("@vmexfinance/contracts/localhost_tests/abis/tricrypto.json");
 const Crv3Crypto = "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff";
 
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-const UNISWAP_ROUTER_ABI = require("@vmex/contracts/localhost_tests/abis/uniswapAbi.json");
+const UNISWAP_ROUTER_ABI = [
+  "function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)"
+]
 const USDCaddr = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
 const network = "localhost";
@@ -110,6 +111,7 @@ describe("Tranche creation - end-to-end test", () => {
         treasuryAddress: "0x0000000000000000000000000000000000000000",
         incentivesController: "0x0000000000000000000000000000000000000000",
         network: network,
+        test: true
       }
     )
   });
@@ -154,6 +156,7 @@ describe("Supply - end-to-end test", () => {
         setPause: false,
         network: network,
         tranche: 0,
+        test: true
       })
     ).to.be.false;
   });
@@ -314,6 +317,7 @@ describe("Borrow - end-to-end test", () => {
         asset: USDCaddr,
         trancheId: tranche,
         useAsCollateral: true,
+        test: true
       },
       () => {
         return true;
