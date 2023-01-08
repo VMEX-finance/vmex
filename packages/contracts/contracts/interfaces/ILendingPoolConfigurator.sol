@@ -38,6 +38,13 @@ interface ILendingPoolConfigurator {
     event ReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
     event VMEXReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
 
+    event AddedWhitelistedDepositBorrow(address indexed user);
+
+    event UpdatedTreasuryAddress(address asset, uint64 trancheId, address newAddress);
+    event UpdatedVMEXTreasuryAddress(address asset, uint64 trancheId, address newAddress);
+
+    event UserChangedWhitelist(uint64 trancheId, address user, bool isWhitelisted);
+    event UserChangedBlacklist(uint64 trancheId, address user, bool isWhitelisted);
 
     /**
      * @dev Emitted when a reserve is frozen

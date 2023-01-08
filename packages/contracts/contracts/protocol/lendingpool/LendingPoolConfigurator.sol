@@ -217,12 +217,14 @@ contract LendingPoolConfigurator is
         );
     }
 
-    function addWhitelistedDepositBorrow(address user)
+    //allowing deposit and borrows in the same block
+    function addWhitelistedDepositBorrow(address user) 
         external
         onlyGlobalAdmin
     {
         ILendingPool cachedPool = pool;
         cachedPool.addWhitelistedDepositBorrow(user);
+        emit AddedWhitelistedDepositBorrow(user);
     }
 
     function updateTreasuryAddress(
@@ -233,6 +235,8 @@ contract LendingPoolConfigurator is
         ILendingPool cachedPool = pool;
         IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
             .setTreasury(newAddress);
+        //emit
+        emit UpdatedTreasuryAddress(asset,trancheId, newAddress);
     }
 
     function updateVMEXTreasuryAddress(
@@ -243,6 +247,7 @@ contract LendingPoolConfigurator is
         ILendingPool cachedPool = pool;
         IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
             .setVMEXTreasury(newAddress);
+        emit UpdatedVMEXTreasuryAddress(asset,trancheId, newAddress);
     }
 
     struct updateATokenVars {
@@ -633,13 +638,16 @@ contract LendingPoolConfigurator is
         require(user.length == isWhitelisted.length, "whitelist lengths not equal");
         for(uint i = 0;i<user.length;i++){
             pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
+            emit UserChangedWhitelist(trancheId, user[i], isWhitelisted[i]);
         }
+
     }
 
     function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyPoolAdmin(trancheId) {
         require(user.length == isBlacklisted.length, "Blacklisted lengths not equal");
         for(uint i = 0;i<user.length;i++){
             pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
+            emit UserChangedBlacklist(trancheId, user[i], isBlacklisted[i]);
         }
     }
 }
