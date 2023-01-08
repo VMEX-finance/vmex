@@ -33,7 +33,7 @@ import 'solidity-coverage';
 import { fork } from 'child_process';
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true';
-const DEFAULT_BLOCK_GAS_LIMIT = 80000000; //update: x10 
+const DEFAULT_BLOCK_GAS_LIMIT = 80000000; //update: x10
 const DEFAULT_GAS_MUL = 5;
 const HARDFORK = 'istanbul';
 const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || '';
@@ -130,7 +130,7 @@ const buidlerConfig: HardhatUserConfig = {
     },
     localhost: {
       hardfork: 'merge',
-      url: "http://localhost:8545",
+      url: "http://0.0.0.0:8545",
       chainId: 31337,
       saveDeployments: true,
       gasPrice: 80000000000,

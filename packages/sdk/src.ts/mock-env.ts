@@ -16,7 +16,9 @@ const WETHabi = [
 ];
 
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-const UNISWAP_ROUTER_ABI = require("@vmexfinance/contracts/localhost_tests/abis/uniswapAbi.json");
+const UNISWAP_ROUTER_ABI = [
+    "function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)"
+]
 const USDCadd = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
 
@@ -35,7 +37,7 @@ export async function startMockEnvironment(signer: ethers.Signer) {
     const WETH = new ethers.Contract(WETHadd, WETHabi, owner);
     await WETH.connect(owner).deposit({value: ethers.utils.parseEther("100.0")});
     await WETH.transfer(await signer.getAddress(), ethers.utils.parseEther("50.0"));
-    
+
     // transfer USDC to the connected wallet address
     var path = [WETHadd, USDCadd];
     var deadline = Math.floor(Date.now() / 1000) + 60 * 20;
