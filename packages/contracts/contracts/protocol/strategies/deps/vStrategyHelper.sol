@@ -39,9 +39,7 @@ library vStrategyHelper {
         internal 
         returns (uint256 amountOut)
     {
-        if(tokenIn==0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7){
-            console.log("cvxCRV is input");
-        }
+        require(amount>0, "Trying to swap no tokens");
 		//check if tokenIn is one of the tokens we want stable swaps for 
 		(address curveSwapPool, uint256 amountExpected, address curveRegistryExchange) = swapCurve(tokenIn, tokenOut, amount); 
 		
@@ -96,6 +94,11 @@ library vStrategyHelper {
             path[2] = tokenOut;
             tokenOutIdx = 2;
         }
+
+        tokenAllowAll(
+            address(tokenIn),
+            address(sushiRouter)
+        );
 			
         try sushiRouter.swapExactTokensForTokens(
 			amount,
@@ -233,7 +236,7 @@ library vStrategyHelper {
     function tokenAllowAll(address asset, address allowee) public {
         IERC20 token = IERC20(asset);
 
-        if (token.allowance(address(this), allowee) != 0) {
+        if (token.allowance(address(this), allowee) == 0) {
             token.safeApprove(allowee, type(uint256).max);
         } else if (token.allowance(address(this), allowee) != type(uint256).max) {
             token.safeApprove(allowee, 0);
