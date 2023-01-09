@@ -6,8 +6,9 @@ import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddres
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
+import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 
-contract AssetMappings {
+contract AssetMappings is VersionedInitializable{
     using PercentageMath for uint256;
 
 
@@ -23,6 +24,41 @@ contract AssetMappings {
     mapping(address => uint8) public numCurveStrategyAddress;
     mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
 
+    event AssetDataSet(
+        address indexed asset,
+        uint8 underlyingAssetDecimals,
+        string underlyingAssetName,
+        uint256 supplyCap,
+        uint256 borrowCap,
+        uint256 baseLTV,
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        uint256 borrowFactor,
+        bool borrowingEnabled
+    );
+
+    event ConfiguredReserves(
+        address indexed asset,
+        uint256 baseLTV,
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        uint256 supplyCap,
+        uint256 borrowCap,
+        uint256 borrowFactor
+    );
+
+    event AddedInterestRateStrategyAddress(
+        address indexed asset,
+        uint256 index,
+        address strategyAddress
+    );
+
+    event AddedCurveStrategyAddress(
+        address indexed asset,
+        uint256 index,
+        address curveStrategyAddress
+    );
+
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         require(
@@ -32,7 +68,14 @@ contract AssetMappings {
         _;
     }
 
-    constructor(address provider) {
+    function getRevision() internal pure override returns (uint256) {
+        return 0x1;
+    }
+
+    function initialize(ILendingPoolAddressesProvider provider)
+        public
+        initializer
+    {
         addressesProvider = ILendingPoolAddressesProvider(provider);
         numApprovedAssets=0;
         curveMetadata[0xc4AD29ba4B3c580e6D59105FFf484999997675Ff] = DataTypes.CurveMetadata( //tricrypto2
@@ -60,8 +103,6 @@ contract AssetMappings {
             2,
             0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B
         );
-
-
     }
 
     function validateCollateralParams(uint256 baseLTV, uint256 liquidationThreshold, uint256 liquidationBonus) internal pure {
@@ -78,7 +119,7 @@ contract AssetMappings {
             //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
             //a loan is taken there is enough collateral available to cover the liquidation bonus
 
-            //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need 
+            //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need
             //2 times the amount of debt asset they are covering, meaning that they need twice the value of the ccollateral asset. Since liquidation threshold is 50%, this is possible
 
             //with borrow factors, the liquidation threshold is always less than or equal to what it should be, so this still stands
@@ -94,26 +135,38 @@ contract AssetMappings {
     function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] calldata input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
         require(underlying.length==input.length);
 
-        
+
         for(uint256 i = 0;i<input.length;i++){
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
-            
+
             assetMappings[underlying[i]] = input[i];
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
             approvedAssets[numApprovedAssets++] = underlying[i];
+            emit AssetDataSet(
+                underlying[i],
+                input[i].underlyingAssetDecimals,
+                input[i].underlyingAssetName,
+                input[i].supplyCap,
+                input[i].borrowCap,
+                input[i].baseLTV,
+                input[i].liquidationThreshold,
+                input[i].liquidationBonus,
+                input[i].borrowFactor,
+                input[i].borrowingEnabled
+            );
         }
     }
 
     function configureReserveAsCollateral(
-        address asset, 
-        uint256 baseLTV, 
-        uint256 liquidationThreshold, 
-        uint256 liquidationBonus, 
-        uint256 supplyCap, 
-        uint256 borrowCap, 
+        address asset,
+        uint256 baseLTV,
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        uint256 supplyCap,
+        uint256 borrowCap,
         uint256 borrowFactor
     ) external onlyGlobalAdmin {
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
@@ -123,6 +176,7 @@ contract AssetMappings {
         assetMappings[asset].supplyCap = supplyCap;
         assetMappings[asset].borrowCap = borrowCap;
         assetMappings[asset].borrowFactor = borrowFactor;
+        emit ConfiguredReserves(asset, baseLTV, liquidationThreshold, liquidationBonus, supplyCap, borrowCap, borrowFactor);
     }
 
     function removeAsset(address underlying) external onlyGlobalAdmin{
@@ -176,7 +230,7 @@ contract AssetMappings {
     function getSupplyCap(address asset) view external returns(uint256){
         return assetMappings[asset].supplyCap;
     }
-    
+
     function getBorrowCap(address asset) view external returns(uint256){
         return assetMappings[asset].borrowCap;
     }
@@ -191,6 +245,11 @@ contract AssetMappings {
             numInterestRateStrategyAddress[underlying]++;
         }
         interestRateStrategyAddress[underlying][numInterestRateStrategyAddress[underlying]] = strategy;
+        emit AddedInterestRateStrategyAddress(
+            underlying,
+            numInterestRateStrategyAddress[underlying],
+            strategy
+        );
     }
 
     function addCurveStrategyAddress(address underlying, address strategy) external onlyGlobalAdmin {
@@ -198,6 +257,11 @@ contract AssetMappings {
             numCurveStrategyAddress[underlying]++;
         }
         curveStrategyAddress[underlying][numCurveStrategyAddress[underlying]] = strategy;
+        emit AddedCurveStrategyAddress(
+            underlying,
+            numInterestRateStrategyAddress[underlying],
+            strategy
+        );
     }
 
     function getCurveStrategyAddress(address underlying, uint8 index) external view returns (address) {

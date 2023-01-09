@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { deployLendingPoolAddressesProvider } from "../../helpers/contracts-deployments";
-import { getParamPerNetwork } from "../../helpers/contracts-helpers";
+import { getParamPerNetwork,insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import {
   deployLendingPoolCollateralManager,
   deployWalletBalancerProvider,
@@ -14,7 +14,7 @@ import {
   ConfigNames,
   getEmergencyAdmin,
 } from "../../helpers/configuration";
-import { eNetwork, ICommonConfiguration } from "../../helpers/types";
+import { eNetwork, ICommonConfiguration, eContractid } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   initAssetData,
@@ -25,7 +25,7 @@ import {
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
   getAssetMappings,
-  getWETHGateway
+  getWETHGateway,
 } from "../../helpers/contracts-getters";
 
 task(
@@ -72,13 +72,20 @@ task(
       console.log("before initReservesByHelper");
 
       //deploy AssetMappings
-  const AssetMapping = await deployAssetMapping(addressesProvider.address);
+      const AssetMappingImpl = await deployAssetMapping();
 
-  await waitForTx(
-    await addressesProvider.setAssetMappings(AssetMapping.address)
-  );
-
-  const assetMappings = await getAssetMappings();
+      await waitForTx(
+        await addressesProvider.setAssetMappingsImpl(AssetMappingImpl.address)
+      );
+    
+      const assetMappings = await getAssetMappings(
+        await addressesProvider.getAssetMappings()
+      );
+      await insertContractAddressInDb(
+        eContractid.AssetMappings,
+        assetMappings.address
+      );
+  
 
   await initAssetData(
     ReservesConfig,
