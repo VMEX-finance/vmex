@@ -48,6 +48,10 @@ contract CvxStrategy is BaseStrategy, IStrategy {
             address(cvxToken),
             address(cvxRewardsPool)
         );
+        vStrategyHelper.tokenAllowAll(
+            address(crvToken),
+            address(sushiRouter)
+        );
     }
 
     function earned() external view returns (uint256){
@@ -112,32 +116,39 @@ contract CvxStrategy is BaseStrategy, IStrategy {
         // Harvest cvxCRV tokens from staking positions
         cvxRewardsPool.getReward(false);
 
+        
+
         // Track harvested coins, before conversion
         tendData.cvxCrvTended = cvxCrvToken.balanceOf(address(this));
+        require(tendData.cvxCrvTended>0,"CVX rewards are not streaming");
 
-        address[] memory path = new address[](4);
-        path[0] = address(cvxCrvToken);
-        path[1] = address(crvToken);
-        path[2] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-        path[3] = address(cvxToken);
+        // address[] memory path = new address[](4);
+        // path[0] = address(cvxCrvToken);
+        // path[1] = address(crvToken);
+        // path[2] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // WETH
+        // path[3] = address(cvxToken);
+
+        uint256 out1 = vStrategyHelper.computeSwapPath(address(cvxCrvToken), address(crvToken), tendData.cvxCrvTended);
+
+        uint256 out2 = vStrategyHelper.computeSwapPath(address(crvToken), address(cvxToken), out1); //direct sushiswap
 
         // swap cvxCRV for CVX
-        try sushiRouter.swapExactTokensForTokens(
-            tendData.cvxCrvTended,
-            0,//tendData.cvxCrvTended/EFFICIENCY,
-            path,
-            address(this),
-            block.timestamp
-        ) returns (uint256[] memory amounts){
-            console.log("swapped cvx");
-            for(uint i = 0;i<amounts.length;i++){
-                console.log("amounts[i]: ",amounts[i]);
-            }
-            // 
-        } catch Error(string memory reason){
-            console.log("Cvx Swap Error: ",reason);
-            revert("Strategy tend error: Not enough rewards to tend efficiently");
-        }
+        // try sushiRouter.swapExactTokensForTokens(
+        //     tendData.cvxCrvTended,
+        //     0,//tendData.cvxCrvTended/EFFICIENCY,
+        //     path,
+        //     address(this),
+        //     block.timestamp
+        // ) returns (uint256[] memory amounts){
+        //     console.log("swapped cvx");
+        //     for(uint i = 0;i<amounts.length;i++){
+        //         console.log("amounts[i]: ",amounts[i]);
+        //     }
+        //     // 
+        // } catch Error(string memory reason){
+        //     console.log("Cvx Swap Error: ",reason);
+        //     revert("Strategy tend error: Not enough rewards to tend efficiently");
+        // }
 
         // TODO: potentially call pull() so we pull from lending pools
         // deposit all swapped CVX back into the
