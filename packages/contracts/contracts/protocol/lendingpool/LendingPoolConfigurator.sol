@@ -209,24 +209,22 @@ contract LendingPoolConfigurator is
             internalInput.input.underlyingAsset,
             internalInput.trancheId,
             aTokenProxyAddress,
-            stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress,
             assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
-            assetMappings.getAssetMapping(internalInput.input.underlyingAsset).baseLTV,
-            assetMappings.getAssetMapping(internalInput.input.underlyingAsset).liquidationThreshold,
-            assetMappings.getAssetMapping(internalInput.input.underlyingAsset).liquidationBonus,
             currentConfig.getBorrowingEnabled(),
             currentConfig.getCollateralEnabled(),
             currentConfig.getReserveFactor()
         );
     }
 
-    function addWhitelistedDepositBorrow(address user)
+    //allowing deposit and borrows in the same block
+    function addWhitelistedDepositBorrow(address user) 
         external
         onlyGlobalAdmin
     {
         ILendingPool cachedPool = pool;
         cachedPool.addWhitelistedDepositBorrow(user);
+        emit AddedWhitelistedDepositBorrow(user);
     }
 
     function updateTreasuryAddress(
@@ -237,6 +235,8 @@ contract LendingPoolConfigurator is
         ILendingPool cachedPool = pool;
         IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
             .setTreasury(newAddress);
+        //emit
+        emit UpdatedTreasuryAddress(asset,trancheId, newAddress);
     }
 
     function updateVMEXTreasuryAddress(
@@ -247,6 +247,7 @@ contract LendingPoolConfigurator is
         ILendingPool cachedPool = pool;
         IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
             .setVMEXTreasury(newAddress);
+        emit UpdatedVMEXTreasuryAddress(asset,trancheId, newAddress);
     }
 
     struct updateATokenVars {
@@ -601,7 +602,7 @@ contract LendingPoolConfigurator is
      * @dev Updates the aToken implementation for the reserve
      **/
      // note that this only updates one strategy for an asset of a specific tranche
-     // alternatively, we could publish a new strategy with a new strategyId, and users 
+     // alternatively, we could publish a new strategy with a new strategyId, and users
      // can choose to use that strategy by setting strategyId in initialization
     function updateStrategy(UpdateStrategyInput calldata input)
         external
@@ -637,13 +638,16 @@ contract LendingPoolConfigurator is
         require(user.length == isWhitelisted.length, "whitelist lengths not equal");
         for(uint i = 0;i<user.length;i++){
             pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
+            emit UserChangedWhitelist(trancheId, user[i], isWhitelisted[i]);
         }
+
     }
 
     function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyPoolAdmin(trancheId) {
         require(user.length == isBlacklisted.length, "Blacklisted lengths not equal");
         for(uint i = 0;i<user.length;i++){
             pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
+            emit UserChangedBlacklist(trancheId, user[i], isBlacklisted[i]);
         }
     }
 }

@@ -38,6 +38,13 @@ interface ILendingPoolConfigurator {
     event ReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
     event VMEXReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
 
+    event AddedWhitelistedDepositBorrow(address indexed user);
+
+    event UpdatedTreasuryAddress(address asset, uint64 trancheId, address newAddress);
+    event UpdatedVMEXTreasuryAddress(address asset, uint64 trancheId, address newAddress);
+
+    event UserChangedWhitelist(uint64 trancheId, address user, bool isWhitelisted);
+    event UserChangedBlacklist(uint64 trancheId, address user, bool isWhitelisted);
 
     /**
      * @dev Emitted when a reserve is frozen
@@ -65,12 +72,8 @@ interface ILendingPoolConfigurator {
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The trancheId of the reserve
      * @param aToken The address of the associated aToken contract
-     * @param stableDebtToken The address of the associated stable rate debt token
      * @param variableDebtToken The address of the associated variable rate debt token
      * @param interestRateStrategyAddress The address of the interest rate strategy for the reserve
-     * @param ltv The loan to value of the reserve
-     * @param liquidationThreshold The liquidation threshold of the reserve
-     * @param liquidationBonus The liquidation bonus (aka liquidation penalty)
      * @param borrowingEnabled Whether or not borrowing is enabled on the reserve
      * @param collateralEnabled Whether or not usage as collateral is enabled on the reserve
      * @param reserveFactor The reserve factor of the reserve
@@ -79,12 +82,8 @@ interface ILendingPoolConfigurator {
         address indexed asset,
         uint64 indexed trancheId,
         address indexed aToken,
-        address stableDebtToken,
         address variableDebtToken,
         address interestRateStrategyAddress,
-        uint256 ltv,
-        uint256 liquidationThreshold,
-        uint256 liquidationBonus,
         bool borrowingEnabled,
         bool collateralEnabled,
         uint256 reserveFactor
@@ -107,21 +106,6 @@ interface ILendingPoolConfigurator {
      * @param trancheId The trancheId of the reserve
      **/
     event CollateralSetOnReserve(address indexed asset, uint64 indexed trancheId, bool collateralEnabled);
-
-    /**
-     * @dev Emitted when the collateralization risk parameters for the specified asset are updated.
-     * @param asset The address of the underlying asset of the reserve
-     * @param ltv The loan to value of the asset when used as collateral
-     * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
-     * @param liquidationBonus The bonus liquidators receive to liquidate this asset
-     **/
-    event CollateralConfigurationChanged(
-        address indexed asset,
-        uint64 indexed trancheId,
-        uint256 ltv,
-        uint256 liquidationThreshold,
-        uint256 liquidationBonus
-    );
 
     /**
      * @dev Emitted when a reserve is activated

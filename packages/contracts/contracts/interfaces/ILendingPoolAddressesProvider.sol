@@ -31,6 +31,9 @@ interface ILendingPoolAddressesProvider {
     event AddressSet(bytes32 id, address indexed newAddress, bool hasProxy);
 
 
+    event AssetMappingsUpdated(address indexed newAddress);
+
+
     event ATokenUpdated(address indexed newAddress);
     event StableDebtUpdated(address indexed newAddress);
     event VariableDebtUpdated(address indexed newAddress);
@@ -112,5 +115,5 @@ interface ILendingPoolAddressesProvider {
 
 
     function getAssetMappings() external view returns (address);
-    function setAssetMappings(address pool) external;
+    function setAssetMappingsImpl(address pool) external;
 }
