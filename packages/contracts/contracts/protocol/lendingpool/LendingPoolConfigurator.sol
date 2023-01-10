@@ -218,7 +218,7 @@ contract LendingPoolConfigurator is
     }
 
     //allowing deposit and borrows in the same block
-    function addWhitelistedDepositBorrow(address user) 
+    function addWhitelistedDepositBorrow(address user)
         external
         onlyGlobalAdmin
     {
@@ -636,7 +636,7 @@ contract LendingPoolConfigurator is
 
     function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyPoolAdmin(trancheId){
         pool.setWhitelist(trancheId,isWhitelisted);
-        emit UserChangedTrancheWhitelist(trancheId, isWhitelisted);
+        emit UserSetWhitelistEnabled(trancheId, isWhitelisted);
     }
 
     function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyPoolAdmin(trancheId) {
