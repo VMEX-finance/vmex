@@ -42,6 +42,8 @@ interface ILendingPoolConfigurator {
 
     event UpdatedTreasuryAddress(address asset, uint64 trancheId, address newAddress);
     event UpdatedVMEXTreasuryAddress(address asset, uint64 trancheId, address newAddress);
+    
+    event UserChangedTrancheWhitelist(uint64 trancheId, bool isWhitelisted);
 
     event UserChangedWhitelist(uint64 trancheId, address user, bool isWhitelisted);
     event UserChangedBlacklist(uint64 trancheId, address user, bool isWhitelisted);

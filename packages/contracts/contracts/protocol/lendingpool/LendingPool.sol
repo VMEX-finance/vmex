@@ -914,10 +914,11 @@ contract LendingPool is
             );
     }
 
+    function setWhitelist(uint64 trancheId, bool isWhitelisted) external override onlyLendingPoolConfigurator{
+        isUsingWhitelist[trancheId] = isWhitelisted;
+    }
+
     function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external override onlyLendingPoolConfigurator {
-        if(!isUsingWhitelist[trancheId]){
-            isUsingWhitelist[trancheId] = true;
-        }
         whitelist[trancheId][user] = isWhitelisted;
     }
 
