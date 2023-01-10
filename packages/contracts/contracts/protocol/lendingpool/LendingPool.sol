@@ -119,6 +119,16 @@ contract LendingPool is
         isWhitelistedDepositBorrow[user] = true;
     }
 
+    /**
+     * Function instead of modifier to avoid stack too deep
+     */
+    function checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
+        if(isUsingWhitelist[trancheId]){
+            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
+        }
+        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
+    }
+
     function getRevision() internal pure override returns (uint256) {
         return LENDINGPOOL_REVISION;
     }
@@ -166,17 +176,8 @@ contract LendingPool is
         whenNotPaused(trancheId)
         onlyWhitelistedDepositBorrow(trancheId)
     {
-        if(isUsingWhitelist[trancheId]){
-            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
-        }
-        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
+        checkWhitelistBlacklist(trancheId, msg.sender);
         //changed scope to public so transferTranche can call it
-        if (isWhitelistedDepositBorrow[msg.sender] == false) {
-            require(
-                lastUserBorrow[msg.sender][trancheId] != block.number,
-                "User is not whitelisted to borrow and deposit in same block"
-            );
-        }
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
@@ -221,12 +222,13 @@ contract LendingPool is
         uint64 trancheId,
         uint256 amount,
         address to
-    ) public override whenNotPaused(trancheId) returns (uint256) {
-        if(isUsingWhitelist[trancheId]){
-            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
-        }
-        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
-
+    )
+        public
+        override
+        whenNotPaused(trancheId)
+        returns (uint256)
+    {
+        checkWhitelistBlacklist(trancheId, msg.sender);
         uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
                 _usersConfig[msg.sender][trancheId],
@@ -273,10 +275,7 @@ contract LendingPool is
         whenNotPaused(trancheId)
         onlyWhitelistedDepositBorrow(trancheId)
     {
-        if(isUsingWhitelist[trancheId]){
-            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
-        }
-        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
+        checkWhitelistBlacklist(trancheId, msg.sender);
         if (isWhitelistedDepositBorrow[msg.sender] == false) {
             require(
                 lastUserDeposit[msg.sender][trancheId] != block.number,
@@ -310,9 +309,10 @@ contract LendingPool is
                 ,
                 ,
             ) = getUserAccountData(msg.sender, trancheId, true);
-            
-            vars.amount = availableBorrowsETH.percentDiv(_assetMappings.getBorrowFactor(vars.asset)).mul(10**_assetMappings.getDecimals(asset)).div(vars.assetPrice);
-            // console.log("amount max!! : ",vars.amount);
+            vars.amount = availableBorrowsETH
+                            .percentDiv(_assetMappings.getBorrowFactor(vars.asset))
+                            .mul(10**_assetMappings.getDecimals(vars.asset))
+                            .div(vars.assetPrice);
 
         }
 
@@ -321,7 +321,6 @@ contract LendingPool is
             onBehalfOf
         ][trancheId];
 
-        
 
         DepositWithdrawLogic._borrowHelper(
             _reserves,
@@ -466,11 +465,12 @@ contract LendingPool is
         address user,
         uint256 debtToCover,
         bool receiveAToken
-    ) external override whenNotPaused(trancheId) {
-        if(isUsingWhitelist[trancheId]){
-            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
-        }
-        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
+    )
+        external
+        override
+        whenNotPaused(trancheId)
+    {
+        checkWhitelistBlacklist(trancheId, msg.sender);
         address collateralManager = _addressesProvider
             .getLendingPoolCollateralManager();
 
@@ -486,8 +486,6 @@ contract LendingPool is
                 receiveAToken
             )
         );
-
-//        console.log(string(abi.encodePacked(result)));
 
         require(success, Errors.LP_LIQUIDATION_CALL_FAILED);
 
@@ -581,7 +579,7 @@ contract LendingPool is
             avgBorrowFactor
         );
 
-        //Then, to know how much of an asset you can borrow, 
+        //Then, to know how much of an asset you can borrow,
         //amount you are trying to borrow = x
         //debt value = x * borrow factor = availableBorrowsEth
         //just do availableBorrowsETH / asset borrow factor (and then convert to native amount)
@@ -916,9 +914,15 @@ contract LendingPool is
 
     function setWhitelist(uint64 trancheId, bool isWhitelisted) external override onlyLendingPoolConfigurator{
         isUsingWhitelist[trancheId] = isWhitelisted;
+
     }
 
     function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external override onlyLendingPoolConfigurator {
+        // using this function enables the whitelist
+        if(!isUsingWhitelist[trancheId]) {
+            isUsingWhitelist[trancheId] = true;
+        }
+
         whitelist[trancheId][user] = isWhitelisted;
     }
 
