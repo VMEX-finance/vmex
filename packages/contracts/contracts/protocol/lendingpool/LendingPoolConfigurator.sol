@@ -634,6 +634,11 @@ contract LendingPoolConfigurator is
         );
     }
 
+    function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyPoolAdmin(trancheId){
+        pool.setWhitelist(trancheId,isWhitelisted);
+        emit UserChangedTrancheWhitelist(trancheId, isWhitelisted);
+    }
+
     function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyPoolAdmin(trancheId) {
         require(user.length == isWhitelisted.length, "whitelist lengths not equal");
         for(uint i = 0;i<user.length;i++){
