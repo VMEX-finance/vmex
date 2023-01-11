@@ -270,6 +270,11 @@ export async function supply(
   }
 
   try {
+    console.log("params.underlying: ",params.underlying)
+    console.log("params.trancheId: ",params.trancheId)
+    console.log("amount: ",amount)
+    console.log("client: ",client)
+    
     if (params.test) {
       tx = await lendingPool.deposit(
         params.underlying,
@@ -291,7 +296,8 @@ export async function supply(
       );
     }
   } catch (error) {
-    throw new Error("Lending Pool Failed with " + error);
+    console.log("Lending Pool Failed with ")
+    throw new Error(error);
   }
 
   if (params.collateral === false) {

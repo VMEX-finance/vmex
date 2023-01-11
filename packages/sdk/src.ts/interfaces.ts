@@ -146,5 +146,6 @@ export interface TopAssetsData {
 
 export interface PriceData {
   oracle: string;
+  priceETH: BigNumber;
   priceUSD: BigNumber;
 }
