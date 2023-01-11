@@ -10,11 +10,13 @@ import { ReserveConfiguration } from "../../protocol/libraries/configuration/Res
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
 import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
+import {PercentageMath} from "../../protocol/libraries/math/PercentageMath.sol";
 
 //import "hardhat/console.sol";
 library QueryUserHelpers {
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using UserConfiguration for DataTypes.UserConfigurationMap;
+    using PercentageMath for uint256;
 
     struct SuppliedAssetData {
         address asset;
@@ -175,12 +177,12 @@ library QueryUserHelpers {
             c[i] = AvailableBorrowData({
                 asset: vars.allAssets[i],
                 amountUSD: QueryAssetHelpers.convertEthToUsd(
-                        availableBorrowsETH //18 decimals, so returned is also 18
+                        availableBorrowsETH.percentDiv(a.getBorrowFactor(vars.allAssets[i])) //18 decimals, so returned is also 18
                     ),
                 amountNative: QueryAssetHelpers.convertEthToNative(
                         assetOracle,
                         vars.allAssets[i],
-                        availableBorrowsETH,
+                        availableBorrowsETH.percentDiv(a.getBorrowFactor(vars.allAssets[i])),
                         a.getDecimals(vars.allAssets[i])
                     )
             });
