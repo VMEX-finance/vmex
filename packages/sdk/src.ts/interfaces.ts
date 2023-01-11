@@ -44,6 +44,7 @@ export interface UserTrancheData {
   currentLiquidationThreshold: BigNumber;
   ltv: BigNumber;
   healthFactor: BigNumber;
+  avgBorrowFactor: BigNumber;
   suppliedAssetData: SuppliedAssetData[];
   borrowedAssetData: BorrowedAssetData[];
   assetBorrowingPower: AvailableBorrowData[] ;
