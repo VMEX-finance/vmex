@@ -189,6 +189,7 @@ describe("Supply", () => {
         amount: "2.0",
         signer: owner,
         network: network,
+        isMax: false,
         test: true,
       },
       () => {
