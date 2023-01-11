@@ -52,6 +52,10 @@ library DepositWithdrawLogic {
         DataTypes.DepositVars memory vars,
         DataTypes.UserConfigurationMap storage user
     ) external {
+        uint256 userBalance = IAToken(vars.asset).balanceOf(msg.sender);
+        if (vars.amount == type(uint256).max) {
+            vars.amount = userBalance; //amount to withdraw
+        }
         ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
 
         address aToken = self.aTokenAddress;
