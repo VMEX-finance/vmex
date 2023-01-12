@@ -21,18 +21,23 @@ export async function borrow(
     referrer?: number;
     signer: ethers.Signer;
     network: string;
+    isMax?: boolean;
     test?: boolean;
     providerRpc?: string;
   },
   callback?: () => Promise<any>
 ) {
-  let tx;
-  let amount = await convertToCurrencyDecimals(
-    params.underlying,
-    params.amount.toString(),
-    params.test,
-    params.providerRpc
-  );
+  let tx, amount;
+  if(params.isMax) {
+    amount = MAX_UINT_AMOUNT;
+  } else{
+    amount = await convertToCurrencyDecimals(
+      params.underlying,
+      params.amount.toString(),
+      params.test,
+      params.providerRpc
+    );
+  } 
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
@@ -232,6 +237,7 @@ export async function supply(
     amount: string;
     signer: ethers.Signer;
     network: string;
+    isMax?: boolean;
     referrer?: number;
     collateral?: boolean;
     test?: boolean;
@@ -241,12 +247,17 @@ export async function supply(
 ) {
   let tx;
   let client = await params.signer.getAddress();
-  let amount = await convertToCurrencyDecimals(
-    params.underlying,
-    params.amount,
-    params.test,
-    params.providerRpc
-  );
+  let amount;
+  if(params.isMax) {
+    amount = MAX_UINT_AMOUNT;
+  } else{
+    amount = await convertToCurrencyDecimals(
+      params.underlying,
+      params.amount,
+      params.test,
+      params.providerRpc
+    );
+  } 
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
@@ -270,6 +281,7 @@ export async function supply(
   }
 
   try {
+    
     if (params.test) {
       tx = await lendingPool.deposit(
         params.underlying,
@@ -291,7 +303,8 @@ export async function supply(
       );
     }
   } catch (error) {
-    throw new Error("Lending Pool Failed with " + error);
+    console.log("Lending Pool Failed with ")
+    throw new Error(error);
   }
 
   if (params.collateral === false) {

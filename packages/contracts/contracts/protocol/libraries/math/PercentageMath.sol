@@ -12,7 +12,8 @@ import {Errors} from "../helpers/Errors.sol";
  **/
 
 library PercentageMath {
-    uint256 constant PERCENTAGE_FACTOR = 1e4; //percentage plus two decimals
+    uint256 constant NUM_DECIMALS = 18;
+    uint256 constant PERCENTAGE_FACTOR = 10**NUM_DECIMALS; //percentage plus two decimals
     uint256 constant HALF_PERCENT = PERCENTAGE_FACTOR / 2;
 
     /**

@@ -1,13 +1,12 @@
 {
   "name": "@vmexfinance/sdk",
-  "version": "1.0.4-alpha",
+  "version": "1.0.5-alpha",
   "description": "VMEX Finance - Software Development Kit",
   "main": "dist/index.js",
   "author": "VMEX finance",
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@vmexfinance/contracts": "^1.0.1-alpha",
     "chai": "^4.3.6",
     "chai-bignumber": "^3.1.0",
     "cross-env": "^7.0.3",
@@ -19,7 +18,7 @@
     "build": "yarn tsc",
     "test": "yarn build && mocha --timeout 0 --reporter spec",
     "test:analytics": "yarn build && mocha --timeout 0 --reporter spec --grep Analytics",
-    "test:specific": "mocha --reporter spec -- --grep",
+    "test:specific": "yarn build && mocha --timeout 0 --reporter spec --grep Supply",
     "fund:accounts": "mocha dev --timeout 0 --reporter spec"
   },
   "devDependencies": {
