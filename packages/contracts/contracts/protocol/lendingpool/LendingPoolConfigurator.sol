@@ -193,7 +193,7 @@ contract LendingPoolConfigurator is
             currentConfig.setBorrowingEnabled(false);
         }
 
-        currentConfig.setReserveFactor(internalInput.input.reserveFactor);
+        currentConfig.setReserveFactor(internalInput.input.reserveFactor*10**(PercentageMath.NUM_DECIMALS-4)); //accounts for new number of decimals
         currentConfig.setVMEXReserveFactor(DefaultVMEXReserveFactor);// cause admin can change an individual reserve factor how they please
 
         currentConfig.setActive(true);
