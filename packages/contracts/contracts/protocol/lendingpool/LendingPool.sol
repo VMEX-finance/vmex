@@ -300,28 +300,6 @@ contract LendingPool is
                 true,
                 _assetMappings
             );
-        if(vars.amount == type(uint256).max){
-            (
-                uint256 userCollateralBalanceETH,
-                uint256 userBorrowBalanceETH,
-                ,
-                ,
-                uint256 currentLtv,
-                ,
-                uint256 avgBorrowFactor
-            ) = getUserAccountData(msg.sender, trancheId, true);
-            // vars.amount = availableBorrowsETH
-            //                 .percentDiv(_assetMappings.getBorrowFactor(vars.asset))
-            //                 .mul(10**_assetMappings.getDecimals(vars.asset))
-            //                 .div(vars.assetPrice);
-            vars.amount = (userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral
-                .sub(
-                    userBorrowBalanceETH.percentMul(avgBorrowFactor) //risk adjusted debt
-                )
-            ).percentDiv(_assetMappings.getBorrowFactor(vars.asset))//this will be the amount in ETH
-            .mul(10**_assetMappings.getDecimals(vars.asset))
-            .div(vars.assetPrice); //converted to native token
-        }
 
 
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
@@ -329,7 +307,7 @@ contract LendingPool is
         ][trancheId];
 
 
-        DepositWithdrawLogic._borrowHelper(
+        uint256 actualAmount = DepositWithdrawLogic._borrowHelper(
             _reserves,
             _reservesList[trancheId],
             userConfig,
@@ -344,7 +322,7 @@ contract LendingPool is
             trancheId,
             vars.user,
             vars.onBehalfOf,
-            vars.amount,
+            actualAmount,
             reserve.currentVariableBorrowRate,
             vars.referralCode
         );

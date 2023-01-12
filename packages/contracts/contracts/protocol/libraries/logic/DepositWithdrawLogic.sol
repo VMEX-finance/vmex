@@ -166,7 +166,7 @@ library DepositWithdrawLogic {
         DataTypes.UserConfigurationMap storage userConfig,
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
-    ) public {
+    ) public returns(uint256){
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
                     );
@@ -176,6 +176,39 @@ library DepositWithdrawLogic {
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][
             vars.trancheId
         ];
+
+
+        if(vars.amount == type(uint256).max){
+            uint256 totalAmount = IERC20(vars.asset).balanceOf(reserve.aTokenAddress);
+            (
+                uint256 userCollateralBalanceETH,
+                uint256 userBorrowBalanceETH,
+                uint256 currentLtv,
+                ,
+                ,
+                uint256 avgBorrowFactor
+            ) = GenericLogic.calculateUserAccountData(
+                DataTypes.AcctTranche(vars.user, vars.trancheId), 
+                _reserves, 
+                userConfig, 
+                _reservesList, 
+                vars._reservesCount, 
+                _addressesProvider, 
+                vars._assetMappings, 
+                true
+            );
+            vars.amount = (userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral
+                .sub(
+                    userBorrowBalanceETH.percentMul(avgBorrowFactor) //risk adjusted debt
+                )
+            ).percentDiv(vars._assetMappings.getBorrowFactor(vars.asset))//this will be the amount in ETH
+            .mul(10**vars._assetMappings.getDecimals(vars.asset))
+            .div(vars.assetPrice); //converted to native token
+
+            if(vars.amount>totalAmount){
+                vars.amount=totalAmount;
+            }
+        }
 
         //The mocks are in ETH, but when deploying to mainnet we probably want to convert to USD
         //This is really amount in WEI. getAssetPrice gets the asset price in wei
@@ -224,5 +257,7 @@ library DepositWithdrawLogic {
                 vars.amount
             );
         }
+
+        return vars.amount;
     }
 }
