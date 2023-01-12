@@ -327,7 +327,7 @@ export const strategySTETH: IReserveParams = {
   assetType: 0, //this is since there is a chainlink aggregator for STETH
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '10100', //100% for now
 };
 
 export const strategyFrax: IReserveParams = {
@@ -342,7 +342,7 @@ export const strategyFrax: IReserveParams = {
   assetType: 0, //this is since there is a chainlink aggregator for Frax
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '11000', //100% for now
 };
 
 export const strategyBAL: IReserveParams = {
@@ -357,7 +357,7 @@ export const strategyBAL: IReserveParams = {
   assetType: 0,
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '11000', //100% for now
 };
 
 export const strategyCRV: IReserveParams = {
@@ -402,7 +402,7 @@ export const strategyBADGER: IReserveParams = {
   assetType: 0,
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '10100', //100% for now
 };
 
 export const strategyLDO: IReserveParams = {
@@ -417,7 +417,7 @@ export const strategyLDO: IReserveParams = {
   assetType: 0,
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '10100', //100% for now
 };
 
 export const strategyALCX: IReserveParams = {
@@ -432,7 +432,7 @@ export const strategyALCX: IReserveParams = {
   assetType: 0,
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '10100', //100% for now
 };
 
 export const strategyOneinch: IReserveParams = {
@@ -447,7 +447,7 @@ export const strategyOneinch: IReserveParams = {
   assetType: 0,
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '10100', //100% for now
 };
 
 export const strategyCurveV1LPToken: IReserveParams = {
@@ -462,7 +462,7 @@ export const strategyCurveV1LPToken: IReserveParams = {
   assetType: 1, //1 is enum for Curve
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '10050', //100% for now
 };
 
 
@@ -478,5 +478,5 @@ export const strategyCurveV2LPToken: IReserveParams = {
   assetType: 2, //1 is enum for Curve
   supplyCap: '10000', 
   borrowCap: '10000', 
-  borrowFactor: '0', //100% for now
+  borrowFactor: '10100', //100% for now
 };

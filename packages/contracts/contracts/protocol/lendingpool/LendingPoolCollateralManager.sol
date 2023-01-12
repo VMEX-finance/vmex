@@ -48,7 +48,9 @@ contract LendingPoolCollateralManager is
     using ReserveConfiguration for *;
     using GenericLogic for *;
 
-    uint256 internal constant LIQUIDATION_CLOSE_FACTOR_PERCENT = 5000;
+    uint256 internal constant PERCENTAGEMATH_NUM_DECIMALS = 18;
+
+    uint256 internal constant LIQUIDATION_CLOSE_FACTOR_PERCENT = 5000*10**(PERCENTAGEMATH_NUM_DECIMALS-4);
 
     struct LiquidationCallLocalVars {
         uint256 userCollateralBalance;

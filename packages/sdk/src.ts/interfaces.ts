@@ -44,6 +44,7 @@ export interface UserTrancheData {
   currentLiquidationThreshold: BigNumber;
   ltv: BigNumber;
   healthFactor: BigNumber;
+  avgBorrowFactor: BigNumber;
   suppliedAssetData: SuppliedAssetData[];
   borrowedAssetData: BorrowedAssetData[];
   assetBorrowingPower: AvailableBorrowData[] ;
@@ -146,5 +147,6 @@ export interface TopAssetsData {
 
 export interface PriceData {
   oracle: string;
+  priceETH: BigNumber;
   priceUSD: BigNumber;
 }

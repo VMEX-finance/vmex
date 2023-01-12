@@ -47,7 +47,7 @@ makeSuite(
 
       }
       expected = expected.div(3600*23);
-      console.log("oracle.getAssetTWAPPrice(dai.address).div(10000): ", await oracle.getAssetTWAPPrice(dai.address));
+      console.log("oracle.getAssetTWAPPrice(dai.address): ", await oracle.getAssetTWAPPrice(dai.address));
       console.log("expected: ", expected)
       expect(BigNumber.from(await oracle.getAssetTWAPPrice(dai.address)).div(1000000000000)).to.be.bignumber.equal(expected.div(1000000000000));
 

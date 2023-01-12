@@ -26,6 +26,7 @@ const {
   getTotalTranches,
   getUserWalletData
 } = require("../dist/analytics.js");
+const {getAssetPrices} = require("../dist/utils.js")
 const { RateMode } = require("../dist/interfaces.js");
 const { TOKEN_ADDR_MAINNET } = require("../dist/constants.js");
 
@@ -81,6 +82,17 @@ describe("Analytics", () => {
 
     console.log(JSON.stringify(dat))
   });
+
+  it("2 - test get prices", async () => {
+    const dat = await getAssetPrices({
+      assets: ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+      network: network,
+      test: true,
+    });
+
+    console.log(JSON.stringify(dat))
+  });
+
 });
 
 describe("Tranche creation - end-to-end test", () => {
@@ -120,7 +132,7 @@ describe("Tranche creation - end-to-end test", () => {
   // initTranche
 });
 
-describe("Supply - end-to-end test", () => {
+describe("Supply", () => {
   let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
   const owner = provider.getSigner(0);
 
@@ -177,6 +189,7 @@ describe("Supply - end-to-end test", () => {
         amount: "2.0",
         signer: owner,
         network: network,
+        isMax: false,
         test: true,
       },
       () => {

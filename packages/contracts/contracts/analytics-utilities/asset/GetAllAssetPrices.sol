@@ -3,10 +3,13 @@ import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddr
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { IERC20Detailed } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 
+import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
+
 contract GetAllAssetPrices {
 
     struct AssetPrice {
         address oracle;
+        uint256 priceETH;
         uint256 priceUSD;
     }
 
@@ -19,6 +22,7 @@ contract GetAllAssetPrices {
         for (uint64 i = 0; i < assets.length; i++) {
             allAssetPrices[i].oracle = ILendingPoolAddressesProvider(providerAddr)
                 .getPriceOracle();
+            allAssetPrices[i].priceETH = IPriceOracleGetter(allAssetPrices[i].oracle).getAssetPrice(assets[i]);
 
             allAssetPrices[i].priceUSD = QueryAssetHelpers.convertAmountToUsd(
                 allAssetPrices[i].oracle,
