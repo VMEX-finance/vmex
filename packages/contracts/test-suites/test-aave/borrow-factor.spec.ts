@@ -105,7 +105,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
 
     await usdc
     .connect(users[0].signer)
-    .mint(await convertToCurrencyDecimals(usdc.address, "10000"));
+    .mint(await convertToCurrencyDecimals(usdc.address, "1000000"));
 
   await usdc
     .connect(users[0].signer)
@@ -227,7 +227,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
         console.log("WETH debt: ", userWETHReserveData.currentVariableDebt)
 
         expect(userWETHReserveData.currentVariableDebt).to.be.gt(ethers.utils.parseEther("0"))
-        
+        expect(usrData.availableBorrowsETH).to.be.lte("100000000000");
         console.log("borrowed max weth")
 
 
@@ -255,7 +255,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
           usrData = await pool.getUserAccountData(users[0].address, 0, false);
         expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
         console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
-        // expect(usrData.availableBorrowsETH).to.be.lte("1000");
+        expect(usrData.availableBorrowsETH).to.be.lte("100000000000");
 
         const userUSDCReserveData = await helpersContract.getUserReserveData(
           usdc.address,
@@ -265,7 +265,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
 
         console.log("USDC debt: ", userUSDCReserveData.currentVariableDebt)
 
-        expect(userUSDCReserveData.currentVariableDebt).to.be.gt(ethers.utils.parseEther("0"))
+        expect(userUSDCReserveData.currentVariableDebt).to.be.gt(0)
 
         console.log("borrowed max usdc")
           await pool
@@ -277,29 +277,86 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
             users[0].address
           )
 
-        await pool
-          .connect(users[0].signer)
-          .borrow(
-            weth.address,
-            0,
-            ethers.utils.parseEther("0.1"),
-            AAVE_REFERRAL,
-            users[0].address
-          );
-    
+        
+  });
+
+  it("Attempt to borrow max usdc when over limit", async () => {
+    const { users, pool, usdc, weth, oracle, helpersContract } = testEnv;
+
+    await pool
+      .connect(users[0].signer)
+      .deposit(
+        weth.address,
+        0,
+        ethers.utils.parseEther("100.0"),
+        users[0].address,
+        "0"
+      );
+
         await pool
           .connect(users[0].signer)
           .borrow(
             usdc.address,
             0,
-            await convertToCurrencyDecimals(usdc.address, "10"),
+            MAX_UINT_AMOUNT,
             AAVE_REFERRAL,
             users[0].address
-          );
+          )
+        let  usrData = await pool.getUserAccountData(users[0].address, 0, false);
+        expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
+        console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
+
+        const userUSDCReserveData = await helpersContract.getUserReserveData(
+          usdc.address,
+          0,
+          users[0].address
+        );
+
+        console.log("USDC debt: ", userUSDCReserveData.currentVariableDebt)
+
+        expect(userUSDCReserveData.currentVariableDebt).to.be.gte(await convertToCurrencyDecimals(usdc.address, "10000"))
+
+        console.log("borrowed max usdc")
+          await pool
+          .connect(users[0].signer)
+          .repay(
+            usdc.address,
+            0,
+            MAX_UINT_AMOUNT,
+            users[0].address
+          )
+
+          await pool
+          .connect(users[0].signer)
+          .withdraw(
+            weth.address,
+            0,
+            MAX_UINT_AMOUNT,
+            users[0].address
+          )
   });
 
   it("User 0 tries to withdraw", async () => {
-    const { users, pool, oracle, dai, aave } = testEnv;
+    const { users, pool, oracle, dai, aave, usdc, weth } = testEnv;
+    await pool
+      .connect(users[0].signer)
+      .borrow(
+        weth.address,
+        0,
+        ethers.utils.parseEther("0.1"),
+        AAVE_REFERRAL,
+        users[0].address
+      );
+
+    await pool
+      .connect(users[0].signer)
+      .borrow(
+        usdc.address,
+        0,
+        await convertToCurrencyDecimals(usdc.address, "10"),
+        AAVE_REFERRAL,
+        users[0].address
+      );
 
     await pool
           .connect(users[0].signer)
