@@ -1,4 +1,5 @@
 import { BigNumber, ethers, utils } from "ethers";
+import { PERCENTAGE_FACTOR } from "../../helpers/constants";
 
 export const calculateUserStake = (
     userReserveDataSignerBefore: BigNumber,
@@ -16,9 +17,9 @@ export const calculateExpectedInterest = (
     reserveFactor: BigNumber, //% with two decimals, like 1000 for 10%
     userStake: BigNumber //%stake of profit, with 18 decimals
   ) => {
-    var userAmt = BigNumber.from("10000").sub(reserveFactor);
+    var userAmt = BigNumber.from(PERCENTAGE_FACTOR).sub(reserveFactor);
     var interestRaw = strategyBoostedBalance.sub(strategyStartBoostedBalance)
-    var usrInterest = interestRaw.mul(userAmt).div(10000)
+    var usrInterest = interestRaw.mul(userAmt).div(PERCENTAGE_FACTOR)
     return usrInterest.mul(userStake).div(ethers.utils.parseEther("1"))
   }
 
@@ -28,5 +29,5 @@ export const calculateExpectedInterest = (
     reserveFactor: BigNumber, //% with two decimals, like 1000 for 10%
   ) => {
     var interestRaw = strategyBoostedBalance.sub(strategyStartBoostedBalance)
-    return interestRaw.mul(reserveFactor).div(10000)
+    return interestRaw.mul(reserveFactor).div(PERCENTAGE_FACTOR)
   }

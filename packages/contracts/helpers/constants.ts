@@ -1,12 +1,13 @@
 import BigNumber from "bignumber.js";
 import { eEthereumNetwork } from "./types";
+import ethers from "ethers";
 
 // ----------------
 // MATH
 // ----------------
 
-export const PERCENTAGE_FACTOR = "10000";
-export const HALF_PERCENTAGE = "5000";
+export const PERCENTAGE_FACTOR = Math.pow(10, 18).toString();
+export const HALF_PERCENTAGE = (5*Math.pow(10, 17)).toString();
 export const WAD = Math.pow(10, 18).toString();
 export const HALF_WAD = new BigNumber(WAD).multipliedBy(0.5).toString();
 export const RAY = new BigNumber(10).exponentiatedBy(27).toFixed();
