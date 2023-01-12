@@ -198,6 +198,7 @@ library ValidationLogic {
         );
 
         //add the current already borrowed amount to the amount requested to calculate the total collateral needed.
+        //risk adjusted debt
         vars.amountOfCollateralNeededETH = vars
             .userBorrowBalanceETH
             .percentMul(vars.avgBorrowFactor)

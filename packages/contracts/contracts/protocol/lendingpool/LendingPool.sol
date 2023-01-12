@@ -188,7 +188,7 @@ contract LendingPool is
                 referralCode
             );
 
-        _reserves[asset][trancheId]._deposit(
+        uint256 actualAmount = _reserves[asset][trancheId]._deposit(
             vars,
             _usersConfig[onBehalfOf][trancheId]
         );
@@ -200,7 +200,7 @@ contract LendingPool is
             vars.trancheId,
             msg.sender,
             vars.onBehalfOf,
-            vars.amount,
+            actualAmount,
             vars.referralCode
         );
     }
@@ -302,18 +302,25 @@ contract LendingPool is
             );
         if(vars.amount == type(uint256).max){
             (
+                uint256 userCollateralBalanceETH,
+                uint256 userBorrowBalanceETH,
                 ,
                 ,
-                uint256 availableBorrowsETH,
+                uint256 currentLtv,
                 ,
-                ,
-                ,
+                uint256 avgBorrowFactor
             ) = getUserAccountData(msg.sender, trancheId, true);
-            vars.amount = availableBorrowsETH
-                            .percentDiv(_assetMappings.getBorrowFactor(vars.asset))
-                            .mul(10**_assetMappings.getDecimals(vars.asset))
-                            .div(vars.assetPrice);
-
+            // vars.amount = availableBorrowsETH
+            //                 .percentDiv(_assetMappings.getBorrowFactor(vars.asset))
+            //                 .mul(10**_assetMappings.getDecimals(vars.asset))
+            //                 .div(vars.assetPrice);
+            vars.amount = (userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral
+                .sub(
+                    userBorrowBalanceETH.percentMul(avgBorrowFactor) //risk adjusted debt
+                )
+            ).percentDiv(_assetMappings.getBorrowFactor(vars.asset))//this will be the amount in ETH
+            .mul(10**_assetMappings.getDecimals(vars.asset))
+            .div(vars.assetPrice); //converted to native token
         }
 
 

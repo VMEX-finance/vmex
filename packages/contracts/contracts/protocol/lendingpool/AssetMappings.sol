@@ -132,7 +132,7 @@ contract AssetMappings is VersionedInitializable{
     }
 
     //by setting it, you automatically also approve it for the protocol
-    function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] calldata input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
+    function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] memory input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
         require(underlying.length==input.length);
 
 
@@ -140,9 +140,19 @@ contract AssetMappings is VersionedInitializable{
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
+            {
+                uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4); 
+                input[i].baseLTV *= factor;
+                input[i].liquidationThreshold *= factor;
+                input[i].liquidationBonus *= factor;
+                input[i].borrowFactor *= factor;
+            }
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
 
             assetMappings[underlying[i]] = input[i];
+            //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
+            
+            
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
             approvedAssets[numApprovedAssets++] = underlying[i];
             emit AssetDataSet(
@@ -169,7 +179,14 @@ contract AssetMappings is VersionedInitializable{
         uint256 borrowCap,
         uint256 borrowFactor
     ) external onlyGlobalAdmin {
+        uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4); 
+        baseLTV *= factor;
+        liquidationThreshold *= factor;
+        liquidationBonus *= factor;
+        borrowFactor *= factor;
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
+        //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
+        
         assetMappings[asset].baseLTV = baseLTV;
         assetMappings[asset].liquidationThreshold = liquidationThreshold;
         assetMappings[asset].liquidationBonus = liquidationBonus;

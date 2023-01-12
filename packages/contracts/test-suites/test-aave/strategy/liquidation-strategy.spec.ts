@@ -4,6 +4,7 @@ import { DRE, increaseTime } from "../../../helpers/misc-utils";
 import {
   APPROVAL_AMOUNT_LENDING_POOL,
   oneEther,
+  PERCENTAGE_FACTOR
 } from "../../../helpers/constants";
 import { convertToCurrencyDecimals } from "../../../helpers/contracts-helpers";
 import { makeSuite } from "../helpers/make-suite";
@@ -764,7 +765,7 @@ makeSuite(
             new BigNumber(10).pow(collateralDecimals)
           )
         )
-        .times(10000)
+        .times(PERCENTAGE_FACTOR)
         .div(liquidationBonus.toString())
         .decimalPlaces(0, BigNumber.ROUND_DOWN);
 
