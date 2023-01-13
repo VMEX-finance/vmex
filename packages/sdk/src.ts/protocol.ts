@@ -37,7 +37,7 @@ export async function borrow(
       params.test,
       params.providerRpc
     );
-  } 
+  }
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
@@ -257,7 +257,7 @@ export async function supply(
       params.test,
       params.providerRpc
     );
-  } 
+  }
   let lendingPool = await getLendingPool({
     signer: params.signer,
     network: params.network,
@@ -281,7 +281,7 @@ export async function supply(
   }
 
   try {
-    
+
     if (params.test) {
       tx = await lendingPool.deposit(
         params.underlying,
@@ -341,7 +341,7 @@ export async function lendingPoolPause(
   });
   if (
     (await params.approvedSigner.getAddress()) !==
-    (await addressProvider.getPoolAdmin(params.tranche))
+    (await addressProvider.getTrancheAdmin(params.tranche))
   )
     throw new Error("signer must be pool admin");
   const lendingPool = await getLendingPool({

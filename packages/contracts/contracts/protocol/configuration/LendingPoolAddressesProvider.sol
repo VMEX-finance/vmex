@@ -14,17 +14,26 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
  * @title LendingPoolAddressesProvider contract
  * @dev Main registry of addresses part of or connected to the protocol, including permissioned roles
  * - Acting also as factory of proxies and admin of those, so with right to change its implementations
- * - Owned by the Aave Governance
- * @author Aave
+ * - Owned by the Vmex Governance
+ * @author Vmex
  **/
 contract LendingPoolAddressesProvider is
     Ownable,
     ILendingPoolAddressesProvider
 {
     string private _marketId;
-    mapping(bytes32 => address) private _addresses; //addresses that are not specific to a configurator
-    mapping(bytes32 => mapping(uint64 => address)) private _addressesTranche; //addresses that are specific to a tranche: _addressesTranche[POOL_ADMIN][0] is the admin address for tranche 0
+
+    // List of addresses that are not specific to a tranche
+    mapping(bytes32 => address) private _addresses;
+
+    // List of addresses that are specific to a tranche:
+    // _addressesTranche[TRANCHE_ADMIN][0] is the admin address for tranche 0
+    mapping(bytes32 => mapping(uint64 => address)) private _addressesTranche;
+
+    // Whitelisted addresses that are allowed to create permissionless tranches
     mapping(address => bool) whitelistedAddresses;
+
+    // Whether or not permissionless tranches are enabled for all users
     bool permissionlessTranches;
 
     bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
@@ -34,7 +43,7 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant VARIABLE_DEBT = "VARIABLE_DEBT";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
         "LENDING_POOL_CONFIGURATOR";
-    bytes32 private constant POOL_ADMIN = "POOL_ADMIN";
+    bytes32 private constant TRANCHE_ADMIN = "TRANCHE_ADMIN";
     bytes32 private constant EMERGENCY_ADMIN = "EMERGENCY_ADMIN";
     bytes32 private constant LENDING_POOL_COLLATERAL_MANAGER =
         "COLLATERAL_MANAGER";
@@ -64,14 +73,27 @@ contract LendingPoolAddressesProvider is
         emit VMEXTreasuryUpdated(add);
     }
 
-    function setPermissionlessTranches(bool _val) external onlyOwner {
-        permissionlessTranches = _val;
+    /**
+     * @dev Sets whether permissionless tranches are enabled or disabled for all users.
+     * @param val True if permissionless tranches are enabled, false otherwise
+     **/
+    function setPermissionlessTranches(bool val) external onlyOwner {
+        permissionlessTranches = val;
     }
 
-    function addWhitelistedAddress(address ad, bool _val) external onlyOwner {
-        whitelistedAddresses[ad] = _val;
+    /**
+     * @dev Add a user to create permissionless tranches.
+     * @param ad The user's address
+     * @param val Whether or not to enable this user to create permissionless tranches
+     **/
+    function addWhitelistedAddress(address ad, bool val) external onlyOwner {
+        whitelistedAddresses[ad] = val;
     }
 
+    /**
+     * @dev Checks whether an address is allowed to create permissionless tranches.
+     * @param ad The user's address
+     **/
     function isWhitelistedAddress(address ad)
         external
         view
@@ -82,7 +104,7 @@ contract LendingPoolAddressesProvider is
     }
 
     /**
-     * @dev Returns the id of the Aave market to which this contracts points to
+     * @dev Returns the id of the Vmex market to which this contracts points to
      * @return The market id
      **/
     function getMarketId() external view override returns (string memory) {
@@ -138,6 +160,10 @@ contract LendingPoolAddressesProvider is
         return _addresses[id];
     }
 
+    /**
+     * @dev Returns an address in a tranche by id and trancheId
+     * @return The address
+     */
     function getAddressTranche(bytes32 id, uint64 trancheId)
         public
         view
@@ -179,29 +205,10 @@ contract LendingPoolAddressesProvider is
      * @param aToken The new aToken implementation
      **/
     function setATokenImpl(address aToken) external override onlyOwner {
-        _addresses[ATOKEN] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        // don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        _addresses[ATOKEN] = aToken;
         emit ATokenUpdated(aToken);
     }
-
-
-    /**
-     * @dev Returns the address of the LendingPool proxy
-     * @return The aToken proxy address
-     **/
-    function getStableDebtToken() external view override returns (address) {
-        return getAddress(STABLE_DEBT);
-    }
-
-    /**
-     * @dev Updates the implementation of the LendingPool, or creates the proxy
-     * setting the new `pool` implementation on the first time calling it
-     * @param aToken The new aToken implementation
-     **/
-    function setStableDebtToken(address aToken) external override onlyOwner {
-        _addresses[STABLE_DEBT] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
-        emit StableDebtUpdated(aToken);
-    }
-
 
     /**
      * @dev Returns the address of the LendingPool proxy
@@ -217,7 +224,8 @@ contract LendingPoolAddressesProvider is
      * @param aToken The new aToken implementation
      **/
     function setVariableDebtToken(address aToken) external override onlyOwner {
-        _addresses[VARIABLE_DEBT] = aToken; //don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        // don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        _addresses[VARIABLE_DEBT] = aToken;
         emit VariableDebtUpdated(aToken);
     }
 
@@ -282,50 +290,93 @@ contract LendingPoolAddressesProvider is
      * of the protocol hence the upgradable proxy pattern is not used
      **/
 
+    /**
+     * @dev Gets the global admin, the admin to entire market
+     * @return The address of the global admin
+     **/
     function getGlobalAdmin() external view override returns (address) {
         return getAddress(GLOBAL_ADMIN);
     }
 
+    /**
+     * @dev Sets the global admin, the admin to entire market
+     * IMPORTANT Use this function carefully, as it will do a hard replacement
+     * @param admin The address of the new admin
+     **/
     function setGlobalAdmin(address admin) external override onlyOwner {
         _addresses[GLOBAL_ADMIN] = admin;
     }
 
-    function getPoolAdmin(uint64 trancheId)
+    /**
+     * @dev Gets the tranche admin, the admin to a single tranche
+     * @param trancheId The id of the tranche
+     * @return The address of the tranche admin
+     **/
+    function getTrancheAdmin(uint64 trancheId)
         external
         view
         override
         returns (address)
     {
-        return getAddressTranche(POOL_ADMIN, trancheId);
+        return getAddressTranche(TRANCHE_ADMIN, trancheId);
     }
 
-    function setPoolAdmin(address admin, uint64 trancheId) external override {
-        //eventually we want this to be permissionless, but for now we will manually set the pool admin for every tranche
-        //TODO: check if I should use _msgSender or msg.sender
+    /**
+     * @dev Manually sets the tranche admin without checking if the tranche has been taken
+     * @param admin The address of the new admin
+     * @param trancheId The id of the tranche
+     **/
+    function setTrancheAdmin(address admin, uint64 trancheId) external override {
         require(
             _msgSender() == owner() ||
-                _msgSender() == getAddressTranche(POOL_ADMIN, trancheId),
+                _msgSender() == getAddressTranche(TRANCHE_ADMIN, trancheId),
             "Sender is not VMEX admin or the original admin of the tranche"
         );
-        _addressesTranche[POOL_ADMIN][trancheId] = admin;
+        _addressesTranche[TRANCHE_ADMIN][trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
-    function addPoolAdmin(address admin, uint64 trancheId) external override {
-        //if you want to add your own tranche, anyone can do it, but you just have to choose a trancheId that hasn't been used yet
+    /**
+     * @dev Adds the tranche admin to registry, checking if the tranche has been taken
+     * @param admin The address of the new admin
+     * @param trancheId The id of the tranche
+     **/
+    function addTrancheAdmin(address admin, uint64 trancheId) external override {
+        // anyone can add their own tranche, but you just have to choose a trancheId that hasn't been used yet
         require(
             _msgSender() == getAddress(LENDING_POOL_CONFIGURATOR) ||
                 _msgSender() == owner(),
             "Caller must be lending pool configurator that is creating a new tranche"
         );
         require(
-            _addressesTranche[POOL_ADMIN][trancheId] == address(0),
+            _addressesTranche[TRANCHE_ADMIN][trancheId] == address(0),
             "Pool admin trancheId input is already in use"
         );
-        _addressesTranche[POOL_ADMIN][trancheId] = admin;
+        _addressesTranche[TRANCHE_ADMIN][trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
+    /**
+     * @dev Gets the emergency admin for the market
+     * @return The emergency admin address
+     **/
+    function getEmergencyAdmin() external view override returns (address) {
+        return getAddress(EMERGENCY_ADMIN);
+    }
+
+    /**
+     * @dev Sets the emergency admin for the market
+     * @param emergencyAdmin The address of the new admin
+     **/
+    function setEmergencyAdmin(address emergencyAdmin) external override onlyOwner {
+        _addresses[EMERGENCY_ADMIN] = emergencyAdmin;
+        emit EmergencyAdminUpdated(emergencyAdmin);
+    }
+
+    /**
+     * @dev Get the vmex price oracle
+     * @return The address of the vmex price oracle
+     **/
     function getPriceOracle()
         external
         view
@@ -335,37 +386,17 @@ contract LendingPoolAddressesProvider is
         return getAddress(VMEX_PRICE_ORACLE);
     }
 
-    //custom address provider for Curve tokens
-    // function getCurveAddressProvider()
-    //     external
-    //     view
-    //     override
-    //     returns (address)
-    // {
-    //     return getAddress(CURVE_ADDRESS_PROVIDER);
-    // }
-
+    /**
+     * @dev Set the vmex price oracle
+     * @param priceOracle The address of the new vmex price oracle
+     **/
     function setPriceOracle(address priceOracle)
         external
         override
         onlyOwner
     {
-        // _addresses[VMEX_PRICE_ORACLE] = priceOracle;
         _updateImpl(VMEX_PRICE_ORACLE, priceOracle);
         emit PriceOracleUpdated(priceOracle);
-    }
-
-    function getLendingRateOracle() external view override returns (address) {
-        return getAddress(LENDING_RATE_ORACLE);
-    }
-
-    function setLendingRateOracle(address lendingRateOracle)
-        external
-        override
-        onlyOwner
-    {
-        _addresses[LENDING_RATE_ORACLE] = lendingRateOracle;
-        emit LendingRateOracleUpdated(lendingRateOracle);
     }
 
     /**
@@ -380,14 +411,10 @@ contract LendingPoolAddressesProvider is
     function _updateImpl(bytes32 id, address newAddress) internal {
         address payable proxyAddress = payable(_addresses[id]);
 
-        InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
-                proxyAddress
-            );
-
-        bytes memory params = abi.encodeWithSignature(
-            "initialize(address)",
-            address(this)
-        );
+        InitializableImmutableAdminUpgradeabilityProxy proxy =
+            InitializableImmutableAdminUpgradeabilityProxy(proxyAddress);
+        bytes memory params =
+            abi.encodeWithSignature("initialize(address)", address(this));
 
         if (proxyAddress == address(0)) {
             proxy = new InitializableImmutableAdminUpgradeabilityProxy(
@@ -406,20 +433,20 @@ contract LendingPoolAddressesProvider is
         emit MarketIdSet(marketId);
     }
 
+    /**
+     * @dev Set the asset mappings
+     * @return The address of the asset mappings
+     **/
     function getAssetMappings() external view override returns (address){
         return getAddress(ASSET_MAPPINGS);
     }
+
+    /**
+     * @dev Set the asset mappings
+     * @param assetMappings The address of the new asset mappings
+     **/
     function setAssetMappingsImpl(address assetMappings) external override onlyOwner{
         _updateImpl(ASSET_MAPPINGS, assetMappings);
         emit AssetMappingsUpdated(assetMappings);
-    }
-
-    function getEmergencyAdmin() external view override returns (address) {
-        return getAddress(EMERGENCY_ADMIN);
-    }
-
-    function setEmergencyAdmin(address emergencyAdmin) external override onlyOwner {
-        _addresses[EMERGENCY_ADMIN] = emergencyAdmin;
-        emit EmergencyAdminUpdated(emergencyAdmin);
     }
 }

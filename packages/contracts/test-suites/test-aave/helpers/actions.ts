@@ -70,7 +70,7 @@ const almostEqualOrEqual = function (
       key === "decimals" ||
       key === "totalStableDebtLastUpdated" ||
       key === "reserveFactor" ||
-      key === "VMEXReserveFactor" 
+      key === "VMEXReserveFactor"
     ) {
       // skipping consistency check on accessory data
       return;
@@ -115,7 +115,7 @@ const almostEqualOrEqual = function (
         const one = new BigNumber(DRE.ethers.utils.parseEther("1").toString())
         logger("actualValue: ",actualValue)
         logger("new BigNumber(DRE.ethers.utils.parseEther(1): ", one)
-        this.assert(actualValue.gte(one), 
+        this.assert(actualValue.gte(one),
         `expected #{act} to be greater than or equal to #{exp} for property ${key}`,
         `expected #{act} to be greater than or equal #{exp} for property ${key}`,
         actualValue,
@@ -563,10 +563,7 @@ export const delegateBorrowAllowance = async (
 
   const reserveData = await pool.getReserveData(reserveAddress, tranche);
 
-  const debtToken =
-    interestRateMode === "1"
-      ? await getStableDebtToken(reserveData.stableDebtTokenAddress)
-      : await getVariableDebtToken(reserveData.variableDebtTokenAddress);
+  const debtToken = await getVariableDebtToken(reserveData.variableDebtTokenAddress);
 
   const delegateAllowancePromise = debtToken
     .connect(user.signer)
@@ -736,7 +733,7 @@ export const borrow = async (
     } = await getContractsData(reserve, tranche, trancheAdmin.address, testEnv);
 
     logger("\n@@@@@@@@@@@@@@@@@@@@@@\n");
-    
+
 
     expectedUserData.healthFactor = await calculateHF(testEnv, tranche, onBehalfOf);
     expectEqual(reserveDataAfter, expectedReserveData);

@@ -24,7 +24,7 @@ library DataTypes {
         //below are the things that we will change more often
         uint256 supplyCap;
         uint256 borrowCap;
-        uint256 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 
+        uint256 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor."
         uint256 liquidationThreshold; //if this is zero, then disabled as collateral
         uint256 liquidationBonus;
         uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset
@@ -62,7 +62,6 @@ library DataTypes {
         InitReserveInput input;
         uint64 trancheId;
         address aTokenImpl;
-        address stableDebtTokenImpl;
         address variableDebtTokenImpl;
         AssetData assetdata;
     }
@@ -171,9 +170,7 @@ library DataTypes {
         address aToken;
         uint256 liquidityAdded;
         uint256 liquidityTaken;
-        uint256 totalStableDebt;
         uint256 totalVariableDebt;
-        uint256 averageStableBorrowRate;
         uint256 reserveFactor;
         uint256 globalVMEXReserveFactor;
     }

@@ -128,7 +128,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
           ]
         );
 
-        const stableDebt = await getAddressById(`stableDebt${token}`);
         const variableDebt = await getAddressById(`variableDebt${token}`);
         const aToken = await getAddressById(`a${token}`);
 
@@ -145,24 +144,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
         } else {
           console.error(
             `Skipping aToken verify for ${token}. Missing address at JSON DB.`
-          );
-        }
-        if (stableDebt) {
-          console.log("\n- Verifying StableDebtToken...\n");
-          await verifyContract(
-            eContractid.StableDebtToken,
-            await getStableDebtToken(stableDebt),
-            [
-              lendingPoolProxy.address,
-              tokenAddress,
-              `Aave stable debt bearing ${token}`,
-              `stableDebt${token}`,
-              ZERO_ADDRESS,
-            ]
-          );
-        } else {
-          console.error(
-            `Skipping stable debt verify for ${token}. Missing address at JSON DB.`
           );
         }
         if (variableDebt) {

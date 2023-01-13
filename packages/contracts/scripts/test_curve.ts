@@ -30,8 +30,6 @@ const WETHabi = [
 
     let LPAddressProvider = new ethers.Contract(deployments.LendingPoolAddressesProvider.localhost.address, ILendingPoolAddressesProvider.abi, signer);
 
-    console.log(await LPAddressProvider.getPoolAdmin(), await LPAddressProvider.getPoolAdmin() == await signer.getAddress());
-
     if (LendingPool.paused()) {
         console.log('unpausing Lending Pool')
         const LendingPoolConfiguratorProxy = await LendingPoolConfiguratorFactory.connect(deployments.LendingPoolConfigurator.localhost.address, emergency);
@@ -48,12 +46,12 @@ const WETHabi = [
     //     console.log(`updating user balance, now contains ${ balance } WETH`)
     // }
 
-    
+
     console.log("approving WETH for LendingPool deposit");
     await WETHContract.approve(LendingPool.address, ethers.utils.parseEther("5.0"));
     await LendingPool.deposit(WETHadd, 0, false, ethers.utils.parseUnits("5.0"), address, '0', { gasLimit: "8000000" });
 
-    
+
 
 
 

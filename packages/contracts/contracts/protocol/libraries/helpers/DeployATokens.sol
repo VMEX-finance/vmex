@@ -10,84 +10,53 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 library DeployATokens {
-    struct deployATokensVars {
+    struct DeployATokensVars {
         ILendingPool pool;
         ILendingPoolAddressesProvider addressProvider;
         DataTypes.InitReserveInputInternal internalInput;
     }
 
-    function deployATokens(deployATokensVars memory vars)
+    function deployATokens(DeployATokensVars memory vars)
         public
         returns (
             address aTokenProxyAddress,
-            address stableDebtTokenProxyAddress,
             address variableDebtTokenProxyAddress
         )
     {
-        {
-            aTokenProxyAddress = _initTokenWithProxy(
-                vars.internalInput.aTokenImpl,
-                getAbiEncodedAToken(vars)
-            );
-        }
-        {
-            stableDebtTokenProxyAddress = _initTokenWithProxy(
-                vars.internalInput.stableDebtTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableDebtToken.initialize.selector,
-                    vars.pool,
-                    vars.internalInput.input.underlyingAsset,
-                    vars.internalInput.trancheId,
-                    IAaveIncentivesController(
-                        vars.internalInput.input.incentivesController
-                    ),
-                    vars.internalInput.assetdata.underlyingAssetDecimals,
-                    string(
-                        abi.encodePacked(
-                            vars.internalInput.assetdata.stableDebtTokenName,
-                            Strings.toString(vars.internalInput.trancheId)
-                        )
-                    ), //abi.encodePacked(input.stableDebtTokenName, trancheId),
-                    string(
-                        abi.encodePacked(
-                            vars.internalInput.assetdata.stableDebtTokenSymbol,
-                            Strings.toString(vars.internalInput.trancheId)
-                        )
-                    )
-                )
-            );
-        }
+        aTokenProxyAddress = _initTokenWithProxy(
+            vars.internalInput.aTokenImpl,
+            getAbiEncodedAToken(vars)
+        );
 
-        {
-            variableDebtTokenProxyAddress = _initTokenWithProxy(
-                vars.internalInput.variableDebtTokenImpl,
-                abi.encodeWithSelector(
-                    IInitializableDebtToken.initialize.selector,
-                    vars.pool,
-                    vars.internalInput.input.underlyingAsset,
-                    vars.internalInput.trancheId,
-                    IAaveIncentivesController(
-                        vars.internalInput.input.incentivesController
-                    ),
-                    vars.internalInput.assetdata.underlyingAssetDecimals,
-                    string(
-                        abi.encodePacked(
-                            vars.internalInput.assetdata.variableDebtTokenName,
-                            Strings.toString(vars.internalInput.trancheId)
-                        )
-                    ), //abi.encodePacked(input.variableDebtTokenName, trancheId),
-                    string(
-                        abi.encodePacked(
-                            vars.internalInput.assetdata.variableDebtTokenSymbol,
-                            Strings.toString(vars.internalInput.trancheId)
-                        )
+
+        variableDebtTokenProxyAddress = _initTokenWithProxy(
+            vars.internalInput.variableDebtTokenImpl,
+            abi.encodeWithSelector(
+                IInitializableDebtToken.initialize.selector,
+                vars.pool,
+                vars.internalInput.input.underlyingAsset,
+                vars.internalInput.trancheId,
+                IAaveIncentivesController(
+                    vars.internalInput.input.incentivesController
+                ),
+                vars.internalInput.assetdata.underlyingAssetDecimals,
+                string(
+                    abi.encodePacked(
+                        vars.internalInput.assetdata.variableDebtTokenName,
+                        Strings.toString(vars.internalInput.trancheId)
+                    )
+                ), //abi.encodePacked(input.variableDebtTokenName, trancheId),
+                string(
+                    abi.encodePacked(
+                        vars.internalInput.assetdata.variableDebtTokenSymbol,
+                        Strings.toString(vars.internalInput.trancheId)
                     )
                 )
-            );
-        }
+            )
+        );
     }
 
-    function getAbiEncodedAToken(deployATokensVars memory vars)
+    function getAbiEncodedAToken(DeployATokensVars memory vars)
         public
         view
         returns (bytes memory)
@@ -120,7 +89,7 @@ library DeployATokens {
             );
     }
 
-    
+
 
     function _initTokenWithProxy(
         address implementation,

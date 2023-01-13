@@ -84,7 +84,7 @@ const executeAction = async (
   const user = users[parseInt(userIndex)];
   const { addressesProvider } = testEnv;
   const trancheAdmin = await DRE.ethers.getSigner(
-    await addressesProvider.getPoolAdmin(myTranche)
+    await addressesProvider.getTrancheAdmin(myTranche)
   );
   if(user.address===trancheAdmin.address){
     console.log("Both user and tranche admin are same user: ", user.address) 

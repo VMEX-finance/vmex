@@ -122,7 +122,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         override
         returns (
             uint256,
-            uint256,
             uint256
         )
     {
@@ -148,17 +147,13 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         CalcInterestRatesLocalVars memory vars;
         {
-            vars.totalDebt = calvars.totalStableDebt.add(calvars.totalVariableDebt);
+            vars.totalDebt = calvars.totalVariableDebt;
             vars.currentVariableBorrowRate = 0;
             vars.currentStableBorrowRate = 0;
             vars.currentLiquidityRate = 0;
             vars.utilizationRate = vars.totalDebt == 0
                 ? 0
                 : vars.totalDebt.rayDiv(availableLiquidity.add(vars.totalDebt));
-
-            vars.currentStableBorrowRate = ILendingRateOracle(
-                addressesProvider.getLendingRateOracle()
-            ).getMarketBorrowRate(calvars.reserve);
         }
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
@@ -167,20 +162,10 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
                 .sub(OPTIMAL_UTILIZATION_RATE)
                 .rayDiv(EXCESS_UTILIZATION_RATE);
 
-            vars.currentStableBorrowRate = vars
-                .currentStableBorrowRate
-                .add(_stableRateSlope1)
-                .add(_stableRateSlope2.rayMul(excessUtilizationRateRatio));
-
             vars.currentVariableBorrowRate = _baseVariableBorrowRate
                 .add(_variableRateSlope1)
                 .add(_variableRateSlope2.rayMul(excessUtilizationRateRatio));
         } else {
-            vars.currentStableBorrowRate = vars.currentStableBorrowRate.add(
-                _stableRateSlope1.rayMul(
-                    vars.utilizationRate.rayDiv(OPTIMAL_UTILIZATION_RATE)
-                )
-            );
             vars.currentVariableBorrowRate = _baseVariableBorrowRate.add(
                 vars.utilizationRate.rayMul(_variableRateSlope1).rayDiv(
                     OPTIMAL_UTILIZATION_RATE
@@ -188,19 +173,15 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
             );
         }
 
-        vars.currentLiquidityRate = _getOverallBorrowRate(
-            calvars.totalStableDebt,
-            calvars.totalVariableDebt,
-            vars.currentVariableBorrowRate,
-            calvars.averageStableBorrowRate
-        )
-        .rayMul(vars.utilizationRate) // % return per asset borrowed * amount borrowed = total expected return in pool
-        .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(calvars.reserveFactor)) //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
-            .percentMul(
-                PercentageMath.PERCENTAGE_FACTOR.sub(
-                    calvars.globalVMEXReserveFactor
-                ) //global VMEX treasury interest rate
-            );
+        vars.currentLiquidityRate = vars.currentVariableBorrowRate
+            .rayMul(vars.utilizationRate) // % return per asset borrowed * amount borrowed = total expected return in pool
+            .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(calvars.reserveFactor)) //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
+                .percentMul(
+                    PercentageMath.PERCENTAGE_FACTOR.sub(
+                        calvars.globalVMEXReserveFactor
+                    ) //global VMEX treasury interest rate
+                );
+
         //borrow interest rate * (1-reserve factor) *(1- global VMEX reserve factor) = deposit interest rate
         //this means borrow interest rate *(1- global VMEX reserve factor) * reserve factor is the interest rate of the pool admin treasury
         //borrow interest rate *(1- reserve factor) * global VMEX reserve factor is the interest rate of the VMEX treasury
@@ -208,7 +189,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         return (
             vars.currentLiquidityRate,
-            vars.currentStableBorrowRate,
             vars.currentVariableBorrowRate
         );
     }
@@ -219,38 +199,5 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         uint256 currentStableBorrowRate;
         uint256 currentLiquidityRate;
         uint256 utilizationRate;
-    }
-
-    /**
-     * @dev Calculates the overall borrow rate as the weighted average between the total variable debt and total stable debt
-     * @param totalStableDebt The total borrowed from the reserve a stable rate
-     * @param totalVariableDebt The total borrowed from the reserve at a variable rate
-     * @param currentVariableBorrowRate The current variable borrow rate of the reserve
-     * @param currentAverageStableBorrowRate The current weighted average of all the stable rate loans
-     * @return The weighted averaged borrow rate
-     **/
-    function _getOverallBorrowRate(
-        uint256 totalStableDebt,
-        uint256 totalVariableDebt,
-        uint256 currentVariableBorrowRate,
-        uint256 currentAverageStableBorrowRate
-    ) internal pure returns (uint256) {
-        uint256 totalDebt = totalStableDebt.add(totalVariableDebt);
-
-        if (totalDebt == 0) return 0;
-
-        uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(
-            currentVariableBorrowRate
-        );
-
-        uint256 weightedStableRate = totalStableDebt.wadToRay().rayMul(
-            currentAverageStableBorrowRate
-        );
-
-        uint256 overallBorrowRate = weightedVariableRate
-            .add(weightedStableRate)
-            .rayDiv(totalDebt.wadToRay());
-
-        return overallBorrowRate;
     }
 }

@@ -70,25 +70,23 @@ interface ILendingPoolAddressesProvider {
     function setLendingPoolCollateralManager(address manager) external;
 
     //********************************************************** */
-    //permissionless tranches changes
-    function getPoolAdmin(uint64 trancheId) external view returns (address); //this depends on trancheId. Different admin for different tranches
 
     function getGlobalAdmin() external view returns (address);
 
     function setGlobalAdmin(address admin) external;
 
-    function setPoolAdmin(address admin, uint64 trancheId) external; //this depends on trancheId
+    function getTrancheAdmin(uint64 trancheId) external view returns (address);
+
+    function setTrancheAdmin(address admin, uint64 trancheId) external;
+
+    function addTrancheAdmin(address admin, uint64 trancheId) external;
 
     function getEmergencyAdmin()
         external
         view
-        returns (address); //this depends on trancheId
+        returns (address);
 
-    function setEmergencyAdmin(address admin) external; //this depends on trancheId
-
-    function addPoolAdmin(address admin, uint64 trancheId) external;
-
-    // function addEmergencyAdmin(address admin, uint64 trancheId) external;
+    function setEmergencyAdmin(address admin) external;
 
     function getAddressTranche(bytes32 id, uint64 trancheId)
         external
@@ -101,23 +99,15 @@ interface ILendingPoolAddressesProvider {
     function getPriceOracle()
         external
         view
-        returns (address); //this might also depend on trancheId if some configurators choose to
+        returns (address);
 
     function setPriceOracle(address priceOracle) external;
-
-    function getLendingRateOracle() external view returns (address); //this oracle determines the stable borrow rate for a reserve. Should only need one, since it is based off the address of the reserve, which is unique for every asset in each tranche in each pool. Governance manually sets this
-
-    function setLendingRateOracle(address lendingRateOracle) external;
-
 
     function getAToken() external view returns (address);
     function setATokenImpl(address pool) external;
 
-    function getStableDebtToken() external view returns (address);
-    function setStableDebtToken(address pool) external;
     function getVariableDebtToken() external view returns (address);
     function setVariableDebtToken(address pool) external;
-
 
     function getAssetMappings() external view returns (address);
     function setAssetMappingsImpl(address pool) external;

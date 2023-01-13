@@ -38,7 +38,7 @@ makeSuite('AToken: underlying delegation', (testEnv: TestEnv) => {
       [pool.address, delegationERC20.address, await getTreasuryAddress(AmmConfig), ZERO_ADDRESS, 'aDEL', 'aDEL'],
       false
     );
-    
+
     //await delegationAToken.initialize(pool.address, ZERO_ADDRESS, delegationERC20.address, ZERO_ADDRESS, '18', 'aDEL', 'aDEL');
 
     console.log((await delegationAToken.decimals()).toString());
@@ -49,7 +49,7 @@ makeSuite('AToken: underlying delegation', (testEnv: TestEnv) => {
 
     await expect(
       delegationAToken.connect(users[1].signer).delegateUnderlyingTo(users[2].address)
-    ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_POOL_ADMIN);
+    ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_TRANCHE_ADMIN);
   });
 
   it('Tries to delegate to user 2', async () => {

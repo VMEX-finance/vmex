@@ -48,9 +48,7 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       aToken: aDai.address,
       liquidityAdded: 0,
       liquidityTaken: 0,
-      totalStableDebt: 0,
       totalVariableDebt: 0,
-      averageStableBorrowRate: 0,
       reserveFactor: defaultReserveFactor,
       globalVMEXReserveFactor: 0
     });
@@ -76,9 +74,7 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       aToken: aDai.address,
       liquidityAdded: '200000000000000000',
       liquidityTaken: 0,
-      totalStableDebt: 0,
       totalVariableDebt: '800000000000000000',
-      averageStableBorrowRate: 0,
       reserveFactor: defaultReserveFactor,
       globalVMEXReserveFactor: 0
     });
@@ -116,9 +112,7 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       aToken: aDai.address,
       liquidityAdded: 0,
       liquidityTaken: 0,
-      totalStableDebt: 0,
       totalVariableDebt: '800000000000000000',
-      averageStableBorrowRate: 0,
       reserveFactor: defaultReserveFactor,
       globalVMEXReserveFactor: 0
     });
@@ -149,7 +143,7 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
     // );
   });
 
-  it('Checks rates at 100% utilization rate, 50% stable debt and 50% variable debt, with a 10% avg stable rate', async () => {
+  it('Checks rates at 100% utilization rate, 50% variable debt', async () => {
     const {
       0: currentLiquidityRate,
       1: currentStableBorrowRate,
@@ -159,9 +153,7 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       aToken: aDai.address,
       liquidityAdded: 0,
       liquidityTaken: 0,
-      totalStableDebt: '400000000000000000',
       totalVariableDebt: '400000000000000000',
-      averageStableBorrowRate: '100000000000000000000000000',
       reserveFactor: defaultReserveFactor,
       globalVMEXReserveFactor: 0
     });

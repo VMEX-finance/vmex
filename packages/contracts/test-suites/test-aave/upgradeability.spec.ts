@@ -22,7 +22,7 @@ import {
 import { BigNumberish } from 'ethers';
 
 makeSuite('Upgradeability', (testEnv: TestEnv) => {
-  const { CALLER_NOT_POOL_ADMIN } = ProtocolErrors;
+  const { CALLER_NOT_TRANCHE_ADMIN } = ProtocolErrors;
   let newATokenAddress: string;
   let newStableTokenAddress: string;
   let newVariableTokenAddress: string;

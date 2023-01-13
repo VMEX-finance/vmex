@@ -58,7 +58,7 @@
 
 //     await expect(
 //       delegationAToken.connect(users[1].signer).delegateUnderlyingTo(users[2].address)
-//     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_POOL_ADMIN);
+//     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_TRANCHE_ADMIN);
 //   });
 
 //   it('Tries to delegate to user 2', async () => {

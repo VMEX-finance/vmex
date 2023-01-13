@@ -141,7 +141,7 @@ export enum eContractid {
  */
 export enum ProtocolErrors {
   //common errors
-  CALLER_NOT_POOL_ADMIN = "33", // 'The caller must be the pool admin'
+  CALLER_NOT_TRANCHE_ADMIN = "33", // 'The caller must be the pool admin'
 
   //contract specific errors
   VL_INVALID_AMOUNT = "1", // 'Amount must be greater than 0'
