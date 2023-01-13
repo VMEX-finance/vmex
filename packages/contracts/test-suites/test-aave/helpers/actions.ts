@@ -44,6 +44,11 @@ import { ContractReceipt } from "ethers";
 import { AToken } from "../../../types/AToken";
 import { RateMode, tEthereumAddress } from "../../../helpers/types";
 
+const DEBUG = false;
+if(!DEBUG){
+  console.log = function () {};
+}
+
 const { expect } = chai;
 
 const almostEqualOrEqual = function (
@@ -63,7 +68,9 @@ const almostEqualOrEqual = function (
       key === "symbol" ||
       key === "aTokenAddress" ||
       key === "decimals" ||
-      key === "totalStableDebtLastUpdated"
+      key === "totalStableDebtLastUpdated" ||
+      key === "reserveFactor" ||
+      key === "VMEXReserveFactor" 
     ) {
       // skipping consistency check on accessory data
       return;

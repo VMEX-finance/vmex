@@ -367,7 +367,7 @@ contract LendingPool is
             paybackAmount = amount;
         }
 
-        reserve.updateState();
+        reserve.updateState(_assetMappings.getVMEXReserveFactor(asset));
 
         IVariableDebtToken(reserve.variableDebtTokenAddress).burn(
             onBehalfOf,
@@ -376,7 +376,7 @@ contract LendingPool is
         );
 
         address aToken = reserve.aTokenAddress;
-        reserve.updateInterestRates(asset, aToken, paybackAmount, 0);
+        reserve.updateInterestRates(asset, aToken, paybackAmount, 0, _assetMappings.getVMEXReserveFactor(asset));
 
         if (variableDebt.sub(paybackAmount) == 0) {
             _usersConfig[onBehalfOf][trancheId].setBorrowing(reserve.id, false);

@@ -278,7 +278,9 @@ export const calcExpectedReserveDataAfterDeposit = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
   expectedReserveData.stableBorrowRate = rates[1];
@@ -355,7 +357,9 @@ export const calcExpectedReserveDataAfterWithdraw = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
   expectedReserveData.stableBorrowRate = rates[1];
@@ -436,7 +440,9 @@ export const calcExpectedReserveDataAfterBorrow = (
       utilizationRateAfterTx,
       expectedReserveData.principalStableDebt,
       expectedVariableDebtAfterTx,
-      expectedReserveData.averageStableBorrowRate
+      expectedReserveData.averageStableBorrowRate,
+      reserveDataBeforeAction.reserveFactor,
+      reserveDataBeforeAction.VMEXReserveFactor,
     );
 
     expectedReserveData.liquidityRate = ratesAfterTx[0];
@@ -516,7 +522,9 @@ export const calcExpectedReserveDataAfterBorrow = (
       utilizationRateAfterTx,
       totalStableDebtAfterTx,
       totalVariableDebtAfterTx,
-      expectedReserveData.averageStableBorrowRate
+      expectedReserveData.averageStableBorrowRate,
+      reserveDataBeforeAction.reserveFactor,
+      reserveDataBeforeAction.VMEXReserveFactor,
     );
 
     expectedReserveData.liquidityRate = rates[0];
@@ -678,7 +686,9 @@ export const calcExpectedReserveDataAfterRepay = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
 
@@ -993,7 +1003,9 @@ export const calcExpectedReserveDataAfterSwapRateMode = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
 
@@ -1151,7 +1163,9 @@ export const calcExpectedReserveDataAfterStableRateRebalance = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
 
   expectedReserveData.liquidityRate = rates[0];
@@ -1377,7 +1391,9 @@ export const calcExpectedInterestRates = (
   utilizationRate: BigNumber,
   totalStableDebt: BigNumber,
   totalVariableDebt: BigNumber,
-  averageStableBorrowRate: BigNumber
+  averageStableBorrowRate: BigNumber,
+  reserveFactor: BigNumber,
+  VMEXReserveFactor: BigNumber,
 ): BigNumber[] => {
   const { reservesParams } = configuration;
 
@@ -1437,14 +1453,19 @@ export const calcExpectedInterestRates = (
     variableBorrowRate,
     averageStableBorrowRate
   );
+  console.log("reserveFactor: ",reserveFactor);
+  console.log("VMEXReserveFactor: ",VMEXReserveFactor);
+
   let liquidityRate = expectedOverallRate
     .rayMul(utilizationRate)
     .percentMul(
-      new BigNumber(PERCENTAGE_FACTOR).minus("1000")// TODO: assuming that all reserves has reserve factor of 1000, not changed from default  //reserveConfiguration.reserveFactor)
+      new BigNumber(PERCENTAGE_FACTOR).minus(reserveFactor)
     )
     .percentMul(
-      new BigNumber(PERCENTAGE_FACTOR).minus("1000") //assuming default of 1000
+      new BigNumber(PERCENTAGE_FACTOR).minus(VMEXReserveFactor) 
     );
+  
+    console.log("liquidityRate: ",liquidityRate);
   return [liquidityRate, stableBorrowRate, variableBorrowRate];
 };
 

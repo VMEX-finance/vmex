@@ -26,6 +26,7 @@ export const strategyBUSD: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '11000', //100% for now
+  reserveFactor: '1000',
 };
 
 export const strategyDAI: IReserveParams = {
@@ -41,6 +42,7 @@ export const strategyDAI: IReserveParams = {
   supplyCap: '1000000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '1000',
 };
 
 export const strategySUSD: IReserveParams = {
@@ -56,6 +58,7 @@ export const strategySUSD: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '11000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyTUSD: IReserveParams = {
@@ -71,6 +74,7 @@ export const strategyTUSD: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '11000', //100% for now
+  reserveFactor: '1000',
 };
 
 export const strategyUSDC: IReserveParams = {
@@ -86,6 +90,7 @@ export const strategyUSDC: IReserveParams = {
   supplyCap: '0', //this means there is no cap
   borrowCap: '0', 
   borrowFactor: '10010', //100% for now
+  reserveFactor: '1000',
 };
 
 export const strategyUSDT: IReserveParams = {
@@ -101,6 +106,7 @@ export const strategyUSDT: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '1000',
 };
 
 export const strategyAAVE: IReserveParams = {
@@ -116,6 +122,7 @@ export const strategyAAVE: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '11000', //100% for now
+  reserveFactor: '1000',
 };
 
 export const strategyBAT: IReserveParams = {
@@ -131,6 +138,7 @@ export const strategyBAT: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '12000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyENJ: IReserveParams = {
@@ -146,6 +154,7 @@ export const strategyENJ: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '13000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyWETH: IReserveParams = {
@@ -161,6 +170,7 @@ export const strategyWETH: IReserveParams = {
   supplyCap: '1000', //10 weth for testing
   borrowCap: '800', //1,000,000
   borrowFactor: '10100', //100% for now
+  reserveFactor: '1000',
 };
 
 export const strategyKNC: IReserveParams = {
@@ -176,6 +186,7 @@ export const strategyKNC: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '14000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyLINK: IReserveParams = {
@@ -191,6 +202,7 @@ export const strategyLINK: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '12000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyMANA: IReserveParams = {
@@ -206,6 +218,7 @@ export const strategyMANA: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '13000', //100% for now
+  reserveFactor: '3500',
 };
 
 export const strategyMKR: IReserveParams = {
@@ -221,6 +234,7 @@ export const strategyMKR: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '12000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyREN: IReserveParams = {
@@ -236,6 +250,7 @@ export const strategyREN: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '14000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategySNX: IReserveParams = {
@@ -251,6 +266,7 @@ export const strategySNX: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '15000', //100% for now
+  reserveFactor: '3500',
 };
 
 // Invalid borrow rates in params currently, replaced with snx params
@@ -267,6 +283,7 @@ export const strategyUNI: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '13000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyWBTC: IReserveParams = {
@@ -282,6 +299,7 @@ export const strategyWBTC: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyYFI: IReserveParams = {
@@ -297,6 +315,7 @@ export const strategyYFI: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '13000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyZRX: IReserveParams = {
@@ -312,6 +331,7 @@ export const strategyZRX: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '14000', //100% for now
+  reserveFactor: '2000',
 };
 
 
@@ -328,6 +348,7 @@ export const strategySTETH: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyFrax: IReserveParams = {
@@ -343,6 +364,7 @@ export const strategyFrax: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '11000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyBAL: IReserveParams = {
@@ -358,6 +380,7 @@ export const strategyBAL: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '11000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyCRV: IReserveParams = {
@@ -373,6 +396,7 @@ export const strategyCRV: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '12000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyCVX: IReserveParams = {
@@ -388,6 +412,7 @@ export const strategyCVX: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '13000', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyBADGER: IReserveParams = {
@@ -403,6 +428,7 @@ export const strategyBADGER: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyLDO: IReserveParams = {
@@ -418,6 +444,7 @@ export const strategyLDO: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyALCX: IReserveParams = {
@@ -433,6 +460,7 @@ export const strategyALCX: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyOneinch: IReserveParams = {
@@ -448,6 +476,7 @@ export const strategyOneinch: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
 };
 
 export const strategyCurveV1LPToken: IReserveParams = {
@@ -463,6 +492,7 @@ export const strategyCurveV1LPToken: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10050', //100% for now
+  reserveFactor: '2000',
 };
 
 
@@ -479,4 +509,5 @@ export const strategyCurveV2LPToken: IReserveParams = {
   supplyCap: '10000', 
   borrowCap: '10000', 
   borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
 };

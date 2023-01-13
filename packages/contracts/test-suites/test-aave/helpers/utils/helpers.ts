@@ -18,8 +18,9 @@ export const getReserveData = async (
   reserve: tEthereumAddress,
   tranche: string
 ): Promise<ReserveData> => {
-  const [reserveData, tokenAddresses, rateOracle, token] = await Promise.all([
+  const [reserveData, configData, tokenAddresses, rateOracle, token] = await Promise.all([
     helper.getReserveData(reserve, tranche),
+    helper.getReserveConfigurationData(reserve, tranche),
     helper.getReserveTokensAddresses(reserve, tranche),
     getLendingRateOracle(),
     getIErc20Detailed(reserve),
@@ -85,6 +86,8 @@ export const getReserveData = async (
     symbol,
     decimals,
     marketStableRate: new BigNumber(rate),
+    reserveFactor: new BigNumber(configData.reserveFactor.toString()),
+    VMEXReserveFactor: new BigNumber(configData.VMEXReserveFactor.toString()),
   };
 };
 

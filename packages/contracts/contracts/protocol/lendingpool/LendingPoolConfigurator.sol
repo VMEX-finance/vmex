@@ -39,8 +39,6 @@ contract LendingPoolConfigurator is
     ILendingPoolAddressesProvider internal addressesProvider;
     AssetMappings internal assetMappings;
     ILendingPool internal pool;
-    address internal DefaultVMEXTreasury;
-    uint256 internal DefaultVMEXReserveFactor;
     uint64 public totalTranches;
     mapping(uint64 => string) public trancheNames; //just for frontend purposes
 
@@ -98,12 +96,7 @@ contract LendingPoolConfigurator is
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
         assetMappings = AssetMappings(addressesProvider.getAssetMappings());
-        DefaultVMEXTreasury = 0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49; //in case we forget to set
-        DefaultVMEXReserveFactor = 1000;
-    }
-
-    function setDefaultVMEXTreasury(address add) external onlyGlobalAdmin {
-        DefaultVMEXTreasury = add;
+        
     }
 
     /**
@@ -157,7 +150,7 @@ contract LendingPoolConfigurator is
         ) = DeployATokens.deployATokens(
                 DeployATokens.deployATokensVars(
                     pool,
-                    DefaultVMEXTreasury,
+                    addressesProvider,
                     internalInput
                 )
             );
@@ -194,7 +187,6 @@ contract LendingPoolConfigurator is
         }
 
         currentConfig.setReserveFactor(internalInput.input.reserveFactor*10**(PercentageMath.NUM_DECIMALS-4)); //accounts for new number of decimals
-        currentConfig.setVMEXReserveFactor(DefaultVMEXReserveFactor);// cause admin can change an individual reserve factor how they please
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
@@ -270,7 +262,7 @@ contract LendingPoolConfigurator is
         {
             vars.input  = input;
             vars.cachedPool = pool;
-            vars.DefaultVMEXTreasury = DefaultVMEXTreasury;
+            vars.DefaultVMEXTreasury = addressesProvider.getVMEXTreasury();
 
             vars.reserveData = vars.cachedPool.getReserveData(
                 vars.input.asset,
@@ -397,6 +389,8 @@ contract LendingPoolConfigurator is
             pool
         ).getConfiguration(asset, trancheId);
 
+        reserveFactor *= 10**(PercentageMath.NUM_DECIMALS-4);
+
         currentConfig.setReserveFactor(reserveFactor);
 
         ILendingPool(pool).setConfiguration(
@@ -407,32 +401,6 @@ contract LendingPoolConfigurator is
 
         emit ReserveFactorChanged(asset, trancheId, reserveFactor);
     }
-
-    /**
-     * @dev Updates the vmex reserve factor of a reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @param reserveFactor The new reserve factor of the reserve
-     **/
-    function setVMEXReserveFactor(
-        address asset,
-        uint64 trancheId,
-        uint256 reserveFactor //the value here should only occupy 16 bits
-    ) public onlyGlobalAdmin {
-        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
-            pool
-        ).getConfiguration(asset, trancheId);
-
-        currentConfig.setVMEXReserveFactor(reserveFactor);
-
-        ILendingPool(pool).setConfiguration(
-            asset,
-            trancheId,
-            currentConfig.data
-        );
-
-        emit VMEXReserveFactorChanged(asset, trancheId, reserveFactor);
-    }
-
 
     /**
      * @dev Freezes a reserve. A frozen reserve doesn't allow any new deposit, borrow or rate swap

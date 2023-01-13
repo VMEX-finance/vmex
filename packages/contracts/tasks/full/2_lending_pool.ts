@@ -22,10 +22,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
   loadPoolConfig,
   ConfigNames,
-  getGenesisPoolAdmin,
-  getEmergencyAdmin,
-  getGlobalVMEXReserveFactor,
-  getTreasuryAddress,
 } from "../../helpers/configuration";
 
 task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
@@ -104,12 +100,6 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       await insertContractAddressInDb(
         eContractid.LendingPoolConfigurator,
         lendingPoolConfiguratorProxy.address
-      );
-
-      //****** SETS DEFAULT VMEX TREASURY TO THAT PROVIDED IN THE POOL CONFIG */
-      /// 0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49 for main
-      await lendingPoolConfiguratorProxy.setDefaultVMEXTreasury(
-        await getTreasuryAddress(poolConfig)
       );
 
       // Deploy deployment helpers

@@ -37,5 +37,8 @@ export interface ReserveData {
   lastUpdateTimestamp: BigNumber;
   totalStableDebtLastUpdated: BigNumber;
   liquidityRate: BigNumber;
+  reserveFactor: BigNumber;
+  VMEXReserveFactor:BigNumber;
+
   [key: string]: BigNumber | string;
 }
