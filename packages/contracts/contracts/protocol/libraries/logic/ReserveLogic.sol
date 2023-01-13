@@ -112,7 +112,7 @@ library ReserveLogic {
      * @dev Updates the liquidity cumulative index and the variable borrow index.
      * @param reserve the reserve object
      **/
-    function updateState(DataTypes.ReserveData storage reserve) internal {
+    function updateState(DataTypes.ReserveData storage reserve, uint256 VMEXReserveFactor) internal {
         address strategist = IAToken(reserve.aTokenAddress).getStrategy();
         if(strategist==address(0)) { //no strategist, so keep original method of calculating
         uint256 scaledVariableDebt = IVariableDebtToken(
@@ -136,7 +136,8 @@ library ReserveLogic {
                 previousVariableBorrowIndex,
                 newLiquidityIndex,
                 newVariableBorrowIndex,
-                lastUpdatedTimestamp
+                lastUpdatedTimestamp,
+                VMEXReserveFactor
             );
         }
         // }
@@ -242,7 +243,8 @@ library ReserveLogic {
         address reserveAddress,
         address aTokenAddress,
         uint256 liquidityAdded,
-        uint256 liquidityTaken
+        uint256 liquidityTaken,
+        uint256 VMEXReserveFactor
     ) internal {
         if (IAToken(reserve.aTokenAddress).getStrategy() == address(0)) {
             UpdateInterestRatesLocalVars memory vars;
@@ -270,7 +272,7 @@ library ReserveLogic {
                         vars.totalVariableDebt,
                         vars.avgStableRate,
                         reserve.configuration.getReserveFactor(),
-                        reserve.configuration.getVMEXReserveFactor()
+                        VMEXReserveFactor
                     );
             (
                 vars.newLiquidityRate,
@@ -341,14 +343,13 @@ library ReserveLogic {
         uint256 previousVariableBorrowIndex,
         uint256 newLiquidityIndex,
         uint256 newVariableBorrowIndex,
-        uint40 timestamp
+        uint40 timestamp,
+        uint256 VMEXReserveFactor
     ) internal {
         MintToTreasuryLocalVars memory vars;
         {
             vars.reserveFactor = reserve.configuration.getReserveFactor();
-            vars.globalVMEXReserveFactor = reserve
-                .configuration
-                .getVMEXReserveFactor();
+            vars.globalVMEXReserveFactor = VMEXReserveFactor;
         }
 
         if (vars.reserveFactor == 0 && vars.globalVMEXReserveFactor == 0) {

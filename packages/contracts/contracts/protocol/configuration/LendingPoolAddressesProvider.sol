@@ -43,10 +43,25 @@ contract LendingPoolAddressesProvider is
 
     bytes32 private constant CURVE_ADDRESS_PROVIDER = "CURVE_ADDRESS_PROVIDER";
     bytes32 private constant ASSET_MAPPINGS = "ASSET_MAPPINGS";
+    bytes32 private constant VMEX_TREASURY_ADDRESS = "VMEX_TREASURY_ADDRESS";
 
-    constructor(string memory marketId) public {
+    constructor(string memory marketId) {
         _setMarketId(marketId);
         permissionlessTranches = false;
+        _setVMEXTreasury(0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49);
+    }
+
+    function getVMEXTreasury() external view override returns(address){
+        return getAddress(VMEX_TREASURY_ADDRESS);
+    }
+
+    function setVMEXTreasury(address add) external override onlyOwner {
+        _setVMEXTreasury(add);
+    }
+
+    function _setVMEXTreasury(address add) internal {
+        _addresses[VMEX_TREASURY_ADDRESS] = add;
+        emit VMEXTreasuryChanged(add);
     }
 
     function setPermissionlessTranches(bool _val) external onlyOwner {

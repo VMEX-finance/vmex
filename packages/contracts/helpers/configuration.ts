@@ -118,10 +118,6 @@ export const getTreasuryAddress = async (
   );
 };
 
-export const getGlobalVMEXReserveFactor = async (): Promise<string> => {
-  return "1000"; //10% is default VMEX reserve factor
-};
-
 export const getATokenDomainSeparatorPerNetwork = (
   network: eNetwork,
   config: IBaseConfiguration

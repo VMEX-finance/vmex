@@ -34,7 +34,8 @@ contract AssetMappings is VersionedInitializable{
         uint256 liquidationThreshold,
         uint256 liquidationBonus,
         uint256 borrowFactor,
-        bool borrowingEnabled
+        bool borrowingEnabled,
+        uint256 VMEXReserveFactor
     );
 
     event ConfiguredReserves(
@@ -58,6 +59,9 @@ contract AssetMappings is VersionedInitializable{
         uint256 index,
         address curveStrategyAddress
     );
+
+    event VMEXReserveFactorChanged(address indexed asset, uint256 factor);
+
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -105,6 +109,26 @@ contract AssetMappings is VersionedInitializable{
         );
     }
 
+    function getVMEXReserveFactor(
+        address asset
+    ) public view returns(uint256) {
+        return assetMappings[asset].VMEXReserveFactor;
+    }
+
+    /**
+     * @dev Updates the vmex reserve factor of a reserve
+     * @param asset The address of the reserve you want to set
+     * @param reserveFactor The new reserve factor of the reserve
+     **/
+    function setVMEXReserveFactor(
+        address asset,
+        uint256 reserveFactor //the value here should only occupy 16 bits
+    ) public onlyGlobalAdmin {
+        assetMappings[asset].VMEXReserveFactor = reserveFactor;
+
+        emit VMEXReserveFactorChanged(asset, reserveFactor);
+    }
+
     function validateCollateralParams(uint256 baseLTV, uint256 liquidationThreshold, uint256 liquidationBonus) internal pure {
         require(baseLTV <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
 
@@ -146,6 +170,7 @@ contract AssetMappings is VersionedInitializable{
                 input[i].liquidationThreshold *= factor;
                 input[i].liquidationBonus *= factor;
                 input[i].borrowFactor *= factor;
+                input[i].VMEXReserveFactor *= factor;
             }
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
 
@@ -165,7 +190,8 @@ contract AssetMappings is VersionedInitializable{
                 input[i].liquidationThreshold,
                 input[i].liquidationBonus,
                 input[i].borrowFactor,
-                input[i].borrowingEnabled
+                input[i].borrowingEnabled,
+                input[i].VMEXReserveFactor
             );
         }
     }

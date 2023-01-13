@@ -62,8 +62,8 @@ library DepositWithdrawLogic {
 
         // if (assetData.isLendable) {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
-        self.updateState();
-        self.updateInterestRates(vars.asset, aToken, vars.amount, 0);
+        self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
+        self.updateInterestRates(vars.asset, aToken, vars.amount, 0, vars._assetMappings.getVMEXReserveFactor(vars.asset));
         {
             address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle();
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
@@ -135,8 +135,8 @@ library DepositWithdrawLogic {
             _assetMappings
         );
 
-        reserve.updateState();
-        reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount);
+        reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
+        reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
 
         {
             address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
@@ -229,7 +229,7 @@ library DepositWithdrawLogic {
             _addressesProvider
         );
 
-        reserve.updateState();
+        reserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
 
         bool isFirstBorrowing = IVariableDebtToken(
                 reserve.variableDebtTokenAddress
@@ -248,7 +248,8 @@ library DepositWithdrawLogic {
             vars.asset,
             vars.aTokenAddress,
             0,
-            vars.releaseUnderlying ? vars.amount : 0
+            vars.releaseUnderlying ? vars.amount : 0,
+            vars._assetMappings.getVMEXReserveFactor(vars.asset)
         );
 
         if (vars.releaseUnderlying) {

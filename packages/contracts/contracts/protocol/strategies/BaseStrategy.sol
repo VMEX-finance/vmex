@@ -15,6 +15,7 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {AssetMappings} from "../lendingpool/AssetMappings.sol";
 
 import "hardhat/console.sol";
 
@@ -256,12 +257,8 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     //NOTE: i already includes deductions from fees and swaps, no need to calc that in
     //NOTE: divide the result by 1e18, then multiply by 100 for a percentage
     function interestRate(uint256 i, uint256 p, uint256 timeDifference) internal returns (uint256 r) {
-        uint256 m = ILendingPool(lendingPool)
-            .getReserveData(underlying, tranche)
-            .configuration
-            .data;
         uint256 scaledAmount = i.percentMul(
-            PercentageMath.PERCENTAGE_FACTOR - (ReserveConfiguration.getVMEXReserveFactorData(m))
+            PercentageMath.PERCENTAGE_FACTOR - AssetMappings(addressProvider.getAssetMappings()).getVMEXReserveFactor(underlying)
         );
 
         r = (scaledAmount * WadRayMath.ray() * SECONDS_PER_YEAR) / (p  * timeDifference) ; //*365 if we tend every day.
@@ -547,12 +544,8 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
 
     /// @notice Mints to treasury aTokens fees and updates liquidity index when tending
     function _updateState(uint256 amount) internal {
-        uint256 m = ILendingPool(lendingPool)
-            .getReserveData(underlying, tranche)
-            .configuration
-            .data;
         uint256 scaledAmount = amount.percentMul(
-            ReserveConfiguration.getVMEXReserveFactorData(m)
+            AssetMappings(addressProvider.getAssetMappings()).getVMEXReserveFactor(underlying)
         );
 
 
