@@ -5,11 +5,8 @@ import {
   deposit,
   borrow,
   withdraw,
-  transfer,
   repay,
   setUseAsCollateral,
-  swapBorrowRateMode,
-  rebalanceStableBorrowRate,
   delegateBorrowAllowance,
 } from "./actions";
 import { RateMode } from "../../../helpers/types";
@@ -89,6 +86,10 @@ const executeAction = async (
   const trancheAdmin = await DRE.ethers.getSigner(
     await addressesProvider.getPoolAdmin(myTranche)
   );
+  if(user.address===trancheAdmin.address){
+    console.log("Both user and tranche admin are same user: ", user.address) 
+  }
+  
   // console.log("$$$$$$$$$ USERS: ",users)
 
   switch (name) {

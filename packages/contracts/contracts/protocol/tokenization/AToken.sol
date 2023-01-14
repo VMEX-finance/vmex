@@ -13,7 +13,7 @@ import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesControl
 import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 
-//import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 /**
  * @title Aave ERC20 AToken
@@ -327,6 +327,8 @@ contract AToken is
         override(IncentivizedERC20, IERC20)
         returns (uint256)
     {
+        // console.log("super.balanceOf(user): ",super.balanceOf(user));
+        // console.log("_pool.getReserveNormalizedIncome(_underlyingAsset, _tranche): ",_pool.getReserveNormalizedIncome(_underlyingAsset, _tranche));
         return
             super.balanceOf(user).rayMul(
                 _pool.getReserveNormalizedIncome(_underlyingAsset, _tranche)
