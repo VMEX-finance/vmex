@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
+import {PercentageMath} from "../math/PercentageMath.sol";
 
 /**
  * @title ReserveConfiguration library
@@ -10,159 +11,21 @@ import {DataTypes} from "../types/DataTypes.sol";
  * @notice Implements the bitmap logic to handle the reserve configuration
  */
 library ReserveConfiguration {
-    uint256 constant LTV_MASK =                   0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000; // prettier-ignore
-    uint256 constant LIQUIDATION_THRESHOLD_MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF; // prettier-ignore
-    uint256 constant LIQUIDATION_BONUS_MASK =     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFF; // prettier-ignore
-    uint256 constant DECIMALS_MASK =              0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFFFFFFFF; // prettier-ignore
-    uint256 constant ACTIVE_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFF; // prettier-ignore
-    uint256 constant FROZEN_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFF; // prettier-ignore
-    uint256 constant BORROWING_MASK =             0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBFFFFFFFFFFFFFF; // prettier-ignore
-    uint256 constant STABLE_BORROWING_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFFFFFFFFF; // prettier-ignore
-    uint256 constant RESERVE_FACTOR_MASK =        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFF; // prettier-ignore
-    uint256 constant VMEX_RESERVE_FACTOR_MASK =   0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFF; // prettier-ignore
-    uint256 constant COLLATERAL_ENABLED_MASK =    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+    uint256 constant ACTIVE_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE; // prettier-ignore
+    uint256 constant FROZEN_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD; // prettier-ignore
+    uint256 constant BORROWING_MASK =             0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB; // prettier-ignore
+    uint256 constant STABLE_BORROWING_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7; // prettier-ignore
+    uint256 constant COLLATERAL_ENABLED_MASK =    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF; // prettier-ignore
+    uint256 constant RESERVE_FACTOR_MASK =        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FF; // prettier-ignore
 
-    /// @dev For the LTV, the start bit is 0 (up to 15), hence no bitshifting is needed
-    uint256 constant LIQUIDATION_THRESHOLD_START_BIT_POSITION = 16;
-    uint256 constant LIQUIDATION_BONUS_START_BIT_POSITION = 32;
-    uint256 constant RESERVE_DECIMALS_START_BIT_POSITION = 48;
-    uint256 constant IS_ACTIVE_START_BIT_POSITION = 56;
-    uint256 constant IS_FROZEN_START_BIT_POSITION = 57;
-    uint256 constant BORROWING_ENABLED_START_BIT_POSITION = 58;
-    uint256 constant STABLE_BORROWING_ENABLED_START_BIT_POSITION = 59;
-    uint256 constant RESERVE_FACTOR_START_BIT_POSITION = 64;
-    uint256 constant VMEX_RESERVE_FACTOR_START_BIT_POSITION = 80;
-    uint256 constant COLLATERAL_ENABLED_START_BIT_POSITION = 96;
+    /// @dev For the ACTIVE_MASK, the start bit is 0, hence no bitshifting is needed
+    uint256 constant IS_FROZEN_START_BIT_POSITION = 1;
+    uint256 constant BORROWING_ENABLED_START_BIT_POSITION = 2;
+    uint256 constant STABLE_BORROWING_ENABLED_START_BIT_POSITION = 3;
+    uint256 constant COLLATERAL_ENABLED_START_BIT_POSITION = 4;
+    uint256 constant RESERVE_FACTOR_START_BIT_POSITION = 8;
 
-    uint256 constant MAX_VALID_LTV = 65535;
-    uint256 constant MAX_VALID_LIQUIDATION_THRESHOLD = 65535;
-    uint256 constant MAX_VALID_LIQUIDATION_BONUS = 65535;
-    uint256 constant MAX_VALID_DECIMALS = 255;
-    uint256 constant MAX_VALID_RESERVE_FACTOR = 10000; //100% with two decimals
-
-    // NOTE: commented to clarify that these values will not be used. The values in AssetMappings will be used instead
-    // /**
-    //  * @dev Sets the Loan to Value of the reserve
-    //  * @param self The reserve configuration
-    //  * @param ltv the new ltv
-    //  **/
-    // function setLtv(DataTypes.ReserveConfigurationMap memory self, uint256 ltv)
-    //     internal
-    //     pure
-    // {
-    //     require(ltv <= MAX_VALID_LTV, Errors.RC_INVALID_LTV);
-
-    //     self.data = (self.data & LTV_MASK) | ltv;
-    // }
-
-    // /**
-    //  * @dev Gets the Loan to Value of the reserve
-    //  * @param self The reserve configuration
-    //  * @return The loan to value
-    //  **/
-    // function getLtv(DataTypes.ReserveConfigurationMap memory self)
-    //     internal
-    //     pure
-    //     returns (uint256)
-    // {
-    //     return self.data & ~LTV_MASK;
-    // }
-
-    // /**
-    //  * @dev Sets the liquidation threshold of the reserve
-    //  * @param self The reserve configuration
-    //  * @param threshold The new liquidation threshold
-    //  **/
-    // function setLiquidationThreshold(
-    //     DataTypes.ReserveConfigurationMap memory self,
-    //     uint256 threshold
-    // ) internal pure {
-    //     require(
-    //         threshold <= MAX_VALID_LIQUIDATION_THRESHOLD,
-    //         Errors.RC_INVALID_LIQ_THRESHOLD
-    //     );
-
-    //     self.data =
-    //         (self.data & LIQUIDATION_THRESHOLD_MASK) |
-    //         (threshold << LIQUIDATION_THRESHOLD_START_BIT_POSITION);
-    // }
-
-    // /**
-    //  * @dev Gets the liquidation threshold of the reserve
-    //  * @param self The reserve configuration
-    //  * @return The liquidation threshold
-    //  **/
-    // function getLiquidationThreshold(
-    //     DataTypes.ReserveConfigurationMap memory self
-    // ) internal pure returns (uint256) {
-    //     return
-    //         (self.data & ~LIQUIDATION_THRESHOLD_MASK) >>
-    //         LIQUIDATION_THRESHOLD_START_BIT_POSITION;
-    // }
-
-    // /**
-    //  * @dev Sets the liquidation bonus of the reserve
-    //  * @param self The reserve configuration
-    //  * @param bonus The new liquidation bonus
-    //  **/
-    // function setLiquidationBonus(
-    //     DataTypes.ReserveConfigurationMap memory self,
-    //     uint256 bonus
-    // ) internal pure {
-    //     require(
-    //         bonus <= MAX_VALID_LIQUIDATION_BONUS,
-    //         Errors.RC_INVALID_LIQ_BONUS
-    //     );
-
-    //     self.data =
-    //         (self.data & LIQUIDATION_BONUS_MASK) |
-    //         (bonus << LIQUIDATION_BONUS_START_BIT_POSITION);
-    // }
-
-    // /**
-    //  * @dev Gets the liquidation bonus of the reserve
-    //  * @param self The reserve configuration
-    //  * @return The liquidation bonus
-    //  **/
-    // function getLiquidationBonus(DataTypes.ReserveConfigurationMap memory self)
-    //     internal
-    //     pure
-    //     returns (uint256)
-    // {
-    //     return
-    //         (self.data & ~LIQUIDATION_BONUS_MASK) >>
-    //         LIQUIDATION_BONUS_START_BIT_POSITION;
-    // }
-
-    // /**
-    //  * @dev Sets the decimals of the underlying asset of the reserve
-    //  * @param self The reserve configuration
-    //  * @param decimals The decimals
-    //  **/
-    // function setDecimals(
-    //     DataTypes.ReserveConfigurationMap memory self,
-    //     uint256 decimals
-    // ) internal pure {
-    //     require(decimals <= MAX_VALID_DECIMALS, Errors.RC_INVALID_DECIMALS);
-
-    //     self.data =
-    //         (self.data & DECIMALS_MASK) |
-    //         (decimals << RESERVE_DECIMALS_START_BIT_POSITION);
-    // }
-
-    // /**
-    //  * @dev Gets the decimals of the underlying asset of the reserve
-    //  * @param self The reserve configuration
-    //  * @return The decimals of the asset
-    //  **/
-    // function getDecimals(DataTypes.ReserveConfigurationMap memory self)
-    //     internal
-    //     pure
-    //     returns (uint256)
-    // {
-    //     return
-    //         (self.data & ~DECIMALS_MASK) >> RESERVE_DECIMALS_START_BIT_POSITION;
-    // }
+    uint256 constant MAX_VALID_RESERVE_FACTOR = 2**64-1; //64 bits
 
     /**
      * @dev Sets the active state of the reserve
@@ -175,7 +38,7 @@ library ReserveConfiguration {
     ) internal pure {
         self.data =
             (self.data & ACTIVE_MASK) |
-            (uint256(active ? 1 : 0) << IS_ACTIVE_START_BIT_POSITION);
+            (uint256(active ? 1 : 0));
     }
 
     /**
@@ -304,54 +167,6 @@ library ReserveConfiguration {
             (self.data & ~RESERVE_FACTOR_MASK) >>
             RESERVE_FACTOR_START_BIT_POSITION;
     }
-
-    /**
-     * @dev Sets the VMEX reserve factor of the reserve
-     * @param self The reserve configuration
-     * @param reserveFactor The reserve factor
-     **/
-    function setVMEXReserveFactor(
-        DataTypes.ReserveConfigurationMap memory self,
-        uint256 reserveFactor
-    ) internal pure {
-        require(
-            reserveFactor <= MAX_VALID_RESERVE_FACTOR,
-            Errors.RC_INVALID_RESERVE_FACTOR
-        );
-
-        self.data =
-            (self.data & VMEX_RESERVE_FACTOR_MASK) |
-            (reserveFactor << VMEX_RESERVE_FACTOR_START_BIT_POSITION);
-    }
-
-    /**
-     * @dev Gets the reserve factor of the reserve
-     * @param self The reserve configuration
-     * @return The reserve factor
-     **/
-    function getVMEXReserveFactor(
-        DataTypes.ReserveConfigurationMap memory self
-    ) internal pure returns (uint256) {
-        return
-            (self.data & ~VMEX_RESERVE_FACTOR_MASK) >>
-            VMEX_RESERVE_FACTOR_START_BIT_POSITION;
-    }
-
-    /**
-     * @dev Gets the reserve factor of the reserve from memory
-     * @param data The reserve configuration data
-     * @return The reserve factor
-     **/
-    function getVMEXReserveFactorData(uint256 data)
-        internal
-        pure
-        returns (uint256)
-    {
-        return
-            (data & ~VMEX_RESERVE_FACTOR_MASK) >>
-            VMEX_RESERVE_FACTOR_START_BIT_POSITION;
-    }
-
     /**
      * @dev Sets the active state of the reserve
      * @param self The reserve configuration

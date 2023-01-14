@@ -16,7 +16,7 @@ const defaultTestProvider = ethers.getDefaultProvider(
 export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc
   ? ethers.getDefaultProvider(providerRpc)
-  : test
+  : test || test===undefined
     ? defaultTestProvider : null;
 }
 
@@ -101,7 +101,7 @@ export async function getLendingPoolConfiguratorProxy(params?: {
 }) {
   let configurator = new ethers.Contract(
     deployments.LendingPoolConfigurator[
-      `${params.network || "mainnet"}`
+      `${params && params.network ? params.network : "mainnet"}`
     ].address,
     ILendingPoolConfigurator.abi,
     getProvider(params.providerRpc, params.test)

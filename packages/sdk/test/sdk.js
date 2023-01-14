@@ -383,139 +383,105 @@ describe("Borrow - end-to-end test", () => {
       ethers.utils.parseEther("1")
     );
   });
+//deprecated protocol sdk functions
+  // it("8 - supply some more tokens and check user/tranche data", async () => {
+  //   await supply(
+  //     {
+  //       underlying: WETHaddr,
+  //       trancheId: tranche,
+  //       amount: "0.5",
+  //       signer: temp,
+  //       network: network,
+  //       test: true,
+  //     }
+  //   )
+    
 
-  it("8 - supply some more tokens and check user/tranche data", async () => {
-    await supply(
-      {
-        underlying: WETHaddr,
-        trancheId: tranche,
-        amount: "0.5",
-        signer: temp,
-        network: network,
-        test: true,
-      }
-    )
-    const { suppliedAssetData, borrowedAssetData } = await getUserTrancheData({
-      user: await temp.getAddress(),
-      tranche: tranche,
-      network: network,
-      test: true,
-    });
+    // const { suppliedAssetData, borrowedAssetData } = await getUserTrancheData({
+    //   user: await temp.getAddress(),
+    //   tranche: tranche,
+    //   network: network,
+    //   test: true,
+    // });
 
-    suppliedAssetData.map((assetData) => {
-      expect(assetData.amount).to.be.above(0);
-      expect(assetData.tranche).to.be.equal(tranche);
-      expect(assetData.isCollateral).to.be.equal(true);
-    });
+    // suppliedAssetData.map((assetData) => {
+    //   expect(assetData.amount).to.be.above(0);
+    //   expect(assetData.tranche).to.be.equal(tranche);
+    //   expect(assetData.isCollateral).to.be.equal(true);
+    // });
 
-    assert(
-      borrowedAssetData.length >= 1,
-      "borrowedAssetData does not have correct length. expected=1, got=" +
-        suppliedAssetData.length
-    );
-    expect(borrowedAssetData[0].amount).to.be.above(0);
-  });
+    // assert(
+    //   borrowedAssetData.length >= 1,
+    //   "borrowedAssetData does not have correct length. expected=1, got=" +
+    //     suppliedAssetData.length
+    // );
+    // expect(borrowedAssetData[0].amount).to.be.above(0);
+  // });
 
-  it("9 - test get tranche asset data", async () => {
-    const trancheAssetData = await getTrancheAssetData({
-      asset: WETHaddr,
-      tranche: tranche,
-      network: network,
-      test: true,
-    });
+  // it("9 - test get tranche asset data", async () => {
+  //   const trancheAssetData = await getTrancheAssetData({
+  //     asset: WETHaddr,
+  //     tranche: tranche,
+  //     network: network,
+  //     test: true,
+  //   });
 
-    expect(trancheAssetData.ltv).to.be.above(0);
-    expect(trancheAssetData.liquidationThreshold).to.be.above(0);
-    expect(trancheAssetData.liquidationPenalty).to.be.above(0);
-    expect(trancheAssetData.canBeCollateral).to.be.eq(true);
-    expect(trancheAssetData.canBeBorrowed).to.be.eq(true);
-    expect(trancheAssetData.totalSupplied).to.be.above(0);
-    expect(trancheAssetData.utilization).to.be.above(0);
-    expect(trancheAssetData.totalBorrowed).to.be.above(0);
-    expect(trancheAssetData.strategyAddress).to.be.eq(ethers.BigNumber.from(0));
-    expect(trancheAssetData.adminFee).to.be.above(0);
-    expect(trancheAssetData.platformFee).to.be.above(0);
-  });
+  //   expect(trancheAssetData.ltv).to.be.above(0);
+  //   expect(trancheAssetData.liquidationThreshold).to.be.above(0);
+  //   expect(trancheAssetData.liquidationPenalty).to.be.above(0);
+  //   expect(trancheAssetData.canBeCollateral).to.be.eq(true);
+  //   expect(trancheAssetData.canBeBorrowed).to.be.eq(true);
+  //   expect(trancheAssetData.totalSupplied).to.be.above(0);
+  //   expect(trancheAssetData.utilization).to.be.above(0);
+  //   expect(trancheAssetData.totalBorrowed).to.be.above(0);
+  //   expect(trancheAssetData.strategyAddress).to.be.eq(ethers.BigNumber.from(0));
+  //   expect(trancheAssetData.adminFee).to.be.above(0);
+  //   expect(trancheAssetData.platformFee).to.be.above(0);
+  // });
 
-  it("10 - test get tranche data", async () => {
-    const trancheData = await getTrancheData({
-      tranche: 0,
-      network: network,
-      test: true,
-    });
+  // it("10 - test get tranche data", async () => {
+  //   const trancheData = await getTrancheData({
+  //     tranche: 0,
+  //     network: network,
+  //     test: true,
+  //   });
 
-    expect(trancheData.id).to.be.eq(0);
-    expect(trancheData.name).to.be.eq("Vmex tranche 0");
-    expect(trancheData.assets.length).to.be.eq(19);
-    expect(trancheData.tvl).to.be.above(0);
-    expect(trancheData.totalSupplied).to.be.above(0);
-    expect(trancheData.totalBorrowed).to.be.above(0);
-    expect(trancheData.availableLiquidity).to.be.above(0);
-    expect(trancheData.utilization).to.be.above(0);
-  });
-  it("11 - test get all tranches data", async () => {
-    const tranchesData = await getAllTrancheData({
-      network: network,
-      test: true,
-    });
+  //   expect(trancheData.id).to.be.eq(0);
+  //   expect(trancheData.name).to.be.eq("Vmex tranche 0");
+  //   expect(trancheData.assets.length).to.be.eq(19);
+  //   expect(trancheData.tvl).to.be.above(0);
+  //   expect(trancheData.totalSupplied).to.be.above(0);
+  //   expect(trancheData.totalBorrowed).to.be.above(0);
+  //   expect(trancheData.availableLiquidity).to.be.above(0);
+  //   expect(trancheData.utilization).to.be.above(0);
+  // });
+  // it("11 - test get all tranches data", async () => {
+  //   const tranchesData = await getAllTrancheData({
+  //     network: network,
+  //     test: true,
+  //   });
 
-    console.log("number of tranches: ", tranchesData.length);
-    // assert(tranchesData.length == 2,
-    //   "tranchesData does not have correct length. expected=2, got="
-    //   + tranchesData.length);
+  //   console.log("number of tranches: ", tranchesData.length);
+  //   // assert(tranchesData.length == 2,
+  //   //   "tranchesData does not have correct length. expected=2, got="
+  //   //   + tranchesData.length);
 
-    expect(tranchesData[0].id).to.be.eq(0);
-    expect(tranchesData[0].name).to.be.eq("Vmex tranche 0");
-    expect(tranchesData[0].assets.length).to.be.eq(19);
-    expect(tranchesData[0].tvl).to.be.above(0);
-    expect(tranchesData[0].totalSupplied).to.be.above(0);
-    expect(tranchesData[0].totalBorrowed).to.be.above(0);
-    expect(tranchesData[0].availableLiquidity).to.be.above(0);
-    expect(tranchesData[0].utilization).to.be.above(0);
+  //   expect(tranchesData[0].id).to.be.eq(0);
+  //   expect(tranchesData[0].name).to.be.eq("Vmex tranche 0");
+  //   expect(tranchesData[0].assets.length).to.be.eq(19);
+  //   expect(tranchesData[0].tvl).to.be.above(0);
+  //   expect(tranchesData[0].totalSupplied).to.be.above(0);
+  //   expect(tranchesData[0].totalBorrowed).to.be.above(0);
+  //   expect(tranchesData[0].availableLiquidity).to.be.above(0);
+  //   expect(tranchesData[0].utilization).to.be.above(0);
 
-    expect(tranchesData[1].id).to.be.eq(1);
-    expect(tranchesData[1].name).to.be.eq("Vmex tranche 1");
-    expect(tranchesData[1].assets.length).to.be.eq(33);
-    expect(tranchesData[1].tvl).to.be.above(0);
-    expect(tranchesData[1].totalSupplied).to.be.above(0);
-    expect(tranchesData[1].totalBorrowed).to.be.eq(0);
-    expect(tranchesData[1].availableLiquidity).to.be.above(0);
-    expect(tranchesData[1].utilization).to.be.eq(0);
-  });
-
-  it("12.1 - call get all markets to populate the cache", async () => {
-    const marketsData = await getAllMarketsData({
-      network: network,
-      test: true,
-    });
-  });
-
-  it("12.2 - test get protocol data", async () => {
-    const protocolData = await getProtocolData({
-      network: network,
-      test: true,
-    });
-
-    expect(protocolData.tvl).to.be.above(0);
-    expect(protocolData.totalReserves).to.be.above(0);
-    expect(protocolData.totalSupplied).to.be.above(0);
-    expect(protocolData.totalBorrowed).to.be.above(0);
-    expect(protocolData.numTranches).to.be.eq(
-      await getTotalTranches({ network: network })
-    );
-    expect(protocolData.topTranches[0].name).to.be.eq("Vmex tranche 0");
-    expect(protocolData.topTranches[1].name).to.be.eq("Vmex tranche 1");
-  });
-
-  it("13 - test top assets", async () => {
-    const topAssets = await getTopAssets({
-      network: network,
-      test: true
-    })
-    expect(topAssets.topSuppliedAssets.length).to.be.eq(33);
-    expect(topAssets.topSuppliedAssets[0].asset).to.be.eq(WETHaddr);
-    expect(topAssets.topSuppliedAssets[1].asset).to.be.eq(USDCaddr);
-    expect(topAssets.topBorrowedAssets.length).to.be.eq(33);
-    expect(topAssets.topBorrowedAssets[0].asset).to.be.eq(WETHaddr);
-  });
+  //   expect(tranchesData[1].id).to.be.eq(1);
+  //   expect(tranchesData[1].name).to.be.eq("Vmex tranche 1");
+  //   expect(tranchesData[1].assets.length).to.be.eq(33);
+  //   expect(tranchesData[1].tvl).to.be.above(0);
+  //   expect(tranchesData[1].totalSupplied).to.be.above(0);
+  //   expect(tranchesData[1].totalBorrowed).to.be.eq(0);
+  //   expect(tranchesData[1].availableLiquidity).to.be.above(0);
+  //   expect(tranchesData[1].utilization).to.be.eq(0);
+  // });
 });

@@ -117,6 +117,7 @@ contract AaveProtocolDataProvider {
             uint256 liquidationThreshold;
             uint256 liquidationBonus;
             uint256 reserveFactor;
+            uint256 VMEXReserveFactor;
             uint256 supplyCap;
             uint256 borrowCap; 
             uint256 borrowFactor;
@@ -150,6 +151,7 @@ contract AaveProtocolDataProvider {
         ret.borrowCap = a.getBorrowCap(asset);
 
         ret.reserveFactor = configuration.getReserveFactor();
+        ret.VMEXReserveFactor = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()).getVMEXReserveFactor(asset);
 
         (
             ret.isActive,
