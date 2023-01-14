@@ -61,7 +61,7 @@ contract LendingPoolAddressesProvider is
 
     function _setVMEXTreasury(address add) internal {
         _addresses[VMEX_TREASURY_ADDRESS] = add;
-        emit VMEXTreasuryChanged(add);
+        emit VMEXTreasuryUpdated(add);
     }
 
     function setPermissionlessTranches(bool _val) external onlyOwner {
