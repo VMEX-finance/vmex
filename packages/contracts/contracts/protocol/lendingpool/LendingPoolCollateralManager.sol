@@ -70,6 +70,9 @@ contract LendingPoolCollateralManager is
         DataTypes.InterestRateMode borrowRateMode;
         uint256 errorCode;
         string errorMsg;
+        AssetMappings _assetMappings;
+        address debtAsset;
+        address collateralAsset;
     }
 
     /**
@@ -116,6 +119,12 @@ contract LendingPoolCollateralManager is
         ];
 
         LiquidationCallLocalVars memory vars;
+        {
+            vars._assetMappings = _assetMappings;
+            vars.debtAsset = debtAsset;
+            vars.collateralAsset = collateralAsset;
+        }
+        
 
         { //health factor is based on lowest collateral value between twap and chainlink
             (, , , , vars.healthFactor,) = GenericLogic.calculateUserAccountData(
@@ -125,15 +134,15 @@ contract LendingPoolCollateralManager is
                 _reservesList[trancheId],
                 _reservesCount[trancheId],
                 _addressesProvider,
-                _assetMappings,
+                vars._assetMappings,
                 false //liquidations don't want to use twap
             );
         }
 
         DataTypes.ReserveData storage collateralReserve = _reserves[
-            collateralAsset
+            vars.collateralAsset
         ][trancheId];
-        DataTypes.ReserveData storage debtReserve = _reserves[debtAsset][
+        DataTypes.ReserveData storage debtReserve = _reserves[vars.debtAsset][
             trancheId
         ];
 
@@ -181,8 +190,8 @@ contract LendingPoolCollateralManager is
             vars.maxCollateralToLiquidate, //considers exchange rate between debt token and collateral
             vars.debtAmountNeeded
         ) = _calculateAvailableCollateralToLiquidate(
-            collateralAsset,
-            debtAsset,
+            vars.collateralAsset,
+            vars.debtAsset,
             vars.actualDebtToLiquidate,
             vars.userCollateralBalance
         );
@@ -199,7 +208,7 @@ contract LendingPoolCollateralManager is
         // If the liquidator reclaims the underlying asset, we make sure there is enough available liquidity in the
         // collateral reserve
         if (!receiveAToken) {
-            uint256 currentAvailableCollateral = IERC20(collateralAsset)
+            uint256 currentAvailableCollateral = IERC20(vars.collateralAsset)
                 .balanceOf(address(vars.collateralAtoken));
 
             // there is a strategy associated with the collateral token, add the balance of strategy
@@ -221,7 +230,7 @@ contract LendingPoolCollateralManager is
             }
         }
 
-        debtReserve.updateState();
+        debtReserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.debtAsset));
 
         if (vars.userVariableDebt >= vars.actualDebtToLiquidate) {
 //            console.log("actualDebtToLiquidate", vars.actualDebtToLiquidate);
@@ -245,10 +254,11 @@ contract LendingPoolCollateralManager is
             );
         }
         debtReserve.updateInterestRates(
-            debtAsset,
+            vars.debtAsset,
             debtReserve.aTokenAddress,
             vars.actualDebtToLiquidate,
-            0
+            0,
+            vars._assetMappings.getVMEXReserveFactor(vars.debtAsset)
         );
 
         if (receiveAToken) {
@@ -270,18 +280,19 @@ contract LendingPoolCollateralManager is
                     true
                 );
                 emit ReserveUsedAsCollateralEnabled(
-                    collateralAsset,
+                    vars.collateralAsset,
                     trancheId,
                     msg.sender
                 );
             }
         } else {
-            collateralReserve.updateState();
+            collateralReserve.updateState(vars._assetMappings.getVMEXReserveFactor(collateralAsset));
             collateralReserve.updateInterestRates(
-                collateralAsset,
+                vars.collateralAsset,
                 address(vars.collateralAtoken),
                 0,
-                vars.maxCollateralToLiquidate
+                vars.maxCollateralToLiquidate,
+                vars._assetMappings.getVMEXReserveFactor(vars.collateralAsset)
             );
             // Burn the equivalent amount of aToken, sending the underlying to the liquidator
             vars.collateralAtoken.burn(
@@ -296,19 +307,19 @@ contract LendingPoolCollateralManager is
         // we set the currency as not being used as collateral anymore
         if (vars.maxCollateralToLiquidate == vars.userCollateralBalance) {
             userConfig.setUsingAsCollateral(collateralReserve.id, false);
-            emit ReserveUsedAsCollateralDisabled(collateralAsset, trancheId, user);
+            emit ReserveUsedAsCollateralDisabled(vars.collateralAsset, trancheId, user);
         }
 
         // Transfers the debt asset being repaid to the aToken, where the liquidity is kept
-        IERC20(debtAsset).safeTransferFrom(
+        IERC20(vars.debtAsset).safeTransferFrom(
             msg.sender,
             debtReserve.aTokenAddress,
             vars.actualDebtToLiquidate
         );
 
         emit LiquidationCall(
-            collateralAsset,
-            debtAsset,
+            vars.collateralAsset,
+            vars.debtAsset,
             trancheId,
             user,
             vars.actualDebtToLiquidate,

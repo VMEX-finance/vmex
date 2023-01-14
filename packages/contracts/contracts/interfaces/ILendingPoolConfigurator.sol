@@ -36,7 +36,6 @@ interface ILendingPoolConfigurator {
      * @param factor The new reserve factor
      **/
     event ReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
-    event VMEXReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
 
     event AddedWhitelistedDepositBorrow(address indexed user);
 

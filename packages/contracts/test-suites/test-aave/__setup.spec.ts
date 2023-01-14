@@ -50,9 +50,6 @@ import {
   getReservesConfigByPool,
   getTreasuryAddress,
   loadPoolConfig,
-  // loadCustomAavePoolConfig,
-  getGlobalVMEXReserveFactor,
-  isHardhatTestingStrategies,
 } from "../../helpers/configuration";
 import { initializeMakeSuite } from "./helpers/make-suite";
 
@@ -258,10 +255,6 @@ const buildTestEnv = async (deployer: Signer) => {
   await insertContractAddressInDb(
     eContractid.LendingPoolConfigurator,
     lendingPoolConfiguratorProxy.address
-  );
-
-  await lendingPoolConfiguratorProxy.setDefaultVMEXTreasury(
-    await getTreasuryAddress(config)
   );
 
   // Deploy deployment helpers

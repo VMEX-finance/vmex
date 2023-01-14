@@ -19,7 +19,7 @@ import { ReserveData, UserReserveData } from "./interfaces";
 import { expect } from "chai";
 import { TestEnv } from "../make-suite";
 import { getAToken, getVariableDebtToken} from "../../../../helpers/contracts-getters"
-
+import {logger} from "../actions";
 export const strToBN = (amount: string): BigNumber => new BigNumber(amount);
 
 interface Configuration {
@@ -28,16 +28,42 @@ interface Configuration {
 
 export const configuration: Configuration = <Configuration>{};
 
+//userdata1 is global admin, userdata2 is tranche admin
+export const checkAdminAllocation = (userDataBefore1: UserReserveData, userDataAfter1: UserReserveData, userDataBefore2: UserReserveData, userDataAfter2: UserReserveData, reserveDataBefore1: ReserveData, reserveDataAfter1: ReserveData) => {
+  logger("reserveDataBefore1: ",reserveDataBefore1);
+  logger("reserveDataAfter1: ",reserveDataAfter1);
+  //only considering the current reserve, but if other reserves are collecting interest then this will not be updated (this is expected behavior as the contracts also work like this)
+  const debtCollected = reserveDataBefore1.scaledVariableDebt.rayMul(reserveDataAfter1.variableBorrowIndex.minus(reserveDataBefore1.variableBorrowIndex)); 
+  const actualTrancheAdminGain = (userDataAfter2.scaledATokenBalance.minus(userDataBefore2.scaledATokenBalance)).rayMul(reserveDataAfter1.liquidityIndex);
+  const expectedTrancheAdminAllocation = debtCollected
+    .percentMul(reserveDataBefore1.reserveFactor);
+
+  const actualGlobalAdminGain = (userDataAfter1.scaledATokenBalance.minus(userDataBefore1.scaledATokenBalance)).rayMul(reserveDataAfter1.liquidityIndex);
+  const expectedGlobalAdminAllocation = debtCollected
+    // .percentMul(
+    //   new BigNumber(PERCENTAGE_FACTOR).minus(reserveDataBefore1.reserveFactor)
+    // )
+    .minus(expectedTrancheAdminAllocation)
+    .percentMul(reserveDataBefore1.VMEXReserveFactor)
+  
+  logger("actualTrancheAdminGain: ",actualTrancheAdminGain.toString())
+  logger("expectedTrancheAdminAllocation: ",expectedTrancheAdminAllocation.toString())
+  logger("actualGlobalAdminGain: ",actualGlobalAdminGain.toString())
+  logger("expectedGlobalAdminAllocation: ",expectedGlobalAdminAllocation.toString())
+  expect(actualTrancheAdminGain.div(10).decimalPlaces(0).toString()).to.be.equal(expectedTrancheAdminAllocation.div(10).decimalPlaces(0).toString())
+  expect(actualGlobalAdminGain.div(10).decimalPlaces(0).toString()).to.be.equal(expectedGlobalAdminAllocation.div(10).decimalPlaces(0).toString())
+}
+
 export const calculateHF = async (testEnv: TestEnv, trancheId: string, user: tEthereumAddress):Promise<BigNumber> => {
   const { users, pool, dai, aDai, assetMappings, oracle, helpersContract } = testEnv;
   const reserves = await pool.getReservesList(trancheId);
-  // console.log("Reserves: ", reserves)
+  // logger("Reserves: ", reserves)
   let totalSupplied = new BigNumber("0");
   let totalBorrowed = new BigNumber("0");
   for(let i = 0;i<reserves.length;i++){
     const reserve = await pool.getReserveData(reserves[i], trancheId);
-    // console.log("Asset address: ", reserve)
-    // console.log("reserve.aTokenAddress: ", reserve.aTokenAddress)
+    // logger("Asset address: ", reserve)
+    // logger("reserve.aTokenAddress: ", reserve.aTokenAddress)
     const aToken = await getAToken(reserve.aTokenAddress);
     const debtToken = await getVariableDebtToken(reserve.variableDebtTokenAddress);
     const supply = await aToken.balanceOf(user);
@@ -47,21 +73,15 @@ export const calculateHF = async (testEnv: TestEnv, trancheId: string, user: tEt
     const params = await assetMappings.getParams(reserves[i]);
     const usrDat = await helpersContract.getUserReserveData(reserves[i], trancheId, user);
     if(supply.toString() != "0" && usrDat.usageAsCollateralEnabled){
-      console.log("supply: ", supply)
       const suppliedValue = supply.mul(price).mul(params.liquidationThreshold).div(unit);
-      console.log("suppliedValue: ", suppliedValue)
       totalSupplied = totalSupplied.plus(new BigNumber(suppliedValue.toString()));
-      console.log("totalSupplied: ", totalSupplied)
     }
 
   
     if(borrowed.toString() != "0"){
-      console.log("borrowed: ", borrowed)
       
       const borrowedValue = borrowed.mul(price).mul(params.borrowFactor).div(unit);
-      console.log("borrowedValue: ", borrowedValue)
       totalBorrowed = totalBorrowed.plus(new BigNumber(borrowedValue.toString()));
-      console.log("totalBorrowed: ", totalBorrowed)
     }
   }
   if(totalBorrowed.eq(new BigNumber("0"))){
@@ -278,7 +298,9 @@ export const calcExpectedReserveDataAfterDeposit = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
   expectedReserveData.stableBorrowRate = rates[1];
@@ -355,7 +377,9 @@ export const calcExpectedReserveDataAfterWithdraw = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
   expectedReserveData.stableBorrowRate = rates[1];
@@ -436,7 +460,9 @@ export const calcExpectedReserveDataAfterBorrow = (
       utilizationRateAfterTx,
       expectedReserveData.principalStableDebt,
       expectedVariableDebtAfterTx,
-      expectedReserveData.averageStableBorrowRate
+      expectedReserveData.averageStableBorrowRate,
+      reserveDataBeforeAction.reserveFactor,
+      reserveDataBeforeAction.VMEXReserveFactor,
     );
 
     expectedReserveData.liquidityRate = ratesAfterTx[0];
@@ -516,7 +542,9 @@ export const calcExpectedReserveDataAfterBorrow = (
       utilizationRateAfterTx,
       totalStableDebtAfterTx,
       totalVariableDebtAfterTx,
-      expectedReserveData.averageStableBorrowRate
+      expectedReserveData.averageStableBorrowRate,
+      reserveDataBeforeAction.reserveFactor,
+      reserveDataBeforeAction.VMEXReserveFactor,
     );
 
     expectedReserveData.liquidityRate = rates[0];
@@ -678,7 +706,9 @@ export const calcExpectedReserveDataAfterRepay = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
 
@@ -754,7 +784,7 @@ export const calcExpectedUserDataAfterBorrow = (
     );
   }
 
-  console.log("Before calcExpectedVariableDebtTokenBalance, expectedUserData: ", JSON.stringify(expectedUserData))
+  logger("Before calcExpectedVariableDebtTokenBalance, expectedUserData: ", JSON.stringify(expectedUserData))
 
   expectedUserData.currentVariableDebt = calcExpectedVariableDebtTokenBalance(
     expectedDataAfterAction,
@@ -993,7 +1023,9 @@ export const calcExpectedReserveDataAfterSwapRateMode = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
   expectedReserveData.liquidityRate = rates[0];
 
@@ -1151,7 +1183,9 @@ export const calcExpectedReserveDataAfterStableRateRebalance = (
     expectedReserveData.utilizationRate,
     expectedReserveData.totalStableDebt,
     expectedReserveData.totalVariableDebt,
-    expectedReserveData.averageStableBorrowRate
+    expectedReserveData.averageStableBorrowRate,
+    reserveDataBeforeAction.reserveFactor,
+    reserveDataBeforeAction.VMEXReserveFactor,
   );
 
   expectedReserveData.liquidityRate = rates[0];
@@ -1377,7 +1411,9 @@ export const calcExpectedInterestRates = (
   utilizationRate: BigNumber,
   totalStableDebt: BigNumber,
   totalVariableDebt: BigNumber,
-  averageStableBorrowRate: BigNumber
+  averageStableBorrowRate: BigNumber,
+  reserveFactor: BigNumber,
+  VMEXReserveFactor: BigNumber,
 ): BigNumber[] => {
   const { reservesParams } = configuration;
 
@@ -1440,10 +1476,10 @@ export const calcExpectedInterestRates = (
   let liquidityRate = expectedOverallRate
     .rayMul(utilizationRate)
     .percentMul(
-      new BigNumber(PERCENTAGE_FACTOR).minus("1000")// TODO: assuming that all reserves has reserve factor of 1000, not changed from default  //reserveConfiguration.reserveFactor)
+      new BigNumber(PERCENTAGE_FACTOR).minus(reserveFactor)
     )
     .percentMul(
-      new BigNumber(PERCENTAGE_FACTOR).minus("1000") //assuming default of 1000
+      new BigNumber(PERCENTAGE_FACTOR).minus(VMEXReserveFactor) 
     );
   return [liquidityRate, stableBorrowRate, variableBorrowRate];
 };

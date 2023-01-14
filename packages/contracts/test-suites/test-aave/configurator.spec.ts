@@ -23,7 +23,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Reverts trying to set an invalid reserve factor", async () => {
     const { configurator, weth } = testEnv;
 
-    const invalidReserveFactor = 65536;
+    const invalidReserveFactor = "18446744073709551616";
 
     await expect(
       configurator.setReserveFactor(weth.address, 0, invalidReserveFactor)
@@ -382,7 +382,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
     // expect(ethers.utils.formatUnits(liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
-    expect(reserveFactor).to.be.equal(1000);
+    expect(reserveFactor).to.be.equal(ethers.utils.parseUnits("1000",14));
   });
 
   it("Check the onlyLendingPoolManager on setReserveFactor", async () => {

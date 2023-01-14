@@ -31,12 +31,17 @@ interface ILendingPoolAddressesProvider {
     event AddressSet(bytes32 id, address indexed newAddress, bool hasProxy);
 
 
+    event VMEXTreasuryChanged(address add);
     event AssetMappingsUpdated(address indexed newAddress);
 
 
     event ATokenUpdated(address indexed newAddress);
     event StableDebtUpdated(address indexed newAddress);
     event VariableDebtUpdated(address indexed newAddress);
+
+    function getVMEXTreasury() external view returns(address);
+
+    function setVMEXTreasury(address add) external;
 
     function getMarketId() external view returns (string memory);
 

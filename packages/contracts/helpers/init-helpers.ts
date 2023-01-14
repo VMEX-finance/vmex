@@ -97,6 +97,7 @@ export const initAssetData = async (
     stableBorrowingEnabled: boolean;
     borrowingEnabled: boolean;
     isAllowed: boolean;
+    VMEXReserveFactor: string;
   }[] = [];
 
   let interestRateStrategyAddress: string[] = [];
@@ -135,6 +136,7 @@ export const initAssetData = async (
       liquidationThreshold,
       stableBorrowRateEnabled,
       borrowingEnabled,
+      reserveFactor,
     } = params;
 
     const {
@@ -191,7 +193,8 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       borrowFactor: borrowFactor,
       stableBorrowingEnabled: stableBorrowRateEnabled,
       borrowingEnabled: borrowingEnabled,
-      isAllowed: true
+      isAllowed: true,
+      VMEXReserveFactor: reserveFactor
     });
   }
 

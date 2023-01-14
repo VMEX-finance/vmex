@@ -90,7 +90,7 @@ library QueryAssetHelpers {
             : assetData.totalBorrowed.rayDiv(assetData.totalReserves.add(assetData.totalBorrowed));
 
         assetData.adminFee = reserve.configuration.getReserveFactor();
-        assetData.platformFee = reserve.configuration.getVMEXReserveFactor();
+        assetData.platformFee = a.getVMEXReserveFactor(asset);
         assetData.supplyApy = reserve.currentLiquidityRate;
         assetData.borrowApy = reserve.currentVariableBorrowRate;
         assetData.currentPriceETH = IPriceOracleGetter(assetData.oracle).getAssetPrice(assetData.asset);

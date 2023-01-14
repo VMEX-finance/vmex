@@ -12,6 +12,7 @@ library DataTypes {
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
     struct AssetData {
         uint8 underlyingAssetDecimals;
+        uint8 assetType;
         string underlyingAssetName;
         string aTokenName; //needs to be unique per asset per tranche. This just provides the same name regardless of tranche, but user inputs the tranche so should give unique name in the end
         string aTokenSymbol;
@@ -19,8 +20,7 @@ library DataTypes {
         string variableDebtTokenSymbol;
         string stableDebtTokenName;
         string stableDebtTokenSymbol;
-        uint8 assetType;
-
+        uint256 VMEXReserveFactor;
         //below are the things that we will change more often
         uint256 supplyCap;
         uint256 borrowCap;
@@ -107,29 +107,14 @@ library DataTypes {
     // uint8 constant NUM_TRANCHES = 3;
 
     struct ReserveConfigurationMap {
-        //bit 0-15: LTV
-        //bit 16-31: Liq. threshold
-        //bit 32-47: Liq. bonus
-        //bit 48-55: Decimals
-
-        //the above will not be set because they are properties of the asset as a whole
-        //update: each reserve will have their own values. Just in case there needs to be a change,
-        //we can't set them all at the same time cause some reserves may satisfy the conditions but other reserves may not
-        // Even so, all reserves need to be updated to current guidelines
-
-        //update 2: we can just use the global version for ltv and liquidation bonus
-
-        //update 3 (final decision): use asset mappings instead of the local variabblbes stored above.
-
-        //bit 56: Reserve is active
-        //bit 57: reserve is frozen
-        //bit 58: borrowing is enabled
-        //bit 59: stable rate borrowing enabled
-        //bit 60-63: reserved
-        //bit 64-79: reserve factor
-
-        //bit 80-95: vmex reserve factor
-        //bit 96: collateral is enabled
+        //new mappings to account for larger reserve factors
+        //bit 0: Reserve is active
+        //bit 1: reserve is frozen
+        //bit 2: borrowing is enabled
+        //bit 3: stable rate borrowing enabled
+        //bit 4: collateral is enabled
+        //bit 5-7: reserved
+        //bit 8-71: reserve factor (64 bit)
         uint256 data;
     }
 
