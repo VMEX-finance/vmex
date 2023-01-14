@@ -184,7 +184,7 @@ interface ILendingPoolConfigurator {
      * @param trancheId The tranche
      * @param strategy The address of the strategy
      **/
-    event StrategyAdded(address asset, uint64 trancheId, address strategy);
+    event StrategyAdded(address indexed asset, uint64 indexed trancheId, address strategy);
 
     /**
      * @dev Emitted when successful withdraw from strategy to lending pool
@@ -192,5 +192,5 @@ interface ILendingPoolConfigurator {
      * @param trancheId The tranche
      * @param amount The amount withdrawn from strategy
      **/
-    event WithdrawFromStrategy(address asset, uint64 trancheId, uint256 amount);
+    event WithdrawFromStrategy(address indexed asset, uint64 indexed trancheId, uint256 amount);
 }

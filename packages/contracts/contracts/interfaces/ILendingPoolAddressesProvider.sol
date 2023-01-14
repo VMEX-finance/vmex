@@ -31,7 +31,7 @@ interface ILendingPoolAddressesProvider {
     event AddressSet(bytes32 id, address indexed newAddress, bool hasProxy);
 
 
-    event VMEXTreasuryChanged(address add);
+    event VMEXTreasuryUpdated(address indexed newAddress);
     event AssetMappingsUpdated(address indexed newAddress);
 
 
