@@ -191,7 +191,7 @@ describe("Fund accounts", () => {
           amounts = [ethers.utils.parseEther("3000"),ethers.utils.parseEther("0")]
           approvalToken = new ethers.Contract("0x853d955aCEf822Db058eb8505911ED77F175b99e",IERC20abi)
           curvePool = new ethers.Contract(curvePools[i],curvePool2Abi, provider)
-          if(j>=2){ //not enough liquidity to fund all accounts
+          if(j>=1){ //not enough liquidity to fund all accounts
             break
           }
         }
