@@ -29,7 +29,6 @@ chai.use(function (chai: any, utils: any) {
 makeSuite(
     "frax3crv ",
     () => {
-      const reserveFactor = BigNumber.from(1000);
         const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');
         const contractGetters = require('../helpers/contracts-getters.ts');
@@ -306,7 +305,7 @@ var triCryptoDepositAbi =  fs.readFileSync("./localhost_tests/abis/fraxUSDC.json
               await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
   
               const strategy = await contractGetters.getCrvLpStrategy(tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
-  
+              const reserveFactor = (await dataProv.getReserveConfigurationData(CurveToken.address, 1)).VMEXReserveFactor;
               for(let i = 0; i<3;i++){
                   var strategyStartBoostedBalance = await strategy.balanceOfPool();
                   console.log("strategy START boosted balance: " + strategyStartBoostedBalance);

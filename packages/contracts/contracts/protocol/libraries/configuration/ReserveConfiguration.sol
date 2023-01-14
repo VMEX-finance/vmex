@@ -25,7 +25,7 @@ library ReserveConfiguration {
     uint256 constant COLLATERAL_ENABLED_START_BIT_POSITION = 4;
     uint256 constant RESERVE_FACTOR_START_BIT_POSITION = 8;
 
-    uint256 constant MAX_VALID_RESERVE_FACTOR = 2**64; //64 bits
+    uint256 constant MAX_VALID_RESERVE_FACTOR = 2**64-1; //64 bits
 
     /**
      * @dev Sets the active state of the reserve

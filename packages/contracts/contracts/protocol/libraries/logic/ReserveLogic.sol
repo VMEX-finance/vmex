@@ -16,7 +16,7 @@ import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 
 import {IBaseStrategy} from "../../../interfaces/IBaseStrategy.sol";
-
+// import "hardhat/console.sol";
 /**
  * @title ReserveLogic library
  * @author Aave
@@ -64,12 +64,17 @@ library ReserveLogic {
         returns (uint256)
     {
         uint40 timestamp = reserve.lastUpdateTimestamp;
+        // console.log("getNormalizedIncome liquidity index: ", reserve.liquidityIndex);
 
         //solium-disable-next-line
         if (timestamp == uint40(block.timestamp) || IAToken(reserve.aTokenAddress).getStrategy() != address(0)) { //if it has a strategy, it just the liquidityIndex
             //if the index was updated in the same block, no need to perform any calculation
+            // console.log("Just returning liquidity index: ");
             return reserve.liquidityIndex;
         }
+        // console.log("current timestamp: ", block.timestamp);
+        // console.log("last update timestamp: ", timestamp);
+        // console.log("reserve.currentLiquidityRate: ", reserve.currentLiquidityRate);
 
         uint256 cumulated = MathUtils
             .calculateLinearInterest(reserve.currentLiquidityRate, timestamp)
