@@ -45,9 +45,8 @@ import { ContractReceipt } from "ethers";
 import { AToken } from "../../../types/AToken";
 import { RateMode, tEthereumAddress } from "../../../helpers/types";
 
-const DEBUG = false;
 export const logger = function (...args: any[]) {
-  if(DEBUG){
+  if(process.env.DEBUG){
     console.log.apply(console, args);
   }
 };

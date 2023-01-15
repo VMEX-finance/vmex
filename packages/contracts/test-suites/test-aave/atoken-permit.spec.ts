@@ -10,6 +10,7 @@ import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { DRE } from "../../helpers/misc-utils";
 import { waitForTx } from "../../helpers/misc-utils";
 import { _TypedDataEncoder } from "ethers/lib/utils";
+import { logger } from "./helpers/actions";
 
 const { parseEther } = ethers.utils;
 

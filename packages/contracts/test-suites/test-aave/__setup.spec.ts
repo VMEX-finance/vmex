@@ -68,14 +68,12 @@ import {
   getLendingPool,
   getLendingPoolConfiguratorProxy,
   getPairsTokenAggregator,
-  getAToken,
-  getStableDebtToken,
-  getVariableDebtToken,
   getVMEXOracle,
   getAssetMappings,
+  getFirstSigner,
 } from "../../helpers/contracts-getters";
 import { WETH9Mocked } from "../../types/WETH9Mocked";
-import { logger } from "./helpers/actions";
+import { logger } from "./helpers//actions";
 
 const MOCK_USD_PRICE_IN_WEI = AaveConfig.ProtocolGlobalParams.MockUsdPriceInWei;
 const ALL_ASSETS_INITIAL_PRICES = AaveConfig.Mocks.AllAssetsInitialPrices;
@@ -225,8 +223,6 @@ const buildTestEnv = async (deployer: Signer) => {
   await waitForTx(
     await addressesProvider.setLendingPoolImpl(lendingPoolImpl.address)
   );
-
-  logger("&&&&&&&&&&&&&&&&&&&&&&&&&&&\n\n\n\n\n\n\n\n\n\nlendingpol is: ", lendingPoolImpl)
 
   const lendingPoolAddress = await addressesProvider.getLendingPool();
   const lendingPoolProxy = await getLendingPool(lendingPoolAddress);

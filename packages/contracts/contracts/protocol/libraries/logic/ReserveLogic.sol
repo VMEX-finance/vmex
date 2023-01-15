@@ -117,21 +117,21 @@ library ReserveLogic {
      **/
     function updateState(DataTypes.ReserveData storage reserve, uint256 VMEXReserveFactor) internal {
         address strategist = IAToken(reserve.aTokenAddress).getStrategy();
-        if(strategist==address(0)) { //no strategist, so keep original method of calculating
-        uint256 scaledVariableDebt = IVariableDebtToken(
-            reserve.variableDebtTokenAddress
-        ).scaledTotalSupply();
-        uint256 previousVariableBorrowIndex = reserve.variableBorrowIndex;
-        uint256 previousLiquidityIndex = reserve.liquidityIndex;
-        uint40 lastUpdatedTimestamp = reserve.lastUpdateTimestamp;
+        if (strategist==address(0)) { //no strategist, so keep original method of calculating
+            uint256 scaledVariableDebt = IVariableDebtToken(
+                reserve.variableDebtTokenAddress
+            ).scaledTotalSupply();
+            uint256 previousVariableBorrowIndex = reserve.variableBorrowIndex;
+            uint256 previousLiquidityIndex = reserve.liquidityIndex;
+            uint40 lastUpdatedTimestamp = reserve.lastUpdateTimestamp;
 
-        (uint256 newLiquidityIndex, uint256 newVariableBorrowIndex) = _updateIndexes(
-            reserve,
-            scaledVariableDebt, //for curve, this will always be zero, but the currentLiquidityRate gets updated with the tends. Don't need to pass in strategist address since currentLiquidityRate gets updated elsewhere
-            previousLiquidityIndex,
-            previousVariableBorrowIndex,
-            lastUpdatedTimestamp
-        );
+            (uint256 newLiquidityIndex, uint256 newVariableBorrowIndex) = _updateIndexes(
+                reserve,
+                scaledVariableDebt, //for curve, this will always be zero, but the currentLiquidityRate gets updated with the tends. Don't need to pass in strategist address since currentLiquidityRate gets updated elsewhere
+                previousLiquidityIndex,
+                previousVariableBorrowIndex,
+                lastUpdatedTimestamp
+            );
             //no strategist, so keep original method of minting to treasury. For strategies, minting to treasury will be handled during tend()
             _mintToTreasury(
                 reserve,
@@ -265,12 +265,12 @@ library ReserveLogic {
                         reserve.configuration.getReserveFactor(),
                         VMEXReserveFactor
                     );
-            (
-                vars.newLiquidityRate,
-                vars.newVariableRate
-            ) = IReserveInterestRateStrategy(
-                reserve.interestRateStrategyAddress
-            ).calculateInterestRates(calvars);
+            // (
+            //     vars.newLiquidityRate,
+            //     vars.newVariableRate
+            // ) = IReserveInterestRateStrategy(
+            //     reserve.interestRateStrategyAddress
+            // ).calculateInterestRates(calvars);
 
             require(
                 vars.newLiquidityRate <= type(uint128).max,

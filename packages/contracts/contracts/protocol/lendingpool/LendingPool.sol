@@ -869,7 +869,7 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         address strategy
-    ) external override{
+    ) external override onlyLendingPoolConfigurator {
         IAToken(_reserves[asset][trancheId].aTokenAddress)
             .setAndApproveStrategy(strategy);
     }
