@@ -89,7 +89,7 @@ contract LendingPoolCollateralManager is
         DataTypes.ReserveData storage reserve
     ) internal view returns (uint256, uint256) {
         return (
-            IERC20(reserve.stableDebtTokenAddress).balanceOf(user),
+            0,  // TODO: Remove
             IERC20(reserve.variableDebtTokenAddress).balanceOf(user)
         );
     }
@@ -124,7 +124,7 @@ contract LendingPoolCollateralManager is
             vars.debtAsset = debtAsset;
             vars.collateralAsset = collateralAsset;
         }
-        
+
 
         { //health factor is based on lowest collateral value between twap and chainlink
             (, , , , vars.healthFactor,) = GenericLogic.calculateUserAccountData(
@@ -248,10 +248,6 @@ contract LendingPoolCollateralManager is
                     debtReserve.variableBorrowIndex
                 );
             }
-            IStableDebtToken(debtReserve.stableDebtTokenAddress).burn(
-                user,
-                vars.actualDebtToLiquidate.sub(vars.userVariableDebt)
-            );
         }
         debtReserve.updateInterestRates(
             vars.debtAsset,

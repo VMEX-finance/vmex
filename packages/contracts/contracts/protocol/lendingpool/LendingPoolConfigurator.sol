@@ -96,7 +96,7 @@ contract LendingPoolConfigurator is
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
         assetMappings = AssetMappings(addressesProvider.getAssetMappings());
-        
+
     }
 
     /**
@@ -158,7 +158,6 @@ contract LendingPoolConfigurator is
             internalInput.trancheId,
             assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
             aTokenProxyAddress,
-            address(0),
             variableDebtTokenProxyAddress
         );
 

@@ -201,7 +201,6 @@ library ReserveLogic {
     function init(
         DataTypes.ReserveData storage reserve,
         address aTokenAddress,
-        address stableDebtTokenAddress,
         address variableDebtTokenAddress,
         address interestRateStrategyAddress,
         uint64 trancheId
@@ -214,7 +213,6 @@ library ReserveLogic {
             reserve.liquidityIndex = uint128(WadRayMath.ray());
             reserve.variableBorrowIndex = uint128(WadRayMath.ray());
             reserve.aTokenAddress = aTokenAddress;
-            reserve.stableDebtTokenAddress = stableDebtTokenAddress;
             reserve.variableDebtTokenAddress = variableDebtTokenAddress;
         }
         {
@@ -265,12 +263,12 @@ library ReserveLogic {
                         reserve.configuration.getReserveFactor(),
                         VMEXReserveFactor
                     );
-            // (
-            //     vars.newLiquidityRate,
-            //     vars.newVariableRate
-            // ) = IReserveInterestRateStrategy(
-            //     reserve.interestRateStrategyAddress
-            // ).calculateInterestRates(calvars);
+            (
+                vars.newLiquidityRate,
+                vars.newVariableRate
+            ) = IReserveInterestRateStrategy(
+                reserve.interestRateStrategyAddress
+            ).calculateInterestRates(calvars);
 
             require(
                 vars.newLiquidityRate <= type(uint128).max,
@@ -297,19 +295,13 @@ library ReserveLogic {
 
 
     struct MintToTreasuryLocalVars {
-        uint256 currentStableDebt;
-        uint256 principalStableDebt;
-        uint256 previousStableDebt;
         uint256 currentVariableDebt;
         uint256 previousVariableDebt;
-        uint256 avgStableRate;
-        uint256 cumulatedStableInterest;
         uint256 totalDebtAccrued;
         uint256 amountToMint;
         uint256 amountToMintVMEX;
         uint256 reserveFactor;
         uint256 globalVMEXReserveFactor;
-        uint40 stableSupplyUpdatedTimestamp;
     }
 
     /**
@@ -340,14 +332,6 @@ library ReserveLogic {
             return;
         }
 
-        //fetching the principal, total stable debt and the avg stable rate
-        (
-            vars.principalStableDebt,
-            vars.currentStableDebt,
-            vars.avgStableRate,
-            vars.stableSupplyUpdatedTimestamp
-        ) = IStableDebtToken(reserve.stableDebtTokenAddress).getSupplyData();
-
         //calculate the last principal variable debt
         vars.previousVariableDebt = scaledVariableDebt.rayMul(
             previousVariableBorrowIndex
@@ -358,24 +342,11 @@ library ReserveLogic {
             newVariableBorrowIndex
         );
 
-        //calculate the stable debt until the last timestamp update
-        vars.cumulatedStableInterest = MathUtils.calculateCompoundedInterest(
-            vars.avgStableRate,
-            vars.stableSupplyUpdatedTimestamp,
-            timestamp
-        );
-
-        vars.previousStableDebt = vars.principalStableDebt.rayMul(
-            vars.cumulatedStableInterest
-        );
-
         //debt accrued is the sum of the current debt minus the sum of the debt at the last update
         //note that repay did not have to occur for this to be higher.
         vars.totalDebtAccrued = vars
             .currentVariableDebt
-            .add(vars.currentStableDebt)
-            .sub(vars.previousVariableDebt)
-            .sub(vars.previousStableDebt);
+            .sub(vars.previousVariableDebt);
 
         vars.amountToMint = vars
             .totalDebtAccrued
@@ -450,8 +421,7 @@ library ReserveLogic {
 
             reserve.liquidityIndex = uint128(newLiquidityIndex);
 
-            //as the liquidity rate might come only from stable rate loans, we need to ensure
-            //that there is actual variable debt before accumulating
+            //check that there is actual variable debt before accumulating
             if (scaledVariableDebt != 0) {
                 uint256 cumulatedVariableBorrowInterest = MathUtils
                     .calculateCompoundedInterest(

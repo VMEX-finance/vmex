@@ -14,13 +14,12 @@ library DataTypes {
         uint8 underlyingAssetDecimals;
         uint8 assetType;
         string underlyingAssetName;
-        string aTokenName; //needs to be unique per asset per tranche. This just provides the same name regardless of tranche, but user inputs the tranche so should give unique name in the end
+        string aTokenName;
         string aTokenSymbol;
         string variableDebtTokenName;
         string variableDebtTokenSymbol;
-        string stableDebtTokenName;
-        string stableDebtTokenSymbol;
         uint256 VMEXReserveFactor;
+
         //below are the things that we will change more often
         uint256 supplyCap;
         uint256 borrowCap;
@@ -30,15 +29,10 @@ library DataTypes {
         uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset
         bool stableBorrowingEnabled;
         bool borrowingEnabled;
-
         bool isAllowed; //default to false, unless set
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
         //the only difference between the different strategies is the value of the slopes and optimal utilization
-
     }
-
-    // struct AssetDataConfiguration {
-    // }
 
     struct InitReserveInput {
         // address aTokenImpl; //individual tranche users should not have control over this
@@ -94,7 +88,6 @@ library DataTypes {
         uint40 lastUpdateTimestamp;
         //tokens addresses
         address aTokenAddress;
-        address stableDebtTokenAddress; //not used for nonlendable assets
         address variableDebtTokenAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;

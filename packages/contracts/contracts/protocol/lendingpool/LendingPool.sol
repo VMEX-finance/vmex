@@ -750,7 +750,6 @@ contract LendingPool is
         uint64 trancheId,
         address interestRateStrategyAddress,
         address aTokenAddress,
-        address stableDebtAddress,
         address variableDebtAddress
     ) external override onlyLendingPoolConfigurator {
         require(
@@ -760,7 +759,6 @@ contract LendingPool is
         //considering requiring _reservesCount[trancheId] = 0, but you can add another asset to an existing tranche too.
         _reserves[underlyingAsset][trancheId].init(
             aTokenAddress,
-            stableDebtAddress,
             variableDebtAddress,
             interestRateStrategyAddress,
             trancheId

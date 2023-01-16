@@ -148,7 +148,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         {
             vars.totalDebt = calvars.totalVariableDebt;
             vars.currentVariableBorrowRate = 0;
-            vars.currentStableBorrowRate = 0;
             vars.currentLiquidityRate = 0;
             vars.utilizationRate = vars.totalDebt == 0
                 ? 0
@@ -195,7 +194,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     struct CalcInterestRatesLocalVars {
         uint256 totalDebt;
         uint256 currentVariableBorrowRate;
-        uint256 currentStableBorrowRate;
         uint256 currentLiquidityRate;
         uint256 utilizationRate;
     }

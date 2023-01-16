@@ -3,7 +3,6 @@ import { createRandomAddress } from '../../helpers/misc-utils';
 import { makeSuite, TestEnv } from './helpers/make-suite';
 import { ProtocolErrors } from '../../helpers/types';
 import { ethers } from 'ethers';
-import { ZERO_ADDRESS } from '../../helpers/constants';
 import { waitForTx } from '../../helpers/misc-utils';
 import { deployLendingPool } from '../../helpers/contracts-deployments';
 
@@ -23,8 +22,7 @@ makeSuite('LendingPoolAddressesProvider', (testEnv: TestEnv) => {
       addressesProvider.setLendingPoolImpl,
       addressesProvider.setLendingPoolConfiguratorImpl,
       addressesProvider.setLendingPoolCollateralManager,
-      // addressesProvider.setPriceOracle,
-      addressesProvider.setLendingRateOracle,
+      addressesProvider.setPriceOracle,
     ]) {
       await expect(contractFunction(mockAddress)).to.be.revertedWith(INVALID_OWNER_REVERT_MSG);
     }

@@ -67,7 +67,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
         const [token, tokenAddress] = entry;
         console.log(`- Verifying ${token} token related contracts`);
         const {
-          stableDebtTokenAddress,
           variableDebtTokenAddress,
           aTokenAddress,
           interestRateStrategyAddress,
@@ -88,13 +87,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
         } = tokenConfig[1].strategy;
 
         console.log;
-        // Proxy Stable Debt
-        console.log(`\n- Verifying Stable Debt Token proxy...\n`);
-        await verifyContract(
-          eContractid.InitializableAdminUpgradeabilityProxy,
-          await getProxy(stableDebtTokenAddress),
-          [lendingPoolConfigurator.address]
-        );
 
         // Proxy Variable Debt
         console.log(`\n- Verifying  Debt Token proxy...\n`);
