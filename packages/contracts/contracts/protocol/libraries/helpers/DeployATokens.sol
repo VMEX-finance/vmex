@@ -8,12 +8,13 @@ import {IAaveIncentivesController} from "../../../interfaces/IAaveIncentivesCont
 import {IInitializableDebtToken} from "../../../interfaces/IInitializableDebtToken.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 library DeployATokens {
     struct DeployATokensVars {
         ILendingPool pool;
         ILendingPoolAddressesProvider addressProvider;
         DataTypes.InitReserveInputInternal internalInput;
+        uint256 VMEXReserveFactor;
     }
 
     /**
@@ -73,6 +74,7 @@ library DeployATokens {
                 address(this), //lendingPoolConfigurator address
                 vars.internalInput.input.treasury,
                 vars.addressProvider.getVMEXTreasury(),
+                vars.VMEXReserveFactor,
                 vars.internalInput.input.underlyingAsset,
                 vars.internalInput.trancheId,
                 IAaveIncentivesController(

@@ -38,6 +38,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       tranche.toString(),
       ZERO_ADDRESS,
       ZERO_ADDRESS,
+      "0",
       ZERO_ADDRESS,
       'Aave Interest bearing DAI updated',
       'aDAI'

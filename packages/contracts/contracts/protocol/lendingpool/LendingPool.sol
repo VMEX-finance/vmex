@@ -82,20 +82,6 @@ contract LendingPool is
         );
     }
 
-    modifier onlyWhitelistedDepositBorrow(uint64 trancheId) {
-        _onlyWhitelistedDepositBorrow(trancheId);
-        _;
-    }
-
-    function _onlyWhitelistedDepositBorrow(uint64 trancheId) internal view {
-        if (isWhitelistedDepositBorrow[msg.sender] == false) {
-            require(
-                lastUserBorrow[msg.sender][trancheId] != block.number,
-                "User is not whitelisted to borrow and deposit in same block"
-            );
-        }
-    }
-
     function addWhitelistedDepositBorrow(address user)
         external
         override
@@ -159,9 +145,15 @@ contract LendingPool is
         public
         override
         whenNotPaused(trancheId)
-        onlyWhitelistedDepositBorrow(trancheId)
     {
+        checkWhitelistBlacklist(trancheId, onBehalfOf);
         checkWhitelistBlacklist(trancheId, msg.sender);
+        if (isWhitelistedDepositBorrow[onBehalfOf] == false) {
+            require(
+                _usersConfig[onBehalfOf][trancheId].lastUserBorrow != block.number,
+                "User is not whitelisted to borrow and deposit in same block"
+            );
+        }
         //changed scope to public so transferTranche can call it
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
@@ -175,10 +167,10 @@ contract LendingPool is
 
         uint256 actualAmount = _reserves[asset][trancheId]._deposit(
             vars,
-            _usersConfig[onBehalfOf][trancheId]
+            _usersConfig[onBehalfOf][trancheId].configuration
         );
 
-        lastUserDeposit[msg.sender][trancheId] = block.number;
+        _usersConfig[onBehalfOf][trancheId].lastUserDeposit = uint128(block.number);
 
         emit Deposit(
             vars.asset,
@@ -216,7 +208,7 @@ contract LendingPool is
         checkWhitelistBlacklist(trancheId, msg.sender);
         uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
-                _usersConfig[msg.sender][trancheId],
+                _usersConfig[msg.sender][trancheId].configuration,
                 _reservesList[trancheId],
                 DataTypes.WithdrawParams(
                     _reservesCount[trancheId],
@@ -258,12 +250,12 @@ contract LendingPool is
         public
         override
         whenNotPaused(trancheId)
-        onlyWhitelistedDepositBorrow(trancheId)
     {
         checkWhitelistBlacklist(trancheId, msg.sender);
+
         if (isWhitelistedDepositBorrow[msg.sender] == false) {
             require(
-                lastUserDeposit[msg.sender][trancheId] != block.number,
+                _usersConfig[msg.sender][trancheId].lastUserDeposit != block.number,
                 "User is not whitelisted to borrow and deposit in same block"
             );
         }
@@ -289,7 +281,7 @@ contract LendingPool is
 
         DataTypes.UserConfigurationMap storage userConfig = _usersConfig[
             onBehalfOf
-        ][trancheId];
+        ][trancheId].configuration;
 
 
         uint256 actualAmount = DepositWithdrawLogic._borrowHelper(
@@ -300,7 +292,7 @@ contract LendingPool is
             vars
         );
 
-        lastUserBorrow[msg.sender][trancheId] = block.number;
+        _usersConfig[msg.sender][trancheId].lastUserBorrow = uint128(block.number);
 
         emit Borrow(
             vars.asset,
@@ -364,7 +356,7 @@ contract LendingPool is
         reserve.updateInterestRates(asset, aToken, paybackAmount, 0, _assetMappings.getVMEXReserveFactor(asset));
 
         if (variableDebt.sub(paybackAmount) == 0) {
-            _usersConfig[onBehalfOf][trancheId].setBorrowing(reserve.id, false);
+            _usersConfig[onBehalfOf][trancheId].configuration.setBorrowing(reserve.id, false);
         }
 
         IERC20(asset).safeTransferFrom(msg.sender, aToken, paybackAmount);
@@ -397,14 +389,14 @@ contract LendingPool is
             asset,
             useAsCollateral,
             _reserves,
-            _usersConfig[msg.sender][trancheId],
+            _usersConfig[msg.sender][trancheId].configuration,
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
             _assetMappings
         );
 
-        _usersConfig[msg.sender][trancheId].setUsingAsCollateral(
+        _usersConfig[msg.sender][trancheId].configuration.setUsingAsCollateral(
             reserve.id,
             useAsCollateral
         );
@@ -534,7 +526,7 @@ contract LendingPool is
         ) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(user, trancheId),
             _reserves,
-            _usersConfig[user][trancheId],
+            _usersConfig[user][trancheId].configuration,
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
@@ -582,7 +574,7 @@ contract LendingPool is
         override
         returns (DataTypes.UserConfigurationMap memory)
     {
-        return _usersConfig[user][trancheId];
+        return _usersConfig[user][trancheId].configuration;
     }
 
     /**
@@ -708,7 +700,7 @@ contract LendingPool is
             from,
             trancheId,
             _reserves,
-            _usersConfig[from][trancheId],
+            _usersConfig[from][trancheId].configuration,
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
@@ -720,7 +712,7 @@ contract LendingPool is
         if (from != to) {
             if (balanceFromBefore.sub(amount) == 0) {
                 DataTypes.UserConfigurationMap
-                    storage fromConfig = _usersConfig[from][trancheId];
+                    storage fromConfig = _usersConfig[from][trancheId].configuration;
                 fromConfig.setUsingAsCollateral(reserveId, false);
                 emit ReserveUsedAsCollateralDisabled(asset, trancheId, from);
             }
@@ -728,7 +720,7 @@ contract LendingPool is
             if (balanceToBefore == 0 && amount != 0) {
                 DataTypes.UserConfigurationMap storage toConfig = _usersConfig[
                     to
-                ][trancheId];
+                ][trancheId].configuration;
                 toConfig.setUsingAsCollateral(reserveId, true);
                 emit ReserveUsedAsCollateralEnabled(asset, trancheId, to);
             }

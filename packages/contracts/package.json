@@ -28,7 +28,11 @@
     "console:fork": "FORK=main hardhat console",
     "console:localhost:fork": "FORK=main hardhat console --network localhost",
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/*.spec.ts",
+<<<<<<< HEAD
     "test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/scenario.spec.ts",
+=======
+    "test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/yearn-vault.spec.ts",
+>>>>>>> b338cdfa (mostly fixed fees from yearn)
     "test-mainnet-fork": "FORK=main hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/scenario.spec.ts  --network localhost",
     "test-strategy": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/strategy/*.spec.ts",
     "test-scenarios": "npm run compile && npx hardhat test test-suites/test-aave/__setup.spec.ts test-suites/test-aave/scenario.spec.ts",
@@ -64,7 +68,7 @@
     "vmex:node:fork:main": "FORK=main npx hardhat node --hostname 0.0.0.0",
     "vmex:deploy": "npm run compile && FORK=main hardhat aave:mainnet --network localhost",
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/*.spec.ts --network localhost",
-    "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/test-cvx.spec.ts --network localhost",
+    "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/test-yearn-oracle.spec.ts --network localhost",
     "aave:fork:kovan": "npm run compile && FORK=kovan hardhat aave:mainnet",
     "aave:main:full:migration": "npm run compile && npm run hardhat:main -- aave:mainnet --verify",
     "aave:main:full:initialize": "npm run compile && FORK=main full:initialize-tokens --pool Aave",
@@ -177,6 +181,7 @@
   "contributors": [
     "Kevin Yao <kevin@vmex.finance>",
     "Steven Yao <steven@vmex.finance>",
+    "Mel0n <mel0n@vmex.finance>",
     "Jay <jay@vmex.finance>",
     "Flex <flex@vmex.finance>"
   ],

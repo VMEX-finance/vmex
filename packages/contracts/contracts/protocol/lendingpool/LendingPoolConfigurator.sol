@@ -154,7 +154,8 @@ contract LendingPoolConfigurator is
                 DeployATokens.DeployATokensVars(
                     pool,
                     addressesProvider,
-                    internalInput
+                    internalInput,
+                    assetMappings.getVMEXReserveFactor(internalInput.input.underlyingAsset)
                 )
             );
 
@@ -247,9 +248,11 @@ contract LendingPoolConfigurator is
     struct updateATokenVars {
         address DefaultVMEXTreasury;
         uint256 decimals;
+        uint256 VMEXReserveFactor;
         ILendingPool cachedPool;
         DataTypes.ReserveData reserveData;
         UpdateATokenInput input;
+
     }
 
     /**
@@ -272,6 +275,8 @@ contract LendingPoolConfigurator is
             );
 
             (, , , vars.decimals, ) = assetMappings.getParams(vars.input.asset);
+
+            vars.VMEXReserveFactor = assetMappings.getVMEXReserveFactor(input.asset);
         }
 
         bytes memory encodedCall = abi.encodeWithSelector(
@@ -280,6 +285,7 @@ contract LendingPoolConfigurator is
             address(this),
             vars.input.treasury,
             vars.DefaultVMEXTreasury,
+            vars.VMEXReserveFactor,
             vars.input.asset,
             vars.input.trancheId,
             vars.input.incentivesController,

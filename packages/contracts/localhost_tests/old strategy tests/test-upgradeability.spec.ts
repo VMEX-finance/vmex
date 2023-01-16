@@ -1,12 +1,12 @@
 const chai = require("chai");
 const { expect } = chai;
-import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
-import { DRE } from "../helpers/misc-utils";
+import { makeSuite } from "../../test-suites/test-aave/helpers/make-suite";
+import { DRE } from "../../helpers/misc-utils";
 import rawBRE from "hardhat";
 import { BigNumber, utils } from "ethers";
-import { ProtocolErrors } from '../helpers/types';
-import {getCurvePrice} from "./helpers/curve-calculation";
-import {UserAccountData} from "./interfaces/index";
+import { ProtocolErrors } from '../../helpers/types';
+import {getCurvePrice} from "../helpers/curve-calculation";
+import {UserAccountData} from "../interfaces/index";
 import {
   getAToken,
   getEmergencyAdminT0,
@@ -15,13 +15,13 @@ import {
   getMockVariableDebtToken,
   getStableDebtToken,
   getVariableDebtToken,
-} from '../helpers/contracts-getters';
+} from '../../helpers/contracts-getters';
 import {
   deployMockStrategy,
   deployMockAToken,
-} from '../helpers/contracts-deployments';
+} from '../../helpers/contracts-deployments';
 import { BigNumberish } from 'ethers';
-import {ZERO_ADDRESS} from '../helpers/constants';
+import {ZERO_ADDRESS} from '../../helpers/constants';
 
 makeSuite('Upgradeability', () => {
   const { CALLER_NOT_TRANCHE_ADMIN } = ProtocolErrors;
@@ -53,6 +53,7 @@ makeSuite('Upgradeability', () => {
       tranche.toString(),
       ZERO_ADDRESS,
       ZERO_ADDRESS,
+      "1000",
       ZERO_ADDRESS,
       'Aave Interest bearing DAI updated',
       'aDAI'

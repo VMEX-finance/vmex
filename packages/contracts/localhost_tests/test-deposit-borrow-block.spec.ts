@@ -12,7 +12,7 @@ import { ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
 
 makeSuite(
-    "supplyCap ",
+    "deposit and borrowing in the same block ",
     () => {
         const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');

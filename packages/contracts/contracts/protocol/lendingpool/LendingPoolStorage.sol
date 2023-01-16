@@ -19,7 +19,7 @@ contract LendingPoolStorage {
     // asset address to trancheId number to reserve data
     mapping(address => mapping(uint64 => DataTypes.ReserveData))
         internal _reserves;
-    mapping(address => mapping(uint64 => DataTypes.UserConfigurationMap))
+    mapping(address => mapping(uint64 => DataTypes.UserData))
         internal _usersConfig; //user address to trancheId to user configuration
 
     // mapping(address => DataTypes.ReserveAssetType) internal assetDatas;
@@ -35,10 +35,7 @@ contract LendingPoolStorage {
 
     mapping(address => bool) isWhitelistedDepositBorrow;
 
-    mapping(address => mapping(uint64 => uint256)) lastUserBorrow;
-    mapping(address => mapping(uint64 => uint256)) lastUserDeposit; //user address to tranche to block number
-
     mapping(uint64 => bool) public isUsingWhitelist;
-    mapping(uint64 => mapping(address=>bool)) whitelist;
+    mapping(uint64 => mapping(address=>bool)) whitelist; //tranche to user address to boolean on whether user is whitelisted
     mapping(uint64 => mapping(address=>bool)) blacklist;
 }

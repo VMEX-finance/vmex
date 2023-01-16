@@ -125,6 +125,7 @@ export enum eContractid {
   UserConfiguration = "UserConfiguration",
   BaseUniswapOracle = "BaseUniswapOracle",
   MockStrategy = "MockStrategy",
+  YearnTokenMocked="YearnTokenMocked",
 }
 
 /*
@@ -295,6 +296,11 @@ export interface iAssetBase<T> {
   LDO: T;
   ALCX: T;
   Oneinch: T;
+  yvTricrypto2: T;
+  yvThreePool: T;
+  yvStethEth: T;
+  yvFraxUSDC: T;
+  yvFrax3Crv: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -338,6 +344,11 @@ export type iAavePoolAssets<T> = Partial<
     | "LDO"
     | "ALCX"
     | "Oneinch"
+    | "yvTricrypto2"
+    | "yvThreePool"
+    | "yvStethEth"
+    | "yvFraxUSDC"
+    | "yvFrax3Crv"
   >
 >;
 
@@ -442,6 +453,11 @@ export enum TokenContractId {
   LDO = "LDO",
   ALCX = "ALCX",
   Oneinch = "Oneinch",
+  yvTricrypto2 = "yvTricrypto2",
+  yvThreePool = "yvThreePool",
+  yvStethEth = "yvStethEth",
+  yvFraxUSDC = "yvFraxUSDC",
+  yvFrax3Crv = "yvFrax3Crv",
 }
 
 export interface ITrancheInitParams {

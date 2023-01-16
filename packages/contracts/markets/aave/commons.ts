@@ -256,7 +256,12 @@ export const CommonsConfig: ICommonConfiguration = {
       BADGER: '0x74092c7c0024feeb3839bED5ab6189eeD86ae856',
       LDO: '0xf4aD61dB72f114Be877E87d62DC5e7bd52DF4d9B',
       ALCX: '0xb80946cd2B4b68beDd769A21CA2F096EAD6E0EE8',
-      Oneinch: '0x0000000000000000000000000000000000000000'
+      Oneinch: '0x0000000000000000000000000000000000000000',
+      yvTricrypto2: '0x0000000000000000000000000000000000000000',
+      yvThreePool: '0x0000000000000000000000000000000000000000',
+      yvStethEth: '0x0000000000000000000000000000000000000000',
+      yvFraxUSDC: '0x0000000000000000000000000000000000000000',
+      yvFrax3Crv: '0x0000000000000000000000000000000000000000',
     },
     [eEthereumNetwork.tenderly]: {},
   },
@@ -300,7 +305,12 @@ export const CommonsConfig: ICommonConfiguration = {
       BADGER: '0',
       LDO: '0',
       ALCX: '1',
-      Oneinch: '0'
+      Oneinch: '0',
+      yvTricrypto2: '0',
+      yvThreePool: '0',
+      yvStethEth: '0',
+      yvFraxUSDC: '0',
+      yvFrax3Crv: '0',
     },
     [eEthereumNetwork.tenderly]: {},
   },
@@ -387,6 +397,11 @@ export const CommonsConfig: ICommonConfiguration = {
       LDO: '0x4e844125952d32acdf339be976c98e22f6f318db',
       ALCX: '0x194a9aaf2e0b67c35915cd01101585a33fe25caa',
       Oneinch: '0x72afaecf99c9d9c8215ff44c77b94b99c28741e8',
+      yvTricrypto2: ZERO_ADDRESS, //this should not be used
+      yvThreePool: ZERO_ADDRESS, //this should not be used
+      yvStethEth: ZERO_ADDRESS, //this should not be used
+      yvFraxUSDC: ZERO_ADDRESS, //this should not be used
+      yvFrax3Crv: ZERO_ADDRESS, //this should not be used
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',

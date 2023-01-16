@@ -72,6 +72,7 @@ import {
   // CurveOracleV1Factory,
   BaseUniswapOracleFactory,
   MockStrategyFactory,
+  YearnTokenMockedFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -746,53 +747,53 @@ export const deployGenericATokenImpl = async (verify: boolean) =>
     verify
   );
 
-export const deployDelegationAwareAToken = async (
-  [
-    pool,
-    configurator,
-    underlyingAssetAddress,
-    treasuryAddress,
-    VMEXTreasuryAddress,
-    incentivesController,
-    name,
-    symbol,
-  ]: [
-    tEthereumAddress,
-    tEthereumAddress,
-    tEthereumAddress,
-    tEthereumAddress,
-    tEthereumAddress,
-    tEthereumAddress,
-    string,
-    string
-  ],
-  verify: boolean
-) => {
-  const instance = await withSaveAndVerify(
-    await new DelegationAwareATokenFactory(await getFirstSigner()).deploy(),
-    eContractid.DelegationAwareAToken,
-    [],
-    verify
-  );
+// export const deployDelegationAwareAToken = async (
+//   [
+//     pool,
+//     configurator,
+//     underlyingAssetAddress,
+//     treasuryAddress,
+//     VMEXTreasuryAddress,
+//     incentivesController,
+//     name,
+//     symbol,
+//   ]: [
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     string,
+//     string
+//   ],
+//   verify: boolean
+// ) => {
+//   const instance = await withSaveAndVerify(
+//     await new DelegationAwareATokenFactory(await getFirstSigner()).deploy(),
+//     eContractid.DelegationAwareAToken,
+//     [],
+//     verify
+//   );
 
-  await instance.initialize(
-    pool,
-    {
-      lendingPoolConfigurator: configurator,
-      treasury: treasuryAddress,
-      VMEXTreasury: VMEXTreasuryAddress,
-      underlyingAsset: underlyingAssetAddress,
-      trancheId: 0,
-    }, //set tranche to zero for now
-    incentivesController,
-    "18",
-    name,
-    symbol,
-    "0x10"
-  );
+//   await instance.initialize(
+//     pool,
+//     {
+//       lendingPoolConfigurator: configurator,
+//       treasury: treasuryAddress,
+//       VMEXTreasury: VMEXTreasuryAddress,
+//       underlyingAsset: underlyingAssetAddress,
+//       trancheId: 0,
+//     }, //set tranche to zero for now
+//     incentivesController,
+//     "18",
+//     name,
+//     symbol,
+//     "0x10"
+//   );
 
-  return instance;
-};
+//   return instance;
+// };
 
 export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
   withSaveAndVerify(
@@ -912,6 +913,16 @@ export const deployWETHMocked = async (verify?: boolean) =>
     verify
   );
 
+export const deployYearnTokenMocked = async (
+  args: [string, string, string, string],
+  verify?: boolean) =>
+  withSaveAndVerify(
+    await new YearnTokenMockedFactory(await getFirstSigner()).deploy(...args),
+    eContractid.YearnTokenMocked,
+    [],
+    verify
+  );
+
 export const deployMockVariableDebtToken = async (
   args: [
     tEthereumAddress,
@@ -950,6 +961,7 @@ export const deployMockAToken = async (
     tranche,
     treasuryAddress,
     VMEXTreasuryAddress,
+    VMEXReserveFactor,
     incentivesController,
     name,
     symbol
@@ -960,6 +972,7 @@ export const deployMockAToken = async (
     string,
     tEthereumAddress,
     tEthereumAddress,
+    string,
     tEthereumAddress,
     string,
     string
@@ -980,7 +993,8 @@ export const deployMockAToken = async (
       underlyingAsset: underlyingAssetAddress,
       trancheId: tranche,
       lendingPoolConfigurator: configurator,
-      VMEXTreasury: VMEXTreasuryAddress
+      VMEXTreasury: VMEXTreasuryAddress,
+      VMEXReserveFactor: VMEXReserveFactor,
     },
     incentivesController,
     "18",
