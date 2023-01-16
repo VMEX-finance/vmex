@@ -71,7 +71,7 @@ export async function borrow(
       console.error("CALLBACK_ERROR: \n", error);
     });
   }
-  return tx?.hash;
+  return tx;
 }
 
 export async function markReserveAsCollateral(
@@ -103,7 +103,7 @@ export async function markReserveAsCollateral(
   if (callback) {
     await callback();
   }
-  return tx?.hash;
+  return tx;
 }
 
 export async function withdraw(
@@ -161,7 +161,7 @@ export async function withdraw(
     });
   }
 
-  return tx?.hash;
+  return tx;
 }
 
 export async function repay(
@@ -227,7 +227,7 @@ export async function repay(
       console.error("CALLBACK_ERROR: \n", error);
     });
   }
-  return tx?.hash;
+  return tx;
 }
 
 export async function supply(
@@ -318,7 +318,7 @@ export async function supply(
   if (callback) {
     await callback();
   }
-  return tx?.hash;
+  return tx;
 }
 
 // TODO: return transaction hash;
@@ -506,5 +506,5 @@ export async function initTranche(
   if (callback) {
     await callback();
   }
-  return tx?.hash;
+  return tx;
 }
