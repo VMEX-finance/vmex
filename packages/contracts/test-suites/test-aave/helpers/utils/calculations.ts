@@ -724,10 +724,7 @@ export const calcExpectedInterestRates = (
     );
   }
 
-  const expectedOverallRate = calcExpectedOverallBorrowRate(
-    totalVariableDebt,
-    variableBorrowRate,
-  );
+  const expectedOverallRate = variableBorrowRate;
   let liquidityRate = expectedOverallRate
     .rayMul(utilizationRate)
     .percentMul(
