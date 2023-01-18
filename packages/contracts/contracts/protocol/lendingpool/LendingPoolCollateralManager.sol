@@ -15,6 +15,7 @@ import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
 import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
@@ -54,13 +55,11 @@ contract LendingPoolCollateralManager is
 
     struct LiquidationCallLocalVars {
         uint256 userCollateralBalance;
-        uint256 userStableDebt;
         uint256 userVariableDebt;
         uint256 maxLiquidatableDebt;
         uint256 actualDebtToLiquidate;
         uint256 liquidationRatio;
         uint256 maxAmountCollateralToLiquidate;
-        uint256 userStableRate;
         uint256 maxCollateralToLiquidate;
         uint256 debtAmountNeeded;
         uint256 healthFactor;
@@ -82,16 +81,6 @@ contract LendingPoolCollateralManager is
      */
     function getRevision() internal pure override returns (uint256) {
         return 0;
-    }
-
-    function getUserCurrentDebt(
-        address user,
-        DataTypes.ReserveData storage reserve
-    ) internal view returns (uint256, uint256) {
-        return (
-            0,  // TODO: Remove
-            IERC20(reserve.variableDebtTokenAddress).balanceOf(user)
-        );
     }
 
     /**
@@ -146,7 +135,7 @@ contract LendingPoolCollateralManager is
             trancheId
         ];
 
-        (vars.userStableDebt, vars.userVariableDebt) = getUserCurrentDebt(
+        vars.userVariableDebt = Helpers.getUserCurrentDebt(
             user,
             debtReserve
         );
@@ -157,7 +146,6 @@ contract LendingPoolCollateralManager is
                 debtReserve,
                 userConfig,
                 vars.healthFactor,
-                vars.userStableDebt,
                 vars.userVariableDebt
             );
 
@@ -165,7 +153,6 @@ contract LendingPoolCollateralManager is
             Errors.CollateralManagerErrors(vars.errorCode) !=
             Errors.CollateralManagerErrors.NO_ERROR
         ) {
-//            console.log("Error in validating liquidation: ", vars.errorMsg);
             return (vars.errorCode, vars.errorMsg);
         }
 
@@ -174,13 +161,8 @@ contract LendingPoolCollateralManager is
         vars.userCollateralBalance = vars.collateralAtoken.balanceOf(user);
 
         //user's total debt * 50% (you can only liquidate half of user's debt)
-        vars.maxLiquidatableDebt = vars
-            .userStableDebt
-            .add(vars.userVariableDebt)
+        vars.maxLiquidatableDebt = vars.userVariableDebt
             .percentMul(LIQUIDATION_CLOSE_FACTOR_PERCENT);
-
-//        console.log("maxLiquidatableDebt: ",vars.maxLiquidatableDebt);
-//        console.log("debtToCover: ",debtToCover);
 
         vars.actualDebtToLiquidate = debtToCover > vars.maxLiquidatableDebt
             ? vars.maxLiquidatableDebt
@@ -195,7 +177,6 @@ contract LendingPoolCollateralManager is
             vars.actualDebtToLiquidate,
             vars.userCollateralBalance
         );
-//        console.log("vars.debtAmountNeeded: ",vars.debtAmountNeeded);
 
         // If debtAmountNeeded < actualDebtToLiquidate, there isn't enough
         // collateral to cover the actual amount that is being liquidated, hence we liquidate
@@ -220,7 +201,6 @@ contract LendingPoolCollateralManager is
                 );
             }
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
-//                console.log("Error in validating liquidation 2: LPCM_NOT_ENOUGH_LIQUIDITY_TO_LIQUIDATE");
                 return (
                     uint256(
                         Errors.CollateralManagerErrors.NOT_ENOUGH_LIQUIDITY
@@ -233,7 +213,6 @@ contract LendingPoolCollateralManager is
         debtReserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.debtAsset));
 
         if (vars.userVariableDebt >= vars.actualDebtToLiquidate) {
-//            console.log("actualDebtToLiquidate", vars.actualDebtToLiquidate);
             IVariableDebtToken(debtReserve.variableDebtTokenAddress).burn(
                 user,
                 vars.actualDebtToLiquidate,
@@ -323,8 +302,6 @@ contract LendingPoolCollateralManager is
             msg.sender,
             receiveAToken
         );
-
-//        console.log("Liquidation no error!");
 
         return (
             uint256(Errors.CollateralManagerErrors.NO_ERROR),

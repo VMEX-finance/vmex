@@ -334,7 +334,7 @@ contract LendingPool is
         require(!_paused[trancheId], Errors.LP_IS_PAUSED);
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
-        (, uint256 variableDebt) = Helpers.getUserCurrentDebt(
+        uint256 variableDebt = Helpers.getUserCurrentDebt(
             onBehalfOf,
             reserve
         );
