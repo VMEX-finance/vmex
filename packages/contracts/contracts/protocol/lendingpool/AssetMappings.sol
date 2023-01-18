@@ -165,12 +165,11 @@ contract AssetMappings is VersionedInitializable{
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
             {
-                uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4);
-                input[i].baseLTV *= factor;
-                input[i].liquidationThreshold *= factor;
-                input[i].liquidationBonus *= factor;
-                input[i].borrowFactor *= factor;
-                input[i].VMEXReserveFactor *= factor;
+                input[i].baseLTV = input[i].baseLTV.convertToPercent();
+                input[i].liquidationThreshold = input[i].liquidationThreshold.convertToPercent();
+                input[i].liquidationBonus = input[i].liquidationBonus.convertToPercent();
+                input[i].borrowFactor = input[i].borrowFactor.convertToPercent();
+                input[i].VMEXReserveFactor = input[i].VMEXReserveFactor.convertToPercent();
             }
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
 
@@ -205,11 +204,10 @@ contract AssetMappings is VersionedInitializable{
         uint256 borrowCap,
         uint256 borrowFactor
     ) external onlyGlobalAdmin {
-        uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4);
-        baseLTV *= factor;
-        liquidationThreshold *= factor;
-        liquidationBonus *= factor;
-        borrowFactor *= factor;
+        baseLTV = baseLTV.convertToPercent();
+        liquidationThreshold = liquidationThreshold.convertToPercent();
+        liquidationBonus = liquidationBonus.convertToPercent();
+        borrowFactor = borrowFactor.convertToPercent();
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
         //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
 

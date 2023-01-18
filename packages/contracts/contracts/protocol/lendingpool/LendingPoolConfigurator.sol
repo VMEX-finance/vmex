@@ -188,7 +188,7 @@ contract LendingPoolConfigurator is
             currentConfig.setBorrowingEnabled(false);
         }
 
-        currentConfig.setReserveFactor(internalInput.input.reserveFactor*10**(PercentageMath.NUM_DECIMALS-4)); //accounts for new number of decimals
+        currentConfig.setReserveFactor(internalInput.input.reserveFactor.convertToPercent()); //accounts for new number of decimals
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
@@ -391,7 +391,7 @@ contract LendingPoolConfigurator is
             pool
         ).getConfiguration(asset, trancheId);
 
-        reserveFactor *= 10**(PercentageMath.NUM_DECIMALS-4);
+        reserveFactor = reserveFactor.convertToPercent();
 
         currentConfig.setReserveFactor(reserveFactor);
 
