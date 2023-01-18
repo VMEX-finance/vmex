@@ -101,7 +101,7 @@ contract WETHGateway is IWETHGateway, Ownable {
         uint256 amount,
         address onBehalfOf
     ) external payable override {
-        (uint256 stableDebt, uint256 variableDebt) = Helpers
+        uint256 variableDebt = Helpers
             .getUserCurrentDebtMemory(
                 onBehalfOf,
                 ILendingPool(lendingPool).getReserveData(

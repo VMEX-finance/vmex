@@ -92,7 +92,6 @@ export const initAssetData = async (
     liquidationThreshold: BigNumberish;
     liquidationBonus: BigNumberish;
     borrowFactor: string;
-    stableBorrowingEnabled: boolean;
     borrowingEnabled: boolean;
     isAllowed: boolean;
     VMEXReserveFactor: string;
@@ -187,7 +186,6 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       liquidationThreshold: liquidationThreshold,
       liquidationBonus: liquidationBonus,
       borrowFactor: borrowFactor,
-      stableBorrowingEnabled: stableBorrowRateEnabled,
       borrowingEnabled: borrowingEnabled,
       isAllowed: true,
       VMEXReserveFactor: reserveFactor

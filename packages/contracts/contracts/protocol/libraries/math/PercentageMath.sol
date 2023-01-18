@@ -5,16 +5,24 @@ import {Errors} from "../helpers/Errors.sol";
 
 /**
  * @title PercentageMath library
- * @author Aave
+ * @author Vmex
  * @notice Provides functions to perform percentage calculations
- * @dev Percentages are defined by default with 2 decimals of precision (100.00). The precision is indicated by PERCENTAGE_FACTOR
+ * @dev Percentages are defined by default with 16 decimals of precision. The precision is indicated by PERCENTAGE_FACTOR
  * @dev Operations are rounded half up
  **/
 
 library PercentageMath {
     uint256 constant NUM_DECIMALS = 18;
-    uint256 constant PERCENTAGE_FACTOR = 10**NUM_DECIMALS; //percentage plus two decimals
+    uint256 constant PERCENTAGE_FACTOR = 10**NUM_DECIMALS; //percentage plus 16 decimals
     uint256 constant HALF_PERCENT = PERCENTAGE_FACTOR / 2;
+
+    function convertToPercent(uint256 value)
+        internal
+        pure
+        returns (uint256)
+    {
+        return value*10**(NUM_DECIMALS-4);
+    }
 
     /**
      * @dev Executes a percentage multiplication
