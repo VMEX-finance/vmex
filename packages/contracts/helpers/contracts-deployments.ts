@@ -35,7 +35,6 @@ import {
   LendingPoolCollateralManagerFactory,
   LendingPoolConfiguratorFactory,
   LendingPoolFactory,
-  LendingRateOracleFactory,
   MintableDelegationERC20Factory,
   MintableERC20Factory,
   MockAggregatorFactory,
@@ -395,14 +394,6 @@ export const deployPriceOracle = async (verify?: boolean) =>
   withSaveAndVerify(
     await new PriceOracleFactory(await getFirstSigner()).deploy(),
     eContractid.PriceOracle,
-    [],
-    verify
-  );
-
-export const deployLendingRateOracle = async (verify?: boolean) =>
-  withSaveAndVerify(
-    await new LendingRateOracleFactory(await getFirstSigner()).deploy(),
-    eContractid.LendingRateOracle,
     [],
     verify
   );
@@ -864,32 +855,6 @@ export const deployMockTokens = async (
   return tokens;
 };
 
-export const deployStableAndVariableTokensHelper = async (
-  args: [tEthereumAddress, tEthereumAddress],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new StableAndVariableTokensHelperFactory(
-      await getFirstSigner()
-    ).deploy(...args),
-    eContractid.StableAndVariableTokensHelper,
-    args,
-    verify
-  );
-
-// export const deployATokensAndRatesHelper = async (
-//   args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string],
-//   verify?: boolean
-// ) =>
-//   withSaveAndVerify(
-//     await new ATokensAndRatesHelperFactory(await getFirstSigner()).deploy(
-//       ...args
-//     ),
-//     eContractid.ATokensAndRatesHelper,
-//     args,
-//     verify
-//   );
-
 export const deployWETHGateway = async (
   args: [tEthereumAddress],
   verify?: boolean
@@ -1155,7 +1120,7 @@ export const deployATokenImplementations = async (
       // if(aTokenImplementations[x] == eContractid.AToken){
       //   await waitForTx(
       //     await addressesProvider.setATokenImpl(
-            
+
       //     )
       //   );
       // }
@@ -1163,18 +1128,11 @@ export const deployATokenImplementations = async (
   }
 
   // Debt tokens, for now all Market configs follows same implementations
-  const genericStableDebtTokenAddress = getOptionalParamAddressPerNetwork(
-    poolConfig.StableDebtTokenImplementation,
-    network
-  );
   const geneticVariableDebtTokenAddress = getOptionalParamAddressPerNetwork(
     poolConfig.VariableDebtTokenImplementation,
     network
   );
 
-  if (!notFalsyOrZeroAddress(genericStableDebtTokenAddress)) {
-    await deployGenericStableDebtToken(verify);
-  }
   if (!notFalsyOrZeroAddress(geneticVariableDebtTokenAddress)) {
     await deployGenericVariableDebtToken(verify);
   }

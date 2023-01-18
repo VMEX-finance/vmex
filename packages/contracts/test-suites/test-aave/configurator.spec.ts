@@ -9,7 +9,7 @@ const { expect } = require("chai");
 
 makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   const {
-    CALLER_NOT_POOL_ADMIN,
+    CALLER_NOT_TRANCHE_ADMIN,
     LPC_RESERVE_LIQUIDITY_NOT_0,
     RC_INVALID_LTV,
     RC_INVALID_LIQ_THRESHOLD,
@@ -138,16 +138,16 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     const { configurator, users, weth } = testEnv;
     await expect(
       configurator.connect(users[2].signer).freezeReserve(weth.address, 0),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      CALLER_NOT_TRANCHE_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
 
   it("Check the onlyAaveAdmin on unfreezeReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
       configurator.connect(users[2].signer).unfreezeReserve(weth.address, 0),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      CALLER_NOT_TRANCHE_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
 
   it("Deactivates the ETH0 reserve for borrowing", async () => {
@@ -219,8 +219,8 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       configurator
         .connect(users[2].signer)
         .setBorrowingOnReserve(weth.address, 0, false),
-        CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+        CALLER_NOT_TRANCHE_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
 
   it("Check the onlyAaveAdmin on enableBorrowingOnReserve ", async () => {
@@ -229,8 +229,8 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       configurator
         .connect(users[2].signer)
         .setBorrowingOnReserve(weth.address, 0, true),
-        CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+        CALLER_NOT_TRANCHE_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
 
   //TODO: rewrite tests using asset mappings
@@ -335,13 +335,13 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     const { assetMappings, helpersContract, weth } = testEnv;
 
     await assetMappings.configureReserveAsCollateral(
-      weth.address, 
+      weth.address,
       strategyWETH.baseLTVAsCollateral,
       strategyWETH.liquidationThreshold,
-      strategyWETH.liquidationBonus, 
-      strategyWETH.supplyCap, 
-      strategyWETH.borrowCap, 
-      strategyWETH.borrowFactor, 
+      strategyWETH.liquidationBonus,
+      strategyWETH.supplyCap,
+      strategyWETH.borrowCap,
+      strategyWETH.borrowFactor,
     );
 
     const ret = await helpersContract.getReserveConfigurationData(weth.address, 0);
@@ -391,8 +391,8 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       configurator
         .connect(users[2].signer)
         .setReserveFactor(weth.address, 0, "2000"),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      CALLER_NOT_TRANCHE_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
 
   it("Reverts when trying to disable the DAI0 reserve with liquidity on it", async () => {

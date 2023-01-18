@@ -64,17 +64,17 @@ contract LendingPoolConfigurator is
         );
     }
 
-    modifier onlyPoolAdmin(uint64 trancheId) {
-        _onlyPoolAdmin(trancheId);
+    modifier onlyTrancheAdmin(uint64 trancheId) {
+        _onlyTrancheAdmin(trancheId);
         _;
     }
 
-    function _onlyPoolAdmin(uint64 trancheId) internal view {
+    function _onlyTrancheAdmin(uint64 trancheId) internal view {
         //this contract handles the updates to the configuration
         require(
-            addressesProvider.getPoolAdmin(trancheId) == msg.sender ||
-                addressesProvider.getGlobalAdmin() == msg.sender, //getPoolAdmin(trancheId) gets the admin for a specific tranche
-            Errors.CALLER_NOT_POOL_ADMIN
+            addressesProvider.getTrancheAdmin(trancheId) == msg.sender ||
+                addressesProvider.getGlobalAdmin() == msg.sender,
+            Errors.CALLER_NOT_TRANCHE_ADMIN
         );
     }
 
@@ -96,7 +96,7 @@ contract LendingPoolConfigurator is
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
         assetMappings = AssetMappings(addressesProvider.getAssetMappings());
-        
+
     }
 
     /**
@@ -109,7 +109,7 @@ contract LendingPoolConfigurator is
     ) external whitelistedAddress returns (uint256 trancheId) {
         //whitelist only
         uint64 givenTranche = totalTranches;
-        addressesProvider.addPoolAdmin(admin, givenTranche);
+        addressesProvider.addTrancheAdmin(admin, givenTranche);
         trancheNames[givenTranche] = name;
         totalTranches += 1;
         emit TrancheInitialized(givenTranche, name, admin);
@@ -122,7 +122,7 @@ contract LendingPoolConfigurator is
     function batchInitReserve(
         DataTypes.InitReserveInput[] calldata input,
         uint64 trancheId
-    ) external onlyPoolAdmin(trancheId) {
+    ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
@@ -131,7 +131,6 @@ contract LendingPoolConfigurator is
                     input[i],
                     trancheId,
                     addressesProvider.getAToken(),
-                    addressesProvider.getStableDebtToken(),
                     addressesProvider.getVariableDebtToken(),
                     assetMappings.getAssetMapping(input[i].underlyingAsset)
                 ) //by putting assetmappings in the addresses provider, we have flexibility to upgrade it in the future
@@ -145,10 +144,9 @@ contract LendingPoolConfigurator is
     ) internal {
         (
             address aTokenProxyAddress,
-            address stableDebtTokenProxyAddress,
             address variableDebtTokenProxyAddress
         ) = DeployATokens.deployATokens(
-                DeployATokens.deployATokensVars(
+                DeployATokens.DeployATokensVars(
                     pool,
                     addressesProvider,
                     internalInput
@@ -160,7 +158,6 @@ contract LendingPoolConfigurator is
             internalInput.trancheId,
             assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
             aTokenProxyAddress,
-            stableDebtTokenProxyAddress,
             variableDebtTokenProxyAddress
         );
 
@@ -223,7 +220,7 @@ contract LendingPoolConfigurator is
         address newAddress,
         address asset,
         uint64 trancheId
-    ) external onlyPoolAdmin(trancheId) {
+    ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
         IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
             .setTreasury(newAddress);
@@ -348,7 +345,7 @@ contract LendingPoolConfigurator is
         address asset,
         uint64 trancheId,
         bool borrowingEnabled
-    ) public onlyPoolAdmin(trancheId) {
+    ) public onlyTrancheAdmin(trancheId) {
         require(!borrowingEnabled || assetMappings.getAssetBorrowable(asset), "Asset is not approved to be set as borrowable");
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
             .getConfiguration(asset, trancheId);
@@ -363,7 +360,7 @@ contract LendingPoolConfigurator is
 
     function setCollateralEnabledOnReserve(address asset, uint64 trancheId, bool collateralEnabled)
         external
-        onlyPoolAdmin(trancheId)
+        onlyTrancheAdmin(trancheId)
     {
         require(!collateralEnabled || assetMappings.getAssetCollateralizable(asset), "Asset is not approved to be set as collateral");
         DataTypes.ReserveConfigurationMap memory currentConfig = pool
@@ -384,7 +381,7 @@ contract LendingPoolConfigurator is
         address asset,
         uint64 trancheId,
         uint256 reserveFactor
-    ) public onlyPoolAdmin(trancheId) {
+    ) public onlyTrancheAdmin(trancheId) {
         DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
             pool
         ).getConfiguration(asset, trancheId);
@@ -409,7 +406,7 @@ contract LendingPoolConfigurator is
      **/
     function freezeReserve(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin(trancheId)
+        onlyTrancheAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
             pool
@@ -432,7 +429,7 @@ contract LendingPoolConfigurator is
      **/
     function unfreezeReserve(address asset, uint64 trancheId)
         external
-        onlyPoolAdmin(trancheId)
+        onlyTrancheAdmin(trancheId)
     {
         DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
             pool
@@ -496,7 +493,7 @@ contract LendingPoolConfigurator is
         address asset,
         uint64 trancheId,
         uint8 rateStrategyAddressId
-    ) external onlyPoolAdmin(trancheId) {
+    ) external onlyTrancheAdmin(trancheId) {
         address rateStrategyAddress =assetMappings.getInterestRateStrategyAddress(asset,rateStrategyAddressId);
 
         pool.setReserveInterestRateStrategyAddress(
@@ -549,7 +546,7 @@ contract LendingPoolConfigurator is
         address asset,
         uint64 trancheId,
         uint8 strategyId
-    ) external onlyPoolAdmin(trancheId) {
+    ) external onlyTrancheAdmin(trancheId) {
         address strategy =assetMappings.getCurveStrategyAddress(asset,strategyId);
         address proxy = DeployATokens._initTokenWithProxy(
             strategy,
@@ -602,12 +599,12 @@ contract LendingPoolConfigurator is
         );
     }
 
-    function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyPoolAdmin(trancheId){
+    function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyTrancheAdmin(trancheId){
         pool.setWhitelist(trancheId,isWhitelisted);
         emit UserSetWhitelistEnabled(trancheId, isWhitelisted);
     }
 
-    function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyPoolAdmin(trancheId) {
+    function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyTrancheAdmin(trancheId) {
         require(user.length == isWhitelisted.length, "whitelist lengths not equal");
         for(uint i = 0;i<user.length;i++){
             pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
@@ -616,7 +613,7 @@ contract LendingPoolConfigurator is
 
     }
 
-    function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyPoolAdmin(trancheId) {
+    function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyTrancheAdmin(trancheId) {
         require(user.length == isBlacklisted.length, "Blacklisted lengths not equal");
         for(uint i = 0;i<user.length;i++){
             pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);

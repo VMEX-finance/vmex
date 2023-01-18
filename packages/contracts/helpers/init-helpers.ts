@@ -85,8 +85,6 @@ export const initAssetData = async (
     aTokenSymbol: string;
     variableDebtTokenName: string;
     variableDebtTokenSymbol: string;
-    stableDebtTokenName: string;
-    stableDebtTokenSymbol: string;
     assetType: BigNumberish;
     supplyCap: string; //1,000,000
     borrowCap: string; //1,000,000
@@ -182,8 +180,6 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       aTokenSymbol: `a${symbolPrefix}${symbol}`,
       variableDebtTokenName: `${variableDebtTokenNamePrefix} ${symbolPrefix}${symbol}`,
       variableDebtTokenSymbol: `variableDebt${symbolPrefix}${symbol}`,
-      stableDebtTokenName: `${stableDebtTokenNamePrefix} ${symbol}`,
-      stableDebtTokenSymbol: `stableDebt${symbolPrefix}${symbol}`,
       assetType: assetType,
       supplyCap: supplyCap, //1,000,000
       borrowCap: borrowCap, //1,000,000
@@ -212,7 +208,7 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
   );
 
   console.log("    * gasUsed", tx3.gasUsed.toString());
-  
+
 };
 
 //create another initReserves that initializes the curve v2, or just use this.

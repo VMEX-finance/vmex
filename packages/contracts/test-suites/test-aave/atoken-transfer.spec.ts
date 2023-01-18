@@ -21,7 +21,7 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
 
   it("User 0 deposits 1000 DAI, transfers to user 1", async () => {
     const { users, pool, dai, aDai } = testEnv;
-
+    console.log("before dai")
     await dai
       .connect(users[0].signer)
       .mint(await convertToCurrencyDecimals(dai.address, "1000"));
@@ -36,9 +36,14 @@ makeSuite("AToken: Transfer", (testEnv: TestEnv) => {
       "1000"
     );
 
+    console.log("after dai")
+
+
     await pool
       .connect(users[0].signer)
       .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0");
+
+    console.log("after pool deposit")
 
     await aDai
       .connect(users[0].signer)

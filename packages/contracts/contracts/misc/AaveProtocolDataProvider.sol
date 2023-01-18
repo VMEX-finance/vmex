@@ -119,7 +119,7 @@ contract AaveProtocolDataProvider {
             uint256 reserveFactor;
             uint256 VMEXReserveFactor;
             uint256 supplyCap;
-            uint256 borrowCap; 
+            uint256 borrowCap;
             uint256 borrowFactor;
             bool usageAsCollateralEnabled;
             bool borrowingEnabled;
@@ -169,12 +169,9 @@ contract AaveProtocolDataProvider {
         returns (
             uint256 availableLiquidity,
             uint256 totalSupplied,
-            uint256 totalStableDebt,
             uint256 totalVariableDebt,
             uint256 liquidityRate,
             uint256 variableBorrowRate,
-            uint256 stableBorrowRate,
-            uint256 averageStableBorrowRate,
             uint256 liquidityIndex,
             uint256 variableBorrowIndex,
             uint40 lastUpdateTimestamp
@@ -187,13 +184,9 @@ contract AaveProtocolDataProvider {
         return (
             IERC20Detailed(asset).balanceOf(reserve.aTokenAddress),
             IERC20Detailed(reserve.aTokenAddress).totalSupply(),
-            IERC20Detailed(reserve.stableDebtTokenAddress).totalSupply(),
             IERC20Detailed(reserve.variableDebtTokenAddress).totalSupply(),
             reserve.currentLiquidityRate,
             reserve.currentVariableBorrowRate,
-            reserve.currentStableBorrowRate,
-            IStableDebtToken(reserve.stableDebtTokenAddress)
-                .getAverageStableRate(),
             reserve.liquidityIndex,
             reserve.variableBorrowIndex,
             reserve.lastUpdateTimestamp
@@ -209,13 +202,9 @@ contract AaveProtocolDataProvider {
         view
         returns (
             uint256 currentATokenBalance,
-            uint256 currentStableDebt,
             uint256 currentVariableDebt,
-            uint256 principalStableDebt,
             uint256 scaledVariableDebt,
-            uint256 stableBorrowRate,
             uint256 liquidityRate,
-            uint40 stableRateLastUpdated,
             bool usageAsCollateralEnabled
         )
     {
@@ -232,18 +221,10 @@ contract AaveProtocolDataProvider {
         );
         currentVariableDebt = IERC20Detailed(reserve.variableDebtTokenAddress)
             .balanceOf(user);
-        currentStableDebt = IERC20Detailed(reserve.stableDebtTokenAddress)
-            .balanceOf(user);
-        principalStableDebt = IStableDebtToken(reserve.stableDebtTokenAddress)
-            .principalBalanceOf(user);
         scaledVariableDebt = IVariableDebtToken(
             reserve.variableDebtTokenAddress
         ).scaledBalanceOf(user);
         liquidityRate = reserve.currentLiquidityRate;
-        stableBorrowRate = IStableDebtToken(reserve.stableDebtTokenAddress)
-            .getUserStableRate(user);
-        stableRateLastUpdated = IStableDebtToken(reserve.stableDebtTokenAddress)
-            .getUserLastUpdated(user);
         usageAsCollateralEnabled = userConfig.isUsingAsCollateral(reserve.id);
     }
 
@@ -252,7 +233,6 @@ contract AaveProtocolDataProvider {
         view
         returns (
             address aTokenAddress,
-            address stableDebtTokenAddress,
             address variableDebtTokenAddress
         )
     {
@@ -262,7 +242,6 @@ contract AaveProtocolDataProvider {
 
         return (
             reserve.aTokenAddress,
-            reserve.stableDebtTokenAddress,
             reserve.variableDebtTokenAddress
         );
     }

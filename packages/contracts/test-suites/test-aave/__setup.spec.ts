@@ -19,8 +19,6 @@ import {
   deployMockFlashLoanReceiver,
   deployWalletBalancerProvider,
   deployAaveProtocolDataProvider,
-  deployLendingRateOracle,
-  deployStableAndVariableTokensHelper,
   // deployATokensAndRatesHelper,
   deployWETHGateway,
   deployWETHMocked,
@@ -34,8 +32,6 @@ import {
   authorizeWETHGateway,
   deployATokenImplementations,
   deployVMEXOracle,
-  deployConvexBaseRewardPool,
-  deployConvexBooster,
 } from "../../helpers/contracts-deployments";
 import { Signer } from "ethers";
 import {
@@ -48,7 +44,6 @@ import { MintableERC20 } from "../../types/MintableERC20";
 import {
   ConfigNames,
   getReservesConfigByPool,
-  getTreasuryAddress,
   loadPoolConfig,
 } from "../../helpers/configuration";
 import { initializeMakeSuite } from "./helpers/make-suite";
@@ -56,7 +51,6 @@ import { initializeMakeSuite } from "./helpers/make-suite";
 import {
   setInitialAssetPricesInOracle,
   deployAllMockAggregators,
-  setInitialMarketRatesInRatesOracleByHelper,
 } from "../../helpers/oracles-helpers";
 import { DRE, waitForTx } from "../../helpers/misc-utils";
 import {
@@ -74,13 +68,12 @@ import {
   getLendingPool,
   getLendingPoolConfiguratorProxy,
   getPairsTokenAggregator,
-  getAToken,
-  getStableDebtToken,
-  getVariableDebtToken,
   getVMEXOracle,
   getAssetMappings,
+  getFirstSigner,
 } from "../../helpers/contracts-getters";
 import { WETH9Mocked } from "../../types/WETH9Mocked";
+import { logger } from "./helpers//actions";
 
 const MOCK_USD_PRICE_IN_WEI = AaveConfig.ProtocolGlobalParams.MockUsdPriceInWei;
 const ALL_ASSETS_INITIAL_PRICES = AaveConfig.Mocks.AllAssetsInitialPrices;
@@ -225,8 +218,6 @@ const buildTestEnv = async (deployer: Signer) => {
     false
   );
 
-
-
   const lendingPoolImpl = await deployLendingPool();
 
   await waitForTx(
@@ -256,12 +247,6 @@ const buildTestEnv = async (deployer: Signer) => {
     eContractid.LendingPoolConfigurator,
     lendingPoolConfiguratorProxy.address
   );
-
-  // Deploy deployment helpers
-  await deployStableAndVariableTokensHelper([
-    lendingPoolProxy.address,
-    addressesProvider.address,
-  ]);
 
   const fallbackOracle = await deployPriceOracle();
   await waitForTx(await fallbackOracle.setEthUsdPrice(MOCK_USD_PRICE_IN_WEI));
@@ -334,7 +319,7 @@ const buildTestEnv = async (deployer: Signer) => {
   const mockAggregators = await deployAllMockAggregators(
     ALL_ASSETS_INITIAL_PRICES
   );
-  
+
   const allAggregatorsAddresses = Object.entries(mockAggregators).reduce(
     (
       accum: { [tokenSymbol: string]: tEthereumAddress },
@@ -386,20 +371,6 @@ const buildTestEnv = async (deployer: Signer) => {
 
   console.log("Set vmex oracle fallback oracle")
 
-  const lendingRateOracle = await deployLendingRateOracle();
-  await waitForTx(
-    await addressesProvider.setLendingRateOracle(lendingRateOracle.address)
-  );
-
-  
-  await setInitialMarketRatesInRatesOracleByHelper(
-    LENDING_RATE_ORACLE_RATES_COMMON,
-    allReservesAddresses,
-    lendingRateOracle,
-    aaveAdmin
-  );
-  
-
   await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
 
   await waitForTx(
@@ -415,15 +386,6 @@ const buildTestEnv = async (deployer: Signer) => {
     await addressesProvider.setVariableDebtToken(
       await getContractAddressWithJsonFallback(
         eContractid.VariableDebtToken,
-        ConfigNames.Aave
-      )
-    )
-  );
-
-  await waitForTx(
-    await addressesProvider.setStableDebtToken(
-      await getContractAddressWithJsonFallback(
-        eContractid.StableDebtToken,
         ConfigNames.Aave
       )
     )

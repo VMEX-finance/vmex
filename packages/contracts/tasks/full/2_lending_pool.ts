@@ -6,10 +6,8 @@ import {
 } from "../../helpers/contracts-helpers";
 import {
   deployATokenImplementations,
-  // deployATokensAndRatesHelper,
   deployLendingPool,
   deployLendingPoolConfigurator,
-  deployStableAndVariableTokensHelper,
 } from "../../helpers/contracts-deployments";
 import { eContractid, eNetwork } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
@@ -102,37 +100,6 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
         lendingPoolConfiguratorProxy.address
       );
 
-      // Deploy deployment helpers
-      await deployStableAndVariableTokensHelper(
-        [lendingPoolProxy.address, addressesProvider.address],
-        verify
-      );
-      // const ATokensAndRatesHelper = await deployATokensAndRatesHelper(
-      //   [
-      //     lendingPoolProxy.address,
-      //     addressesProvider.address,
-      //     lendingPoolConfiguratorProxy.address,
-      //     await getGlobalVMEXReserveFactor(),
-      //   ],
-      //   verify
-      // );
-
-      // if (!notFalsyOrZeroAddress(ATokensAndRatesHelper.address)) {
-      //   //bad address
-      //   throw "deploying ATokensAndRatesHelper error, address is falsy or zero";
-      // } else {
-      //   console.log(
-      //     "ATokensAndRatesHelper deployed at ",
-      //     ATokensAndRatesHelper.address
-      //   );
-      // }
-
-      // await waitForTx(
-      //   await addressesProvider.setATokenAndRatesHelper(
-      //     ATokensAndRatesHelper.address
-      //   )
-      // );
-
       await deployATokenImplementations(
         pool,
         poolConfig.ReservesConfig,
@@ -157,16 +124,6 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       )
     )
   );
-
-  await waitForTx(
-    await addressesProvider.setStableDebtToken(
-      await getContractAddressWithJsonFallback(
-        eContractid.StableDebtToken,
-        ConfigNames.Aave
-      )
-    )
-  );
-
 
     } catch (error) {
       if (DRE.network.name.includes("tenderly")) {

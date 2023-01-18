@@ -20,7 +20,7 @@ library Helpers {
         DataTypes.ReserveData storage reserve
     ) internal view returns (uint256, uint256) {
         return (
-            IERC20(reserve.stableDebtTokenAddress).balanceOf(user),
+            0, // TODO: Remove
             IERC20(reserve.variableDebtTokenAddress).balanceOf(user)
         );
     }
@@ -30,7 +30,7 @@ library Helpers {
         DataTypes.ReserveData memory reserve
     ) internal view returns (uint256, uint256) {
         return (
-            IERC20(reserve.stableDebtTokenAddress).balanceOf(user),
+            0,  // TODO: Remove
             IERC20(reserve.variableDebtTokenAddress).balanceOf(user)
         );
     }

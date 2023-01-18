@@ -23,7 +23,7 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
     configurator.connect(deployer.signer).setBlacklist(0, [users[3].address], [true]);
   });
 
-  it("User 0 deposits 1000 DAI, should be blocked since not on whitelist. User 3 can deposit fine", async () => {
+  it("User 3 deposits 1000 DAI, should be blocked since on blacklist. User 0 can deposit fine", async () => {
     const { users, pool, dai, aDai } = testEnv;
 
     await dai

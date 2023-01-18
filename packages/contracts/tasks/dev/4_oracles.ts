@@ -2,12 +2,10 @@ import { task } from 'hardhat/config';
 import {
   deployPriceOracle,
   deployAaveOracle,
-  deployLendingRateOracle,
 } from '../../helpers/contracts-deployments';
 import {
   setInitialAssetPricesInOracle,
   deployAllMockAggregators,
-  setInitialMarketRatesInRatesOracleByHelper,
 } from '../../helpers/oracles-helpers';
 import { ICommonConfiguration, iAssetBase, TokenContractId } from '../../helpers/types';
 import { waitForTx } from '../../helpers/misc-utils';
@@ -43,7 +41,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       return prev;
     }, defaultTokenList);
     const addressesProvider = await getLendingPoolAddressesProvider();
-    const admin = await addressesProvider.getPoolAdmin();
+    const admin = await addressesProvider.getGlobalAdmin();
 
     const fallbackOracle = await deployPriceOracle(verify);
     await waitForTx(await fallbackOracle.setEthUsdPrice(MockUsdPriceInWei));
@@ -71,18 +69,4 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       verify
     );
     await waitForTx(await addressesProvider.setPriceOracle(fallbackOracle.address));
-
-    const lendingRateOracle = await deployLendingRateOracle(verify);
-    await waitForTx(await addressesProvider.setLendingRateOracle(lendingRateOracle.address));
-
-    const { USD, ...tokensAddressesWithoutUsd } = allTokenAddresses;
-    const allReservesAddresses = {
-      ...tokensAddressesWithoutUsd,
-    };
-    await setInitialMarketRatesInRatesOracleByHelper(
-      LendingRateOracleRatesCommon,
-      allReservesAddresses,
-      lendingRateOracle,
-      admin
-    );
   });

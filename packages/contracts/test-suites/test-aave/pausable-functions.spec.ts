@@ -259,7 +259,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
       borrower.address
     );
 
-    const amountToLiquidate = new BigNumber(userReserveDataBefore.currentStableDebt.toString())
+    const amountToLiquidate = new BigNumber(userReserveDataBefore.currentVariableDebt.toString())
       .multipliedBy(0.5)
       .toFixed(0);
 

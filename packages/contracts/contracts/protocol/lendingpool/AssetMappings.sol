@@ -67,7 +67,7 @@ contract AssetMappings is VersionedInitializable{
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         require(
             addressesProvider.getGlobalAdmin() == msg.sender,
-            "Caller not global VMEX admin"
+            Errors.CALLER_NOT_GLOBAL_ADMIN
         );
         _;
     }
@@ -165,7 +165,7 @@ contract AssetMappings is VersionedInitializable{
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
             {
-                uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4); 
+                uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4);
                 input[i].baseLTV *= factor;
                 input[i].liquidationThreshold *= factor;
                 input[i].liquidationBonus *= factor;
@@ -176,8 +176,8 @@ contract AssetMappings is VersionedInitializable{
 
             assetMappings[underlying[i]] = input[i];
             //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
-            
-            
+
+
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
             approvedAssets[numApprovedAssets++] = underlying[i];
             emit AssetDataSet(
@@ -205,14 +205,14 @@ contract AssetMappings is VersionedInitializable{
         uint256 borrowCap,
         uint256 borrowFactor
     ) external onlyGlobalAdmin {
-        uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4); 
+        uint256 factor = 10**(PercentageMath.NUM_DECIMALS-4);
         baseLTV *= factor;
         liquidationThreshold *= factor;
         liquidationBonus *= factor;
         borrowFactor *= factor;
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
         //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
-        
+
         assetMappings[asset].baseLTV = baseLTV;
         assetMappings[asset].liquidationThreshold = liquidationThreshold;
         assetMappings[asset].liquidationBonus = liquidationBonus;

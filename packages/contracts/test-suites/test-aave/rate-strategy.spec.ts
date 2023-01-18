@@ -41,16 +41,13 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
   it('Checks rates at 0% utilization rate, empty reserve', async () => {
     const {
       0: currentLiquidityRate,
-      1: currentStableBorrowRate,
-      2: currentVariableBorrowRate,
+      1: currentVariableBorrowRate,
     } = await strategyInstance.calculateInterestRates({
       reserve: dai.address,
       aToken: aDai.address,
       liquidityAdded: 0,
       liquidityTaken: 0,
-      totalStableDebt: 0,
       totalVariableDebt: 0,
-      averageStableBorrowRate: 0,
       reserveFactor: defaultReserveFactor,
       globalVMEXReserveFactor: 0
     });
@@ -69,16 +66,13 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
   it('Checks rates at 80% utilization rate', async () => {
     const {
       0: currentLiquidityRate,
-      1: currentStableBorrowRate,
-      2: currentVariableBorrowRate,
+      1: currentVariableBorrowRate,
     } = await strategyInstance.calculateInterestRates({
       reserve: dai.address,
       aToken: aDai.address,
       liquidityAdded: '200000000000000000',
       liquidityTaken: 0,
-      totalStableDebt: 0,
       totalVariableDebt: '800000000000000000',
-      averageStableBorrowRate: 0,
       reserveFactor: defaultReserveFactor,
       globalVMEXReserveFactor: 0
     });
@@ -109,16 +103,13 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
   it('Checks rates at 100% utilization rate', async () => {
     const {
       0: currentLiquidityRate,
-      1: currentStableBorrowRate,
-      2: currentVariableBorrowRate,
+      1: currentVariableBorrowRate,
     } = await strategyInstance.calculateInterestRates({
       reserve: dai.address,
       aToken: aDai.address,
       liquidityAdded: 0,
       liquidityTaken: 0,
-      totalStableDebt: 0,
       totalVariableDebt: '800000000000000000',
-      averageStableBorrowRate: 0,
       reserveFactor: defaultReserveFactor,
       globalVMEXReserveFactor: 0
     });
@@ -138,61 +129,5 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
       expectedVariableRate.toFixed(0),
       'Invalid variable rate'
     );
-
-    // expect(currentStableBorrowRate.toString()).to.be.equal(
-    //   new BigNumber(0.039)
-    //     .times(RAY)
-    //     .plus(rateStrategyStableOne.stableRateSlope1)
-    //     .plus(rateStrategyStableOne.stableRateSlope2)
-    //     .toFixed(0),
-    //   'Invalid stable rate'
-    // );
-  });
-
-  it('Checks rates at 100% utilization rate, 50% stable debt and 50% variable debt, with a 10% avg stable rate', async () => {
-    const {
-      0: currentLiquidityRate,
-      1: currentStableBorrowRate,
-      2: currentVariableBorrowRate,
-    } = await strategyInstance.calculateInterestRates({
-      reserve: dai.address,
-      aToken: aDai.address,
-      liquidityAdded: 0,
-      liquidityTaken: 0,
-      totalStableDebt: '400000000000000000',
-      totalVariableDebt: '400000000000000000',
-      averageStableBorrowRate: '100000000000000000000000000',
-      reserveFactor: defaultReserveFactor,
-      globalVMEXReserveFactor: 0
-    });
-
-    const expectedVariableRate = new BigNumber(rateStrategyStableOne.baseVariableBorrowRate)
-      .plus(rateStrategyStableOne.variableRateSlope1)
-      .plus(rateStrategyStableOne.variableRateSlope2);
-
-    const expectedLiquidityRate = new BigNumber(
-      currentVariableBorrowRate.add('100000000000000000000000000').div(2).toString()
-    )
-      .percentMul(new BigNumber(PERCENTAGE_FACTOR).minus(defaultReserveFactor))
-      .toFixed(0);
-
-    expect(currentLiquidityRate.toString()).to.be.equal(
-      expectedLiquidityRate,
-      'Invalid liquidity rate'
-    );
-
-    expect(currentVariableBorrowRate.toString()).to.be.equal(
-      expectedVariableRate.toFixed(0),
-      'Invalid variable rate'
-    );
-
-    // expect(currentStableBorrowRate.toString()).to.be.equal(
-    //   new BigNumber(0.039)
-    //     .times(RAY)
-    //     .plus(rateStrategyStableOne.stableRateSlope1)
-    //     .plus(rateStrategyStableOne.stableRateSlope2)
-    //     .toFixed(0),
-    //   'Invalid stable rate'
-    // );
   });
 });
