@@ -16,6 +16,11 @@ library DeployATokens {
         DataTypes.InitReserveInputInternal internalInput;
     }
 
+    /**
+     * @dev Deploys and initializes the aToken and variableDebtToken for a reserve through a proxy
+     * @return aTokenProxyAddress The deployed aToken proxy
+     * @return variableDebtTokenProxyAddress The deployed variable dep proxy
+     **/
     function deployATokens(DeployATokensVars memory vars)
         public
         returns (
@@ -45,7 +50,7 @@ library DeployATokens {
                         vars.internalInput.assetdata.variableDebtTokenName,
                         Strings.toString(vars.internalInput.trancheId)
                     )
-                ), //abi.encodePacked(input.variableDebtTokenName, trancheId),
+                ),
                 string(
                     abi.encodePacked(
                         vars.internalInput.assetdata.variableDebtTokenSymbol,
@@ -90,12 +95,10 @@ library DeployATokens {
     }
 
 
-
     function _initTokenWithProxy(
         address implementation,
         bytes memory initParams
     ) public returns (address) {
-        // console.log("Admin of token or strategy proxy: ", address(this));
         InitializableImmutableAdminUpgradeabilityProxy proxy = new InitializableImmutableAdminUpgradeabilityProxy(
                 address(this)
             );

@@ -96,12 +96,14 @@ contract LendingPoolConfigurator is
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
         assetMappings = AssetMappings(addressesProvider.getAssetMappings());
-
     }
 
     /**
-     * @dev Initializes reserves in batch. Purpose is for people who want to create their own permissionless tranche, doesn't require any checks besides that trancheId is unique
-     * @return trancheId given to the user
+     * @dev Claims the next available tranche id. Goes from 0 up to max(uint64). Claiming tranche id is first step
+     * to create a tranche (permissionless or vmec-managed), doesn't require any checks besides that trancheId is unique
+     * @param name The string name of the tranche
+     * @param admin The address of the admin to this tranche id
+     * @return trancheId The tranche id that the admin now manages
      **/
     function claimTrancheId(
         string calldata name,
@@ -117,7 +119,10 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Initializes reserves in batch. Can be called directly by those who already created tranches and want to add new reserves to their tranche
+     * @dev Initializes reserves in batch. Can be called directly by those who created tranches
+     * and want to add new reserves to their tranche
+     * @param input The specifications of the reserves to initialize
+     * @param trancheId The trancheId that the msg.sender should be the admin of
      **/
     function batchInitReserve(
         DataTypes.InitReserveInput[] calldata input,
@@ -166,7 +171,7 @@ contract LendingPoolConfigurator is
                 internalInput.input.underlyingAsset,
                 internalInput.trancheId
             );
-        if(internalInput.assetdata.liquidationThreshold != 0){ //asset mappings does not force disable borrow
+        if (internalInput.assetdata.liquidationThreshold != 0) { //asset mappings does not force disable borrow
             //user's choice matters
             currentConfig.setCollateralEnabled(internalInput.input.canBeCollateral);
         }
@@ -174,11 +179,11 @@ contract LendingPoolConfigurator is
             currentConfig.setCollateralEnabled(false);
         }
 
-        if(internalInput.assetdata.borrowingEnabled){
+        if (internalInput.assetdata.borrowingEnabled) {
             //user's choice matters
             currentConfig.setBorrowingEnabled(internalInput.input.canBorrow);
         }
-        else{
+        else {
             //force to be disabled
             currentConfig.setBorrowingEnabled(false);
         }
@@ -375,7 +380,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Updates the reserve factor of a reserve
      * @param asset The address of the underlying asset of the reserve
-     * @param reserveFactor The new reserve factor of the reserve
+     * @param reserveFactor The new reserve factor of the reserve, given with 2 decimals (ie 12.55)
      **/
     function setReserveFactor(
         address asset,

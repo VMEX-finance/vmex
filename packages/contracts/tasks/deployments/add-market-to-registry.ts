@@ -28,9 +28,6 @@ task('add-market-to-registry', 'Adds address provider to registry')
     let providerRegistryAddress = getParamPerNetwork(poolConfig.ProviderRegistry, network);
     let providerRegistryOwner = getParamPerNetwork(poolConfig.ProviderRegistryOwner, network);
 
-    console.log("provider registry address is", providerRegistryAddress)
-    console.log("provider registry owner is", providerRegistryOwner)
-
     const currentSignerAddress = await (
       await (await getFirstSigner()).getAddress()
     ).toLocaleLowerCase();

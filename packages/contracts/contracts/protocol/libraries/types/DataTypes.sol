@@ -27,7 +27,6 @@ library DataTypes {
         uint256 liquidationThreshold; //if this is zero, then disabled as collateral
         uint256 liquidationBonus;
         uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset
-        bool stableBorrowingEnabled;
         bool borrowingEnabled;
         bool isAllowed; //default to false, unless set
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
@@ -84,7 +83,6 @@ library DataTypes {
         //the current variable borrow rate. Expressed in ray
         uint128 currentVariableBorrowRate; //not used for nonlendable assets
         //the current stable borrow rate. Expressed in ray
-        uint128 currentStableBorrowRate; //not used for nonlendable assets
         uint40 lastUpdateTimestamp;
         //tokens addresses
         address aTokenAddress;

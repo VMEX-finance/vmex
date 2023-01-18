@@ -309,7 +309,6 @@ library ValidationLogic {
      * @param principalReserve The reserve data of the principal
      * @param userConfig The user configuration
      * @param userHealthFactor The user's health factor
-     * @param userStableDebt Total stable debt balance of the user
      * @param userVariableDebt Total variable debt balance of the user
      **/
     function validateLiquidationCall(
@@ -317,7 +316,6 @@ library ValidationLogic {
         DataTypes.ReserveData storage principalReserve,
         DataTypes.UserConfigurationMap storage userConfig,
         uint256 userHealthFactor,
-        uint256 userStableDebt,
         uint256 userVariableDebt
     ) internal view returns (uint256, string memory) {
         if (
@@ -358,7 +356,7 @@ library ValidationLogic {
             );
         }
 
-        if (userStableDebt == 0 && userVariableDebt == 0) {
+        if (userVariableDebt == 0) {
             return (
                 uint256(Errors.CollateralManagerErrors.CURRRENCY_NOT_BORROWED),
                 Errors.LPCM_SPECIFIED_CURRENCY_NOT_BORROWED_BY_USER
