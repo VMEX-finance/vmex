@@ -12,7 +12,6 @@ import {
   LendingPoolCollateralManagerFactory,
   LendingPoolConfiguratorFactory,
   LendingPoolFactory,
-  LendingRateOracleFactory,
   MintableERC20Factory,
   MockATokenFactory,
   MockFlashLoanReceiverFactory,
@@ -234,17 +233,6 @@ export const getMockFlashLoanReceiver = async (address?: tEthereumAddress) =>
     await getFirstSigner()
   );
 
-export const getLendingRateOracle = async (address?: tEthereumAddress) =>
-  await LendingRateOracleFactory.connect(
-    address ||
-      (
-        await getDb()
-          .get(`${eContractid.LendingRateOracle}.${DRE.network.name}`)
-          .value()
-      ).address,
-    await getFirstSigner()
-  );
-
 export const getMockedTokens = async (config: PoolConfiguration) => {
   const tokenSymbols = Object.keys(config.ReservesConfig);
   const db = getDb();
@@ -357,32 +345,6 @@ export const getGenericLogic = async (address?: tEthereumAddress) =>
       ).address,
     await getFirstSigner()
   );
-
-export const getStableAndVariableTokensHelper = async (
-  address?: tEthereumAddress
-) =>
-  await StableAndVariableTokensHelperFactory.connect(
-    address ||
-      (
-        await getDb()
-          .get(
-            `${eContractid.StableAndVariableTokensHelper}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
-    await getFirstSigner()
-  );
-
-// export const getATokensAndRatesHelper = async (address?: tEthereumAddress) =>
-//   await ATokensAndRatesHelperFactory.connect(
-//     address ||
-//       (
-//         await getDb()
-//           .get(`${eContractid.ATokensAndRatesHelper}.${DRE.network.name}`)
-//           .value()
-//       ).address,
-//     await getFirstSigner() //automatically connects the admin
-//   );
 
 export const getWETHGateway = async (address?: tEthereumAddress) =>
   await WETHGatewayFactory.connect(

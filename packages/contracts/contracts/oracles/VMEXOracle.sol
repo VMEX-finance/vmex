@@ -29,12 +29,12 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     event AssetSourceUpdated(address indexed asset, address indexed source);
     event FallbackOracleUpdated(address indexed fallbackOracle);
 
-    
+
     ILendingPoolAddressesProvider internal addressProvider;
     AssetMappings internal assetMappings;
     mapping(address => IChainlinkAggregator) private assetsSources;
     IPriceOracleGetter private _fallbackOracle;
-    address public BASE_CURRENCY; //removed immutable keyword since 
+    address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
     address public constant THREE_POOL = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
     address public constant ethNative = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
@@ -117,7 +117,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     {
         if (asset == BASE_CURRENCY) {
             return BASE_CURRENCY_UNIT;
-        } 
+        }
 
         DataTypes.ReserveAssetType tmp = assetMappings.getAssetType(asset);
 
@@ -151,7 +151,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         DataTypes.ReserveAssetType assetType
     ) internal view returns (uint256 price) {
         DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
-        
+
         if (c._curvePool == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
         }
@@ -185,8 +185,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
     //updateTWAP (average O(1))
     //recent +=1 and cover case where it goes over
-    //cumulatedPrices[asset][recent] = 
-    //If block.timestamp - cumulatedPrices[asset][last].timestamp > 24 hours, 
+    //cumulatedPrices[asset][recent] =
+    //If block.timestamp - cumulatedPrices[asset][last].timestamp > 24 hours,
     //  then keep increasing last until you find until find cumulatedPrices[asset][last].timestamp < 24 hours (most likely close to O(1))
     function updateTWAP(address asset) public override{
         require(numPrices[asset]<type(uint16).max, "Overflow updateTWAP");

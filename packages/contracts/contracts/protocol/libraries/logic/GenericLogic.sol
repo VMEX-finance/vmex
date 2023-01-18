@@ -42,7 +42,7 @@ library GenericLogic {
         uint256 healthFactorAfterDecrease;
         uint256 currentPrice;
         bool reserveUsageAsCollateralEnabled;
-        
+
     }
 
     //  * @param asset The address of the underlying asset of the reserve
@@ -85,13 +85,13 @@ library GenericLogic {
         balanceDecreaseAllowedLocalVars memory vars;
 
         (, vars.liquidationThreshold, , vars.decimals, ) = params._assetMappings.getParams(params.asset);
-        
+
 
         if (reservesData[params.asset][params.trancheId].configuration.getCollateralEnabled()==false){//(vars.liquidationThreshold == 0) {
             return true;
         }
 
-        
+
 
         (
             vars.totalCollateralInETH,
@@ -115,14 +115,14 @@ library GenericLogic {
             return true;
         }
 
-        
+
 
         //using current price instead of 24 hour average
         vars.currentPrice= IPriceOracleGetter(
             params._addressesProvider.getPriceOracle(
             )
         ).getAssetPrice(params.asset);
-        
+
         vars.amountToDecreaseInETH  = vars.currentPrice.mul(params.amount).div(10**vars.decimals);
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
@@ -133,7 +133,7 @@ library GenericLogic {
         if (vars.collateralBalanceAfterDecrease == 0) {
             return false;
         }
-        
+
 
 
         vars.liquidationThresholdAfterDecrease = vars
@@ -280,19 +280,19 @@ library GenericLogic {
                     .reserveUnitPrice
                     .mul(vars.compoundedLiquidityBalance)
                     .div(vars.tokenUnit);
-                
+
                 if(vars.useTwap){
                     vars.liquidityBalanceETHTWAP = vars
                         .reserveTwapUnitPrice
                         .mul(vars.compoundedLiquidityBalance)
                         .div(vars.tokenUnit);
-                    
+
                     //this means the borrow must satisfy both current price and twap price
                     if(vars.liquidityBalanceETHTWAP < vars.liquidityBalanceETH){
-                        vars.liquidityBalanceETH = vars.liquidityBalanceETHTWAP; 
+                        vars.liquidityBalanceETH = vars.liquidityBalanceETHTWAP;
                     }
                 }
-                
+
                 vars.totalCollateralInETH = vars.totalCollateralInETH.add(
                     vars.liquidityBalanceETH
                 );
@@ -306,16 +306,8 @@ library GenericLogic {
             }
 
             if (userConfig.isBorrowing(vars.i)) {
-                vars.compoundedBorrowBalance = IERC20(
-                    currentReserve.stableDebtTokenAddress
-                ).balanceOf(vars.user);
-                vars.compoundedBorrowBalance = vars.compoundedBorrowBalance.add(
-                    IERC20(currentReserve.variableDebtTokenAddress).balanceOf(
-                        vars.user
-                    )
-                );
-
-                
+                vars.compoundedBorrowBalance =
+                    IERC20(currentReserve.variableDebtTokenAddress).balanceOf(vars.user);
 
                 if(!useTwap || vars.reserveTwapUnitPrice<vars.reserveUnitPrice){ //debt uses the larger value of price
                 //if not using twap or if not using twap has higher price, then use the regular price

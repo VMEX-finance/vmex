@@ -67,7 +67,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
         const [token, tokenAddress] = entry;
         console.log(`- Verifying ${token} token related contracts`);
         const {
-          stableDebtTokenAddress,
           variableDebtTokenAddress,
           aTokenAddress,
           interestRateStrategyAddress,
@@ -88,13 +87,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
         } = tokenConfig[1].strategy;
 
         console.log;
-        // Proxy Stable Debt
-        console.log(`\n- Verifying Stable Debt Token proxy...\n`);
-        await verifyContract(
-          eContractid.InitializableAdminUpgradeabilityProxy,
-          await getProxy(stableDebtTokenAddress),
-          [lendingPoolConfigurator.address]
-        );
 
         // Proxy Variable Debt
         console.log(`\n- Verifying  Debt Token proxy...\n`);
@@ -128,7 +120,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
           ]
         );
 
-        const stableDebt = await getAddressById(`stableDebt${token}`);
         const variableDebt = await getAddressById(`variableDebt${token}`);
         const aToken = await getAddressById(`a${token}`);
 
@@ -145,24 +136,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
         } else {
           console.error(
             `Skipping aToken verify for ${token}. Missing address at JSON DB.`
-          );
-        }
-        if (stableDebt) {
-          console.log("\n- Verifying StableDebtToken...\n");
-          await verifyContract(
-            eContractid.StableDebtToken,
-            await getStableDebtToken(stableDebt),
-            [
-              lendingPoolProxy.address,
-              tokenAddress,
-              `Aave stable debt bearing ${token}`,
-              `stableDebt${token}`,
-              ZERO_ADDRESS,
-            ]
-          );
-        } else {
-          console.error(
-            `Skipping stable debt verify for ${token}. Missing address at JSON DB.`
           );
         }
         if (variableDebt) {

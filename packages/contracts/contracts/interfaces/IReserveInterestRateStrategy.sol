@@ -19,7 +19,6 @@ interface IReserveInterestRateStrategy {
         view
         returns (
             uint256 liquidityRate,
-            uint256 stableBorrowRate,
             uint256 variableBorrowRate
         );
 }

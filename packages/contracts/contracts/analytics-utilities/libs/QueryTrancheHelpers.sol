@@ -54,7 +54,7 @@ library QueryTrancheHelpers {
             trancheData.utilization) = getAssetsSummaryData(tranche, addressesProvider);
 
         trancheData.id = tranche;
-        trancheData.admin = ILendingPoolAddressesProvider(addressesProvider).getPoolAdmin(tranche);
+        trancheData.admin = ILendingPoolAddressesProvider(addressesProvider).getTrancheAdmin(tranche);
         trancheData.name = LendingPoolConfigurator(configurator).trancheNames(tranche);
         trancheData.whitelist = LendingPool(lendingPool).isUsingWhitelist(tranche);
     }

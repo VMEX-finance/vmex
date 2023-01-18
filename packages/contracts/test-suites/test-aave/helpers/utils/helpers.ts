@@ -1,11 +1,9 @@
 import { LendingPool } from "../../../../types/LendingPool";
 import { ReserveData, UserReserveData } from "./interfaces";
 import {
-  getLendingRateOracle,
   getIErc20Detailed,
   getMintableERC20,
   getAToken,
-  getStableDebtToken,
   getVariableDebtToken,
 } from "../../../../helpers/contracts-getters";
 import { tEthereumAddress } from "../../../../helpers/types";
@@ -18,42 +16,31 @@ export const getReserveData = async (
   reserve: tEthereumAddress,
   tranche: string
 ): Promise<ReserveData> => {
-  const [reserveData, configData, tokenAddresses, rateOracle, token] = await Promise.all([
+  const [reserveData, configData, tokenAddresses, token] = await Promise.all([
     helper.getReserveData(reserve, tranche),
     helper.getReserveConfigurationData(reserve, tranche),
     helper.getReserveTokensAddresses(reserve, tranche),
-    getLendingRateOracle(),
     getIErc20Detailed(reserve),
   ]);
 
-  const stableDebtToken = await getStableDebtToken(
-    tokenAddresses.stableDebtTokenAddress
-  );
   const variableDebtToken = await getVariableDebtToken(
     tokenAddresses.variableDebtTokenAddress
   );
 
-  const { 0: principalStableDebt } = await stableDebtToken.getSupplyData();
-  const totalStableDebtLastUpdated =
-    await stableDebtToken.getTotalSupplyLastUpdated();
-
   const scaledVariableDebt = await variableDebtToken.scaledTotalSupply();
 
-  const rate = (await rateOracle.getMarketBorrowRate(reserve)).toString();
   const symbol = await token.symbol();
   const decimals = new BigNumber(await token.decimals());
 
   const totalLiquidity = new BigNumber(
     reserveData.availableLiquidity.toString()
   )
-    .plus(reserveData.totalStableDebt.toString())
     .plus(reserveData.totalVariableDebt.toString());
 
   const utilizationRate = new BigNumber(
     totalLiquidity.eq(0)
       ? 0
-      : new BigNumber(reserveData.totalStableDebt.toString())
-          .plus(reserveData.totalVariableDebt.toString())
+      : new BigNumber(reserveData.totalVariableDebt.toString())
           .rayDiv(totalLiquidity)
   );
 
@@ -63,29 +50,21 @@ export const getReserveData = async (
     availableLiquidity: new BigNumber(
       reserveData.availableLiquidity.toString()
     ),
-    totalStableDebt: new BigNumber(reserveData.totalStableDebt.toString()),
     totalVariableDebt: new BigNumber(reserveData.totalVariableDebt.toString()),
     liquidityRate: new BigNumber(reserveData.liquidityRate.toString()),
     variableBorrowRate: new BigNumber(
       reserveData.variableBorrowRate.toString()
-    ),
-    stableBorrowRate: new BigNumber(reserveData.stableBorrowRate.toString()),
-    averageStableBorrowRate: new BigNumber(
-      reserveData.averageStableBorrowRate.toString()
     ),
     liquidityIndex: new BigNumber(reserveData.liquidityIndex.toString()),
     variableBorrowIndex: new BigNumber(
       reserveData.variableBorrowIndex.toString()
     ),
     lastUpdateTimestamp: new BigNumber(reserveData.lastUpdateTimestamp),
-    totalStableDebtLastUpdated: new BigNumber(totalStableDebtLastUpdated),
-    principalStableDebt: new BigNumber(principalStableDebt.toString()),
     scaledVariableDebt: new BigNumber(scaledVariableDebt.toString()),
     address: reserve,
     aTokenAddress: tokenAddresses.aTokenAddress,
     symbol,
     decimals,
-    marketStableRate: new BigNumber(rate),
     reserveFactor: new BigNumber(configData.reserveFactor.toString()),
     VMEXReserveFactor: new BigNumber(configData.VMEXReserveFactor.toString()),
   };
@@ -115,16 +94,10 @@ export const getUserData = async (
     currentATokenBalance: new BigNumber(
       userData.currentATokenBalance.toString()
     ),
-    currentStableDebt: new BigNumber(userData.currentStableDebt.toString()),
     currentVariableDebt: new BigNumber(userData.currentVariableDebt.toString()),
-    principalStableDebt: new BigNumber(userData.principalStableDebt.toString()),
     scaledVariableDebt: new BigNumber(userData.scaledVariableDebt.toString()),
-    stableBorrowRate: new BigNumber(userData.stableBorrowRate.toString()),
     liquidityRate: new BigNumber(userData.liquidityRate.toString()),
     usageAsCollateralEnabled: userData.usageAsCollateralEnabled,
-    stableRateLastUpdated: new BigNumber(
-      userData.stableRateLastUpdated.toString()
-    ),
     walletBalance,
     healthFactor: new BigNumber(usrActData.healthFactor.toString())
   };

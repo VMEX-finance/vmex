@@ -188,13 +188,13 @@ library DepositWithdrawLogic {
                 ,
                 uint256 avgBorrowFactor
             ) = GenericLogic.calculateUserAccountData(
-                DataTypes.AcctTranche(vars.user, vars.trancheId), 
-                _reserves, 
-                userConfig, 
-                _reservesList, 
-                vars._reservesCount, 
-                _addressesProvider, 
-                vars._assetMappings, 
+                DataTypes.AcctTranche(vars.user, vars.trancheId),
+                _reserves,
+                userConfig,
+                _reservesList,
+                vars._reservesCount,
+                _addressesProvider,
+                vars._assetMappings,
                 true
             );
             vars.amount = (userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral

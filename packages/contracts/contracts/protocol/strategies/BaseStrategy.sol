@@ -108,7 +108,7 @@ abstract contract BaseStrategy is PausableUpgradeable, IBaseStrategy {
     // ===== Modifiers =====
 
     function governance() public view returns (address) {
-        return addressProvider.getPoolAdmin(tranche);
+        return addressProvider.getTrancheAdmin(tranche);
     }
 
     /// @notice Checks whether a call is from governance.

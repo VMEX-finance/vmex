@@ -2,33 +2,21 @@ import { task } from "hardhat/config";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   deployVMEXOracle,
-  // deployCurveV1Oracle,
-  // deployCurveV2Oracle,
-  // deployCurveOracleWrapper,
-  deployLendingRateOracle,
   deployUniswapOracle,
 } from "../../helpers/contracts-deployments";
-import { setInitialMarketRatesInRatesOracleByHelper } from "../../helpers/oracles-helpers";
 import { ICommonConfiguration, eNetwork, SymbolMap } from "../../helpers/types";
-import { waitForTx, notFalsyOrZeroAddress } from "../../helpers/misc-utils";
+import { waitForTx } from "../../helpers/misc-utils";
 import {
   ConfigNames,
   loadPoolConfig,
-  getGenesisPoolAdmin,
-  getLendingRateOracles,
   getQuoteCurrency,
 } from "../../helpers/configuration";
 import {
   getVMEXOracle,
   getLendingPoolAddressesProvider,
-  getLendingRateOracle,
   getPairsTokenAggregator,
 } from "../../helpers/contracts-getters";
-import {
-  getUniswapAddress,
-} from "../../helpers/get-uniswap-data";
-import { VMEXOracle, LendingRateOracle, BaseUniswapOracle } from "../../types";
-import { ZERO_ADDRESS } from "../../helpers/constants";
+import { BaseUniswapOracle } from "../../types";
 import {
   insertContractAddressInDb,
 } from "../../helpers/contracts-helpers";
@@ -55,14 +43,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         UniswapV3OracleTargets,
         ChainlinkAggregator,
       } = poolConfig as ICommonConfiguration;
-      const lendingRateOracles = getLendingRateOracles(poolConfig);
       const addressesProvider = await getLendingPoolAddressesProvider();
-      const admin = await getGenesisPoolAdmin(poolConfig);
-      const vmexOracleAddress = ZERO_ADDRESS;
-      const lendingRateOracleAddress = getParamPerNetwork(
-        poolConfig.LendingRateOracle,
-        network
-      );
       // const fallbackOracleAddress = await getParamPerNetwork(
       //   FallbackOracle,
       //   network
@@ -90,7 +71,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         uniswapV3OracleAddresses,
         poolConfig.OracleQuoteCurrency
       );
-      
+
       console.log("uniswapV3OracleTargets: ", uniswapV3OracleTargets)
 
 
@@ -134,28 +115,6 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         verify
       );
 
-
-
-      let lendingRateOracle: LendingRateOracle;
-
-      if (notFalsyOrZeroAddress(lendingRateOracleAddress)) {
-        lendingRateOracle = await getLendingRateOracle(
-          lendingRateOracleAddress
-        );
-      } else {
-        lendingRateOracle = await deployLendingRateOracle(verify);
-        const { USD, ...tokensAddressesWithoutUsd } = tokensToWatch;
-        await setInitialMarketRatesInRatesOracleByHelper(
-          lendingRateOracles,
-          tokensAddressesWithoutUsd,
-          lendingRateOracle,
-          admin
-        );
-      }
-
-      // console.log("Aave Oracle: %s", vmexOracle.address);
-      console.log("Lending Rate Oracle: %s", lendingRateOracle.address);
-
       // Register the proxy price provider on the addressesProvider
       await waitForTx(
         await addressesProvider.setPriceOracle(vmexOracleImpl.address)
@@ -177,10 +136,6 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         poolConfig.OracleQuoteUnit));
       await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators));
       await waitForTx(await VMEXOracleProxy.setFallbackOracle(uniswapOracle.address));
-
-      await waitForTx(
-        await addressesProvider.setLendingRateOracle(lendingRateOracle.address)
-      );
 
       //TODO: deploy the other LP token contracts
     } catch (error) {

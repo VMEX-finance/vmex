@@ -4,15 +4,11 @@ import {
   calcExpectedReserveDataAfterBorrow,
   calcExpectedReserveDataAfterDeposit,
   calcExpectedReserveDataAfterRepay,
-  calcExpectedReserveDataAfterStableRateRebalance,
-  calcExpectedReserveDataAfterSwapRateMode,
   calcExpectedReserveDataAfterWithdraw,
   calcExpectedUserDataAfterBorrow,
   calcExpectedUserDataAfterDeposit,
   calcExpectedUserDataAfterRepay,
   calcExpectedUserDataAfterSetUseAsCollateral,
-  calcExpectedUserDataAfterStableRateRebalance,
-  calcExpectedUserDataAfterSwapRateMode,
   calcExpectedUserDataAfterWithdraw,
   calculateHF,
   checkAdminAllocation,
@@ -27,7 +23,6 @@ import { convertToCurrencyDecimals } from "../../../helpers/contracts-helpers";
 import {
   getAToken,
   getMintableERC20,
-  getStableDebtToken,
   getVariableDebtToken,
 } from "../../../helpers/contracts-getters";
 import { MAX_UINT_AMOUNT, ONE_YEAR } from "../../../helpers/constants";
@@ -45,9 +40,8 @@ import { ContractReceipt } from "ethers";
 import { AToken } from "../../../types/AToken";
 import { RateMode, tEthereumAddress } from "../../../helpers/types";
 
-const DEBUG = false;
 export const logger = function (...args: any[]) {
-  if(DEBUG){
+  if(process.env.DEBUG){
     console.log.apply(console, args);
   }
 };
@@ -70,7 +64,7 @@ const almostEqualOrEqual = function (
       key === "decimals" ||
       key === "totalStableDebtLastUpdated" ||
       key === "reserveFactor" ||
-      key === "VMEXReserveFactor" 
+      key === "VMEXReserveFactor"
     ) {
       // skipping consistency check on accessory data
       return;
@@ -106,6 +100,7 @@ const almostEqualOrEqual = function (
         0,
         BigNumber.ROUND_DOWN
       );
+      logger("almost equal key is", key)
       let expectedValue = (<BigNumber>expected[key]).decimalPlaces(
         0,
         BigNumber.ROUND_DOWN
@@ -115,7 +110,7 @@ const almostEqualOrEqual = function (
         const one = new BigNumber(DRE.ethers.utils.parseEther("1").toString())
         logger("actualValue: ",actualValue)
         logger("new BigNumber(DRE.ethers.utils.parseEther(1): ", one)
-        this.assert(actualValue.gte(one), 
+        this.assert(actualValue.gte(one),
         `expected #{act} to be greater than or equal to #{exp} for property ${key}`,
         `expected #{act} to be greater than or equal #{exp} for property ${key}`,
         actualValue,
@@ -563,10 +558,7 @@ export const delegateBorrowAllowance = async (
 
   const reserveData = await pool.getReserveData(reserveAddress, tranche);
 
-  const debtToken =
-    interestRateMode === "1"
-      ? await getStableDebtToken(reserveData.stableDebtTokenAddress)
-      : await getVariableDebtToken(reserveData.variableDebtTokenAddress);
+  const debtToken = await getVariableDebtToken(reserveData.variableDebtTokenAddress);
 
   const delegateAllowancePromise = debtToken
     .connect(user.signer)
@@ -736,7 +728,7 @@ export const borrow = async (
     } = await getContractsData(reserve, tranche, trancheAdmin.address, testEnv);
 
     logger("\n@@@@@@@@@@@@@@@@@@@@@@\n");
-    
+
 
     expectedUserData.healthFactor = await calculateHF(testEnv, tranche, onBehalfOf);
     expectEqual(reserveDataAfter, expectedReserveData);
@@ -896,7 +888,7 @@ export const repay = async (
     );
 
     logger(
-      "After withdraw: vmex global admin: ",userDataAfter1
+      "After repay: vmex global admin: ",userDataAfter1
     );
 
     logger("\n!!!!!!!!!!!!!!!!!!!!!\n");
@@ -908,7 +900,7 @@ export const repay = async (
     } = await getContractsData(reserve, tranche, trancheAdmin.address, testEnv);
 
     logger(
-      "After withdraw: tranche admin: ",userDataAfter2
+      "After repay: tranche admin: ",userDataAfter2
     );
 
     logger("reserveDataBefore: ", reserveDataBefore);
@@ -916,6 +908,10 @@ export const repay = async (
     logger("reserveDataAfter: ", reserveDataAfter);
 
     logger("expectedReserveData: ", expectedReserveData);
+
+    logger("userDataAfter: ", userDataAfter);
+
+    logger("expectedUserData: ", expectedUserData);
 
     logger("\n@@@@@@@@@@@@@@@@@@@@@@\n");
     expectedUserData.healthFactor = await calculateHF(testEnv, tranche, onBehalfOf.address);
@@ -1002,133 +998,6 @@ export const setUseAsCollateral = async (
     ).to.be.reverted;
   }
 };
-
-// export const swapBorrowRateMode = async (
-//   reserveSymbol: string,
-//   tranche: string,
-//   user: SignerWithAddress,
-//   rateMode: string,
-//   expectedResult: string,
-//   testEnv: TestEnv,
-//   revertMessage?: string
-// ) => {
-//   const { pool } = testEnv;
-
-//   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
-
-//   const { reserveData: reserveDataBefore, userData: userDataBefore } =
-//     await getContractsData(reserve, tranche, user.address, testEnv);
-
-//   if (expectedResult === "success") {
-//     const txResult = await waitForTx(
-//       await pool
-//         .connect(user.signer)
-//         .swapBorrowRateMode(reserve, tranche, rateMode)
-//     );
-
-//     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
-
-//     const { reserveData: reserveDataAfter, userData: userDataAfter } =
-//       await getContractsData(reserve, tranche, user.address, testEnv);
-
-//     const expectedReserveData = calcExpectedReserveDataAfterSwapRateMode(
-//       reserveDataBefore,
-//       userDataBefore,
-//       rateMode,
-//       txTimestamp
-//     );
-
-//     const expectedUserData = calcExpectedUserDataAfterSwapRateMode(
-//       reserveDataBefore,
-//       expectedReserveData,
-//       userDataBefore,
-//       rateMode,
-//       txCost,
-//       txTimestamp
-//     );
-
-//     expectEqual(reserveDataAfter, expectedReserveData);
-//     expectEqual(userDataAfter, expectedUserData);
-
-//     // truffleAssert.eventEmitted(txResult, "Swap", (ev: any) => {
-//     //   const {_user, _reserve, _newRateMode, _newRate} = ev;
-//     //   return (
-//     //     _user === user &&
-//     //     _reserve == reserve &&
-//     //     new BigNumber(_newRateMode).eq(expectedUserData.borrowRateMode) &&
-//     //     new BigNumber(_newRate).eq(expectedUserData.borrowRate)
-//     //   );
-//     // });
-//   } else if (expectedResult === "revert") {
-//     await expect(
-//       pool.connect(user.signer).swapBorrowRateMode(reserve, tranche, rateMode),
-//       revertMessage
-//     ).to.be.reverted;
-//   }
-// };
-
-// export const rebalanceStableBorrowRate = async (
-//   reserveSymbol: string,
-//   tranche: string,
-//   user: SignerWithAddress,
-//   target: SignerWithAddress,
-//   expectedResult: string,
-//   testEnv: TestEnv,
-//   revertMessage?: string
-// ) => {
-//   const { pool } = testEnv;
-
-//   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
-
-//   const { reserveData: reserveDataBefore, userData: userDataBefore } =
-//     await getContractsData(reserve, tranche, target.address, testEnv);
-
-//   if (expectedResult === "success") {
-//     const txResult = await waitForTx(
-//       await pool
-//         .connect(user.signer)
-//         .rebalanceStableBorrowRate(reserve, tranche, target.address)
-//     );
-
-//     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
-
-//     const { reserveData: reserveDataAfter, userData: userDataAfter } =
-//       await getContractsData(reserve, tranche, target.address, testEnv);
-
-//     const expectedReserveData = calcExpectedReserveDataAfterStableRateRebalance(
-//       reserveDataBefore,
-//       userDataBefore,
-//       txTimestamp
-//     );
-
-//     const expectedUserData = calcExpectedUserDataAfterStableRateRebalance(
-//       reserveDataBefore,
-//       expectedReserveData,
-//       userDataBefore,
-//       txCost,
-//       txTimestamp
-//     );
-
-//     expectEqual(reserveDataAfter, expectedReserveData);
-//     expectEqual(userDataAfter, expectedUserData);
-
-//     // truffleAssert.eventEmitted(txResult, 'RebalanceStableBorrowRate', (ev: any) => {
-//     //   const {_user, _reserve, _newStableRate} = ev;
-//     //   return (
-//     //     _user.toLowerCase() === target.toLowerCase() &&
-//     //     _reserve.toLowerCase() === reserve.toLowerCase() &&
-//     //     new BigNumber(_newStableRate).eq(expectedUserData.borrowRate)
-//     //   );
-//     // });
-//   } else if (expectedResult === "revert") {
-//     await expect(
-//       pool
-//         .connect(user.signer)
-//         .rebalanceStableBorrowRate(reserve, tranche, target.address),
-//       revertMessage
-//     ).to.be.reverted;
-//   }
-// };
 
 const expectEqual = (
   actual: UserReserveData | ReserveData,

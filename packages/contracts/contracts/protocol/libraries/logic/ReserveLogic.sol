@@ -33,7 +33,6 @@ library ReserveLogic {
      * @param reserve The address of the underlying asset of the reserve
      * @param trancheId The trancheId of the reserve
      * @param liquidityRate The new liquidity rate
-     * @param stableBorrowRate The new stable borrow rate
      * @param variableBorrowRate The new variable borrow rate
      * @param liquidityIndex The new liquidity index
      * @param variableBorrowIndex The new variable borrow index
@@ -42,7 +41,6 @@ library ReserveLogic {
         address indexed reserve,
         uint64 indexed trancheId,
         uint256 liquidityRate,
-        uint256 stableBorrowRate,
         uint256 variableBorrowRate,
         uint256 liquidityIndex,
         uint256 variableBorrowIndex
@@ -119,21 +117,21 @@ library ReserveLogic {
      **/
     function updateState(DataTypes.ReserveData storage reserve, uint256 VMEXReserveFactor) internal {
         address strategist = IAToken(reserve.aTokenAddress).getStrategy();
-        if(strategist==address(0)) { //no strategist, so keep original method of calculating
-        uint256 scaledVariableDebt = IVariableDebtToken(
-            reserve.variableDebtTokenAddress
-        ).scaledTotalSupply();
-        uint256 previousVariableBorrowIndex = reserve.variableBorrowIndex;
-        uint256 previousLiquidityIndex = reserve.liquidityIndex;
-        uint40 lastUpdatedTimestamp = reserve.lastUpdateTimestamp;
+        if (strategist==address(0)) { //no strategist, so keep original method of calculating
+            uint256 scaledVariableDebt = IVariableDebtToken(
+                reserve.variableDebtTokenAddress
+            ).scaledTotalSupply();
+            uint256 previousVariableBorrowIndex = reserve.variableBorrowIndex;
+            uint256 previousLiquidityIndex = reserve.liquidityIndex;
+            uint40 lastUpdatedTimestamp = reserve.lastUpdateTimestamp;
 
-        (uint256 newLiquidityIndex, uint256 newVariableBorrowIndex) = _updateIndexes(
-            reserve,
-            scaledVariableDebt, //for curve, this will always be zero, but the currentLiquidityRate gets updated with the tends. Don't need to pass in strategist address since currentLiquidityRate gets updated elsewhere
-            previousLiquidityIndex,
-            previousVariableBorrowIndex,
-            lastUpdatedTimestamp
-        );
+            (uint256 newLiquidityIndex, uint256 newVariableBorrowIndex) = _updateIndexes(
+                reserve,
+                scaledVariableDebt, //for curve, this will always be zero, but the currentLiquidityRate gets updated with the tends. Don't need to pass in strategist address since currentLiquidityRate gets updated elsewhere
+                previousLiquidityIndex,
+                previousVariableBorrowIndex,
+                lastUpdatedTimestamp
+            );
             //no strategist, so keep original method of minting to treasury. For strategies, minting to treasury will be handled during tend()
             _mintToTreasury(
                 reserve,
@@ -203,7 +201,6 @@ library ReserveLogic {
     function init(
         DataTypes.ReserveData storage reserve,
         address aTokenAddress,
-        address stableDebtTokenAddress,
         address variableDebtTokenAddress,
         address interestRateStrategyAddress,
         uint64 trancheId
@@ -216,7 +213,6 @@ library ReserveLogic {
             reserve.liquidityIndex = uint128(WadRayMath.ray());
             reserve.variableBorrowIndex = uint128(WadRayMath.ray());
             reserve.aTokenAddress = aTokenAddress;
-            reserve.stableDebtTokenAddress = stableDebtTokenAddress;
             reserve.variableDebtTokenAddress = variableDebtTokenAddress;
         }
         {
@@ -227,18 +223,14 @@ library ReserveLogic {
     }
 
     struct UpdateInterestRatesLocalVars {
-        address stableDebtTokenAddress;
         uint256 availableLiquidity;
-        uint256 totalStableDebt;
         uint256 newLiquidityRate;
-        uint256 newStableRate;
         uint256 newVariableRate;
-        uint256 avgStableRate;
         uint256 totalVariableDebt;
     }
 
     /**
-     * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
+     * @dev Updates the reserve current variable borrow rate and the current liquidity rate
      * @param reserve The address of the reserve to be updated
      * @param liquidityAdded The amount of liquidity added to the protocol (deposit or repay) in the previous action
      * @param liquidityTaken The amount of liquidity taken from the protocol (redeem or borrow)
@@ -254,12 +246,6 @@ library ReserveLogic {
         if (IAToken(reserve.aTokenAddress).getStrategy() == address(0)) {
             UpdateInterestRatesLocalVars memory vars;
 
-            vars.stableDebtTokenAddress = reserve.stableDebtTokenAddress;
-
-            (vars.totalStableDebt, vars.avgStableRate) = IStableDebtToken(
-                vars.stableDebtTokenAddress
-            ).getTotalSupplyAndAvgRate();
-
             //calculates the total variable debt locally using the scaled total supply instead
             //of totalSupply(), as it's noticeably cheaper. Also, the index has been
             //updated by the previous updateState() call
@@ -273,15 +259,12 @@ library ReserveLogic {
                         aTokenAddress,
                         liquidityAdded,
                         liquidityTaken,
-                        vars.totalStableDebt,
                         vars.totalVariableDebt,
-                        vars.avgStableRate,
                         reserve.configuration.getReserveFactor(),
                         VMEXReserveFactor
                     );
             (
                 vars.newLiquidityRate,
-                vars.newStableRate,
                 vars.newVariableRate
             ) = IReserveInterestRateStrategy(
                 reserve.interestRateStrategyAddress
@@ -292,23 +275,17 @@ library ReserveLogic {
                 Errors.RL_LIQUIDITY_RATE_OVERFLOW
             );
             require(
-                vars.newStableRate <= type(uint128).max,
-                Errors.RL_STABLE_BORROW_RATE_OVERFLOW
-            );
-            require(
                 vars.newVariableRate <= type(uint128).max,
                 Errors.RL_VARIABLE_BORROW_RATE_OVERFLOW
             );
 
             reserve.currentLiquidityRate = uint128(vars.newLiquidityRate);
-            reserve.currentStableBorrowRate = uint128(vars.newStableRate);
             reserve.currentVariableBorrowRate = uint128(vars.newVariableRate);
 
             emit ReserveDataUpdated(
                 reserveAddress,
                 reserve.trancheId,
                 vars.newLiquidityRate,
-                vars.newStableRate,
                 vars.newVariableRate,
                 reserve.liquidityIndex,
                 reserve.variableBorrowIndex
@@ -318,19 +295,13 @@ library ReserveLogic {
 
 
     struct MintToTreasuryLocalVars {
-        uint256 currentStableDebt;
-        uint256 principalStableDebt;
-        uint256 previousStableDebt;
         uint256 currentVariableDebt;
         uint256 previousVariableDebt;
-        uint256 avgStableRate;
-        uint256 cumulatedStableInterest;
         uint256 totalDebtAccrued;
         uint256 amountToMint;
         uint256 amountToMintVMEX;
         uint256 reserveFactor;
         uint256 globalVMEXReserveFactor;
-        uint40 stableSupplyUpdatedTimestamp;
     }
 
     /**
@@ -361,14 +332,6 @@ library ReserveLogic {
             return;
         }
 
-        //fetching the principal, total stable debt and the avg stable rate
-        (
-            vars.principalStableDebt,
-            vars.currentStableDebt,
-            vars.avgStableRate,
-            vars.stableSupplyUpdatedTimestamp
-        ) = IStableDebtToken(reserve.stableDebtTokenAddress).getSupplyData();
-
         //calculate the last principal variable debt
         vars.previousVariableDebt = scaledVariableDebt.rayMul(
             previousVariableBorrowIndex
@@ -379,24 +342,11 @@ library ReserveLogic {
             newVariableBorrowIndex
         );
 
-        //calculate the stable debt until the last timestamp update
-        vars.cumulatedStableInterest = MathUtils.calculateCompoundedInterest(
-            vars.avgStableRate,
-            vars.stableSupplyUpdatedTimestamp,
-            timestamp
-        );
-
-        vars.previousStableDebt = vars.principalStableDebt.rayMul(
-            vars.cumulatedStableInterest
-        );
-
         //debt accrued is the sum of the current debt minus the sum of the debt at the last update
         //note that repay did not have to occur for this to be higher.
         vars.totalDebtAccrued = vars
             .currentVariableDebt
-            .add(vars.currentStableDebt)
-            .sub(vars.previousVariableDebt)
-            .sub(vars.previousStableDebt);
+            .sub(vars.previousVariableDebt);
 
         vars.amountToMint = vars
             .totalDebtAccrued
@@ -471,8 +421,7 @@ library ReserveLogic {
 
             reserve.liquidityIndex = uint128(newLiquidityIndex);
 
-            //as the liquidity rate might come only from stable rate loans, we need to ensure
-            //that there is actual variable debt before accumulating
+            //check that there is actual variable debt before accumulating
             if (scaledVariableDebt != 0) {
                 uint256 cumulatedVariableBorrowInterest = MathUtils
                     .calculateCompoundedInterest(

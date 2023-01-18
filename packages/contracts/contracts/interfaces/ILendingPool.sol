@@ -332,7 +332,6 @@ interface ILendingPool {
         uint64 trancheId,
         address interestRateStrategyAddress,
         address aTokenAddress,
-        address stableDebtAddress,
         address variableDebtAddress
     ) external;
 

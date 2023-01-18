@@ -53,7 +53,7 @@ task('dev:initialize-lending-pool', 'Initialize lending pool configuration.')
 
     const testHelpers = await deployAaveProtocolDataProvider(addressesProvider.address, verify);
 
-    const admin = await addressesProvider.getPoolAdmin();
+    const admin = await addressesProvider.getGlobalAdmin();
 
     const treasuryAddress = await getTreasuryAddress(poolConfig);
 

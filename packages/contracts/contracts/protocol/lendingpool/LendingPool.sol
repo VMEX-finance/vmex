@@ -82,21 +82,6 @@ contract LendingPool is
         );
     }
 
-    // modifier onlyATokensAndRatesHelperOrConfigurator() {
-    //     //this contract handles the updates to the configuration
-    //     _onlyATokensAndRatesHelperOrConfigurator();
-    //     _;
-    // }
-
-    // function _onlyATokensAndRatesHelperOrConfigurator() internal view {
-    //     //this contract handles the updates to the configuration
-    //     require(
-    //         _addressesProvider.getATokenAndRatesHelper() == msg.sender ||
-    //             _addressesProvider.getLendingPoolConfigurator() == msg.sender,
-    //         "Caller is not ATokensAndRatesHelper"
-    //     );
-    // }
-
     modifier onlyWhitelistedDepositBorrow(uint64 trancheId) {
         _onlyWhitelistedDepositBorrow(trancheId);
         _;
@@ -754,16 +739,17 @@ contract LendingPool is
      * @dev Initializes a reserve, activating it, assigning an aToken and debt tokens and an
      * interest rate strategy
      * - Only callable by the LendingPoolConfigurator contract
+     * @param underlyingAsset The address of the underlying asset (like USDC)
+     * @param trancheId The tranche id
+     * @param interestRateStrategyAddress The address of the interest rate strategy
      * @param aTokenAddress The address of the aToken that will be assigned to the reserve
-     * @param stableDebtAddress The address of the StableDebtToken that will be assigned to the reserve
-     * @param aTokenAddress The address of the VariableDebtToken that will be assigned to the reserve
+     * @param variableDebtAddress The address of the VariableDebtToken that will be assigned to the reserve
      **/
     function initReserve(
         address underlyingAsset,
         uint64 trancheId,
         address interestRateStrategyAddress,
         address aTokenAddress,
-        address stableDebtAddress,
         address variableDebtAddress
     ) external override onlyLendingPoolConfigurator {
         require(
@@ -773,7 +759,6 @@ contract LendingPool is
         //considering requiring _reservesCount[trancheId] = 0, but you can add another asset to an existing tranche too.
         _reserves[underlyingAsset][trancheId].init(
             aTokenAddress,
-            stableDebtAddress,
             variableDebtAddress,
             interestRateStrategyAddress,
             trancheId
@@ -882,7 +867,7 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         address strategy
-    ) external override{
+    ) external override onlyLendingPoolConfigurator {
         IAToken(_reserves[asset][trancheId].aTokenAddress)
             .setAndApproveStrategy(strategy);
     }

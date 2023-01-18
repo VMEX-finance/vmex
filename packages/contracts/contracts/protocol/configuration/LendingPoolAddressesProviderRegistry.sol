@@ -9,11 +9,11 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 
 /**
  * @title LendingPoolAddressesProviderRegistry contract
- * @dev Main registry of LendingPoolAddressesProvider of multiple Aave protocol's markets
- * - Used for indexing purposes of Aave protocol's markets
+ * @dev Main registry of LendingPoolAddressesProvider of multiple Vmex protocol's markets
+ * - Used for indexing purposes of Vmex protocol's markets
  * - The id assigned to a LendingPoolAddressesProvider refers to the market it is connected with,
- *   for example with `0` for the Aave main market and `1` for the next created
- * @author Aave
+ *   for example with `0` for the Vmex main market and `1` for the next created
+ * @author Vmex
  **/
 contract LendingPoolAddressesProviderRegistry is
     Ownable,

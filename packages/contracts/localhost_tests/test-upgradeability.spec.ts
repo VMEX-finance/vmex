@@ -24,7 +24,7 @@ import { BigNumberish } from 'ethers';
 import {ZERO_ADDRESS} from '../helpers/constants';
 
 makeSuite('Upgradeability', () => {
-  const { CALLER_NOT_POOL_ADMIN } = ProtocolErrors;
+  const { CALLER_NOT_TRANCHE_ADMIN } = ProtocolErrors;
   let newStrategyAddress: string;
   let newATokenAddress: string;
 
@@ -70,7 +70,7 @@ makeSuite('Upgradeability', () => {
   it('Tries to update the tricrypto strategy implementation with a different address than the lendingPoolManager', async () => {
     const emergencyAdminT0 = await getEmergencyAdminT0();
     const configurator = await getLendingPoolConfiguratorProxy();
-    
+
 
     const updateStrategyParams: {
       asset: string;
@@ -92,9 +92,9 @@ makeSuite('Upgradeability', () => {
 
   it('Upgrades the tricrypto strategy implementation ', async () => {
     const configurator = await getLendingPoolConfiguratorProxy();
-    
+
     const lendingPool = await contractGetters.getLendingPool();
-          
+
           const tricrypto2Tranch1ATokenAddress =
             (await lendingPool.getReserveData(triCryptoDepositAdd, 1)).aTokenAddress;
           // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
@@ -103,7 +103,7 @@ makeSuite('Upgradeability', () => {
             await contractGetters.getAToken(tricrypto2Tranch1ATokenAddress);
 
           const strategy = await contractGetters.getCrvLpStrategy(await tricrypto2Tranch1AToken.getStrategy()); //get specific implementation of the strategy
-    
+
     // const existingStrat = await contractGetters.getCrvLpStrategy();
     // newStrategyAddress = existingStrat.address;
     const updateStrategyParams: {
@@ -152,7 +152,7 @@ const revision = await strategy.baseStrategyVersion();
     await configurator.updateAToken(updateATokenInputParams);
 
     const lendingPool = await contractGetters.getLendingPool();
-          
+
     const daiATokenAddress =
       (await lendingPool.getReserveData(DAIadd, 1)).aTokenAddress;
     // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
