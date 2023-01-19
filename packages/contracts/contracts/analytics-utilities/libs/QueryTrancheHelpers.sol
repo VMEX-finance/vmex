@@ -55,7 +55,7 @@ library QueryTrancheHelpers {
 
         trancheData.id = tranche;
         trancheData.admin = ILendingPoolAddressesProvider(addressesProvider).getTrancheAdmin(tranche);
-        trancheData.name = LendingPoolConfigurator(configurator).trancheNames(tranche);
+        trancheData.name = "ERROR: NAME STORED IN SUBGRAPH";
         trancheData.whitelist = LendingPool(lendingPool).isUsingWhitelist(tranche);
     }
 

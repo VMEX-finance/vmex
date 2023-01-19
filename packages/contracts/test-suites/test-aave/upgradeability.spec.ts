@@ -22,7 +22,7 @@ import {
 import { BigNumberish } from 'ethers';
 
 makeSuite('Upgradeability', (testEnv: TestEnv) => {
-  const { CALLER_NOT_TRANCHE_ADMIN } = ProtocolErrors;
+  const { CALLER_NOT_GLOBAL_ADMIN } = ProtocolErrors;
   let newATokenAddress: string;
   let newStableTokenAddress: string;
   let newVariableTokenAddress: string;
@@ -91,7 +91,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     };
     await expect(
       configurator.connect(users[1].signer).updateAToken(updateATokenInputParams)
-    ).to.be.revertedWith('Caller not global VMEX admin');
+    ).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
   });
 
   it('Upgrades the DAI Atoken implementation ', async () => {
@@ -220,7 +220,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       configurator
         .connect(users[1].signer)
         .updateVariableDebtToken(updateDebtTokenInput)
-    ).to.be.revertedWith('Caller not global VMEX admin');
+    ).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
   });
 
   it('Upgrades the DAI variable debt token implementation ', async () => {
