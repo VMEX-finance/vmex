@@ -61,7 +61,6 @@ contract AToken is
     address internal _treasury;
     address internal _VMEXTreasury;
     address internal _underlyingAsset; //yearn address
-    uint256 _VMEXReserveFactor;
     uint64 internal _tranche;
     address internal _strategy;
     IAaveIncentivesController internal _incentivesController;
@@ -139,7 +138,6 @@ contract AToken is
         _underlyingAsset = vars.underlyingAsset;
         _incentivesController = incentivesController;
         _tranche = vars.trancheId;
-        _VMEXReserveFactor = vars.VMEXReserveFactor;
 
         emit Initialized(
             vars.underlyingAsset,

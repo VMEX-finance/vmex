@@ -127,42 +127,4 @@ const revision = await strategy.baseStrategyVersion();
     console.log("revision: ",revision)
     expect(revision.toString()).to.be.eq("2.0", 'Invalid revision');
   });
-
-  it('Upgrades the DAI Atoken implementation ', async () => {
-    const name = await (await getAToken(newATokenAddress)).name();
-    const symbol = await (await getAToken(newATokenAddress)).symbol();
-    const configurator = await getLendingPoolConfiguratorProxy();
-
-    const updateATokenInputParams: {
-      asset: string;
-      trancheId: BigNumberish;
-      treasury: string;
-      incentivesController: string;
-      name: string;
-      symbol: string;
-      implementation: string;
-    } = {
-      asset: DAIadd,
-      trancheId: tranche,
-      treasury: ZERO_ADDRESS,
-      incentivesController: ZERO_ADDRESS,
-      name: name,
-      symbol: symbol,
-      implementation: newATokenAddress,
-    };
-    await configurator.updateAToken(updateATokenInputParams);
-
-    const lendingPool = await contractGetters.getLendingPool();
-
-    const daiATokenAddress =
-      (await lendingPool.getReserveData(DAIadd, 1)).aTokenAddress;
-    // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
-
-    const daiAToken =
-      await contractGetters.getAToken(daiATokenAddress);
-
-    const tokenName = await daiAToken.name();
-
-    expect(tokenName).to.be.eq('Aave Interest bearing DAI updated', 'Invalid token name');
-  });
 });

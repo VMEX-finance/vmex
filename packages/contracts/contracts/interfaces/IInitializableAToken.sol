@@ -36,7 +36,6 @@ interface IInitializableAToken {
         address lendingPoolConfigurator;
         address treasury;
         address VMEXTreasury;
-        uint256 VMEXReserveFactor;
         address underlyingAsset;
         uint64 trancheId;
     }

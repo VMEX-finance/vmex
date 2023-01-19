@@ -14,7 +14,6 @@ library DeployATokens {
         ILendingPool pool;
         ILendingPoolAddressesProvider addressProvider;
         DataTypes.InitReserveInputInternal internalInput;
-        uint256 VMEXReserveFactor;
     }
 
     /**
@@ -74,7 +73,6 @@ library DeployATokens {
                 address(this), //lendingPoolConfigurator address
                 vars.internalInput.input.treasury,
                 vars.addressProvider.getVMEXTreasury(),
-                vars.VMEXReserveFactor,
                 vars.internalInput.input.underlyingAsset,
                 vars.internalInput.trancheId,
                 IAaveIncentivesController(
