@@ -163,7 +163,7 @@ library DepositWithdrawLogic {
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage _reserves,
         mapping(uint256 => address) storage _reservesList,
-        DataTypes.UserConfigurationMap storage userConfig,
+        DataTypes.UserConfigurationMap storage userConfig, //config of onBehalfOf user
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) public returns(uint256){
@@ -234,8 +234,8 @@ library DepositWithdrawLogic {
         bool isFirstBorrowing = IVariableDebtToken(
                 reserve.variableDebtTokenAddress
             ).mint(
-                    vars.user,
-                    vars.onBehalfOf,
+                    vars.user, //msg.sender is the delegatee
+                    vars.onBehalfOf, //onBehalfOf is the one with collateral, takes the debt tokens on behalf of the msg.sender
                     vars.amount,
                     reserve.variableBorrowIndex
                 );

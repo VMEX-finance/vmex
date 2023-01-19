@@ -252,10 +252,13 @@ contract LendingPool is
         whenNotPaused(trancheId)
     {
         checkWhitelistBlacklist(trancheId, msg.sender);
+        if(onBehalfOf != msg.sender){
+            checkWhitelistBlacklist(trancheId, onBehalfOf);
+        }
 
-        if (isWhitelistedDepositBorrow[msg.sender] == false) {
+        if (isWhitelistedDepositBorrow[onBehalfOf] == false) {
             require(
-                _usersConfig[msg.sender][trancheId].lastUserDeposit != block.number,
+                _usersConfig[onBehalfOf][trancheId].lastUserDeposit != block.number,
                 "User is not whitelisted to borrow and deposit in same block"
             );
         }
@@ -292,7 +295,7 @@ contract LendingPool is
             vars
         );
 
-        _usersConfig[msg.sender][trancheId].lastUserBorrow = uint128(block.number);
+        _usersConfig[onBehalfOf][trancheId].lastUserBorrow = uint128(block.number);
 
         emit Borrow(
             vars.asset,
@@ -322,8 +325,8 @@ contract LendingPool is
         uint64 trancheId,
         uint256 amount,
         address onBehalfOf
-    ) external override returns (uint256) {
-        require(!_paused[trancheId], Errors.LP_IS_PAUSED);
+    ) external override whenNotPaused(trancheId) returns (uint256) {
+        // require(!_paused[trancheId], Errors.LP_IS_PAUSED);
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         uint256 variableDebt = Helpers.getUserCurrentDebt(
@@ -352,14 +355,13 @@ contract LendingPool is
             reserve.variableBorrowIndex
         );
 
-        address aToken = reserve.aTokenAddress;
-        reserve.updateInterestRates(asset, aToken, paybackAmount, 0, _assetMappings.getVMEXReserveFactor(asset));
+        reserve.updateInterestRates(asset, reserve.aTokenAddress, paybackAmount, 0, _assetMappings.getVMEXReserveFactor(asset));
 
         if (variableDebt.sub(paybackAmount) == 0) {
             _usersConfig[onBehalfOf][trancheId].configuration.setBorrowing(reserve.id, false);
         }
 
-        IERC20(asset).safeTransferFrom(msg.sender, aToken, paybackAmount);
+        IERC20(asset).safeTransferFrom(msg.sender, reserve.aTokenAddress, paybackAmount);
 
         // IAToken(aToken).handleRepayment(msg.sender, paybackAmount); //no-op
 
