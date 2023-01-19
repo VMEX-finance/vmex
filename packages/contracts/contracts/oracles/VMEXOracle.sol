@@ -14,6 +14,7 @@ import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "./interfaces/IYearnToken.sol";
 import {Address} from "../dependencies/openzeppelin/contracts/Address.sol";
+import {Errors} from "../protocol/libraries/helpers/Errors.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -52,7 +53,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         //this contract handles the updates to the configuration
         require(
             addressProvider.getGlobalAdmin() == msg.sender,
-            "Caller not global VMEX admin"
+            Errors.CALLER_NOT_GLOBAL_ADMIN
         );
     }
 
@@ -156,7 +157,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         DataTypes.ReserveAssetType assetType
     ) internal view returns (uint256 price) {
         DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
-        
+
         if (c._curvePool == address(0) || !Address.isContract(c._curvePool)) {
             return _fallbackOracle.getAssetPrice(asset);
         }

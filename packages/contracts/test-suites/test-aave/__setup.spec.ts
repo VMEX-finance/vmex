@@ -569,7 +569,7 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    await rawBRE.run("aave:mainnet", { skipRegistry: true });
+    await rawBRE.run("vmex:mainnet", { skipRegistry: true });
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer);

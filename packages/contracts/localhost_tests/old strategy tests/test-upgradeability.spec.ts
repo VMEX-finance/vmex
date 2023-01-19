@@ -24,7 +24,7 @@ import { BigNumberish } from 'ethers';
 import {ZERO_ADDRESS} from '../../helpers/constants';
 
 makeSuite('Upgradeability', () => {
-  const { CALLER_NOT_TRANCHE_ADMIN } = ProtocolErrors;
+  const { CALLER_NOT_GLOBAL_ADMIN } = ProtocolErrors;
   let newStrategyAddress: string;
   let newATokenAddress: string;
 
@@ -88,7 +88,7 @@ makeSuite('Upgradeability', () => {
 
     await expect(
       configurator.connect((await DRE.ethers.getSigners())[1]).updateStrategy(updateStrategyParams)
-    ).to.be.revertedWith('Caller not global VMEX admin');
+    ).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
   });
 
   it('Upgrades the tricrypto strategy implementation ', async () => {

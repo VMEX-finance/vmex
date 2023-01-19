@@ -5,17 +5,8 @@ const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
 
 const {
-    getAllTrancheNames,
     getAssetPrices
 } = require("../dist/utils");
-
-
-describe("Utils - unit tests", () => {
-    it("1 - should be able to get number of tranches without using a signer", async () => {
-        const data = await getAllTrancheNames({network: 'localhost'});
-        console.log(data);
-    })
-})
 
 const MAINNET_ASSET_MAPPINGS = new Map([
     ['AAVE', '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9'],
