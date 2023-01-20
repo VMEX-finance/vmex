@@ -161,7 +161,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
   });
 
   it("Calculate the max available borrows for user 0 for weth and usdc", async () => {
-    const { users, pool, usdc, weth, oracle, helpersContract } = testEnv;
+    const { users, pool, usdc, weth, oracle, helpersContract, aUsdc, varDebtUsdc } = testEnv;
 
     let usrData = await pool.getUserAccountData(users[0].address, 0, true);
     console.log("usrData: ",usrData)
@@ -268,6 +268,9 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
         expect(userUSDCReserveData.currentVariableDebt).to.be.gt(0)
 
         console.log("borrowed max usdc")
+        console.log("Amount of USDC in atoken: ", await usdc.balanceOf(aUsdc.address))
+        console.log("Amount of USDC debt: ", await varDebtUsdc.balanceOf(users[0].address))
+        console.log("Amount usdc that user has: ", await usdc.balanceOf(users[0].address))
           await pool
           .connect(users[0].signer)
           .repay(

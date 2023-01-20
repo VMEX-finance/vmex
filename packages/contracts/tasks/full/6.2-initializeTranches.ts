@@ -100,82 +100,83 @@ task(
         1
       );
 
-      const tranche = 1;
+      //don't deploy strategies if using yearn
+      // const tranche = 1;
 
-      console.log("Attempt deploy Strategies: ");
+      // console.log("Attempt deploy Strategies: ");
 
-      console.log("  - Tricrypto");
+      // console.log("  - Tricrypto");
 
-      // admin grants strategy access to all funds
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
-          .addStrategy(
-            reserveAssets["Tricrypto2"],
-            tranche,
-            "0" //default
-          )
-      );
-      console.log("  - ThreePool");
+      // // admin grants strategy access to all funds
+      // await waitForTx(
+      //   await lendingPoolConfiguratorProxy
+      //     .connect(emergAdmin)
+      //     .addStrategy(
+      //       reserveAssets["Tricrypto2"],
+      //       tranche,
+      //       "0" //default
+      //     )
+      // );
+      // console.log("  - ThreePool");
 
-      // admin grants strategy access to all funds
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
-          .addStrategy(
-            reserveAssets["ThreePool"],
-            tranche,
-            "0" //default
-          )
-      );
-      console.log("  - StethEth");
+      // // admin grants strategy access to all funds
+      // await waitForTx(
+      //   await lendingPoolConfiguratorProxy
+      //     .connect(emergAdmin)
+      //     .addStrategy(
+      //       reserveAssets["ThreePool"],
+      //       tranche,
+      //       "0" //default
+      //     )
+      // );
+      // console.log("  - StethEth");
 
-      // admin grants strategy access to all funds
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
-          .addStrategy(
-            reserveAssets["StethEth"],
-            tranche,
-            "0" //default
-          )
-      );
-      console.log("  - FraxUSDC");
+      // // admin grants strategy access to all funds
+      // await waitForTx(
+      //   await lendingPoolConfiguratorProxy
+      //     .connect(emergAdmin)
+      //     .addStrategy(
+      //       reserveAssets["StethEth"],
+      //       tranche,
+      //       "0" //default
+      //     )
+      // );
+      // console.log("  - FraxUSDC");
 
-      // admin grants strategy access to all funds
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
-          .addStrategy(
-            reserveAssets["FraxUSDC"],
-            tranche,
-            "0" //default
-          )
-      );
-      console.log("  - Frax3Crv");
-      // admin grants strategy access to all funds
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
-          .addStrategy(
-            reserveAssets["Frax3Crv"],
-            tranche,
-            "0" //default
-          )
-      );
-      console.log("  - CVX");
-      // admin grants strategy access to all funds
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(emergAdmin)
-          .addStrategy(
-            reserveAssets["CVX"],
-            tranche,
-            "0" //default
-          )
-      );
+      // // admin grants strategy access to all funds
+      // await waitForTx(
+      //   await lendingPoolConfiguratorProxy
+      //     .connect(emergAdmin)
+      //     .addStrategy(
+      //       reserveAssets["FraxUSDC"],
+      //       tranche,
+      //       "0" //default
+      //     )
+      // );
+      // console.log("  - Frax3Crv");
+      // // admin grants strategy access to all funds
+      // await waitForTx(
+      //   await lendingPoolConfiguratorProxy
+      //     .connect(emergAdmin)
+      //     .addStrategy(
+      //       reserveAssets["Frax3Crv"],
+      //       tranche,
+      //       "0" //default
+      //     )
+      // );
+      // console.log("  - CVX");
+      // // admin grants strategy access to all funds
+      // await waitForTx(
+      //   await lendingPoolConfiguratorProxy
+      //     .connect(emergAdmin)
+      //     .addStrategy(
+      //       reserveAssets["CVX"],
+      //       tranche,
+      //       "0" //default
+      //     )
+      // );
 
-      console.log("Finished deploying strategy in tranche 1");
+      // console.log("Finished deploying strategy in tranche 1");
 
       // Unpause market during deployment
       await waitForTx(

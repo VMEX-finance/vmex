@@ -88,55 +88,55 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
     );
 
     // deploy strategies
-    const [CrvLpStrategy, CrvLpEthStrategy, CvxStrategy] =
-      await deployStrategies();
+    // const [CrvLpStrategy, CrvLpEthStrategy, CvxStrategy] =
+    //   await deployStrategies();
 
-    console.log("DEPLOYED CrvLp Strat at address", CrvLpStrategy.address);
+    // console.log("DEPLOYED CrvLp Strat at address", CrvLpStrategy.address);
 
-    await waitForTx(
-      await assetMappings.connect(admin).addCurveStrategyAddress(
-        //tricrypto uses this
-        "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
-        CrvLpStrategy.address
-      )
-    ); //0 is default strategy
+    // await waitForTx(
+    //   await assetMappings.connect(admin).addCurveStrategyAddress(
+    //     //tricrypto uses this
+    //     "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+    //     CrvLpStrategy.address
+    //   )
+    // ); //0 is default strategy
 
-    await waitForTx(
-      await assetMappings
-        .connect(admin)
-        .addCurveStrategyAddress(
-          "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-          CrvLpStrategy.address
-        ) //threepool uses this
-    ); //0 is default strategy
+    // await waitForTx(
+    //   await assetMappings
+    //     .connect(admin)
+    //     .addCurveStrategyAddress(
+    //       "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+    //       CrvLpStrategy.address
+    //     ) //threepool uses this
+    // ); //0 is default strategy
 
-    await waitForTx(
-      await assetMappings.connect(admin).addCurveStrategyAddress(
-        //steth uses eth
-        "0x06325440D014e39736583c165C2963BA99fAf14E",
-        CrvLpEthStrategy.address
-      )
-    ); //0 is default strategy
-    await waitForTx(
-      await assetMappings.connect(admin).addCurveStrategyAddress(
-        //fraxusdc uses this
-        "0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC",
-        CrvLpStrategy.address
-      )
-    ); //0 is default strategy
-    await waitForTx(
-      await assetMappings.connect(admin).addCurveStrategyAddress(
-        //frax3crv uses this
-        "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
-        CrvLpStrategy.address
-      )
-    ); //0 is default strategy
+    // await waitForTx(
+    //   await assetMappings.connect(admin).addCurveStrategyAddress(
+    //     //steth uses eth
+    //     "0x06325440D014e39736583c165C2963BA99fAf14E",
+    //     CrvLpEthStrategy.address
+    //   )
+    // ); //0 is default strategy
+    // await waitForTx(
+    //   await assetMappings.connect(admin).addCurveStrategyAddress(
+    //     //fraxusdc uses this
+    //     "0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC",
+    //     CrvLpStrategy.address
+    //   )
+    // ); //0 is default strategy
+    // await waitForTx(
+    //   await assetMappings.connect(admin).addCurveStrategyAddress(
+    //     //frax3crv uses this
+    //     "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+    //     CrvLpStrategy.address
+    //   )
+    // ); //0 is default strategy
 
-    await waitForTx(
-      await assetMappings.connect(admin).addCurveStrategyAddress(
-        //cvx uses this
-        "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",
-        CvxStrategy.address
-      )
-    ); //0 is default strategy
+    // await waitForTx(
+    //   await assetMappings.connect(admin).addCurveStrategyAddress(
+    //     //cvx uses this
+    //     "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",
+    //     CvxStrategy.address
+    //   )
+    // ); //0 is default strategy
   });
