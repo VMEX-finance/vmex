@@ -8,7 +8,7 @@ import {IAaveIncentivesController} from "../../../interfaces/IAaveIncentivesCont
 import {IInitializableDebtToken} from "../../../interfaces/IInitializableDebtToken.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 library DeployATokens {
     struct DeployATokensVars {
         ILendingPool pool;

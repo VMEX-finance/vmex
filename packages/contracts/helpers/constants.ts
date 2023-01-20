@@ -88,6 +88,11 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   LDO: oneEther.multipliedBy("0.0011974251").toFixed(), //this should not be used, just placed here to compile
   ALCX: oneEther.multipliedBy("0.0011974251").toFixed(), //this should not be used, just placed here to compile
   Oneinch: oneEther.multipliedBy("0.0011974251").toFixed(), //this should not be used, just placed here to compile
+  yvTricrypto2: oneEther.toFixed(), //this should not be used, just placed here to compile
+  yvThreePool: oneEther.toFixed(), //this should not be used, just placed here to compile
+  yvStethEth: oneEther.toFixed(), //this should not be used, just placed here to compile
+  yvFraxUSDC: oneEther.toFixed(), //this should not be used, just placed here to compile
+  yvFrax3Crv: oneEther.toFixed(), //this should not be used, just placed here to compile
 };
 
 export const chainlinkAggregatorProxy = {

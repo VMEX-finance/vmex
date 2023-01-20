@@ -12,6 +12,8 @@ import {Initializable} from "../dependencies/openzeppelin/upgradeability/Initial
 import {AssetMappings} from "../protocol/lendingpool/AssetMappings.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {CurveOracle} from "./CurveOracle.sol";
+import {IYearnToken} from "./interfaces/IYearnToken.sol";
+import {Address} from "../dependencies/openzeppelin/contracts/Address.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -127,6 +129,9 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(tmp==DataTypes.ReserveAssetType.CURVE || tmp==DataTypes.ReserveAssetType.CURVEV2){
             return getCurveAssetPrice(asset, tmp);
         }
+        else if(tmp==DataTypes.ReserveAssetType.YEARN){
+            return getYearnPrice(asset);
+        }
         require(false, "error determining oracle address");
         return 0;
     }
@@ -151,8 +156,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         DataTypes.ReserveAssetType assetType
     ) internal view returns (uint256 price) {
         DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
-
-        if (c._curvePool == address(0)) {
+        
+        if (c._curvePool == address(0) || !Address.isContract(c._curvePool)) {
             return _fallbackOracle.getAssetPrice(asset);
         }
 
@@ -179,7 +184,20 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
             price = CurveOracle.get_price_v2(c._curvePool, prices);
         }
         //TODO: incorporate backup oracles here?
-        require(price > 0, "Curve oracle encountered an error");
+        // require(price > 0, "Curve oracle encountered an error");
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+    }
+
+    function getYearnPrice(address asset) internal view returns (uint256){
+        IYearnToken yearnVault = IYearnToken(asset);
+        uint256 underlyingPrice = getAssetPrice(yearnVault.token());
+        uint256 price = yearnVault.pricePerShare()*underlyingPrice / 10**yearnVault.decimals();
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
         return price;
     }
 

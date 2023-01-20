@@ -62,7 +62,8 @@ library DataTypes {
     enum ReserveAssetType {
         AAVE,
         CURVE,
-        CURVEV2
+        CURVEV2,
+        YEARN
     } //update with other possible types of the underlying asset
     //AAVE is the original assets in the aave protocol
     //CURVE is the new LP tokens we are providing support for
@@ -106,6 +107,12 @@ library DataTypes {
         //bit 5-7: reserved
         //bit 8-71: reserve factor (64 bit)
         uint256 data;
+    }
+
+    struct UserData {
+        UserConfigurationMap configuration;
+        uint128 lastUserBorrow;
+        uint128 lastUserDeposit;
     }
 
     struct UserConfigurationMap {

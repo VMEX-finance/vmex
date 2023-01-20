@@ -1,15 +1,15 @@
 import { ethers } from "ethers";
 const chai = require("chai");
 const { expect } = chai;
-import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
-import { DRE } from "../helpers/misc-utils";
+import { makeSuite } from "../../test-suites/test-aave/helpers/make-suite";
+import { DRE } from "../../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
-import { ProtocolErrors } from '../helpers/types';
-import {getCurvePrice} from "./helpers/curve-calculation";
-import {UserAccountData} from "./interfaces/index";
-import {almostEqualOrEqual} from "./helpers/almostEqual";
-import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
+import { ProtocolErrors } from '../../helpers/types';
+import {getCurvePrice} from "../helpers/curve-calculation";
+import {UserAccountData} from "../interfaces/index";
+import {almostEqualOrEqual} from "../helpers/almostEqual";
+import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "../helpers/strategy-interest";
 chai.use(function (chai: any, utils: any) {
   chai.Assertion.overwriteMethod(
     "almostEqualOrEqual",

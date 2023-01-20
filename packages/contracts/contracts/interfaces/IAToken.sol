@@ -5,6 +5,7 @@ import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {IScaledBalanceToken} from "./IScaledBalanceToken.sol";
 import {IInitializableAToken} from "./IInitializableAToken.sol";
 import {IAaveIncentivesController} from "./IAaveIncentivesController.sol";
+import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
     /**

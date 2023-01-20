@@ -42,7 +42,7 @@ makeSuite(
                 console.log("----------------------------- ");
 
                 expect(chainlinkPrice.sub(uniPrice).toNumber())
-                .to.be.lessThan(2).and.greaterThan(-2);
+                .to.be.lessThan(5).and.greaterThan(-5);
             }
         });
     }

@@ -14,6 +14,8 @@ import {
   getTricrypto2Strategy,
   getCurvePriceOracleWrapper,
   getAssetMappings,
+  getYearnTokenMocked,
+  getVariableDebtToken,
   // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
@@ -44,7 +46,7 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, CurveWrapper, FlashLiquidationAdapter } from "../../../types";
+import { AssetMappings, CurveWrapper, FlashLiquidationAdapter, VariableDebtToken, YearnTokenMocked } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -72,9 +74,13 @@ export interface TestEnv {
   dai: MintableERC20;
   aDai: AToken;
   usdc: MintableERC20;
+  aUsdc: AToken;
+  varDebtUsdc: VariableDebtToken;
   aave: MintableERC20;
   aAave: AToken;
   tricrypto2: MintableERC20;
+  yvTricrypto2: YearnTokenMocked;
+  ayvTricrypto2: AToken;
   tricrypto2Strategy: CrvLpStrategy;
   addressesProvider: LendingPoolAddressesProvider;
   uniswapLiquiditySwapAdapter: UniswapLiquiditySwapAdapter;
@@ -104,8 +110,12 @@ const testEnv: TestEnv = {
   dai: {} as MintableERC20,
   aDai: {} as AToken,
   usdc: {} as MintableERC20,
+  aUsdc: {} as  AToken,
+  varDebtUsdc: {} as  VariableDebtToken,
   aave: {} as MintableERC20,
   tricrypto2: {} as MintableERC20,
+  yvTricrypto2: {} as YearnTokenMocked,
+  ayvTricrypto2: {} as AToken,
   tricrypto2Strategy: {} as CrvLpStrategy,
   addressesProvider: {} as LendingPoolAddressesProvider,
   uniswapLiquiditySwapAdapter: {} as UniswapLiquiditySwapAdapter,
@@ -122,7 +132,7 @@ export async function initializeMakeSuite() {
     address: await _deployer.getAddress(),
     signer: _deployer,
   };
-
+  console.log("Begin initializeMakeSuite");
   for (const signer of restSigners) {
     testEnv.users.push({
       signer,
@@ -158,6 +168,10 @@ export async function initializeMakeSuite() {
     (aToken) => aToken.symbol === "aDAI0"
   )?.tokenAddress; //choose tranche
 
+  const aUsdcAddress = allTokensT0.find(
+    (aToken) => aToken.symbol === "aUSDC0"
+  )?.tokenAddress; //choose tranche
+
   const aWEthAddress = allTokensT0.find(
     (aToken) => aToken.symbol === "aWETH0"
   )?.tokenAddress;
@@ -166,8 +180,16 @@ export async function initializeMakeSuite() {
     (aToken) => aToken.symbol === "aAAVE0"
   )?.tokenAddress;
 
+  
+
+
+  const allTokensT1 = await testEnv.helpersContract.getAllATokens("1");
+  const ayvAddress = allTokensT1.find(
+    (aToken) => aToken.symbol === "ayvTricrypto21"
+  )?.tokenAddress;
+
   const reservesTokensT0 = await testEnv.helpersContract.getAllReservesTokens(
-    "0"
+    "1"
   );
 
   const daiAddress = reservesTokensT0.find(
@@ -182,27 +204,34 @@ export async function initializeMakeSuite() {
   const wethAddress = reservesTokensT0.find(
     (token) => token.symbol === "WETH"
   )?.tokenAddress;
-  if (!aDaiAddress || !aWEthAddress) {
-    process.exit(1);
-  }
-  if (!daiAddress || !usdcAddress || !aaveAddress || !wethAddress) {
-    process.exit(1);
-  }
-
-  const reservesTokensT1 = await testEnv.helpersContract.getAllReservesTokens(
-    "1"
-  );
-
-  const tricrypto2Address = reservesTokensT1.find(
-    (token) => token.symbol === "Tricrypto2"
+  const yvTricrypto2Address = reservesTokensT0.find(
+    (token) => token.symbol === "yvTricrypto2"
   )?.tokenAddress;
-
-  if (!tricrypto2Address) {
+  
+  if (!aDaiAddress || !aWEthAddress || !ayvAddress || !aUsdcAddress) {
+    console.log("cannot find all atokens")
     process.exit(1);
   }
+  if (!daiAddress || !usdcAddress || !aaveAddress || !wethAddress || !yvTricrypto2Address) {
+    console.log("cannot find all tokens")
+    process.exit(1);
+  }
+  const varDebtUsdcAddress = await (await testEnv.pool.getReserveData(usdcAddress, "0")).variableDebtTokenAddress;
 
-  if (isHardhatTestingStrategies)
-    testEnv.tricrypto2Strategy = await getTricrypto2Strategy();
+  // const reservesTokensT1 = await testEnv.helpersContract.getAllReservesTokens(
+  //   "1"
+  // );
+
+  // const tricrypto2Address = reservesTokensT1.find(
+  //   (token) => token.symbol === "Tricrypto2"
+  // )?.tokenAddress;
+
+  // if (!tricrypto2Address) {
+  //   process.exit(1);
+  // }
+
+  // if (isHardhatTestingStrategies)
+  //   testEnv.tricrypto2Strategy = await getTricrypto2Strategy();
 
   testEnv.aDai = await getAToken(aDaiAddress);
   testEnv.aWETH = await getAToken(aWEthAddress);
@@ -213,8 +242,12 @@ export async function initializeMakeSuite() {
   testEnv.aave = await getMintableERC20(aaveAddress);
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
+  testEnv.yvTricrypto2 = await getYearnTokenMocked(yvTricrypto2Address);
+  testEnv.ayvTricrypto2 = await getAToken(ayvAddress);
+  testEnv.aUsdc = await getAToken(aUsdcAddress);
+  testEnv.varDebtUsdc = await getVariableDebtToken(varDebtUsdcAddress);
 
-  testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
+  // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 
   //CURVE TODO: these are not deployed when running mainnet fork in localhost
   // testEnv.uniswapLiquiditySwapAdapter = await getUniswapLiquiditySwapAdapter();

@@ -38,7 +38,8 @@ import {
   BoosterFactory,
   VStrategyHelperFactory,
   UserConfigurationFactory,
-  BaseUniswapOracleFactory
+  BaseUniswapOracleFactory,
+  YearnTokenMockedFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -178,6 +179,17 @@ export const getVariableDebtToken = async (address?: tEthereumAddress) =>
 
 export const getMintableERC20 = async (address: tEthereumAddress) =>
   await MintableERC20Factory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.MintableERC20}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getYearnTokenMocked = async (address: tEthereumAddress) =>
+  await YearnTokenMockedFactory.connect(
     address ||
       (
         await getDb()

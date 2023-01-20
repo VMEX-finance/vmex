@@ -32,6 +32,9 @@ import {
   authorizeWETHGateway,
   deployATokenImplementations,
   deployVMEXOracle,
+  deployConvexBaseRewardPool,
+  deployConvexBooster,
+  deployYearnTokenMocked,
 } from "../../helpers/contracts-deployments";
 import { Signer } from "ethers";
 import {
@@ -98,13 +101,27 @@ const deployAllMockTokens = async (deployer: Signer) => {
         tokens[tokenSymbol]
       );
       continue;
-    }
+    } 
     let decimals = 18;
 
     let configData = (<any>protoConfigData)[tokenSymbol];
 
     if (!configData) {
       decimals = 18;
+    }
+
+    if (tokenSymbol === "yvTricrypto2" || tokenSymbol === "yvThreePool" || tokenSymbol === "yvStethEth"|| tokenSymbol === "yvFraxUSDC"|| tokenSymbol === "yvFrax3Crv") {
+      tokens[tokenSymbol] = await deployYearnTokenMocked([
+        tokenSymbol,
+        tokenSymbol,
+        configData ? configData.reserveDecimals : 18,
+        tokens[tokenSymbol.substring(2)].address
+      ]);
+      await registerContractInJsonDb(
+        tokenSymbol.toUpperCase(),
+        tokens[tokenSymbol]
+      );
+      continue;
     }
 
     tokens[tokenSymbol] = await deployMintableERC20([
@@ -312,6 +329,11 @@ const buildTestEnv = async (deployer: Signer) => {
       LDO: mockTokens.Frax3Crv.address,
       ALCX: mockTokens.Frax3Crv.address,
       Oneinch: mockTokens.Frax3Crv.address,
+      yvTricrypto2: mockTokens.Tricrypto2.address,
+      yvThreePool: mockTokens.ThreePool.address,
+      yvStethEth: mockTokens.StethEth.address,
+      yvFraxUSDC: mockTokens.FraxUSDC.address,
+      yvFrax3Crv: mockTokens.Frax3Crv.address,
     },
     fallbackOracle
   );

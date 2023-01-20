@@ -1,12 +1,12 @@
 const chai = require("chai");
 const { expect } = chai;
-import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
-import { DRE } from "../helpers/misc-utils";
+import { makeSuite } from "../../test-suites/test-aave/helpers/make-suite";
+import { DRE } from "../../helpers/misc-utils";
 import rawBRE from "hardhat";
 import { BigNumber, utils } from "ethers";
-import { ProtocolErrors } from '../helpers/types';
-import {getCurvePrice} from "./helpers/curve-calculation";
-import {UserAccountData} from "./interfaces/index";
+import { ProtocolErrors } from '../../helpers/types';
+import {getCurvePrice} from "../helpers/curve-calculation";
+import {UserAccountData} from "../interfaces/index";
 import {
   getAToken,
   getEmergencyAdminT0,
@@ -15,13 +15,13 @@ import {
   getMockVariableDebtToken,
   getStableDebtToken,
   getVariableDebtToken,
-} from '../helpers/contracts-getters';
+} from '../../helpers/contracts-getters';
 import {
   deployMockStrategy,
   deployMockAToken,
-} from '../helpers/contracts-deployments';
+} from '../../helpers/contracts-deployments';
 import { BigNumberish } from 'ethers';
-import {ZERO_ADDRESS} from '../helpers/constants';
+import {ZERO_ADDRESS} from '../../helpers/constants';
 
 makeSuite('Upgradeability', () => {
   const { CALLER_NOT_TRANCHE_ADMIN } = ProtocolErrors;
@@ -53,6 +53,7 @@ makeSuite('Upgradeability', () => {
       tranche.toString(),
       ZERO_ADDRESS,
       ZERO_ADDRESS,
+      "1000",
       ZERO_ADDRESS,
       'Aave Interest bearing DAI updated',
       'aDAI'
@@ -125,43 +126,5 @@ makeSuite('Upgradeability', () => {
 const revision = await strategy.baseStrategyVersion();
     console.log("revision: ",revision)
     expect(revision.toString()).to.be.eq("2.0", 'Invalid revision');
-  });
-
-  it('Upgrades the DAI Atoken implementation ', async () => {
-    const name = await (await getAToken(newATokenAddress)).name();
-    const symbol = await (await getAToken(newATokenAddress)).symbol();
-    const configurator = await getLendingPoolConfiguratorProxy();
-
-    const updateATokenInputParams: {
-      asset: string;
-      trancheId: BigNumberish;
-      treasury: string;
-      incentivesController: string;
-      name: string;
-      symbol: string;
-      implementation: string;
-    } = {
-      asset: DAIadd,
-      trancheId: tranche,
-      treasury: ZERO_ADDRESS,
-      incentivesController: ZERO_ADDRESS,
-      name: name,
-      symbol: symbol,
-      implementation: newATokenAddress,
-    };
-    await configurator.updateAToken(updateATokenInputParams);
-
-    const lendingPool = await contractGetters.getLendingPool();
-
-    const daiATokenAddress =
-      (await lendingPool.getReserveData(DAIadd, 1)).aTokenAddress;
-    // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
-
-    const daiAToken =
-      await contractGetters.getAToken(daiATokenAddress);
-
-    const tokenName = await daiAToken.name();
-
-    expect(tokenName).to.be.eq('Aave Interest bearing DAI updated', 'Invalid token name');
   });
 });

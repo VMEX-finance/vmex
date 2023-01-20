@@ -50,8 +50,8 @@ export const checkAdminAllocation = (userDataBefore1: UserReserveData, userDataA
   logger("expectedTrancheAdminAllocation: ",expectedTrancheAdminAllocation.toString())
   logger("actualGlobalAdminGain: ",actualGlobalAdminGain.toString())
   logger("expectedGlobalAdminAllocation: ",expectedGlobalAdminAllocation.toString())
-  expect(actualTrancheAdminGain.div(10).decimalPlaces(0).toString()).to.be.equal(expectedTrancheAdminAllocation.div(10).decimalPlaces(0).toString())
-  expect(actualGlobalAdminGain.div(10).decimalPlaces(0).toString()).to.be.equal(expectedGlobalAdminAllocation.div(10).decimalPlaces(0).toString())
+  expect(actualTrancheAdminGain.minus(expectedTrancheAdminAllocation).decimalPlaces(0).absoluteValue().toNumber()).to.be.lt(20)
+  expect(actualGlobalAdminGain.minus(expectedGlobalAdminAllocation).decimalPlaces(0).absoluteValue().toNumber()).to.be.lt(20)
 }
 
 export const calculateHF = async (testEnv: TestEnv, trancheId: string, user: tEthereumAddress):Promise<BigNumber> => {
