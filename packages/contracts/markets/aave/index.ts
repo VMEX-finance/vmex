@@ -44,7 +44,7 @@ import {
 
 export const AaveConfig: IAaveConfiguration = {
   ...CommonsConfig,
-  MarketId: 'Aave genesis market',
+  MarketId: 'VMEX genesis market',
   ProviderId: 1,
 
   ReservesConfig: {

@@ -165,19 +165,19 @@ export async function initializeMakeSuite() {
 
   const allTokensT0 = await testEnv.helpersContract.getAllATokens("0");
   const aDaiAddress = allTokensT0.find(
-    (aToken) => aToken.symbol === "aDAI0"
+    (aToken) => aToken.symbol === "vDAI0"
   )?.tokenAddress; //choose tranche
 
   const aUsdcAddress = allTokensT0.find(
-    (aToken) => aToken.symbol === "aUSDC0"
+    (aToken) => aToken.symbol === "vUSDC0"
   )?.tokenAddress; //choose tranche
 
   const aWEthAddress = allTokensT0.find(
-    (aToken) => aToken.symbol === "aWETH0"
+    (aToken) => aToken.symbol === "vWETH0"
   )?.tokenAddress;
 
   const aAAVEAddress = allTokensT0.find(
-    (aToken) => aToken.symbol === "aAAVE0"
+    (aToken) => aToken.symbol === "vAAVE0"
   )?.tokenAddress;
 
   
@@ -185,7 +185,7 @@ export async function initializeMakeSuite() {
 
   const allTokensT1 = await testEnv.helpersContract.getAllATokens("1");
   const ayvAddress = allTokensT1.find(
-    (aToken) => aToken.symbol === "ayvTricrypto21"
+    (aToken) => aToken.symbol === "vyvTricrypto21"
   )?.tokenAddress;
 
   const reservesTokensT0 = await testEnv.helpersContract.getAllReservesTokens(
