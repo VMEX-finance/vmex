@@ -176,7 +176,7 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       underlyingAssetDecimals: reserveDecimals,
       underlyingAssetName: symbol,
       aTokenName: `${aTokenNamePrefix} ${symbol}`,
-      aTokenSymbol: `a${symbolPrefix}${symbol}`,
+      aTokenSymbol: `v${symbolPrefix}${symbol}`,
       variableDebtTokenName: `${variableDebtTokenNamePrefix} ${symbolPrefix}${symbol}`,
       variableDebtTokenSymbol: `variableDebt${symbolPrefix}${symbol}`,
       assetType: assetType,
