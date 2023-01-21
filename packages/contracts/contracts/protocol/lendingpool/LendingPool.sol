@@ -43,8 +43,6 @@ import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol"
  * - All admin functions are callable by the LendingPoolConfigurator contract defined also in the
  *   LendingPoolAddressesProvider
  * @author Aave
-
- * New function: TransferTranche
  **/
 contract LendingPool is
     VersionedInitializable,
@@ -122,6 +120,7 @@ contract LendingPool is
 
     /**
      * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
+     * If the reserve has collateral enabled, the user's deposit should by default be marked as collateral.
      * - E.g. User deposits 100 USDC and gets in return 100 aUSDC
      * @param asset The address of the underlying asset to deposit
      * @param trancheId The trancheId of the underlying asset to deposit
@@ -133,28 +132,26 @@ contract LendingPool is
      *   0 if the action is executed directly by the user, without any middle-man
      **/
     function deposit(
-        //TODO: has this been addressed yet?
-        // allowing collateral changes here opens up possibility of attack where someone can try to change the collateral status of someone else, but this can only be done for the initial deposit
-        //confusing interface where users can choose their isCollateral but it only matters for the first deposit
         address asset,
         uint64 trancheId,
         uint256 amount,
         address onBehalfOf,
         uint16 referralCode
     )
-        public
+        external
         override
         whenNotPaused(trancheId)
     {
         checkWhitelistBlacklist(trancheId, onBehalfOf);
         checkWhitelistBlacklist(trancheId, msg.sender);
+
         if (isWhitelistedDepositBorrow[onBehalfOf] == false) {
+            // check that the user is allowed to deposit and borrow in the same block
             require(
                 _usersConfig[onBehalfOf][trancheId].lastUserBorrow != block.number,
                 "User is not whitelisted to borrow and deposit in same block"
             );
         }
-        //changed scope to public so transferTranche can call it
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,

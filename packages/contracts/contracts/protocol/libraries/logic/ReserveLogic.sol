@@ -114,8 +114,9 @@ library ReserveLogic {
     /**
      * @dev Updates the liquidity cumulative index and the variable borrow index.
      * @param reserve the reserve object
+     * @param vmexReserveFactor the global vmex reserve factor, used to mint to vmex treasury
      **/
-    function updateState(DataTypes.ReserveData storage reserve, uint256 VMEXReserveFactor) internal {
+    function updateState(DataTypes.ReserveData storage reserve, uint256 vmexReserveFactor) internal {
         address strategist = IAToken(reserve.aTokenAddress).getStrategy();
         if (strategist==address(0)) { //no strategist, so keep original method of calculating
             uint256 scaledVariableDebt = IVariableDebtToken(
@@ -140,30 +141,11 @@ library ReserveLogic {
                 newLiquidityIndex,
                 newVariableBorrowIndex,
                 lastUpdatedTimestamp,
-                VMEXReserveFactor
+                vmexReserveFactor
             );
+        } else {
+            revert("NOT IMPLEMENTED");      // TODO: Update state for strategies
         }
-        // }
-        // else{
-        //     //assumptions
-        //     //no borrowing in this reserve => Stable and variable rate always 0 so don't need to update
-        //     //only need to update liquidity index for user to get interest
-        //     uint256 globalVMEXReserveFactor = reserve
-        //         .configuration
-        //         .getVMEXReserveFactor();
-
-        //     reserve.liquidityIndex = BaseStrategy(strategist).calculateAverageRate().percentMul(
-        //         PercentageMath.PERCENTAGE_FACTOR.sub(globalVMEXReserveFactor)
-        //     );
-
-        //     // minting to treasury will be handled during tend()
-
-        //     // IAToken(reserve.aTokenAddress).mintToVMEXTreasury(
-        //     //     vars.amountToMintVMEX,
-        //     //     newLiquidityIndex
-        //     // );
-
-        // }
     }
 
     /**
@@ -234,6 +216,7 @@ library ReserveLogic {
      * @param reserve The address of the reserve to be updated
      * @param liquidityAdded The amount of liquidity added to the protocol (deposit or repay) in the previous action
      * @param liquidityTaken The amount of liquidity taken from the protocol (redeem or borrow)
+     * @param vmexReserveFactor The vmex reserve factor
      **/
     function updateInterestRates(
         DataTypes.ReserveData storage reserve,
@@ -241,7 +224,7 @@ library ReserveLogic {
         address aTokenAddress,
         uint256 liquidityAdded,
         uint256 liquidityTaken,
-        uint256 VMEXReserveFactor
+        uint256 vmexReserveFactor
     ) internal {
         if (IAToken(reserve.aTokenAddress).getStrategy() == address(0)) {
             UpdateInterestRatesLocalVars memory vars;
@@ -261,7 +244,7 @@ library ReserveLogic {
                         liquidityTaken,
                         vars.totalVariableDebt,
                         reserve.configuration.getReserveFactor(),
-                        VMEXReserveFactor
+                        vmexReserveFactor
                     );
             (
                 vars.newLiquidityRate,
@@ -290,6 +273,8 @@ library ReserveLogic {
                 reserve.liquidityIndex,
                 reserve.variableBorrowIndex
             );
+        } else {
+            revert("NOT IMPLEMENTED");      // TODO: Update interest rates for strategies
         }
     }
 
@@ -312,6 +297,8 @@ library ReserveLogic {
      * @param previousVariableBorrowIndex The variable borrow index before the last accumulation of the interest
      * @param newLiquidityIndex The new liquidity index
      * @param newVariableBorrowIndex The variable borrow index after the last accumulation of the interest
+     * @param timestamp The timestamp before the last accumulation of the interest
+     * @param vmexReserveFactor The global vmex reserve factor
      **/
     function _mintToTreasury(
         DataTypes.ReserveData storage reserve,
@@ -320,13 +307,11 @@ library ReserveLogic {
         uint256 newLiquidityIndex,
         uint256 newVariableBorrowIndex,
         uint40 timestamp,
-        uint256 VMEXReserveFactor
+        uint256 vmexReserveFactor
     ) internal {
         MintToTreasuryLocalVars memory vars;
-        {
-            vars.reserveFactor = reserve.configuration.getReserveFactor();
-            vars.globalVMEXReserveFactor = VMEXReserveFactor;
-        }
+        vars.reserveFactor = reserve.configuration.getReserveFactor();
+        vars.globalVMEXReserveFactor = vmexReserveFactor;
 
         if (vars.reserveFactor == 0 && vars.globalVMEXReserveFactor == 0) {
             return;
@@ -350,9 +335,6 @@ library ReserveLogic {
 
         vars.amountToMint = vars
             .totalDebtAccrued
-            // .percentMul(
-            //     PercentageMath.PERCENTAGE_FACTOR.sub(vars.globalVMEXReserveFactor)
-            // ) //for global VMEX reserve
             .percentMul(vars.reserveFactor); //permissionless pool owners will always get their reserveFactor * debt
 
         if (vars.amountToMint != 0) {
@@ -369,7 +351,7 @@ library ReserveLogic {
             )
             .percentMul(
                 vars.globalVMEXReserveFactor //for global VMEX reserve
-            ); //we will get (1-reserveFactor) * vmexReserveFacotr * debt
+            ); //we will get (1-reserveFactor) * vmexReserveFactor * debt
         //P = total earned
         //x = reserveFactor
         //y = VMEX reserve factor

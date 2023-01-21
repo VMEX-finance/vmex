@@ -52,15 +52,13 @@ library DepositWithdrawLogic {
         DataTypes.DepositVars memory vars,
         DataTypes.UserConfigurationMap storage user
     ) external returns(uint256){
-        uint256 userBalance = IAToken(vars.asset).balanceOf(msg.sender);
         if (vars.amount == type(uint256).max) {
-            vars.amount = userBalance; //amount to withdraw
+            vars.amount = IAToken(vars.asset).balanceOf(msg.sender); //amount to deposit is the user's balance
         }
         ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
 
         address aToken = self.aTokenAddress;
 
-        // if (assetData.isLendable) {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
         self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
         self.updateInterestRates(vars.asset, aToken, vars.amount, 0, vars._assetMappings.getVMEXReserveFactor(vars.asset));
@@ -68,9 +66,6 @@ library DepositWithdrawLogic {
             address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle();
             IPriceOracleGetter(oracle).updateTWAP(vars.asset);
         }
-
-
-        // }
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
 
@@ -81,7 +76,8 @@ library DepositWithdrawLogic {
         ); //this also considers if it is a first deposit into a trancheId, not just a specific asset
 
         if (isFirstDeposit) {
-            user.setUsingAsCollateral(self.id, true); //default collateral is true
+            // if collateral is enabled, by default the user's deposit is marked as collateral
+            user.setUsingAsCollateral(self.id, self.configuration.getCollateralEnabled());
         }
         return vars.amount;
     }

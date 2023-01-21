@@ -13,16 +13,32 @@ abstract contract IPriceOracleGetter {
         uint256 currentPrice;
     }
 
-    mapping(address=>mapping(uint16=>TimePrice)) public cumulatedPrices; //asset => index => price
-    //store most recent index to the most recently updated cumulatedPrice
-    //store last index. 
-    mapping(address =>uint16) public recent; //points to the most recent index
-    mapping(address =>uint16) public last;//points to the last index
+    /**
+     * @dev Prefix sum circular array, used to find the average price in an interval.
+     * asset => array of time prices (ie index of array => price)
+     * CumulatedPrice is weighted on time:
+     * cumulatedPrice = cumulatedPrice + timeDifference * currentPrice
+     **/
+    mapping(address=>mapping(uint16=>TimePrice)) public cumulatedPrices;
+
+    /**
+     * @dev Index of most recent addition to cumulatedPrices
+     **/
+    mapping(address =>uint16) public recent;
+
+    /**
+     * @dev Index of the least recent addition to cumulatedPrices
+     **/
+    mapping(address =>uint16) public last;
+
+    /**
+     * @dev Size of circular array for an asset
+     **/
     mapping(address =>uint16) public numPrices;
 
     constructor(){
         //loop through all assets, set timestamp to current block's timestamp
-        //or have a genesis timestamp, this genesis timestamp updates every time 
+        //or have a genesis timestamp, this genesis timestamp updates every time
     }
 
     /**
@@ -37,7 +53,6 @@ abstract contract IPriceOracleGetter {
     function getAssetTWAPPrice(address asset) external view virtual returns (uint256);
 
     function _updateState(address asset, uint256 currentPrice) internal {
-//            // console.log("updateState currentPrice: ",currentPrice);
         if(numPrices[asset]!=0){
             uint16 prev = recent[asset];
             //if this index is past 24 hours ago, don't use, just set cumulatedPrice to zero? Doing so is actually the same as keeping the below calculation cause the last pointer is set as this pointer
@@ -51,24 +66,19 @@ abstract contract IPriceOracleGetter {
             //same as midpoint rule since discrete time sampling
             uint256 averageInterpolatedPrice = (cumulatedPrices[asset][prev].currentPrice + currentPrice)/2;
             cumulatedPrices[asset][recent[asset]].cumulatedPrice = cumulatedPrices[asset][prev].cumulatedPrice + (block.timestamp-cumulatedPrices[asset][prev].timestamp) * averageInterpolatedPrice;
-//            // console.log("updateState cumulatedPrices[asset][prev].cumulatedPrice: ",cumulatedPrices[asset][prev].cumulatedPrice);
-//            // console.log("updateState (block.timestamp-cumulatedPrices[asset][prev].timestamp): ",(block.timestamp-cumulatedPrices[asset][prev].timestamp));
-//            // console.log("updateState new cumulatedPrices.cumulatedPrice: ",cumulatedPrices[asset][recent[asset]].cumulatedPrice);
-            
+
         }
         else{
             cumulatedPrices[asset][recent[asset]].cumulatedPrice = 0;
-            
-        }        
+        }
+
         cumulatedPrices[asset][recent[asset]].currentPrice = currentPrice;
         cumulatedPrices[asset][recent[asset]].timestamp = block.timestamp;
-//        // console.log("updateState new cumulatedPrices.timestamp: ",cumulatedPrices[asset][recent[asset]].timestamp);
         numPrices[asset]+=1;
 
         //get rid of outdated prices. Average O(1)
         //only get rid of them if there are stuff to get rid of
         while(numPrices[asset]>0 && (block.timestamp - cumulatedPrices[asset][last[asset]].timestamp) > 1 days){
-//            // console.log("updateState removing last: ",last[asset]);
             if(last[asset]==type(uint16).max){
                 last[asset] = 0;
             }
@@ -80,18 +90,15 @@ abstract contract IPriceOracleGetter {
     }
 
     function _getAssetTWAPPrice(address asset, uint256 currentPrice) internal view returns (uint256){
-//            // console.log("_getAssetTWAPPrice currentPrice: ",currentPrice);
         if(cumulatedPrices[asset][recent[asset]].currentPrice == 0){ //this check shouldn't be needed since state update happens before this is called
             //this is only called in the very beginning before recent[asset] is populated
             return currentPrice;
         }
         uint256 averageInterpolatedPrice = (cumulatedPrices[asset][recent[asset]].currentPrice + currentPrice)/2;
-//        // console.log("_getAssetTWAPPrice averageInterpolatedPrice: ",averageInterpolatedPrice);
         uint16 tmpLast = last[asset];
         uint16 tmpNumPrices = numPrices[asset];
         //get rid of outdated prices. Average O(1)
         while(tmpNumPrices>0 && (block.timestamp - cumulatedPrices[asset][tmpLast].timestamp) > 1 days){
-//            // console.log("updateState removing tmpLast: ",tmpLast);
             if(tmpLast==type(uint16).max){
                 tmpLast = 0;
             }
@@ -113,10 +120,6 @@ abstract contract IPriceOracleGetter {
         }
         //no state update, but temporarily calculate what the cumulatedPrice would be if there was an update. Note that prev is recent[asset]
         uint256 tmpCumulatedPrices = cumulatedPrices[asset][recent[asset]].cumulatedPrice + (block.timestamp-cumulatedPrices[asset][recent[asset]].timestamp) * averageInterpolatedPrice;
-//        // console.log("_getAssetTWAPPrice tmpCumulatedPrices: ",tmpCumulatedPrices);
-//        // console.log("_getAssetTWAPPrice cumulatedPrices[asset][tmpLast].cumulatedPrice: ",cumulatedPrices[asset][tmpLast].cumulatedPrice);
-//        // console.log("_getAssetTWAPPrice block.timestamp: ",block.timestamp);
-//        // console.log("_getAssetTWAPPrice cumulatedPrices[asset][tmpLast].timestamp: ",cumulatedPrices[asset][tmpLast].timestamp);
         return (tmpCumulatedPrices - cumulatedPrices[asset][tmpLast].cumulatedPrice)/(block.timestamp - cumulatedPrices[asset][tmpLast].timestamp);
     }
 
