@@ -192,12 +192,12 @@ contract AToken is
             IBaseStrategy(_strategy).withdraw(amount);
         }
 
-        
-        
+
+
         IERC20(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
 
         emit Transfer(user, address(0), amount); // note: this is amount user receives, not amount user requests
-        emit Burn(user, receiverOfUnderlying, amount, index); 
+        emit Burn(user, receiverOfUnderlying, amount, index);
     }
 
     /**
@@ -214,7 +214,7 @@ contract AToken is
         uint256 index
     ) external override onlyLendingPool returns (bool) {
         uint256 previousBalance = super.balanceOf(user);
-        uint256 amountScaled = amount.rayDiv(index); 
+        uint256 amountScaled = amount.rayDiv(index);
         require(amountScaled != 0, Errors.CT_INVALID_MINT_AMOUNT);
         _mint(user, amountScaled);
 

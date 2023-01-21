@@ -128,7 +128,8 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(
             calvars.aToken
         );
-        //avoid stack too deep
+
+        // computes availablility held in stratgies, avoid stack too deep
         {
             address strategyAddress = IAToken(calvars.aToken).getStrategy();
 
@@ -139,20 +140,20 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
                     IBaseStrategy(strategyAddress).balanceOf()
                 );
             }
-            availableLiquidity = availableLiquidity
-                .add(calvars.liquidityAdded)
-                .sub(calvars.liquidityTaken);
         }
 
+        availableLiquidity = availableLiquidity
+            .add(calvars.liquidityAdded)
+            .sub(calvars.liquidityTaken);
+
         CalcInterestRatesLocalVars memory vars;
-        {
-            vars.totalDebt = calvars.totalVariableDebt;
-            vars.currentVariableBorrowRate = 0;
-            vars.currentLiquidityRate = 0;
-            vars.utilizationRate = vars.totalDebt == 0
-                ? 0
-                : vars.totalDebt.rayDiv(availableLiquidity.add(vars.totalDebt));
-        }
+        vars.totalDebt = calvars.totalVariableDebt;
+        vars.currentVariableBorrowRate = 0;
+        vars.currentLiquidityRate = 0;
+        vars.utilizationRate = vars.totalDebt == 0
+            ? 0
+            : vars.totalDebt.rayDiv(availableLiquidity.add(vars.totalDebt));
+
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
             uint256 excessUtilizationRateRatio = vars
@@ -173,7 +174,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         vars.currentLiquidityRate = vars.currentVariableBorrowRate
             .rayMul(vars.utilizationRate) // % return per asset borrowed * amount borrowed = total expected return in pool
-            .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(calvars.reserveFactor)) //this is the weighted average rate that people are borrowing at (considering stable and variable) //this is percentage of pool being borrowed.
+            .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(calvars.reserveFactor)) //this is percentage of pool being borrowed.
                 .percentMul(
                     PercentageMath.PERCENTAGE_FACTOR.sub(
                         calvars.globalVMEXReserveFactor

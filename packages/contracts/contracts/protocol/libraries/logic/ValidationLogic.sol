@@ -54,10 +54,10 @@ library ValidationLogic {
 
         uint256 supplyCap = _assetMappings.getSupplyCap(asset);
         require(
-        supplyCap == 0 ||
-            (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=
-            supplyCap * (10**_assetMappings.getDecimals(asset)),
-        Errors.SUPPLY_CAP_EXCEEDED
+            supplyCap == 0 ||
+                (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=
+                supplyCap * (10**_assetMappings.getDecimals(asset)),
+            Errors.SUPPLY_CAP_EXCEEDED
         );
     }
 
