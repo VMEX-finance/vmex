@@ -7,6 +7,9 @@ pragma solidity >=0.8.0;
  **/
 //import "hardhat/console.sol";
 abstract contract IPriceOracleGetter {
+
+    uint256 constant PRICE_TTL = 1 days;
+
     struct TimePrice {
         uint256 timestamp;
         uint256 cumulatedPrice;
@@ -65,8 +68,8 @@ abstract contract IPriceOracleGetter {
             //can use trapezoid rule instead by taking the average between the current price and the previous price
             //same as midpoint rule since discrete time sampling
             uint256 averageInterpolatedPrice = (cumulatedPrices[asset][prev].currentPrice + currentPrice)/2;
-            cumulatedPrices[asset][recent[asset]].cumulatedPrice = cumulatedPrices[asset][prev].cumulatedPrice + (block.timestamp-cumulatedPrices[asset][prev].timestamp) * averageInterpolatedPrice;
-
+            cumulatedPrices[asset][recent[asset]].cumulatedPrice = cumulatedPrices[asset][prev].cumulatedPrice +
+                (block.timestamp-cumulatedPrices[asset][prev].timestamp) * averageInterpolatedPrice;
         }
         else{
             cumulatedPrices[asset][recent[asset]].cumulatedPrice = 0;
@@ -78,7 +81,7 @@ abstract contract IPriceOracleGetter {
 
         //get rid of outdated prices. Average O(1)
         //only get rid of them if there are stuff to get rid of
-        while(numPrices[asset]>0 && (block.timestamp - cumulatedPrices[asset][last[asset]].timestamp) > 1 days){
+        while(numPrices[asset]>0 && (block.timestamp - cumulatedPrices[asset][last[asset]].timestamp) > PRICE_TTL){
             if(last[asset]==type(uint16).max){
                 last[asset] = 0;
             }
@@ -98,7 +101,7 @@ abstract contract IPriceOracleGetter {
         uint16 tmpLast = last[asset];
         uint16 tmpNumPrices = numPrices[asset];
         //get rid of outdated prices. Average O(1)
-        while(tmpNumPrices>0 && (block.timestamp - cumulatedPrices[asset][tmpLast].timestamp) > 1 days){
+        while(tmpNumPrices>0 && (block.timestamp - cumulatedPrices[asset][tmpLast].timestamp) > PRICE_TTL){
             if(tmpLast==type(uint16).max){
                 tmpLast = 0;
             }
@@ -113,9 +116,11 @@ abstract contract IPriceOracleGetter {
         if(tmpNumPrices==0)//if 0, that means that not enough data to calculate, only one update in the last 24 hours.
             return averageInterpolatedPrice;
 
-        //worst case, if not updated long enough, or all updates are close to current price, average will be current price
-        //also if a lot of updates happened a day ago, calling this now will interpolate the current price as the price through that entire time so it will weigh current price more that prevoius prices
-        if(block.timestamp - cumulatedPrices[asset][tmpLast].timestamp == 0){ //to avoid divide by zero error. This happens when we update state and immediately try to read twap price, and it is the first price in a 24 hour span
+        //Worst case, if not updated long enough, or all updates are close to current price, average will be current price.
+        //If a lot of updates happened a day ago, calling this now will interpolate the current price as the price
+        //through that entire time so it will weigh current price more than prevoius prices
+        if(block.timestamp - cumulatedPrices[asset][tmpLast].timestamp == 0){
+            //to avoid divide by zero error. This happens when we update state and immediately try to read twap price, and it is the first price in a 24 hour span
             return averageInterpolatedPrice;
         }
         //no state update, but temporarily calculate what the cumulatedPrice would be if there was an update. Note that prev is recent[asset]

@@ -36,10 +36,9 @@ contract PriceOracle is IPriceOracle {
 
     /**
      * @dev updateTWAP (average O(1))
-     * recent +=1 and cover case where it goes over
      * cumulatedPrices[asset][recent] =
-     * If block.timestamp - cumulatedPrices[asset][last].timestamp > 24 hours,
-     *   then keep increasing last until you find until find cumulatedPrices[asset][last].timestamp < 24 hours (most likely close to O(1))
+     *      If block.timestamp - cumulatedPrices[asset][last].timestamp > 24 hours,
+     *          then keep increasing last until you find until find cumulatedPrices[asset][last].timestamp < 24 hours (most likely close to O(1))
      **/
     function updateTWAP(address asset) public override{
         require(numPrices[asset]<type(uint16).max, "Overflow updateTWAP");
