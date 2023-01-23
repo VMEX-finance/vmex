@@ -107,9 +107,9 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
     .connect(users[0].signer)
     .mint(await convertToCurrencyDecimals(usdc.address, "1000000"));
 
-  await usdc
-    .connect(users[0].signer)
-    .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await usdc
+      .connect(users[0].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
     await usdc
       .connect(users[1].signer)
@@ -157,7 +157,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
         AAVE_REFERRAL,
         users[0].address
       );
-    
+
   });
 
   it("Calculate the max available borrows for user 0 for weth and usdc", async () => {
@@ -203,7 +203,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
           AAVE_REFERRAL,
           users[0].address
         )).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
-      
+
         console.log("Attempt to borrow max weth")
         await pool
           .connect(users[0].signer)
@@ -280,7 +280,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
             users[0].address
           )
 
-        
+
   });
 
   it("Attempt to borrow max usdc when over limit", async () => {
@@ -383,7 +383,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
             MAX_UINT_AMOUNT,
             users[0].address
           )).to.be.revertedWith(VL_TRANSFER_NOT_ALLOWED)
-    
+
           await expect(pool
             .connect(users[0].signer)
             .withdraw(
@@ -401,7 +401,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
               availableAaveWithdraw,
               users[0].address
             )
-    
-    
+
+
   });
 });

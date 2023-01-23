@@ -81,22 +81,6 @@ export async function approveUnderlyingIfFirstInteraction(
   }
 }
 
-export async function getAllTrancheNames(
-  params: {
-    network?: string;
-    test?: boolean;
-  },
-  callback?: () => Promise<any>
-) {
-  const configurator = await getLendingPoolConfiguratorProxy({
-    network: params.network,
-  });
-
-  let trancheIds = (await configurator.totalTranches()).toNumber();
-  let x = [...Array(trancheIds).keys()];
-  return Promise.all(x.map(async (x) => await configurator.trancheNames(x)));
-}
-
 export const convertToCurrencyDecimals = async (
   tokenAddress: string,
   amount: string,

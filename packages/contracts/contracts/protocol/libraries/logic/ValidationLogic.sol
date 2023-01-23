@@ -54,10 +54,10 @@ library ValidationLogic {
 
         uint256 supplyCap = _assetMappings.getSupplyCap(asset);
         require(
-        supplyCap == 0 ||
-            (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=
-            supplyCap * (10**_assetMappings.getDecimals(asset)),
-        Errors.SUPPLY_CAP_EXCEEDED
+            supplyCap == 0 ||
+                (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=
+                supplyCap * (10**_assetMappings.getDecimals(asset)),
+            Errors.SUPPLY_CAP_EXCEEDED
         );
     }
 
@@ -98,7 +98,7 @@ library ValidationLogic {
 
         require(
             GenericLogic.balanceDecreaseAllowed(
-                GenericLogic.balanceDecreaseAllowedParameters(
+                GenericLogic.BalanceDecreaseAllowedParameters(
                     reserveAddress,
                     trancheId,
                     msg.sender,
@@ -129,7 +129,6 @@ library ValidationLogic {
         bool isActive;
         bool isFrozen;
         bool borrowingEnabled;
-        bool stableRateBorrowingEnabled;
     }
 
     function validateBorrow(
@@ -149,7 +148,6 @@ library ValidationLogic {
             vars.isActive,
             vars.isFrozen,
             vars.borrowingEnabled,
-            vars.stableRateBorrowingEnabled
         ) = reserve.configuration.getFlags();
 
         require(vars.isActive, Errors.VL_NO_ACTIVE_RESERVE);
@@ -162,7 +160,11 @@ library ValidationLogic {
 
         if (vars.borrowCap != 0) {
             unchecked {
-                require(IERC20(reserve.variableDebtTokenAddress).totalSupply() + exvars.amount <= vars.borrowCap * 10**exvars._assetMappings.getDecimals(exvars.asset), Errors.BORROW_CAP_EXCEEDED);
+                require(
+                    IERC20(reserve.variableDebtTokenAddress).totalSupply() + exvars.amount <=
+                        vars.borrowCap * 10**exvars._assetMappings.getDecimals(exvars.asset),
+                    Errors.BORROW_CAP_EXCEEDED
+                );
             }
         }
 
@@ -271,7 +273,7 @@ library ValidationLogic {
         require(
             useAsCollateral ||
                 GenericLogic.balanceDecreaseAllowed(
-                    GenericLogic.balanceDecreaseAllowedParameters(
+                    GenericLogic.BalanceDecreaseAllowedParameters(
                         reserveAddress,
                         reserve.trancheId,
                         msg.sender,
