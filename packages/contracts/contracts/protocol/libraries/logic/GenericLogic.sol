@@ -48,13 +48,13 @@ library GenericLogic {
     //  * @param asset The address of the underlying asset of the reserve
     //  * @param user The address of the user
     //  * @param amount The amount to decrease
-    struct balanceDecreaseAllowedParameters {
+    struct BalanceDecreaseAllowedParameters {
         address asset;
         uint64 trancheId;
         address user;
         uint256 amount;
-        ILendingPoolAddressesProvider _addressesProvider;
-        AssetMappings _assetMappings;
+        ILendingPoolAddressesProvider addressesProvider;
+        AssetMappings assetMappings;
     }
 
     /**
@@ -66,7 +66,7 @@ library GenericLogic {
      * @return true if the decrease of the balance is allowed
      **/
     function balanceDecreaseAllowed(
-        balanceDecreaseAllowedParameters calldata params,
+        BalanceDecreaseAllowedParameters calldata params,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap calldata userConfig,
@@ -84,10 +84,10 @@ library GenericLogic {
 
         balanceDecreaseAllowedLocalVars memory vars;
 
-        (, vars.liquidationThreshold, , vars.decimals, ) = params._assetMappings.getParams(params.asset);
+        (, vars.liquidationThreshold, , vars.decimals, ) = params.assetMappings.getParams(params.asset);
 
 
-        if (reservesData[params.asset][params.trancheId].configuration.getCollateralEnabled()==false){//(vars.liquidationThreshold == 0) {
+        if (reservesData[params.asset][params.trancheId].configuration.getCollateralEnabled()==false){
             return true;
         }
 
@@ -106,8 +106,8 @@ library GenericLogic {
             userConfig,
             reserves,
             reservesCount,
-            params._addressesProvider,
-            params._assetMappings,
+            params.addressesProvider,
+            params.assetMappings,
             true //this function is only used in the context of withdrawing or setting as not collateral, so it should be true
         );
 
@@ -115,11 +115,9 @@ library GenericLogic {
             return true;
         }
 
-
-
         //using current price instead of 24 hour average
         vars.currentPrice= IPriceOracleGetter(
-            params._addressesProvider.getPriceOracle(
+            params.addressesProvider.getPriceOracle(
             )
         ).getAssetPrice(params.asset);
 
@@ -194,7 +192,8 @@ library GenericLogic {
      * @param reservesData Data of all the reserves
      * @param userConfig The configuration of the user
      * @param reserves The list of the available reserves
-     * @param _addressesProvider The price oracle address
+     * @param addressesProvider The addresses provider address
+     * @param assetMappings The addresses provider address
      * @return The total collateral and total debt of the user in ETH, the avg ltv, liquidation threshold and the HF
      **/
     function calculateUserAccountData(
@@ -204,8 +203,8 @@ library GenericLogic {
         DataTypes.UserConfigurationMap memory userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        ILendingPoolAddressesProvider _addressesProvider,
-        AssetMappings _assetMappings,
+        ILendingPoolAddressesProvider addressesProvider,
+        AssetMappings assetMappings,
         bool useTwap
     )
         internal
@@ -220,17 +219,14 @@ library GenericLogic {
         )
     {
         CalculateUserAccountDataVars memory vars;
-        {
-            vars.user = actTranche.user;
-            vars.trancheId = actTranche.trancheId;
-            vars.useTwap = useTwap;
-        }
+        vars.user = actTranche.user;
+        vars.trancheId = actTranche.trancheId;
+        vars.useTwap = useTwap;
 
-        // require(!userConfig.isEmpty(), "userConfig is empty");
         if (userConfig.isEmpty()) {
             return (0, 0, 0, 0, type(uint256).max, 0);
         }
-        // assert(reservesCount == reserves.length);
+
         for (vars.i = 0; vars.i < reservesCount; vars.i++) {
             if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
                 continue;
@@ -241,15 +237,7 @@ library GenericLogic {
                 vars.currentReserveAddress
             ][vars.trancheId];
 
-            {
-                vars.oracle = _addressesProvider.getPriceOracle(
-                );
-            }
-
-            require(
-                currentReserve.trancheId == vars.trancheId,
-                "calculateUserAccountData trancheId does not line up"
-            );
+            vars.oracle = addressesProvider.getPriceOracle();
 
             (
                 vars.ltv,
@@ -257,21 +245,19 @@ library GenericLogic {
                 ,
                 vars.decimals,
                 vars.borrowFactor
-            ) = _assetMappings.getParams(vars.currentReserveAddress);
+            ) = assetMappings.getParams(vars.currentReserveAddress);
 
             vars.tokenUnit = 10**vars.decimals;
             vars.reserveUnitPrice = IPriceOracleGetter(vars.oracle)
                 .getAssetPrice(vars.currentReserveAddress);
 
-            //decide whether to do on or off chain
             vars.reserveTwapUnitPrice = IPriceOracleGetter(vars.oracle)
-                .getAssetTWAPPrice(vars.currentReserveAddress); //from uniswap
+                .getAssetTWAPPrice(vars.currentReserveAddress);
 
             if (
-                currentReserve.configuration.getCollateralEnabled()==true &&//vars.liquidationThreshold != 0 &&
+                currentReserve.configuration.getCollateralEnabled() &&
                 userConfig.isUsingAsCollateral(vars.i)
             ) {
-                //the check vars.liquidationThreshold != 0 means reserves that are disabled as collateral (vars.liquidationThreshold = 0) won't count
                 vars.compoundedLiquidityBalance = IERC20(
                     currentReserve.aTokenAddress
                 ).balanceOf(vars.user);
@@ -298,10 +284,10 @@ library GenericLogic {
                 );
 
                 vars.avgLtv = vars.avgLtv.add(
-                    vars.liquidityBalanceETH.mul(vars.ltv)//.percentMul(vars.borrowFactor) //borrow factor is property of borrowed asset, not collateral asset
+                    vars.liquidityBalanceETH.mul(vars.ltv)
                 );
                 vars.avgLiquidationThreshold = vars.avgLiquidationThreshold.add(
-                    vars.liquidityBalanceETH.mul(vars.liquidationThreshold)//.percentMul(vars.borrowFactor)
+                    vars.liquidityBalanceETH.mul(vars.liquidationThreshold)
                 );
             }
 
@@ -309,8 +295,8 @@ library GenericLogic {
                 vars.compoundedBorrowBalance =
                     IERC20(currentReserve.variableDebtTokenAddress).balanceOf(vars.user);
 
-                if(!useTwap || vars.reserveTwapUnitPrice<vars.reserveUnitPrice){ //debt uses the larger value of price
-                //if not using twap or if not using twap has higher price, then use the regular price
+                if(!useTwap || vars.reserveTwapUnitPrice<vars.reserveUnitPrice){
+                    //if not using twap or if twap has lower price than regular, then use the regular price
                     vars.thisDebtInEth = vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
                             vars.tokenUnit
                         );
@@ -364,6 +350,7 @@ library GenericLogic {
      * @param totalCollateralInETH The total collateral in ETH
      * @param totalDebtInETH The total debt in ETH
      * @param liquidationThreshold The avg liquidation threshold
+     * @param borrowFactor The borrow factor
      * @return The health factor calculated from the balances provided
      **/
     function calculateHealthFactorFromBalances(

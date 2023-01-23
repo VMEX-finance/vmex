@@ -108,25 +108,22 @@ contract LendingPoolCollateralManager is
         ].configuration;
 
         LiquidationCallLocalVars memory vars;
-        {
-            vars._assetMappings = _assetMappings;
-            vars.debtAsset = debtAsset;
-            vars.collateralAsset = collateralAsset;
-        }
+        vars._assetMappings = _assetMappings;
+        vars.debtAsset = debtAsset;
+        vars.collateralAsset = collateralAsset;
 
 
-        { //health factor is based on lowest collateral value between twap and chainlink
-            (, , , , vars.healthFactor,) = GenericLogic.calculateUserAccountData(
-                DataTypes.AcctTranche(user, trancheId),
-                _reserves,
-                userConfig,
-                _reservesList[trancheId],
-                _reservesCount[trancheId],
-                _addressesProvider,
-                vars._assetMappings,
-                false //liquidations don't want to use twap
-            );
-        }
+        //health factor is based on lowest collateral value between twap and chainlink
+        (, , , , vars.healthFactor,) = GenericLogic.calculateUserAccountData(
+            DataTypes.AcctTranche(user, trancheId),
+            _reserves,
+            userConfig,
+            _reservesList[trancheId],
+            _reservesCount[trancheId],
+            _addressesProvider,
+            vars._assetMappings,
+            false //liquidations don't want to use twap
+        );
 
         DataTypes.ReserveData storage collateralReserve = _reserves[
             vars.collateralAsset
