@@ -3,7 +3,7 @@ import { checkVerification } from '../../helpers/etherscan-verification';
 import { ConfigNames } from '../../helpers/configuration';
 import { printContracts } from '../../helpers/misc-utils';
 
-task('aave:dev', 'Deploy development enviroment')
+task('vmex:dev', 'Deploy development enviroment')
   .addFlag('verify', 'Verify contracts at Etherscan')
   .setAction(async ({ verify }, localBRE) => {
     const POOL_NAME = ConfigNames.Aave;

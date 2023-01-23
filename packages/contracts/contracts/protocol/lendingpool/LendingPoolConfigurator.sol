@@ -40,7 +40,6 @@ contract LendingPoolConfigurator is
     AssetMappings internal assetMappings;
     ILendingPool internal pool;
     uint64 public totalTranches;
-    mapping(uint64 => string) public trancheNames; //just for frontend purposes
 
     modifier onlyEmergencyAdmin {
         require(
@@ -60,7 +59,7 @@ contract LendingPoolConfigurator is
         //this contract handles the updates to the configuration
         require(
             addressesProvider.getGlobalAdmin() == msg.sender,
-            "Caller not global VMEX admin"
+            Errors.CALLER_NOT_GLOBAL_ADMIN
         );
     }
 
@@ -98,6 +97,10 @@ contract LendingPoolConfigurator is
         assetMappings = AssetMappings(addressesProvider.getAssetMappings());
     }
 
+    /* ************************************************************************* */
+    /* This next section contains functions available to any whitelisted address */
+    /* ************************************************************************* */
+
     /**
      * @dev Claims the next available tranche id. Goes from 0 up to max(uint64). Claiming tranche id is first step
      * to create a tranche (permissionless or vmec-managed), doesn't require any checks besides that trancheId is unique
@@ -112,11 +115,13 @@ contract LendingPoolConfigurator is
         //whitelist only
         uint64 givenTranche = totalTranches;
         addressesProvider.addTrancheAdmin(admin, givenTranche);
-        trancheNames[givenTranche] = name;
         totalTranches += 1;
         emit TrancheInitialized(givenTranche, name, admin);
         return givenTranche;
     }
+    /* ******************************************************************************** */
+    /* This next section contains functions only accessible to Tranche Admins and above */
+    /* ******************************************************************************** */
 
     /**
      * @dev Initializes reserves in batch. Can be called directly by those who created tranches
@@ -211,16 +216,12 @@ contract LendingPoolConfigurator is
         );
     }
 
-    //allowing deposit and borrows in the same block
-    function addWhitelistedDepositBorrow(address user)
-        external
-        onlyGlobalAdmin
-    {
-        ILendingPool cachedPool = pool;
-        cachedPool.addWhitelistedDepositBorrow(user);
-        emit AddedWhitelistedDepositBorrow(user);
-    }
-
+    /**
+     * @dev Updates the treasury address of the atoken
+     * @param newAddress The new address (NO VALIDATIONS ARE DONE)
+     * @param asset The underlying asset of the atoken to modify
+     * @param trancheId The tranche id of the atoken
+     **/
     function updateTreasuryAddress(
         address newAddress,
         address asset,
@@ -230,117 +231,9 @@ contract LendingPoolConfigurator is
         IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
             .setTreasury(newAddress);
         //emit
-        emit UpdatedTreasuryAddress(asset,trancheId, newAddress);
+        emit UpdatedTreasuryAddress(asset, trancheId, newAddress);
     }
 
-    function updateVMEXTreasuryAddress(
-        address newAddress,
-        address asset,
-        uint64 trancheId
-    ) external onlyGlobalAdmin {
-        ILendingPool cachedPool = pool;
-        IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
-            .setVMEXTreasury(newAddress);
-        emit UpdatedVMEXTreasuryAddress(asset,trancheId, newAddress);
-    }
-
-    struct updateATokenVars {
-        address DefaultVMEXTreasury;
-        uint256 decimals;
-        ILendingPool cachedPool;
-        DataTypes.ReserveData reserveData;
-        UpdateATokenInput input;
-    }
-
-    /**
-     * @dev Updates the aToken implementation for the reserve
-     **/
-     //note that this only updates the implementation for a specific aToken in a specific tranche
-    function updateAToken(UpdateATokenInput calldata input)
-        external
-        onlyGlobalAdmin
-    {
-        updateATokenVars memory vars;
-        {
-            vars.input  = input;
-            vars.cachedPool = pool;
-            vars.DefaultVMEXTreasury = addressesProvider.getVMEXTreasury();
-
-            vars.reserveData = vars.cachedPool.getReserveData(
-                vars.input.asset,
-                vars.input.trancheId
-            );
-
-            (, , , vars.decimals, ) = assetMappings.getParams(vars.input.asset);
-        }
-
-        bytes memory encodedCall = abi.encodeWithSelector(
-            IInitializableAToken.initialize.selector, //selects that we want to call the initialize function
-            vars.cachedPool,
-            address(this),
-            vars.input.treasury,
-            vars.DefaultVMEXTreasury,
-            vars.input.asset,
-            vars.input.trancheId,
-            vars.input.incentivesController,
-            vars.decimals,
-            vars.input.name,
-            vars.input.symbol
-        );
-
-        _upgradeTokenImplementation(
-            vars.reserveData.aTokenAddress,
-            vars.input.implementation,
-            encodedCall
-        );
-
-        emit ATokenUpgraded(
-            vars.input.asset,
-            vars.input.trancheId,
-            vars.reserveData.aTokenAddress,
-            vars.input.implementation
-        );
-    }
-
-    /**
-     * @dev Updates the variable debt token implementation for the asset
-     **/
-    function updateVariableDebtToken(
-        UpdateDebtTokenInput calldata input
-    ) external onlyGlobalAdmin {
-        ILendingPool cachedPool = pool;
-
-        DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
-            input.asset,
-            input.trancheId
-        );
-
-        (, , , uint256 decimals, ) = assetMappings.getParams(input.asset);
-
-        bytes memory encodedCall = abi.encodeWithSelector(
-            IInitializableDebtToken.initialize.selector,
-            cachedPool,
-            input.asset,
-            input.trancheId,
-            input.incentivesController,
-            decimals,
-            input.name,
-            input.symbol
-        );
-
-        _upgradeTokenImplementation(
-            reserveData.variableDebtTokenAddress,
-            input.implementation,
-            encodedCall
-        );
-
-        emit VariableDebtTokenUpgraded(
-            input.asset,
-            input.trancheId,
-            reserveData.variableDebtTokenAddress,
-            input.implementation
-        );
-    }
 
     /**
      * @dev Enables borrowing on a reserve
@@ -452,6 +345,258 @@ contract LendingPoolConfigurator is
     }
 
     /**
+     * @dev Adds a strategy to a reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
+     * @param strategyId The id of the strategy to attach
+     **/
+    function addStrategy(
+        address asset,
+        uint64 trancheId,
+        uint8 strategyId
+    ) external onlyTrancheAdmin(trancheId) {
+        address strategy =assetMappings.getCurveStrategyAddress(asset,strategyId);
+        address proxy = DeployATokens._initTokenWithProxy(
+            strategy,
+            abi.encodeWithSelector(
+                IStrategy.initialize.selector,
+                address(addressesProvider),
+                asset,
+                trancheId
+            )
+        );
+
+        pool.setAndApproveStrategy(asset,trancheId,proxy);
+        // console.log("Proxy address: ", proxy);
+        emit StrategyAdded(asset, trancheId, strategy);
+    }
+
+    function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyTrancheAdmin(trancheId){
+        pool.setWhitelist(trancheId,isWhitelisted);
+        emit UserSetWhitelistEnabled(trancheId, isWhitelisted);
+    }
+
+    function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyTrancheAdmin(trancheId) {
+        require(user.length == isWhitelisted.length, "whitelist lengths not equal");
+        for(uint i = 0;i<user.length;i++){
+            pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
+            emit UserChangedWhitelist(trancheId, user[i], isWhitelisted[i]);
+        }
+    }
+
+    function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyTrancheAdmin(trancheId) {
+        require(user.length == isBlacklisted.length, "Blacklisted lengths not equal");
+        for(uint i = 0;i<user.length;i++){
+            pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
+            emit UserChangedBlacklist(trancheId, user[i], isBlacklisted[i]);
+        }
+    }
+
+    /**
+     * @dev Sets the interest rate strategy of a reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @param rateStrategyAddressId The new address of the interest strategy contract
+     **/
+    function setReserveInterestRateStrategyAddress(
+        address asset,
+        uint64 trancheId,
+        uint8 rateStrategyAddressId
+    ) external onlyTrancheAdmin(trancheId) {
+        address rateStrategyAddress =assetMappings.getInterestRateStrategyAddress(asset,rateStrategyAddressId);
+
+        pool.setReserveInterestRateStrategyAddress(
+            asset,
+            trancheId,
+            rateStrategyAddress
+        );
+        emit ReserveInterestRateStrategyChanged(asset, trancheId, rateStrategyAddress);
+    }
+
+    /* ********************************************************************* */
+    /* This next section contains functions only accessible to Global Admins */
+    /* ********************************************************************* */
+
+
+    /**
+     * @dev Updates the strategy associated with a reserve. Note that this
+     * only updates one strategy for an asset of a specific tranche.
+     * Alternatively, we could publish a new strategy with a new strategyId, and users
+     * can choose to use that strategy by setting strategyId in initialization.
+     * Only global admins have access to update the implementation of strategies because
+     * of the danger involved with giving tranche admins access to the strategies.
+     **/
+    function updateStrategy(UpdateStrategyInput calldata input)
+        external
+        onlyGlobalAdmin
+    {
+        // cannot do the below call because aTokens proxy admin is this contract, and by transparent proxy pattern, to use delegatecall you must call from account that is not admin
+        // also cannot do delegatecall because we need the context of the atoken
+        // address strategyAddress = IAToken(reserveData.aTokenAddress).getStrategy();
+        require(input.strategyAddress!=address(0), "Upgrading reserve that doesn't have a strategy");
+        bytes memory encodedCall;
+        //  = abi.encodeWithSelector(
+        //     IStrategy.initialize.selector, //selects that we want to call the initialize function
+        //     address(addressesProvider),
+        //     input.asset,
+        //     input.trancheId
+        // );
+
+        _upgradeTokenImplementation(
+            input.strategyAddress,//address of proxy
+            input.implementation,
+            encodedCall
+        );
+
+        emit StrategyUpgraded(
+            input.asset,
+            input.trancheId,
+            input.strategyAddress,
+            input.implementation
+        );
+    }
+
+    /**
+     * @dev Allows a user to deposit and borrow in the same block
+     * @param user The address of allowed user
+     **/
+    function addWhitelistedDepositBorrow(address user)
+        external
+        onlyGlobalAdmin
+    {
+        ILendingPool cachedPool = pool;
+        cachedPool.addWhitelistedDepositBorrow(user);
+        emit AddedWhitelistedDepositBorrow(user);
+    }
+
+    /**
+     * @dev Updates the treasury address of the atoken
+     * @param newAddress The new address (NO VALIDATIONS ARE DONE)
+     * @param asset The underlying asset of the atoken to modify
+     * @param trancheId The tranche id of the atoken
+     **/
+    function updateVMEXTreasuryAddress(
+        address newAddress,
+        address asset,
+        uint64 trancheId
+    ) external onlyGlobalAdmin {
+        ILendingPool cachedPool = pool;
+        IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
+            .setVMEXTreasury(newAddress);
+        emit UpdatedVMEXTreasuryAddress(asset, trancheId, newAddress);
+    }
+
+    struct UpdateATokenVars {
+        address defaultVMEXTreasury;
+        uint256 decimals;
+        ILendingPool cachedPool;
+        DataTypes.ReserveData reserveData;
+        UpdateATokenInput input;
+    }
+
+    /**
+     * @dev Updates the aToken implementation for the reserve. Note that this only updates
+     * the implementation for a specific aToken in a specific tranche.
+     * @param input address asset - The underlying asset
+     *      uint64 trancheId - The tranche id
+     *      address treasury - The new treasury address
+     *      address incentivesController - The new incentives controller
+     *      string name - The new name of the atoken
+     *      string symbol - The new symbol of the atoken
+     *      address implementation - The new address of atoken implementation
+     **/
+    function updateAToken(UpdateATokenInput calldata input)
+        external
+        onlyGlobalAdmin
+    {
+        UpdateATokenVars memory vars;
+        {
+            vars.input  = input;
+            vars.cachedPool = pool;
+            vars.defaultVMEXTreasury = addressesProvider.getVMEXTreasury();
+
+            vars.reserveData = vars.cachedPool.getReserveData(
+                vars.input.asset,
+                vars.input.trancheId
+            );
+
+            (, , , vars.decimals, ) = assetMappings.getParams(vars.input.asset);
+        }
+
+        bytes memory encodedCall = abi.encodeWithSelector(
+            IInitializableAToken.initialize.selector, //selects that we want to call the initialize function
+            vars.cachedPool,
+            address(this),
+            vars.input.treasury,
+            vars.defaultVMEXTreasury,
+            vars.input.asset,
+            vars.input.trancheId,
+            vars.input.incentivesController,
+            vars.decimals,
+            vars.input.name,
+            vars.input.symbol
+        );
+
+        _upgradeTokenImplementation(
+            vars.reserveData.aTokenAddress,
+            vars.input.implementation,
+            encodedCall
+        );
+
+        emit ATokenUpgraded(
+            vars.input.asset,
+            vars.input.trancheId,
+            vars.reserveData.aTokenAddress,
+            vars.input.implementation
+        );
+    }
+
+    /**
+     * @dev Updates the variable debt token implementation for the asset
+     * @param input address asset - The underlying asset
+     *      uint64 trancheId - The tranche id
+     *      address incentivesController - The new incentives controller address
+     *      string name - The new name of the variable debt token
+     *      string symbol - The new symbol of the variable debt token
+     *      address implementation - The address of the variable debt token implementation
+     **/
+    function updateVariableDebtToken(
+        UpdateDebtTokenInput calldata input
+    ) external onlyGlobalAdmin {
+        ILendingPool cachedPool = pool;
+
+        DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
+            input.asset,
+            input.trancheId
+        );
+
+        (, , , uint256 decimals, ) = assetMappings.getParams(input.asset);
+
+        bytes memory encodedCall = abi.encodeWithSelector(
+            IInitializableDebtToken.initialize.selector,
+            cachedPool,
+            input.asset,
+            input.trancheId,
+            input.incentivesController,
+            decimals,
+            input.name,
+            input.symbol
+        );
+
+        _upgradeTokenImplementation(
+            reserveData.variableDebtTokenAddress,
+            input.implementation,
+            encodedCall
+        );
+
+        emit VariableDebtTokenUpgraded(
+            input.asset,
+            input.trancheId,
+            reserveData.variableDebtTokenAddress,
+            input.implementation
+        );
+    }
+
+    /**
      * @dev Activates a reserve
      * @param asset The address of the underlying asset of the reserve
      **/
@@ -490,26 +635,6 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Sets the interest rate strategy of a reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @param rateStrategyAddressId The new address of the interest strategy contract
-     **/
-    function setReserveInterestRateStrategyAddress(
-        address asset,
-        uint64 trancheId,
-        uint8 rateStrategyAddressId
-    ) external onlyTrancheAdmin(trancheId) {
-        address rateStrategyAddress =assetMappings.getInterestRateStrategyAddress(asset,rateStrategyAddressId);
-
-        pool.setReserveInterestRateStrategyAddress(
-            asset,
-            trancheId,
-            rateStrategyAddress
-        );
-        emit ReserveInterestRateStrategyChanged(asset, trancheId, rateStrategyAddress);
-    }
-
-    /**
      * @dev pauses or unpauses all the actions of the protocol, including aToken transfers
      * @param val true if protocol needs to be paused, false otherwise
      **/
@@ -545,84 +670,5 @@ contract LendingPoolConfigurator is
             availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
             Errors.LPC_RESERVE_LIQUIDITY_NOT_0
         );
-    }
-
-    function addStrategy(
-        address asset,
-        uint64 trancheId,
-        uint8 strategyId
-    ) external onlyTrancheAdmin(trancheId) {
-        address strategy =assetMappings.getCurveStrategyAddress(asset,strategyId);
-        address proxy = DeployATokens._initTokenWithProxy(
-            strategy,
-            abi.encodeWithSelector(
-                IStrategy.initialize.selector,
-                address(addressesProvider),
-                asset,
-                trancheId
-            )
-        );
-
-        pool.setAndApproveStrategy(asset,trancheId,proxy);
-        // console.log("Proxy address: ", proxy);
-        emit StrategyAdded(asset, trancheId, strategy);
-    }
-
-    /**
-     * @dev Updates the aToken implementation for the reserve
-     **/
-     // note that this only updates one strategy for an asset of a specific tranche
-     // alternatively, we could publish a new strategy with a new strategyId, and users
-     // can choose to use that strategy by setting strategyId in initialization
-    function updateStrategy(UpdateStrategyInput calldata input)
-        external
-        onlyGlobalAdmin
-    {
-        // cannot do the below call because aTokens proxy admin is this contract, and by transparent proxy pattern, to use delegatecall you must call from account that is not admin
-        // also cannot do delegatecall because we need the context of the atoken
-        // address strategyAddress = IAToken(reserveData.aTokenAddress).getStrategy();
-        require(input.strategyAddress!=address(0), "Upgrading reserve that doesn't have a strategy");
-        bytes memory encodedCall;
-        //  = abi.encodeWithSelector(
-        //     IStrategy.initialize.selector, //selects that we want to call the initialize function
-        //     address(addressesProvider),
-        //     input.asset,
-        //     input.trancheId
-        // );
-
-        _upgradeTokenImplementation(
-            input.strategyAddress,//address of proxy
-            input.implementation,
-            encodedCall
-        );
-
-        emit StrategyUpgraded(
-            input.asset,
-            input.trancheId,
-            input.strategyAddress,
-            input.implementation
-        );
-    }
-
-    function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyTrancheAdmin(trancheId){
-        pool.setWhitelist(trancheId,isWhitelisted);
-        emit UserSetWhitelistEnabled(trancheId, isWhitelisted);
-    }
-
-    function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyTrancheAdmin(trancheId) {
-        require(user.length == isWhitelisted.length, "whitelist lengths not equal");
-        for(uint i = 0;i<user.length;i++){
-            pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
-            emit UserChangedWhitelist(trancheId, user[i], isWhitelisted[i]);
-        }
-
-    }
-
-    function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyTrancheAdmin(trancheId) {
-        require(user.length == isBlacklisted.length, "Blacklisted lengths not equal");
-        for(uint i = 0;i<user.length;i++){
-            pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
-            emit UserChangedBlacklist(trancheId, user[i], isBlacklisted[i]);
-        }
     }
 }

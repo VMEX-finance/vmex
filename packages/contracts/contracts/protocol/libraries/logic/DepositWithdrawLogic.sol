@@ -52,25 +52,19 @@ library DepositWithdrawLogic {
         DataTypes.DepositVars memory vars,
         DataTypes.UserConfigurationMap storage user
     ) external returns(uint256){
-        uint256 userBalance = IAToken(vars.asset).balanceOf(msg.sender);
         if (vars.amount == type(uint256).max) {
-            vars.amount = userBalance; //amount to withdraw
+            vars.amount = IAToken(vars.asset).balanceOf(msg.sender); //amount to deposit is the user's balance
         }
         ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
 
         address aToken = self.aTokenAddress;
 
-        // if (assetData.isLendable) {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
         self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
         self.updateInterestRates(vars.asset, aToken, vars.amount, 0, vars._assetMappings.getVMEXReserveFactor(vars.asset));
-        {
-            address oracle = ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle();
-            IPriceOracleGetter(oracle).updateTWAP(vars.asset);
-        }
-
-
-        // }
+        IPriceOracleGetter(
+            ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle()
+        ).updateTWAP(vars.asset);
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
 
@@ -81,7 +75,8 @@ library DepositWithdrawLogic {
         ); //this also considers if it is a first deposit into a trancheId, not just a specific asset
 
         if (isFirstDeposit) {
-            user.setUsingAsCollateral(self.id, true); //default collateral is true
+            // if collateral is enabled, by default the user's deposit is marked as collateral
+            user.setUsingAsCollateral(self.id, self.configuration.getCollateralEnabled());
         }
         return vars.amount;
     }
@@ -106,10 +101,8 @@ library DepositWithdrawLogic {
         DataTypes.WithdrawParams memory vars,
         ILendingPoolAddressesProvider _addressesProvider,
         AssetMappings _assetMappings
-    ) public returns (uint256) {
-        DataTypes.ReserveData storage reserve = _reserves[vars.asset][
-            vars.trancheId
-        ];
+    ) external returns (uint256) {
+        DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
         address aToken = reserve.aTokenAddress;
 
         uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
@@ -138,11 +131,9 @@ library DepositWithdrawLogic {
         reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
         reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
 
-        {
-            address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                    );
-            IPriceOracleGetter(oracle).updateTWAP(vars.asset);
-        }
+        IPriceOracleGetter(
+            ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle()
+        ).updateTWAP(vars.asset);
 
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
@@ -166,17 +157,12 @@ library DepositWithdrawLogic {
         DataTypes.UserConfigurationMap storage userConfig, //config of onBehalfOf user
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
-    ) public returns(uint256){
-        {
-            address oracle = ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle(
-                    );
-            IPriceOracleGetter(oracle).updateTWAP(vars.asset);
-        }
+    ) external returns(uint256){
+        IPriceOracleGetter(
+            ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle()
+        ).updateTWAP(vars.asset);
 
-        DataTypes.ReserveData storage reserve = _reserves[vars.asset][
-            vars.trancheId
-        ];
-
+        DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
 
         if(vars.amount == type(uint256).max){
             uint256 totalAmount = IERC20(vars.asset).balanceOf(reserve.aTokenAddress);
@@ -197,11 +183,11 @@ library DepositWithdrawLogic {
                 vars._assetMappings,
                 true
             );
-            vars.amount = (userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral
-                .sub(
-                    userBorrowBalanceETH.percentMul(avgBorrowFactor) //risk adjusted debt
-                )
-            ).percentDiv(vars._assetMappings.getBorrowFactor(vars.asset))//this will be the amount in ETH
+            vars.amount = (
+                userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral
+                .sub(userBorrowBalanceETH.percentMul(avgBorrowFactor)) //risk adjusted debt
+            ) // amount available to use for borrow
+            .percentDiv(vars._assetMappings.getBorrowFactor(vars.asset)) //adjust for this asset's borrow factor, in ETH
             .mul(10**vars._assetMappings.getDecimals(vars.asset))
             .div(vars.assetPrice); //converted to native token
 
@@ -209,10 +195,6 @@ library DepositWithdrawLogic {
                 vars.amount=totalAmount;
             }
         }
-
-        //The mocks are in ETH, but when deploying to mainnet we probably want to convert to USD
-        //This is really amount in WEI. getAssetPrice gets the asset price in wei
-        //The units are consistent. The reserve decimals will be the lp token decimals (usually 18). Then it's basically like multiplying some small 1.02 or some factor to the geometric mean wei price. By dividing by 10**decimals we are getting back wei.
 
         uint256 amountInETH = vars.assetPrice.mul(vars.amount).div(
                 10**vars._assetMappings.getDecimals(vars.asset)

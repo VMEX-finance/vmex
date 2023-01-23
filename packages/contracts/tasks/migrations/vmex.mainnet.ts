@@ -4,7 +4,7 @@ import { ConfigNames } from "../../helpers/configuration";
 import { printContracts } from "../../helpers/misc-utils";
 import { usingTenderly } from "../../helpers/tenderly-utils";
 
-task("aave:mainnet", "Deploy development enviroment")
+task("vmex:mainnet", "Deploy development enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addFlag(
     "skipRegistry",

@@ -10,6 +10,7 @@ const { expect } = require("chai");
 makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   const {
     CALLER_NOT_TRANCHE_ADMIN,
+    CALLER_NOT_GLOBAL_ADMIN,
     LPC_RESERVE_LIQUIDITY_NOT_0,
     RC_INVALID_LTV,
     RC_INVALID_LIQ_THRESHOLD,
@@ -63,17 +64,15 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Check the onlyAaveAdmin on deactivateReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).deactivateReserve(weth.address, 0),
-      "Caller not global VMEX admin"
-    ).to.be.revertedWith("Caller not global VMEX admin");
+      configurator.connect(users[2].signer).deactivateReserve(weth.address, 0)
+    ).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
   });
 
   it("Check the onlyAaveAdmin on activateReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).activateReserve(weth.address, 0),
-      "Caller not global VMEX admin"
-    ).to.be.revertedWith("Caller not global VMEX admin");
+      configurator.connect(users[2].signer).activateReserve(weth.address, 0)
+    ).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
   });
 
   it("Freezes the ETH0 reserve", async () => {
