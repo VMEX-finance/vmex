@@ -271,7 +271,13 @@ export const getAllMockedTokens = async () => {
     const address = db
       .get(`${tokenSymbol.toUpperCase()}.${DRE.network.name}`)
       .value().address;
-    accumulator[tokenSymbol] = await getMintableERC20(address);
+      if (tokenSymbol === "yvTricrypto2" || tokenSymbol === "yvThreePool" || tokenSymbol === "yvStethEth"|| tokenSymbol === "yvFraxUSDC"|| tokenSymbol === "yvFrax3Crv") {
+        accumulator[tokenSymbol] = await getYearnTokenMocked(address);
+      }
+      else {
+        accumulator[tokenSymbol] = await getMintableERC20(address);
+      }
+    
     return Promise.resolve(acc);
   }, Promise.resolve({}));
   return tokens;

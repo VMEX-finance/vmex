@@ -55,7 +55,7 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       );
       // Set lending pool impl to Address provider
       await waitForTx(
-        await addressesProvider.setLendingPoolImpl(lendingPoolImplAddress)
+        await addressesProvider.setLendingPoolImpl(lendingPoolImplAddress || "")
       );
 
       const address = await addressesProvider.getLendingPool();
@@ -86,7 +86,7 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       // Set lending pool conf impl to Address Provider
       await waitForTx(
         await addressesProvider.setLendingPoolConfiguratorImpl(
-          lendingPoolConfiguratorImplAddress
+          lendingPoolConfiguratorImplAddress || ""
         )
       );
 

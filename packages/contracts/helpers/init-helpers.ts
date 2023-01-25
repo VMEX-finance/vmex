@@ -68,8 +68,8 @@ export const initAssetData = async (
   variableDebtTokenNamePrefix: string,
   symbolPrefix: string,
   admin: SignerWithAddress,
-  CurveMetadata: iMultiPoolsAssets<ICurveMetadata>,
-  verify: boolean
+  verify: boolean,
+  CurveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
 ) => {
   // initTrancheMultiplier();
   const addressProvider = await getLendingPoolAddressesProvider();
@@ -211,7 +211,9 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
 
   console.log("    * gasUsed", tx3.gasUsed.toString());
 
-  
+  if(!CurveMetadata){
+    return;
+  }
   let curveToken: string[] = []
   let curveParams: CurveMetadata[] = []
 

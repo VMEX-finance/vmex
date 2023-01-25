@@ -15,7 +15,7 @@ const chai = require('chai');
 
 const { expect } = chai;
 
-makeSuite('LendingPool liquidation - liquidator receiving the underlying asset', (testEnv) => {
+makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underlying asset', (testEnv) => {
   const { INVALID_HF } = ProtocolErrors;
   const tranche = 1;
 
