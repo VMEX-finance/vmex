@@ -65,7 +65,6 @@
     "ci:clean": "rm -rf ./artifacts ./cache ./types",
     "print-contracts:main": "npm run hardhat:main -- print-contracts",
     "dev:coverage": "buidler compile --force && buidler coverage --network coverage",
-    "vmex:sepolia:full:migration": "npm run compile && npm run hardhat:sepolia -- vmex:dev --verify",
     "main:deployUniswapRepayAdapter": "hardhat --network main deploy-UniswapRepayAdapter --provider 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5 --router 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D --weth 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     "main:UniswapLiquiditySwapAdapter": "hardhat --network main deploy-UniswapLiquiditySwapAdapter  --provider 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5 --router 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D --weth 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     "main:ParaSwapLiquiditySwapAdapter": "hardhat --network main deploy-ParaSwapLiquiditySwapAdapter --provider 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5 --augustusRegistry 0xa68bEA62Dc4034A689AA0F58A76681433caCa663",
