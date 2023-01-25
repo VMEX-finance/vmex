@@ -232,6 +232,7 @@ const buildTestEnv = async (deployer: Signer) => {
     VariableDebtTokenNamePrefix,
     SymbolPrefix,
     admin,
+    {...config.CurveMetadata},
     false
   );
 
