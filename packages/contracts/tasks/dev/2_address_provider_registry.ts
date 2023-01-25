@@ -18,11 +18,49 @@ task(
     const admin = await (await getEthersSigners())[0].getAddress();
 
     const addressesProvider = await deployLendingPoolAddressesProvider(AaveConfig.MarketId, verify);
-    await waitForTx(await addressesProvider.setPoolAdmin(admin));
-    await waitForTx(await addressesProvider.setEmergencyAdmin(admin));
 
     const addressesProviderRegistry = await deployLendingPoolAddressesProviderRegistry(verify);
     await waitForTx(
       await addressesProviderRegistry.registerAddressesProvider(addressesProvider.address, 1)
+    );
+
+    // 3. Set pool admins
+    await waitForTx(
+      await addressesProvider.setGlobalAdmin(
+        admin
+      )
+    );
+    await waitForTx(
+      await addressesProvider.setEmergencyAdmin(
+        admin
+      )
+    );
+    await waitForTx(
+      await addressesProvider.addWhitelistedAddress(
+        admin,
+        true
+      )
+    );
+    await waitForTx(
+      await addressesProvider.addWhitelistedAddress(
+        await (await getEthersSigners())[1].getAddress(),
+        true
+      )
+    );
+
+    //dev: enable anyone to create tranche
+    await waitForTx(
+      await addressesProvider.setPermissionlessTranches(
+        true
+      )
+    );
+    //await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
+
+    console.log("Pool Admin", await addressesProvider.getGlobalAdmin());
+    console.log(
+      "whitelisted addresses: ",
+      await addressesProvider.getGlobalAdmin(),
+      " and ",
+      await await (await getEthersSigners())[1].getAddress()
     );
   });

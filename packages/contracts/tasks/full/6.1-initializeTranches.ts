@@ -87,7 +87,7 @@ task(
         canBeCollateral0,
         admin,
         treasuryAddress,
-        incentivesController,
+        incentivesController || "",
         0
       );
     } catch (err) {
