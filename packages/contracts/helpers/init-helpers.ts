@@ -277,7 +277,7 @@ export const initReservesByHelper = async (
   // Deploy init reserves per tranche
   // tranche CONFIGURATION
   const configurator = await getLendingPoolConfiguratorProxy();
-  let initChunks = 20;
+  let initChunks = 3;
   const chunkedSymbols = chunk(assetAddresses, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
