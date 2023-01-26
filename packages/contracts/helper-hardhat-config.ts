@@ -37,6 +37,9 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
 };
 
 export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
+  [eEthereumNetwork.goerli]: ALCHEMY_KEY
+    ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_KEY}`
+    : `https://kovan.infura.io/v3/${INFURA_KEY}`,
   [eEthereumNetwork.kovan]: ALCHEMY_KEY
     ? `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://kovan.infura.io/v3/${INFURA_KEY}`,
@@ -62,6 +65,7 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eEthereumNetwork.kovan]: 3 * GWEI,
+  [eEthereumNetwork.goerli]: 3 * GWEI,
   [eEthereumNetwork.ropsten]: 65 * GWEI,
   [eEthereumNetwork.main]: 8000000000,
   [eEthereumNetwork.coverage]: 65 * GWEI,

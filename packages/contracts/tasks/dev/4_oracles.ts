@@ -1,13 +1,13 @@
 import { task } from 'hardhat/config';
 import {
   deployPriceOracle,
-  deployAaveOracle,
+  deployVMEXOracle,
 } from '../../helpers/contracts-deployments';
 import {
   setInitialAssetPricesInOracle,
   deployAllMockAggregators,
 } from '../../helpers/oracles-helpers';
-import { ICommonConfiguration, iAssetBase, TokenContractId } from '../../helpers/types';
+import { ICommonConfiguration, iAssetBase, TokenContractId, eContractid } from '../../helpers/types';
 import { waitForTx } from '../../helpers/misc-utils';
 import { getAllAggregatorsAddresses, getAllTokenAddresses } from '../../helpers/mock-helpers';
 import { ConfigNames, loadPoolConfig, getQuoteCurrency } from '../../helpers/configuration';
@@ -15,7 +15,9 @@ import {
   getAllMockedTokens,
   getLendingPoolAddressesProvider,
   getPairsTokenAggregator,
+  getVMEXOracle,
 } from '../../helpers/contracts-getters';
+import { insertContractAddressInDb } from '../../helpers/contracts-helpers';
 
 task('dev:deploy-oracles', 'Deploy oracles for dev environment')
   .addFlag('verify', 'Verify contracts at Etherscan')
@@ -58,15 +60,29 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       OracleQuoteCurrency
     );
 
-    await deployAaveOracle(
-      [
-        tokens,
-        aggregators,
-        fallbackOracle.address,
-        await getQuoteCurrency(poolConfig),
-        OracleQuoteUnit,
-      ],
+    const vmexOracleImpl = await deployVMEXOracle(
       verify
     );
-    await waitForTx(await addressesProvider.setPriceOracle(fallbackOracle.address));
+
+    // Register the proxy price provider on the addressesProvider
+    await waitForTx(
+      await addressesProvider.setPriceOracle(vmexOracleImpl.address)
+    );
+
+    const VMEXOracleProxy =
+      await getVMEXOracle(
+        await addressesProvider.getPriceOracle()
+      );
+
+    await insertContractAddressInDb(
+      eContractid.VMEXOracle,
+      VMEXOracleProxy.address
+    );
+
+
+    await waitForTx(await VMEXOracleProxy.setBaseCurrency(
+      await getQuoteCurrency(poolConfig),
+      poolConfig.OracleQuoteUnit));
+    await waitForTx(await VMEXOracleProxy.setAssetSources(tokens, aggregators));
+    await waitForTx(await VMEXOracleProxy.setFallbackOracle(fallbackOracle.address));
   });

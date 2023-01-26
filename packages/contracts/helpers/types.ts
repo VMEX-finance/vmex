@@ -19,6 +19,7 @@ export enum eEthereumNetwork {
   buidlerevm = "buidlerevm",
   kovan = "kovan",
   ropsten = "ropsten",
+  goerli = "goerli",
   main = "main",
   coverage = "coverage",
   hardhat = "hardhat",
@@ -524,6 +525,7 @@ export interface iEthereumParamsPerNetwork<T> {
   [eEthereumNetwork.buidlerevm]: T;
   [eEthereumNetwork.kovan]: T;
   [eEthereumNetwork.ropsten]: T;
+  [eEthereumNetwork.goerli]: T;
   [eEthereumNetwork.main]: T;
   [eEthereumNetwork.hardhat]: T;
   [eEthereumNetwork.tenderly]: T;
@@ -606,6 +608,9 @@ export interface IBaseConfiguration {
   FallbackOracle: iParamsPerNetwork<tEthereumAddress>;
   UniswapV3OracleAddresses: iParamsPerNetwork<ITokenAddress>;
   UniswapV3OracleTargets: iParamsPerNetwork<ITokenTarget>;
+  CurveMetadata: iParamsPerNetwork<ICurveMetadata>;
+  CurvePoolSize: iParamsPerNetwork<ITokenTarget>;
+  CurvePoolAddress: iParamsPerNetwork<ITokenTarget>;
   ChainlinkAggregator: iParamsPerNetwork<ITokenAddress>;
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
@@ -649,10 +654,6 @@ export interface IAvalancheConfiguration extends ICommonConfiguration {
   ReservesConfig: iAvalanchePoolAssets<IReserveParams>;
 }
 
-// export interface AddressTarget {
-//   Address: tEthereumAddress;
-//   TokenToPrice: string;
-// }
 
 export interface ITokenAddress {
   [token: string]: tEthereumAddress;
@@ -662,8 +663,14 @@ export interface ITokenTarget {
   [token: string]: string;
 }
 
-// export interface ITokenAddressTarget {
-//   [token: string]: AddressTarget;
-// }
+export interface CurveMetadata {
+  _pid: string;
+  _poolSize: string;
+  _curvePool: tEthereumAddress;
+}
+
+export interface ICurveMetadata {
+  [token: string]: CurveMetadata;
+}
 
 export type PoolConfiguration = ICommonConfiguration | IAaveConfiguration;

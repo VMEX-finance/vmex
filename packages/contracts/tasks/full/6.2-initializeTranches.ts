@@ -96,7 +96,7 @@ task(
         canBeCollateral0,
         emergAdmin,
         treasuryAddress,
-        incentivesController,
+        incentivesController || "",
         1
       );
 
