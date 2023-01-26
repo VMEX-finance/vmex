@@ -11,6 +11,7 @@
     "chai": "^4.3.6",
     "chai-bignumber": "^3.1.0",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.0.3",
     "node-ts-cache": "^4.4.0",
     "node-ts-cache-storage-memory": "^4.4.0",
     "ts-node": "^10.9.1"
@@ -20,7 +21,8 @@
     "test": "yarn build && mocha --timeout 0 --reporter spec",
     "test:analytics": "yarn build && mocha --timeout 0 --reporter spec --grep Analytics",
     "test:specific": "yarn build && mocha --timeout 0 --reporter spec --grep Supply",
-    "fund:accounts": "mocha dev --timeout 0 --reporter spec"
+    "fund:accounts": "mocha dev --timeout 0 --reporter spec",
+    "fund:goerli:accounts": "mocha dev --timeout 0 --reporter spec --grep Get_goerli"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
