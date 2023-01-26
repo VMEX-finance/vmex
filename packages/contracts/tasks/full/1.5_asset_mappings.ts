@@ -45,9 +45,12 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
       LendingPoolCollateralManager,
       WethGateway,
       IncentivesController,
+      CurveMetadata,
     } = poolConfig as ICommonConfiguration;
 
     const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
+
+    const curveAssets = await getParamPerNetwork(CurveMetadata, network);
 
     const addressesProvider = await getLendingPoolAddressesProvider();
 
@@ -57,7 +60,7 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
 
     // const oracle = await addressesProvider.getPriceOracle();
 
-    if (!reserveAssets) {
+    if (!reserveAssets || !curveAssets) {
       throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
     }
 
@@ -84,8 +87,11 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
       VariableDebtTokenNamePrefix,
       SymbolPrefix,
       admin,
+      curveAssets,
       false
     );
+
+    
 
     // deploy strategies
     // const [CrvLpStrategy, CrvLpEthStrategy, CvxStrategy] =

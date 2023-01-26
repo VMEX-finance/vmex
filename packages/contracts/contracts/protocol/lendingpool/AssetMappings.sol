@@ -82,31 +82,31 @@ contract AssetMappings is VersionedInitializable{
     {
         addressesProvider = ILendingPoolAddressesProvider(provider);
         numApprovedAssets=0;
-        curveMetadata[0xc4AD29ba4B3c580e6D59105FFf484999997675Ff] = DataTypes.CurveMetadata( //tricrypto2
-            38,
-            3,
-            0xD51a44d3FaE010294C616388b506AcdA1bfAAE46
-        );
-        curveMetadata[0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490] = DataTypes.CurveMetadata( //threepool
-            9,
-            3,
-            0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7
-        );
-        curveMetadata[0x06325440D014e39736583c165C2963BA99fAf14E] = DataTypes.CurveMetadata( //steth
-            25,
-            2,
-            0xDC24316b9AE028F1497c275EB9192a3Ea0f67022
-        );
-        curveMetadata[0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC] = DataTypes.CurveMetadata( //fraxusdc
-            100,
-            2,
-            0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2
-        );
-        curveMetadata[0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B] = DataTypes.CurveMetadata( //frax3crv
-            32,
-            2,
-            0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B
-        );
+        // curveMetadata[0xc4AD29ba4B3c580e6D59105FFf484999997675Ff] = DataTypes.CurveMetadata( //tricrypto2
+        //     38,
+        //     3,
+        //     0xD51a44d3FaE010294C616388b506AcdA1bfAAE46
+        // );
+        // curveMetadata[0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490] = DataTypes.CurveMetadata( //threepool
+        //     9,
+        //     3,
+        //     0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7
+        // );
+        // curveMetadata[0x06325440D014e39736583c165C2963BA99fAf14E] = DataTypes.CurveMetadata( //steth
+        //     25,
+        //     2,
+        //     0xDC24316b9AE028F1497c275EB9192a3Ea0f67022
+        // );
+        // curveMetadata[0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC] = DataTypes.CurveMetadata( //fraxusdc
+        //     100,
+        //     2,
+        //     0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2
+        // );
+        // curveMetadata[0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B] = DataTypes.CurveMetadata( //frax3crv
+        //     32,
+        //     2,
+        //     0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B
+        // );
     }
 
     function getVMEXReserveFactor(
@@ -311,8 +311,11 @@ contract AssetMappings is VersionedInitializable{
         return curveStrategyAddress[underlying][index];
     }
 
-    function setCurveMetadata(address underlying, DataTypes.CurveMetadata calldata vars) external onlyGlobalAdmin {
-        curveMetadata[underlying] = vars;
+    function setCurveMetadata(address[] calldata underlying, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
+        require(underlying.length == vars.length, "Lists not same length");
+        for(uint i = 0;i<underlying.length;i++){
+            curveMetadata[underlying[i]] = vars[i];
+        }
     }
 
     function getCurveMetadata(address underlying) external view returns (DataTypes.CurveMetadata memory) {

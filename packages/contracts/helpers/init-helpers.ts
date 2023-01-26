@@ -4,7 +4,10 @@ import {
   iMultiPoolsAssets,
   IReserveParams,
   tEthereumAddress,
-  ITrancheInitParams
+  ITrancheInitParams,
+  iParamsPerNetwork,
+  ICurveMetadata,
+  CurveMetadata,
 } from "./types";
 import { AaveProtocolDataProvider } from "../types/AaveProtocolDataProvider";
 import { chunk, getDb, waitForTx } from "./misc-utils";
@@ -65,7 +68,8 @@ export const initAssetData = async (
   variableDebtTokenNamePrefix: string,
   symbolPrefix: string,
   admin: SignerWithAddress,
-  verify: boolean
+  verify: boolean,
+  CurveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
 ) => {
   // initTrancheMultiplier();
   const addressProvider = await getLendingPoolAddressesProvider();
@@ -207,6 +211,31 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
 
   console.log("    * gasUsed", tx3.gasUsed.toString());
 
+  if(!CurveMetadata){
+    return;
+  }
+  let curveToken: string[] = []
+  let curveParams: CurveMetadata[] = []
+
+  for(let[symbol, params] of Object.entries(CurveMetadata)) {
+    if (!tokenAddresses[symbol]) {
+      console.log(
+        `- Skipping init of ${symbol} due token address is not set at markets config`
+      );
+      continue;
+    }
+    curveToken.push(tokenAddresses[symbol]);
+    curveParams.push(params);
+  }
+  console.log("- Setting curve metadata");
+
+  const tx4 = await waitForTx(
+    await assetMappings
+      .connect(admin)
+      .setCurveMetadata(curveToken, curveParams )
+  );
+
+  console.log("    * gasUsed", tx4.gasUsed.toString());
 };
 
 //create another initReserves that initializes the curve v2, or just use this.
@@ -248,7 +277,7 @@ export const initReservesByHelper = async (
   // Deploy init reserves per tranche
   // tranche CONFIGURATION
   const configurator = await getLendingPoolConfiguratorProxy();
-  let initChunks = 20;
+  let initChunks = 3;
   const chunkedSymbols = chunk(assetAddresses, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
