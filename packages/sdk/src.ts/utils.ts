@@ -136,5 +136,5 @@ export async function mintTokens(
     test: params.test,
     providerRpc: params.providerRpc
   })
-  await token.mint(ethers.utils.parseUnits("1000000.0",await token.decimals()));
+  return await token.mint(ethers.utils.parseUnits("1000000.0",await token.decimals()));
 }
