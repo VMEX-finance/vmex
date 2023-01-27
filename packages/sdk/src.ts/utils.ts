@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 import _ from "lodash";
-import { deployments, MAINNET_ASSET_MAPPINGS } from "./constants";
+import { deployments, findTokenAddresses, flipAndLowerCase, MAINNET_ASSET_MAPPINGS, REVERSE_MAINNET_ASSET_MAPPINGS } from "./constants";
 import {
   getLendingPoolConfiguratorProxy,
   getIErc20Detailed,
@@ -14,6 +14,19 @@ import { MemoryStorage } from "node-ts-cache-storage-memory";
 export const cache = new CacheContainer(new MemoryStorage());
 
 // import { LendingPoolConfiguratorFactory } from "@vmexfinance/contracts/dist";
+export function convertAddressToSymbol(asset: string, network?: string){
+  const networkMapping = findTokenAddresses([...MAINNET_ASSET_MAPPINGS.keys()], network || "goerli")
+  
+  const reverseMapping = flipAndLowerCase(networkMapping);
+  return network && 
+    network!="main" ? reverseMapping.get(asset.toLowerCase())
+    : REVERSE_MAINNET_ASSET_MAPPINGS.get(asset.toLowerCase())
+}
+
+export function convertAddressListToSymbol(assets: string[], network?: string){
+  return assets.map((el)=>convertAddressToSymbol(el,network));
+}
+
 export function convertSymbolToAddress(asset: string, network?: string){
   return network && 
     network!="main" ? deployments[asset.toUpperCase()][network].address
