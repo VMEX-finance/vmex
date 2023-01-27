@@ -105,6 +105,12 @@ export const MAINNET_ASSET_MAPPINGS = new Map<string, string>([
     ['yvFrax3Crv', '0xb37094c1B5614Bd6EcE40AFb295C26F4377069d3'],
 ]);
 
+export const flipAndLowerCase = (data: Map<string, string>): Map<string, string> =>
+    new Map(Array.from(data, (entry) => [entry[1].toLowerCase(), entry[0]]));
+
+export const REVERSE_MAINNET_ASSET_MAPPINGS = flipAndLowerCase(MAINNET_ASSET_MAPPINGS);
+
+
 type Token<T> = { [k in keyof T]?: {
     address: string,
     decimals: string
@@ -195,5 +201,10 @@ export const TOKEN: Token<typeof TOKEN_PRICE> = {
 }
 
 import Deployments from "./deployed-contracts.json";
+import { convertSymbolToAddress } from "./utils";
 export const deployments = Deployments;
 
+export const findTokenAddresses = (symbols: string[], network: string): Map<string, string> =>
+new Map(symbols.map( (entry) => [entry, convertSymbolToAddress(entry.toUpperCase(), network)]));
+
+export const GOERLI_ADDRESSES = findTokenAddresses([...MAINNET_ASSET_MAPPINGS.keys()], "goerli");

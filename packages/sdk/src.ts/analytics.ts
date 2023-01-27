@@ -10,9 +10,11 @@ import {
   UserTrancheData,
   AssetBalance,
   UserWalletData,
+  SuppliedAssetData,
+  BorrowedAssetData,
 } from "./interfaces";
 import { decodeConstructorBytecode } from "./decode-bytecode";
-import { cache } from "./utils";
+import { cache, convertAddressToSymbol } from "./utils";
 
 /**
  * PROTOCOL LEVEL ANALYTICS
