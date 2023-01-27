@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 import _ from "lodash";
-import { deployments } from "./constants";
+import { deployments, MAINNET_ASSET_MAPPINGS } from "./constants";
 import {
   getLendingPoolConfiguratorProxy,
   getIErc20Detailed,
@@ -14,7 +14,16 @@ import { MemoryStorage } from "node-ts-cache-storage-memory";
 export const cache = new CacheContainer(new MemoryStorage());
 
 // import { LendingPoolConfiguratorFactory } from "@vmexfinance/contracts/dist";
-
+export function convertSymbolToAddress(asset: string, network?: string){
+  return network && 
+    network!="main" ? deployments[asset.toUpperCase()][network].address
+    : MAINNET_ASSET_MAPPINGS[asset]
+}
+export function convertListSymbolToAddress(assets: string[], network?: string){
+  return assets.map(
+    (el)=> convertSymbolToAddress(el,network)
+  )
+}
 export async function getAssetPrices(
   params?: {
     assets: string[];
@@ -34,11 +43,13 @@ export async function getAssetPrices(
     bytecode,
   } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/asset/GetAllAssetPrices.sol/GetAllAssetPrices.json");
   let _addressProvider =
-    deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
+    deployments.LendingPoolAddressesProvider[params.network || "main"]
       .address;
+  
+  const assets =  convertListSymbolToAddress(params.assets, params.network);
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
-    params.assets
+    assets
   ]);
 
   let assetPrices: Map<string, PriceData> = new Map();
