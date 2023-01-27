@@ -8,7 +8,7 @@ import ILendingPool from "@vmexfinance/contracts/artifacts/contracts/interfaces/
 import ILendingPoolConfigurator from "@vmexfinance/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
 import ILendingPoolAddressesProvider from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
 import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
-
+import MintableERC20 from "@vmexfinance/contracts/artifacts/contracts/mocks/tokens/MintableERC20.sol/MintableERC20.json";
 const defaultTestProvider = ethers.getDefaultProvider(
   "http://0.0.0.0:8545"
 );
@@ -44,6 +44,26 @@ export async function getLendingPool(params?: {
   if (params.signer) return lendingPool.connect(params.signer);
 
   return lendingPool;
+}
+
+export async function getMintableERC20(params?: {
+  tokenSymbol: string;
+  signer?: ethers.Signer;
+  network?: string;
+  test?: boolean;
+  providerRpc?: string;
+}) {
+  let token = new ethers.Contract(
+    deployments[params.tokenSymbol][
+      `${params && params.network ? params.network : "mainnet"}`
+    ].address,
+    MintableERC20.abi,
+    getProvider(params.providerRpc, params.test)
+  );
+
+  if (params.signer) return token.connect(params.signer);
+
+  return token;
 }
 
 export async function getAaveProtocolDataProvider(params?: {
