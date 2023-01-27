@@ -10,6 +10,7 @@ import { IAToken } from "../../interfaces/IAToken.sol";
 import { IBaseStrategy } from "../../interfaces/IBaseStrategy.sol";
 import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
 import { IChainlinkAggregator } from "../../interfaces/IChainlinkAggregator.sol";
+import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 
 library QueryAssetHelpers {
 
@@ -111,10 +112,8 @@ library QueryAssetHelpers {
 
         //this has the same number of tokens as assetPrice. All ETH pairs have 18 decimals
         uint256 ethAmount = (amount * assetPrice) / (10**(decimals));
-        uint256 ethUSD = uint256(IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestAnswer());
-
-        //ethUSD/usdDecimals (unitless factor for conversion). So this is in units of chainlink aggregator. If ETH pair, it's 18
-        return (ethAmount * ethUSD) / (10**IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).decimals()) ;
+        
+        return convertEthToUsd(ethAmount);
     }
 
     function convertEthToNative(
@@ -134,9 +133,14 @@ library QueryAssetHelpers {
     function convertEthToUsd(
         uint256 amount
     ) view internal returns(uint256) {
-        uint256 ethUSD = uint256(IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestAnswer());
+        if(Address.isContract(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419)){ //if we are on mainnet
+            uint256 ethUSD = uint256(IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestAnswer());
 
-        //units of amount is returned too
-        return (amount * ethUSD) / (10**IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).decimals()) ;
+            //ethUSD/usdDecimals (unitless factor for conversion). So this is in units of chainlink aggregator. If ETH pair, it's 18
+            return (amount * ethUSD) / (10**IChainlinkAggregator(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).decimals()) ;
+        }
+        else{
+            return (amount * 1589); 
+        }
     }
 }

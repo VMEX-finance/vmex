@@ -293,7 +293,7 @@ export const buildTestEnv = async (deployer: Signer) => {
         ZRX: mockTokens.ZRX.address,
         SNX: mockTokens.SNX.address,
         BUSD: mockTokens.BUSD.address,
-        YFI: mockTokens.BUSD.address,
+        YFI: mockTokens.YFI.address,
         REN: mockTokens.REN.address,
         UNI: mockTokens.UNI.address,
         ENJ: mockTokens.ENJ.address,
@@ -329,13 +329,13 @@ export const buildTestEnv = async (deployer: Signer) => {
         FraxUSDC: mockTokens.FraxUSDC.address,
         Frax3Crv: mockTokens.Frax3Crv.address,
         Frax: mockTokens.Frax.address,
-        BAL: mockTokens.Frax3Crv.address,
-        CRV: mockTokens.Frax3Crv.address,
-        CVX: mockTokens.Frax3Crv.address,
-        BADGER: mockTokens.Frax3Crv.address,
-        LDO: mockTokens.Frax3Crv.address,
-        ALCX: mockTokens.Frax3Crv.address,
-        Oneinch: mockTokens.Frax3Crv.address,
+        BAL: mockTokens.BAL.address,
+        CRV: mockTokens.CRV.address,
+        CVX: mockTokens.CVX.address,
+        BADGER: mockTokens.BADGER.address,
+        LDO: mockTokens.LDO.address,
+        ALCX: mockTokens.ALCX.address,
+        Oneinch: mockTokens.Oneinch.address,
         yvTricrypto2: mockTokens.yvTricrypto2.address,
         yvThreePool: mockTokens.yvThreePool.address,
         yvStethEth: mockTokens.yvStethEth.address,
@@ -399,6 +399,16 @@ export const buildTestEnv = async (deployer: Signer) => {
     );
 
     console.log("Set vmex oracle fallback oracle")
+
+    //we want to use the fallback oracle, so don't set aggregators
+    // await waitForTx(
+    //   await VMEXOracleProxy.connect(admin).setAssetSources(
+    //     tokens,
+    //     aggregators
+    //     )
+    // );
+
+    // console.log("Set vmex oracle aggregators")
     
     await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
 
