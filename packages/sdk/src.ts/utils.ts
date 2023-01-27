@@ -5,11 +5,13 @@ import {
   getLendingPoolConfiguratorProxy,
   getIErc20Detailed,
   getProvider,
+  getMintableERC20,
 } from "./contract-getters";
 import { decodeConstructorBytecode } from "./decode-bytecode";
 import { PriceData } from "./interfaces";
 import { CacheContainer } from "node-ts-cache";
 import { MemoryStorage } from "node-ts-cache-storage-memory";
+import { tokenToString } from "typescript";
 
 export const cache = new CacheContainer(new MemoryStorage());
 
@@ -116,3 +118,23 @@ export const convertToCurrencyDecimals = async (
 
   return ethers.utils.parseUnits(amount, decimals);
 };
+
+
+export async function mintTokens(
+  params: {
+    token: string;
+    signer: ethers.Signer;
+    network: string;
+    test?: boolean;
+    providerRpc?: string;
+  },
+) {
+  const token = await getMintableERC20({
+    tokenSymbol: params.token,
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc
+  })
+  return await token.mint(ethers.utils.parseUnits("1000000.0",await token.decimals()));
+}
