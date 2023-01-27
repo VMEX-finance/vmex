@@ -54,7 +54,7 @@ export async function getMintableERC20(params?: {
   providerRpc?: string;
 }) {
   let token = new ethers.Contract(
-    deployments[params.tokenSymbol][
+    deployments[params.tokenSymbol.toUpperCase()][
       `${params && params.network ? params.network : "mainnet"}`
     ].address,
     MintableERC20.abi,
