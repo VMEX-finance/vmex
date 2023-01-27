@@ -11,6 +11,7 @@ import { PriceOracle } from '../types/PriceOracle';
 import { MockAggregator } from '../types/MockAggregator';
 import { deployMockAggregator } from './contracts-deployments';
 import { waitForTx } from './misc-utils';
+import { registerContractInJsonDb } from './contracts-helpers';
 
 export const setInitialAssetPricesInOracle = async (
   prices: iAssetBase<tEthereumAddress>,
@@ -70,6 +71,10 @@ export const deployAllMockAggregators = async (
       );
       const [, price] = (Object.entries(initialPrices) as [string, string][])[priceIndex];
       aggregators[tokenContractName] = await deployMockAggregator(price, verify);
+      await registerContractInJsonDb(
+        (tokenContractName+"_Agg").toUpperCase(),
+        aggregators[tokenContractName]
+      );
     }
   }
   return aggregators;

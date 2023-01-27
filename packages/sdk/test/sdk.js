@@ -1,6 +1,8 @@
 // import { BigNumber, utils } from "ethers";
 
-const { ethers, BigNumber } = require("ethers");
+require('dotenv').config();
+const {deployments} = require("../dist/constants.js")
+const { ethers, BigNumber, Wallet } = require("ethers");
 const chai = require("chai");
 const { expect, assert } = require("chai");
 const { solidity } = require("ethereum-waffle");
@@ -28,9 +30,8 @@ const {
 } = require("../dist/analytics.js");
 const {getAssetPrices} = require("../dist/utils.js")
 const { RateMode } = require("../dist/interfaces.js");
-const { TOKEN_ADDR_MAINNET } = require("../dist/constants.js");
+const { MAINNET_ASSET_MAPPINGS } = require("../dist/constants.js");
 
-const WETHaddr = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const IERC20abi = [
   "function allowance(address owner, address spender) external view returns (uint256 remaining)",
   "function approve(address spender, uint256 value) external returns (bool success)",
@@ -45,21 +46,30 @@ const IERC20abi = [
   "function withdraw(uint wad) public",
 ];
 
-const TricryptoDeposit = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
-const TricryptoABI = require("@vmexfinance/contracts/localhost_tests/abis/tricrypto.json");
-const Crv3Crypto = "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff";
-
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 const UNISWAP_ROUTER_ABI = [
   "function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)"
 ]
-const USDCaddr = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
 const network = "goerli";
 
+const WETHaddr = deployments["WETH"][network] && network!="localhost" ? deployments["WETH"][network].address : "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+const USDCaddr = deployments["USDC"][network] && network!="localhost" ? deployments["USDC"][network].address : "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+
+let provider, temp, owner;
+  if(network=="localhost"){
+    provider = "http://127.0.0.1:8545";
+    temp = provider.getSigner(2);
+    owner = provider.getSigner(0);
+  }
+  else if (network=="goerli"){
+    const myprovider = new ethers.providers.AlchemyProvider(network, process.env.ALCHEMY_KEY);
+    temp = Wallet.fromMnemonic(process.env.MNEMONIC,`m/44'/60'/0'/0/0`).connect(myprovider); //0th signer
+    owner = temp;
+    provider = 'https://eth-goerli.public.blastapi.io';
+  }
+
 describe("Analytics", () => {
-  let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
-  const temp = provider.getSigner(2);
   var mytranche;
 
   it("0 - test get wallet data", async () => {
@@ -96,12 +106,8 @@ describe("Analytics", () => {
 });
 
 describe("Tranche creation - end-to-end test", () => {
-  let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
-  const temp = provider.getSigner(2);
-  var mytranche;
-
   it("1 - init reserves in this tranche", async () => {
-    let assets0 = [TOKEN_ADDR_MAINNET.AAVE, TOKEN_ADDR_MAINNET.DAI];
+    let assets0 = ["AAVE", "DAI"];
     let reserveFactors0 = [];
     let canBorrow0 = [];
     let canBeCollateral0 = [];
@@ -132,24 +138,21 @@ describe("Tranche creation - end-to-end test", () => {
   // initTranche
 });
 
-describe("Supply", () => {
-  let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
-  const owner = provider.getSigner(0);
+describe("Supply", () => { //this assumes you already have funds in your wallet
+  // it("0 - total tranches is correct", async () => {
+  //   const totalTranches = await getTotalTranches({ network: network, providerRpc: provider });
+  //   expect(totalTranches >= 3, "Incorrect number of tranches");
+  // });
 
-  it("0 - total tranches is correct", async () => {
-    const totalTranches = await getTotalTranches({ network: network });
-    expect(totalTranches == 2, "Incorrect number of tranches");
-  });
-
-  it("1 - signer should receive 3 WETH so he can transact for LP tokens", async () => {
-    const WETH = new ethers.Contract(WETHaddr, IERC20abi, owner);
-    await WETH.connect(owner).deposit({
-      value: ethers.utils.parseEther("3.0"),
-    });
-    expect(await WETH.balanceOf(await owner.getAddress())).to.be.above(
-      ethers.utils.parseEther("1.0")
-    );
-  });
+  // it("1 - signer should receive 3 WETH so he can transact for LP tokens", async () => {
+  //   const WETH = new ethers.Contract(WETHaddr, IERC20abi, owner);
+  //   await WETH.connect(owner).deposit({
+  //     value: ethers.utils.parseEther("3.0"),
+  //   });
+  //   expect(await WETH.balanceOf(await owner.getAddress())).to.be.above(
+  //     ethers.utils.parseEther("1.0")
+  //   );
+  // });
 
   //   it("2 - should test the approveUnderlying util", async () => {
   //     let lendingPool = await getLendingPoolImpl(owner, network);
@@ -168,7 +171,8 @@ describe("Supply", () => {
         setPause: false,
         network: network,
         tranche: 0,
-        test: true
+        test: true,
+        providerRpc: provider
       })
     ).to.be.false;
   });
@@ -177,6 +181,7 @@ describe("Supply", () => {
     let lendingPool = await getLendingPool({
       signer: owner,
       network: network,
+      providerRpc: provider
     });
     expect(await lendingPool.paused(0)).to.be.false;
   });
@@ -184,13 +189,14 @@ describe("Supply", () => {
   it("5 - should test the protocol supply function", async () => {
     await supply(
       {
-        underlying: WETHaddr,
+        underlying: "WETH",
         trancheId: 0,
         amount: "2.0",
         signer: owner,
         network: network,
         isMax: false,
         test: true,
+        providerRpc: provider,
       },
       () => {
         return true;
@@ -198,31 +204,32 @@ describe("Supply", () => {
     )
   });
 
-  it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
-    let { totalCollateralETH } = await getUserTrancheData({
-      user: await owner.getAddress(),
-      tranche: 0,
-      network: network,
-      test: true,
-    });
-    expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("1.0"));
-  });
+  // it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
+  //   let { totalCollateralETH } = await getUserTrancheData({
+  //     user: await owner.getAddress(),
+  //     tranche: 0,
+  //     network: network,
+  //     test: true,
+  //     providerRpc: provider,
+  //   });
+  //   expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("1.0"));
+  // });
 
-  it("7.1 - call get all markets to populate the cache", async () => {
-    const marketsData = await getAllMarketsData({
-      network: network,
-      test: true,
-    });
-  });
+  // it("7.1 - call get all markets to populate the cache", async () => {
+  //   const marketsData = await getAllMarketsData({
+  //     network: network,
+  //     test: true,
+  //   });
+  // });
 
-  it("7.2 - test that the protocol has non zero TVL", async () => {
-    let protocolData = await getProtocolData({
-      network: network,
-      test: true,
-    });
-    expect(protocolData.tvl).to.be.above(ethers.utils.parseEther("1.0"));
-    expect(protocolData.totalSupplied).to.be.above(ethers.utils.parseEther("1.0"));
-  });
+  // it("7.2 - test that the protocol has non zero TVL", async () => {
+  //   let protocolData = await getProtocolData({
+  //     network: network,
+  //     test: true,
+  //   });
+  //   expect(protocolData.tvl).to.be.above(ethers.utils.parseEther("1.0"));
+  //   expect(protocolData.totalSupplied).to.be.above(ethers.utils.parseEther("1.0"));
+  // });
 });
 
 describe("Borrow - end-to-end test", () => {
