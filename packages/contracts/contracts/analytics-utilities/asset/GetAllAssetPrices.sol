@@ -17,8 +17,6 @@ contract GetAllAssetPrices {
     {
         AssetPrice[] memory allAssetPrices = new AssetPrice[](assets.length);
 
-        AssetMappings a = AssetMappings(ILendingPoolAddressesProvider(providerAddr).getAssetMappings());
-
         for (uint64 i = 0; i < assets.length; i++) {
             allAssetPrices[i].oracle = ILendingPoolAddressesProvider(providerAddr)
                 .getPriceOracle();

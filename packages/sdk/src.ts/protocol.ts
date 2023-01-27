@@ -6,6 +6,8 @@ import {
 } from "./contract-getters";
 import {
   approveUnderlyingIfFirstInteraction,
+  convertListSymbolToAddress,
+  convertSymbolToAddress,
   convertToCurrencyDecimals,
 } from "./utils";
 import { getTotalTranches } from "./analytics";
@@ -27,6 +29,7 @@ export async function borrow(
   },
   callback?: () => Promise<any>
 ) {
+  params.underlying = convertSymbolToAddress(params.underlying,params.network);
   let tx, amount;
   if(params.isMax) {
     amount = MAX_UINT_AMOUNT;
@@ -86,6 +89,7 @@ export async function markReserveAsCollateral(
   },
   callback?: () => Promise<any>
 ) {
+  params.asset = convertSymbolToAddress(params.asset,params.network);
   let tx;
   const client = await params.signer.getAddress();
   const lendingPool = await getLendingPool({
@@ -122,6 +126,7 @@ export async function withdraw(
   },
   callback?: () => Promise<any>
 ) {
+  params.asset = convertSymbolToAddress(params.asset,params.network);
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.asset,
@@ -177,6 +182,7 @@ export async function repay(
   },
   callback?: () => Promise<any>
 ) {
+  params.asset = convertSymbolToAddress(params.asset,params.network);
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.asset,
@@ -245,6 +251,8 @@ export async function supply(
   },
   callback?: () => Promise<any>
 ) {
+  params.underlying = convertSymbolToAddress(params.underlying,params.network);
+  console.log("Supply: ",params);
   let tx;
   let client = await params.signer.getAddress();
   let amount;
@@ -333,6 +341,7 @@ export async function lendingPoolPause(
   },
   callback?: () => Promise<any>
 ) {
+  console.log(params)
   const addressProvider = await getLendingPoolAddressesProvider({
     network: params.network,
     signer: params.approvedSigner,
@@ -401,6 +410,7 @@ export async function initTranche(
   },
   callback?: () => Promise<any>
 ) {
+  params.assetAddresses = convertListSymbolToAddress(params.assetAddresses,params.network);
   // assert(params.assetAddresses.length == params.reserveFactors.length, "array lengths not equal");
   // assert(params.assetAddresses.length == params.canBorrow.length, "array lengths not equal");
   // assert(params.assetAddresses.length == params.canBeCollateral.length, "array lengths not equal");
