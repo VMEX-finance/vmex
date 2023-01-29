@@ -5,3 +5,4 @@ types
 yarn.lock
 dist/
 .npmrc
+.env

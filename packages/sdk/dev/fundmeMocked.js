@@ -17,7 +17,7 @@ const IERC20abi = [
   "function withdraw(uint wad) public",
   "function mint(uint256 value) public returns(bool)",
 ];
-  
+
 
 
 describe("Fund accounts", () => {
@@ -85,15 +85,15 @@ describe("Fund accounts", () => {
     "yvFraxUSDC",
     "yvFrax3Crv",
   ]
-  
+
 
   it("Get_goerli", async () => {
-    
+
     let token = [];
     for(let i =0;i<assets.length;i++){
       // console.log(assets[i].toUpperCase())
       // console.log(deployments[assets[i].toUpperCase()])
-       token.push( 
+       token.push(
           new ethers.Contract(
             deployments[assets[i].toUpperCase()][
               "goerli"
@@ -105,16 +105,16 @@ describe("Fund accounts", () => {
     }
 
     // console.log("Tokens: ",token)
-    
+
       for(let j =0;j<2;j++){
         const wallet = Wallet.fromMnemonic(process.env.MNEMONIC,`m/44'/60'/0'/0/${j}`);
         const signer = wallet.connect(provider);
         // console.log(signer)
         for(let i = 0;i<token.length;i++){
           await token[i].connect(signer).mint(ethers.utils.parseUnits("1000.0",await token[i].decimals()));
-          console.log("Signer: ",signer.address," token: ",await token[i].name()," amount: ",await token[i].connect(signer).balanceOf(signer.address));
+          console.log("Signer: ",signer.address," token: ",await token[i].name()," amount: ",(await token[i].connect(signer).balanceOf(signer.address)).toString());
         }
-        
+
       }
   });
 
