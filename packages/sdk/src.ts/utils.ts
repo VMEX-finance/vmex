@@ -18,9 +18,9 @@ export const cache = new CacheContainer(new MemoryStorage());
 // import { LendingPoolConfiguratorFactory } from "@vmexfinance/contracts/dist";
 export function convertAddressToSymbol(asset: string, network?: string){
   const networkMapping = findTokenAddresses([...MAINNET_ASSET_MAPPINGS.keys()], network || "goerli")
-  
+
   const reverseMapping = flipAndLowerCase(networkMapping);
-  return network && 
+  return network &&
     network!="main" ? reverseMapping.get(asset.toLowerCase())
     : REVERSE_MAINNET_ASSET_MAPPINGS.get(asset.toLowerCase())
 }
@@ -30,10 +30,15 @@ export function convertAddressListToSymbol(assets: string[], network?: string){
 }
 
 export function convertSymbolToAddress(asset: string, network?: string){
-  return network && 
+  return network &&
     network!="main" ? deployments[asset.toUpperCase()][network].address
     : MAINNET_ASSET_MAPPINGS[asset]
 }
+
+export function getContractAddress(contractName: string, network: string){
+  return deployments[contractName][network].address;
+}
+
 export function convertListSymbolToAddress(assets: string[], network?: string){
   return assets.map(
     (el)=> convertSymbolToAddress(el,network)
@@ -60,7 +65,7 @@ export async function getAssetPrices(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "main"]
       .address;
-  
+
   const assets =  convertListSymbolToAddress(params.assets, params.network);
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
