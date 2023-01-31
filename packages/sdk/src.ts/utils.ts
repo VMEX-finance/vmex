@@ -143,3 +143,13 @@ export async function mintTokens(
   })
   return await token.mint(ethers.utils.parseUnits("1000000.0",await token.decimals()));
 }
+
+export const chunk = <T>(arr: Array<T>, chunkSize: number): Array<Array<T>> => {
+  return arr.reduce(
+    (prevVal: any, currVal: any, currIndx: number, array: Array<T>) =>
+      !(currIndx % chunkSize)
+        ? prevVal.concat([array.slice(currIndx, currIndx + chunkSize)])
+        : prevVal,
+    []
+  );
+};
