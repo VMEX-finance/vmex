@@ -433,10 +433,12 @@ export async function initTranche(
   });
 
   try {
-    await configurator.claimTrancheId(
+    let tx = await configurator.claimTrancheId(
       params.name,
       await params.admin.getAddress()
     );
+
+    await tx.wait();  // wait 1 network confirmation
   } catch (error) {
     throw new Error("Configurator Failed with " + error);
   }
