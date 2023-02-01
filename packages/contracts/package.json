@@ -61,6 +61,7 @@
     "vmex:fork:main:tenderly": "npm run compile && npm run hardhat:tenderly-main -- vmex:mainnet",
     "vmex:main:full:migration": "npm run compile && npm run hardhat:main -- vmex:mainnet --verify",
     "vmex:main:full:initialize": "npm run compile && FORK=main full:initialize-tokens --pool Aave",
+    "vmex:permtranche": "hardhat vmex:permissionless-tranches --network goerli",
     "prettier:check": "npx prettier -c 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test-suites/test-aave/**/*.ts'",
     "prettier:write": "prettier --write 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test-suites/test-aave/**/*.ts'",
     "ci:test": "npm run compile && npm run test",
