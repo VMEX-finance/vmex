@@ -21,6 +21,7 @@ import {
   insertContractAddressInDb,
 } from "../../helpers/contracts-helpers";
 import { eContractid } from "../../helpers/types";
+import { exit } from "process";
 
 task("full:deploy-oracles", "Deploy oracles for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -63,6 +64,11 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         ...reserveAssets,
         // USD: UsdAddress,
       };
+
+      if(!uniswapV3OracleAddresses){
+        console.log("No uniswapV3OracleAddresses")
+        exit(1);
+      }
 
       console.log("uniswapV3OracleAddresses: ", uniswapV3OracleAddresses)
 

@@ -609,8 +609,6 @@ export interface IBaseConfiguration {
   UniswapV3OracleAddresses: iParamsPerNetwork<ITokenAddress>;
   UniswapV3OracleTargets: iParamsPerNetwork<ITokenTarget>;
   CurveMetadata: iParamsPerNetwork<ICurveMetadata>;
-  CurvePoolSize: iParamsPerNetwork<ITokenTarget>;
-  CurvePoolAddress: iParamsPerNetwork<ITokenTarget>;
   ChainlinkAggregator: iParamsPerNetwork<ITokenAddress>;
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;

@@ -87,7 +87,8 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
       VariableDebtTokenNamePrefix,
       SymbolPrefix,
       admin,
-      false
+      false,
+      curveAssets
     );
 
     

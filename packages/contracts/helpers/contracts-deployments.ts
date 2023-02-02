@@ -534,8 +534,8 @@ export const buildTestEnv = async (deployer: Signer) => {
 
   // await deployWalletBalancerProvider();
 
-  // const gateWay = await deployWETHGateway([mockTokens.WETH.address]);
-  // await authorizeWETHGateway(gateWay.address, lendingPoolAddress);
+  const gateWay = await deployWETHGateway([mockTokens.WETH.address]);
+  await authorizeWETHGateway(gateWay.address, lendingPoolProxy.address);
 
   // TODO: mock the curve pool (needs deposit function), convex booster, sushiswap
   // right now the tend() function for strategies is unusable in hardhat tests

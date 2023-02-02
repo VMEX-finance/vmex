@@ -26,7 +26,7 @@ chai.use(function (chai: any, utils: any) {
 
 
 makeSuite(
-    "yearn 3pool ",
+    "yearn oracle test ",
     () => {
         const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');
