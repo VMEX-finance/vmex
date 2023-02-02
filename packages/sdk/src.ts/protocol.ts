@@ -6,6 +6,7 @@ import {
 } from "./contract-getters";
 import {
   approveUnderlyingIfFirstInteraction,
+  chunk,
   convertListSymbolToAddress,
   convertSymbolToAddress,
   convertToCurrencyDecimals,
@@ -419,6 +420,8 @@ export async function initTranche(
   let mytranche = (
     await getTotalTranches({
       network: params.network,
+      test: params.test,
+      providerRpc: params.providerRpc
     })
   ).toString();
 
@@ -430,13 +433,12 @@ export async function initTranche(
   });
 
   try {
-    await configurator.claimTrancheId(
+    let tx = await configurator.claimTrancheId(
       params.name,
-      await params.admin.getAddress(),
-      {
-        gasLimit: "8000000",
-      }
+      await params.admin.getAddress()
     );
+
+    await tx.wait();  // wait 1 network confirmation
   } catch (error) {
     throw new Error("Configurator Failed with " + error);
   }
@@ -462,23 +464,33 @@ export async function initTranche(
     });
   }
 
-  console.log(initInputParams);
+  let initChunks = 3;
+
+  const chunkedSymbols = chunk(params.assetAddresses, initChunks);
+  const chunkedInitInputParams = chunk(initInputParams, initChunks);
 
   try {
     // Deploy init reserves per tranche
     // tranche CONFIGURATION
-    console.log(`- Reserves initialization in ${initInputParams.length} txs`);
-    const tx3 = await configurator.batchInitReserve(
-      initInputParams,
-      mytranche,
-      {
-        gasLimit: "80000000",
-      }
-    );
 
-    console.log(`  - Reserve ready for: ${params.assetAddresses.join(", ")}`);
-    console.log("    * gasUsed", (await tx3.wait(1)).gasUsed.toString());
-    tx = tx3;
+    console.log(
+      `- Reserves initialization in ${chunkedInitInputParams.length} txs`
+    );
+    for (
+      let chunkIndex = 0;
+      chunkIndex < chunkedInitInputParams.length;
+      chunkIndex++
+    ) {
+      const tx3 = await configurator.batchInitReserve(
+        chunkedInitInputParams[chunkIndex],
+        mytranche
+      );
+
+      console.log(`  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`);
+      console.log("    * gasUsed", (await tx3.wait(1)).gasUsed.toString());
+      tx = tx3;
+    }
+
   } catch (error) {
     throw new Error("Configurator Failed durining init reserve with " + error);
   }
