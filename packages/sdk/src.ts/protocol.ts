@@ -409,6 +409,7 @@ export async function initTranche(
     network: string;
     test?: boolean;
     providerRpc?: string;
+    chunks?: number;
   },
   callback?: () => Promise<any>
 ) {
@@ -464,7 +465,7 @@ export async function initTranche(
     });
   }
 
-  let initChunks = 3;
+  let initChunks = params.chunks ? params.chunks : 5;
 
   const chunkedSymbols = chunk(params.assetAddresses, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
