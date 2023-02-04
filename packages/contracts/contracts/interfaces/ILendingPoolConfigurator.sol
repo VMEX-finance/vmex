@@ -21,13 +21,6 @@ interface ILendingPoolConfigurator {
         address implementation;
     }
 
-    struct UpdateStrategyInput {
-        uint64 trancheId;
-        address asset;
-        address implementation;
-        address strategyAddress;
-    }
-
 
     /**
      * @dev Emitted when a reserve factor is updated
@@ -157,13 +150,6 @@ interface ILendingPoolConfigurator {
         address indexed implementation
     );
 
-    event StrategyUpgraded(
-        address indexed asset,
-        uint64 trancheId,
-        address indexed proxy,
-        address indexed implementation
-    );
-
 
     /**
      * @dev Emitted when the implementation of a variable debt token is upgraded
@@ -177,20 +163,4 @@ interface ILendingPoolConfigurator {
         address indexed proxy,
         address indexed implementation
     );
-
-    /**
-     * @dev Emitted when a strategy is associated with an asset/tranche
-     * @param asset The address of the underlying asset of the reserve
-     * @param trancheId The tranche
-     * @param strategy The address of the strategy
-     **/
-    event StrategyAdded(address indexed asset, uint64 indexed trancheId, address strategy);
-
-    /**
-     * @dev Emitted when successful withdraw from strategy to lending pool
-     * @param asset The address of the underlying asset of the reserve
-     * @param trancheId The tranche
-     * @param amount The amount withdrawn from strategy
-     **/
-    event WithdrawFromStrategy(address indexed asset, uint64 indexed trancheId, uint256 amount);
 }

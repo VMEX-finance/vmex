@@ -18,7 +18,6 @@ import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurato
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
 import {AssetMappings} from "./AssetMappings.sol";
-import {IStrategy} from "../strategies/strats/IStrategy.sol";
 
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 // import "hardhat/console.sol";
@@ -344,33 +343,6 @@ contract LendingPoolConfigurator is
         emit ReserveUnfrozen(asset, trancheId);
     }
 
-    /**
-     * @dev Adds a strategy to a reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @param trancheId The tranche id of the reserve
-     * @param strategyId The id of the strategy to attach
-     **/
-    function addStrategy(
-        address asset,
-        uint64 trancheId,
-        uint8 strategyId
-    ) external onlyTrancheAdmin(trancheId) {
-        address strategy =assetMappings.getCurveStrategyAddress(asset,strategyId);
-        address proxy = DeployATokens._initTokenWithProxy(
-            strategy,
-            abi.encodeWithSelector(
-                IStrategy.initialize.selector,
-                address(addressesProvider),
-                asset,
-                trancheId
-            )
-        );
-
-        pool.setAndApproveStrategy(asset,trancheId,proxy);
-        // console.log("Proxy address: ", proxy);
-        emit StrategyAdded(asset, trancheId, strategy);
-    }
-
     function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyTrancheAdmin(trancheId){
         pool.setWhitelist(trancheId,isWhitelisted);
         emit UserSetWhitelistEnabled(trancheId, isWhitelisted);
@@ -415,46 +387,6 @@ contract LendingPoolConfigurator is
     /* ********************************************************************* */
     /* This next section contains functions only accessible to Global Admins */
     /* ********************************************************************* */
-
-
-    /**
-     * @dev Updates the strategy associated with a reserve. Note that this
-     * only updates one strategy for an asset of a specific tranche.
-     * Alternatively, we could publish a new strategy with a new strategyId, and users
-     * can choose to use that strategy by setting strategyId in initialization.
-     * Only global admins have access to update the implementation of strategies because
-     * of the danger involved with giving tranche admins access to the strategies.
-     **/
-    function updateStrategy(UpdateStrategyInput calldata input)
-        external
-        onlyGlobalAdmin
-    {
-        // cannot do the below call because aTokens proxy admin is this contract, and by transparent proxy pattern, to use delegatecall you must call from account that is not admin
-        // also cannot do delegatecall because we need the context of the atoken
-        // address strategyAddress = IAToken(reserveData.aTokenAddress).getStrategy();
-        require(input.strategyAddress!=address(0), "Upgrading reserve that doesn't have a strategy");
-        bytes memory encodedCall;
-        //  = abi.encodeWithSelector(
-        //     IStrategy.initialize.selector, //selects that we want to call the initialize function
-        //     address(addressesProvider),
-        //     input.asset,
-        //     input.trancheId
-        // );
-
-        _upgradeTokenImplementation(
-            input.strategyAddress,//address of proxy
-            input.implementation,
-            encodedCall
-        );
-
-        emit StrategyUpgraded(
-            input.asset,
-            input.trancheId,
-            input.strategyAddress,
-            input.implementation
-        );
-    }
-
     /**
      * @dev Allows a user to deposit and borrow in the same block
      * @param user The address of allowed user

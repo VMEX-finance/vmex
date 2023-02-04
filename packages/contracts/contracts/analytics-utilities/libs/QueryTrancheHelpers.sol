@@ -9,7 +9,6 @@ import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddr
 import { IAToken } from "../../interfaces/IAToken.sol";
 import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import { IERC20Detailed } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import { IBaseStrategy } from "../../interfaces/IBaseStrategy.sol";
 import { IChainlinkAggregator } from "../../interfaces/IChainlinkAggregator.sol";
 import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
 import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";

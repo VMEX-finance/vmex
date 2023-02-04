@@ -424,21 +424,6 @@ interface ILendingPool {
 
     function paused(uint64 trancheId) external view returns (bool);
 
-    function setAndApproveStrategy(
-        address asset,
-        uint64 trancheId,
-        address strategy
-    ) external;
-
-    function withdrawFromStrategy(
-        address asset,
-        uint64 trancheId,
-        uint256 amount
-    ) external;
-
-    function setReserveDataLI(address asset, uint64 trancheId, uint128 newLiquidityIndex)
-        external;
-
     function setWhitelist(uint64 trancheId, bool isWhitelisted) external;
     function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external;
     function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external;

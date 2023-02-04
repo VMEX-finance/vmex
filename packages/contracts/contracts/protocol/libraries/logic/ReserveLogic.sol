@@ -14,8 +14,6 @@ import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-
-import {IBaseStrategy} from "../../../interfaces/IBaseStrategy.sol";
 // import "hardhat/console.sol";
 /**
  * @title ReserveLogic library
@@ -65,7 +63,7 @@ library ReserveLogic {
         // console.log("getNormalizedIncome liquidity index: ", reserve.liquidityIndex);
 
         //solium-disable-next-line
-        if (timestamp == uint40(block.timestamp) || IAToken(reserve.aTokenAddress).getStrategy() != address(0)) { //if it has a strategy, it just the liquidityIndex
+        if (timestamp == uint40(block.timestamp)) { 
             //if the index was updated in the same block, no need to perform any calculation
             // console.log("Just returning liquidity index: ");
             return reserve.liquidityIndex;
@@ -221,56 +219,52 @@ library ReserveLogic {
         uint256 liquidityTaken,
         uint256 vmexReserveFactor
     ) internal {
-        if (IAToken(reserve.aTokenAddress).getStrategy() == address(0)) {
-            UpdateInterestRatesLocalVars memory vars;
+        UpdateInterestRatesLocalVars memory vars;
 
-            //calculates the total variable debt locally using the scaled total supply instead
-            //of totalSupply(), as it's noticeably cheaper. Also, the index has been
-            //updated by the previous updateState() call
-            vars.totalVariableDebt = IVariableDebtToken(
-                reserve.variableDebtTokenAddress
-            ).scaledTotalSupply().rayMul(reserve.variableBorrowIndex);
+        //calculates the total variable debt locally using the scaled total supply instead
+        //of totalSupply(), as it's noticeably cheaper. Also, the index has been
+        //updated by the previous updateState() call
+        vars.totalVariableDebt = IVariableDebtToken(
+            reserve.variableDebtTokenAddress
+        ).scaledTotalSupply().rayMul(reserve.variableBorrowIndex);
 
-            DataTypes.calculateInterestRatesVars memory calvars =
-                DataTypes.calculateInterestRatesVars(
-                        reserveAddress,
-                        aTokenAddress,
-                        liquidityAdded,
-                        liquidityTaken,
-                        vars.totalVariableDebt,
-                        reserve.configuration.getReserveFactor(),
-                        vmexReserveFactor
-                    );
-            (
-                vars.newLiquidityRate,
-                vars.newVariableRate
-            ) = IReserveInterestRateStrategy(
-                reserve.interestRateStrategyAddress
-            ).calculateInterestRates(calvars);
+        DataTypes.calculateInterestRatesVars memory calvars =
+            DataTypes.calculateInterestRatesVars(
+                    reserveAddress,
+                    aTokenAddress,
+                    liquidityAdded,
+                    liquidityTaken,
+                    vars.totalVariableDebt,
+                    reserve.configuration.getReserveFactor(),
+                    vmexReserveFactor
+                );
+        (
+            vars.newLiquidityRate,
+            vars.newVariableRate
+        ) = IReserveInterestRateStrategy(
+            reserve.interestRateStrategyAddress
+        ).calculateInterestRates(calvars);
 
-            require(
-                vars.newLiquidityRate <= type(uint128).max,
-                Errors.RL_LIQUIDITY_RATE_OVERFLOW
-            );
-            require(
-                vars.newVariableRate <= type(uint128).max,
-                Errors.RL_VARIABLE_BORROW_RATE_OVERFLOW
-            );
+        require(
+            vars.newLiquidityRate <= type(uint128).max,
+            Errors.RL_LIQUIDITY_RATE_OVERFLOW
+        );
+        require(
+            vars.newVariableRate <= type(uint128).max,
+            Errors.RL_VARIABLE_BORROW_RATE_OVERFLOW
+        );
 
-            reserve.currentLiquidityRate = uint128(vars.newLiquidityRate);
-            reserve.currentVariableBorrowRate = uint128(vars.newVariableRate);
+        reserve.currentLiquidityRate = uint128(vars.newLiquidityRate);
+        reserve.currentVariableBorrowRate = uint128(vars.newVariableRate);
 
-            emit ReserveDataUpdated(
-                reserveAddress,
-                reserve.trancheId,
-                vars.newLiquidityRate,
-                vars.newVariableRate,
-                reserve.liquidityIndex,
-                reserve.variableBorrowIndex
-            );
-        } else {
-            revert("NOT IMPLEMENTED");      // TODO: Update interest rates for strategies
-        }
+        emit ReserveDataUpdated(
+            reserveAddress,
+            reserve.trancheId,
+            vars.newLiquidityRate,
+            vars.newVariableRate,
+            reserve.liquidityIndex,
+            reserve.variableBorrowIndex
+        );
     }
 
 

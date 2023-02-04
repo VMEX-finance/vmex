@@ -10,7 +10,6 @@ import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddres
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 
-import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 
 /**
  * @title DefaultReserveInterestRateStrategy contract
@@ -128,19 +127,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(
             calvars.aToken
         );
-
-        // computes availablility held in stratgies, avoid stack too deep
-        {
-            address strategyAddress = IAToken(calvars.aToken).getStrategy();
-
-            if (strategyAddress != address(0)) {
-                // if strategy exists, add the funds the strategy holds
-                // and the funds the strategy has boosted
-                availableLiquidity = availableLiquidity.add(
-                    IBaseStrategy(strategyAddress).balanceOf()
-                );
-            }
-        }
 
         availableLiquidity = availableLiquidity
             .add(calvars.liquidityAdded)
