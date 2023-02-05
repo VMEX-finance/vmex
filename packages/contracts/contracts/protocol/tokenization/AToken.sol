@@ -10,7 +10,6 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
-import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IYearnToken} from "../../oracles/interfaces/IYearnToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
@@ -62,20 +61,11 @@ contract AToken is
     address internal _VMEXTreasury;
     address internal _underlyingAsset; //yearn address
     uint64 internal _tranche;
-    address internal _strategy;
     IAaveIncentivesController internal _incentivesController;
 
     modifier onlyLendingPool() {
         require(
             _msgSender() == address(_pool),
-            Errors.CT_CALLER_MUST_BE_LENDING_POOL
-        );
-        _;
-    }
-
-    modifier onlyLendingPoolOrStrategy() {
-        require(
-            _msgSender() == address(_pool) || _msgSender() == _strategy,
             Errors.CT_CALLER_MUST_BE_LENDING_POOL
         );
         _;
@@ -187,13 +177,6 @@ contract AToken is
         require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
         _burn(user, amountScaled); // Burn the entire amount of atokens that the user has, not just the amount they receive
 
-        if (_strategy != address(0x0)) { //if it's yearn, it can't have a strategy
-            // withdraw from strategy
-            IBaseStrategy(_strategy).withdraw(amount);
-        }
-
-
-
         IERC20(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
 
         emit Transfer(user, address(0), amount); // note: this is amount user receives, not amount user requests
@@ -260,7 +243,7 @@ contract AToken is
     function mintToVMEXTreasury(uint256 amount, uint256 index)
         public
         override
-        onlyLendingPoolOrStrategy
+        onlyLendingPool
     {
         if (amount == 0) {
             return;
@@ -556,35 +539,5 @@ contract AToken is
         uint256 amount
     ) internal override {
         _transfer(from, to, amount, true);
-    }
-
-    function setAndApproveStrategy(address strategy)
-        external
-        override
-        onlyLendingPool
-    {
-        _strategy = strategy;
-
-        IERC20 token = IERC20(_underlyingAsset);
-
-        if (token.allowance(address(this), strategy) != type(uint256).max) {
-            token.safeApprove(strategy, type(uint256).max);
-        }
-    }
-
-    /**
-     * @dev Manually pull funds from strategy by strategist
-     * @param amount The amount withdrawn from strategy
-     **/
-    function withdrawFromStrategy(uint256 amount)
-        external
-        override
-        onlyLendingPool
-    {
-        IBaseStrategy(_strategy).withdraw(amount);
-    }
-
-    function getStrategy() external view override returns (address) {
-        return _strategy;
     }
 }

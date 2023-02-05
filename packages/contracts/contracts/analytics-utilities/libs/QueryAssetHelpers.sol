@@ -7,7 +7,6 @@ import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddr
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import { IAToken } from "../../interfaces/IAToken.sol";
-import { IBaseStrategy } from "../../interfaces/IBaseStrategy.sol";
 import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
 import { IChainlinkAggregator } from "../../interfaces/IChainlinkAggregator.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
@@ -31,7 +30,6 @@ library QueryAssetHelpers {
         uint256 totalSupplied;
         uint256 utilization;
         uint256 totalBorrowed;
-        address strategyAddress;
         uint256 adminFee;
         uint256 platformFee;
         uint128 supplyApy;
@@ -73,18 +71,9 @@ library QueryAssetHelpers {
         assetData.oracle = ILendingPoolAddressesProvider(providerAddr).getPriceOracle();
         assetData.totalSupplied = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.aTokenAddress).totalSupply(), assetData.decimals);
         assetData.totalBorrowed = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.variableDebtTokenAddress).totalSupply(), assetData.decimals);
-        assetData.strategyAddress = IAToken(reserve.aTokenAddress).getStrategy();
 
         assetData.totalReserves = convertAmountToUsd(assetData.oracle, assetData.asset, IERC20(asset).balanceOf(reserve.aTokenAddress), assetData.decimals);
         assetData.totalReservesNative = IERC20(asset).balanceOf(reserve.aTokenAddress);
-        
-        if (assetData.strategyAddress != address(0)) {
-            // if strategy exists, add the funds the strategy holds
-            // and the funds the strategy has boosted
-            assetData.totalReserves = assetData.totalReserves.add(
-                IBaseStrategy(assetData.strategyAddress).balanceOf()
-            );
-        }
 
         assetData.utilization = assetData.totalBorrowed == 0
             ? 0

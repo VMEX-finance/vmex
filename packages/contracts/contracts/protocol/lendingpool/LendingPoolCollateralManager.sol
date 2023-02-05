@@ -23,8 +23,6 @@ import {UserConfiguration} from "../libraries/configuration/UserConfiguration.so
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
-import {IBaseStrategy} from "../../interfaces/IBaseStrategy.sol";
-
 import {AssetMappings} from "./AssetMappings.sol";
 //import "hardhat/console.sol";
 
@@ -188,15 +186,6 @@ contract LendingPoolCollateralManager is
         if (!receiveAToken) {
             uint256 currentAvailableCollateral = IERC20(vars.collateralAsset)
                 .balanceOf(address(vars.collateralAtoken));
-
-            // there is a strategy associated with the collateral token, add the balance of strategy
-            // to available collateral
-            if (IAToken(vars.collateralAtoken).getStrategy() != address(0)) {
-                currentAvailableCollateral = currentAvailableCollateral.add(
-                    IBaseStrategy(IAToken(vars.collateralAtoken).getStrategy())
-                        .balanceOf()
-                );
-            }
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
                 return (
                     uint256(

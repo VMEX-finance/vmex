@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
-import {ICurveFi} from "../protocol/strategies/deps/curve/ICurveFi.sol";
+import {ICurvePool} from "./interfaces/ICurvePoolV1.sol";
 import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
 import {IChainlinkAggregator} from "../interfaces/IChainlinkAggregator.sol";
 import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
@@ -165,7 +165,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         uint256[] memory prices = new uint256[](c._poolSize);
 
         for (uint256 i = 0; i < c._poolSize; i++) {
-            address underlying = ICurveFi(c._curvePool).coins(i);
+            address underlying = ICurvePool(c._curvePool).coins(i);
             if(underlying == ethNative){
                 underlying = WETH;
             }

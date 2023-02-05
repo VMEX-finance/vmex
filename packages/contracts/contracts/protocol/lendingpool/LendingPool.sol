@@ -474,22 +474,6 @@ contract LendingPool is
     }
 
     /**
-     * @dev Sets the liquidity index calculated from strategy
-     * @param asset The address of the underlying asset of the reserve
-     * @param trancheId The trancheId of the reserve
-     * @param newLiquidityIndex The new liquidity index of the reserve
-     **/
-    function setReserveDataLI(address asset, uint64 trancheId, uint128 newLiquidityIndex)
-        external
-        override
-    {
-        //onlyStrategy modifier
-        DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
-        require(msg.sender == IAToken(reserve.aTokenAddress).getStrategy(), "Caller must be strategy that is attached to the reserve" );
-        reserve.liquidityIndex = newLiquidityIndex;
-    }
-
-    /**
      * @dev Returns the user account data across all the reserves in a specific trancheId
      * @param user The address of the user
      * @param trancheId The trancheId
@@ -850,27 +834,6 @@ contract LendingPool is
 
             _reservesCount[trancheId] = reservesCount + 1;
         }
-    }
-
-
-
-    function setAndApproveStrategy(
-        address asset,
-        uint64 trancheId,
-        address strategy
-    ) external override onlyLendingPoolConfigurator {
-        IAToken(_reserves[asset][trancheId].aTokenAddress)
-            .setAndApproveStrategy(strategy);
-    }
-
-    function withdrawFromStrategy(
-        address asset,
-        uint64 trancheId,
-        uint256 amount
-    ) external override onlyLendingPoolConfigurator {
-        IAToken(_reserves[asset][trancheId].aTokenAddress).withdrawFromStrategy(
-                amount
-            );
     }
 
     function setWhitelist(uint64 trancheId, bool isWhitelisted) external override onlyLendingPoolConfigurator{
