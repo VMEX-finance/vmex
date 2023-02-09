@@ -39,6 +39,7 @@ contract LendingPoolConfigurator is
     AssetMappings internal assetMappings;
     ILendingPool internal pool;
     uint64 public totalTranches;
+    mapping(uint64 => address) public trancheAdminTreasuryAddresses; //tranche to address of treasury of that tranche
 
     modifier onlyEmergencyAdmin {
         require(
@@ -118,10 +119,18 @@ contract LendingPoolConfigurator is
         emit TrancheInitialized(givenTranche, name, admin);
         return givenTranche;
     }
+
+    
     /* ******************************************************************************** */
     /* This next section contains functions only accessible to Tranche Admins and above */
     /* ******************************************************************************** */
 
+    function changeTrancheName(
+        uint64 trancheId,
+        string calldata name
+    ) external onlyTrancheAdmin(trancheId) {
+        emit TrancheNameChanged(trancheId, name);
+    }
     /**
      * @dev Initializes reserves in batch. Can be called directly by those who created tranches
      * and want to add new reserves to their tranche
@@ -301,7 +310,7 @@ contract LendingPoolConfigurator is
      *  but allows repayments, liquidations, rate rebalances and withdrawals
      * @param asset The address of the underlying asset of the reserve
      **/
-    function freezeReserve(address asset, uint64 trancheId)
+    function setFreezeReserve(address asset, uint64 trancheId, bool isFrozen)
         external
         onlyTrancheAdmin(trancheId)
     {
@@ -309,7 +318,7 @@ contract LendingPoolConfigurator is
             pool
         ).getConfiguration(asset, trancheId);
 
-        currentConfig.setFrozen(true);
+        currentConfig.setFrozen(isFrozen);
 
         ILendingPool(pool).setConfiguration(
             asset,
@@ -317,30 +326,7 @@ contract LendingPoolConfigurator is
             currentConfig.data
         );
 
-        emit ReserveFrozen(asset, trancheId);
-    }
-
-    /**
-     * @dev Unfreezes a reserve
-     * @param asset The address of the underlying asset of the reserve
-     **/
-    function unfreezeReserve(address asset, uint64 trancheId)
-        external
-        onlyTrancheAdmin(trancheId)
-    {
-        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
-            pool
-        ).getConfiguration(asset, trancheId);
-
-        currentConfig.setFrozen(false);
-
-        ILendingPool(pool).setConfiguration(
-            asset,
-            trancheId,
-            currentConfig.data
-        );
-
-        emit ReserveUnfrozen(asset, trancheId);
+        emit ReserveFrozenChanged(asset, trancheId, isFrozen);
     }
 
     function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyTrancheAdmin(trancheId){
@@ -398,23 +384,6 @@ contract LendingPoolConfigurator is
         ILendingPool cachedPool = pool;
         cachedPool.addWhitelistedDepositBorrow(user);
         emit AddedWhitelistedDepositBorrow(user);
-    }
-
-    /**
-     * @dev Updates the treasury address of the atoken
-     * @param newAddress The new address (NO VALIDATIONS ARE DONE)
-     * @param asset The underlying asset of the atoken to modify
-     * @param trancheId The tranche id of the atoken
-     **/
-    function updateVMEXTreasuryAddress(
-        address newAddress,
-        address asset,
-        uint64 trancheId
-    ) external onlyGlobalAdmin {
-        ILendingPool cachedPool = pool;
-        IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
-            .setVMEXTreasury(newAddress);
-        emit UpdatedVMEXTreasuryAddress(asset, trancheId, newAddress);
     }
 
     struct UpdateATokenVars {

@@ -29,10 +29,6 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
         uint256 index
     ) external returns (bool);
 
-    function setTreasury(address newTreasury) external;
-
-    function setVMEXTreasury(address newTreasury) external;
-
     /**
      * @dev Emitted after aTokens are burned
      * @param from The owner of the aTokens, getting them burned
@@ -46,10 +42,6 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
         uint256 value,
         uint256 index
     );
-
-    event TreasuryChanged(address indexed newAddress);
-
-    event VMEXTreasuryChanged(address indexed newAddress);
 
     /**
      * @dev Emitted during the transfer action

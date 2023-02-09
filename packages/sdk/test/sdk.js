@@ -28,7 +28,7 @@ const {
   getTotalTranches,
   getUserWalletData
 } = require("../dist/analytics.js");
-const {getAssetPrices} = require("../dist/utils.js")
+const {getAssetPrices, mintTokens} = require("../dist/utils.js")
 const { RateMode } = require("../dist/interfaces.js");
 const { MAINNET_ASSET_MAPPINGS } = require("../dist/constants.js");
 
@@ -103,6 +103,38 @@ describe("Analytics", () => {
     console.log(JSON.stringify(dat))
   });
 
+});
+
+describe("CustomTest", () => {
+  // it("1- mint AAVE", async () => {
+  //   await mintTokens({
+  //     token: "AAVE",
+  //     signer: owner,
+  //     network: network,
+  //     providerRpc: provider
+  //   })
+  // })
+  it("5 - should test the protocol supply function", async () => {
+    
+    const tx = await supply(
+      {
+        underlying: "AAVE",
+        trancheId: 21,
+        amount: "2.0",
+        signer: owner,
+        network: network,
+        isMax: false,
+        test: true,
+        providerRpc: provider,
+      },
+      () => {
+        return true;
+      }
+    )
+    await tx.wait();  // wait 1 network confirmation
+    console.log("tx: ",tx);
+
+  });
 });
 
 describe("Tranche creation - end-to-end test", () => {

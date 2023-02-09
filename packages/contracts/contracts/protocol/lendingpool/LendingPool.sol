@@ -93,9 +93,9 @@ contract LendingPool is
      */
     function checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(isUsingWhitelist[trancheId]){
-            require(whitelist[trancheId][msg.sender], "Tranche requires whitelist");
+            require(whitelist[trancheId][user], "Tranche requires whitelist");
         }
-        require(blacklist[trancheId][msg.sender]==false, "You are blacklisted from this tranche");
+        require(blacklist[trancheId][user]==false, "You are blacklisted from this tranche");
     }
 
     function getRevision() internal pure override returns (uint256) {

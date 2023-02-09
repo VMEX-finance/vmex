@@ -15,6 +15,7 @@ import {IYearnToken} from "../../oracles/interfaces/IYearnToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import "hardhat/console.sol";
 
 /**
@@ -54,11 +55,9 @@ contract AToken is
     mapping(address => uint256) public _nonces;
 
     bytes32 public DOMAIN_SEPARATOR;
-
+    ILendingPoolAddressesProvider internal addressesProvider;
     ILendingPool internal _pool;
     address internal _lendingPoolConfigurator;
-    address internal _treasury;
-    address internal _VMEXTreasury;
     address internal _underlyingAsset; //yearn address
     uint64 internal _tranche;
     IAaveIncentivesController internal _incentivesController;
@@ -121,10 +120,10 @@ contract AToken is
         _setSymbol(aTokenSymbol);
         _setDecimals(aTokenDecimals);
 
+        //set addressesprovider
+
         _pool = pool;
         _lendingPoolConfigurator = vars.lendingPoolConfigurator;
-        _treasury = vars.treasury;
-        _VMEXTreasury = vars.VMEXTreasury;
         _underlyingAsset = vars.underlyingAsset;
         _incentivesController = incentivesController;
         _tranche = vars.trancheId;
@@ -139,24 +138,6 @@ contract AToken is
             aTokenName,
             aTokenSymbol
         );
-    }
-
-    function setTreasury(address newTreasury)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        _treasury = newTreasury;
-        emit TreasuryChanged(newTreasury);
-    }
-
-    function setVMEXTreasury(address newTreasury)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        _VMEXTreasury = newTreasury;
-        emit VMEXTreasuryChanged(newTreasury);
     }
 
     /**
@@ -222,7 +203,7 @@ contract AToken is
             return;
         }
 
-        address treasury = _treasury;
+        address treasury = _lendingPoolConfigurator.trancheAdminTreasuryAddresses(_tranche);
 
         // Compared to the normal mint, we don't check for rounding errors.
         // The amount to mint can easily be very small since it is a fraction of the interest ccrued.
@@ -249,7 +230,7 @@ contract AToken is
             return;
         }
 
-        address treasury = _VMEXTreasury;
+        address treasury = _;
 
         // Compared to the normal mint, we don't check for rounding errors.
         // The amount to mint can easily be very small since it is a fraction of the interest ccrued.

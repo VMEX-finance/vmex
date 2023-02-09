@@ -7,7 +7,6 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@vmexfinance/contracts": "^1.0.4-alpha",
     "chai": "^4.3.6",
     "chai-bignumber": "^3.1.0",
     "cross-env": "^7.0.3",
@@ -20,7 +19,7 @@
     "build": "yarn tsc",
     "test": "yarn build && mocha --timeout 0 --reporter spec",
     "test:analytics": "yarn build && mocha --timeout 0 --reporter spec --grep Analytics",
-    "test:specific": "yarn build && mocha --timeout 0 --reporter spec --grep Supply",
+    "test:specific": "yarn build && mocha --timeout 0 --reporter spec --grep CustomTest",
     "fund:accounts": "mocha dev --timeout 0 --reporter spec",
     "fund:goerli:accounts": "mocha dev --timeout 0 --reporter spec --grep Get_goerli"
   },
