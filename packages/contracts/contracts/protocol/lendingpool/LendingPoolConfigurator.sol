@@ -297,6 +297,7 @@ contract LendingPoolConfigurator is
             ).getConfiguration(asset[i], trancheId);
 
             uint256 thisReserveFactor = reserveFactor[i].convertToPercent();
+            // TODO: require the reserve factor to be less than 100%
 
             currentConfig.setReserveFactor(thisReserveFactor);
 
