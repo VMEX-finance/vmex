@@ -148,14 +148,14 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       //TODO: deploy the other LP token contracts
     } catch (error) {
-      if (DRE.network.name.includes("tenderly")) {
-        const transactionLink = `https://dashboard.tenderly.co/${
-          DRE.config.tenderly.username
-        }/${DRE.config.tenderly.project}/fork/${DRE.tenderly
-          .network()
-          .getFork()}/simulation/${DRE.tenderly.network().getHead()}`;
-        console.error("Check tx error:", transactionLink);
-      }
+      // if (DRE.network.name.includes("tenderly")) {
+      //   const transactionLink = `https://dashboard.tenderly.co/${
+      //     DRE.config.tenderly.username
+      //   }/${DRE.config.tenderly.project}/fork/${DRE.tenderly
+      //     .network()
+      //     .getFork()}/simulation/${DRE.tenderly.network().getHead()}`;
+      //   console.error("Check tx error:", transactionLink);
+      // }
       throw error;
     }
   });

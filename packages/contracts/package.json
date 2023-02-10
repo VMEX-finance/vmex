@@ -15,7 +15,7 @@
     "start:dev": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node:fork:main\"  \"yarn vmex:deploy\"",
     "scripts:priceFeed": "hardhat run scripts/test-priceFeed.ts",
     "scripts:userBalance": "hardhat run scripts/test-userBalance.ts",
-    "hardhat:tenderly-main": "hardhat --network tenderlyMain",
+    "hardhat:tenderly-main": "hardhat --network tenderly",
     "hardhat:main": "hardhat --network main",
     "hardhat:docker": "hardhat --network hardhatevm_docker",
     "hardhat:mumbai": "hardhat --network mumbai",
