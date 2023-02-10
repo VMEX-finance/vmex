@@ -585,6 +585,7 @@ export async function configureExistingTranche(
     reserveFactors?: SetAddress[];
     canBorrow?: SetAddress[];
     canBeCollateral?: SetAddress[];
+    isFrozen?: SetAddress[];
     admin: ethers.Signer;
     newTreasuryAddress?: string | undefined;
     network: string;
@@ -594,6 +595,7 @@ export async function configureExistingTranche(
   callback?: () => Promise<any>
 ) {
   //configure existing 
+  console.log(params)
   let tx;
   const mytranche = params.trancheId;
   let configurator = await getLendingPoolConfiguratorProxy({
@@ -630,7 +632,7 @@ export async function configureExistingTranche(
       );
     }
   }
-  if(params.isTrancheWhitelisted){
+  if(params.isTrancheWhitelisted !== undefined){
     try {
     console.log("Setting isTrancheWhitelisted");
       const tx4 = await configurator.setTrancheWhitelist(
@@ -674,11 +676,13 @@ export async function configureExistingTranche(
       );
     }
   }
+
+  // The below el.addr refers to the token that needs to be set. When calling sdk, you pass in the token symbol like "USDC", so here we need to convert that
   if (params.reserveFactors && params.reserveFactors.length != 0) {
     try {
-      console.log("Setting reserveFactors");
+      console.log("Setting reserveFactors: ",params.reserveFactors.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)), params.reserveFactors.map((el:SetAddress) => el.newValue));
       const tx4 = await configurator.setReserveFactor(
-        params.reserveFactors.map((el:SetAddress) => el.addr),
+        params.reserveFactors.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
         mytranche,
         params.reserveFactors.map((el:SetAddress) => el.newValue)
       );
@@ -693,7 +697,7 @@ export async function configureExistingTranche(
     try {
       console.log("Setting canBorrow");
       const tx4 = await configurator.setBorrowingOnReserve(
-        params.canBorrow.map((el:SetAddress) => el.addr),
+        params.canBorrow.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
         mytranche,
         params.canBorrow.map((el:SetAddress) => el.newValue)
       );
@@ -708,7 +712,7 @@ export async function configureExistingTranche(
     try {
       console.log("Setting canBeCollateral");
       const tx4 = await configurator.setCollateralEnabledOnReserve(
-        params.canBeCollateral.map((el:SetAddress) => el.addr),
+        params.canBeCollateral.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
         mytranche,
         params.canBeCollateral.map((el:SetAddress) => el.newValue)
       );
@@ -716,6 +720,21 @@ export async function configureExistingTranche(
     } catch (error) {
       throw new Error(
         "Configurator Failed during setting canBeCollateral with " + error
+      );
+    }
+  }
+  if (params.isFrozen && params.isFrozen.length != 0) {
+    try {
+      console.log("Setting frozen");
+      const tx4 = await configurator.setFreezeReserve(
+        params.isFrozen.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        mytranche,
+        params.isFrozen.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting isFrozen with " + error
       );
     }
   }
