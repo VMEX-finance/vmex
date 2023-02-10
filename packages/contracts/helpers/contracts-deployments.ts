@@ -105,7 +105,7 @@ import {deployAllMockAggregators, setInitialAssetPricesInOracle} from "./oracles
 
 export const buildTestEnv = async (deployer: Signer) => {
   console.time("setup");
-  
+
   const network = DRE.network.name;
   const aaveAdmin = await deployer.getAddress();
   var config = loadPoolConfig(ConfigNames.Aave);
@@ -119,7 +119,7 @@ export const buildTestEnv = async (deployer: Signer) => {
       ...(await deployAllMockTokens()),
     };
   }
-  
+
 
   console.log("mockTokens[USDC]: ",mockTokens["USDC"].address)
   let addressesProvider = await getLendingPoolAddressesProvider();
@@ -129,7 +129,7 @@ export const buildTestEnv = async (deployer: Signer) => {
       AaveConfig.MarketId
     );
   }
-  
+
   await waitForTx(await addressesProvider.setGlobalAdmin(aaveAdmin));
   await waitForTx(await addressesProvider.setEmergencyAdmin(aaveAdmin));
 
@@ -149,7 +149,7 @@ export const buildTestEnv = async (deployer: Signer) => {
       )
     );
   }
-  
+
 
     //-------------------------------------------------------------
   //deploy AssetMappings
@@ -245,7 +245,7 @@ export const buildTestEnv = async (deployer: Signer) => {
 
   let lendingPoolConfiguratorProxy = await getLendingPoolConfiguratorProxy();
 
-  
+
   if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(lendingPoolConfiguratorProxy.address)){
     console.log("Deploying lending pool configurator impl and proxy")
     const lendingPoolConfiguratorImpl = await deployLendingPoolConfigurator();
@@ -409,7 +409,7 @@ export const buildTestEnv = async (deployer: Signer) => {
     // );
 
     // console.log("Set vmex oracle aggregators")
-    
+
     await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
 
     await waitForTx(
@@ -471,7 +471,7 @@ export const buildTestEnv = async (deployer: Signer) => {
       0
     );
   }
-  
+
 
   //-------------------------------------------------------------
 
@@ -484,7 +484,7 @@ export const buildTestEnv = async (deployer: Signer) => {
     await claimTrancheId("Vmex tranche 1", user1);
   }
   treasuryAddress = user1.address;
-  
+
 
   let [assets1, reserveFactors1, forceDisabledBorrow1, forceDisabledCollateral1] = getTranche1MockedData(allReservesAddresses);
   console.log("Start init reserves")
@@ -1303,11 +1303,11 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
     const tokens: {
       [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
     } = {};
-  
+
     const protoConfigData = getReservesConfigByPool(AavePools.proto);
-  
+
     //console.log(protoConfigData)
-  
+
     for (const tokenSymbol of Object.keys(TokenContractId)) {
       if (tokenSymbol === "WETH") {
         tokens[tokenSymbol] = await deployWETHMocked();
@@ -1316,15 +1316,15 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
           tokens[tokenSymbol]
         );
         continue;
-      } 
+      }
       let decimals = 18;
-  
+
       let configData = (<any>protoConfigData)[tokenSymbol];
-  
+
       if (!configData) {
         decimals = 18;
       }
-  
+
       if (tokenSymbol === "yvTricrypto2" || tokenSymbol === "yvThreePool" || tokenSymbol === "yvStethEth"|| tokenSymbol === "yvFraxUSDC"|| tokenSymbol === "yvFrax3Crv") {
         tokens[tokenSymbol] = await deployYearnTokenMocked([
           tokenSymbol,
@@ -1338,7 +1338,7 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
         );
         continue;
       }
-  
+
       tokens[tokenSymbol] = await deployMintableERC20([
         tokenSymbol,
         tokenSymbol,
@@ -1349,10 +1349,10 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
         tokens[tokenSymbol]
       );
     }
-  
+
     return tokens;
   };
-  
+
 export const deployMockTokens = async (
   config: PoolConfiguration,
   verify?: boolean

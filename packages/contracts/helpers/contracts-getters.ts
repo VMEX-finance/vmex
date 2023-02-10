@@ -49,7 +49,6 @@ import {
   PoolConfiguration,
   tEthereumAddress,
   TokenContractId,
-  AddressTarget,
 } from "./types";
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];
@@ -277,7 +276,7 @@ export const getAllMockedTokens = async () => {
       else {
         accumulator[tokenSymbol] = await getMintableERC20(address);
       }
-    
+
     return Promise.resolve(acc);
   }, Promise.resolve({}));
   return tokens;

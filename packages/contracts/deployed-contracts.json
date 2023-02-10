@@ -9,8 +9,8 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "tenderly": {
-      "address": "0x58cF43fD0A2ef5A359AF42D20d1a69e207E2f3ca",
-      "deployer": "0x03B9DbEd84aaB527A4B7975133047BfE274B7C12"
+      "address": "0xcdFB2C0B896C97E6920f3520cc40a89D12065D09",
+      "deployer": "0xC38bbEF74556DB5dF12541f407Caa20f9731DEC1"
     },
     "goerli": {
       "address": "0x8699e15f76f2Dd60967288EE1A55446dCdAA0e8B",
