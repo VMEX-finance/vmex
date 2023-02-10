@@ -398,15 +398,11 @@ export async function lendingPoolPause(
 export async function initNewReserves(
   params: {
     trancheId: string;
-    name: string;
-    whitelisted: string[];
-    blacklisted: string[];
     assetAddresses: string[];
     reserveFactors: string[];
     canBorrow: boolean[];
     canBeCollateral: boolean[];
     admin: ethers.Signer;
-    treasuryAddress: string;
     incentivesController: string;
     network: string;
     test?: boolean;
@@ -425,7 +421,6 @@ export async function initNewReserves(
   });
   let initInputParams: {
     underlyingAsset: string;
-    treasury: string;
     incentivesController: string;
     interestRateChoice: string; //1,000,000
     reserveFactor: string;
@@ -435,7 +430,6 @@ export async function initNewReserves(
   for (let i = 0; i < params.assetAddresses.length; i++) {
     initInputParams.push({
       underlyingAsset: params.assetAddresses[i],
-      treasury: params.treasuryAddress,
       incentivesController: params.incentivesController,
       interestRateChoice: "0",
       reserveFactor: params.reserveFactors[i],
@@ -473,37 +467,6 @@ export async function initNewReserves(
 
   } catch (error) {
     throw new Error("Configurator Failed durining init reserve with " + error);
-  }
-
-  if (params.whitelisted.length != 0) {
-    try {
-      console.log("Setting whitelist");
-      const tx4 = await configurator.setWhitelist(
-        mytranche,
-        params.whitelisted,
-        new Array(params.whitelisted.length).fill(true)
-      );
-      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
-    } catch (error) {
-      throw new Error(
-        "Configurator Failed during setting whitelist with " + error
-      );
-    }
-  }
-  if (params.blacklisted.length != 0) {
-    try {
-      console.log("Setting blacklisted");
-      const tx4 = await configurator.setBlacklist(
-        mytranche,
-        params.blacklisted,
-        new Array(params.blacklisted.length).fill(true)
-      );
-      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
-    } catch (error) {
-      throw new Error(
-        "Configurator Failed during setting blacklisted with " + error
-      );
-    }
   }
 
   if (callback) {
@@ -562,6 +525,48 @@ export async function initTranche(
   } catch (error) {
     throw new Error("Configurator Failed with " + error);
   }
+
+  try {
+    let tx = await configurator.updateTreasuryAddress(
+      params.treasuryAddress,
+      mytranche
+    );
+
+    await tx.wait();  // wait 1 network confirmation
+  } catch (error) {
+    throw new Error("Configurator Failed updating treasury address with " + error);
+  }
+
+  if (params.whitelisted.length != 0) {
+    try {
+      console.log("Setting whitelist");
+      const tx4 = await configurator.setWhitelist(
+        mytranche,
+        params.whitelisted,
+        new Array(params.whitelisted.length).fill(true)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting whitelist with " + error
+      );
+    }
+  }
+  if (params.blacklisted.length != 0) {
+    try {
+      console.log("Setting blacklisted");
+      const tx4 = await configurator.setBlacklist(
+        mytranche,
+        params.blacklisted,
+        new Array(params.blacklisted.length).fill(true)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting blacklisted with " + error
+      );
+    }
+  }
   return initNewReserves(
     {
       trancheId: mytranche,
@@ -573,15 +578,15 @@ export async function initTranche(
 export async function configureExistingTranche(
   params: {
     trancheId: string;
-    newName: string | undefined; //undefined if no change
-    isTrancheWhitelisted: boolean | undefined;
-    whitelisted: SetAddress[];
-    blacklisted: SetAddress[];
-    reserveFactors: SetAddress[];
-    canBorrow: SetAddress[];
-    canBeCollateral: SetAddress[];
+    newName?: string | undefined; //undefined if no change
+    isTrancheWhitelisted?: boolean | undefined;
+    whitelisted?: SetAddress[];
+    blacklisted?: SetAddress[];
+    reserveFactors?: SetAddress[];
+    canBorrow?: SetAddress[];
+    canBeCollateral?: SetAddress[];
     admin: ethers.Signer;
-    newTreasuryAddress: string | undefined;
+    newTreasuryAddress?: string | undefined;
     network: string;
     test?: boolean;
     providerRpc?: string;
@@ -616,7 +621,7 @@ export async function configureExistingTranche(
     console.log("Setting new treasury address");
       const tx4 = await configurator.updateTreasuryAddress(
         mytranche,
-        params.newName
+        params.newTreasuryAddress
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -639,7 +644,7 @@ export async function configureExistingTranche(
       );
     }
   }
-  if (params.whitelisted.length != 0) {
+  if (params.whitelisted && params.whitelisted.length != 0) {
     try {
       console.log("Setting whitelist");
       const tx4 = await configurator.setWhitelist(
@@ -654,7 +659,7 @@ export async function configureExistingTranche(
       );
     }
   }
-  if (params.blacklisted.length != 0) {
+  if (params.blacklisted && params.blacklisted.length != 0) {
     try {
       console.log("Setting blacklisted");
       const tx4 = await configurator.setBlacklist(
@@ -669,18 +674,48 @@ export async function configureExistingTranche(
       );
     }
   }
-  if (params.reserveFactors.length != 0) {
+  if (params.reserveFactors && params.reserveFactors.length != 0) {
     try {
       console.log("Setting reserveFactors");
       const tx4 = await configurator.setReserveFactor(
+        params.reserveFactors.map((el:SetAddress) => el.addr),
         mytranche,
-        params.blacklisted.map((el:SetAddress) => el.addr),
-        params.blacklisted.map((el:SetAddress) => el.newValue)
+        params.reserveFactors.map((el:SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
       throw new Error(
-        "Configurator Failed during setting blacklisted with " + error
+        "Configurator Failed during setting reserve factors with " + error
+      );
+    }
+  }
+  if (params.canBorrow && params.canBorrow.length != 0) {
+    try {
+      console.log("Setting canBorrow");
+      const tx4 = await configurator.setBorrowingOnReserve(
+        params.canBorrow.map((el:SetAddress) => el.addr),
+        mytranche,
+        params.canBorrow.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting can borrow with " + error
+      );
+    }
+  }
+  if (params.canBeCollateral && params.canBeCollateral.length != 0) {
+    try {
+      console.log("Setting canBeCollateral");
+      const tx4 = await configurator.setCollateralEnabledOnReserve(
+        params.canBeCollateral.map((el:SetAddress) => el.addr),
+        mytranche,
+        params.canBeCollateral.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting canBeCollateral with " + error
       );
     }
   }

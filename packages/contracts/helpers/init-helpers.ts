@@ -255,7 +255,6 @@ export const initReservesByHelper = async (
 
   let initInputParams: {
     underlyingAsset: string;
-    treasury: string;
     incentivesController: string;
     interestRateChoice: string; //1,000,000
     reserveFactor: string;
@@ -291,8 +290,12 @@ export const initReservesByHelper = async (
     const tx3 = await waitForTx(
       await configurator
         .connect(admin)
-        .batchInitReserve(chunkedInitInputParams[chunkIndex], treasuryAddress, trancheId)
+        .batchInitReserve(chunkedInitInputParams[chunkIndex], trancheId)
     );
+
+    await configurator
+        .connect(admin)
+        .updateTreasuryAddress(treasuryAddress, trancheId)
 
     console.log(
       `  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`

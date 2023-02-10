@@ -139,11 +139,9 @@ contract LendingPoolConfigurator is
      **/
     function batchInitReserve(
         DataTypes.InitReserveInput[] calldata input,
-        address treasury,
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
-        updateTreasuryAddress(treasury, trancheId);
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
                 cachedPool,

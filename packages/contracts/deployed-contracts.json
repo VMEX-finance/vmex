@@ -23,7 +23,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0xC6bA6049F86d528698B5924B8fC2FE7289D38578",
+      "address": "0xD67ba212bA61226DF3d20B2bD92deD3A6770f32d",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "goerli": {
@@ -37,7 +37,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0xde9595927B00361Ed7987a181Fb09EC6f31b451c",
+      "address": "0xD4B5A49d5bA242572ec3f4A8E52B97a10AF2543a",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "goerli": {
@@ -51,7 +51,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x3bDA11B584dDff7F66E0cFe1da1562c92B45db60",
+      "address": "0x6aaF7e94e099291a94ed8E245c90f4766CE9bB7C",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "goerli": {
@@ -65,7 +65,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x392E5355a0e88Bd394F717227c752670fb3a8020",
+      "address": "0x40A939911b662656C0EE71c19B954DB1911Dc8e3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "goerli": {
@@ -78,7 +78,7 @@
       "address": "0xb682dEEf4f8e298d86bFc3e21f50c675151FB974"
     },
     "hardhat": {
-      "address": "0x3b050AFb4ac4ACE646b31fF3639C1CD43aC31460"
+      "address": "0xcdF1185e592AFc8d8754C4BC8479C39b20437E42"
     },
     "goerli": {
       "address": "0x8381774D025e4aE8923E866C91C94dD6514f091c"
@@ -89,7 +89,7 @@
       "address": "0xE8606b4421B6dBC318BD51c24B7e3f98dA3A4621"
     },
     "hardhat": {
-      "address": "0x3b050AFb4ac4ACE646b31fF3639C1CD43aC31460",
+      "address": "0xcdF1185e592AFc8d8754C4BC8479C39b20437E42",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "goerli": {
@@ -250,7 +250,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0xBEF0d4b9c089a5883741fC14cbA352055f35DDA2",
+      "address": "0x3b050AFb4ac4ACE646b31fF3639C1CD43aC31460",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   },
@@ -271,7 +271,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x2cfcA5785261fbC88EFFDd46fCFc04c22525F9e4",
+      "address": "0xBE36BE5680244Ae1A6F983E4A6f6E1c142cdAbe3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "goerli": {
@@ -394,7 +394,7 @@
       "address": "0x053568617FFccEe2F75073975CC0e1549Ff9db71"
     },
     "hardhat": {
-      "address": "0x8280D40C9E9F04229D2435EAad6e0011309ce81B"
+      "address": "0x3bDA11B584dDff7F66E0cFe1da1562c92B45db60"
     },
     "goerli": {
       "address": "0xfF2E4B7e5145cb6A4064504aF04cb07ee68358b9"
@@ -406,7 +406,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x8280D40C9E9F04229D2435EAad6e0011309ce81B",
+      "address": "0x3bDA11B584dDff7F66E0cFe1da1562c92B45db60",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "goerli": {
@@ -1372,7 +1372,7 @@
   },
   "MockAToken": {
     "hardhat": {
-      "address": "0x2cfcA5785261fbC88EFFDd46fCFc04c22525F9e4",
+      "address": "0xBE36BE5680244Ae1A6F983E4A6f6E1c142cdAbe3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -1382,19 +1382,19 @@
   },
   "MockStableDebtToken": {
     "hardhat": {
-      "address": "0xde9595927B00361Ed7987a181Fb09EC6f31b451c",
+      "address": "0xD4B5A49d5bA242572ec3f4A8E52B97a10AF2543a",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   },
   "MockVariableDebtToken": {
     "hardhat": {
-      "address": "0x392E5355a0e88Bd394F717227c752670fb3a8020",
+      "address": "0x40A939911b662656C0EE71c19B954DB1911Dc8e3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   },
   "SelfdestructTransferMock": {
     "hardhat": {
-      "address": "0xC6bA6049F86d528698B5924B8fC2FE7289D38578",
+      "address": "0xD67ba212bA61226DF3d20B2bD92deD3A6770f32d",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   },

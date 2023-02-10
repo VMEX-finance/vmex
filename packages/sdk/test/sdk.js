@@ -15,6 +15,7 @@ const {
   markReserveAsCollateral,
   initTranche,
   lendingPoolPause,
+  configureExistingTranche,
 } = require("../dist/protocol.js");
 const {
   getUserTrancheData,
@@ -137,7 +138,15 @@ describe("CustomTest", () => {
   });
 });
 
-describe("Tranche creation - end-to-end test", () => {
+describe("CreateNewTranche", () => {
+  // it("1- mint AAVE", async () => {
+  //   await mintTokens({
+  //     token: "AAVE",
+  //     signer: owner,
+  //     network: network,
+  //     providerRpc: provider
+  //   })
+  // })
   it("1 - init reserves in this tranche", async () => {
     let assets0 = ["AAVE", "DAI"];
     let reserveFactors0 = [];
@@ -161,13 +170,93 @@ describe("Tranche creation - end-to-end test", () => {
         treasuryAddress: "0x0000000000000000000000000000000000000000",
         incentivesController: "0x0000000000000000000000000000000000000000",
         network: network,
-        test: true
+        test: true,
+        providerRpc: provider,
       }
     )
   });
+});
 
+describe("ConfigureTranche", () => {
+  // it("1- mint AAVE", async () => {
+  //   await mintTokens({
+  //     token: "AAVE",
+  //     signer: owner,
+  //     network: network,
+  //     providerRpc: provider
+  //   })
+  // })
+  it("configure existing tranche, removing whitelister", async () => {
+    const createdTranche = "20";
 
-  // initTranche
+    await configureExistingTranche(
+      {
+        trancheId: createdTranche,
+        whitelisted: [{
+          addr: await temp.getAddress(),
+          value: false
+        }],
+        admin: temp,
+        network: network,
+        test: true
+      }
+    )
+
+  });
+  it("check that whitelister is not able to interact anymore", async () => {
+    const createdTranche = "20";
+
+    await expect(supply(
+      {
+        underlying: "WETH",
+        trancheId: createdTranche,
+        amount: "2.0",
+        signer: temp,
+        network: network,
+        isMax: false,
+        test: true,
+        providerRpc: provider,
+      },
+      () => {
+        return true;
+      }
+    )).to.be.revertedWith("Tranche requires whitelist")
+
+  });
+  it("configure existing tranche, removing whitelist in general", async () => {
+    const createdTranche = "20";
+
+    await configureExistingTranche(
+      {
+        trancheId: createdTranche,
+        isTrancheWhitelisted: false,
+        admin: temp,
+        network: network,
+        test: true
+      }
+    )
+
+  });
+  it("now temp can interact with tranche", async () => {
+    const createdTranche = "20";
+
+    await supply(
+      {
+        underlying: "WETH",
+        trancheId: createdTranche,
+        amount: "2.0",
+        signer: temp,
+        network: network,
+        isMax: false,
+        test: true,
+        providerRpc: provider,
+      },
+      () => {
+        return true;
+      }
+    )
+
+  });
 });
 
 describe("Supply", () => { //this assumes you already have funds in your wallet

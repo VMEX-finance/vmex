@@ -19,7 +19,7 @@
     "build": "yarn tsc",
     "test": "yarn build && mocha --timeout 0 --reporter spec",
     "test:analytics": "yarn build && mocha --timeout 0 --reporter spec --grep Analytics",
-    "test:specific": "yarn build && mocha --timeout 0 --reporter spec --grep CustomTest",
+    "test:specific": "yarn build && mocha --timeout 0 --reporter spec --grep ConfigureTranche",
     "fund:accounts": "mocha dev --timeout 0 --reporter spec",
     "fund:goerli:accounts": "mocha dev --timeout 0 --reporter spec --grep Get_goerli"
   },
