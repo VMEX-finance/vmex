@@ -42,7 +42,6 @@ library DataTypes {
         address underlyingAsset;
 
         //these can be chosen by user to be any address
-        address treasury;
         address incentivesController;
 
         uint8 interestRateChoice; //0 for default, others are undefined until set

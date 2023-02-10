@@ -1,5 +1,9 @@
 import {BigNumber} from "ethers";
 
+export interface SetAddress {
+  addr: string;
+  newValue: string | boolean;
+}
 
 export interface SuppliedAssetData {
   asset: string;

@@ -30,15 +30,13 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
   const tranche = 0;
 
   before('deploying instances', async () => {
-    const { dai, pool, configurator } = testEnv;
+    const { dai, pool, configurator, addressesProvider } = testEnv;
     const aTokenInstance = await deployMockAToken([
       pool.address,
       configurator.address,
       dai.address,
       tranche.toString(),
-      ZERO_ADDRESS,
-      ZERO_ADDRESS,
-      "0",
+      addressesProvider.address,
       ZERO_ADDRESS,
       'Aave Interest bearing DAI updated',
       'aDAI'
@@ -75,7 +73,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const updateATokenInputParams: {
       asset: string;
       trancheId: BigNumberish;
-      treasury: string;
       incentivesController: string;
       name: string;
       symbol: string;
@@ -83,7 +80,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     } = {
       asset: dai.address,
       trancheId: tranche,
-      treasury: ZERO_ADDRESS,
       incentivesController: ZERO_ADDRESS,
       name: name,
       symbol: symbol,
@@ -103,7 +99,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const updateATokenInputParams: {
       asset: string;
       trancheId: BigNumberish;
-      treasury: string;
       incentivesController: string;
       name: string;
       symbol: string;
@@ -111,7 +106,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     } = {
       asset: dai.address,
       trancheId: tranche,
-      treasury: ZERO_ADDRESS,
       incentivesController: ZERO_ADDRESS,
       name: name,
       symbol: symbol,

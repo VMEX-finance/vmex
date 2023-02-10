@@ -5,7 +5,6 @@ interface ILendingPoolConfigurator {
     struct UpdateATokenInput {
         address asset;
         uint64 trancheId;
-        address treasury;
         address incentivesController;
         string name;
         string symbol;
@@ -29,11 +28,10 @@ interface ILendingPoolConfigurator {
      * @param factor The new reserve factor
      **/
     event ReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
-
+    event TrancheNameChanged(uint64 indexed trancheId, string indexed name);
     event AddedWhitelistedDepositBorrow(address indexed user);
 
-    event UpdatedTreasuryAddress(address asset, uint64 trancheId, address newAddress);
-    event UpdatedVMEXTreasuryAddress(address asset, uint64 trancheId, address newAddress);
+    event UpdatedTreasuryAddress(uint64 trancheId, address newAddress);
 
     event UserSetWhitelistEnabled(uint64 indexed trancheId, bool isWhitelisted);
 
@@ -45,14 +43,7 @@ interface ILendingPoolConfigurator {
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The trancheId of the reserve
      **/
-    event ReserveFrozen(address indexed asset, uint64 indexed trancheId);
-
-    /**
-     * @dev Emitted when a reserve is unfrozen
-     * @param asset The address of the underlying asset of the reserve
-     * @param trancheId The trancheId of the reserve
-     **/
-    event ReserveUnfrozen(address indexed asset, uint64 indexed trancheId);
+    event ReserveFrozenChanged(address indexed asset, uint64 indexed trancheId, bool isFrozen);
 
     /**
      * @dev Emitted when a tranche is initialized.
@@ -163,4 +154,6 @@ interface ILendingPoolConfigurator {
         address indexed proxy,
         address indexed implementation
     );
+
+    function trancheAdminTreasuryAddresses(uint64 trancheId) external view returns(address);
 }

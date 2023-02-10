@@ -12,6 +12,7 @@ import {
   convertToCurrencyDecimals,
 } from "./utils";
 import { getTotalTranches } from "./analytics";
+import { SetAddress } from "./interfaces";
 
 const MAX_UINT_AMOUNT =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
@@ -394,17 +395,14 @@ export async function lendingPoolPause(
 //     }
 // }
 
-export async function initTranche(
+export async function initNewReserves(
   params: {
-    name: string;
-    whitelisted: string[];
-    blacklisted: string[];
+    trancheId: string;
     assetAddresses: string[];
     reserveFactors: string[];
     canBorrow: boolean[];
     canBeCollateral: boolean[];
     admin: ethers.Signer;
-    treasuryAddress: string;
     incentivesController: string;
     network: string;
     test?: boolean;
@@ -413,40 +411,16 @@ export async function initTranche(
   },
   callback?: () => Promise<any>
 ) {
-  params.assetAddresses = convertListSymbolToAddress(params.assetAddresses,params.network);
-  // assert(params.assetAddresses.length == params.reserveFactors.length, "array lengths not equal");
-  // assert(params.assetAddresses.length == params.canBorrow.length, "array lengths not equal");
-  // assert(params.assetAddresses.length == params.canBeCollateral.length, "array lengths not equal");
   let tx;
-  let mytranche = (
-    await getTotalTranches({
-      network: params.network,
-      test: params.test,
-      providerRpc: params.providerRpc
-    })
-  ).toString();
-
+  const mytranche = params.trancheId;
   let configurator = await getLendingPoolConfiguratorProxy({
     network: params.network,
     signer: params.admin,
     test: params.test,
     providerRpc: params.providerRpc,
   });
-
-  try {
-    let tx = await configurator.claimTrancheId(
-      params.name,
-      await params.admin.getAddress()
-    );
-
-    await tx.wait();  // wait 1 network confirmation
-  } catch (error) {
-    throw new Error("Configurator Failed with " + error);
-  }
-
   let initInputParams: {
     underlyingAsset: string;
-    treasury: string;
     incentivesController: string;
     interestRateChoice: string; //1,000,000
     reserveFactor: string;
@@ -456,7 +430,6 @@ export async function initTranche(
   for (let i = 0; i < params.assetAddresses.length; i++) {
     initInputParams.push({
       underlyingAsset: params.assetAddresses[i],
-      treasury: params.treasuryAddress,
       incentivesController: params.incentivesController,
       interestRateChoice: "0",
       reserveFactor: params.reserveFactors[i],
@@ -496,6 +469,74 @@ export async function initTranche(
     throw new Error("Configurator Failed durining init reserve with " + error);
   }
 
+  if (callback) {
+    await callback();
+  }
+  return tx;
+}
+
+export async function initTranche(
+  params: {
+    name: string;
+    whitelisted: string[];
+    blacklisted: string[];
+    assetAddresses: string[];
+    reserveFactors: string[];
+    canBorrow: boolean[];
+    canBeCollateral: boolean[];
+    admin: ethers.Signer;
+    treasuryAddress: string;
+    incentivesController: string;
+    network: string;
+    test?: boolean;
+    providerRpc?: string;
+    chunks?: number;
+  },
+  callback?: () => Promise<any>
+) {
+  
+  params.assetAddresses = convertListSymbolToAddress(params.assetAddresses,params.network);
+  // assert(params.assetAddresses.length == params.reserveFactors.length, "array lengths not equal");
+  // assert(params.assetAddresses.length == params.canBorrow.length, "array lengths not equal");
+  // assert(params.assetAddresses.length == params.canBeCollateral.length, "array lengths not equal");
+  let tx;
+  let mytranche = (
+    await getTotalTranches({
+      network: params.network,
+      test: params.test,
+      providerRpc: params.providerRpc
+    })
+  ).toString();
+
+  let configurator = await getLendingPoolConfiguratorProxy({
+    network: params.network,
+    signer: params.admin,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  try {
+    let tx = await configurator.claimTrancheId(
+      params.name,
+      await params.admin.getAddress()
+    );
+
+    await tx.wait();  // wait 1 network confirmation
+  } catch (error) {
+    throw new Error("Configurator Failed with " + error);
+  }
+
+  try {
+    let tx = await configurator.updateTreasuryAddress(
+      params.treasuryAddress,
+      mytranche
+    );
+
+    await tx.wait();  // wait 1 network confirmation
+  } catch (error) {
+    throw new Error("Configurator Failed updating treasury address with " + error);
+  }
+
   if (params.whitelisted.length != 0) {
     try {
       console.log("Setting whitelist");
@@ -526,10 +567,175 @@ export async function initTranche(
       );
     }
   }
-
-  if (callback) {
-    await callback();
-  }
-  return tx;
+  return initNewReserves(
+    {
+      trancheId: mytranche,
+      ...params
+    }, callback
+  );
 }
 
+export async function configureExistingTranche(
+  params: {
+    trancheId: string;
+    newName?: string | undefined; //undefined if no change
+    isTrancheWhitelisted?: boolean | undefined;
+    whitelisted?: SetAddress[];
+    blacklisted?: SetAddress[];
+    reserveFactors?: SetAddress[];
+    canBorrow?: SetAddress[];
+    canBeCollateral?: SetAddress[];
+    isFrozen?: SetAddress[];
+    admin: ethers.Signer;
+    newTreasuryAddress?: string | undefined;
+    network: string;
+    test?: boolean;
+    providerRpc?: string;
+  },
+  callback?: () => Promise<any>
+) {
+  //configure existing 
+  console.log(params)
+  let tx;
+  const mytranche = params.trancheId;
+  let configurator = await getLendingPoolConfiguratorProxy({
+    network: params.network,
+    signer: params.admin,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+  if(params.newName){
+    try {
+    console.log("Setting new name");
+      const tx4 = await configurator.changeTrancheName(
+        mytranche,
+        params.newName
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting new name with " + error
+      );
+    }
+  }
+  if(params.newTreasuryAddress){
+    try {
+    console.log("Setting new treasury address");
+      const tx4 = await configurator.updateTreasuryAddress(
+        mytranche,
+        params.newTreasuryAddress
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting new treasury address with " + error
+      );
+    }
+  }
+  if(params.isTrancheWhitelisted !== undefined){
+    try {
+    console.log("Setting isTrancheWhitelisted");
+      const tx4 = await configurator.setTrancheWhitelist(
+        mytranche,
+        params.isTrancheWhitelisted
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting isTrancheWhitelisted with " + error
+      );
+    }
+  }
+  if (params.whitelisted && params.whitelisted.length != 0) {
+    try {
+      console.log("Setting whitelist");
+      const tx4 = await configurator.setWhitelist(
+        mytranche,
+        params.whitelisted.map((el:SetAddress) => el.addr),
+        params.whitelisted.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting whitelist with " + error
+      );
+    }
+  }
+  if (params.blacklisted && params.blacklisted.length != 0) {
+    try {
+      console.log("Setting blacklisted");
+      const tx4 = await configurator.setBlacklist(
+        mytranche,
+        params.blacklisted.map((el:SetAddress) => el.addr),
+        params.blacklisted.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting blacklisted with " + error
+      );
+    }
+  }
+
+  // The below el.addr refers to the token that needs to be set. When calling sdk, you pass in the token symbol like "USDC", so here we need to convert that
+  if (params.reserveFactors && params.reserveFactors.length != 0) {
+    try {
+      console.log("Setting reserveFactors: ",params.reserveFactors.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)), params.reserveFactors.map((el:SetAddress) => el.newValue));
+      const tx4 = await configurator.setReserveFactor(
+        params.reserveFactors.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        mytranche,
+        params.reserveFactors.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting reserve factors with " + error
+      );
+    }
+  }
+  if (params.canBorrow && params.canBorrow.length != 0) {
+    try {
+      console.log("Setting canBorrow");
+      const tx4 = await configurator.setBorrowingOnReserve(
+        params.canBorrow.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        mytranche,
+        params.canBorrow.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting can borrow with " + error
+      );
+    }
+  }
+  if (params.canBeCollateral && params.canBeCollateral.length != 0) {
+    try {
+      console.log("Setting canBeCollateral");
+      const tx4 = await configurator.setCollateralEnabledOnReserve(
+        params.canBeCollateral.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        mytranche,
+        params.canBeCollateral.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting canBeCollateral with " + error
+      );
+    }
+  }
+  if (params.isFrozen && params.isFrozen.length != 0) {
+    try {
+      console.log("Setting frozen");
+      const tx4 = await configurator.setFreezeReserve(
+        params.isFrozen.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        mytranche,
+        params.isFrozen.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting isFrozen with " + error
+      );
+    }
+  }
+}

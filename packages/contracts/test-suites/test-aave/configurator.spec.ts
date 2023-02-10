@@ -27,7 +27,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     const invalidReserveFactor = "18446744073709551616";
 
     await expect(
-      configurator.setReserveFactor(weth.address, 0, invalidReserveFactor)
+      configurator.setReserveFactor([weth.address], 0, [invalidReserveFactor])
     ).to.be.revertedWith(RC_INVALID_RESERVE_FACTOR);
   });
 
@@ -78,7 +78,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Freezes the ETH0 reserve", async () => {
     const { configurator, weth, helpersContract } = testEnv;
 
-    await configurator.freezeReserve(weth.address, 0);
+    await configurator.setFreezeReserve([weth.address], 0, [true]);
     const {
       decimals,
       ltv,
@@ -106,7 +106,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
 
   it("Unfreezes the ETH0 reserve", async () => {
     const { configurator, helpersContract, weth } = testEnv;
-    await configurator.unfreezeReserve(weth.address, 0);
+    await configurator.setFreezeReserve([weth.address], 0, [false]);
 
     const {
       decimals,
@@ -136,7 +136,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Check the onlyAaveAdmin on freezeReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).freezeReserve(weth.address, 0),
+      configurator.connect(users[2].signer).setFreezeReserve([weth.address], 0, [true]),
       CALLER_NOT_TRANCHE_ADMIN
     ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
@@ -144,14 +144,14 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Check the onlyAaveAdmin on unfreezeReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).unfreezeReserve(weth.address, 0),
+      configurator.connect(users[2].signer).setFreezeReserve([weth.address], 0, [false]),
       CALLER_NOT_TRANCHE_ADMIN
     ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
 
   it("Deactivates the ETH0 reserve for borrowing", async () => {
     const { configurator, helpersContract, weth } = testEnv;
-    await configurator.setBorrowingOnReserve(weth.address, 0, false);
+    await configurator.setBorrowingOnReserve([weth.address], 0, [false]);
     const {
       decimals,
       ltv,
@@ -179,7 +179,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
 
   it("Activates the ETH0 reserve for borrowing", async () => {
     const { configurator, weth, helpersContract } = testEnv;
-    await configurator.setBorrowingOnReserve(weth.address, 0, true);
+    await configurator.setBorrowingOnReserve([weth.address], 0, [true]);
     const { variableBorrowIndex } = await helpersContract.getReserveData(
       weth.address,
       0
@@ -217,7 +217,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     await expect(
       configurator
         .connect(users[2].signer)
-        .setBorrowingOnReserve(weth.address, 0, false),
+        .setBorrowingOnReserve([weth.address], 0, [false]),
         CALLER_NOT_TRANCHE_ADMIN
     ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
@@ -227,7 +227,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     await expect(
       configurator
         .connect(users[2].signer)
-        .setBorrowingOnReserve(weth.address, 0, true),
+        .setBorrowingOnReserve([weth.address], 0, [true]),
         CALLER_NOT_TRANCHE_ADMIN
     ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
@@ -254,7 +254,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(isFrozen).to.be.equal(false);
     expect(usageAsCollateralEnabled).to.be.equal(true);
 
-    await configurator.setCollateralEnabledOnReserve(weth.address, 0, false);
+    await configurator.setCollateralEnabledOnReserve([weth.address], 0, [false]);
 
     var {
       decimals,
@@ -279,7 +279,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
 
   it("Activates the ETH0 reserve as collateral on user side", async () => {
     const { configurator, helpersContract, weth } = testEnv;
-    await configurator.setCollateralEnabledOnReserve(weth.address, 0, true);
+    await configurator.setCollateralEnabledOnReserve([weth.address], 0, [true]);
 
     var {
       decimals,
@@ -326,7 +326,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Activates the ETH0 reserve as collateral on user side after admin disabled collateralization (revert expected)", async () => {
     const { configurator, helpersContract, weth } = testEnv;
     await expect(
-      configurator.setCollateralEnabledOnReserve(weth.address, 0, true)
+      configurator.setCollateralEnabledOnReserve([weth.address], 0, [true])
     ).to.be.revertedWith("Asset is not approved to be set as collateral");
   });
 
@@ -361,7 +361,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
 
   it("Changes the reserve factor of WETH0", async () => {
     const { configurator, helpersContract, weth } = testEnv;
-    await configurator.setReserveFactor(weth.address, 0, "1000");
+    await configurator.setReserveFactor([weth.address], 0, ["1000"]);
     const {
       decimals,
       ltv,
@@ -389,7 +389,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     await expect(
       configurator
         .connect(users[2].signer)
-        .setReserveFactor(weth.address, 0, "2000"),
+        .setReserveFactor([weth.address], 0, ["2000"]),
       CALLER_NOT_TRANCHE_ADMIN
     ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });
