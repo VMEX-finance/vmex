@@ -82,16 +82,21 @@ export const rawInsertContractAddressInDb = async (
     })
     .write();
 
+let cache = undefined;
 export const getEthersSigners = async (): Promise<Signer[]> => {
-  console.log("trying to get signer")
-  const ethersSigners = await Promise.all(await DRE.ethers.getSigners());
-  console.log("got signers")
+  if (!cache) {
+    console.log("trying to get signer")
+    const ethersSigners = await Promise.all(await DRE.ethers.getSigners());
+    console.log("got signers")
 
-  if (usingDefender()) {
-    const [, ...users] = ethersSigners;
-    return [await getDefenderRelaySigner(), ...users];
+    if (usingDefender()) {
+      const [, ...users] = ethersSigners;
+      return [await getDefenderRelaySigner(), ...users];
+    }
+    cache = ethersSigners;
+    return ethersSigners;
   }
-  return ethersSigners;
+  return cache;
 };
 
 export const getEthersSignersAddresses = async (): Promise<
@@ -126,9 +131,7 @@ export const withSaveAndVerify = async <ContractType extends Contract>(
   args: (string | string[])[],
   verify?: boolean
 ): Promise<ContractType> => {
-  console.log("inside with save and verify with instance", instance)
   await waitForTx(instance.deployTransaction);
-  console.log("after transaction deploy", instance)
   await registerContractInJsonDb(id, instance);
   if (verify) {
     await verifyContract(id, instance, args);

@@ -93,11 +93,6 @@ const buidlerConfig: HardhatUserConfig = {
   mocha: {
     timeout: 0,
   },
-  tenderly: {
-    project: process.env.TENDERLY_PROJECT || '',
-    username: process.env.TENDERLY_USERNAME || '',
-    forkNetwork: '1', //Network id of the network we want to fork
-  },
   networks: {
     coverage: {
       url: 'http://localhost:8555',
