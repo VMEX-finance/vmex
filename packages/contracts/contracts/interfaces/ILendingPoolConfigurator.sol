@@ -5,7 +5,6 @@ interface ILendingPoolConfigurator {
     struct UpdateATokenInput {
         address asset;
         uint64 trancheId;
-        address treasury;
         address incentivesController;
         string name;
         string symbol;
@@ -32,8 +31,7 @@ interface ILendingPoolConfigurator {
     event TrancheNameChanged(uint64 indexed trancheId, string indexed name);
     event AddedWhitelistedDepositBorrow(address indexed user);
 
-    event UpdatedTreasuryAddress(address asset, uint64 trancheId, address newAddress);
-    event UpdatedVMEXTreasuryAddress(address asset, uint64 trancheId, address newAddress);
+    event UpdatedTreasuryAddress(uint64 trancheId, address newAddress);
 
     event UserSetWhitelistEnabled(uint64 indexed trancheId, bool isWhitelisted);
 
@@ -156,4 +154,6 @@ interface ILendingPoolConfigurator {
         address indexed proxy,
         address indexed implementation
     );
+
+    function trancheAdminTreasuryAddresses(uint64 trancheId) external view returns(address);
 }

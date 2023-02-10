@@ -16,6 +16,7 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import "hardhat/console.sol";
 
 /**
@@ -55,7 +56,7 @@ contract AToken is
     mapping(address => uint256) public _nonces;
 
     bytes32 public DOMAIN_SEPARATOR;
-    ILendingPoolAddressesProvider internal addressesProvider;
+    ILendingPoolAddressesProvider internal _addressesProvider;
     ILendingPool internal _pool;
     address internal _lendingPoolConfigurator;
     address internal _underlyingAsset; //yearn address
@@ -122,8 +123,10 @@ contract AToken is
 
         //set addressesprovider
 
+
         _pool = pool;
         _lendingPoolConfigurator = vars.lendingPoolConfigurator;
+        _addressesProvider = ILendingPoolAddressesProvider(vars.addressesProvider);
         _underlyingAsset = vars.underlyingAsset;
         _incentivesController = incentivesController;
         _tranche = vars.trancheId;
@@ -132,7 +135,6 @@ contract AToken is
             vars.underlyingAsset,
             vars.trancheId,
             address(pool),
-            vars.treasury,
             address(incentivesController),
             aTokenDecimals,
             aTokenName,
@@ -203,7 +205,7 @@ contract AToken is
             return;
         }
 
-        address treasury = _lendingPoolConfigurator.trancheAdminTreasuryAddresses(_tranche);
+        address treasury = ILendingPoolConfigurator(_lendingPoolConfigurator).trancheAdminTreasuryAddresses(_tranche);
 
         // Compared to the normal mint, we don't check for rounding errors.
         // The amount to mint can easily be very small since it is a fraction of the interest ccrued.
@@ -230,7 +232,7 @@ contract AToken is
             return;
         }
 
-        address treasury = _;
+        address treasury = _addressesProvider.getVMEXTreasury();
 
         // Compared to the normal mint, we don't check for rounding errors.
         // The amount to mint can easily be very small since it is a fraction of the interest ccrued.
@@ -347,14 +349,6 @@ contract AToken is
     {
         return super.totalSupply();
     }
-
-    /**
-     * @dev Returns the address of the Aave treasury, receiving the fees on this aToken
-     **/
-    function RESERVE_TREASURY_ADDRESS() public view returns (address) {
-        return _treasury;
-    }
-
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/

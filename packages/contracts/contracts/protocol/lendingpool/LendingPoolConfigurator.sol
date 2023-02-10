@@ -39,7 +39,7 @@ contract LendingPoolConfigurator is
     AssetMappings internal assetMappings;
     ILendingPool internal pool;
     uint64 public totalTranches;
-    mapping(uint64 => address) public trancheAdminTreasuryAddresses; //tranche to address of treasury of that tranche
+    mapping(uint64 => address) override public trancheAdminTreasuryAddresses; //tranche to address of treasury of that tranche
 
     modifier onlyEmergencyAdmin {
         require(
@@ -139,9 +139,11 @@ contract LendingPoolConfigurator is
      **/
     function batchInitReserve(
         DataTypes.InitReserveInput[] calldata input,
+        address treasury,
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
+        updateTreasuryAddress(treasury, trancheId);
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
                 cachedPool,
@@ -227,19 +229,15 @@ contract LendingPoolConfigurator is
     /**
      * @dev Updates the treasury address of the atoken
      * @param newAddress The new address (NO VALIDATIONS ARE DONE)
-     * @param asset The underlying asset of the atoken to modify
      * @param trancheId The tranche id of the atoken
      **/
     function updateTreasuryAddress(
         address newAddress,
-        address asset,
         uint64 trancheId
-    ) external onlyTrancheAdmin(trancheId) {
-        ILendingPool cachedPool = pool;
-        IAToken(cachedPool.getReserveData(asset, trancheId).aTokenAddress)
-            .setTreasury(newAddress);
+    ) public onlyTrancheAdmin(trancheId) {
+        trancheAdminTreasuryAddresses[trancheId] = newAddress;        
         //emit
-        emit UpdatedTreasuryAddress(asset, trancheId, newAddress);
+        emit UpdatedTreasuryAddress(trancheId, newAddress);
     }
 
 
@@ -248,34 +246,40 @@ contract LendingPoolConfigurator is
      * @param asset The address of the underlying asset of the reserve
      **/
     function setBorrowingOnReserve(
-        address asset,
+        address[] calldata asset,
         uint64 trancheId,
-        bool borrowingEnabled
+        bool[] calldata borrowingEnabled
     ) public onlyTrancheAdmin(trancheId) {
-        require(!borrowingEnabled || assetMappings.getAssetBorrowable(asset), "Asset is not approved to be set as borrowable");
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
+        require(asset.length == borrowingEnabled.length, "Array lengths are not equal");
+        for(uint i = 0; i<asset.length;i++){
+            require(!borrowingEnabled[i] || assetMappings.getAssetBorrowable(asset[i]), "Asset is not approved to be set as borrowable");
+            DataTypes.ReserveConfigurationMap memory currentConfig = pool
+                .getConfiguration(asset[i], trancheId);
 
-        currentConfig.setBorrowingEnabled(borrowingEnabled);
-        // currentConfig.setStableRateBorrowingEnabled(stableBorrowRateEnabled);
+            currentConfig.setBorrowingEnabled(borrowingEnabled[i]);
+            // currentConfig.setStableRateBorrowingEnabled(stableBorrowRateEnabled);
 
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
+            pool.setConfiguration(asset[i], trancheId, currentConfig.data);
 
-        emit BorrowingSetOnReserve(asset, trancheId, borrowingEnabled);
+            emit BorrowingSetOnReserve(asset[i], trancheId, borrowingEnabled[i]);
+        }
     }
 
-    function setCollateralEnabledOnReserve(address asset, uint64 trancheId, bool collateralEnabled)
+    function setCollateralEnabledOnReserve(address[] calldata asset, uint64 trancheId, bool[] calldata collateralEnabled)
         external
         onlyTrancheAdmin(trancheId)
     {
-        require(!collateralEnabled || assetMappings.getAssetCollateralizable(asset), "Asset is not approved to be set as collateral");
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
-            .getConfiguration(asset, trancheId);
+        require(asset.length == collateralEnabled.length, "Array lengths are not equal");
+        for(uint i = 0; i<asset.length;i++){
+            require(!collateralEnabled[i] || assetMappings.getAssetCollateralizable(asset[i]), "Asset is not approved to be set as collateral");
+            DataTypes.ReserveConfigurationMap memory currentConfig = pool
+                .getConfiguration(asset[i], trancheId);
 
-        currentConfig.setCollateralEnabled(collateralEnabled);
+            currentConfig.setCollateralEnabled(collateralEnabled[i]);
 
-        pool.setConfiguration(asset, trancheId, currentConfig.data);
-        emit CollateralSetOnReserve(asset, trancheId, collateralEnabled);
+            pool.setConfiguration(asset[i], trancheId, currentConfig.data);
+            emit CollateralSetOnReserve(asset[i], trancheId, collateralEnabled[i]);
+        }
     }
 
     /**
@@ -284,25 +288,28 @@ contract LendingPoolConfigurator is
      * @param reserveFactor The new reserve factor of the reserve, given with 2 decimals (ie 12.55)
      **/
     function setReserveFactor(
-        address asset,
+        address[] calldata asset,
         uint64 trancheId,
-        uint256 reserveFactor
+        uint256[] calldata reserveFactor
     ) public onlyTrancheAdmin(trancheId) {
-        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
-            pool
-        ).getConfiguration(asset, trancheId);
+        require(asset.length == reserveFactor.length, "Array lengths are not equal");
+        for(uint i = 0; i<asset.length;i++){
+            DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+                pool
+            ).getConfiguration(asset[i], trancheId);
 
-        reserveFactor = reserveFactor.convertToPercent();
+            uint256 thisReserveFactor = reserveFactor[i].convertToPercent();
 
-        currentConfig.setReserveFactor(reserveFactor);
+            currentConfig.setReserveFactor(thisReserveFactor);
 
-        ILendingPool(pool).setConfiguration(
-            asset,
-            trancheId,
-            currentConfig.data
-        );
+            ILendingPool(pool).setConfiguration(
+                asset[i],
+                trancheId,
+                currentConfig.data
+            );
 
-        emit ReserveFactorChanged(asset, trancheId, reserveFactor);
+            emit ReserveFactorChanged(asset[i], trancheId, thisReserveFactor);
+        }
     }
 
     /**
@@ -310,23 +317,26 @@ contract LendingPoolConfigurator is
      *  but allows repayments, liquidations, rate rebalances and withdrawals
      * @param asset The address of the underlying asset of the reserve
      **/
-    function setFreezeReserve(address asset, uint64 trancheId, bool isFrozen)
+    function setFreezeReserve(address[] calldata asset, uint64 trancheId, bool[] calldata isFrozen)
         external
         onlyTrancheAdmin(trancheId)
     {
-        DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
-            pool
-        ).getConfiguration(asset, trancheId);
+        require(asset.length == isFrozen.length, "Array lengths are not equal");
+        for(uint i = 0; i<asset.length;i++){
+            DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
+                pool
+            ).getConfiguration(asset[i], trancheId);
 
-        currentConfig.setFrozen(isFrozen);
+            currentConfig.setFrozen(isFrozen[i]);
 
-        ILendingPool(pool).setConfiguration(
-            asset,
-            trancheId,
-            currentConfig.data
-        );
+            ILendingPool(pool).setConfiguration(
+                asset[i],
+                trancheId,
+                currentConfig.data
+            );
 
-        emit ReserveFrozenChanged(asset, trancheId, isFrozen);
+            emit ReserveFrozenChanged(asset[i], trancheId, isFrozen[i]);
+        }
     }
 
     function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyTrancheAdmin(trancheId){
@@ -427,8 +437,7 @@ contract LendingPoolConfigurator is
             IInitializableAToken.initialize.selector, //selects that we want to call the initialize function
             vars.cachedPool,
             address(this),
-            vars.input.treasury,
-            vars.defaultVMEXTreasury,
+            address(addressesProvider),
             vars.input.asset,
             vars.input.trancheId,
             vars.input.incentivesController,

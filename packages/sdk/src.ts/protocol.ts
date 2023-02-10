@@ -573,7 +573,8 @@ export async function initTranche(
 export async function configureExistingTranche(
   params: {
     trancheId: string;
-    newName: string | undefined;
+    newName: string | undefined; //undefined if no change
+    isTrancheWhitelisted: boolean | undefined;
     whitelisted: SetAddress[];
     blacklisted: SetAddress[];
     reserveFactors: SetAddress[];
@@ -610,13 +611,41 @@ export async function configureExistingTranche(
       );
     }
   }
+  if(params.newTreasuryAddress){
+    try {
+    console.log("Setting new treasury address");
+      const tx4 = await configurator.updateTreasuryAddress(
+        mytranche,
+        params.newName
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting new treasury address with " + error
+      );
+    }
+  }
+  if(params.isTrancheWhitelisted){
+    try {
+    console.log("Setting isTrancheWhitelisted");
+      const tx4 = await configurator.setTrancheWhitelist(
+        mytranche,
+        params.isTrancheWhitelisted
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting isTrancheWhitelisted with " + error
+      );
+    }
+  }
   if (params.whitelisted.length != 0) {
     try {
       console.log("Setting whitelist");
       const tx4 = await configurator.setWhitelist(
         mytranche,
-        params.whitelisted,
-        new Array(params.whitelisted.length).fill(true)
+        params.whitelisted.map((el:SetAddress) => el.addr),
+        params.whitelisted.map((el:SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -630,8 +659,23 @@ export async function configureExistingTranche(
       console.log("Setting blacklisted");
       const tx4 = await configurator.setBlacklist(
         mytranche,
-        params.blacklisted,
-        new Array(params.blacklisted.length).fill(true)
+        params.blacklisted.map((el:SetAddress) => el.addr),
+        params.blacklisted.map((el:SetAddress) => el.newValue)
+      );
+      console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
+    } catch (error) {
+      throw new Error(
+        "Configurator Failed during setting blacklisted with " + error
+      );
+    }
+  }
+  if (params.reserveFactors.length != 0) {
+    try {
+      console.log("Setting reserveFactors");
+      const tx4 = await configurator.setReserveFactor(
+        mytranche,
+        params.blacklisted.map((el:SetAddress) => el.addr),
+        params.blacklisted.map((el:SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {

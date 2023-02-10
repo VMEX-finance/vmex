@@ -71,8 +71,7 @@ library DeployATokens {
                 IInitializableAToken.initialize.selector,
                 vars.pool,
                 address(this), //lendingPoolConfigurator address
-                vars.internalInput.input.treasury,
-                vars.addressProvider.getVMEXTreasury(),
+                address(vars.addressProvider), //
                 vars.internalInput.input.underlyingAsset,
                 vars.internalInput.trancheId,
                 IAaveIncentivesController(
