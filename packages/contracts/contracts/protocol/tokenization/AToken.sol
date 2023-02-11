@@ -121,9 +121,6 @@ contract AToken is
         _setSymbol(aTokenSymbol);
         _setDecimals(aTokenDecimals);
 
-        //set addressesprovider
-
-
         _pool = pool;
         _lendingPoolConfigurator = vars.lendingPoolConfigurator;
         _addressesProvider = ILendingPoolAddressesProvider(vars.addressesProvider);

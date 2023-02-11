@@ -9,15 +9,14 @@ import ILendingPoolConfigurator from "@vmexfinance/contracts/artifacts/contracts
 import ILendingPoolAddressesProvider from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
 import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
 import MintableERC20 from "@vmexfinance/contracts/artifacts/contracts/mocks/tokens/MintableERC20.sol/MintableERC20.json";
-const defaultTestProvider = ethers.getDefaultProvider(
-  "http://0.0.0.0:8545"
-);
 
 export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc
   ? ethers.getDefaultProvider(providerRpc)
   : test || test===undefined
-    ? defaultTestProvider : null;
+    ? ethers.getDefaultProvider(
+      "http://0.0.0.0:8545"
+    ) : null;
 }
 
 export const getIErc20Detailed = async (address: string, providerRpc: string, test: boolean) =>
