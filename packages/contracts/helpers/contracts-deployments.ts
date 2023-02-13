@@ -18,7 +18,7 @@ import {
   getReservesConfigByPool,
   loadPoolConfig,
 } from "./configuration";
-import { getAaveProtocolDataProvider, getAllMockedTokens, getAssetMappings, getEmergencyAdminT0, getEmergencyAdminT1, getFirstSigner, getLendingPool, getLendingPoolAddressesProvider, getLendingPoolAddressesProviderRegistry, getLendingPoolConfiguratorProxy, getPairsTokenAggregator, getPriceOracle, getVMEXOracle, getvStrategyHelper } from "./contracts-getters";
+import { getAaveProtocolDataProvider, getAllMockedTokens, getAssetMappings, getAToken, getDbEntry, getEmergencyAdminT0, getEmergencyAdminT1, getFirstSigner, getLendingPool, getLendingPoolAddressesProvider, getLendingPoolAddressesProviderRegistry, getLendingPoolCollateralManager, getLendingPoolConfiguratorProxy, getPairsTokenAggregator, getPriceOracle, getVMEXOracle, getvStrategyHelper, getWETHGateway } from "./contracts-getters";
 import {
   AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
@@ -89,21 +89,19 @@ import {
   getParamPerNetwork,
   // getContractAddressWithJsonFallback,
 } from "./contracts-helpers";
-import { StableAndVariableTokensHelperFactory } from "../types/StableAndVariableTokensHelperFactory";
 import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
 import { readArtifact as buidlerReadArtifact } from "@nomiclabs/buidler/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendingPoolLibraryAddresses } from "../types/LendingPoolFactory";
 import { LendingPoolConfiguratorLibraryAddresses } from "../types/LendingPoolConfiguratorFactory";
-import { CurveOracleV2LibraryAddresses } from "../types/CurveOracleV2Factory";
-import { UiPoolDataProvider } from "../types";
 import { eNetwork } from "./types";
 import AaveConfig from "../markets/aave";
 import {claimTrancheId, getTranche0MockedData, getTranche1MockedData, initAssetData, initReservesByHelper} from "./init-helpers";
 import { MOCK_USD_PRICE_IN_WEI, oneEther, ZERO_ADDRESS } from "./constants";
 import {deployAllMockAggregators, setInitialAssetPricesInOracle} from "./oracles-helpers";
 
-export const buildTestEnv = async (deployer: Signer) => {
+//dev: overwrite boolean if true means we want to overwrite the implememtations, rather than upgrade them. by default it is false
+export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   console.time("setup");
   
   const network = DRE.network.name;
@@ -122,13 +120,13 @@ export const buildTestEnv = async (deployer: Signer) => {
   
 
   console.log("mockTokens[USDC]: ",mockTokens["USDC"].address)
-  let addressesProvider = await getLendingPoolAddressesProvider();
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(addressesProvider.address)){
-    console.log("deploying addressesProvider")
-    addressesProvider = await deployLendingPoolAddressesProvider(
-      AaveConfig.MarketId
-    );
-  }
+  let addressesProvider;
+  if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.LendingPoolAddressesProvider)===undefined) 
+  addressesProvider = await deployLendingPoolAddressesProvider(
+    AaveConfig.MarketId
+  );
+  else 
+    addressesProvider = await getLendingPoolAddressesProvider(); 
   
   await waitForTx(await addressesProvider.setGlobalAdmin(aaveAdmin));
   await waitForTx(await addressesProvider.setEmergencyAdmin(aaveAdmin));
@@ -138,9 +136,11 @@ export const buildTestEnv = async (deployer: Signer) => {
 
   //await waitForTx(await addressesProvider.setEmergencyAdmin(addressList[2]));
 
-  let addressesProviderRegistry = await getLendingPoolAddressesProviderRegistry();
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(addressesProviderRegistry.address)){
-    console.log("deployLendingPoolAddressesProviderRegistry");
+  let addressesProviderRegistry;
+  
+  if(network == "localhost" || 
+  network=="hardhat" || 
+  await getDbEntry(eContractid.LendingPoolAddressesProviderRegistry)===undefined){
     addressesProviderRegistry =  await deployLendingPoolAddressesProviderRegistry();
     await waitForTx(
       await addressesProviderRegistry.registerAddressesProvider(
@@ -148,6 +148,9 @@ export const buildTestEnv = async (deployer: Signer) => {
         1
       )
     );
+  }
+  else{
+    addressesProviderRegistry = await getLendingPoolAddressesProviderRegistry();
   }
   
 
@@ -175,13 +178,18 @@ export const buildTestEnv = async (deployer: Signer) => {
     ...tokensAddressesWithoutUsd,
   };
 
-  let testHelpers = await getAaveProtocolDataProvider();
+  let testHelpers;
 
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(testHelpers.address)){
-    console.log("Deploying test helpers")
+  if(network == "localhost" || 
+    network=="hardhat" || 
+    await getDbEntry(eContractid.AaveProtocolDataProvider)===undefined
+  ){
     testHelpers = await deployAaveProtocolDataProvider(
       addressesProvider.address
     );
+  }
+  else {
+   testHelpers = await getAaveProtocolDataProvider()
   }
 
   const admin = await DRE.ethers.getSigner(await
@@ -195,10 +203,9 @@ export const buildTestEnv = async (deployer: Signer) => {
   } = config;
   var treasuryAddress = admin.address;
 
-  let AssetMappingProxy = await getAssetMappings();
-
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(AssetMappingProxy.address)){
-    console.log("Deploying asset mappings impl and proxy")
+  if(network == "localhost" ||
+   network=="hardhat" ||
+   await getDbEntry(eContractid.AssetMappings)===undefined){
     const AssetMappingImpl = await deployAssetMapping();
 
     await waitForTx(
@@ -225,10 +232,17 @@ export const buildTestEnv = async (deployer: Signer) => {
     );
   }
 
-  let lendingPoolProxy = await getLendingPool();
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(lendingPoolProxy.address)){
-    console.log("Deploying lending pool impl and proxy");
+  let lendingPoolProxy;
+  if(network == "localhost" ||
+   network=="hardhat" ||
+   await getDbEntry(eContractid.LendingPool)===undefined){
     const lendingPoolImpl = await deployLendingPool();
+
+    if(overwrite){
+      await waitForTx( //hard replace existing proxy address with 0x0 so it can 
+        await addressesProvider.setAddress("LENDING_POOL",ZERO_ADDRESS)
+      );
+    }
 
     await waitForTx(
       await addressesProvider.setLendingPoolImpl(lendingPoolImpl.address)
@@ -242,13 +256,24 @@ export const buildTestEnv = async (deployer: Signer) => {
       lendingPoolProxy.address
     );
   }
+  else {
+    const lendingPoolAddress = await addressesProvider.getLendingPool();
+    lendingPoolProxy = await getLendingPool(lendingPoolAddress);
+  }
 
-  let lendingPoolConfiguratorProxy = await getLendingPoolConfiguratorProxy();
+  let lendingPoolConfiguratorProxy;
 
   
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(lendingPoolConfiguratorProxy.address)){
-    console.log("Deploying lending pool configurator impl and proxy")
+  if(network == "localhost" || 
+  network=="hardhat" || 
+  await getDbEntry(eContractid.LendingPoolConfigurator)===undefined){
     const lendingPoolConfiguratorImpl = await deployLendingPoolConfigurator();
+
+    if(overwrite){
+      await waitForTx( //hard replace existing proxy address with 0x0 so it can 
+        await addressesProvider.setAddress("LENDING_POOL_CONFIGURATOR",ZERO_ADDRESS)
+      );
+    }
     await waitForTx(
       await addressesProvider.setLendingPoolConfiguratorImpl(
         lendingPoolConfiguratorImpl.address
@@ -256,18 +281,24 @@ export const buildTestEnv = async (deployer: Signer) => {
     );
     // await lendingPoolConfiguratorImpl.initialize(addressesProvider.address, await getTreasuryAddress(config));
 
-    const lendingPoolConfiguratorProxy = await getLendingPoolConfiguratorProxy(
+    lendingPoolConfiguratorProxy = await getLendingPoolConfiguratorProxy(
       await addressesProvider.getLendingPoolConfigurator()
     );
     await insertContractAddressInDb(
       eContractid.LendingPoolConfigurator,
       lendingPoolConfiguratorProxy.address
     );
+  } else {
+    lendingPoolConfiguratorProxy = await getLendingPoolConfiguratorProxy(
+      await addressesProvider.getLendingPoolConfigurator()
+    );
   }
 
-  let VMEXOracleProxy = await getVMEXOracle(); //assuming fallback oracle succeeded if vmex oracle succeeded
+  let VMEXOracleProxy; //assuming fallback oracle succeeded if vmex oracle succeeded
 
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(VMEXOracleProxy.address)){
+  if(network == "localhost" || 
+  network=="hardhat" || 
+  await getDbEntry(eContractid.VMEXOracle)===undefined){
     const MOCK_USD_PRICE_IN_WEI = AaveConfig.ProtocolGlobalParams.MockUsdPriceInWei;
     const ALL_ASSETS_INITIAL_PRICES = AaveConfig.Mocks.AllAssetsInitialPrices;
     const USD_ADDRESS = AaveConfig.ProtocolGlobalParams.UsdAddress;
@@ -410,8 +441,11 @@ export const buildTestEnv = async (deployer: Signer) => {
 
     // console.log("Set vmex oracle aggregators")
     
+  }
+  
+  if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.AToken)===undefined){
+    console.log("Deploying atoken implementations")
     await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
-
     await waitForTx(
       await addressesProvider.setATokenImpl(
         await getContractAddressWithJsonFallback(
@@ -420,7 +454,7 @@ export const buildTestEnv = async (deployer: Signer) => {
         )
       )
     );
-
+  
     await waitForTx(
       await addressesProvider.setVariableDebtToken(
         await getContractAddressWithJsonFallback(
@@ -429,7 +463,13 @@ export const buildTestEnv = async (deployer: Signer) => {
         )
       )
     );
+  }
 
+  
+
+  
+  if(network == "localhost" || network=="hardhat"){
+    console.log("Adding whitelisted addresses")
     await waitForTx(
       await addressesProvider.addWhitelistedAddress(
         await deployer.getAddress(),
@@ -445,6 +485,15 @@ export const buildTestEnv = async (deployer: Signer) => {
       await addressesProvider.addWhitelistedAddress(addressList[2], true)
     );
   }
+  else {
+    console.log("Setting permissionless tranches")
+    await waitForTx(
+      await addressesProvider.setPermissionlessTranches(
+        true
+      )
+    );
+  }
+  
 
 
 
@@ -455,7 +504,14 @@ export const buildTestEnv = async (deployer: Signer) => {
   //   ...config.ReservesConfig,
   // };
   console.log("Before init reserves");
+  //reset tranches admins 0 and 1 (the other tranche admins will be overwritten)
+  if(overwrite){
+    await addressesProvider.setTrancheAdmin(ZERO_ADDRESS, "0")
+    await addressesProvider.setTrancheAdmin(ZERO_ADDRESS, "1")
+  }
+  
   if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(await addressesProvider.getTrancheAdmin("0"))){
+    console.log("Claiming and deploying tranche 0")
     await claimTrancheId("Vmex tranche 0", admin);
 
     let [assets0, reserveFactors0, forceDisabledBorrow0, forceDisabledCollateral0] = getTranche0MockedData(allReservesAddresses);
@@ -479,115 +535,46 @@ export const buildTestEnv = async (deployer: Signer) => {
   //deploy tranche 1 with tricrypto
 
   const user1 =  await DRE.ethers.getSigner(await
-    (await getEmergencyAdminT1()).getAddress());
+    (await getEmergencyAdminT1(network)).getAddress());
   if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(await addressesProvider.getTrancheAdmin("1"))){
     await claimTrancheId("Vmex tranche 1", user1);
+    treasuryAddress = user1.address;
+
+    let [assets1, reserveFactors1, forceDisabledBorrow1, forceDisabledCollateral1] = getTranche1MockedData(allReservesAddresses);
+    console.log("Start init reserves")
+    await initReservesByHelper(
+      assets1,
+      reserveFactors1,
+      forceDisabledBorrow1,
+      forceDisabledCollateral1,
+      user1,
+      treasuryAddress,
+      ZERO_ADDRESS,
+      1
+    );
   }
-  treasuryAddress = user1.address;
   
 
-  let [assets1, reserveFactors1, forceDisabledBorrow1, forceDisabledCollateral1] = getTranche1MockedData(allReservesAddresses);
-  console.log("Start init reserves")
-  await initReservesByHelper(
-    assets1,
-    reserveFactors1,
-    forceDisabledBorrow1,
-    forceDisabledCollateral1,
-    user1,
-    treasuryAddress,
-    ZERO_ADDRESS,
-    1
-  );
-
   //-------------------------------------------------------------
+  if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.LendingPoolCollateralManager)===undefined){
+    const collateralManager = (await deployLendingPoolCollateralManager());
+    await waitForTx(
+      await addressesProvider.setLendingPoolCollateralManager(
+        collateralManager.address
+      )
+    );
+    const lendingPoolCMProxy = await addressesProvider.getLendingPoolCollateralManager()
+    
+    await insertContractAddressInDb(
+      eContractid.LendingPoolCollateralManager,
+      lendingPoolCMProxy
+    );
+  }
 
-  const collateralManager = await deployLendingPoolCollateralManager();
-  await waitForTx(
-    await addressesProvider.setLendingPoolCollateralManager(
-      collateralManager.address
-    )
-  );
-  // await deployMockFlashLoanReceiver(addressesProvider.address);
-
-  // const mockUniswapRouter = await deployMockUniswapRouter();
-
-  // const adapterParams: [string, string, string] = [
-  //   addressesProvider.address,
-  //   mockUniswapRouter.address,
-  //   mockTokens.WETH.address,
-  // ];
-
-  // await deployUniswapLiquiditySwapAdapter(adapterParams);
-  // await deployUniswapRepayAdapter(adapterParams);
-  // await deployFlashLiquidationAdapter(adapterParams);
-
-  // const augustus = await deployMockParaSwapAugustus();
-
-  // const augustusRegistry = await deployMockParaSwapAugustusRegistry([
-  //   augustus.address,
-  // ]);
-
-  // await deployParaSwapLiquiditySwapAdapter([
-  //   addressesProvider.address,
-  //   augustusRegistry.address,
-  // ]);
-
-  // await deployWalletBalancerProvider();
-
-  const gateWay = await deployWETHGateway([mockTokens.WETH.address]);
-  await authorizeWETHGateway(gateWay.address, lendingPoolProxy.address);
-
-  // TODO: mock the curve pool (needs deposit function), convex booster, sushiswap
-  // right now the tend() function for strategies is unusable in hardhat tests
-  // deploy tricrypto2 strategy
-  // if (isHardhatTestingStrategies) {
-  //   const baseRewardPool = await deployConvexBaseRewardPool();
-  //   console.log("DEPLOYED baserewardpool at address", baseRewardPool.address);
-
-  //   const booster = await deployConvexBooster();
-  //   console.log("DEPLOYED booster at address", booster.address);
-
-  //   const tricrypto2Strategy = await deployTricrypto2Strategy();
-  //   console.log(
-  //     "DEPLOYED tricrypto Strat at address",
-  //     tricrypto2Strategy.address
-  //   );
-
-  //   const pid = 38;
-  //   const numTokensInPool = 0;
-  //   const tranche = 1;
-
-  //   await waitForTx(
-  //     await booster.addPool(pid.toString(), baseRewardPool.address)
-  //   );
-  //   console.log("Finished booster add pool");
-
-  //   // have to comment out cvx, crv, underlying token allow all inside CrvLpStrategy.sol in order for this to work
-  //   await waitForTx(
-  //     await tricrypto2Strategy.initialize(
-  //       addressesProvider.address,
-  //       allReservesAddresses["Tricrypto2"],
-  //       tranche,
-  //       pid,
-  //       numTokensInPool,
-  //       "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // address of tricrypto2 pool, will not work for hardhat test, do not tend
-  //       booster.address
-  //     )
-  //   );
-  //   console.log("Finished strategy initialize");
-
-  //   // admin grants strategy access to all funds
-  //   await waitForTx(
-  //     await lendingPoolConfiguratorProxy.addStrategy(
-  //       allReservesAddresses["Tricrypto2"],
-  //       1,
-  //       tricrypto2Strategy.address
-  //     )
-  //   );
-
-  //   console.log("deployed strategies");
-  // }
-
+  if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.WETHGateway)===undefined){
+    const gateWay = await deployWETHGateway([mockTokens.WETH.address]);
+    await authorizeWETHGateway(gateWay.address, lendingPoolProxy.address);
+  }
   console.timeEnd("setup");
 };
 
@@ -1483,7 +1470,9 @@ export const deployMockAToken = async (
     configurator,
     underlyingAssetAddress,
     tranche,
-    addressesProvider,
+    treasuryAddress,
+    VMEXTreasuryAddress,
+    VMEXReserveFactor,
     incentivesController,
     name,
     symbol
@@ -1493,6 +1482,8 @@ export const deployMockAToken = async (
     tEthereumAddress,
     string,
     tEthereumAddress,
+    tEthereumAddress,
+    string,
     tEthereumAddress,
     string,
     string
@@ -1509,10 +1500,12 @@ export const deployMockAToken = async (
   await instance.initialize(
     pool,
     {
+      treasury: treasuryAddress,
       underlyingAsset: underlyingAssetAddress,
       trancheId: tranche,
       lendingPoolConfigurator: configurator,
-      addressesProvider: addressesProvider,
+      VMEXTreasury: VMEXTreasuryAddress,
+      VMEXReserveFactor: VMEXReserveFactor,
     },
     incentivesController,
     "18",

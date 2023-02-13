@@ -54,7 +54,15 @@ import {
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];
 export const getEmergencyAdminT0 = async () => (await getEthersSigners())[0];
-export const getEmergencyAdminT1 = async () => (await getEthersSigners())[7];
+export const getEmergencyAdminT1 = async (network?: string) => (await getEthersSigners())[network && network=="goerli" ? 1 : 7];
+
+export const getDbEntry = async (
+  id: eContractid
+) =>
+    await getDb()
+      .get(
+        `${id}.${DRE.network.name}`
+      ).value()
 
 export const getLendingPoolAddressesProvider = async (
   address?: tEthereumAddress
