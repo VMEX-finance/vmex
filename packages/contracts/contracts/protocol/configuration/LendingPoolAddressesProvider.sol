@@ -193,7 +193,7 @@ contract LendingPoolAddressesProvider is
     }
 
     /**
-     * @dev Returns the address of the LendingPool proxy
+     * @dev Returns the address of the aToken impl address
      * @return The aToken proxy address
      **/
     function getAToken() external view override returns (address) {

@@ -7,7 +7,8 @@ import { buildTestEnv } from '../../helpers/contracts-deployments';
 
 task('vmex:dev', 'Deploy development enviroment')
   .addFlag('verify', 'Verify contracts at Etherscan')
-  .setAction(async ({ verify }, localBRE) => {
+  .addFlag('overwrite', 'Overwrite existing implementations')
+  .setAction(async ({ verify, overwrite }, localBRE) => {
     const POOL_NAME = ConfigNames.Aave;
 
     await localBRE.run('set-DRE');
@@ -19,7 +20,7 @@ task('vmex:dev', 'Deploy development enviroment')
 
     console.log('Migration started\n');
 
-    await buildTestEnv(deployer);
+    await buildTestEnv(deployer, overwrite);
 
     // console.log('1. Deploy mock tokens');
     // await localBRE.run('dev:deploy-mock-tokens', { verify });

@@ -1,6 +1,6 @@
 {
   "name": "@vmexfinance/contracts",
-  "version": "1.0.4-alpha",
+  "version": "1.0.5-alpha",
   "description": "VMEX V1 smart contracts",
   "private": false,
   "files": [
@@ -36,7 +36,7 @@
     "vmex:node": "npx hardhat node --hostname 0.0.0.0",
     "vmex:deploy": "npm run compile && FORK=main hardhat vmex:mainnet --network localhost",
     "vmex:dev:deploy": "npm run compile && hardhat vmex:dev --network localhost",
-    "vmex:goerli:deploy": "npm run compile && hardhat vmex:dev --network goerli",
+    "vmex:goerli:deploy": "npm run compile && hardhat vmex:dev --verify --network goerli",
     "vmex:dev:test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/*.spec.ts --network localhost",
     "vmex:dev:test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-yearn.spec.ts --network localhost",
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/*.spec.ts --network localhost",
@@ -62,6 +62,7 @@
     "vmex:main:full:migration": "npm run compile && npm run hardhat:main -- vmex:mainnet --verify",
     "vmex:main:full:initialize": "npm run compile && FORK=main full:initialize-tokens --pool Aave",
     "vmex:permtranche": "hardhat vmex:permissionless-tranches --network goerli",
+    "vmex:set-oracle": "hardhat vmex:set-oracle --network goerli",
     "prettier:check": "npx prettier -c 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test-suites/test-aave/**/*.ts'",
     "prettier:write": "prettier --write 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test-suites/test-aave/**/*.ts'",
     "ci:test": "npm run compile && npm run test",
