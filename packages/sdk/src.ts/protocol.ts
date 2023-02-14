@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import {
   getLendingPool,
   getLendingPoolAddressesProvider,
@@ -13,9 +13,7 @@ import {
 } from "./utils";
 import { getTotalTranches } from "./analytics";
 import { SetAddress } from "./interfaces";
-
-const MAX_UINT_AMOUNT =
-  "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+import { MAX_UINT_AMOUNT } from "./constants";
 
 export async function borrow(
   params: {
@@ -292,7 +290,6 @@ export async function supply(
   }
 
   try {
-
     if (params.test) {
       tx = await lendingPool.deposit(
         params.underlying,
