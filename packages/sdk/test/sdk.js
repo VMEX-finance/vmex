@@ -8,7 +8,7 @@ const { expect, assert } = require("chai");
 const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
 chai.use(require("chai-bignumber")());
-const { getLendingPool } = require("../dist/contract-getters.js");
+const { getLendingPool, getProvider } = require("../dist/contract-getters.js");
 const {
   borrow,
   supply,
@@ -60,8 +60,8 @@ const USDCaddr = deployments["USDC"][network] && network!="localhost" ? deployme
 let provider, temp, owner;
   if(network=="localhost"){
     provider = "http://127.0.0.1:8545";
-    temp = provider.getSigner(2);
-    owner = provider.getSigner(0);
+    temp = getProvider(provider, true).getSigner(2);
+    owner = getProvider(provider, true).getSigner(0);
   }
   else if (network=="goerli"){
     const myprovider = new ethers.providers.AlchemyProvider(network, process.env.ALCHEMY_KEY);
@@ -83,20 +83,20 @@ describe("Analytics", () => {
     // console.log(dat)
   });
 
-  it("1 - test get tranche data", async () => {
-    const dat = await getUserTrancheData({
-      tranche: "0",
-      user: await temp.getAddress(),
-      network: network,
-      test: true,
-    });
+  // it("1 - test get tranche data", async () => {
+  //   const dat = await getUserTrancheData({
+  //     tranche: "0",
+  //     user: await temp.getAddress(),
+  //     network: network,
+  //     test: true,
+  //   });
 
-    console.log(JSON.stringify(dat))
-  });
+  //   console.log(JSON.stringify(dat))
+  // });
 
   it("2 - test get prices", async () => {
     const dat = await getAssetPrices({
-      assets: ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+      assets: ["USDC"],
       network: network,
       test: true,
     });

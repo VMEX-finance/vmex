@@ -65,7 +65,7 @@ export async function getAssetPrices(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "main"]
       .address;
-
+  
   const assets =  convertListSymbolToAddress(params.assets, params.network);
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
