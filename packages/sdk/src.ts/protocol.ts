@@ -619,8 +619,8 @@ export async function configureExistingTranche(
     try {
     console.log("Setting new treasury address");
       const tx4 = await configurator.updateTreasuryAddress(
+        params.newTreasuryAddress,
         mytranche,
-        params.newTreasuryAddress
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
