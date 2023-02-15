@@ -7,6 +7,7 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
+import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 
 contract AssetMappings is VersionedInitializable{
     using PercentageMath for uint256;
@@ -54,6 +55,7 @@ contract AssetMappings is VersionedInitializable{
 
     event VMEXReserveFactorChanged(address indexed asset, uint256 factor);
 
+    event BorrowingEnabledChanged(address indexed asset, bool borrowingEnabled);
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -91,9 +93,27 @@ contract AssetMappings is VersionedInitializable{
         address asset,
         uint256 reserveFactor //the value here should only occupy 16 bits
     ) public onlyGlobalAdmin {
+        require(
+                reserveFactor < PercentageMath.PERCENTAGE_FACTOR,
+                Errors.LPC_INVALID_CONFIGURATION
+            );
         assetMappings[asset].VMEXReserveFactor = reserveFactor;
 
         emit VMEXReserveFactorChanged(asset, reserveFactor);
+    }
+
+    /**
+     * @dev Updates the vmex reserve factor of a reserve
+     * @param asset The address of the reserve you want to set
+     * @param borrowingEnabled The new borrowingEnabled of the reserve
+     **/
+    function setBorrowingEnabled(
+        address asset,
+        bool borrowingEnabled //the value here should only occupy 16 bits
+    ) public onlyGlobalAdmin {
+        assetMappings[asset].borrowingEnabled = borrowingEnabled;
+
+        emit BorrowingEnabledChanged(asset, borrowingEnabled);
     }
 
     function validateCollateralParams(uint256 baseLTV, uint256 liquidationThreshold, uint256 liquidationBonus) internal pure {
@@ -126,7 +146,6 @@ contract AssetMappings is VersionedInitializable{
     function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] memory input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
         require(underlying.length==input.length);
 
-
         for(uint256 i = 0;i<input.length;i++){
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
@@ -137,6 +156,7 @@ contract AssetMappings is VersionedInitializable{
                 input[i].liquidationBonus = input[i].liquidationBonus.convertToPercent();
                 input[i].borrowFactor = input[i].borrowFactor.convertToPercent();
                 input[i].VMEXReserveFactor = input[i].VMEXReserveFactor.convertToPercent();
+                input[i].isAllowed = true;
             }
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
 
@@ -249,6 +269,7 @@ contract AssetMappings is VersionedInitializable{
 
 
     function addInterestRateStrategyAddress(address underlying, address strategy) external onlyGlobalAdmin {
+        require(Address.isContract(strategy), "input strategy is not a contract");
         while(interestRateStrategyAddress[underlying][numInterestRateStrategyAddress[underlying]]!=address(0)){
             numInterestRateStrategyAddress[underlying]++;
         }
