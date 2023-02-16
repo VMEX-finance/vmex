@@ -253,7 +253,6 @@ export async function supply(
   callback?: () => Promise<any>
 ) {
   params.underlying = convertSymbolToAddress(params.underlying,params.network);
-  console.log("Supply: ",params);
   let tx;
   let client = await params.signer.getAddress();
   let amount;
