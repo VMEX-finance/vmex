@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { MAX_UINT_AMOUNT } from "./constants";
 import { getLendingPool } from "./contract-getters";
-import { convertToCurrencyDecimals } from "./utils";
+import { convertSymbolToAddress, convertToCurrencyDecimals } from "./utils";
 
 // TODO: continue implementing every function in this
 export async function estimateGas(
@@ -20,9 +20,12 @@ export async function estimateGas(
   }
 ) {
   try {
+    if(!params.amount || params.amount === 'N/A') return BigNumber.from('0');
+
     const client = await params.signer.getAddress();
+    const tokenAddress = convertSymbolToAddress((params.asset || params.underlying), params.network);
     const amount = await convertToCurrencyDecimals(
-      params.asset,
+      tokenAddress,
       params.amount.toString(),
       params.test,
       params.providerRpc
@@ -34,42 +37,47 @@ export async function estimateGas(
       providerRpc: params.providerRpc
     })
     let gasCost = BigNumber.from('0');
+    const optionalParams = params.test ? {gasLimit: "8000000"} : {}
     switch(params.function) {
       case 'supply': 
         gasCost = await lendingPool.connect(params.signer).estimateGas.deposit(
-          params.underlying,
+          tokenAddress,
           params.trancheId,
           amount,
           client,
-          params.referrer || 0
+          params.referrer || 0,
+          optionalParams
         );
         break;
       case 'borrow': 
         gasCost = await lendingPool.connect(params.signer).estimateGas.borrow(
-          params.underlying,
+          tokenAddress,
           params.trancheId,
           amount,
           params.referrer || 0,
-          client
+          client,
+          optionalParams
         );
         break;
       case 'withdraw': 
         gasCost = await lendingPool.connect(params.signer).estimateGas.withdraw(
-          params.asset,
+          tokenAddress,
           params.trancheId,
           (params.isMax ? MAX_UINT_AMOUNT : amount),
-          client
+          client,
+          optionalParams
         );
         break;
       case 'repay': 
-        gasCost = await lendingPool.connect(params.signer).estimateGas.withdraw(
-          params.asset,
+        gasCost = await lendingPool.connect(params.signer).estimateGas.repay(
+          tokenAddress,
           params.trancheId,
           (params.isMax ? MAX_UINT_AMOUNT : amount),
-          client
+          client,
+          optionalParams
         );
         break;
-    }
+    }   
     return gasCost;
   } catch (err) {
     console.error(err);
