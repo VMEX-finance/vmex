@@ -87,11 +87,6 @@ library GenericLogic {
         (, vars.liquidationThreshold, , vars.decimals, ) = params.assetMappings.getParams(params.asset);
 
 
-        if (reservesData[params.asset][params.trancheId].configuration.getCollateralEnabled()==false){
-            return true;
-        }
-
-
 
         (
             vars.totalCollateralInETH,

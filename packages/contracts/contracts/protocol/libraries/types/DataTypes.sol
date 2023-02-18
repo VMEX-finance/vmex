@@ -110,8 +110,6 @@ library DataTypes {
 
     struct UserData {
         UserConfigurationMap configuration;
-        uint128 lastUserBorrow;
-        uint128 lastUserDeposit;
     }
 
     struct UserConfigurationMap {
