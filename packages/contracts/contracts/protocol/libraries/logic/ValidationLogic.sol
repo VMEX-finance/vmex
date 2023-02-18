@@ -53,6 +53,7 @@ library ValidationLogic {
         require(!isFrozen, Errors.VL_RESERVE_FROZEN);
 
         uint256 supplyCap = _assetMappings.getSupplyCap(asset);
+        // supply cap of 0 means that there is no cap, unlimited depositing is allowed
         require(
             supplyCap == 0 ||
                 (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=

@@ -144,14 +144,6 @@ contract LendingPool is
     {
         checkWhitelistBlacklist(trancheId, onBehalfOf);
         checkWhitelistBlacklist(trancheId, msg.sender);
-
-        if (isWhitelistedDepositBorrow[onBehalfOf] == false) {
-            // check that the user is allowed to deposit and borrow in the same block
-            require(
-                _usersConfig[onBehalfOf][trancheId].lastUserBorrow != block.number,
-                "User is not whitelisted to borrow and deposit in same block"
-            );
-        }
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
@@ -166,8 +158,6 @@ contract LendingPool is
             vars,
             _usersConfig[onBehalfOf][trancheId].configuration
         );
-
-        _usersConfig[onBehalfOf][trancheId].lastUserDeposit = uint128(block.number);
 
         emit Deposit(
             vars.asset,
@@ -253,12 +243,6 @@ contract LendingPool is
             checkWhitelistBlacklist(trancheId, onBehalfOf);
         }
 
-        if (isWhitelistedDepositBorrow[onBehalfOf] == false) {
-            require(
-                _usersConfig[onBehalfOf][trancheId].lastUserDeposit != block.number,
-                "User is not whitelisted to borrow and deposit in same block"
-            );
-        }
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         DataTypes.ExecuteBorrowParams memory vars = DataTypes.ExecuteBorrowParams(
@@ -291,8 +275,6 @@ contract LendingPool is
             _addressesProvider,
             vars
         );
-
-        _usersConfig[onBehalfOf][trancheId].lastUserBorrow = uint128(block.number);
 
         emit Borrow(
             vars.asset,
