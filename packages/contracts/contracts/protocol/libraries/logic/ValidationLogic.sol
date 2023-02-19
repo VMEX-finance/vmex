@@ -46,7 +46,7 @@ library ValidationLogic {
         uint256 amount,
         AssetMappings _assetMappings
     ) external view {
-        (bool isActive, bool isFrozen, , ) = reserve.configuration.getFlags();
+        (bool isActive, bool isFrozen, , ) = reserve.configuration.getFlags(asset, _assetMappings);
 
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
@@ -94,7 +94,7 @@ library ValidationLogic {
 
         (bool isActive, , , ) = reservesData[reserveAddress][trancheId]
             .configuration
-            .getFlags();
+            .getFlags(reserveAddress, _assetMappings);
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         require(
@@ -149,7 +149,7 @@ library ValidationLogic {
             vars.isActive,
             vars.isFrozen,
             vars.borrowingEnabled,
-        ) = reserve.configuration.getFlags();
+        ) = reserve.configuration.getFlags(exvars.asset, exvars._assetMappings);
 
         require(vars.isActive, Errors.VL_NO_ACTIVE_RESERVE);
         require(!vars.isFrozen, Errors.VL_RESERVE_FROZEN);
@@ -319,7 +319,9 @@ library ValidationLogic {
         DataTypes.ReserveData storage principalReserve,
         DataTypes.UserConfigurationMap storage userConfig,
         uint256 userHealthFactor,
-        uint256 userVariableDebt
+        uint256 userVariableDebt,
+        address collateralAsset,
+        AssetMappings a
     ) internal view returns (uint256, string memory) {
         if (
             !collateralReserve.configuration.getActive() ||
@@ -344,7 +346,7 @@ library ValidationLogic {
 
         bool isCollateralEnabled = collateralReserve
             .configuration
-            .getCollateralEnabled() &&
+            .getCollateralEnabled(collateralAsset, a) &&
             userConfig.isUsingAsCollateral(collateralReserve.id);
 
         //if collateral isn't enabled as collateral by user, it cannot be liquidated

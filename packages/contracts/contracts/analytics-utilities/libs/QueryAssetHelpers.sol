@@ -66,8 +66,8 @@ library QueryAssetHelpers {
             assetData.decimals,
             //borrowFactor (not used yet)
         ) = a.getParams(asset);
-        assetData.canBeCollateral = reserve.configuration.getCollateralEnabled();//assetData.liquidationThreshold != 0;
-        assetData.canBeBorrowed = reserve.configuration.getBorrowingEnabled();
+        assetData.canBeCollateral = reserve.configuration.getCollateralEnabled(asset, a);//assetData.liquidationThreshold != 0;
+        assetData.canBeBorrowed = reserve.configuration.getBorrowingEnabled(asset, a);
         assetData.oracle = ILendingPoolAddressesProvider(providerAddr).getPriceOracle();
         assetData.totalSupplied = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.aTokenAddress).totalSupply(), assetData.decimals);
         assetData.totalBorrowed = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.variableDebtTokenAddress).totalSupply(), assetData.decimals);
