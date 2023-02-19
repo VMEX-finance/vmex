@@ -269,6 +269,8 @@ contract LendingPoolConfigurator is
     {
         require(asset.length == collateralEnabled.length, "Array lengths are not equal");
         for(uint i = 0; i<asset.length;i++){
+            //note: ideally, we check that no collateral is enabled, but that's hard to do without a complete list of users, so this is a more conservative and easier approach
+            _checkNoLiquidity(asset[i], trancheId);
             require(!collateralEnabled[i] || assetMappings.getAssetCollateralizable(asset[i]), "Asset is not approved to be set as collateral");
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
