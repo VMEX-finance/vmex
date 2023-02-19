@@ -250,7 +250,7 @@ library GenericLogic {
                 .getAssetTWAPPrice(vars.currentReserveAddress);
 
             if (
-                currentReserve.configuration.getCollateralEnabled() &&
+                currentReserve.configuration.getCollateralEnabled(vars.currentReserveAddress, assetMappings) &&
                 userConfig.isUsingAsCollateral(vars.i)
             ) {
                 vars.compoundedLiquidityBalance = IERC20(

@@ -160,7 +160,7 @@ contract AaveProtocolDataProvider {
             ret.stableBorrowRateEnabled
         ) = configuration.getFlagsMemory();
 
-        ret.usageAsCollateralEnabled =  configuration.getCollateralEnabled();//liquidationThreshold > 0;
+        ret.usageAsCollateralEnabled =  configuration.getCollateralEnabled(asset, a);//liquidationThreshold > 0;
     }
 
     function getReserveData(address asset, uint64 trancheId)

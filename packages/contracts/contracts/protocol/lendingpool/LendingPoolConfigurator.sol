@@ -218,8 +218,8 @@ contract LendingPoolConfigurator is
             aTokenProxyAddress,
             variableDebtTokenProxyAddress,
             assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
-            currentConfig.getBorrowingEnabled(),
-            currentConfig.getCollateralEnabled(),
+            currentConfig.getBorrowingEnabled(internalInput.input.underlyingAsset, assetMappings),
+            currentConfig.getCollateralEnabled(internalInput.input.underlyingAsset, assetMappings),
             currentConfig.getReserveFactor()
         );
     }
@@ -270,7 +270,9 @@ contract LendingPoolConfigurator is
         require(asset.length == collateralEnabled.length, "Array lengths are not equal");
         for(uint i = 0; i<asset.length;i++){
             //note: ideally, we check that no collateral is enabled, but that's hard to do without a complete list of users, so this is a more conservative and easier approach
-            _checkNoLiquidity(asset[i], trancheId);
+            if(!collateralEnabled[i]){
+                _checkNoLiquidity(asset[i], trancheId);
+            }
             require(!collateralEnabled[i] || assetMappings.getAssetCollateralizable(asset[i]), "Asset is not approved to be set as collateral");
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
@@ -441,10 +443,10 @@ contract LendingPoolConfigurator is
             address(addressesProvider),
             vars.input.asset,
             vars.input.trancheId,
-            vars.input.incentivesController,
+            vars.input.incentivesController, // remove
             vars.decimals,
-            vars.input.name,
-            vars.input.symbol
+            vars.input.name, 
+            vars.input.symbol 
         );
 
         _upgradeTokenImplementation(

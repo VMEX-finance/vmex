@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
+import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 
 /**
  * @title ReserveConfiguration library
@@ -100,12 +101,12 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The borrowing state
      **/
-    function getBorrowingEnabled(DataTypes.ReserveConfigurationMap memory self)
+    function getBorrowingEnabled(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
         internal
-        pure
+        view
         returns (bool)
     {
-        return (self.data & ~BORROWING_MASK) != 0;
+        return a.getAssetBorrowable(asset) ? (self.data & ~BORROWING_MASK) != 0 : false;
     }
 
     /**
@@ -186,12 +187,13 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The active state
      **/
-    function getCollateralEnabled(DataTypes.ReserveConfigurationMap memory self)
+    function getCollateralEnabled(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
         internal
-        pure
+        view
         returns (bool)
     {
-        return (self.data & ~COLLATERAL_ENABLED_MASK) != 0;
+        //note: only if we allow an asset as collateral, do we give tranche admins to choose to set asset as collateral
+        return a.getAssetCollateralizable(asset) ? (self.data & ~COLLATERAL_ENABLED_MASK) != 0 : false;
     }
 
     /**
@@ -199,9 +201,9 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The state flags representing active, frozen, borrowing enabled, stableRateBorrowing enabled
      **/
-    function getFlags(DataTypes.ReserveConfigurationMap memory self)
+    function getFlags(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
         internal
-        pure
+        view
         returns (
             bool,
             bool,
@@ -214,7 +216,7 @@ library ReserveConfiguration {
         return (
             (dataLocal & ~ACTIVE_MASK) != 0,
             (dataLocal & ~FROZEN_MASK) != 0,
-            (dataLocal & ~BORROWING_MASK) != 0,
+            getBorrowingEnabled(self, asset, a),
             (dataLocal & ~STABLE_BORROWING_MASK) != 0
         );
     }

@@ -141,7 +141,9 @@ contract LendingPoolCollateralManager is
                 debtReserve,
                 userConfig,
                 vars.healthFactor,
-                vars.userVariableDebt
+                vars.userVariableDebt,
+                vars.collateralAsset,
+                vars._assetMappings
             );
 
         if (
