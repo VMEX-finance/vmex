@@ -34,9 +34,9 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const aTokenInstance = await deployMockAToken([
       pool.address,
       configurator.address,
+      addressesProvider.address,
       dai.address,
       tranche.toString(),
-      addressesProvider.address,
       ZERO_ADDRESS,
       'Aave Interest bearing DAI updated',
       'aDAI'

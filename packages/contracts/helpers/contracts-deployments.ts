@@ -1468,11 +1468,9 @@ export const deployMockAToken = async (
   [
     pool,
     configurator,
+    addressesProvider,
     underlyingAssetAddress,
     tranche,
-    treasuryAddress,
-    VMEXTreasuryAddress,
-    VMEXReserveFactor,
     incentivesController,
     name,
     symbol
@@ -1481,8 +1479,6 @@ export const deployMockAToken = async (
     tEthereumAddress,
     tEthereumAddress,
     string,
-    tEthereumAddress,
-    tEthereumAddress,
     string,
     tEthereumAddress,
     string,
@@ -1500,12 +1496,10 @@ export const deployMockAToken = async (
   await instance.initialize(
     pool,
     {
-      treasury: treasuryAddress,
       underlyingAsset: underlyingAssetAddress,
       trancheId: tranche,
       lendingPoolConfigurator: configurator,
-      VMEXTreasury: VMEXTreasuryAddress,
-      VMEXReserveFactor: VMEXReserveFactor,
+      addressesProvider: addressesProvider,
     },
     incentivesController,
     "18",
