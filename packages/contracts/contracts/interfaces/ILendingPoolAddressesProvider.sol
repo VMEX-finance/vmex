@@ -39,6 +39,8 @@ interface ILendingPoolAddressesProvider {
     event StableDebtUpdated(address indexed newAddress);
     event VariableDebtUpdated(address indexed newAddress);
 
+    event IncentivesControllerUpdated(address indexed newAddress);
+
     function getVMEXTreasury() external view returns(address);
 
     function setVMEXTreasury(address add) external;
@@ -111,4 +113,7 @@ interface ILendingPoolAddressesProvider {
 
     function getAssetMappings() external view returns (address);
     function setAssetMappingsImpl(address pool) external;
+
+    function getIncentivesController() external view returns (address);
+    function setIncentivesController(address incentives) external;
 }

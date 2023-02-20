@@ -5,7 +5,6 @@ interface ILendingPoolConfigurator {
     struct UpdateATokenInput {
         address asset;
         uint64 trancheId;
-        address incentivesController;
         string name;
         string symbol;
         address implementation;
@@ -14,7 +13,6 @@ interface ILendingPoolConfigurator {
     struct UpdateDebtTokenInput {
         address asset;
         uint64 trancheId;
-        address incentivesController;
         string name;
         string symbol;
         address implementation;

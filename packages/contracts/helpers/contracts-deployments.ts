@@ -523,7 +523,6 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       forceDisabledCollateral0,
       admin,
       treasuryAddress,
-      ZERO_ADDRESS,
       0
     );
   }
@@ -549,7 +548,6 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       forceDisabledCollateral1,
       user1,
       treasuryAddress,
-      ZERO_ADDRESS,
       1
     );
   }

@@ -60,14 +60,20 @@ task(
         WethGateway,
         IncentivesController,
       } = poolConfig as ICommonConfiguration;
+      
 
       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
       const addressesProvider = await getLendingPoolAddressesProvider();
 
-      const admin = await DRE.ethers.getSigner(
-        await addressesProvider.getGlobalAdmin()
+      const incentivesController = await getParamPerNetwork(
+        IncentivesController,
+        network
       );
+
+      if(incentivesController){
+        await addressesProvider.setIncentivesController(incentivesController);
+      }
 
       // const oracle = await addressesProvider.getPriceOracle();
 
@@ -93,7 +99,7 @@ task(
       );
       await waitForTx(
         await addressesProvider.setLendingPoolCollateralManager(
-          collateralManagerAddress
+          collateralManagerAddress || ""
         )
       );
 

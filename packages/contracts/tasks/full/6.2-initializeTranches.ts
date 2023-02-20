@@ -47,14 +47,9 @@ task(
         ReservesConfig,
         LendingPoolCollateralManager,
         WethGateway,
-        IncentivesController,
       } = poolConfig as ICommonConfiguration;
 
       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
-      const incentivesController = await getParamPerNetwork(
-        IncentivesController,
-        network
-      );
       const addressesProvider = await getLendingPoolAddressesProvider();
 
       const lendingPoolConfiguratorProxy =
@@ -96,7 +91,6 @@ task(
         canBeCollateral0,
         emergAdmin,
         treasuryAddress,
-        incentivesController || "",
         1
       );
 

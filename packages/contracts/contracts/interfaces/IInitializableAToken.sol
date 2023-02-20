@@ -15,7 +15,6 @@ interface IInitializableAToken {
      * @param underlyingAsset The address of the underlying asset
      * @param trancheId The tranche of the underlying asset
      * @param pool The address of the associated lending pool
-     * @param incentivesController The address of the incentives controller for this aToken
      * @param aTokenDecimals the decimals of the underlying
      * @param aTokenName the name of the aToken
      * @param aTokenSymbol the symbol of the aToken
@@ -24,7 +23,6 @@ interface IInitializableAToken {
         address indexed underlyingAsset,
         uint64 indexed trancheId,
         address indexed pool,
-        address incentivesController,
         uint8 aTokenDecimals,
         string aTokenName,
         string aTokenSymbol
@@ -41,7 +39,6 @@ interface IInitializableAToken {
      * @dev Initializes the aToken
      * @param pool The address of the lending pool where this aToken will be used
      * @param vars Stores treasury vars to fix stack too deep
-     * @param incentivesController The smart contract managing potential incentives distribution
      * @param aTokenDecimals The decimals of the aToken, same as the underlying asset's
      * @param aTokenName The name of the aToken
      * @param aTokenSymbol The symbol of the aToken
@@ -49,7 +46,6 @@ interface IInitializableAToken {
     function initialize(
         ILendingPool pool,
         InitializeTreasuryVars memory vars,
-        IAaveIncentivesController incentivesController,
         uint8 aTokenDecimals,
         string calldata aTokenName,
         string calldata aTokenSymbol
