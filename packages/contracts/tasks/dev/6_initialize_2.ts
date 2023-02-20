@@ -36,14 +36,9 @@ task('dev:initialize-tranche-2', 'Initialize lending pool configuration.')
       ReservesConfig,
       LendingPoolCollateralManager,
       WethGateway,
-      IncentivesController,
     } = poolConfig as ICommonConfiguration;
 
     const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
-    const incentivesController = await getParamPerNetwork(
-      IncentivesController,
-      network
-    );
     const addressesProvider = await getLendingPoolAddressesProvider();
 
     const lendingPoolConfiguratorProxy =
@@ -85,7 +80,6 @@ task('dev:initialize-tranche-2', 'Initialize lending pool configuration.')
       canBeCollateral0,
       emergAdmin,
       treasuryAddress,
-      incentivesController || "",
       1
     );
     // Unpause market during deployment

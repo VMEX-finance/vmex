@@ -248,14 +248,12 @@ export const initReservesByHelper = async (
   canBeCollateral: boolean[],
   admin: SignerWithAddress,
   treasuryAddress: tEthereumAddress,
-  incentivesController: tEthereumAddress,
   trancheId: BigNumberish
 ) => {
   // Initialize variables for future reserves initialization
 
   let initInputParams: {
     underlyingAsset: string;
-    incentivesController: string;
     interestRateChoice: string; //1,000,000
     reserveFactor: string;
     canBorrow: boolean;
@@ -264,7 +262,6 @@ export const initReservesByHelper = async (
   for (let i=0;i<assetAddresses.length; i++) {
     initInputParams.push({
       underlyingAsset: assetAddresses[i],
-      incentivesController: incentivesController,
       interestRateChoice: "0",
       reserveFactor: reserveFactors[i],
       canBorrow: canBorrow[i],

@@ -7,12 +7,13 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {DebtTokenBase} from "./base/DebtTokenBase.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 
 /**
  * @title VariableDebtToken
  * @notice Implements a variable debt token to track the borrowing positions of users
  * at variable rate mode
- * @author Aave
+ * @author Aave, Vmex
  **/
 contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     using WadRayMath for uint256;
@@ -22,13 +23,13 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     ILendingPool internal _pool;
     address internal _underlyingAsset;
     uint64 _tranche;
-    IAaveIncentivesController internal _incentivesController;
+    ILendingPoolAddressesProvider internal _addressesProvider;
 
     /**
      * @dev Initializes the debt token.
      * @param pool The address of the lending pool where this aToken will be used
      * @param underlyingAsset The address of the underlying asset of this aToken (E.g. WETH for aWETH)
-     * @param incentivesController The smart contract managing potential incentives distribution
+     * @param addressesProvider The address provider
      * @param debtTokenDecimals The decimals of the debtToken, same as the underlying asset's
      * @param debtTokenName The name of the token
      * @param debtTokenSymbol The symbol of the token
@@ -37,7 +38,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
         ILendingPool pool,
         address underlyingAsset,
         uint64 trancheId,
-        IAaveIncentivesController incentivesController,
+        ILendingPoolAddressesProvider addressesProvider,
         uint8 debtTokenDecimals,
         string memory debtTokenName,
         string memory debtTokenSymbol
@@ -49,13 +50,13 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
         _pool = pool;
         _underlyingAsset = underlyingAsset;
         _tranche = trancheId;
-        _incentivesController = incentivesController;
+        _addressesProvider = addressesProvider;
 
         emit Initialized(
             underlyingAsset,
             trancheId,
             address(pool),
-            address(incentivesController),
+            address(addressesProvider),
             debtTokenDecimals,
             debtTokenName,
             debtTokenSymbol
@@ -238,7 +239,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
         override
         returns (IAaveIncentivesController)
     {
-        return _incentivesController;
+        return IAaveIncentivesController(_addressesProvider.getIncentivesController());
     }
 
     function _getUnderlyingAssetAddress()

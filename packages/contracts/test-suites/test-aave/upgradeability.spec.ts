@@ -73,14 +73,12 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const updateATokenInputParams: {
       asset: string;
       trancheId: BigNumberish;
-      incentivesController: string;
       name: string;
       symbol: string;
       implementation: string;
     } = {
       asset: dai.address,
       trancheId: tranche,
-      incentivesController: ZERO_ADDRESS,
       name: name,
       symbol: symbol,
       implementation: newATokenAddress,
@@ -99,14 +97,12 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const updateATokenInputParams: {
       asset: string;
       trancheId: BigNumberish;
-      incentivesController: string;
       name: string;
       symbol: string;
       implementation: string;
     } = {
       asset: dai.address,
       trancheId: tranche,
-      incentivesController: ZERO_ADDRESS,
       name: name,
       symbol: symbol,
       implementation: newATokenAddress,
@@ -195,7 +191,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const updateDebtTokenInput: {
       asset: string;
       trancheId: BigNumberish;
-      incentivesController: string;
       name: string;
       symbol: string;
       implementation: string;
@@ -203,7 +198,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     } = {
       asset: dai.address,
       trancheId: tranche,
-      incentivesController: ZERO_ADDRESS,
       name: name,
       symbol: symbol,
       implementation: newVariableTokenAddress,
@@ -226,7 +220,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const updateDebtTokenInput: {
       asset: string;
       trancheId: BigNumberish;
-      incentivesController: string;
       name: string;
       symbol: string;
       implementation: string;
@@ -234,7 +227,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     } = {
       asset: dai.address,
       trancheId: tranche,
-      incentivesController: ZERO_ADDRESS,
       name: name,
       symbol: symbol,
       implementation: newVariableTokenAddress,

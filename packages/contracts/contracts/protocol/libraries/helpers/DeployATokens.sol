@@ -41,9 +41,7 @@ library DeployATokens {
                 vars.pool,
                 vars.internalInput.input.underlyingAsset,
                 vars.internalInput.trancheId,
-                IAaveIncentivesController(
-                    vars.internalInput.input.incentivesController
-                ),
+                vars.addressProvider,
                 vars.internalInput.assetdata.underlyingAssetDecimals,
                 string(
                     abi.encodePacked(
@@ -74,9 +72,6 @@ library DeployATokens {
                 address(vars.addressProvider), //
                 vars.internalInput.input.underlyingAsset,
                 vars.internalInput.trancheId,
-                IAaveIncentivesController(
-                    vars.internalInput.input.incentivesController
-                ),
                 vars.internalInput.assetdata.underlyingAssetDecimals,
                 string(
                     abi.encodePacked(

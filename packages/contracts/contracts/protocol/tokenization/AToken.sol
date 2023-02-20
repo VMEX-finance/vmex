@@ -61,7 +61,6 @@ contract AToken is
     address internal _lendingPoolConfigurator;
     address internal _underlyingAsset; //yearn address
     uint64 internal _tranche;
-    IAaveIncentivesController internal _incentivesController;
 
     modifier onlyLendingPool() {
         require(
@@ -87,7 +86,6 @@ contract AToken is
      * @dev Initializes the aToken
      * @param pool The address of the lending pool where this aToken will be used
      * @param vars Stores treasury vars to fix stack too deep
-     * @param incentivesController The smart contract managing potential incentives distribution
      * @param aTokenDecimals The decimals of the aToken, same as the underlying asset's
      * @param aTokenName The name of the aToken
      * @param aTokenSymbol The symbol of the aToken
@@ -95,7 +93,6 @@ contract AToken is
     function initialize(
         ILendingPool pool,
         InitializeTreasuryVars memory vars,
-        IAaveIncentivesController incentivesController,
         uint8 aTokenDecimals,
         string calldata aTokenName,
         string calldata aTokenSymbol
@@ -125,14 +122,12 @@ contract AToken is
         _lendingPoolConfigurator = vars.lendingPoolConfigurator;
         _addressesProvider = ILendingPoolAddressesProvider(vars.addressesProvider);
         _underlyingAsset = vars.underlyingAsset;
-        _incentivesController = incentivesController;
         _tranche = vars.trancheId;
 
         emit Initialized(
             vars.underlyingAsset,
             vars.trancheId,
             address(pool),
-            address(incentivesController),
             aTokenDecimals,
             aTokenName,
             aTokenSymbol
@@ -369,7 +364,7 @@ contract AToken is
         override
         returns (IAaveIncentivesController)
     {
-        return _incentivesController;
+        return IAaveIncentivesController(_addressesProvider.getIncentivesController());
     }
 
     /**

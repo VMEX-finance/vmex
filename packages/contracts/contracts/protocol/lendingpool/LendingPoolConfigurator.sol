@@ -13,7 +13,6 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.sol";
 import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
-import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
@@ -413,7 +412,6 @@ contract LendingPoolConfigurator is
      * @param input address asset - The underlying asset
      *      uint64 trancheId - The tranche id
      *      address treasury - The new treasury address
-     *      address incentivesController - The new incentives controller
      *      string name - The new name of the atoken
      *      string symbol - The new symbol of the atoken
      *      address implementation - The new address of atoken implementation
@@ -443,7 +441,6 @@ contract LendingPoolConfigurator is
             address(addressesProvider),
             vars.input.asset,
             vars.input.trancheId,
-            vars.input.incentivesController, // remove
             vars.decimals,
             vars.input.name, 
             vars.input.symbol 
@@ -467,7 +464,6 @@ contract LendingPoolConfigurator is
      * @dev Updates the variable debt token implementation for the asset
      * @param input address asset - The underlying asset
      *      uint64 trancheId - The tranche id
-     *      address incentivesController - The new incentives controller address
      *      string name - The new name of the variable debt token
      *      string symbol - The new symbol of the variable debt token
      *      address implementation - The address of the variable debt token implementation
@@ -489,7 +485,7 @@ contract LendingPoolConfigurator is
             cachedPool,
             input.asset,
             input.trancheId,
-            input.incentivesController,
+            addressesProvider,
             decimals,
             input.name,
             input.symbol

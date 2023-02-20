@@ -40,10 +40,6 @@ library DataTypes {
 
         //choose asset, the other properties come with asset
         address underlyingAsset;
-
-        //these can be chosen by user to be any address
-        address incentivesController;
-
         uint8 interestRateChoice; //0 for default, others are undefined until set
         uint256 reserveFactor;
         bool canBorrow;
