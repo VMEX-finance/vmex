@@ -42,7 +42,8 @@ contract LendingPoolConfigurator is
 
     modifier onlyEmergencyAdmin {
         require(
-            addressesProvider.getEmergencyAdmin() == msg.sender,
+            addressesProvider.getEmergencyAdmin() == msg.sender ||
+            addressesProvider.getGlobalAdmin() == msg.sender,
             Errors.LPC_CALLER_NOT_EMERGENCY_ADMIN
         );
         _;
@@ -102,7 +103,7 @@ contract LendingPoolConfigurator is
 
     /**
      * @dev Claims the next available tranche id. Goes from 0 up to max(uint64). Claiming tranche id is first step
-     * to create a tranche (permissionless or vmec-managed), doesn't require any checks besides that trancheId is unique
+     * to create a tranche (permissionless or vmex-managed), doesn't require any checks besides that trancheId is unique
      * @param name The string name of the tranche
      * @param admin The address of the admin to this tranche id
      * @return trancheId The tranche id that the admin now manages
@@ -141,14 +142,16 @@ contract LendingPoolConfigurator is
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
+        address aTokenImpl = addressesProvider.getAToken();
+        address varDebtToken = addressesProvider.getVariableDebtToken();
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
                 cachedPool,
                 DataTypes.InitReserveInputInternal(
                     input[i],
                     trancheId,
-                    addressesProvider.getAToken(),
-                    addressesProvider.getVariableDebtToken(),
+                    aTokenImpl,
+                    varDebtToken,
                     assetMappings.getAssetMapping(input[i].underlyingAsset)
                 ) //by putting assetmappings in the addresses provider, we have flexibility to upgrade it in the future
             );
@@ -156,7 +159,7 @@ contract LendingPoolConfigurator is
     }
 
     function _initReserve(
-        ILendingPool pool,
+        ILendingPool cachedPool,
         DataTypes.InitReserveInputInternal memory internalInput
     ) internal {
         (
@@ -164,13 +167,13 @@ contract LendingPoolConfigurator is
             address variableDebtTokenProxyAddress
         ) = DeployATokens.deployATokens(
                 DeployATokens.DeployATokensVars(
-                    pool,
+                    cachedPool,
                     addressesProvider,
                     internalInput
                 )
             );
 
-        pool.initReserve(
+        cachedPool.initReserve(
             internalInput.input.underlyingAsset,
             internalInput.trancheId,
             assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
@@ -178,7 +181,7 @@ contract LendingPoolConfigurator is
             variableDebtTokenProxyAddress
         );
 
-        DataTypes.ReserveConfigurationMap memory currentConfig = pool
+        DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool
             .getConfiguration(
                 internalInput.input.underlyingAsset,
                 internalInput.trancheId
@@ -205,7 +208,7 @@ contract LendingPoolConfigurator is
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
 
-        pool.setConfiguration(
+        cachedPool.setConfiguration(
             internalInput.input.underlyingAsset,
             internalInput.trancheId,
             currentConfig.data
@@ -399,7 +402,6 @@ contract LendingPoolConfigurator is
     }
 
     struct UpdateATokenVars {
-        address defaultVMEXTreasury;
         uint256 decimals;
         ILendingPool cachedPool;
         DataTypes.ReserveData reserveData;
@@ -424,7 +426,6 @@ contract LendingPoolConfigurator is
         {
             vars.input  = input;
             vars.cachedPool = pool;
-            vars.defaultVMEXTreasury = addressesProvider.getVMEXTreasury();
 
             vars.reserveData = vars.cachedPool.getReserveData(
                 vars.input.asset,
