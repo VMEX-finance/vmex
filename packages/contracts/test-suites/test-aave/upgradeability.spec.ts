@@ -24,7 +24,7 @@ import { BigNumberish } from 'ethers';
 makeSuite('Upgradeability', (testEnv: TestEnv) => {
   const { CALLER_NOT_GLOBAL_ADMIN } = ProtocolErrors;
   let newATokenAddress: string;
-  let newStableTokenAddress: string;
+  // let newStableTokenAddress: string;
   let newVariableTokenAddress: string;
 
   const tranche = 0;
@@ -37,30 +37,29 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       addressesProvider.address,
       dai.address,
       tranche.toString(),
-      ZERO_ADDRESS,
       'Aave Interest bearing DAI updated',
       'aDAI'
     ]);
 
-    const stableDebtTokenInstance = await deployMockStableDebtToken([
-      pool.address,
-      dai.address,
-      ZERO_ADDRESS,
-      'Aave stable debt bearing DAI updated',
-      'stableDebtDAI'
-    ]);
+    // const stableDebtTokenInstance = await deployMockStableDebtToken([
+    //   pool.address,
+    //   dai.address,
+    //   ZERO_ADDRESS,
+    //   'Aave stable debt bearing DAI updated',
+    //   'stableDebtDAI'
+    // ]);
 
     const variableDebtTokenInstance = await deployMockVariableDebtToken([
       pool.address,
       dai.address,
-      ZERO_ADDRESS,
+      addressesProvider.address,
       'Aave variable debt bearing DAI updated',
       'variableDebtDAI'
     ]);
 
     newATokenAddress = aTokenInstance.address;
     newVariableTokenAddress = variableDebtTokenInstance.address;
-    newStableTokenAddress = stableDebtTokenInstance.address;
+    // newStableTokenAddress = stableDebtTokenInstance.address;
   });
 
   it('Tries to update the DAI Atoken implementation with a different address than the lendingPoolManager', async () => {

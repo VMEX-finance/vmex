@@ -1469,7 +1469,6 @@ export const deployMockAToken = async (
     addressesProvider,
     underlyingAssetAddress,
     tranche,
-    incentivesController,
     name,
     symbol
   ]: [
@@ -1478,7 +1477,6 @@ export const deployMockAToken = async (
     tEthereumAddress,
     string,
     string,
-    tEthereumAddress,
     string,
     string
   ],
@@ -1499,7 +1497,6 @@ export const deployMockAToken = async (
       lendingPoolConfigurator: configurator,
       addressesProvider: addressesProvider,
     },
-    incentivesController,
     "18",
     name,
     symbol
