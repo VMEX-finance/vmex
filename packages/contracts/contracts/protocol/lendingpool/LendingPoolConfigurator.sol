@@ -146,34 +146,30 @@ contract LendingPoolConfigurator is
         address varDebtToken = addressesProvider.getVariableDebtToken();
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
-                cachedPool,
                 DataTypes.InitReserveInputInternal(
                     input[i],
                     trancheId,
                     aTokenImpl,
                     varDebtToken,
-                    assetMappings.getAssetMapping(input[i].underlyingAsset)
+                    assetMappings.getAssetMapping(input[i].underlyingAsset),
+                    cachedPool,
+                    addressesProvider
                 ) //by putting assetmappings in the addresses provider, we have flexibility to upgrade it in the future
             );
         }
     }
 
     function _initReserve(
-        ILendingPool cachedPool,
         DataTypes.InitReserveInputInternal memory internalInput
     ) internal {
         (
             address aTokenProxyAddress,
             address variableDebtTokenProxyAddress
         ) = DeployATokens.deployATokens(
-                DeployATokens.DeployATokensVars(
-                    cachedPool,
-                    addressesProvider,
-                    internalInput
-                )
+                internalInput
             );
 
-        cachedPool.initReserve(
+        internalInput.cachedPool.initReserve(
             internalInput.input.underlyingAsset,
             internalInput.trancheId,
             assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
@@ -181,7 +177,7 @@ contract LendingPoolConfigurator is
             variableDebtTokenProxyAddress
         );
 
-        DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool
+        DataTypes.ReserveConfigurationMap memory currentConfig = internalInput.cachedPool
             .getConfiguration(
                 internalInput.input.underlyingAsset,
                 internalInput.trancheId
@@ -208,7 +204,7 @@ contract LendingPoolConfigurator is
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
 
-        cachedPool.setConfiguration(
+        internalInput.cachedPool.setConfiguration(
             internalInput.input.underlyingAsset,
             internalInput.trancheId,
             currentConfig.data
@@ -401,13 +397,6 @@ contract LendingPoolConfigurator is
         emit AddedWhitelistedDepositBorrow(user);
     }
 
-    struct UpdateATokenVars {
-        uint256 decimals;
-        ILendingPool cachedPool;
-        DataTypes.ReserveData reserveData;
-        UpdateATokenInput input;
-    }
-
     /**
      * @dev Updates the aToken implementation for the reserve. Note that this only updates
      * the implementation for a specific aToken in a specific tranche.
@@ -422,42 +411,33 @@ contract LendingPoolConfigurator is
         external
         onlyGlobalAdmin
     {
-        UpdateATokenVars memory vars;
-        {
-            vars.input  = input;
-            vars.cachedPool = pool;
+        ILendingPool cachedPool = pool;
 
-            vars.reserveData = vars.cachedPool.getReserveData(
-                vars.input.asset,
-                vars.input.trancheId
-            );
-
-            (, , , vars.decimals, ) = assetMappings.getParams(vars.input.asset);
-        }
+        DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
+            input.asset,
+            input.trancheId
+        );
 
         bytes memory encodedCall = abi.encodeWithSelector(
             IInitializableAToken.initialize.selector, //selects that we want to call the initialize function
-            vars.cachedPool,
+            cachedPool,
             address(this),
             address(addressesProvider),
-            vars.input.asset,
-            vars.input.trancheId,
-            vars.decimals,
-            vars.input.name, 
-            vars.input.symbol 
+            input.asset,
+            input.trancheId
         );
 
         _upgradeTokenImplementation(
-            vars.reserveData.aTokenAddress,
-            vars.input.implementation,
+            reserveData.aTokenAddress,
+            input.implementation,
             encodedCall
         );
 
         emit ATokenUpgraded(
-            vars.input.asset,
-            vars.input.trancheId,
-            vars.reserveData.aTokenAddress,
-            vars.input.implementation
+            input.asset,
+            input.trancheId,
+            reserveData.aTokenAddress,
+            input.implementation
         );
     }
 
@@ -479,17 +459,12 @@ contract LendingPoolConfigurator is
             input.trancheId
         );
 
-        (, , , uint256 decimals, ) = assetMappings.getParams(input.asset);
-
         bytes memory encodedCall = abi.encodeWithSelector(
             IInitializableDebtToken.initialize.selector,
             cachedPool,
             input.asset,
             input.trancheId,
-            addressesProvider,
-            decimals,
-            input.name,
-            input.symbol
+            addressesProvider
         );
 
         _upgradeTokenImplementation(

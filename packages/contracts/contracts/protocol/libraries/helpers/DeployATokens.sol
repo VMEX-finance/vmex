@@ -10,18 +10,12 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 // import "hardhat/console.sol";
 library DeployATokens {
-    struct DeployATokensVars {
-        ILendingPool pool;
-        ILendingPoolAddressesProvider addressProvider;
-        DataTypes.InitReserveInputInternal internalInput;
-    }
-
     /**
      * @dev Deploys and initializes the aToken and variableDebtToken for a reserve through a proxy
      * @return aTokenProxyAddress The deployed aToken proxy
      * @return variableDebtTokenProxyAddress The deployed variable dep proxy
      **/
-    function deployATokens(DeployATokensVars memory vars)
+    function deployATokens(DataTypes.InitReserveInputInternal memory vars)
         public
         returns (
             address aTokenProxyAddress,
@@ -29,37 +23,24 @@ library DeployATokens {
         )
     {
         aTokenProxyAddress = _initTokenWithProxy(
-            vars.internalInput.aTokenImpl,
+            vars.aTokenImpl,
             getAbiEncodedAToken(vars)
         );
 
 
         variableDebtTokenProxyAddress = _initTokenWithProxy(
-            vars.internalInput.variableDebtTokenImpl,
+            vars.variableDebtTokenImpl,
             abi.encodeWithSelector(
                 IInitializableDebtToken.initialize.selector,
-                vars.pool,
-                vars.internalInput.input.underlyingAsset,
-                vars.internalInput.trancheId,
-                vars.addressProvider,
-                vars.internalInput.assetdata.underlyingAssetDecimals,
-                string(
-                    abi.encodePacked(
-                        vars.internalInput.assetdata.variableDebtTokenName,
-                        Strings.toString(vars.internalInput.trancheId)
-                    )
-                ),
-                string(
-                    abi.encodePacked(
-                        vars.internalInput.assetdata.variableDebtTokenSymbol,
-                        Strings.toString(vars.internalInput.trancheId)
-                    )
-                )
+                vars.cachedPool,
+                vars.input.underlyingAsset,
+                vars.trancheId,
+                vars.addressesProvider
             )
         );
     }
 
-    function getAbiEncodedAToken(DeployATokensVars memory vars)
+    function getAbiEncodedAToken(DataTypes.InitReserveInputInternal memory vars)
         public
         view
         returns (bytes memory)
@@ -67,24 +48,11 @@ library DeployATokens {
         return
             abi.encodeWithSelector(
                 IInitializableAToken.initialize.selector,
-                vars.pool,
+                vars.cachedPool,
                 address(this), //lendingPoolConfigurator address
-                address(vars.addressProvider), //
-                vars.internalInput.input.underlyingAsset,
-                vars.internalInput.trancheId,
-                vars.internalInput.assetdata.underlyingAssetDecimals,
-                string(
-                    abi.encodePacked(
-                        vars.internalInput.assetdata.aTokenName,
-                        Strings.toString(vars.internalInput.trancheId)
-                    )
-                ),
-                string(
-                    abi.encodePacked(
-                        vars.internalInput.assetdata.aTokenSymbol,
-                        Strings.toString(vars.internalInput.trancheId)
-                    )
-                )
+                address(vars.addressesProvider), //
+                vars.input.underlyingAsset,
+                vars.trancheId
             );
     }
 

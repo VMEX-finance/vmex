@@ -36,10 +36,6 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
     const network = <eNetwork>DRE.network.name;
     const poolConfig = loadPoolConfig(ConfigNames.Aave); //await loadCustomAavePoolConfig("0"); //this is only for mainnet
     const {
-      ATokenNamePrefix,
-      StableDebtTokenNamePrefix,
-      VariableDebtTokenNamePrefix,
-      SymbolPrefix,
       ReserveAssets,
       ReservesConfig,
       LendingPoolCollateralManager,
@@ -82,10 +78,6 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
     await initAssetData(
       ReservesConfig,
       reserveAssets,
-      ATokenNamePrefix,
-      StableDebtTokenNamePrefix,
-      VariableDebtTokenNamePrefix,
-      SymbolPrefix,
       admin,
       false,
       curveAssets

@@ -63,10 +63,6 @@ export const claimTrancheId = async (
 export const initAssetData = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
-  aTokenNamePrefix: string,
-  stableDebtTokenNamePrefix: string,
-  variableDebtTokenNamePrefix: string,
-  symbolPrefix: string,
   admin: SignerWithAddress,
   verify: boolean,
   CurveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
@@ -80,15 +76,6 @@ export const initAssetData = async (
   let underlying: string[] = [];
 
   let initInputParams: {
-    underlyingAssetDecimals: BigNumberish;
-    underlyingAssetName: string;
-    // underlyingAsset: string;
-    // treasury: string;
-    // incentivesController: string;
-    aTokenName: string;
-    aTokenSymbol: string;
-    variableDebtTokenName: string;
-    variableDebtTokenSymbol: string;
     assetType: BigNumberish;
     supplyCap: string; //1,000,000
     borrowCap: string; //1,000,000
@@ -177,12 +164,6 @@ export const initAssetData = async (
     underlying.push(tokenAddresses[symbol]);
 interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
     initInputParams.push({
-      underlyingAssetDecimals: reserveDecimals,
-      underlyingAssetName: symbol,
-      aTokenName: `${aTokenNamePrefix} ${symbol}`,
-      aTokenSymbol: `v${symbolPrefix}${symbol}`,
-      variableDebtTokenName: `${variableDebtTokenNamePrefix} ${symbolPrefix}${symbol}`,
-      variableDebtTokenSymbol: `variableDebt${symbolPrefix}${symbol}`,
       assetType: assetType,
       supplyCap: supplyCap, //1,000,000
       borrowCap: borrowCap, //1,000,000

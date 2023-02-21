@@ -39,15 +39,9 @@ interface IInitializableAToken {
      * @dev Initializes the aToken
      * @param pool The address of the lending pool where this aToken will be used
      * @param vars Stores treasury vars to fix stack too deep
-     * @param aTokenDecimals The decimals of the aToken, same as the underlying asset's
-     * @param aTokenName The name of the aToken
-     * @param aTokenSymbol The symbol of the aToken
      */
     function initialize(
         ILendingPool pool,
-        InitializeTreasuryVars memory vars,
-        uint8 aTokenDecimals,
-        string calldata aTokenName,
-        string calldata aTokenSymbol
+        InitializeTreasuryVars memory vars
     ) external;
 }

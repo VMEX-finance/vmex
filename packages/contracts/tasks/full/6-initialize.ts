@@ -15,9 +15,6 @@ import {
 } from "../../helpers/configuration";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import {
-  initAssetData,
-} from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
   getAaveProtocolDataProvider,
@@ -50,10 +47,6 @@ task(
       const network = <eNetwork>DRE.network.name;
       const poolConfig = loadPoolConfig(ConfigNames.Aave);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
-        ATokenNamePrefix,
-        StableDebtTokenNamePrefix,
-        VariableDebtTokenNamePrefix,
-        SymbolPrefix,
         ReserveAssets,
         ReservesConfig,
         LendingPoolCollateralManager,

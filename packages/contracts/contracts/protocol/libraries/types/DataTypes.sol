@@ -2,6 +2,8 @@
 pragma solidity >=0.8.0;
 
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPool} from "../../../interfaces/ILendingPool.sol";
 
 library DataTypes {
     struct CurveMetadata {
@@ -11,26 +13,24 @@ library DataTypes {
     }
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
     struct AssetData {
-        uint8 underlyingAssetDecimals;
-        uint8 assetType;
-        string underlyingAssetName;
-        string aTokenName;
-        string aTokenSymbol;
-        string variableDebtTokenName;
-        string variableDebtTokenSymbol;
-        uint256 VMEXReserveFactor;
+        uint8 assetType; //to choose what oracle to use
+        uint256 VMEXReserveFactor; //64 bits. is sufficient
 
         //below are the things that we will change more often
+        //if we assume most decimals is 18, storing these in uint128 should be ok, that means the maximum someone can deposit is 3.4 * 10^20
         uint256 supplyCap;
         uint256 borrowCap;
-        uint256 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor."
-        uint256 liquidationThreshold; //if this is zero, then disabled as collateral
-        uint256 liquidationBonus;
-        uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset
+        uint256 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
+        uint256 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
+        uint256 liquidationBonus; // 64 bits
+        uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
         bool borrowingEnabled;
         bool isAllowed; //default to false, unless set
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
         //the only difference between the different strategies is the value of the slopes and optimal utilization
+
+        //pointer to the next asset that is approved. This allows us to avoid using a list
+        // address nextApprovedAsset;
     }
 
     struct InitReserveInput {
@@ -40,8 +40,8 @@ library DataTypes {
 
         //choose asset, the other properties come with asset
         address underlyingAsset;
-        uint8 interestRateChoice; //0 for default, others are undefined until set
         uint256 reserveFactor;
+        uint8 interestRateChoice; //0 for default, others are undefined until set
         bool canBorrow;
         bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
     }
@@ -52,6 +52,8 @@ library DataTypes {
         address aTokenImpl;
         address variableDebtTokenImpl;
         AssetData assetdata;
+        ILendingPool cachedPool;
+        ILendingPoolAddressesProvider addressesProvider;
     }
 
     enum ReserveAssetType {
@@ -85,7 +87,7 @@ library DataTypes {
         address variableDebtTokenAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
-        //maybe consider
+        //consider removing this
         uint64 trancheId;
         address interestRateStrategyAddress;
     }

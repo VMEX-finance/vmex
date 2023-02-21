@@ -2,6 +2,7 @@
 pragma solidity >=0.8.0;
 
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
@@ -17,6 +18,7 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
+import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
 /**
@@ -56,11 +58,11 @@ contract AToken is
     mapping(address => uint256) public _nonces;
 
     bytes32 public DOMAIN_SEPARATOR;
-    ILendingPoolAddressesProvider internal _addressesProvider;
-    ILendingPool internal _pool;
-    address internal _lendingPoolConfigurator;
-    address internal _underlyingAsset; //yearn address
-    uint64 internal _tranche;
+    ILendingPoolAddressesProvider public _addressesProvider;
+    ILendingPool public _pool;
+    address public _lendingPoolConfigurator;
+    address public _underlyingAsset; //yearn address
+    uint64 public _tranche;
 
     modifier onlyLendingPool() {
         require(
@@ -86,16 +88,10 @@ contract AToken is
      * @dev Initializes the aToken
      * @param pool The address of the lending pool where this aToken will be used
      * @param vars Stores treasury vars to fix stack too deep
-     * @param aTokenDecimals The decimals of the aToken, same as the underlying asset's
-     * @param aTokenName The name of the aToken
-     * @param aTokenSymbol The symbol of the aToken
      */
     function initialize(
         ILendingPool pool,
-        InitializeTreasuryVars memory vars,
-        uint8 aTokenDecimals,
-        string calldata aTokenName,
-        string calldata aTokenSymbol
+        InitializeTreasuryVars memory vars
     ) external override initializer {
         uint256 chainId;
 
@@ -103,6 +99,23 @@ contract AToken is
         assembly {
             chainId := chainid()
         }
+
+        uint8 aTokenDecimals = IERC20Detailed(vars.underlyingAsset).decimals();
+
+        string memory aTokenName = string(
+            abi.encodePacked(
+                "Vmex interest bearing ",
+                IERC20Detailed(vars.underlyingAsset).name(),
+                Strings.toString(vars.trancheId)
+            )
+        );
+        string memory aTokenSymbol = string(
+            abi.encodePacked(
+                "v",
+                IERC20Detailed(vars.underlyingAsset).symbol(),
+                Strings.toString(vars.trancheId)
+            )
+        );
 
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
@@ -113,6 +126,8 @@ contract AToken is
                 address(this)
             )
         );
+        
+        
 
         _setName(aTokenName);
         _setSymbol(aTokenSymbol);

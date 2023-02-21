@@ -33,15 +33,8 @@ task(
     const network = <eNetwork>localBRE.network.name;
     const poolConfig = loadPoolConfig(ConfigNames.Aave); //await loadCustomAavePoolConfig("0"); //this is only for mainnet
     const {
-      ATokenNamePrefix,
-      StableDebtTokenNamePrefix,
-      VariableDebtTokenNamePrefix,
-      SymbolPrefix,
       ReserveAssets,
       ReservesConfig,
-      LendingPoolCollateralManager,
-      WethGateway,
-      IncentivesController,
       CurveMetadata,
     } = poolConfig as ICommonConfiguration;
 
@@ -79,12 +72,7 @@ task(
     await initAssetData(
       ReservesConfig,
       reserveAssets,
-      ATokenNamePrefix,
-      StableDebtTokenNamePrefix,
-      VariableDebtTokenNamePrefix,
-      SymbolPrefix,
       admin,
-      curveAssets,
       false
     );
   });
