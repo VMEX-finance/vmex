@@ -35,17 +35,11 @@ interface IInitializableDebtToken {
      * @dev Initializes the debt token.
      * @param pool The address of the lending pool where this aToken will be used
      * @param underlyingAsset The address of the underlying asset of this aToken (E.g. WETH for aWETH)
-     * @param debtTokenDecimals The decimals of the debtToken, same as the underlying asset's
-     * @param debtTokenName The name of the token
-     * @param debtTokenSymbol The symbol of the token
      */
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
         uint64 trancheId,
-        ILendingPoolAddressesProvider addressesProvider,
-        uint8 debtTokenDecimals,
-        string memory debtTokenName,
-        string memory debtTokenSymbol
+        ILendingPoolAddressesProvider addressesProvider
     ) external;
 }

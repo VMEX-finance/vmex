@@ -8,7 +8,8 @@ import {DebtTokenBase} from "./base/DebtTokenBase.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
-
+import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 /**
  * @title VariableDebtToken
  * @notice Implements a variable debt token to track the borrowing positions of users
@@ -20,29 +21,40 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
 
     uint256 public constant DEBT_TOKEN_REVISION = 0x1;
 
-    ILendingPool internal _pool;
-    address internal _underlyingAsset;
-    uint64 _tranche;
-    ILendingPoolAddressesProvider internal _addressesProvider;
+    ILendingPool public _pool;
+    address public _underlyingAsset;
+    uint64 public _tranche;
+    ILendingPoolAddressesProvider public _addressesProvider;
 
     /**
      * @dev Initializes the debt token.
      * @param pool The address of the lending pool where this aToken will be used
      * @param underlyingAsset The address of the underlying asset of this aToken (E.g. WETH for aWETH)
      * @param addressesProvider The address provider
-     * @param debtTokenDecimals The decimals of the debtToken, same as the underlying asset's
-     * @param debtTokenName The name of the token
-     * @param debtTokenSymbol The symbol of the token
      */
     function initialize(
         ILendingPool pool,
         address underlyingAsset,
         uint64 trancheId,
-        ILendingPoolAddressesProvider addressesProvider,
-        uint8 debtTokenDecimals,
-        string memory debtTokenName,
-        string memory debtTokenSymbol
+        ILendingPoolAddressesProvider addressesProvider
     ) public override initializer {
+
+        uint8 debtTokenDecimals = IERC20Detailed(underlyingAsset).decimals();
+        string memory debtTokenName = string(
+                    abi.encodePacked(
+                        "Vmex variable debt bearing ",
+                        IERC20Detailed(underlyingAsset).name(),
+                        Strings.toString(trancheId)
+                    )
+                );
+        string memory debtTokenSymbol = string(
+                    abi.encodePacked(
+                        "variableDebt",
+                        IERC20Detailed(underlyingAsset).symbol(),
+                        Strings.toString(trancheId)
+                    )
+                );
+
         _setName(debtTokenName);
         _setSymbol(debtTokenSymbol);
         _setDecimals(debtTokenDecimals);

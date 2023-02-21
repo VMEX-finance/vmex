@@ -8,6 +8,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
+import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 
 contract AssetMappings is VersionedInitializable{
     using PercentageMath for uint256;
@@ -16,6 +17,8 @@ contract AssetMappings is VersionedInitializable{
     ILendingPoolAddressesProvider internal addressesProvider;
     mapping(uint256 => address) public approvedAssets;
     uint256 public numApprovedAssets;
+    address public approvedAssetsHead;
+    address public approvedAssetsTail;
 
     mapping(address => DataTypes.AssetData) internal assetMappings;
     // mapping(address => DataTypes.AssetDataConfiguration) internal assetConfigurationMappings;
@@ -26,7 +29,7 @@ contract AssetMappings is VersionedInitializable{
     event AssetDataSet(
         address indexed asset,
         uint8 underlyingAssetDecimals,
-        string underlyingAssetName,
+        string underlyingAssetName, 
         uint256 supplyCap,
         uint256 borrowCap,
         uint256 baseLTV,
@@ -150,7 +153,7 @@ contract AssetMappings is VersionedInitializable{
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
-            {
+            {  //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
                 input[i].baseLTV = input[i].baseLTV.convertToPercent();
                 input[i].liquidationThreshold = input[i].liquidationThreshold.convertToPercent();
                 input[i].liquidationBonus = input[i].liquidationBonus.convertToPercent();
@@ -161,15 +164,12 @@ contract AssetMappings is VersionedInitializable{
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
 
             assetMappings[underlying[i]] = input[i];
-            //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
-
-
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
             approvedAssets[numApprovedAssets++] = underlying[i];
             emit AssetDataSet(
                 underlying[i],
-                input[i].underlyingAssetDecimals,
-                input[i].underlyingAssetName,
+                IERC20Detailed(underlying[i]).decimals(),
+                IERC20Detailed(underlying[i]).symbol(), //review: I think in the FE we use the symbol instead of the name
                 input[i].supplyCap,
                 input[i].borrowCap,
                 input[i].baseLTV,
@@ -312,7 +312,7 @@ contract AssetMappings is VersionedInitializable{
             assetMappings[underlying].baseLTV,
             assetMappings[underlying].liquidationThreshold,
             assetMappings[underlying].liquidationBonus,
-            assetMappings[underlying].underlyingAssetDecimals,
+            IERC20Detailed(underlying).decimals(),
             assetMappings[underlying].borrowFactor
         );
     }
@@ -322,7 +322,7 @@ contract AssetMappings is VersionedInitializable{
             uint256
         ){
 
-        return assetMappings[underlying].underlyingAssetDecimals;
+        return IERC20Detailed(underlying).decimals();
     }
     //TODO: add governance functions to add or edit config
 }

@@ -5,16 +5,12 @@ interface ILendingPoolConfigurator {
     struct UpdateATokenInput {
         address asset;
         uint64 trancheId;
-        string name;
-        string symbol;
         address implementation;
     }
 
     struct UpdateDebtTokenInput {
         address asset;
         uint64 trancheId;
-        string name;
-        string symbol;
         address implementation;
     }
 

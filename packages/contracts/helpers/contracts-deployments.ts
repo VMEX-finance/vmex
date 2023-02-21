@@ -195,12 +195,6 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const admin = await DRE.ethers.getSigner(await
     (await getEmergencyAdminT0()).getAddress());
 
-  const {
-    ATokenNamePrefix,
-    StableDebtTokenNamePrefix,
-    VariableDebtTokenNamePrefix,
-    SymbolPrefix,
-  } = config;
   var treasuryAddress = admin.address;
 
   if(network == "localhost" ||
@@ -223,10 +217,6 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     await initAssetData(
       reservesParams,
       allReservesAddresses,
-      ATokenNamePrefix,
-      StableDebtTokenNamePrefix,
-      VariableDebtTokenNamePrefix,
-      SymbolPrefix,
       admin,
       false
     );
@@ -1437,8 +1427,6 @@ export const deployMockVariableDebtToken = async (
     tEthereumAddress,
     tEthereumAddress,
     tEthereumAddress,
-    string,
-    string
   ],
   verify?: boolean
 ) => {
@@ -1453,10 +1441,7 @@ export const deployMockVariableDebtToken = async (
     args[0],
     args[1],
     0,
-    args[2],
-    "18",
-    args[3],
-    args[4]
+    args[2]
   );
 
   return instance;
@@ -1469,16 +1454,12 @@ export const deployMockAToken = async (
     addressesProvider,
     underlyingAssetAddress,
     tranche,
-    name,
-    symbol
   ]: [
     tEthereumAddress,
     tEthereumAddress,
     tEthereumAddress,
     string,
     string,
-    string,
-    string
   ],
   verify?: boolean
 ) => {
@@ -1496,10 +1477,7 @@ export const deployMockAToken = async (
       trancheId: tranche,
       lendingPoolConfigurator: configurator,
       addressesProvider: addressesProvider,
-    },
-    "18",
-    name,
-    symbol
+    }
   );
 
   return instance;
