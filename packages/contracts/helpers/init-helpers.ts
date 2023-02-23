@@ -26,7 +26,7 @@ import { BigNumberish } from "ethers";
 import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
 import BigNumber from "bignumber.js";
-import { oneRay } from "./constants";
+import { oneRay, ZERO_ADDRESS } from "./constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 export const getATokenExtraParams = async (
@@ -86,6 +86,7 @@ export const initAssetData = async (
     borrowingEnabled: boolean;
     isAllowed: boolean;
     VMEXReserveFactor: string;
+    nextApprovedAsset: tEthereumAddress;
   }[] = [];
 
   let interestRateStrategyAddress: string[] = [];
@@ -173,7 +174,8 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       borrowFactor: borrowFactor,
       borrowingEnabled: borrowingEnabled,
       isAllowed: true,
-      VMEXReserveFactor: reserveFactor
+      VMEXReserveFactor: reserveFactor,
+      nextApprovedAsset: ZERO_ADDRESS,
     });
   }
 
