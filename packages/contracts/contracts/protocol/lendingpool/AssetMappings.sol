@@ -15,8 +15,6 @@ contract AssetMappings is VersionedInitializable{
 
 
     ILendingPoolAddressesProvider internal addressesProvider;
-    mapping(uint256 => address) public approvedAssets;
-    uint256 public numApprovedAssets;
     address public approvedAssetsHead;
     address public approvedAssetsTail;
 
@@ -78,7 +76,8 @@ contract AssetMappings is VersionedInitializable{
         initializer
     {
         addressesProvider = ILendingPoolAddressesProvider(provider);
-        numApprovedAssets=0;
+        approvedAssetsHead = address(0);
+        approvedAssetsTail = address(0);
     }
 
     function getVMEXReserveFactor(
@@ -166,7 +165,15 @@ contract AssetMappings is VersionedInitializable{
 
             assetMappings[underlying[i]] = input[i];
             interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
-            approvedAssets[numApprovedAssets++] = underlying[i];
+            if(approvedAssetsHead==address(0)) { //this means we are adding the first asset
+                approvedAssetsHead = underlying[i];
+                approvedAssetsTail = underlying[i];
+            }
+            else {
+                assetMappings[approvedAssetsTail].nextApprovedAsset = underlying[i];
+                approvedAssetsTail = underlying[i];
+            }
+            // approvedAssets[numApprovedAssets++] = underlying[i];
             emit AssetDataSet(
                 underlying[i],
                 IERC20Detailed(underlying[i]).decimals(),
@@ -209,27 +216,39 @@ contract AssetMappings is VersionedInitializable{
     }
 
     function removeAsset(address underlying) external onlyGlobalAdmin{
-        for(uint256 i = 0;i<numApprovedAssets;i++){
-            if(approvedAssets[i]==underlying){
-                for(uint256 j = i;j<numApprovedAssets-1;j++){
-                    approvedAssets[j] = approvedAssets[j+1];
-                }
-                break;
-            }
-        }
-        numApprovedAssets--;
-        assetMappings[underlying].isAllowed = false;
+        assetMappings[underlying].isAllowed = false; //lazy delete. deleting isn't very common so this is fine.
     }
 
-    //setAssetMapping
+    function getNumApprovedTokens() view public returns(uint256 numTokens){
+        numTokens = 0;
+        address tmp = approvedAssetsHead;
+
+        while(true) {
+            if(assetMappings[tmp].isAllowed){ //don't count disallowed tokens
+                numTokens++;
+            }
+            
+            if(assetMappings[tmp].nextApprovedAsset==address(0)){
+                break;
+            }
+            tmp = assetMappings[tmp].nextApprovedAsset;
+        }
+    }
 
     function getAllApprovedTokens() view external returns(address[] memory tokens){
-        tokens = new address[](
-            numApprovedAssets
-        );
+        //just a view function so this is a bit gassy. Could also store the length but for gas reasons, do not
+        uint256 numTokens = getNumApprovedTokens();
+        address tmp = approvedAssetsHead;
+        tokens = new address[](numTokens);
 
-        for (uint256 i = 0; i < numApprovedAssets; i++) {
-            tokens[i] = approvedAssets[i];
+        for(uint256 i = 0;i<numTokens;i++) {
+            if(assetMappings[tmp].isAllowed){
+                tokens[i] = tmp;
+            }
+            else {
+                i--; //since it doesn't count towards numTokens
+            }
+            tmp = assetMappings[tmp].nextApprovedAsset;
         }
     }
 
@@ -239,10 +258,12 @@ contract AssetMappings is VersionedInitializable{
     }
 
     function getAssetBorrowable(address asset) view external returns (bool){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return assetMappings[asset].borrowingEnabled;
     }
 
     function getAssetCollateralizable(address asset) view external returns (bool){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return assetMappings[asset].liquidationThreshold != 0;
     }
 
@@ -253,18 +274,22 @@ contract AssetMappings is VersionedInitializable{
     }
 
     function getAssetType(address asset) view external returns(DataTypes.ReserveAssetType){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return DataTypes.ReserveAssetType(assetMappings[asset].assetType);
     }
 
     function getSupplyCap(address asset) view external returns(uint256){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return assetMappings[asset].supplyCap;
     }
 
     function getBorrowCap(address asset) view external returns(uint256){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return assetMappings[asset].borrowCap;
     }
 
     function getBorrowFactor(address asset) view external returns(uint256){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return assetMappings[asset].borrowFactor;
     }
 
@@ -309,6 +334,8 @@ contract AssetMappings is VersionedInitializable{
             uint256 borrowFactor
         )
     {
+
+        require(assetMappings[underlying].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return (
             assetMappings[underlying].baseLTV,
             assetMappings[underlying].liquidationThreshold,

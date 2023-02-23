@@ -30,7 +30,7 @@ library DataTypes {
         //the only difference between the different strategies is the value of the slopes and optimal utilization
 
         //pointer to the next asset that is approved. This allows us to avoid using a list
-        // address nextApprovedAsset;
+        address nextApprovedAsset;
     }
 
     struct InitReserveInput {

@@ -384,18 +384,6 @@ contract LendingPoolConfigurator is
     /* ********************************************************************* */
     /* This next section contains functions only accessible to Global Admins */
     /* ********************************************************************* */
-    /**
-     * @dev Allows a user to deposit and borrow in the same block
-     * @param user The address of allowed user
-     **/
-    function addWhitelistedDepositBorrow(address user)
-        external
-        onlyGlobalAdmin
-    {
-        ILendingPool cachedPool = pool;
-        cachedPool.addWhitelistedDepositBorrow(user);
-        emit AddedWhitelistedDepositBorrow(user);
-    }
 
     /**
      * @dev Updates the aToken implementation for the reserve. Note that this only updates

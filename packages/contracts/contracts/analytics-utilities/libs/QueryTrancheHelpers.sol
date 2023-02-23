@@ -43,7 +43,6 @@ library QueryTrancheHelpers {
         returns (TrancheData memory trancheData)
     {
         address lendingPool = ILendingPoolAddressesProvider(addressesProvider).getLendingPool();
-        address configurator = ILendingPoolAddressesProvider(addressesProvider).getLendingPoolConfigurator();
 
         (trancheData.assets,
             trancheData.tvl,
