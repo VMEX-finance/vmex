@@ -80,14 +80,6 @@ contract LendingPool is
         );
     }
 
-    function addWhitelistedDepositBorrow(address user)
-        external
-        override
-        onlyLendingPoolConfigurator
-    {
-        isWhitelistedDepositBorrow[user] = true;
-    }
-
     /**
      * Function instead of modifier to avoid stack too deep
      */

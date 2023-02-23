@@ -94,15 +94,16 @@ contract AssetMappings is VersionedInitializable{
      **/
     function setVMEXReserveFactor(
         address asset,
-        uint256 reserveFactor //the value here should only occupy 16 bits
+        uint256 reserveFactor //the value here should only occupy 16 bits. This value only has two decimal points
     ) public onlyGlobalAdmin {
+        uint256 thisReserveFactor = reserveFactor.convertToPercent();
         require(
-                reserveFactor < PercentageMath.PERCENTAGE_FACTOR,
+                thisReserveFactor < PercentageMath.PERCENTAGE_FACTOR,
                 Errors.LPC_INVALID_CONFIGURATION
             );
-        assetMappings[asset].VMEXReserveFactor = reserveFactor;
+        assetMappings[asset].VMEXReserveFactor = thisReserveFactor;
 
-        emit VMEXReserveFactorChanged(asset, reserveFactor);
+        emit VMEXReserveFactorChanged(asset, thisReserveFactor);
     }
 
     /**
