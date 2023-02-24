@@ -113,7 +113,6 @@ contract LendingPool is
         initializer
     {
         _addressesProvider = provider;
-        _maxNumberOfReserves = 128; //this might actually be fine since this is max number of reserves per trancheId?
         _assetMappings =  AssetMappings(_addressesProvider.getAssetMappings());
     }
 

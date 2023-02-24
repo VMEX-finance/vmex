@@ -31,7 +31,7 @@ contract LendingPoolStorage {
     mapping(uint64 => bool) internal _paused; //trancheId -> paused
     bool internal _everythingPaused; //true if all tranches in the lendingpool is paused
 
-    uint256 internal _maxNumberOfReserves;
+    uint256 constant internal _maxNumberOfReserves = 128;
 
     mapping(uint64 => bool) public isUsingWhitelist;
     mapping(uint64 => mapping(address=>bool)) whitelist; //tranche to user address to boolean on whether user is whitelisted
