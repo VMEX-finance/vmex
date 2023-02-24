@@ -4,12 +4,12 @@ const { block, time, address, constants } = testUtils;
 // import { ethers } from "ethers";
 const chai = require("chai");
 const { expect } = chai;
-import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
-import { DRE } from "../helpers/misc-utils";
+import { makeSuite } from "../../test-suites/test-aave/helpers/make-suite";
+import { DRE } from "../../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
-import { ProtocolErrors } from '../helpers/types';
-import {getCurvePrice} from "./helpers/curve-calculation";
+import { ProtocolErrors } from '../../helpers/types';
+import {getCurvePrice} from "../helpers/curve-calculation";
 
 makeSuite(
     "deposit and borrowing in the same block ",
@@ -204,7 +204,7 @@ var triCryptoDepositAbi = [
             expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("801"), "Reserve doesn't have liquidity");
 
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
 
             expect(
                 userDat.totalDebtETH.toString()

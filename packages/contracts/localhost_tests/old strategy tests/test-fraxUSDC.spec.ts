@@ -164,7 +164,7 @@ makeSuite(
             await lendingPool.connect(signer).deposit(CurveToken.address, 1, DRE.ethers.utils.parseUnits('500'), await emergency.getAddress(), '0'); 
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(CurveToken.address, 1, true); 
             
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
 
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
@@ -184,7 +184,7 @@ makeSuite(
             
             await lendingPool.connect(signer).borrow(myWETH.address, 1, DRE.ethers.utils.parseEther("0.01"), '0', signer.address); 
             
-            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
 
             expect(
               userDat.totalDebtETH.toString()
@@ -213,7 +213,7 @@ makeSuite(
   
             const userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
   
-            var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+            var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
             const tricrypto2Tranch1ATokenAddress =
               (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
             // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
@@ -256,7 +256,7 @@ makeSuite(
             expect(origBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1500"), "Did not transfer tricypto2 to the booster")
   
             // check that the user is still healthy after strategy withdraws
-            var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+            var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
             console.log("USER DATA: ", userData);
   
             
@@ -359,7 +359,7 @@ makeSuite(
               }
               var strategyEndBoostedBalance = await strategy.balanceOfPool();
               expect(strategyEndBoostedBalance).to.be.gt(DRE.ethers.utils.parseEther("1500"))
-            var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+            var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
             console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
             // NOTICE: confirmed that oracle price will increase after tending
           });
@@ -391,7 +391,7 @@ makeSuite(
                 1,
                 DRE.ethers.utils.parseEther("1.0"),
                 await signer.getAddress());
-                var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+                var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
                 console.log("USER DATA after repay: ", userData);
             const tricrypto2Tranch1ATokenAddress =
               (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;

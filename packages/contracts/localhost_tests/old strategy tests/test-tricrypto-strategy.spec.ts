@@ -146,7 +146,7 @@ makeSuite(
 
           const userReserveData = await dataProv.getUserReserveData(CurveToken.address, 1, signer.address);
 
-          var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+          var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
           const tricrypto2Tranch1ATokenAddress =
             (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;
           // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2
@@ -189,7 +189,7 @@ makeSuite(
           expect(origBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1.5"), "Did not transfer tricypto2 to the booster")
 
           // check that the user is still healthy after strategy withdraws
-          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
           console.log("USER DATA: ", userData);
 
           
@@ -289,7 +289,7 @@ makeSuite(
             }
             var strategyEndBoostedBalance = await strategy.balanceOfPool();
             expect(strategyEndBoostedBalance).to.be.gt(DRE.ethers.utils.parseEther("1.5"))
-          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1,false)
+          var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
           console.log("USER DATA after tend: ", userData); //now the user collateral increases slightly since liquidity rate increases a little, so your atoken amount also increases a little
           // NOTICE: confirmed that oracle price will increase after tending
         });

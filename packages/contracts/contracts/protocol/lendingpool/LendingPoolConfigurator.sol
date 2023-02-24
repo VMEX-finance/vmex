@@ -518,6 +518,13 @@ contract LendingPoolConfigurator is
         pool.setPause(val, trancheId);
     }
 
+    function setEveryPoolPause(bool val)
+        external
+        onlyEmergencyAdmin
+    {
+        pool.setPauseEverything(val);
+    }
+
     function _upgradeTokenImplementation(
         address proxyAddress, //current address of the token
         address implementation,

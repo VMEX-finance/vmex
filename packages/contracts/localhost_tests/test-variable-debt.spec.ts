@@ -82,7 +82,7 @@ makeSuite(
 
           const userReserveData = await dataProv.getUserReserveData(usdc.address, 0, signer.address);
 
-          var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,0,false)
+          var userDatBefore:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,0)
           const tricrypto2Tranch1ATokenAddress =
             (await lendingPool.getReserveData(usdc.address, 0)).variableDebtTokenAddress;
           // 0x1E496C78617EB7AcC22d7390cBA17c4768DD87b2

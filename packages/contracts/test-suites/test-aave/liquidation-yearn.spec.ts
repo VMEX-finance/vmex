@@ -59,7 +59,7 @@ makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underl
 
     //user 2 borrows
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche,false);
+    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
     const daiPrice = await oracle.getAssetPrice(dai.address);
 
     const amountDAIToBorrow = await convertToCurrencyDecimals(
@@ -77,7 +77,7 @@ makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underl
       .connect(borrower.signer)
       .borrow(dai.address, tranche, amountDAIToBorrow, '0', borrower.address);
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche,false);
+    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
 
     // expect(userGlobalDataAfter.currentLiquidationThreshold.toString()).to.be.bignumber.equal(
     //   '8250',
@@ -96,7 +96,7 @@ makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underl
       new BigNumber(daiPrice.toString()).multipliedBy(2.18).toFixed(0)
     );
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche,false);
+    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
 
     expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
       oneEther.toFixed(0),

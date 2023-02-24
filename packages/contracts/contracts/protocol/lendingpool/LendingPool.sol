@@ -58,14 +58,14 @@ contract LendingPool is
     using ReserveConfiguration for *;
     using DepositWithdrawLogic for DataTypes.ReserveData;
 
-    uint256 public constant LENDINGPOOL_REVISION = 0x2;
+    uint256 public constant LENDINGPOOL_REVISION = 0x1;
 
     modifier whenNotPaused(uint64 trancheId) {
         _whenNotPaused(trancheId);
         _;
     }
     function _whenNotPaused(uint64 trancheId) internal view {
-        require(!_paused[trancheId], Errors.LP_IS_PAUSED);
+        require(!_paused[trancheId] && !_everythingPaused, Errors.LP_IS_PAUSED);
     }
 
     modifier onlyLendingPoolConfigurator() {
@@ -453,7 +453,6 @@ contract LendingPool is
      * @dev Returns the user account data across all the reserves in a specific trancheId
      * @param user The address of the user
      * @param trancheId The trancheId
-     * @param useTwap 'true' if calculations should use TWAP, 'false' otherwise
      * @return totalCollateralETH the total collateral in ETH of the user
      * @return totalDebtETH the total debt in ETH of the user
      * @return availableBorrowsETH the borrowing power left of the user
@@ -461,7 +460,7 @@ contract LendingPool is
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint64 trancheId, bool useTwap)
+    function getUserAccountData(address user, uint64 trancheId)
         public
         view
         override
@@ -489,8 +488,7 @@ contract LendingPool is
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
-            _assetMappings,
-            useTwap
+            _assetMappings
         );
 
         availableBorrowsETH = GenericLogic.calculateAvailableBorrowsETH(

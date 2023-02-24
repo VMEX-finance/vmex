@@ -62,9 +62,6 @@ library DepositWithdrawLogic {
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
         self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
         self.updateInterestRates(vars.asset, aToken, vars.amount, 0, vars._assetMappings.getVMEXReserveFactor(vars.asset));
-        IPriceOracleGetter(
-            ILendingPoolAddressesProvider(vars._addressesProvider).getPriceOracle()
-        ).updateTWAP(vars.asset);
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
 
@@ -131,10 +128,6 @@ library DepositWithdrawLogic {
         reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
         reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
 
-        IPriceOracleGetter(
-            ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle()
-        ).updateTWAP(vars.asset);
-
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
             emit ReserveUsedAsCollateralDisabled(vars.asset, vars.trancheId, msg.sender);
@@ -158,10 +151,6 @@ library DepositWithdrawLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         DataTypes.ExecuteBorrowParams memory vars
     ) external returns(uint256){
-        IPriceOracleGetter(
-            ILendingPoolAddressesProvider(_addressesProvider).getPriceOracle()
-        ).updateTWAP(vars.asset);
-
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
 
         if(vars.amount == type(uint256).max){
@@ -180,8 +169,7 @@ library DepositWithdrawLogic {
                 _reservesList,
                 vars._reservesCount,
                 _addressesProvider,
-                vars._assetMappings,
-                true
+                vars._assetMappings
             );
             vars.amount = (
                 userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral

@@ -111,7 +111,6 @@ contract LendingPoolCollateralManager is
         vars.collateralAsset = collateralAsset;
 
 
-        //health factor is based on lowest collateral value between twap and chainlink
         (, , , , vars.healthFactor,) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(user, trancheId),
             _reserves,
@@ -119,8 +118,7 @@ contract LendingPoolCollateralManager is
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
-            vars._assetMappings,
-            false //liquidations don't want to use twap
+            vars._assetMappings
         );
 
         DataTypes.ReserveData storage collateralReserve = _reserves[
@@ -332,7 +330,7 @@ contract LendingPoolCollateralManager is
 
         AvailableCollateralToLiquidateLocalVars memory vars;
         {
-            address oracleAddress = _addressesProvider.getPriceOracle(); //using just chainlink current price oracle, not using 24 hour twap
+            address oracleAddress = _addressesProvider.getPriceOracle(); 
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
