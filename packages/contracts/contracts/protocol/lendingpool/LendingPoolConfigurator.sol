@@ -37,7 +37,7 @@ contract LendingPoolConfigurator is
     ILendingPoolAddressesProvider internal addressesProvider;
     AssetMappings internal assetMappings;
     ILendingPool internal pool;
-    uint64 public totalTranches;
+    uint64 public override totalTranches;
     mapping(uint64 => address) override public trancheAdminTreasuryAddresses; //tranche to address of treasury of that tranche
 
     modifier onlyEmergencyAdmin {

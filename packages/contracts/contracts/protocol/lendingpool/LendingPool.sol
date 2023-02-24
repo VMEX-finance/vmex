@@ -6,6 +6,7 @@ import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IFlashLoanReceiver} from "../../flashloan/interfaces/IFlashLoanReceiver.sol";
@@ -90,11 +91,13 @@ contract LendingPool is
         require(blacklist[trancheId][user]==false, "You are blacklisted from this tranche");
     }
 
-    function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
+    function checkWhitelistBlacklistTranche(uint64 trancheId, address onBehalfOf) internal view {
         _checkWhitelistBlacklist(trancheId, msg.sender);
         if(onBehalfOf != msg.sender){
             _checkWhitelistBlacklist(trancheId, onBehalfOf);
         }
+        uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
+        require(trancheId<totalTranches, "trancheId does not exist");
     }
 
     function getRevision() internal pure override returns (uint256) {
@@ -140,7 +143,7 @@ contract LendingPool is
         override
         whenNotPaused(trancheId)
     {
-        checkWhitelistBlacklist(trancheId, onBehalfOf);
+        checkWhitelistBlacklistTranche(trancheId, onBehalfOf);
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
@@ -189,7 +192,7 @@ contract LendingPool is
         whenNotPaused(trancheId)
         returns (uint256)
     {
-        checkWhitelistBlacklist(trancheId, msg.sender);
+        checkWhitelistBlacklistTranche(trancheId, msg.sender);
         uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
                 _usersConfig[msg.sender][trancheId].configuration,
@@ -235,7 +238,7 @@ contract LendingPool is
         override
         whenNotPaused(trancheId)
     {
-        checkWhitelistBlacklist(trancheId, onBehalfOf);
+        checkWhitelistBlacklistTranche(trancheId, onBehalfOf);
 
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
@@ -409,7 +412,7 @@ contract LendingPool is
         override
         whenNotPaused(trancheId)
     {
-        checkWhitelistBlacklist(trancheId, msg.sender);
+        checkWhitelistBlacklistTranche(trancheId, msg.sender);
         address collateralManager = _addressesProvider
             .getLendingPoolCollateralManager();
 
