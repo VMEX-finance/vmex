@@ -49,8 +49,8 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
       aDai.connect(users[0].signer).transfer(users[1].address, amountDAItoDeposit)
     ).to.revertedWith(LP_IS_PAUSED);
 
-    const pausedFromBalance = await aDai.balanceOf(users[0].address);
-    const pausedToBalance = await aDai.balanceOf(users[1].address);
+    let pausedFromBalance = await aDai.balanceOf(users[0].address);
+    let pausedToBalance = await aDai.balanceOf(users[1].address);
 
     expect(pausedFromBalance).to.be.equal(
       user0Balance.toString(),
@@ -63,6 +63,29 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Configurator unpauses the pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+
+    // Configurator pauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+
+    // User 0 tries the transfer to User 1
+    await expect(
+      aDai.connect(users[0].signer).transfer(users[1].address, amountDAItoDeposit)
+    ).to.revertedWith(LP_IS_PAUSED);
+
+    pausedFromBalance = await aDai.balanceOf(users[0].address);
+    pausedToBalance = await aDai.balanceOf(users[1].address);
+
+    expect(pausedFromBalance).to.be.equal(
+      user0Balance.toString(),
+      INVALID_TO_BALANCE_AFTER_TRANSFER
+    );
+    expect(pausedToBalance.toString()).to.be.equal(
+      user1Balance.toString(),
+      INVALID_FROM_BALANCE_AFTER_TRANSFER
+    );
+
+    // Configurator unpauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
 
     // User 0 succeeds transfer to User 1
     await aDai.connect(users[0].signer).transfer(users[1].address, amountDAItoDeposit);
@@ -99,6 +122,18 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Configurator unpauses the pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+
+
+    // Configurator pauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+
+    // User 0 tries the transfer to User 1
+    await expect(
+      pool.connect(users[0].signer).deposit(dai.address, tranche, amountDAItoDeposit, users[0].address, '0')
+    ).to.revertedWith(LP_IS_PAUSED);
+
+    // Configurator unpauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
   });
 
   it('Withdraw', async () => {
@@ -125,6 +160,17 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Configurator unpauses the pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+
+    // Configurator pauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+
+    // User 0 tries the transfer to User 1
+    await expect(
+      pool.connect(users[0].signer).withdraw(dai.address, tranche, amountDAItoDeposit, users[0].address)
+    ).to.revertedWith(LP_IS_PAUSED);
+
+    // Configurator unpauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
   });
 
   it('Borrow', async () => {
@@ -142,6 +188,17 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Unpause the pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+
+    // Configurator pauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+
+    // User 0 tries the transfer to User 1
+    await expect(
+      pool.connect(users[0].signer).borrow(dai.address, tranche, '1', '0', user.address)
+    ).to.revertedWith(LP_IS_PAUSED);
+
+    // Configurator unpauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
   });
 
   it('Repay', async () => {
@@ -159,6 +216,17 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     // Unpause the pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+
+    // Configurator pauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+
+    // User 0 tries the transfer to User 1
+    await expect(
+      pool.connect(users[0].signer).repay(dai.address, tranche, '1', user.address)
+    ).to.revertedWith(LP_IS_PAUSED);
+
+    // Configurator unpauses everything the pool
+    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
   });
 
   // it('Flash loan', async () => {
