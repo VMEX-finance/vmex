@@ -83,11 +83,18 @@ contract LendingPool is
     /**
      * Function instead of modifier to avoid stack too deep
      */
-    function checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
+    function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(isUsingWhitelist[trancheId]){
             require(whitelist[trancheId][user], "Tranche requires whitelist");
         }
         require(blacklist[trancheId][user]==false, "You are blacklisted from this tranche");
+    }
+
+    function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
+        _checkWhitelistBlacklist(trancheId, msg.sender);
+        if(onBehalfOf != msg.sender){
+            _checkWhitelistBlacklist(trancheId, onBehalfOf);
+        }
     }
 
     function getRevision() internal pure override returns (uint256) {
@@ -135,7 +142,6 @@ contract LendingPool is
         whenNotPaused(trancheId)
     {
         checkWhitelistBlacklist(trancheId, onBehalfOf);
-        checkWhitelistBlacklist(trancheId, msg.sender);
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
@@ -230,10 +236,7 @@ contract LendingPool is
         override
         whenNotPaused(trancheId)
     {
-        checkWhitelistBlacklist(trancheId, msg.sender);
-        if(onBehalfOf != msg.sender){
-            checkWhitelistBlacklist(trancheId, onBehalfOf);
-        }
+        checkWhitelistBlacklist(trancheId, onBehalfOf);
 
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
