@@ -244,7 +244,6 @@ library ValidationLogic {
 
     /**
      * @dev Validates the action of setting an asset as collateral
-     * @param reserve The state of the reserve that the user is enabling or disabling as collateral
      * @param reserveAddress The address of the reserve
      * @param reservesData The data of all the reserves
      * @param userConfig The state of the user for the specific reserve
@@ -252,8 +251,8 @@ library ValidationLogic {
      * @param _addressesProvider The price oracle
      */
     function validateSetUseReserveAsCollateral(
-        DataTypes.ReserveData storage reserve,
         address reserveAddress,
+        uint64 trancheId,
         bool useAsCollateral,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
@@ -263,6 +262,7 @@ library ValidationLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         AssetMappings _assetMappings
     ) external view {
+        DataTypes.ReserveData storage reserve = reservesData[reserveAddress][trancheId];
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
             msg.sender
         );
@@ -277,7 +277,7 @@ library ValidationLogic {
                 GenericLogic.balanceDecreaseAllowed(
                     GenericLogic.BalanceDecreaseAllowedParameters(
                         reserveAddress,
-                        reserve.trancheId,
+                        trancheId,
                         msg.sender,
                         underlyingBalance,
                         _addressesProvider,

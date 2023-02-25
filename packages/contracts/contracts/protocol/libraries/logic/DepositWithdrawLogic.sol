@@ -60,8 +60,8 @@ library DepositWithdrawLogic {
 
         //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
         self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
-        self.updateInterestRates(vars.asset, aToken, vars.amount, 0, vars._assetMappings.getVMEXReserveFactor(vars.asset));
-
+        self.updateInterestRates(vars.asset, vars.trancheId, vars.amount, 0, vars._assetMappings.getVMEXReserveFactor(vars.asset));
+        
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
 
         bool isFirstDeposit = IAToken(aToken).mint(
@@ -125,7 +125,7 @@ library DepositWithdrawLogic {
         );
 
         reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
-        reserve.updateInterestRates(vars.asset, aToken, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
+        reserve.updateInterestRates(vars.asset, vars.trancheId, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
 
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
@@ -215,7 +215,7 @@ library DepositWithdrawLogic {
 
         reserve.updateInterestRates(
             vars.asset,
-            vars.aTokenAddress,
+            vars.trancheId,
             0,
             vars.releaseUnderlying ? vars.amount : 0,
             vars._assetMappings.getVMEXReserveFactor(vars.asset)

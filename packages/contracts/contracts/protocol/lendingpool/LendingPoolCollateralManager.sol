@@ -60,7 +60,6 @@ contract LendingPoolCollateralManager is
         uint256 debtAmountNeeded;
         uint256 healthFactor;
         uint256 liquidatorPreviousATokenBalance;
-        IAToken collateralAtoken;
         bool isCollateralEnabled;
         DataTypes.InterestRateMode borrowRateMode;
         uint256 errorCode;
@@ -150,9 +149,7 @@ contract LendingPoolCollateralManager is
             return (vars.errorCode, vars.errorMsg);
         }
 
-        vars.collateralAtoken = IAToken(collateralReserve.aTokenAddress);
-
-        vars.userCollateralBalance = vars.collateralAtoken.balanceOf(user);
+        vars.userCollateralBalance = IAToken(collateralReserve.aTokenAddress).balanceOf(user);
 
         //user's total debt * 50% (you can only liquidate half of user's debt)
         vars.maxLiquidatableDebt = vars.userVariableDebt
@@ -184,7 +181,7 @@ contract LendingPoolCollateralManager is
         // collateral reserve
         if (!receiveAToken) {
             uint256 currentAvailableCollateral = IERC20(vars.collateralAsset)
-                .balanceOf(address(vars.collateralAtoken));
+                .balanceOf(collateralReserve.aTokenAddress);
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
                 return (
                     uint256(
@@ -215,16 +212,16 @@ contract LendingPoolCollateralManager is
         }
         debtReserve.updateInterestRates(
             vars.debtAsset,
-            debtReserve.aTokenAddress,
+            trancheId,
             vars.actualDebtToLiquidate,
             0,
             vars._assetMappings.getVMEXReserveFactor(vars.debtAsset)
         );
 
         if (receiveAToken) {
-            vars.liquidatorPreviousATokenBalance = IERC20(vars.collateralAtoken)
+            vars.liquidatorPreviousATokenBalance = IERC20((collateralReserve.aTokenAddress))
                 .balanceOf(msg.sender);
-            vars.collateralAtoken.transferOnLiquidation(
+            IAToken(collateralReserve.aTokenAddress).transferOnLiquidation(
                 user,
                 msg.sender,
                 vars.maxCollateralToLiquidate
@@ -249,13 +246,13 @@ contract LendingPoolCollateralManager is
             collateralReserve.updateState(vars._assetMappings.getVMEXReserveFactor(collateralAsset));
             collateralReserve.updateInterestRates(
                 vars.collateralAsset,
-                address(vars.collateralAtoken),
+                trancheId,
                 0,
                 vars.maxCollateralToLiquidate,
                 vars._assetMappings.getVMEXReserveFactor(vars.collateralAsset)
             );
             // Burn the equivalent amount of aToken, sending the underlying to the liquidator
-            vars.collateralAtoken.burn(
+            IAToken(collateralReserve.aTokenAddress).burn(
                 user,
                 msg.sender,
                 vars.maxCollateralToLiquidate,

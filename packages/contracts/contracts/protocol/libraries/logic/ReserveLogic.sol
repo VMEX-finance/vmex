@@ -191,8 +191,6 @@ library ReserveLogic {
         }
         {
             reserve.interestRateStrategyAddress = interestRateStrategyAddress;
-            //TODO: users choose from governance approved set of strategies
-            reserve.trancheId = trancheId;
         }
     }
 
@@ -213,7 +211,7 @@ library ReserveLogic {
     function updateInterestRates(
         DataTypes.ReserveData storage reserve,
         address reserveAddress,
-        address aTokenAddress,
+        uint64 trancheId,
         uint256 liquidityAdded,
         uint256 liquidityTaken,
         uint256 vmexReserveFactor
@@ -230,7 +228,7 @@ library ReserveLogic {
         DataTypes.calculateInterestRatesVars memory calvars =
             DataTypes.calculateInterestRatesVars(
                     reserveAddress,
-                    aTokenAddress,
+                    reserve.aTokenAddress,
                     liquidityAdded,
                     liquidityTaken,
                     vars.totalVariableDebt,
@@ -258,7 +256,7 @@ library ReserveLogic {
 
         emit ReserveDataUpdated(
             reserveAddress,
-            reserve.trancheId,
+            trancheId,
             vars.newLiquidityRate,
             vars.newVariableRate,
             reserve.liquidityIndex,
