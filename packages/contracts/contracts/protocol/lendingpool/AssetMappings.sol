@@ -27,7 +27,7 @@ contract AssetMappings is VersionedInitializable{
     event AssetDataSet(
         address indexed asset,
         uint8 underlyingAssetDecimals,
-        string underlyingAssetName, 
+        string underlyingAssetSymbol, 
         uint256 supplyCap,
         uint256 borrowCap,
         uint256 baseLTV,
@@ -221,6 +221,9 @@ contract AssetMappings is VersionedInitializable{
 
     function getNumApprovedTokens() view public returns(uint256 numTokens){
         numTokens = 0;
+        if(approvedAssetsHead == address(0)){
+            return numTokens;
+        }
         address tmp = approvedAssetsHead;
 
         while(true) {
@@ -237,16 +240,22 @@ contract AssetMappings is VersionedInitializable{
 
     function getAllApprovedTokens() view external returns(address[] memory tokens){
         //just a view function so this is a bit gassy. Could also store the length but for gas reasons, do not
+        if(approvedAssetsHead == address(0)){
+            return new address[](0);
+        }
         uint256 numTokens = getNumApprovedTokens();
         address tmp = approvedAssetsHead;
         tokens = new address[](numTokens);
+        uint256 i = 0;
 
-        for(uint256 i = 0;i<numTokens;i++) {
-            if(assetMappings[tmp].isAllowed){
+        while(true) {
+            if(assetMappings[tmp].isAllowed){ //don't count disallowed tokens
                 tokens[i] = tmp;
+                i++;
             }
-            else {
-                i--; //since it doesn't count towards numTokens
+            
+            if(assetMappings[tmp].nextApprovedAsset==address(0)){
+                break;
             }
             tmp = assetMappings[tmp].nextApprovedAsset;
         }
@@ -291,6 +300,10 @@ contract AssetMappings is VersionedInitializable{
     function getBorrowFactor(address asset) view external returns(uint256){
         require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return assetMappings[asset].borrowFactor;
+    }
+
+    function getAssetActive(address asset) view external returns(bool){
+        return assetMappings[asset].isAllowed;
     }
 
 

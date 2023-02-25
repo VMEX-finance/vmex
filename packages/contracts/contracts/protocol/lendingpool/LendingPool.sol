@@ -309,7 +309,9 @@ contract LendingPool is
             reserve,
             amount,
             onBehalfOf,
-            variableDebt
+            variableDebt,
+            asset,
+            _assetMappings
         );
 
         uint256 paybackAmount = variableDebt;

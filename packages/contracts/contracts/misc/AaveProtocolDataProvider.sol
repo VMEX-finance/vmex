@@ -158,7 +158,7 @@ contract AaveProtocolDataProvider {
             ret.isFrozen,
             ret.borrowingEnabled,
             ret.stableBorrowRateEnabled
-        ) = configuration.getFlagsMemory();
+        ) = configuration.getFlagsMemory(asset, AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()));
 
         ret.usageAsCollateralEnabled =  configuration.getCollateralEnabled(asset, a);//liquidationThreshold > 0;
     }
