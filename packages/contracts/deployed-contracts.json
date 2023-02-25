@@ -394,7 +394,7 @@
   },
   "LendingPoolCollateralManagerImpl": {
     "localhost": {
-      "address": "0x053568617FFccEe2F75073975CC0e1549Ff9db71"
+      "address": "0xA40A2298B02a8597321580fdAD8518A6d6601b6C"
     },
     "hardhat": {
       "address": "0x2B681757d757fbB80cc51c6094cEF5eE75bF55aA"
@@ -405,7 +405,7 @@
   },
   "LendingPoolCollateralManager": {
     "localhost": {
-      "address": "0x053568617FFccEe2F75073975CC0e1549Ff9db71",
+      "address": "0xA40A2298B02a8597321580fdAD8518A6d6601b6C",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {

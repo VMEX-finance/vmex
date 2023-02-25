@@ -61,12 +61,14 @@ contract LendingPool is
 
     uint256 public constant LENDINGPOOL_REVISION = 0x1;
 
-    modifier whenNotPaused(uint64 trancheId) {
+    modifier whenNotPausedTrancheExists(uint64 trancheId) {
         _whenNotPaused(trancheId);
         _;
     }
     function _whenNotPaused(uint64 trancheId) internal view {
         require(!_paused[trancheId] && !_everythingPaused, Errors.LP_IS_PAUSED);
+        uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
+        require(trancheId<totalTranches, "trancheId does not exist");
     }
 
     modifier onlyLendingPoolConfigurator() {
@@ -91,13 +93,11 @@ contract LendingPool is
         require(blacklist[trancheId][user]==false, "You are blacklisted from this tranche");
     }
 
-    function checkWhitelistBlacklistTranche(uint64 trancheId, address onBehalfOf) internal view {
+    function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
         _checkWhitelistBlacklist(trancheId, msg.sender);
         if(onBehalfOf != msg.sender){
             _checkWhitelistBlacklist(trancheId, onBehalfOf);
         }
-        uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
-        require(trancheId<totalTranches, "trancheId does not exist");
     }
 
     function getRevision() internal pure override returns (uint256) {
@@ -141,9 +141,9 @@ contract LendingPool is
     )
         external
         override
-        whenNotPaused(trancheId)
+        whenNotPausedTrancheExists(trancheId)
     {
-        checkWhitelistBlacklistTranche(trancheId, onBehalfOf);
+        checkWhitelistBlacklist(trancheId, onBehalfOf);
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
@@ -189,10 +189,10 @@ contract LendingPool is
     )
         public
         override
-        whenNotPaused(trancheId)
+        whenNotPausedTrancheExists(trancheId)
         returns (uint256)
     {
-        checkWhitelistBlacklistTranche(trancheId, msg.sender);
+        checkWhitelistBlacklist(trancheId, msg.sender);
         uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
                 _usersConfig[msg.sender][trancheId].configuration,
@@ -236,9 +236,9 @@ contract LendingPool is
     )
         public
         override
-        whenNotPaused(trancheId)
+        whenNotPausedTrancheExists(trancheId)
     {
-        checkWhitelistBlacklistTranche(trancheId, onBehalfOf);
+        checkWhitelistBlacklist(trancheId, onBehalfOf);
 
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
@@ -301,7 +301,7 @@ contract LendingPool is
         uint64 trancheId,
         uint256 amount,
         address onBehalfOf
-    ) external override whenNotPaused(trancheId) returns (uint256) {
+    ) external override whenNotPausedTrancheExists(trancheId) returns (uint256) {
         // require(!_paused[trancheId], Errors.LP_IS_PAUSED);
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
@@ -357,7 +357,7 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         bool useAsCollateral
-    ) external override whenNotPaused(trancheId) {
+    ) external override whenNotPausedTrancheExists(trancheId) {
         // require(
         //     assetDatas[asset].isLendable,
         //     "nonlendable assets must be set as collateral"
@@ -410,9 +410,9 @@ contract LendingPool is
     )
         external
         override
-        whenNotPaused(trancheId)
+        whenNotPausedTrancheExists(trancheId)
     {
-        checkWhitelistBlacklistTranche(trancheId, msg.sender);
+        checkWhitelistBlacklist(trancheId, msg.sender);
         address collateralManager = _addressesProvider
             .getLendingPoolCollateralManager();
 
@@ -652,7 +652,7 @@ contract LendingPool is
         uint256 amount,
         uint256 balanceFromBefore,
         uint256 balanceToBefore
-    ) external override whenNotPaused(trancheId) {
+    ) external override whenNotPausedTrancheExists(trancheId) {
         require(
             msg.sender == _reserves[asset][trancheId].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN

@@ -67,7 +67,7 @@ contract BaseImmutableAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
     {
         _upgradeTo(newImplementation);
         if (data.length > 0) {
-            (bool success, bytes memory result) = newImplementation.delegatecall(data);
+            (bool success, ) = newImplementation.delegatecall(data);
             // console.log("Result of delegate call: ",string(abi.encodePacked(result)));
             require(success, "upgradeToAndCall failed");
         }

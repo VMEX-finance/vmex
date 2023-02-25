@@ -8,6 +8,7 @@ import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
@@ -36,6 +37,7 @@ contract AToken is
     using SafeMath for uint256;
     using ReserveConfiguration for *;
     using PercentageMath for uint256;
+    using Helpers for address;
 
     bytes public constant EIP712_REVISION = bytes("1");
     bytes32 internal constant EIP712_DOMAIN =
@@ -105,14 +107,14 @@ contract AToken is
         string memory aTokenName = string(
             abi.encodePacked(
                 "Vmex interest bearing ",
-                IERC20Detailed(vars.underlyingAsset).name(),
+                vars.underlyingAsset.getName(),
                 Strings.toString(vars.trancheId)
             )
         );
         string memory aTokenSymbol = string(
             abi.encodePacked(
                 "v",
-                IERC20Detailed(vars.underlyingAsset).symbol(),
+                vars.underlyingAsset.getSymbol(),
                 Strings.toString(vars.trancheId)
             )
         );
