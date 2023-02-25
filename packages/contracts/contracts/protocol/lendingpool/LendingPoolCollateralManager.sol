@@ -143,6 +143,7 @@ contract LendingPoolCollateralManager is
                 vars.healthFactor,
                 vars.userVariableDebt,
                 vars.collateralAsset,
+                vars.debtAsset,
                 vars._assetMappings
             );
 

@@ -225,9 +225,11 @@ library ValidationLogic {
         DataTypes.ReserveData storage reserve,
         uint256 amountSent,
         address onBehalfOf,
-        uint256 variableDebt
+        uint256 variableDebt,
+        address asset,
+        AssetMappings a
     ) external view {
-        bool isActive = reserve.configuration.getActive();
+        bool isActive = reserve.configuration.getActive(asset, a);
 
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
@@ -321,11 +323,12 @@ library ValidationLogic {
         uint256 userHealthFactor,
         uint256 userVariableDebt,
         address collateralAsset,
+        address principalAsset,
         AssetMappings a
     ) internal view returns (uint256, string memory) {
         if (
-            !collateralReserve.configuration.getActive() ||
-            !principalReserve.configuration.getActive()
+            !collateralReserve.configuration.getActive(collateralAsset, a) ||
+            !principalReserve.configuration.getActive(principalAsset, a)
         ) {
             return (
                 uint256(Errors.CollateralManagerErrors.NO_ACTIVE_RESERVE),
