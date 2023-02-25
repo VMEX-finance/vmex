@@ -11,7 +11,7 @@ import "./Initializable.sol";
  * mechanism that can be triggered by an authorized account.
  *
  * This module is used through inheritance. It will make available the
- * modifiers `whenNotPausedTrancheExists` and `whenPaused`, which can be applied to
+ * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
@@ -46,7 +46,7 @@ abstract contract PausableUpgradeable is Initializable, ContextUpgradeable {
      *
      * - The contract must not be paused.
      */
-    modifier whenNotPausedTrancheExists() {
+    modifier whenNotPaused() {
         _requireNotPaused();
         _;
     }
@@ -91,7 +91,7 @@ abstract contract PausableUpgradeable is Initializable, ContextUpgradeable {
      *
      * - The contract must not be paused.
      */
-    function _pause() internal virtual whenNotPausedTrancheExists {
+    function _pause() internal virtual whenNotPaused {
         _paused = true;
         emit Paused(_msgSender());
     }
