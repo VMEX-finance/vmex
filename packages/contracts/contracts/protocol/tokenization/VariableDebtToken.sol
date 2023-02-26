@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {DebtTokenBase} from "./base/DebtTokenBase.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
@@ -18,6 +19,7 @@ import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
  **/
 contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     using WadRayMath for uint256;
+    using Helpers for address;
 
     uint256 public constant DEBT_TOKEN_REVISION = 0x1;
 
@@ -43,14 +45,14 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
         string memory debtTokenName = string(
                     abi.encodePacked(
                         "Vmex variable debt bearing ",
-                        IERC20Detailed(underlyingAsset).name(),
+                        underlyingAsset.getName(),
                         Strings.toString(trancheId)
                     )
                 );
         string memory debtTokenSymbol = string(
                     abi.encodePacked(
                         "variableDebt",
-                        IERC20Detailed(underlyingAsset).symbol(),
+                        underlyingAsset.getSymbol(),
                         Strings.toString(trancheId)
                     )
                 );

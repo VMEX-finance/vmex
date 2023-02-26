@@ -57,7 +57,7 @@
 
 //     //user 2 borrows
 
-//     const userGlobalDataBefore = await pool.getUserAccountData(borrower.address, tranche,false);
+//     const userGlobalDataBefore = await pool.getUserAccountData(borrower.address, tranche);
 //     const daiPrice = await oracle.getAssetPrice(dai.address);
 
 //     const amountDAIToBorrow = await convertToCurrencyDecimals(
@@ -72,7 +72,7 @@
 //       .connect(borrower.signer)
 //       .borrow(dai.address, tranche, amountDAIToBorrow, RateMode.Stable, '0', borrower.address);
 
-//     const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche,false);
+//     const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
 
 //     expect(userGlobalDataAfter.currentLiquidationThreshold.toString()).to.be.equal(
 //       '8250',
@@ -84,7 +84,7 @@
 //       new BigNumber(daiPrice.toString()).multipliedBy(1.18).toFixed(0)
 //     );
 
-//     const userGlobalData = await pool.getUserAccountData(borrower.address, tranche,false);
+//     const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
 
 //     expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
 //       oneEther.toFixed(0),
@@ -124,7 +124,7 @@
 
 //     //user 2 borrows
 
-//     const userGlobalDataBefore = await pool.getUserAccountData(borrower.address, tranche,false);
+//     const userGlobalDataBefore = await pool.getUserAccountData(borrower.address, tranche);
 //     const daiPrice = await oracle.getAssetPrice(dai.address);
 
 //     const amountDAIToBorrow = await convertToCurrencyDecimals(
@@ -140,7 +140,7 @@
 //         .borrow(dai.address, tranche, amountDAIToBorrow, RateMode.Stable, '0', borrower.address)
 //     );
 
-//     const userGlobalDataBefore2 = await pool.getUserAccountData(borrower.address, tranche,false);
+//     const userGlobalDataBefore2 = await pool.getUserAccountData(borrower.address, tranche);
 
 //     const amountWETHToBorrow = new BigNumber(userGlobalDataBefore2.availableBorrowsETH.toString())
 //       .multipliedBy(0.8)
@@ -150,7 +150,7 @@
 //       .connect(borrower.signer)
 //       .borrow(weth.address, tranche, amountWETHToBorrow, RateMode.Variable, '0', borrower.address);
 
-//     const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche,false);
+//     const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
 
 //     expect(userGlobalDataAfter.currentLiquidationThreshold.toString()).to.be.equal(
 //       '8250',
@@ -162,7 +162,7 @@
 //       new BigNumber(daiPrice.toString()).multipliedBy(1.18).toFixed(0)
 //     );
 
-//     const userGlobalData = await pool.getUserAccountData(borrower.address, tranche,false);
+//     const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
 
 //     expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
 //       oneEther.toFixed(0),

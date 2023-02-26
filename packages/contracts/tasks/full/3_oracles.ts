@@ -72,31 +72,34 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       console.log("uniswapV3OracleAddresses: ", uniswapV3OracleAddresses)
 
-      const [tokens, uniswapAddresses] = getPairsTokenAggregator(
-        tokensToWatch,
-        uniswapV3OracleAddresses,
-        poolConfig.OracleQuoteCurrency
-      );
+      // const [tokens, uniswapAddresses] = getPairsTokenAggregator(
+      //   tokensToWatch,
+      //   uniswapV3OracleAddresses,
+      //   poolConfig.OracleQuoteCurrency
+      // );
 
-      console.log("uniswapV3OracleTargets: ", uniswapV3OracleTargets)
+      // console.log("uniswapV3OracleTargets: ", uniswapV3OracleTargets)
 
 
-      const [, uniswapTokenToPrice] = getPairsTokenAggregator(
-        tokensToWatch,
-        uniswapV3OracleTargets,
-        poolConfig.OracleQuoteCurrency
-      );
+      // const [, uniswapTokenToPrice] = getPairsTokenAggregator(
+      //   tokensToWatch,
+      //   uniswapV3OracleTargets,
+      //   poolConfig.OracleQuoteCurrency
+      // );
 
       let uniswapOracle: BaseUniswapOracle;
 
+        // uniswapOracle = await deployUniswapOracle(
+        //   [
+        //     tokens,
+        //     uniswapAddresses,
+        //     uniswapTokenToPrice,
+        //     await getQuoteCurrency(poolConfig),
+        //     poolConfig.OracleQuoteUnit,
+        //   ],
+        //   verify
+        // );
         uniswapOracle = await deployUniswapOracle(
-          [
-            tokens,
-            uniswapAddresses,
-            uniswapTokenToPrice,
-            await getQuoteCurrency(poolConfig),
-            poolConfig.OracleQuoteUnit,
-          ],
           verify
         );
         // await waitForTx(await uniswapOracle.setAssetSources(tokens, aggregators));

@@ -76,23 +76,12 @@ library QueryUserHelpers {
 
         (userData.totalCollateralETH,
             userData.totalDebtETH,
-            ,
+            userData.availableBorrowsETH,
             userData.currentLiquidationThreshold,
             userData.ltv,
             userData.healthFactor,
             userData.avgBorrowFactor
-            ) = lendingPool.getUserAccountData(user, tranche, false); //for displaying on FE, this should be false, since liquidations are based on this being false
-        
-        //this may need to be true for opening new borrows. But that isn't displayed, it is factored into availableBorrowsETH
-        (,
-            ,
-            userData.availableBorrowsETH,
-            ,
-            ,
-            ,
-            ) = lendingPool.getUserAccountData(user, tranche, true);
-
-        
+            ) = lendingPool.getUserAccountData(user, tranche); //for displaying on FE, this should be false, since liquidations are based on this being false
 
         (userData.suppliedAssetData,
             userData.borrowedAssetData,

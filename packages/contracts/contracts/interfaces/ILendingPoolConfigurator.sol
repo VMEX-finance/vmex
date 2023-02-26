@@ -15,6 +15,8 @@ interface ILendingPoolConfigurator {
     }
 
 
+
+
     /**
      * @dev Emitted when a reserve factor is updated
      * @param asset The address of the underlying asset of the reserve
@@ -150,4 +152,6 @@ interface ILendingPoolConfigurator {
     );
 
     function trancheAdminTreasuryAddresses(uint64 trancheId) external view returns(address);
+
+    function totalTranches() external view returns(uint64);
 }

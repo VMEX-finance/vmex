@@ -92,10 +92,10 @@ makeSuite(
                 const CurveToken = new DRE.ethers.Contract(curveAssets[i],CurveTokenAddabi)
                 const yearnVault = new DRE.ethers.Contract(yvAddr[i],yvAbi)
                 const pricePerCurveToken = await curveOracle.connect(signer).getAssetPrice(CurveToken.address);
-
+                console.log("pricePerCurveToken: ",pricePerCurveToken)
                 const pricePerYearnToken = await curveOracle.connect(signer).getAssetPrice(yearnVault.address);
                 const pricePerShare = await yearnVault.connect(signer).pricePerShare();
-                console.log("pricePerCurveToken: ",pricePerCurveToken)
+                
                 console.log("pricePerYearnToken: ",pricePerYearnToken)
 
                 var expectedYearnPrice = BigNumber.from(pricePerCurveToken.toString()).mul(BigNumber.from(pricePerShare.toString())).div(DRE.ethers.utils.parseEther("1"));

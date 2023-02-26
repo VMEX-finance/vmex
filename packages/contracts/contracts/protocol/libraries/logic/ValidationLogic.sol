@@ -183,8 +183,7 @@ library ValidationLogic {
             reserves,
             reservesCount,
             _addressesProvider,
-            exvars._assetMappings,
-            true //borrows need to use twap
+            exvars._assetMappings
         );
 
         //(uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
@@ -403,8 +402,7 @@ library ValidationLogic {
             reserves,
             reservesCount,
             _addressesProvider,
-            _assetMappings,
-            true //same logic as withdraws
+            _assetMappings
         );
         // uint256 healthFactor = 1;
         require(

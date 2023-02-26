@@ -163,7 +163,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
   it("Calculate the max available borrows for user 0 for weth and usdc", async () => {
     const { users, pool, usdc, weth, oracle, helpersContract, aUsdc, varDebtUsdc } = testEnv;
 
-    let usrData = await pool.getUserAccountData(users[0].address, 0, true);
+    let usrData = await pool.getUserAccountData(users[0].address, 0);
     console.log("usrData: ",usrData)
     console.log("usrData.availableBorrowsETH: ", usrData.availableBorrowsETH)
     let amountWETH = usrData.availableBorrowsETH
@@ -214,7 +214,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
             AAVE_REFERRAL,
             users[0].address
           )
-        usrData = await pool.getUserAccountData(users[0].address, 0, true);
+        usrData = await pool.getUserAccountData(users[0].address, 0);
         expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
         console.log("availableBorrowsETH after max weth borrow: ",usrData.availableBorrowsETH)
         // expect(usrData.availableBorrowsETH).to.be.lte("1000");
@@ -252,7 +252,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
             AAVE_REFERRAL,
             users[0].address
           )
-          usrData = await pool.getUserAccountData(users[0].address, 0, false);
+          usrData = await pool.getUserAccountData(users[0].address, 0);
         expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
         console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
         expect(usrData.availableBorrowsETH).to.be.lte("100000000000");
@@ -305,7 +305,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
             AAVE_REFERRAL,
             users[0].address
           )
-        let  usrData = await pool.getUserAccountData(users[0].address, 0, false);
+        let  usrData = await pool.getUserAccountData(users[0].address, 0);
         expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
         console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
 
@@ -369,7 +369,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
             MAX_UINT_AMOUNT,
             users[0].address
           );
-    let usrData = await pool.getUserAccountData(users[0].address, 0, false);
+    let usrData = await pool.getUserAccountData(users[0].address, 0);
     const riskAdjustedTotalDebt = usrData.totalDebtETH.mul(usrData.avgBorrowFactor).div(ethers.utils.parseEther("1"))
     const availableWithdrawsEth = usrData.totalCollateralETH.mul(usrData.currentLiquidationThreshold).div(ethers.utils.parseEther("1")).sub(riskAdjustedTotalDebt)
     const availableAaveWithdraw = availableWithdrawsEth.mul(await convertToCurrencyDecimals(aave.address, "1")).div(await oracle.getAssetPrice(aave.address))

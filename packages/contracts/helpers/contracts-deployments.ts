@@ -892,19 +892,12 @@ export const deployVMEXOracle = async (
   );
 
 export const deployUniswapOracle = async (
-    args: [
-      tEthereumAddress[],
-      tEthereumAddress[],
-      string [],
-      tEthereumAddress,
-      string
-    ],
     verify?: boolean
   ) =>
     withSaveAndVerify(
-      await new BaseUniswapOracleFactory(await getFirstSigner()).deploy(...args),
+      await new BaseUniswapOracleFactory(await getFirstSigner()).deploy(),
       eContractid.BaseUniswapOracle,
-      args,
+      [],
       verify
     );
 export const deployLendingPoolCollateralManager = async (verify?: boolean) => {

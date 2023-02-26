@@ -9,9 +9,13 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
+
+import "hardhat/console.sol";
 
 contract AssetMappings is VersionedInitializable{
     using PercentageMath for uint256;
+    using Helpers for address;
 
 
     ILendingPoolAddressesProvider internal addressesProvider;
@@ -27,7 +31,7 @@ contract AssetMappings is VersionedInitializable{
     event AssetDataSet(
         address indexed asset,
         uint8 underlyingAssetDecimals,
-        string underlyingAssetSymbol, 
+        string underlyingAssetSymbol,
         uint256 supplyCap,
         uint256 borrowCap,
         uint256 baseLTV,
@@ -150,6 +154,7 @@ contract AssetMappings is VersionedInitializable{
         require(underlying.length==input.length);
 
         for(uint256 i = 0;i<input.length;i++){
+            console.log("Asset: ",underlying[i]);
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
@@ -174,10 +179,11 @@ contract AssetMappings is VersionedInitializable{
                 approvedAssetsTail = underlying[i];
             }
             // approvedAssets[numApprovedAssets++] = underlying[i];
+
             emit AssetDataSet(
                 underlying[i],
                 IERC20Detailed(underlying[i]).decimals(),
-                IERC20Detailed(underlying[i]).symbol(), //review: I think in the FE we use the symbol instead of the name
+                underlying[i].getSymbol(),
                 input[i].supplyCap,
                 input[i].borrowCap,
                 input[i].baseLTV,
@@ -230,7 +236,7 @@ contract AssetMappings is VersionedInitializable{
             if(assetMappings[tmp].isAllowed){ //don't count disallowed tokens
                 numTokens++;
             }
-            
+
             if(assetMappings[tmp].nextApprovedAsset==address(0)){
                 break;
             }
@@ -253,7 +259,7 @@ contract AssetMappings is VersionedInitializable{
                 tokens[i] = tmp;
                 i++;
             }
-            
+
             if(assetMappings[tmp].nextApprovedAsset==address(0)){
                 break;
             }

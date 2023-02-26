@@ -15,6 +15,7 @@ import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "./interfaces/IYearnToken.sol";
 import {Address} from "../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../protocol/libraries/helpers/Errors.sol";
+import "hardhat/console.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -158,7 +159,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     ) internal view returns (uint256 price) {
         DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
 
-        if (c._curvePool == address(0) || !Address.isContract(c._curvePool)) {
+        if (!Address.isContract(c._curvePool)) {
+            console.log("curve pool is not a contract");
             return _fallbackOracle.getAssetPrice(asset);
         }
 
@@ -169,12 +171,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
             if(underlying == ethNative){
                 underlying = WETH;
             }
-            if (underlying == THREE_POOL) {
-                //this is the only underlying in our supported assets that is a curve token instead of aave token
-                prices[i] = getCurveAssetPrice(underlying, assetType); //recursion!!
-            } else {
-                prices[i] = getAaveAssetPrice(underlying);
-            }
+            prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
             require(prices[i] > 0, "underlying oracle encountered an error");
         }
 
@@ -187,6 +184,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         //TODO: incorporate backup oracles here?
         // require(price > 0, "Curve oracle encountered an error");
         if(price == 0){
+            console.log("curve price is zero");
             return _fallbackOracle.getAssetPrice(asset);
         }
         return price;
@@ -200,24 +198,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
             return _fallbackOracle.getAssetPrice(asset);
         }
         return price;
-    }
-
-    //updateTWAP (average O(1))
-    //recent +=1 and cover case where it goes over
-    //cumulatedPrices[asset][recent] =
-    //If block.timestamp - cumulatedPrices[asset][last].timestamp > 24 hours,
-    //  then keep increasing last until you find until find cumulatedPrices[asset][last].timestamp < 24 hours (most likely close to O(1))
-    function updateTWAP(address asset) public override{
-        require(numPrices[asset]<type(uint16).max, "Overflow updateTWAP");
-        uint256 currentPrice = getAssetPrice(asset);
-        _updateState(asset,currentPrice);
-    }
-
-    //getAssetTWAPPrice
-    //first call updateTWAP
-    //return (cumulatedPrices[asset][recent].cumulatedPrice - cumulatedPrices[asset][last].cumulatedPrice)/(cumulatedPrices[asset][recent].timestamp - cumulatedPrices[asset][last].timestamp)
-    function getAssetTWAPPrice(address asset) external view override returns (uint256){
-        return _getAssetTWAPPrice(asset, getAssetPrice(asset));
     }
 
     /// @notice Gets a list of prices from a list of assets addresses

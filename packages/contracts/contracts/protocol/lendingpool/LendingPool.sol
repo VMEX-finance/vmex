@@ -6,6 +6,7 @@ import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IFlashLoanReceiver} from "../../flashloan/interfaces/IFlashLoanReceiver.sol";
@@ -58,14 +59,16 @@ contract LendingPool is
     using ReserveConfiguration for *;
     using DepositWithdrawLogic for DataTypes.ReserveData;
 
-    uint256 public constant LENDINGPOOL_REVISION = 0x2;
+    uint256 public constant LENDINGPOOL_REVISION = 0x1;
 
-    modifier whenNotPaused(uint64 trancheId) {
-        _whenNotPaused(trancheId);
+    modifier whenTrancheNotPausedAndExists(uint64 trancheId) {
+        _whenTrancheNotPausedAndExists(trancheId);
         _;
     }
-    function _whenNotPaused(uint64 trancheId) internal view {
-        require(!_paused[trancheId], Errors.LP_IS_PAUSED);
+    function _whenTrancheNotPausedAndExists(uint64 trancheId) internal view {
+        require(!_paused[trancheId] && !_everythingPaused, Errors.LP_IS_PAUSED);
+        uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
+        require(trancheId<totalTranches, "trancheId does not exist");
     }
 
     modifier onlyLendingPoolConfigurator() {
@@ -83,11 +86,18 @@ contract LendingPool is
     /**
      * Function instead of modifier to avoid stack too deep
      */
-    function checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
+    function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(isUsingWhitelist[trancheId]){
             require(whitelist[trancheId][user], "Tranche requires whitelist");
         }
         require(blacklist[trancheId][user]==false, "You are blacklisted from this tranche");
+    }
+
+    function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
+        _checkWhitelistBlacklist(trancheId, msg.sender);
+        if(onBehalfOf != msg.sender){
+            _checkWhitelistBlacklist(trancheId, onBehalfOf);
+        }
     }
 
     function getRevision() internal pure override returns (uint256) {
@@ -106,7 +116,6 @@ contract LendingPool is
         initializer
     {
         _addressesProvider = provider;
-        _maxNumberOfReserves = 128; //this might actually be fine since this is max number of reserves per trancheId?
         _assetMappings =  AssetMappings(_addressesProvider.getAssetMappings());
     }
 
@@ -132,10 +141,9 @@ contract LendingPool is
     )
         external
         override
-        whenNotPaused(trancheId)
+        whenTrancheNotPausedAndExists(trancheId)
     {
         checkWhitelistBlacklist(trancheId, onBehalfOf);
-        checkWhitelistBlacklist(trancheId, msg.sender);
         DataTypes.DepositVars memory vars = DataTypes.DepositVars(
                 asset,
                 trancheId,
@@ -181,7 +189,7 @@ contract LendingPool is
     )
         public
         override
-        whenNotPaused(trancheId)
+        whenTrancheNotPausedAndExists(trancheId)
         returns (uint256)
     {
         checkWhitelistBlacklist(trancheId, msg.sender);
@@ -228,12 +236,9 @@ contract LendingPool is
     )
         public
         override
-        whenNotPaused(trancheId)
+        whenTrancheNotPausedAndExists(trancheId)
     {
-        checkWhitelistBlacklist(trancheId, msg.sender);
-        if(onBehalfOf != msg.sender){
-            checkWhitelistBlacklist(trancheId, onBehalfOf);
-        }
+        checkWhitelistBlacklist(trancheId, onBehalfOf);
 
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
@@ -296,7 +301,7 @@ contract LendingPool is
         uint64 trancheId,
         uint256 amount,
         address onBehalfOf
-    ) external override whenNotPaused(trancheId) returns (uint256) {
+    ) external override whenTrancheNotPausedAndExists(trancheId) returns (uint256) {
         // require(!_paused[trancheId], Errors.LP_IS_PAUSED);
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
@@ -352,7 +357,7 @@ contract LendingPool is
         address asset,
         uint64 trancheId,
         bool useAsCollateral
-    ) external override whenNotPaused(trancheId) {
+    ) external override whenTrancheNotPausedAndExists(trancheId) {
         // require(
         //     assetDatas[asset].isLendable,
         //     "nonlendable assets must be set as collateral"
@@ -405,7 +410,7 @@ contract LendingPool is
     )
         external
         override
-        whenNotPaused(trancheId)
+        whenTrancheNotPausedAndExists(trancheId)
     {
         checkWhitelistBlacklist(trancheId, msg.sender);
         address collateralManager = _addressesProvider
@@ -453,7 +458,6 @@ contract LendingPool is
      * @dev Returns the user account data across all the reserves in a specific trancheId
      * @param user The address of the user
      * @param trancheId The trancheId
-     * @param useTwap 'true' if calculations should use TWAP, 'false' otherwise
      * @return totalCollateralETH the total collateral in ETH of the user
      * @return totalDebtETH the total debt in ETH of the user
      * @return availableBorrowsETH the borrowing power left of the user
@@ -461,7 +465,7 @@ contract LendingPool is
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
      **/
-    function getUserAccountData(address user, uint64 trancheId, bool useTwap)
+    function getUserAccountData(address user, uint64 trancheId)
         public
         view
         override
@@ -489,8 +493,7 @@ contract LendingPool is
             _reservesList[trancheId],
             _reservesCount[trancheId],
             _addressesProvider,
-            _assetMappings,
-            useTwap
+            _assetMappings
         );
 
         availableBorrowsETH = GenericLogic.calculateAvailableBorrowsETH(
@@ -649,7 +652,7 @@ contract LendingPool is
         uint256 amount,
         uint256 balanceFromBefore,
         uint256 balanceToBefore
-    ) external override whenNotPaused(trancheId) {
+    ) external override whenTrancheNotPausedAndExists(trancheId) {
         require(
             msg.sender == _reserves[asset][trancheId].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
