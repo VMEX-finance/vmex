@@ -31,7 +31,7 @@ contract AssetMappings is VersionedInitializable{
     event AssetDataSet(
         address indexed asset,
         uint8 underlyingAssetDecimals,
-        string underlyingAssetSymbol, 
+        string underlyingAssetSymbol,
         uint256 supplyCap,
         uint256 borrowCap,
         uint256 baseLTV,
@@ -179,11 +179,11 @@ contract AssetMappings is VersionedInitializable{
                 approvedAssetsTail = underlying[i];
             }
             // approvedAssets[numApprovedAssets++] = underlying[i];
-            
+
             emit AssetDataSet(
                 underlying[i],
                 IERC20Detailed(underlying[i]).decimals(),
-                underlying[i].getSymbol(), //review: I think in the FE we use the symbol instead of the name
+                underlying[i].getSymbol(),
                 input[i].supplyCap,
                 input[i].borrowCap,
                 input[i].baseLTV,
@@ -236,7 +236,7 @@ contract AssetMappings is VersionedInitializable{
             if(assetMappings[tmp].isAllowed){ //don't count disallowed tokens
                 numTokens++;
             }
-            
+
             if(assetMappings[tmp].nextApprovedAsset==address(0)){
                 break;
             }
@@ -259,7 +259,7 @@ contract AssetMappings is VersionedInitializable{
                 tokens[i] = tmp;
                 i++;
             }
-            
+
             if(assetMappings[tmp].nextApprovedAsset==address(0)){
                 break;
             }

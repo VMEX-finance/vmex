@@ -40,7 +40,7 @@
     "vmex:dev:test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/*.spec.ts --network localhost",
     "vmex:dev:test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-yearn.spec.ts --network localhost",
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/*.spec.ts --network localhost",
-    "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/test-yearn-oracle.spec.ts --network localhost",
+    "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/test-asset-mappings.spec.ts --network localhost",
     "vmex:docker:full:migration": "npm run compile && npm run hardhat:docker -- vmex:mainnet --skip-registry",
     "matic:mumbai:full:migration": "npm run compile && npm run hardhat:mumbai sidechain:mainnet -- --pool Matic --skip-registry",
     "matic:matic:full:migration": "npm run compile && npm run hardhat:matic sidechain:mainnet -- --pool Matic --skip-registry",
