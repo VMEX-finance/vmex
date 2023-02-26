@@ -36,7 +36,6 @@ interface ILendingPoolAddressesProvider {
 
 
     event ATokenUpdated(address indexed newAddress);
-    event StableDebtUpdated(address indexed newAddress);
     event VariableDebtUpdated(address indexed newAddress);
 
     event IncentivesControllerUpdated(address indexed newAddress);

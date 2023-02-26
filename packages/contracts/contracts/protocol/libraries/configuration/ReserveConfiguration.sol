@@ -15,14 +15,12 @@ library ReserveConfiguration {
     uint256 constant ACTIVE_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE; // prettier-ignore
     uint256 constant FROZEN_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD; // prettier-ignore
     uint256 constant BORROWING_MASK =             0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB; // prettier-ignore
-    uint256 constant STABLE_BORROWING_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7; // prettier-ignore
     uint256 constant COLLATERAL_ENABLED_MASK =    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF; // prettier-ignore
     uint256 constant RESERVE_FACTOR_MASK =        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FF; // prettier-ignore
 
     /// @dev For the ACTIVE_MASK, the start bit is 0, hence no bitshifting is needed
     uint256 constant IS_FROZEN_START_BIT_POSITION = 1;
     uint256 constant BORROWING_ENABLED_START_BIT_POSITION = 2;
-    uint256 constant STABLE_BORROWING_ENABLED_START_BIT_POSITION = 3;
     uint256 constant COLLATERAL_ENABLED_START_BIT_POSITION = 4;
     uint256 constant RESERVE_FACTOR_START_BIT_POSITION = 8;
 
@@ -110,32 +108,6 @@ library ReserveConfiguration {
     }
 
     /**
-     * @dev Enables or disables stable rate borrowing on the reserve
-     * @param self The reserve configuration
-     * @param enabled True if the stable rate borrowing needs to be enabled, false otherwise
-     **/
-    function setStableRateBorrowingEnabled(
-        DataTypes.ReserveConfigurationMap memory self,
-        bool enabled
-    ) internal pure {
-        self.data =
-            (self.data & STABLE_BORROWING_MASK) |
-            (uint256(enabled ? 1 : 0) <<
-                STABLE_BORROWING_ENABLED_START_BIT_POSITION);
-    }
-
-    /**
-     * @dev Gets the stable rate borrowing state of the reserve
-     * @param self The reserve configuration
-     * @return The stable rate borrowing state
-     **/
-    function getStableRateBorrowingEnabled(
-        DataTypes.ReserveConfigurationMap memory self
-    ) internal pure returns (bool) {
-        return (self.data & ~STABLE_BORROWING_MASK) != 0;
-    }
-
-    /**
      * @dev Sets the reserve factor of the reserve
      * @param self The reserve configuration
      * @param reserveFactor The reserve factor
@@ -194,19 +166,18 @@ library ReserveConfiguration {
     {
         //note: only if we allow an asset as collateral, do we give tranche admins to choose to set asset as collateral
         return a.getAssetCollateralizable(asset) && (self.data & ~COLLATERAL_ENABLED_MASK) != 0;
-        
+
     }
 
     /**
      * @dev Gets the configuration flags of the reserve
      * @param self The reserve configuration
-     * @return The state flags representing active, frozen, borrowing enabled, stableRateBorrowing enabled
+     * @return The state flags representing active, frozen, borrowing enabled
      **/
     function getFlags(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
         internal
         view
         returns (
-            bool,
             bool,
             bool,
             bool
@@ -217,8 +188,7 @@ library ReserveConfiguration {
         return (
             getActive(self, asset, a),
             (dataLocal & ~FROZEN_MASK) != 0,
-            getBorrowingEnabled(self, asset, a),
-            (dataLocal & ~STABLE_BORROWING_MASK) != 0
+            getBorrowingEnabled(self, asset, a)
         );
     }
 
@@ -285,13 +255,12 @@ library ReserveConfiguration {
     /**
      * @dev Gets the configuration flags of the reserve from a memory object
      * @param self The reserve configuration
-     * @return The state flags representing active, frozen, borrowing enabled, stableRateBorrowing enabled
+     * @return The state flags representing active, frozen, borrowing enabled
      **/
     function getFlagsMemory(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
         internal
         view
         returns (
-            bool,
             bool,
             bool,
             bool
@@ -300,8 +269,7 @@ library ReserveConfiguration {
         return (
             getActive(self, asset, a),
             (self.data & ~FROZEN_MASK) != 0,
-            getBorrowingEnabled(self, asset, a),
-            (self.data & ~STABLE_BORROWING_MASK) != 0
+            getBorrowingEnabled(self, asset, a)
         );
     }
 }

@@ -11,7 +11,6 @@ import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IFlashLoanReceiver} from "../../flashloan/interfaces/IFlashLoanReceiver.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
-import {IStableDebtToken} from "../../interfaces/IStableDebtToken.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
@@ -36,8 +35,7 @@ import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol"
  *   # Withdraw
  *   # Borrow
  *   # Repay
- *   # Swap their loans between variable and stable rate
- *   # Enable/disable their deposits as collateral rebalance stable rate borrow positions
+ *   # Enable/disable their deposits as collateral
  *   # Liquidate positions
  *   # Execute Flash Loans
  * - To be covered by a proxy contract, owned by the LendingPoolAddressesProvider of the specific market
@@ -215,9 +213,9 @@ contract LendingPool is
     /**
      * @dev Allows users to borrow a specific `amount` of the reserve underlying asset, provided that the borrower
      * already deposited enough collateral, or he was given enough allowance by a credit delegator on the
-     * corresponding debt token (StableDebtToken or VariableDebtToken)
+     * VariableDebtToken
      * - E.g. User borrows 100 USDC passing as `onBehalfOf` his own address, receiving the 100 USDC in his wallet
-     *   and 100 stable/variable debt tokens, depending on the `interestRateMode`
+     *   and 100 variable debt tokens
      * @param asset The address of the underlying asset to borrow
      * @param trancheId The trancheId of the underlying asset to borrow
      * @param amount The amount to be borrowed
@@ -286,7 +284,7 @@ contract LendingPool is
 
     /**
      * @notice Repays a borrowed `amount` on a specific reserve, burning the equivalent debt tokens owned
-     * - E.g. User repays 100 USDC, burning 100 variable/stable debt tokens of the `onBehalfOf` address
+     * - E.g. User repays 100 USDC, burning 100 variable debt tokens of the `onBehalfOf` address
      * @param asset The address of the borrowed underlying asset previously borrowed
      * @param trancheId The trancheId of the borrowed underlying asset previously borrowed
      * @param amount The amount to repay

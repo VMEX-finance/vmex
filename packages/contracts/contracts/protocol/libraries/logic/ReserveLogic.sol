@@ -5,7 +5,6 @@ import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.so
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
-import {IStableDebtToken} from "../../../interfaces/IStableDebtToken.sol";
 import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 import {IReserveInterestRateStrategy} from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
@@ -63,7 +62,7 @@ library ReserveLogic {
         // console.log("getNormalizedIncome liquidity index: ", reserve.liquidityIndex);
 
         //solium-disable-next-line
-        if (timestamp == uint40(block.timestamp)) { 
+        if (timestamp == uint40(block.timestamp)) {
             //if the index was updated in the same block, no need to perform any calculation
             // console.log("Just returning liquidity index: ");
             return reserve.liquidityIndex;

@@ -106,8 +106,8 @@ contract WalletBalanceProvider {
             DataTypes.ReserveConfigurationMap memory configuration = pool
                 .getConfiguration(reservesWithEth[j], trancheId);
 
-            (bool isActive, , , ) = configuration.getFlagsMemory(
-                reservesWithEth[j], 
+            (bool isActive, , ) = configuration.getFlagsMemory(
+                reservesWithEth[j],
                 AssetMappings(
                     ILendingPoolAddressesProvider(provider).getAssetMappings()
                 )
