@@ -120,7 +120,7 @@ contract LendingPoolConfigurator is
         return givenTranche;
     }
 
-    
+
     /* ******************************************************************************** */
     /* This next section contains functions only accessible to Tranche Admins and above */
     /* ******************************************************************************** */
@@ -231,7 +231,7 @@ contract LendingPoolConfigurator is
         address newAddress,
         uint64 trancheId
     ) public onlyTrancheAdmin(trancheId) {
-        trancheAdminTreasuryAddresses[trancheId] = newAddress;        
+        trancheAdminTreasuryAddresses[trancheId] = newAddress;
         //emit
         emit UpdatedTreasuryAddress(trancheId, newAddress);
     }
@@ -253,7 +253,6 @@ contract LendingPoolConfigurator is
                 .getConfiguration(asset[i], trancheId);
 
             currentConfig.setBorrowingEnabled(borrowingEnabled[i]);
-            // currentConfig.setStableRateBorrowingEnabled(stableBorrowRateEnabled);
 
             pool.setConfiguration(asset[i], trancheId, currentConfig.data);
 

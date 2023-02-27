@@ -30,9 +30,7 @@ makeSuite('Interest rate strategy tests', (testEnv: TestEnv) => {
         rateStrategyStableOne.optimalUtilizationRate,
         rateStrategyStableOne.baseVariableBorrowRate,
         rateStrategyStableOne.variableRateSlope1,
-        rateStrategyStableOne.variableRateSlope2,
-        rateStrategyStableOne.stableRateSlope1,
-        rateStrategyStableOne.stableRateSlope2,
+        rateStrategyStableOne.variableRateSlope2
       ],
       false
     );

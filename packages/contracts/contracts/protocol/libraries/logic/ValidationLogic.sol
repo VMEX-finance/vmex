@@ -46,7 +46,7 @@ library ValidationLogic {
         uint256 amount,
         AssetMappings _assetMappings
     ) external view {
-        (bool isActive, bool isFrozen, , ) = reserve.configuration.getFlags(asset, _assetMappings);
+        (bool isActive, bool isFrozen, ) = reserve.configuration.getFlags(asset, _assetMappings);
 
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
@@ -92,7 +92,7 @@ library ValidationLogic {
             Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
 
-        (bool isActive, , , ) = reservesData[reserveAddress][trancheId]
+        (bool isActive, , ) = reservesData[reserveAddress][trancheId]
             .configuration
             .getFlags(reserveAddress, _assetMappings);
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
@@ -148,7 +148,7 @@ library ValidationLogic {
         (
             vars.isActive,
             vars.isFrozen,
-            vars.borrowingEnabled,
+            vars.borrowingEnabled
         ) = reserve.configuration.getFlags(exvars.asset, exvars._assetMappings);
 
         require(vars.isActive, Errors.VL_NO_ACTIVE_RESERVE);

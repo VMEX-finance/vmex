@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../interfaces/ILendingPool.sol";
-import {IStableDebtToken} from "../interfaces/IStableDebtToken.sol";
 import {IVariableDebtToken} from "../interfaces/IVariableDebtToken.sol";
 import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
 import {UserConfiguration} from "../protocol/libraries/configuration/UserConfiguration.sol";
@@ -123,7 +122,6 @@ contract AaveProtocolDataProvider {
             uint256 borrowFactor;
             bool usageAsCollateralEnabled;
             bool borrowingEnabled;
-            bool stableBorrowRateEnabled;
             bool isActive;
             bool isFrozen;
     }
@@ -156,8 +154,7 @@ contract AaveProtocolDataProvider {
         (
             ret.isActive,
             ret.isFrozen,
-            ret.borrowingEnabled,
-            ret.stableBorrowRateEnabled
+            ret.borrowingEnabled
         ) = configuration.getFlagsMemory(asset, AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()));
 
         ret.usageAsCollateralEnabled =  configuration.getCollateralEnabled(asset, a);//liquidationThreshold > 0;

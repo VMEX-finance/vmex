@@ -97,8 +97,6 @@ export const initAssetData = async (
     string,
     string,
     string,
-    string,
-    string
   ];
   let rateStrategies: Record<string, typeof strategyRates> = {};
   let strategyAddresses: Record<string, tEthereumAddress> = {};
@@ -132,9 +130,7 @@ export const initAssetData = async (
       optimalUtilizationRate,
       baseVariableBorrowRate,
       variableRateSlope1,
-      variableRateSlope2,
-      stableRateSlope1,
-      stableRateSlope2,
+      variableRateSlope2
     } = strategy;
     if (!strategyAddresses[strategy.name]) {
       // Strategy does not exist, create a new one
@@ -143,9 +139,7 @@ export const initAssetData = async (
         optimalUtilizationRate,
         baseVariableBorrowRate,
         variableRateSlope1,
-        variableRateSlope2,
-        stableRateSlope1,
-        stableRateSlope2,
+        variableRateSlope2
       ];
       strategyAddresses[strategy.name] = await deployRateStrategy(
         strategy.name,

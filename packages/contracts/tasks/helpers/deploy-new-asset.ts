@@ -48,16 +48,6 @@ WRONG RESERVE ASSET SETUP:
     );
     const poolAddress = await addressProvider.getLendingPool();
     const aToken = await deployCustomAToken(verify);
-    const stableDebt = await deployStableDebtToken(
-      [
-        poolAddress,
-        reserveAssetAddress,
-        ZERO_ADDRESS, // Incentives Controller
-        `Aave stable debt bearing ${symbol}`,
-        `stableDebt${symbol}`,
-      ],
-      verify
-    );
     const variableDebt = await deployVariableDebtToken(
       [
         poolAddress,
@@ -74,9 +64,7 @@ WRONG RESERVE ASSET SETUP:
         strategyParams.strategy.optimalUtilizationRate,
         strategyParams.strategy.baseVariableBorrowRate,
         strategyParams.strategy.variableRateSlope1,
-        strategyParams.strategy.variableRateSlope2,
-        strategyParams.strategy.stableRateSlope1,
-        strategyParams.strategy.stableRateSlope2,
+        strategyParams.strategy.variableRateSlope2
       ],
       verify
     );
@@ -84,7 +72,6 @@ WRONG RESERVE ASSET SETUP:
     New interest bearing asset deployed on ${network}:
     Interest bearing a${symbol} address: ${aToken.address}
     Variable Debt variableDebt${symbol} address: ${variableDebt.address}
-    Stable Debt stableDebt${symbol} address: ${stableDebt.address}
     Strategy Implementation for ${symbol} address: ${rates.address}
     `);
   });

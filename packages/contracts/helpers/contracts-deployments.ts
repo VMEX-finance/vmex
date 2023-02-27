@@ -103,7 +103,7 @@ import {deployAllMockAggregators, setInitialAssetPricesInOracle} from "./oracles
 //dev: overwrite boolean if true means we want to overwrite the implememtations, rather than upgrade them. by default it is false
 export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   console.time("setup");
-  
+
   const network = DRE.network.name;
   const aaveAdmin = await deployer.getAddress();
   var config = loadPoolConfig(ConfigNames.Aave);
@@ -117,17 +117,17 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       ...(await deployAllMockTokens()),
     };
   }
-  
+
 
   console.log("mockTokens[USDC]: ",mockTokens["USDC"].address)
   let addressesProvider;
-  if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.LendingPoolAddressesProvider)===undefined) 
+  if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.LendingPoolAddressesProvider)===undefined)
   addressesProvider = await deployLendingPoolAddressesProvider(
     AaveConfig.MarketId
   );
-  else 
-    addressesProvider = await getLendingPoolAddressesProvider(); 
-  
+  else
+    addressesProvider = await getLendingPoolAddressesProvider();
+
   await waitForTx(await addressesProvider.setGlobalAdmin(aaveAdmin));
   await waitForTx(await addressesProvider.setEmergencyAdmin(aaveAdmin));
 
@@ -137,9 +137,9 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   //await waitForTx(await addressesProvider.setEmergencyAdmin(addressList[2]));
 
   let addressesProviderRegistry;
-  
-  if(network == "localhost" || 
-  network=="hardhat" || 
+
+  if(network == "localhost" ||
+  network=="hardhat" ||
   await getDbEntry(eContractid.LendingPoolAddressesProviderRegistry)===undefined){
     addressesProviderRegistry =  await deployLendingPoolAddressesProviderRegistry();
     await waitForTx(
@@ -152,7 +152,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   else{
     addressesProviderRegistry = await getLendingPoolAddressesProviderRegistry();
   }
-  
+
 
     //-------------------------------------------------------------
   //deploy AssetMappings
@@ -180,8 +180,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   let testHelpers;
 
-  if(network == "localhost" || 
-    network=="hardhat" || 
+  if(network == "localhost" ||
+    network=="hardhat" ||
     await getDbEntry(eContractid.AaveProtocolDataProvider)===undefined
   ){
     testHelpers = await deployAaveProtocolDataProvider(
@@ -229,7 +229,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     const lendingPoolImpl = await deployLendingPool();
 
     if(overwrite){
-      await waitForTx( //hard replace existing proxy address with 0x0 so it can 
+      await waitForTx( //hard replace existing proxy address with 0x0 so it can
         await addressesProvider.setAddress("LENDING_POOL",ZERO_ADDRESS)
       );
     }
@@ -253,14 +253,14 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   let lendingPoolConfiguratorProxy;
 
-  
-  if(network == "localhost" || 
-  network=="hardhat" || 
+
+  if(network == "localhost" ||
+  network=="hardhat" ||
   await getDbEntry(eContractid.LendingPoolConfigurator)===undefined){
     const lendingPoolConfiguratorImpl = await deployLendingPoolConfigurator();
 
     if(overwrite){
-      await waitForTx( //hard replace existing proxy address with 0x0 so it can 
+      await waitForTx( //hard replace existing proxy address with 0x0 so it can
         await addressesProvider.setAddress("LENDING_POOL_CONFIGURATOR",ZERO_ADDRESS)
       );
     }
@@ -286,8 +286,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   let VMEXOracleProxy; //assuming fallback oracle succeeded if vmex oracle succeeded
 
-  if(network == "localhost" || 
-  network=="hardhat" || 
+  if(network == "localhost" ||
+  network=="hardhat" ||
   await getDbEntry(eContractid.VMEXOracle)===undefined){
     const MOCK_USD_PRICE_IN_WEI = AaveConfig.ProtocolGlobalParams.MockUsdPriceInWei;
     const ALL_ASSETS_INITIAL_PRICES = AaveConfig.Mocks.AllAssetsInitialPrices;
@@ -430,9 +430,9 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     // );
 
     // console.log("Set vmex oracle aggregators")
-    
+
   }
-  
+
   if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.AToken)===undefined){
     console.log("Deploying atoken implementations")
     await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
@@ -444,7 +444,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         )
       )
     );
-  
+
     await waitForTx(
       await addressesProvider.setVariableDebtToken(
         await getContractAddressWithJsonFallback(
@@ -455,9 +455,9 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     );
   }
 
-  
 
-  
+
+
   if(network == "localhost" || network=="hardhat"){
     console.log("Adding whitelisted addresses")
     await waitForTx(
@@ -483,7 +483,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       )
     );
   }
-  
+
 
 
 
@@ -499,7 +499,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     await addressesProvider.setTrancheAdmin(ZERO_ADDRESS, "0")
     await addressesProvider.setTrancheAdmin(ZERO_ADDRESS, "1")
   }
-  
+
   if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(await addressesProvider.getTrancheAdmin("0"))){
     console.log("Claiming and deploying tranche 0")
     await claimTrancheId("Vmex tranche 0", admin);
@@ -516,7 +516,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       0
     );
   }
-  
+
 
   //-------------------------------------------------------------
 
@@ -541,7 +541,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       1
     );
   }
-  
+
 
   //-------------------------------------------------------------
   if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.LendingPoolCollateralManager)===undefined){
@@ -552,7 +552,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       )
     );
     const lendingPoolCMProxy = await addressesProvider.getLendingPoolCollateralManager()
-    
+
     await insertContractAddressInDb(
       eContractid.LendingPoolCollateralManager,
       lendingPoolCMProxy
@@ -1083,7 +1083,7 @@ export const deployMintableDelegationERC20 = async (
     verify
   );
 export const deployDefaultReserveInterestRateStrategy = async (
-  args: [tEthereumAddress, string, string, string, string, string, string],
+  args: [tEthereumAddress, string, string, string, string],
   verify: boolean
 ) =>
   withSaveAndVerify(
@@ -1271,11 +1271,11 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
     const tokens: {
       [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
     } = {};
-  
+
     const protoConfigData = getReservesConfigByPool(AavePools.proto);
-  
+
     //console.log(protoConfigData)
-  
+
     for (const tokenSymbol of Object.keys(TokenContractId)) {
       if (tokenSymbol === "WETH") {
         tokens[tokenSymbol] = await deployWETHMocked();
@@ -1284,15 +1284,15 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
           tokens[tokenSymbol]
         );
         continue;
-      } 
+      }
       let decimals = 18;
-  
+
       let configData = (<any>protoConfigData)[tokenSymbol];
-  
+
       if (!configData) {
         decimals = 18;
       }
-  
+
       if (tokenSymbol === "yvTricrypto2" || tokenSymbol === "yvThreePool" || tokenSymbol === "yvStethEth"|| tokenSymbol === "yvFraxUSDC"|| tokenSymbol === "yvFrax3Crv") {
         tokens[tokenSymbol] = await deployYearnTokenMocked([
           tokenSymbol,
@@ -1306,7 +1306,7 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
         );
         continue;
       }
-  
+
       tokens[tokenSymbol] = await deployMintableERC20([
         tokenSymbol,
         tokenSymbol,
@@ -1317,10 +1317,10 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
         tokens[tokenSymbol]
       );
     }
-  
+
     return tokens;
   };
-  
+
 export const deployMockTokens = async (
   config: PoolConfiguration,
   verify?: boolean
@@ -1625,7 +1625,7 @@ export const deployATokenImplementations = async (
 
 export const deployRateStrategy = async (
   strategyName: string,
-  args: [tEthereumAddress, string, string, string, string, string, string],
+  args: [tEthereumAddress, string, string, string, string],
   verify: boolean
 ): Promise<tEthereumAddress> => {
   switch (strategyName) {

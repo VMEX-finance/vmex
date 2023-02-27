@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 import {SafeMath} from "../../dependencies/openzeppelin/contracts//SafeMath.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts//IERC20.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
-import {IStableDebtToken} from "../../interfaces/IStableDebtToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {ILendingPoolCollateralManager} from "../../interfaces/ILendingPoolCollateralManager.sol";
