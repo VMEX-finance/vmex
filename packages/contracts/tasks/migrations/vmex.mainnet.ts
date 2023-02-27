@@ -3,6 +3,7 @@ import { checkVerification } from "../../helpers/etherscan-verification";
 import { ConfigNames } from "../../helpers/configuration";
 import { printContracts } from "../../helpers/misc-utils";
 import { usingTenderly } from "../../helpers/tenderly-utils";
+import { getEthersSignersAddresses } from "../../helpers/contracts-helpers";
 
 task("vmex:mainnet", "Deploy development enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -18,6 +19,22 @@ task("vmex:mainnet", "Deploy development enviroment")
     // Prevent loss of gas verifying all the needed ENVs for Etherscan verification
     if (verify) {
       checkVerification();
+    }
+
+    // Fund wallets on tenderly fork
+    if (usingTenderly()) {
+      // const provider = new ethers.providers.JsonRpcProvider(`https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`)
+      const provider = (DRE as any).ethers.provider;
+      const WALLETS = await getEthersSignersAddresses();
+
+      const result = await provider.send("tenderly_setBalance", [
+        WALLETS,
+        //amount in wei will be set for all wallets
+        ethers.utils.hexValue(ethers.utils.parseUnits("1000", "ether").toHexString()),
+      ]);
+
+
+      console.log('\nSuccessfully funded wallets:', result, "\n");
     }
 
     console.log("Migration started\n");
@@ -65,13 +82,13 @@ task("vmex:mainnet", "Deploy development enviroment")
       await DRE.run("verify:tokens", { pool: POOL_NAME });
     }
 
-    if (usingTenderly()) {
-      const postDeployHead = DRE.tenderlyNetwork.getHead();
-      const postDeployFork = DRE.tenderlyNetwork.getFork();
-      console.log("Tenderly Info");
-      console.log("- Head", postDeployHead);
-      console.log("- Fork", postDeployFork);
-    }
+    // if (usingTenderly()) {
+    //   const postDeployHead = DRE.tenderlyNetwork.getHead();
+    //   const postDeployFork = DRE.tenderlyNetwork.getFork();
+    //   console.log("Tenderly Info");
+    //   console.log("- Head", postDeployHead);
+    //   console.log("- Fork", postDeployFork);
+    // }
     console.log("\nFinished migrations");
     printContracts();
   });

@@ -82,13 +82,19 @@ export const rawInsertContractAddressInDb = async (
     })
     .write();
 
+let cache = undefined;
 export const getEthersSigners = async (): Promise<Signer[]> => {
+  if (usingTenderly() && cache) {
+    return cache;
+  }
+
   const ethersSigners = await Promise.all(await DRE.ethers.getSigners());
 
   if (usingDefender()) {
     const [, ...users] = ethersSigners;
     return [await getDefenderRelaySigner(), ...users];
   }
+  cache = ethersSigners;
   return ethersSigners;
 };
 

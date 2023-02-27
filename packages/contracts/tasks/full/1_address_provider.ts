@@ -26,7 +26,7 @@ task(
     await DRE.run("set-DRE");
     const poolConfig = loadPoolConfig(pool);
     const { MarketId } = poolConfig;
-
+    console.log("trying to deploy addr provider")
     // 1. Deploy address provider and set genesis manager
     const addressesProvider = await deployLendingPoolAddressesProvider(
       MarketId,

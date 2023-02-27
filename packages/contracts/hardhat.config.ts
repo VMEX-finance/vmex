@@ -93,11 +93,6 @@ const buidlerConfig: HardhatUserConfig = {
   mocha: {
     timeout: 0,
   },
-  tenderly: {
-    project: process.env.TENDERLY_PROJECT || '',
-    username: process.env.TENDERLY_USERNAME || '',
-    forkNetwork: '1', //Network id of the network we want to fork
-  },
   networks: {
     coverage: {
       url: 'http://localhost:8555',
@@ -107,7 +102,7 @@ const buidlerConfig: HardhatUserConfig = {
     ropsten: getCommonNetworkConfig(eEthereumNetwork.ropsten, 3),
     goerli: getCommonNetworkConfig(eEthereumNetwork.goerli, 5),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
-    tenderly: getCommonNetworkConfig(eEthereumNetwork.tenderly, 3030),
+    tenderly: getCommonNetworkConfig(eEthereumNetwork.tenderly, 1),
     matic: getCommonNetworkConfig(ePolygonNetwork.matic, 137),
     mumbai: getCommonNetworkConfig(ePolygonNetwork.mumbai, 80001),
     xdai: getCommonNetworkConfig(eXDaiNetwork.xdai, 100),
