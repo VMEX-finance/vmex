@@ -1,7 +1,7 @@
 {
   "LendingPoolAddressesProvider": {
     "localhost": {
-      "address": "0xa070BaE31a08efb8f9bB98Bb4aDf56fDa3537ceA",
+      "address": "0xD6C850aeBFDC46D7F4c207e445cC0d6B0919BDBe",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
@@ -239,7 +239,7 @@
   },
   "AssetMappings": {
     "localhost": {
-      "address": "0xb29CfFC83Ed607cE4A2F6C0b6ba60A76900E70C9"
+      "address": "0xda24DebbEcECe2270a5Ff889AEfC71Dcf4B8A3D5"
     },
     "hardhat": {
       "address": "0x75C601d638B6e51bEb71d5a4A1aCEc6e78a4fb64"
@@ -250,7 +250,7 @@
   },
   "DefaultReserveInterestRateStrategy": {
     "localhost": {
-      "address": "0xFc01AF83D78742DfD42631a352e33f8098e7274B",
+      "address": "0x8456161947DFc1fC159A0B26c025cD2b4bba0c3e",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
@@ -264,7 +264,7 @@
   },
   "rateStrategyAAVE": {
     "localhost": {
-      "address": "0xc11f8E173ee67ffA7BBdD185D2399994AAd23Ec6"
+      "address": "0x53369fd4680FfE3DfF39Fc6DDa9CfbfD43daeA2E"
     },
     "hardhat": {
       "address": "0x2F0fA68F3fD995522E5aB49131c36fc52B6353B2"
@@ -275,7 +275,7 @@
   },
   "rateStrategyVolatileOne": {
     "localhost": {
-      "address": "0xD662fb7FDC7526C79AA4417d2A4415416e057ec4"
+      "address": "0xB00cC45B4a7d3e1FEE684cFc4417998A1c183e6d"
     },
     "hardhat": {
       "address": "0xFDAAc0fDAEBbe00B8A3EBB119367B6CF84E0F39c"
@@ -286,7 +286,7 @@
   },
   "rateStrategyVolatileTwo": {
     "localhost": {
-      "address": "0x7B6C3e5486D9e6959441ab554A889099eed76290"
+      "address": "0x22474D350EC2dA53D717E30b96e9a2B7628Ede5b"
     },
     "hardhat": {
       "address": "0x49eA5c5714B5F0504842d42DEDCe909ea924565E"
@@ -297,7 +297,7 @@
   },
   "rateStrategyVolatileThree": {
     "localhost": {
-      "address": "0xAF6BA11790D1942625C0c2dA07da19AB63845cfF"
+      "address": "0x5A0773Ff307Bf7C71a832dBB5312237fD3437f9F"
     },
     "hardhat": {
       "address": "0xC26eFfa98B8A2632141562Ae7E34953Cfe5B4888"
@@ -308,7 +308,7 @@
   },
   "rateStrategyWETH": {
     "localhost": {
-      "address": "0x474d9b0D5F1Bb1602711F9346743a7a7478d6f52"
+      "address": "0xFAe0fd738dAbc8a0426F47437322b6d026A9FD95"
     },
     "hardhat": {
       "address": "0x4931b72A3f074A6c85DC62bBA648D7f4FBd1D0Ff"
@@ -319,7 +319,7 @@
   },
   "rateStrategyCurve": {
     "localhost": {
-      "address": "0xf91aC1098F3b154671Ce83290114aaE45ac0225f"
+      "address": "0x6082731fdAba4761277Fb31299ebC782AD3bCf24"
     },
     "hardhat": {
       "address": "0xe04ed89798eb331e515E9D1D93604792b75c0463"
@@ -330,7 +330,7 @@
   },
   "rateStrategyVolatileFour": {
     "localhost": {
-      "address": "0xFc01AF83D78742DfD42631a352e33f8098e7274B"
+      "address": "0x8456161947DFc1fC159A0B26c025cD2b4bba0c3e"
     },
     "hardhat": {
       "address": "0xd0Ff91311967d8279fDcD0d3fA8C49e07B5F2380"
@@ -392,7 +392,7 @@
   },
   "LendingPoolAddressesProviderRegistry": {
     "localhost": {
-      "address": "0x4931b72A3f074A6c85DC62bBA648D7f4FBd1D0Ff",
+      "address": "0x8B5B7a6055E54a36fF574bbE40cf2eA68d5554b3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
@@ -1809,7 +1809,7 @@
   },
   "rateStrategyStableOne": {
     "localhost": {
-      "address": "0x3D8FFB457fedDFBc760F3F243283F52692b579B1"
+      "address": "0x58F132FBB86E21545A4Bace3C19f1C05d86d7A22"
     },
     "hardhat": {
       "address": "0xbaE65084Ad10E56012d5c61148f614DF85cbB31a"
@@ -1817,7 +1817,7 @@
   },
   "rateStrategyStableTwo": {
     "localhost": {
-      "address": "0xEC1C93A9f6a9e18E97784c76aC52053587FcDB89"
+      "address": "0xa4bcDF64Cdd5451b6ac3743B414124A6299B65FF"
     },
     "hardhat": {
       "address": "0x0c6b39591433c4B3Ee0f8aE7Db3448ABE9f02109"
@@ -1825,7 +1825,7 @@
   },
   "rateStrategyStableThree": {
     "localhost": {
-      "address": "0xD83D2773a7873ae2b5f8Fb92097e20a8C64F691E"
+      "address": "0x18b9306737eaf6E8FC8e737F488a1AE077b18053"
     },
     "hardhat": {
       "address": "0xa070BaE31a08efb8f9bB98Bb4aDf56fDa3537ceA"
