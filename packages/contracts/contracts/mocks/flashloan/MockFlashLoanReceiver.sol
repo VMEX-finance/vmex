@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
@@ -32,7 +32,6 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
     bool _simulateEOA;
 
     constructor(ILendingPoolAddressesProvider provider)
-        public
         FlashLoanReceiverBase(provider)
     {}
 
@@ -40,8 +39,8 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
         _failExecution = fail;
     }
 
-    function setAmountToApprove(uint256 amountToApprove) public {
-        _amountToApprove = amountToApprove;
+    function setAmountToApprove(uint256 __amountToApprove) public {
+        _amountToApprove = __amountToApprove;
     }
 
     function setSimulateEOA(bool flag) public {

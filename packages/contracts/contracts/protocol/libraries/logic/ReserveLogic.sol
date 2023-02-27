@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
@@ -135,7 +135,6 @@ library ReserveLogic {
             previousVariableBorrowIndex,
             newLiquidityIndex,
             newVariableBorrowIndex,
-            lastUpdatedTimestamp,
             vmexReserveFactor
         );
     }
@@ -176,8 +175,7 @@ library ReserveLogic {
         DataTypes.ReserveData storage reserve,
         address aTokenAddress,
         address variableDebtTokenAddress,
-        address interestRateStrategyAddress,
-        uint64 trancheId
+        address interestRateStrategyAddress
     ) external {
         require(
             reserve.aTokenAddress == address(0),
@@ -283,7 +281,6 @@ library ReserveLogic {
      * @param previousVariableBorrowIndex The variable borrow index before the last accumulation of the interest
      * @param newLiquidityIndex The new liquidity index
      * @param newVariableBorrowIndex The variable borrow index after the last accumulation of the interest
-     * @param timestamp The timestamp before the last accumulation of the interest
      * @param vmexReserveFactor The global vmex reserve factor
      **/
     function _mintToTreasury(
@@ -292,7 +289,6 @@ library ReserveLogic {
         uint256 previousVariableBorrowIndex,
         uint256 newLiquidityIndex,
         uint256 newVariableBorrowIndex,
-        uint40 timestamp,
         uint256 vmexReserveFactor
     ) internal {
         MintToTreasuryLocalVars memory vars;

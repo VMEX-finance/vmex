@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: agpl-3.0
 import { QueryTrancheHelpers } from "../libs/QueryTrancheHelpers.sol";
 
 //import "hardhat/console.sol";

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: agpl-3.0
 import { AaveProtocolDataProvider } from "../../misc/AaveProtocolDataProvider.sol";
 import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";

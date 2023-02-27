@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: agpl-3.0
 import { QueryTrancheHelpers } from "../libs/QueryTrancheHelpers.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { LendingPoolConfigurator } from "../../protocol/lendingpool/LendingPoolConfigurator.sol";

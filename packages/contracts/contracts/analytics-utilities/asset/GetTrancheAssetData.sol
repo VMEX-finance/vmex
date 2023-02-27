@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: agpl-3.0
 import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
 
 //import "hardhat/console.sol";

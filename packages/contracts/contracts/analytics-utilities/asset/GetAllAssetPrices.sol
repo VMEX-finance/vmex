@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: agpl-3.0
 import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: agpl-3.0
 import { LendingPoolConfigurator } from "../../protocol/lendingpool/LendingPoolConfigurator.sol";
 import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";

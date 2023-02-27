@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 import {IUniswapV3Pool} from "./uniswapv08/v3-core/interfaces/IUniswapV3Pool.sol";
 import {OracleLibrary} from "./uniswapv08/v3-periphery/OracleLibrary.sol";

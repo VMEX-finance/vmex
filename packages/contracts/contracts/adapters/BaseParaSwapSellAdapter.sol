@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 import {BaseParaSwapAdapter} from "./BaseParaSwapAdapter.sol";
 import {PercentageMath} from "../protocol/libraries/math/PercentageMath.sol";
@@ -59,7 +59,7 @@ abstract contract BaseParaSwapSellAdapter is BaseParaSwapAdapter {
         );
 
         {
-            uint256 fromAssetDecimals = _getDecimals(assetToSwapFrom);
+            // uint256 fromAssetDecimals = _getDecimals(assetToSwapFrom);
             uint256 toAssetDecimals = _getDecimals(assetToSwapTo);
 
             uint256 fromAssetPrice = _getPrice(address(assetToSwapFrom));

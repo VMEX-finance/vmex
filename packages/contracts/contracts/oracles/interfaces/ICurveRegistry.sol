@@ -1,4 +1,4 @@
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 interface ICurveRegistry {
     function get_pool_from_lp_token(address) external view returns (address);
