@@ -87,8 +87,6 @@ library DataTypes {
         address variableDebtTokenAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
-        //consider removing this
-        uint64 trancheId;
         address interestRateStrategyAddress;
     }
 

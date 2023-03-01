@@ -77,8 +77,6 @@ contract AaveProtocolDataProvider {
                 trancheId
             );
 
-            assert(reserveData.trancheId == trancheId);
-
             aTokens[i] = TokenData({
                 symbol: IERC20Detailed(reserveData.aTokenAddress).symbol(),
                 tokenAddress: reserveData.aTokenAddress

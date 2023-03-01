@@ -331,7 +331,7 @@ contract LendingPool is
             reserve.variableBorrowIndex
         );
 
-        reserve.updateInterestRates(asset, reserve.aTokenAddress, paybackAmount, 0, _assetMappings.getVMEXReserveFactor(asset));
+        reserve.updateInterestRates(asset, trancheId, paybackAmount, 0, _assetMappings.getVMEXReserveFactor(asset));
 
         if (variableDebt.sub(paybackAmount) == 0) {
             _usersConfig[onBehalfOf][trancheId].configuration.setBorrowing(reserve.id, false);
@@ -363,8 +363,8 @@ contract LendingPool is
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         ValidationLogic.validateSetUseReserveAsCollateral(
-            reserve,
             asset,
+            trancheId,
             useAsCollateral,
             _reserves,
             _usersConfig[msg.sender][trancheId].configuration,
