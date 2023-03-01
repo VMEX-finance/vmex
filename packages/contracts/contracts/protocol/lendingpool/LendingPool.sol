@@ -9,7 +9,6 @@ import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddres
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
-import {IFlashLoanReceiver} from "../../flashloan/interfaces/IFlashLoanReceiver.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";

@@ -16,7 +16,6 @@ import {ValidationLogic} from "./ValidationLogic.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
-import {IFlashLoanReceiver} from "../../../flashloan/interfaces/IFlashLoanReceiver.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {GenericLogic} from "./GenericLogic.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";

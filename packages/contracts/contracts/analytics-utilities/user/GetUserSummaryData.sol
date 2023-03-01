@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: agpl-3.0
+pragma solidity 0.8.17;
 import { QueryUserHelpers } from "../libs/QueryUserHelpers.sol";
 import { LendingPoolConfigurator } from "../../protocol/lendingpool/LendingPoolConfigurator.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
