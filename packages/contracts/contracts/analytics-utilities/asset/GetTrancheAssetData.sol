@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: agpl-3.0
+pragma solidity 0.8.17;
 import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
 
 //import "hardhat/console.sol";

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: agpl-3.0
+pragma solidity 0.8.17;
 import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
 import { WadRayMath } from "../../protocol/libraries/math/WadRayMath.sol";

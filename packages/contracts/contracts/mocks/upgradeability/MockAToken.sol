@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 import {AToken} from "../../protocol/tokenization/AToken.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";

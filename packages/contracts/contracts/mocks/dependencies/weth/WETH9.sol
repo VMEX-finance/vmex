@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: agpl-3.0
 // Copyright (C) 2015, 2016, 2017 Dapphub
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 contract WETH9 {
     string public name = "Wrapped Ether";

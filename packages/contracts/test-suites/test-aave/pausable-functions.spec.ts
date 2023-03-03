@@ -10,7 +10,6 @@ import { getEmergencyAdminT0, getMockFlashLoanReceiver } from '../../helpers/con
 const { expect } = require('chai');
 
 makeSuite('Pausable Pool', (testEnv: TestEnv) => {
-  let _mockFlashLoanReceiver = {} as MockFlashLoanReceiver;
 
   const {
     LP_IS_PAUSED,
@@ -19,11 +18,6 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
   } = ProtocolErrors;
 
   const tranche = 0;
-
-  before(async () => {
-    _mockFlashLoanReceiver = await getMockFlashLoanReceiver();
-  });
-
   it('User 0 deposits 1000 DAI. Configurator pauses pool. Transfers to user 1 reverts. Configurator unpauses the network and next transfer succees', async () => {
     const { users, pool, dai, aDai, configurator } = testEnv;
     const t0EmergencyAdmin = await getEmergencyAdminT0();
@@ -229,37 +223,6 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
   });
 
-  // it('Flash loan', async () => {
-  //   const { dai, pool, weth, users, configurator } = testEnv;
-  //   const t0EmergencyAdmin = await getEmergencyAdminT0();
-
-  //   const caller = users[3];
-
-  //   const flashAmount = parseEther('0.8');
-
-  //   await _mockFlashLoanReceiver.setFailExecutionTransfer(true);
-
-  //   // Pause pool
-  //   await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
-
-  //   await expect(
-  //     pool
-  //       .connect(caller.signer)
-  //       .flashLoan(
-  //         _mockFlashLoanReceiver.address,
-  //         [weth.address],
-  //         [flashAmount],
-  //         [1],
-  //         caller.address,
-  //         '0x10',
-  //         '0'
-  //       )
-  //   ).revertedWith(LP_IS_PAUSED);
-
-  //   // Unpause pool
-  //   await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
-  // });
-
   it('Liquidation call', async () => {
     const { users, pool, usdc, oracle, weth, configurator, helpersContract } = testEnv;
     const depositor = users[3];
@@ -367,21 +330,6 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     // Unpause pool
     await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
   });
-
-  // it('RebalanceStableBorrowRate', async () => {
-  //   const { pool, dai, users, configurator } = testEnv;
-  //   const user = users[1];
-  //   const t0EmergencyAdmin = await getEmergencyAdminT0();
-  //   // Pause pool
-  //   await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
-
-  //   await expect(
-  //     pool.connect(user.signer).rebalanceStableBorrowRate(dai.address, tranche, user.address)
-  //   ).revertedWith(LP_IS_PAUSED);
-
-  //   // Unpause pool
-  //   await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
-  // });
 
   it('setUserUseReserveAsCollateral', async () => {
     const { pool, weth, users, configurator } = testEnv;

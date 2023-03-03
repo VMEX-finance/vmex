@@ -77,10 +77,9 @@ let forkMode;
 
 const buidlerConfig: HardhatUserConfig = {
   solidity: {
-    version: '0.8.0',
+    version: '0.8.17', //As of Feb 27, 2023, 0.8.19 is not supported yet, and 0.8.18 has limited support for console logs and other stack traces.
     settings: {
       optimizer: { enabled: true, runs: 200 },
-      evmVersion: 'istanbul',
     },
   },
   typechain: {

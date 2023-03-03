@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 contract CurvePool {
     function coins(uint256 arg0) external view returns (address out) {

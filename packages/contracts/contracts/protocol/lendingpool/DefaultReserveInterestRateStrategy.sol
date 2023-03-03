@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity >=0.8.0;
+pragma solidity 0.8.17;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IReserveInterestRateStrategy} from "../../interfaces/IReserveInterestRateStrategy.sol";
@@ -53,16 +53,16 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     constructor(
         ILendingPoolAddressesProvider provider,
         uint256 optimalUtilizationRate,
-        uint256 baseVariableBorrowRate,
-        uint256 variableRateSlope1,
-        uint256 variableRateSlope2
-    ) public {
+        uint256 __baseVariableBorrowRate,
+        uint256 __variableRateSlope1,
+        uint256 __variableRateSlope2
+    ) {
         OPTIMAL_UTILIZATION_RATE = optimalUtilizationRate;
         EXCESS_UTILIZATION_RATE = WadRayMath.ray().sub(optimalUtilizationRate);
         addressesProvider = provider;
-        _baseVariableBorrowRate = baseVariableBorrowRate;
-        _variableRateSlope1 = variableRateSlope1;
-        _variableRateSlope2 = variableRateSlope2;
+        _baseVariableBorrowRate = __baseVariableBorrowRate;
+        _variableRateSlope1 = __variableRateSlope1;
+        _variableRateSlope2 = __variableRateSlope2;
     }
 
     function variableRateSlope1() external view returns (uint256) {
