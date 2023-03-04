@@ -307,18 +307,31 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
 
     await assetMappings.configureReserveAsCollateral(weth.address, 0, 0, 0, 0, 0, 0);
 
-    const ret = await helpersContract.getReserveConfigurationData(weth.address, 0);
+    const ret1 = await helpersContract.getReserveConfigurationData(weth.address, 0);
 
-    expect(ret.borrowingEnabled).to.be.equal(true);
-    expect(ret.isActive).to.be.equal(true);
-    expect(ret.isFrozen).to.be.equal(false);
-    expect(ret.decimals).to.be.equal(18);
-    expect(ret.ltv).to.be.equal(0);
-    expect(ret.liquidationThreshold).to.be.equal(0);
-    expect(ret.liquidationBonus).to.be.equal(0);
-    expect(ret.supplyCap).to.be.equal(0);
-    expect(ret.borrowCap).to.be.equal(0);
-    expect(ret.borrowFactor).to.be.equal(0);
+    expect(ret1.borrowingEnabled).to.be.equal(true);
+    expect(ret1.isActive).to.be.equal(true);
+    expect(ret1.isFrozen).to.be.equal(false);
+    expect(ret1.decimals).to.be.equal(18);
+    expect(ret1.ltv).to.be.equal(0);
+    expect(ret1.liquidationThreshold).to.be.equal(0);
+    expect(ret1.liquidationBonus).to.be.equal(0);
+    expect(ret1.supplyCap).to.be.equal(0);
+    expect(ret1.borrowCap).to.be.equal(0);
+    expect(ret1.borrowFactor).to.be.equal(0);
+
+    const ret2 = await helpersContract.getReserveConfigurationData(weth.address, 0);
+
+    expect(ret2.borrowingEnabled).to.be.equal(true);
+    expect(ret2.isActive).to.be.equal(true);
+    expect(ret2.isFrozen).to.be.equal(false);
+    expect(ret2.decimals).to.be.equal(18);
+    expect(ret2.ltv).to.be.equal(0);
+    expect(ret2.liquidationThreshold).to.be.equal(0);
+    expect(ret2.liquidationBonus).to.be.equal(0);
+    expect(ret2.supplyCap).to.be.equal(0);
+    expect(ret2.borrowCap).to.be.equal(0);
+    expect(ret2.borrowFactor).to.be.equal(0);
     // expect(stableBorrowRateEnabled).to.be.equal(true);
     // expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
   });

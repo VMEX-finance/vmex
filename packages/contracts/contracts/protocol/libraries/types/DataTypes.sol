@@ -21,9 +21,9 @@ library DataTypes {
         uint64 liquidationBonus; // 64 bits
         uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
 
-        //below is 31 bytes (should fit in uint 256, which is 32 bytes)
-        bool borrowingEnabled; 
+        bool borrowingEnabled;
         bool isAllowed; //default to false, unless set
+        bool exists;    //true if the asset was added to the linked list, false otherwise
         uint8 assetType; //to choose what oracle to use
         uint64 VMEXReserveFactor; //64 bits. is sufficient (percentages can all be stored in 64 bits)
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
