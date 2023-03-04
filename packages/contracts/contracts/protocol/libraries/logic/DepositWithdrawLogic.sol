@@ -181,7 +181,7 @@ library DepositWithdrawLogic {
                 vars.amount=totalAmount;
             }
         }
-
+        // amountInETH always has 18 decimals, since the assetPrice always has 18 decimals. Scaling by amount/asset decimals. 
         uint256 amountInETH = vars.assetPrice.mul(vars.amount).div(
                 10**vars._assetMappings.getDecimals(vars.asset)
             ); //lp token decimals are 18, like ETH

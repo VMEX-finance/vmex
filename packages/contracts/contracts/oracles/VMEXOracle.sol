@@ -111,7 +111,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         emit FallbackOracleUpdated(fallbackOracle);
     }
 
-    /// @notice Gets an asset price by address
+    /// @notice Gets an asset price by address. Note the result should always have 18 decimals.
     /// @param asset The asset address
     function getAssetPrice(address asset)
         public
@@ -134,8 +134,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(tmp==DataTypes.ReserveAssetType.YEARN){
             return getYearnPrice(asset);
         }
-        require(false, "error determining oracle address");
-        return 0;
+        revert("error determining oracle address");
     }
 
 
@@ -192,7 +191,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
     function getYearnPrice(address asset) internal view returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
-        uint256 underlyingPrice = getAssetPrice(yearnVault.token());
+        uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth)
+        //note: pricePerShare has decimals equal to underlying tokens (ex: yvUSDC has 6 decimals). By dividing by 10**yearnVault.decimals(), we keep the decimals of underlyingPrice which is 18 decimals.
         uint256 price = yearnVault.pricePerShare()*underlyingPrice / 10**yearnVault.decimals();
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);
