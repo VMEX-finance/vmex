@@ -11,8 +11,6 @@ import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 
-import "hardhat/console.sol";
-
 contract AssetMappings is VersionedInitializable{
     using PercentageMath for uint256;
     using Helpers for address;
@@ -104,7 +102,7 @@ contract AssetMappings is VersionedInitializable{
                 thisReserveFactor < PercentageMath.PERCENTAGE_FACTOR,
                 Errors.LPC_INVALID_CONFIGURATION
             );
-        assetMappings[asset].VMEXReserveFactor = thisReserveFactor;
+        assetMappings[asset].VMEXReserveFactor = uint64(thisReserveFactor);
 
         emit VMEXReserveFactorChanged(asset, thisReserveFactor);
     }
@@ -154,16 +152,15 @@ contract AssetMappings is VersionedInitializable{
         require(underlying.length==input.length);
 
         for(uint256 i = 0;i<input.length;i++){
-            console.log("Asset: ",underlying[i]);
             //validation of the parameters: the LTV can
             //only be lower or equal than the liquidation threshold
             //(otherwise a loan against the asset would cause instantaneous liquidation)
             {  //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
-                input[i].baseLTV = input[i].baseLTV.convertToPercent();
-                input[i].liquidationThreshold = input[i].liquidationThreshold.convertToPercent();
-                input[i].liquidationBonus = input[i].liquidationBonus.convertToPercent();
-                input[i].borrowFactor = input[i].borrowFactor.convertToPercent();
-                input[i].VMEXReserveFactor = input[i].VMEXReserveFactor.convertToPercent();
+                input[i].baseLTV = uint64(uint256(input[i].baseLTV).convertToPercent());
+                input[i].liquidationThreshold = uint64(uint256(input[i].liquidationThreshold).convertToPercent());
+                input[i].liquidationBonus = uint64(uint256(input[i].liquidationBonus).convertToPercent());
+                input[i].borrowFactor = uint64(uint256(input[i].borrowFactor).convertToPercent());
+                input[i].VMEXReserveFactor = uint64(uint256(input[i].VMEXReserveFactor).convertToPercent());
                 input[i].isAllowed = true;
             }
             validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
@@ -212,12 +209,12 @@ contract AssetMappings is VersionedInitializable{
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
         //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
 
-        assetMappings[asset].baseLTV = baseLTV;
-        assetMappings[asset].liquidationThreshold = liquidationThreshold;
-        assetMappings[asset].liquidationBonus = liquidationBonus;
-        assetMappings[asset].supplyCap = supplyCap;
-        assetMappings[asset].borrowCap = borrowCap;
-        assetMappings[asset].borrowFactor = borrowFactor;
+        assetMappings[asset].baseLTV = uint64(baseLTV);
+        assetMappings[asset].liquidationThreshold = uint64(liquidationThreshold);
+        assetMappings[asset].liquidationBonus = uint64(liquidationBonus);
+        assetMappings[asset].supplyCap = uint128(supplyCap);
+        assetMappings[asset].borrowCap = uint128(borrowCap);
+        assetMappings[asset].borrowFactor = uint64(borrowFactor);
         emit ConfiguredReserves(asset, baseLTV, liquidationThreshold, liquidationBonus, supplyCap, borrowCap, borrowFactor);
     }
 

@@ -13,22 +13,21 @@ library DataTypes {
     }
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
     struct AssetData {
-        uint8 assetType; //to choose what oracle to use
-        uint256 VMEXReserveFactor; //64 bits. is sufficient
-
-        //below are the things that we will change more often
         //if we assume most decimals is 18, storing these in uint128 should be ok, that means the maximum someone can deposit is 3.4 * 10^20
-        uint256 supplyCap;
-        uint256 borrowCap;
-        uint256 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
-        uint256 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
-        uint256 liquidationBonus; // 64 bits
-        uint256 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
-        bool borrowingEnabled;
+        uint128 supplyCap; //can get up to 10^38. Good enough.
+        uint128 borrowCap; //can get up to 10^38. Good enough.
+        uint64 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
+        uint64 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
+        uint64 liquidationBonus; // 64 bits
+        uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
+
+        //below is 31 bytes (should fit in uint 256, which is 32 bytes)
+        bool borrowingEnabled; 
         bool isAllowed; //default to false, unless set
+        uint8 assetType; //to choose what oracle to use
+        uint64 VMEXReserveFactor; //64 bits. is sufficient (percentages can all be stored in 64 bits)
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
         //the only difference between the different strategies is the value of the slopes and optimal utilization
-
         //pointer to the next asset that is approved. This allows us to avoid using a list
         address nextApprovedAsset;
     }
