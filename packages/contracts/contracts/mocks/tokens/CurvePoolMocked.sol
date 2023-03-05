@@ -2,7 +2,7 @@
 //not used yet
 pragma solidity 0.8.17;
 
-import {ICurvePool} from "../../oracles/interfaces/ICurvePoolV1.sol";
+import {ICurvePool} from "../../interfaces/ICurvePool.sol";
 
 /**
  * @title ERC20Mintable

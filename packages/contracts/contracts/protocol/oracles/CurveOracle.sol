@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17; 
 
-import {ICurvePool} from "./interfaces/ICurvePoolV1.sol"; 
-import {ICurveOracle} from "./interfaces/ICurveOracle.sol"; 
+import {ICurvePool} from "../../interfaces/ICurvePool.sol"; 
 import {vMath} from "./libs/vMath.sol"; 
 
 //used for all curveV1 amd V2 tokens, no need to redeploy
