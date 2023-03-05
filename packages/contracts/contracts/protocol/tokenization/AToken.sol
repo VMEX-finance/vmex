@@ -13,10 +13,8 @@ import {VersionedInitializable} from "../libraries/aave-upgradeability/Versioned
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {IYearnToken} from "../../oracles/interfaces/IYearnToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
-import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";

@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.17;
 
-import {Ownable} from "../dependencies/openzeppelin/contracts/Ownable.sol";
-import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
-import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
-import {ICurvePool} from "./interfaces/ICurvePoolV1.sol";
-import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
-import {IChainlinkAggregator} from "../interfaces/IChainlinkAggregator.sol";
-import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {Initializable} from "../dependencies/openzeppelin/upgradeability/Initializable.sol";
-import {AssetMappings} from "../protocol/lendingpool/AssetMappings.sol";
-import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
+import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
+import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ICurvePool} from "../../interfaces/ICurvePool.sol";
+import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
+import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {Initializable} from "../../dependencies/openzeppelin/upgradeability/Initializable.sol";
+import {AssetMappings} from "../lendingpool/AssetMappings.sol";
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {CurveOracle} from "./CurveOracle.sol";
-import {IYearnToken} from "./interfaces/IYearnToken.sol";
-import {Address} from "../dependencies/openzeppelin/contracts/Address.sol";
-import {Errors} from "../protocol/libraries/helpers/Errors.sol";
+import {IYearnToken} from "../../interfaces/IYearnToken.sol";
+import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 import "hardhat/console.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
