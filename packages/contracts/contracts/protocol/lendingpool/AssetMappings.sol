@@ -147,58 +147,82 @@ contract AssetMappings is VersionedInitializable{
         }
     }
 
+    struct AddAssetMappingInput {
+        address asset;
+        address defaultInterestRateStrategyAddress;
+        uint128 supplyCap; //can get up to 10^38. Good enough.
+        uint128 borrowCap; //can get up to 10^38. Good enough.
+        uint64 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
+        uint64 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
+        uint64 liquidationBonus; // 64 bits
+        uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
+
+        bool borrowingEnabled;
+        uint8 assetType; //to choose what oracle to use
+        uint64 VMEXReserveFactor;
+    }
+
     /**
-     * @dev Sets an asset mapping's risk parameters and adds it to the linked list
-     * @param assets List of addresses of the tokens to add
+     * @dev Adds a new asset mapping to the linked list, will skip assets
+     *      that were already added
      **/
-    function setAssetMapping(
-        address[] calldata assets,
-        DataTypes.AssetData[] memory input,
-        address[] calldata defaultInterestRateStrategyAddress
+    function addAssetMapping(
+        AddAssetMappingInput[] memory input
     ) external onlyGlobalAdmin {
-        require(assets.length==input.length);
+        for(uint256 i = 0; i<input.length; i++) {
+            AddAssetMappingInput memory inputAsset = input[i];
+            address currentAssetAddress = inputAsset.asset;
+            if (isAssetInMappings(currentAssetAddress)) {
+                // asset has already been added to linked list, will not be added again
+                continue;
+            }
 
-        for(uint256 i = 0;i<input.length;i++){
-            //validation of the parameters: the LTV can
-            //only be lower or equal than the liquidation threshold
-            //(otherwise a loan against the asset would cause instantaneous liquidation)
-            //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
-            input[i].baseLTV = uint64(uint256(input[i].baseLTV).convertToPercent());
-            input[i].liquidationThreshold = uint64(uint256(input[i].liquidationThreshold).convertToPercent());
-            input[i].liquidationBonus = uint64(uint256(input[i].liquidationBonus).convertToPercent());
-            input[i].borrowFactor = uint64(uint256(input[i].borrowFactor).convertToPercent());
-            input[i].VMEXReserveFactor = uint64(uint256(input[i].VMEXReserveFactor).convertToPercent());
-            input[i].isAllowed = true;
+            inputAsset.baseLTV = uint64(uint256(inputAsset.baseLTV).convertToPercent());
+            inputAsset.liquidationThreshold = uint64(uint256(inputAsset.liquidationThreshold).convertToPercent());
+            inputAsset.liquidationBonus = uint64(uint256(inputAsset.liquidationBonus).convertToPercent());
+            inputAsset.borrowFactor = uint64(uint256(inputAsset.borrowFactor).convertToPercent());
+            inputAsset.VMEXReserveFactor = uint64(uint256(inputAsset.VMEXReserveFactor).convertToPercent());
 
-            validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
+            validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus);
 
-            assetMappings[assets[i]] = input[i];
-            interestRateStrategyAddress[assets[i]][0] = defaultInterestRateStrategyAddress[i];
+            DataTypes.AssetData storage currentAssetMapping = assetMappings[currentAssetAddress];
+
+            currentAssetMapping.supplyCap = inputAsset.supplyCap;
+            currentAssetMapping.borrowCap = inputAsset.borrowCap;
+            currentAssetMapping.baseLTV = inputAsset.baseLTV;
+            currentAssetMapping.liquidationThreshold = inputAsset.liquidationThreshold;
+            currentAssetMapping.liquidationBonus = inputAsset.liquidationBonus;
+            currentAssetMapping.borrowFactor = inputAsset.borrowFactor;
+            currentAssetMapping.VMEXReserveFactor = inputAsset.VMEXReserveFactor;
+            currentAssetMapping.borrowingEnabled = inputAsset.borrowingEnabled;
+            currentAssetMapping.assetType = inputAsset.assetType;
+            currentAssetMapping.isAllowed = true;
+            currentAssetMapping.exists = true;
+
+            interestRateStrategyAddress[currentAssetAddress][0] = inputAsset.defaultInterestRateStrategyAddress;
 
             if (approvedAssetsHead==address(0)) { //this means we are adding the first asset
-                approvedAssetsHead = assets[i];
-                approvedAssetsTail = assets[i];
+                approvedAssetsHead = currentAssetAddress;
+                approvedAssetsTail = currentAssetAddress;
             }
-            else if (!isAssetInMappings(assets[i])) {
-                // if the asset does not already exist in the linked list
-                assetMappings[approvedAssetsTail].nextApprovedAsset = assets[i];
-                approvedAssetsTail = assets[i];
+            else {
+                // add to end
+                assetMappings[approvedAssetsTail].nextApprovedAsset = currentAssetAddress;
+                approvedAssetsTail = currentAssetAddress;
             }
-
-            assetMappings[assets[i]].exists = true;
 
             emit AssetDataSet(
-                assets[i],
-                IERC20Detailed(assets[i]).decimals(),
-                assets[i].getSymbol(),
-                input[i].supplyCap,
-                input[i].borrowCap,
-                input[i].baseLTV,
-                input[i].liquidationThreshold,
-                input[i].liquidationBonus,
-                input[i].borrowFactor,
-                input[i].borrowingEnabled,
-                input[i].VMEXReserveFactor
+                currentAssetAddress,
+                IERC20Detailed(currentAssetAddress).decimals(),
+                currentAssetAddress.getSymbol(),
+                inputAsset.supplyCap,
+                inputAsset.borrowCap,
+                inputAsset.baseLTV,
+                inputAsset.liquidationThreshold,
+                inputAsset.liquidationBonus,
+                inputAsset.borrowFactor,
+                inputAsset.borrowingEnabled,
+                inputAsset.VMEXReserveFactor
             );
         }
     }

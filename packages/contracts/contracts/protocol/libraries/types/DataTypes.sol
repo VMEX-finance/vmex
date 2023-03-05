@@ -11,6 +11,7 @@ library DataTypes {
         uint8 _poolSize;
         address _curvePool;
     }
+
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
     struct AssetData {
         //if we assume most decimals is 18, storing these in uint128 should be ok, that means the maximum someone can deposit is 3.4 * 10^20

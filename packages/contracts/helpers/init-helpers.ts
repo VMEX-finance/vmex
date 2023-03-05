@@ -76,20 +76,20 @@ export const initAssetData = async (
   let underlying: string[] = [];
 
   let initInputParams: {
-    assetType: BigNumberish;
+    asset: string;
+    defaultInterestRateStrategyAddress: string;
     supplyCap: string; //1,000,000
     borrowCap: string; //1,000,000
     baseLTV: BigNumberish;
     liquidationThreshold: BigNumberish;
     liquidationBonus: BigNumberish;
     borrowFactor: string;
-    borrowingEnabled: boolean;
-    isAllowed: boolean;
-    VMEXReserveFactor: string;
-    nextApprovedAsset: tEthereumAddress;
-  }[] = [];
 
-  let interestRateStrategyAddress: string[] = [];
+    borrowingEnabled: boolean;
+    assetType: BigNumberish;
+    VMEXReserveFactor: string;
+
+  }[] = [];
 
   let strategyRates: [
     string, // addresses provider
@@ -112,8 +112,6 @@ export const initAssetData = async (
     }
     const {
       strategy,
-      aTokenImpl,
-      reserveDecimals,
       assetType,
       supplyCap, //1,000,000
       borrowCap,
@@ -121,7 +119,6 @@ export const initAssetData = async (
       borrowFactor,
       liquidationBonus,
       liquidationThreshold,
-      stableBorrowRateEnabled,
       borrowingEnabled,
       reserveFactor,
     } = params;
@@ -157,8 +154,9 @@ export const initAssetData = async (
     // Prepare input parameters
     reserveSymbols.push(symbol);
     underlying.push(tokenAddresses[symbol]);
-interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
     initInputParams.push({
+      asset: tokenAddresses[symbol],
+      defaultInterestRateStrategyAddress: strategyAddresses[strategy.name],
       assetType: assetType,
       supplyCap: supplyCap, //1,000,000
       borrowCap: borrowCap, //1,000,000
@@ -167,9 +165,7 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
       liquidationBonus: liquidationBonus,
       borrowFactor: borrowFactor,
       borrowingEnabled: borrowingEnabled,
-      isAllowed: true,
-      VMEXReserveFactor: reserveFactor,
-      nextApprovedAsset: ZERO_ADDRESS,
+      VMEXReserveFactor: reserveFactor
     });
   }
 
@@ -183,7 +179,7 @@ interestRateStrategyAddress.push(strategyAddresses[strategy.name]);
   const tx3 = await waitForTx(
     await assetMappings
       .connect(admin)
-      .setAssetMapping(underlying, initInputParams, interestRateStrategyAddress )
+      .addAssetMapping(initInputParams)
   );
 
   console.log("    * gasUsed", tx3.gasUsed.toString());
