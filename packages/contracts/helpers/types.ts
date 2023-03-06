@@ -221,6 +221,8 @@ export enum ProtocolErrors {
   LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "72",
 
 
+  LPC_INVALID_CONFIGURATION = "75", // 'Invalid risk parameters for the reserve'
+
   SUPPLY_CAP_EXCEEDED = "82",
   BORROW_CAP_EXCEEDED = "83",
 

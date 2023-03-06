@@ -11,6 +11,7 @@ library DataTypes {
         uint8 _poolSize;
         address _curvePool;
     }
+
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
     struct AssetData {
         //if we assume most decimals is 18, storing these in uint128 should be ok, that means the maximum someone can deposit is 3.4 * 10^20
@@ -21,9 +22,9 @@ library DataTypes {
         uint64 liquidationBonus; // 64 bits
         uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
 
-        //below is 31 bytes (should fit in uint 256, which is 32 bytes)
-        bool borrowingEnabled; 
+        bool borrowingEnabled;
         bool isAllowed; //default to false, unless set
+        bool exists;    //true if the asset was added to the linked list, false otherwise
         uint8 assetType; //to choose what oracle to use
         uint64 VMEXReserveFactor; //64 bits. is sufficient (percentages can all be stored in 64 bits)
         //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)

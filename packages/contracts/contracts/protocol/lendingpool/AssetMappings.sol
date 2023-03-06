@@ -147,52 +147,90 @@ contract AssetMappings is VersionedInitializable{
         }
     }
 
-    //by setting it, you automatically also approve it for the protocol
-    function setAssetMapping(address[] calldata underlying, DataTypes.AssetData[] memory input, address[] calldata defaultInterestRateStrategyAddress) external onlyGlobalAdmin {
-        require(underlying.length==input.length);
+    struct AddAssetMappingInput {
+        address asset;
+        address defaultInterestRateStrategyAddress;
+        uint128 supplyCap; //can get up to 10^38. Good enough.
+        uint128 borrowCap; //can get up to 10^38. Good enough.
+        uint64 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
+        uint64 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
+        uint64 liquidationBonus; // 64 bits
+        uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
 
-        for(uint256 i = 0;i<input.length;i++){
-            //validation of the parameters: the LTV can
-            //only be lower or equal than the liquidation threshold
-            //(otherwise a loan against the asset would cause instantaneous liquidation)
-            {  //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
-                input[i].baseLTV = uint64(uint256(input[i].baseLTV).convertToPercent());
-                input[i].liquidationThreshold = uint64(uint256(input[i].liquidationThreshold).convertToPercent());
-                input[i].liquidationBonus = uint64(uint256(input[i].liquidationBonus).convertToPercent());
-                input[i].borrowFactor = uint64(uint256(input[i].borrowFactor).convertToPercent());
-                input[i].VMEXReserveFactor = uint64(uint256(input[i].VMEXReserveFactor).convertToPercent());
-                input[i].isAllowed = true;
+        bool borrowingEnabled;
+        uint8 assetType; //to choose what oracle to use
+        uint64 VMEXReserveFactor;
+    }
+
+    /**
+     * @dev Adds a new asset mapping to the linked list, will skip assets
+     *      that were already added
+     **/
+    function addAssetMapping(
+        AddAssetMappingInput[] memory input
+    ) external onlyGlobalAdmin {
+        for(uint256 i = 0; i<input.length; i++) {
+            AddAssetMappingInput memory inputAsset = input[i];
+            address currentAssetAddress = inputAsset.asset;
+            if (isAssetInMappings(currentAssetAddress)) {
+                // asset has already been added to linked list, will not be added again
+                continue;
             }
-            validateCollateralParams(input[i].baseLTV, input[i].liquidationThreshold, input[i].liquidationBonus);
 
-            assetMappings[underlying[i]] = input[i];
-            interestRateStrategyAddress[underlying[i]][0] = defaultInterestRateStrategyAddress[i];
-            if(approvedAssetsHead==address(0)) { //this means we are adding the first asset
-                approvedAssetsHead = underlying[i];
-                approvedAssetsTail = underlying[i];
+            inputAsset.baseLTV = uint64(uint256(inputAsset.baseLTV).convertToPercent());
+            inputAsset.liquidationThreshold = uint64(uint256(inputAsset.liquidationThreshold).convertToPercent());
+            inputAsset.liquidationBonus = uint64(uint256(inputAsset.liquidationBonus).convertToPercent());
+            inputAsset.borrowFactor = uint64(uint256(inputAsset.borrowFactor).convertToPercent());
+            inputAsset.VMEXReserveFactor = uint64(uint256(inputAsset.VMEXReserveFactor).convertToPercent());
+
+            validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus);
+
+            DataTypes.AssetData storage currentAssetMapping = assetMappings[currentAssetAddress];
+
+            currentAssetMapping.supplyCap = inputAsset.supplyCap;
+            currentAssetMapping.borrowCap = inputAsset.borrowCap;
+            currentAssetMapping.baseLTV = inputAsset.baseLTV;
+            currentAssetMapping.liquidationThreshold = inputAsset.liquidationThreshold;
+            currentAssetMapping.liquidationBonus = inputAsset.liquidationBonus;
+            currentAssetMapping.borrowFactor = inputAsset.borrowFactor;
+            currentAssetMapping.VMEXReserveFactor = inputAsset.VMEXReserveFactor;
+            currentAssetMapping.borrowingEnabled = inputAsset.borrowingEnabled;
+            currentAssetMapping.assetType = inputAsset.assetType;
+            currentAssetMapping.isAllowed = true;
+            currentAssetMapping.exists = true;
+
+            interestRateStrategyAddress[currentAssetAddress][0] = inputAsset.defaultInterestRateStrategyAddress;
+
+            if (approvedAssetsHead==address(0)) { //this means we are adding the first asset
+                approvedAssetsHead = currentAssetAddress;
+                approvedAssetsTail = currentAssetAddress;
             }
             else {
-                assetMappings[approvedAssetsTail].nextApprovedAsset = underlying[i];
-                approvedAssetsTail = underlying[i];
+                // add to end
+                assetMappings[approvedAssetsTail].nextApprovedAsset = currentAssetAddress;
+                approvedAssetsTail = currentAssetAddress;
             }
-            // approvedAssets[numApprovedAssets++] = underlying[i];
 
             emit AssetDataSet(
-                underlying[i],
-                IERC20Detailed(underlying[i]).decimals(),
-                underlying[i].getSymbol(),
-                input[i].supplyCap,
-                input[i].borrowCap,
-                input[i].baseLTV,
-                input[i].liquidationThreshold,
-                input[i].liquidationBonus,
-                input[i].borrowFactor,
-                input[i].borrowingEnabled,
-                input[i].VMEXReserveFactor
+                currentAssetAddress,
+                IERC20Detailed(currentAssetAddress).decimals(),
+                currentAssetAddress.getSymbol(),
+                inputAsset.supplyCap,
+                inputAsset.borrowCap,
+                inputAsset.baseLTV,
+                inputAsset.liquidationThreshold,
+                inputAsset.liquidationBonus,
+                inputAsset.borrowFactor,
+                inputAsset.borrowingEnabled,
+                inputAsset.VMEXReserveFactor
             );
         }
     }
 
+    /**
+     * @dev Configures an existing asset mapping's risk parameters
+     * @param asset Address of asset token you want to set
+     **/
     function configureReserveAsCollateral(
         address asset,
         uint256 baseLTV,
@@ -202,6 +240,7 @@ contract AssetMappings is VersionedInitializable{
         uint256 borrowCap,
         uint256 borrowFactor
     ) external onlyGlobalAdmin {
+        require(isAssetInMappings(asset), "Trying to configure an asset that doesn't exist");
         baseLTV = baseLTV.convertToPercent();
         liquidationThreshold = liquidationThreshold.convertToPercent();
         liquidationBonus = liquidationBonus.convertToPercent();
@@ -215,58 +254,68 @@ contract AssetMappings is VersionedInitializable{
         assetMappings[asset].supplyCap = uint128(supplyCap);
         assetMappings[asset].borrowCap = uint128(borrowCap);
         assetMappings[asset].borrowFactor = uint64(borrowFactor);
+        assetMappings[asset].isAllowed = true;
         emit ConfiguredReserves(asset, baseLTV, liquidationThreshold, liquidationBonus, supplyCap, borrowCap, borrowFactor);
     }
 
-    function removeAsset(address underlying) external onlyGlobalAdmin{
-        assetMappings[underlying].isAllowed = false; //lazy delete. deleting isn't very common so this is fine.
+    /**
+     * @dev Set a existing asset to be allowed
+     * @param asset Address of the asset
+     * @param isAllowed true if allowed, false otherwise
+     **/
+    function setAssetAllowed(address asset, bool isAllowed) external onlyGlobalAdmin{
+        require(isAssetInMappings(asset), "Trying to set asset that doesn't exist");
+        assetMappings[asset].isAllowed = isAllowed;
     }
 
-    function getNumApprovedTokens() view public returns(uint256 numTokens){
-        numTokens = 0;
-        if(approvedAssetsHead == address(0)){
-            return numTokens;
-        }
+    /**
+     * @dev Gets whether or not the asset is inside the mappings linked list, including disabled assets
+     * @param asset Address of asset token you want to check
+     **/
+    function isAssetInMappings(address asset) view public returns (bool) {
+        return assetMappings[asset].exists;
+    }
+
+    function getNumApprovedTokens() view public returns (uint256) {
+        uint256 numTokens = 0;
         address tmp = approvedAssetsHead;
 
-        while(true) {
-            if(assetMappings[tmp].isAllowed){ //don't count disallowed tokens
+        while(tmp != address(0)) {
+            if(assetMappings[tmp].isAllowed){
+                // don't count disallowed tokens
                 numTokens++;
             }
 
-            if(assetMappings[tmp].nextApprovedAsset==address(0)){
-                break;
-            }
             tmp = assetMappings[tmp].nextApprovedAsset;
         }
+
+        return numTokens;
     }
 
-    function getAllApprovedTokens() view external returns(address[] memory tokens){
+    function getAllApprovedTokens() view external returns (address[] memory tokens) {
         //just a view function so this is a bit gassy. Could also store the length but for gas reasons, do not
         if(approvedAssetsHead == address(0)){
             return new address[](0);
         }
+
         uint256 numTokens = getNumApprovedTokens();
         address tmp = approvedAssetsHead;
         tokens = new address[](numTokens);
         uint256 i = 0;
 
-        while(true) {
-            if(assetMappings[tmp].isAllowed){ //don't count disallowed tokens
+        while(tmp != address(0)) {
+            if(assetMappings[tmp].isAllowed) {
                 tokens[i] = tmp;
                 i++;
             }
 
-            if(assetMappings[tmp].nextApprovedAsset==address(0)){
-                break;
-            }
             tmp = assetMappings[tmp].nextApprovedAsset;
         }
     }
 
-    function getAssetMapping(address underlying) view external returns(DataTypes.AssetData memory){
-        require(assetMappings[underlying].isAllowed, "Asset is not allowed in asset mappings"); //not existing
-        return assetMappings[underlying];
+    function getAssetMapping(address asset) view external returns(DataTypes.AssetData memory){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
+        return assetMappings[asset];
     }
 
     function getAssetBorrowable(address asset) view external returns (bool){
@@ -279,10 +328,10 @@ contract AssetMappings is VersionedInitializable{
         return assetMappings[asset].liquidationThreshold != 0;
     }
 
-    function getInterestRateStrategyAddress(address underlying, uint8 choice) view external returns(address){
-        require(assetMappings[underlying].isAllowed, "Asset is not allowed in asset mappings"); //not existing
-        require(interestRateStrategyAddress[underlying][choice]!=address(0), "No interest rate strategy is associated");
-        return interestRateStrategyAddress[underlying][choice];
+    function getInterestRateStrategyAddress(address asset, uint8 choice) view external returns(address){
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
+        require(interestRateStrategyAddress[asset][choice]!=address(0), "No interest rate strategy is associated");
+        return interestRateStrategyAddress[asset][choice];
     }
 
     function getAssetType(address asset) view external returns(DataTypes.ReserveAssetType){
@@ -309,38 +358,37 @@ contract AssetMappings is VersionedInitializable{
         return assetMappings[asset].isAllowed;
     }
 
-
-    function addInterestRateStrategyAddress(address underlying, address strategy) external onlyGlobalAdmin {
+    function addInterestRateStrategyAddress(address asset, address strategy) external onlyGlobalAdmin {
         require(Address.isContract(strategy), "input strategy is not a contract");
-        while(interestRateStrategyAddress[underlying][numInterestRateStrategyAddress[underlying]]!=address(0)){
-            numInterestRateStrategyAddress[underlying]++;
+        while(interestRateStrategyAddress[asset][numInterestRateStrategyAddress[asset]]!=address(0)){
+            numInterestRateStrategyAddress[asset]++;
         }
-        interestRateStrategyAddress[underlying][numInterestRateStrategyAddress[underlying]] = strategy;
+        interestRateStrategyAddress[asset][numInterestRateStrategyAddress[asset]] = strategy;
         emit AddedInterestRateStrategyAddress(
-            underlying,
-            numInterestRateStrategyAddress[underlying],
+            asset,
+            numInterestRateStrategyAddress[asset],
             strategy
         );
     }
 
-    function setCurveMetadata(address[] calldata underlying, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
-        require(underlying.length == vars.length, "Lists not same length");
-        for(uint i = 0;i<underlying.length;i++){
-            curveMetadata[underlying[i]] = vars[i];
+    function setCurveMetadata(address[] calldata asset, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
+        require(asset.length == vars.length, "Lists not same length");
+        for(uint i = 0;i<asset.length;i++){
+            curveMetadata[asset[i]] = vars[i];
         }
     }
 
-    function getCurveMetadata(address underlying) external view returns (DataTypes.CurveMetadata memory) {
-        // require(curveMetadata[underlying]._curvePool!=address(0), "Curve doesn't have metadata");
-        return curveMetadata[underlying];
+    function getCurveMetadata(address asset) external view returns (DataTypes.CurveMetadata memory) {
+        // require(curveMetadata[asset]._curvePool!=address(0), "Curve doesn't have metadata");
+        return curveMetadata[asset];
     }
 
 
     /**
      * @dev Gets the configuration paramters of the reserve
-     * @param underlying Address of underlying token you want params for
+     * @param asset Address of asset token you want params for
      **/
-    function getParams(address underlying)
+    function getParams(address asset)
         external view
         returns (
             uint256 baseLTV,
@@ -351,22 +399,22 @@ contract AssetMappings is VersionedInitializable{
         )
     {
 
-        require(assetMappings[underlying].isAllowed, "Asset is not allowed in asset mappings"); //not existing
+        require(assetMappings[asset].isAllowed, "Asset is not allowed in asset mappings"); //not existing
         return (
-            assetMappings[underlying].baseLTV,
-            assetMappings[underlying].liquidationThreshold,
-            assetMappings[underlying].liquidationBonus,
-            IERC20Detailed(underlying).decimals(),
-            assetMappings[underlying].borrowFactor
+            assetMappings[asset].baseLTV,
+            assetMappings[asset].liquidationThreshold,
+            assetMappings[asset].liquidationBonus,
+            IERC20Detailed(asset).decimals(),
+            assetMappings[asset].borrowFactor
         );
     }
 
-    function getDecimals(address underlying) external view
+    function getDecimals(address asset) external view
         returns (
             uint256
         ){
 
-        return IERC20Detailed(underlying).decimals();
+        return IERC20Detailed(asset).decimals();
     }
     //TODO: add governance functions to add or edit config
 }

@@ -124,6 +124,27 @@ contract AaveProtocolDataProvider {
             bool isFrozen;
     }
 
+    function getReserveFlags(address asset, uint64 trancheId)
+        external
+        view
+        returns (
+            bool isActive,
+            bool isFrozen,
+            bool borrowingEnabled
+        )
+    {
+        AssetMappings a = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings());
+        DataTypes.ReserveConfigurationMap memory configuration = ILendingPool(
+            ADDRESSES_PROVIDER.getLendingPool()
+        ).getConfiguration(asset, trancheId);
+
+        (
+            isActive,
+            isFrozen,
+            borrowingEnabled
+        ) = configuration.getFlagsMemory(asset, AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()));
+    }
+
     function getReserveConfigurationData(address asset, uint64 trancheId)
         external
         view
