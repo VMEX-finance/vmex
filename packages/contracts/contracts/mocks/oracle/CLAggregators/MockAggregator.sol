@@ -15,12 +15,12 @@ contract MockAggregator {
         emit AnswerUpdated(_initialAnswer, 0, block.timestamp);
     }
 
-    function latestAnswer() external view returns (int256) {
+    function latestAnswer() external view returns (int256 _latestAnswer) {
         return _latestAnswer;
     }
 
-    function getTokenType() external view returns (uint256) {
-        return 1;
+    function latestRoundData(uint80, int256 answer, uint256, uint256, uint80) external view returns (int256) {
+        answer = _latestAnswer;
     }
 
     // function getSubTokens() external view returns (address[] memory) {

@@ -143,7 +143,13 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
         } else {
-            int256 price = IChainlinkAggregator(source).latestAnswer();
+            (
+                /* uint80 roundID */,
+                int256 price,
+                /*uint startedAt*/,
+                /*uint256 updatedAt*/,
+                /*uint80 answeredInRound*/
+            ) = IChainlinkAggregator(source).latestRoundData();
             if (price > 0) {
                 return uint256(price);
             } else {
