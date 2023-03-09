@@ -40,9 +40,11 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     IPriceOracleGetter private _fallbackOracle;
     address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
+
     address public constant THREE_POOL = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
     address public constant ethNative = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    uint256 public constant SECONDS_PER_DAY = 86400;
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -147,10 +149,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
                 /* uint80 roundID */,
                 int256 price,
                 /*uint startedAt*/,
-                /*uint256 updatedAt*/,
+                uint256 updatedAt,
                 /*uint80 answeredInRound*/
             ) = IChainlinkAggregator(source).latestRoundData();
-            if (price > 0) {
+            if (price > 0 && price < type(int256).max && block.timestamp - updatedAt < SECONDS_PER_DAY) {
                 return uint256(price);
             } else {
                 return _fallbackOracle.getAssetPrice(asset);
