@@ -15,16 +15,23 @@ contract MockAggregator {
         emit AnswerUpdated(_initialAnswer, 0, block.timestamp);
     }
 
-    function latestAnswer() external view returns (int256) {
+    function latestAnswer() external view returns (int256 _latestAnswer) {
         return _latestAnswer;
     }
 
-    function getTokenType() external view returns (uint256) {
-        return 1;
+    function latestRoundData(uint80, int256 answer, uint256, uint256, uint80) external view returns (int256) {
+        answer = _latestAnswer;
     }
 
-    // function getSubTokens() external view returns (address[] memory) {
-    // TODO: implement mock for when multiple subtokens. Maybe we need to create diff mock contract
-    // to call it from the migration for this case??
-    // }
+    function aggregator() external view returns(address){
+        return address(this);
+    }
+
+    function minAnswer() external view returns(int192) {
+        return 10000000000000;
+    }
+
+    function maxAnswer() external view returns(int192) {
+        return 1000000000000000000;
+    }
 }

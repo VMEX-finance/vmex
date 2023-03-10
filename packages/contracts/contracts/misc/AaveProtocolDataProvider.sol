@@ -142,7 +142,7 @@ contract AaveProtocolDataProvider {
             isActive,
             isFrozen,
             borrowingEnabled
-        ) = configuration.getFlagsMemory(asset, AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()));
+        ) = configuration.getFlagsMemory(asset, a);
     }
 
     function getReserveConfigurationData(address asset, uint64 trancheId)
