@@ -117,7 +117,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param asset The asset address
     function getAssetPrice(address asset)
         public
-        view
+		view
         override
         returns (uint256)
     {
@@ -164,7 +164,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function getCurveAssetPrice(
         address asset,
         DataTypes.ReserveAssetType assetType
-    ) internal view returns (uint256 price) {
+    ) internal returns (uint256 price) {
         DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
 
         if (!Address.isContract(c._curvePool)) {
