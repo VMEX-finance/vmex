@@ -7,6 +7,8 @@ import {IInitializableAToken} from "../../../interfaces/IInitializableAToken.sol
 import {IAaveIncentivesController} from "../../../interfaces/IAaveIncentivesController.sol";
 import {IInitializableDebtToken} from "../../../interfaces/IInitializableDebtToken.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 // import "hardhat/console.sol";
 library DeployATokens {
@@ -23,13 +25,13 @@ library DeployATokens {
         )
     {
         aTokenProxyAddress = _initTokenWithProxy(
-            vars.aTokenImpl,
+            vars.aTokenBeacon,
             getAbiEncodedAToken(vars)
         );
 
 
         variableDebtTokenProxyAddress = _initTokenWithProxy(
-            vars.variableDebtTokenImpl,
+            vars.variableDebtTokenBeacon,
             abi.encodeWithSelector(
                 IInitializableDebtToken.initialize.selector,
                 vars.cachedPool,
@@ -58,14 +60,13 @@ library DeployATokens {
 
 
     function _initTokenWithProxy(
-        address implementation,
+        address beacon,
         bytes memory initParams
     ) public returns (address) {
-        InitializableImmutableAdminUpgradeabilityProxy proxy = new InitializableImmutableAdminUpgradeabilityProxy(
-                address(this)
+        BeaconProxy proxy = new BeaconProxy(
+                beacon, 
+                initParams
             );
-
-        proxy.initialize(implementation, initParams);
 
         return address(proxy);
     }

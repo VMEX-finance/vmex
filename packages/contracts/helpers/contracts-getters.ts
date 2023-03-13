@@ -39,7 +39,10 @@ import {
   VStrategyHelperFactory,
   UserConfigurationFactory,
   BaseUniswapOracleFactory,
-  YearnTokenMockedFactory
+  YearnTokenMockedFactory,
+  ATokenBeaconFactory,
+  VariableDebtTokenBeaconFactory,
+  UpgradeableBeaconFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -86,6 +89,34 @@ export const getLendingPoolConfiguratorProxy = async (
       (
         await getDb()
           .get(`${eContractid.LendingPoolConfigurator}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+};
+
+export const getATokenBeacon = async (
+  address?: tEthereumAddress
+) => {
+  return await UpgradeableBeaconFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.ATokenBeacon}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+};
+
+export const getVariableDebtTokenBeacon = async (
+  address?: tEthereumAddress
+) => {
+  return await UpgradeableBeaconFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.VariableDebtTokenBeacon}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

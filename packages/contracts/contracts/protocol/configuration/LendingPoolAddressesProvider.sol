@@ -39,8 +39,9 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant GLOBAL_ADMIN = "GLOBAL_ADMIN";
     bytes32 private constant LENDING_POOL = "LENDING_POOL";
     bytes32 private constant ATOKEN = "ATOKEN";
-    bytes32 private constant YEARN_VTOKEN = "YEARN_VTOKEN";
+    bytes32 private constant ATOKEN_BEACON = "ATOKEN_BEACON";
     bytes32 private constant VARIABLE_DEBT = "VARIABLE_DEBT";
+    bytes32 private constant VARIABLE_DEBT_BEACON = "VARIABLE_DEBT_BEACON";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
         "LENDING_POOL_CONFIGURATOR";
     bytes32 private constant TRANCHE_ADMIN = "TRANCHE_ADMIN";
@@ -212,6 +213,23 @@ contract LendingPoolAddressesProvider is
     }
 
     /**
+     * @dev Returns the address of the aToken beacon address
+     * @return The aToken beacon address
+     **/
+    function getATokenBeacon() external view override returns (address) {
+        return getAddress(ATOKEN_BEACON);
+    }
+
+    /**
+     * @dev Updates the implementation of the atoken beacon
+     * @param aTokenBeacon The new aToken implementation
+     **/
+    function setATokenBeacon(address aTokenBeacon) external override onlyOwner {
+        _addresses[ATOKEN_BEACON] = aTokenBeacon;
+        emit ATokenBeaconUpdated(aTokenBeacon);
+    }
+
+    /**
      * @dev Returns the address of the LendingPool proxy
      * @return The aToken proxy address
      **/
@@ -228,6 +246,24 @@ contract LendingPoolAddressesProvider is
         // don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
         _addresses[VARIABLE_DEBT] = aToken;
         emit VariableDebtUpdated(aToken);
+    }
+
+    /**
+     * @dev Returns the address of the variable debt token beacon
+     * @return The aToken proxy address
+     **/
+    function getVariableDebtTokenBeacon() external view override returns (address) {
+        return getAddress(VARIABLE_DEBT_BEACON);
+    }
+
+    /**
+     * @dev Updates the beacon implementation
+     * @param variableDebtBeacon The new aToken implementation
+     **/
+    function setVariableDebtTokenBeacon(address variableDebtBeacon) external override onlyOwner {
+        // don't use _updateImpl since this just stores the address, the upgrade is done in LendingPoolConfigurator
+        _addresses[VARIABLE_DEBT_BEACON] = variableDebtBeacon;
+        emit VariableDebtBeaconUpdated(variableDebtBeacon);
     }
 
     /**

@@ -21,9 +21,9 @@ import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
 /**
- * @title Aave ERC20 AToken
+ * @title VMEX ERC20 AToken (vToken)
  * @dev Implementation of the interest bearing token for the Aave protocol
- * @author Aave
+ * @author Aave/VMEX
  */
 contract AToken is
     VersionedInitializable,

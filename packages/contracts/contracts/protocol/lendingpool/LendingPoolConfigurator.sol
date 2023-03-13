@@ -142,15 +142,15 @@ contract LendingPoolConfigurator is
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
-        address aTokenImpl = addressesProvider.getAToken();
-        address varDebtToken = addressesProvider.getVariableDebtToken();
+        address aTokenBeacon = addressesProvider.getATokenBeacon(); //beacon proxy allows all atokens to be upgraded simultaneously
+        address varDebtTokenBeacon = addressesProvider.getVariableDebtTokenBeacon();
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
                 DataTypes.InitReserveInputInternal(
                     input[i],
                     trancheId,
-                    aTokenImpl,
-                    varDebtToken,
+                    aTokenBeacon,
+                    varDebtTokenBeacon,
                     assetMappings.getAssetMapping(input[i].underlyingAsset),
                     cachedPool,
                     addressesProvider
@@ -383,91 +383,6 @@ contract LendingPoolConfigurator is
     /* ********************************************************************* */
     /* This next section contains functions only accessible to Global Admins */
     /* ********************************************************************* */
-
-    /**
-     * @dev Updates the aToken implementation for the reserve. Note that this only updates
-     * the implementation for a specific aToken in a specific tranche.
-     * @param input address asset - The underlying asset
-     *      uint64 trancheId - The tranche id
-     *      address treasury - The new treasury address
-     *      string name - The new name of the atoken
-     *      string symbol - The new symbol of the atoken
-     *      address implementation - The new address of atoken implementation
-     **/
-    function updateAToken(UpdateATokenInput calldata input)
-        external
-        onlyGlobalAdmin
-    {
-        ILendingPool cachedPool = pool;
-
-        DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
-            input.asset,
-            input.trancheId
-        );
-
-        bytes memory encodedCall = abi.encodeWithSelector(
-            IInitializableAToken.initialize.selector, //selects that we want to call the initialize function
-            cachedPool,
-            address(this),
-            address(addressesProvider),
-            input.asset,
-            input.trancheId
-        );
-
-        _upgradeTokenImplementation(
-            reserveData.aTokenAddress,
-            input.implementation,
-            encodedCall
-        );
-
-        emit ATokenUpgraded(
-            input.asset,
-            input.trancheId,
-            reserveData.aTokenAddress,
-            input.implementation
-        );
-    }
-
-    /**
-     * @dev Updates the variable debt token implementation for the asset
-     * @param input address asset - The underlying asset
-     *      uint64 trancheId - The tranche id
-     *      string name - The new name of the variable debt token
-     *      string symbol - The new symbol of the variable debt token
-     *      address implementation - The address of the variable debt token implementation
-     **/
-    function updateVariableDebtToken(
-        UpdateDebtTokenInput calldata input
-    ) external onlyGlobalAdmin {
-        ILendingPool cachedPool = pool;
-
-        DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(
-            input.asset,
-            input.trancheId
-        );
-
-        bytes memory encodedCall = abi.encodeWithSelector(
-            IInitializableDebtToken.initialize.selector,
-            cachedPool,
-            input.asset,
-            input.trancheId,
-            addressesProvider
-        );
-
-        _upgradeTokenImplementation(
-            reserveData.variableDebtTokenAddress,
-            input.implementation,
-            encodedCall
-        );
-
-        emit VariableDebtTokenUpgraded(
-            input.asset,
-            input.trancheId,
-            reserveData.variableDebtTokenAddress,
-            input.implementation
-        );
-    }
-
     /**
      * @dev Activates a reserve
      * @param asset The address of the underlying asset of the reserve
@@ -522,17 +437,6 @@ contract LendingPoolConfigurator is
         onlyEmergencyAdmin
     {
         pool.setPauseEverything(val);
-    }
-
-    function _upgradeTokenImplementation(
-        address proxyAddress, //current address of the token
-        address implementation,
-        bytes memory initParams
-    ) internal {
-        InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
-                payable(proxyAddress)
-            );
-        proxy.upgradeToAndCall(implementation, initParams);
     }
 
     function _checkNoLiquidity(address asset, uint64 trancheId) internal view {

@@ -74,6 +74,10 @@ import {
   MockStrategyFactory,
   YearnTokenMockedFactory,
   WETH9Mocked,
+  ATokenBeaconFactory,
+  VariableDebtTokenBeaconFactory,
+  UpgradeableBeacon,
+  UpgradeableBeaconFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -436,21 +440,39 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if(network == "localhost" || network=="hardhat" || await getDbEntry(eContractid.AToken)===undefined){
     console.log("Deploying atoken implementations")
     await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
+    const aTokenImplAddress = await getContractAddressWithJsonFallback(
+      eContractid.AToken, //this is implementation contract
+      ConfigNames.Aave
+    )
+    const varDebtTokenImplAddress = await getContractAddressWithJsonFallback(
+      eContractid.VariableDebtToken,
+      ConfigNames.Aave
+    )
     await waitForTx(
       await addressesProvider.setATokenImpl(
-        await getContractAddressWithJsonFallback(
-          eContractid.AToken,
-          ConfigNames.Aave
-        )
+        aTokenImplAddress
       )
     );
 
     await waitForTx(
       await addressesProvider.setVariableDebtToken(
-        await getContractAddressWithJsonFallback(
-          eContractid.VariableDebtToken,
-          ConfigNames.Aave
-        )
+        varDebtTokenImplAddress
+      )
+    );
+
+    const aTokenBeacon = await deployATokenBeacon([aTokenImplAddress], false);
+
+    await waitForTx(
+      await addressesProvider.setATokenBeacon(
+        aTokenBeacon.address
+      )
+    );
+
+    const variableDebtBeacon = await deployVariableDebtTokenBeacon([varDebtTokenImplAddress], false);
+
+    await waitForTx(
+      await addressesProvider.setVariableDebtTokenBeacon(
+        variableDebtBeacon.address
       )
     );
   }
@@ -1622,6 +1644,28 @@ export const deployATokenImplementations = async (
     await deployGenericVariableDebtToken(verify);
   }
 };
+
+export const deployATokenBeacon = async (
+  args: [tEthereumAddress],
+  verify: boolean
+) => 
+  withSaveAndVerify(
+    await new UpgradeableBeaconFactory(await getFirstSigner()).deploy(...args),
+    eContractid.ATokenBeacon,
+    [],
+    verify
+  );
+
+export const deployVariableDebtTokenBeacon = async (
+  args: [tEthereumAddress],
+  verify: boolean
+) => 
+  withSaveAndVerify(
+    await new UpgradeableBeaconFactory(await getFirstSigner()).deploy(...args),
+    eContractid.VariableDebtTokenBeacon,
+    [],
+    verify
+  );
 
 export const deployRateStrategy = async (
   strategyName: string,
