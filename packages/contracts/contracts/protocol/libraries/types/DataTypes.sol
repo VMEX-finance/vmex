@@ -49,8 +49,8 @@ library DataTypes {
     struct InitReserveInputInternal {
         InitReserveInput input;
         uint64 trancheId;
-        address aTokenImpl;
-        address variableDebtTokenImpl;
+        address aTokenBeacon;
+        address variableDebtTokenBeacon;
         AssetData assetdata;
         ILendingPool cachedPool;
         ILendingPoolAddressesProvider addressesProvider;

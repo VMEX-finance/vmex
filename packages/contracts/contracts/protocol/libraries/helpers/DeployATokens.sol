@@ -25,13 +25,13 @@ library DeployATokens {
         )
     {
         aTokenProxyAddress = _initTokenWithProxy(
-            vars.aTokenImpl,
+            vars.aTokenBeacon,
             getAbiEncodedAToken(vars)
         );
 
 
         variableDebtTokenProxyAddress = _initTokenWithProxy(
-            vars.variableDebtTokenImpl,
+            vars.variableDebtTokenBeacon,
             abi.encodeWithSelector(
                 IInitializableDebtToken.initialize.selector,
                 vars.cachedPool,
@@ -60,11 +60,11 @@ library DeployATokens {
 
 
     function _initTokenWithProxy(
-        address implementation,
+        address beacon,
         bytes memory initParams
     ) public returns (address) {
         BeaconProxy proxy = new BeaconProxy(
-                implementation, 
+                beacon, 
                 initParams
             );
 

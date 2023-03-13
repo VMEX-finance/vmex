@@ -142,15 +142,15 @@ contract LendingPoolConfigurator is
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
-        address aTokenImpl = addressesProvider.getATokenBeacon(); //beacon proxy allows all atokens to be upgraded simultaneously
-        address varDebtToken = addressesProvider.getVariableDebtTokenBeacon();
+        address aTokenBeacon = addressesProvider.getATokenBeacon(); //beacon proxy allows all atokens to be upgraded simultaneously
+        address varDebtTokenBeacon = addressesProvider.getVariableDebtTokenBeacon();
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
                 DataTypes.InitReserveInputInternal(
                     input[i],
                     trancheId,
-                    aTokenImpl,
-                    varDebtToken,
+                    aTokenBeacon,
+                    varDebtTokenBeacon,
                     assetMappings.getAssetMapping(input[i].underlyingAsset),
                     cachedPool,
                     addressesProvider
