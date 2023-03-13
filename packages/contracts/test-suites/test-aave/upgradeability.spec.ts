@@ -60,35 +60,16 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
   });
 
   it('Tries to update the DAI Atoken implementation with a different address than the lendingPoolManager', async () => {
-    const { dai, configurator, users } = testEnv;
-
-    const updateATokenInputParams: {
-      asset: string;
-      trancheId: BigNumberish;
-      implementation: string;
-    } = {
-      asset: dai.address,
-      trancheId: tranche,
-      implementation: newATokenAddress,
-    };
+    const { dai, aTokenBeacon, users } = testEnv;
     await expect(
-      configurator.connect(users[1].signer).updateAToken(updateATokenInputParams)
-    ).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
+      aTokenBeacon.connect(users[1].signer).upgradeTo(newATokenAddress)
+    ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
   it('Upgrades the DAI Atoken implementation ', async () => {
-    const { dai, configurator, helpersContract } = testEnv;
+    const { dai, aTokenBeacon, helpersContract } = testEnv;
 
-    const updateATokenInputParams: {
-      asset: string;
-      trancheId: BigNumberish;
-      implementation: string;
-    } = {
-      asset: dai.address,
-      trancheId: tranche,
-      implementation: newATokenAddress,
-    };
-    await configurator.updateAToken(updateATokenInputParams);
+    await aTokenBeacon.upgradeTo(newATokenAddress);
 
     const { aTokenAddress } = await helpersContract.getReserveTokensAddresses(
       dai.address, tranche
@@ -99,47 +80,30 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const revision = await aDai.newFunction();
 
     expect(revision.toString()).to.be.eq('2', 'Invalid revision');
+
+    const { aTokenAddress: aTokenAddress1 } = await helpersContract.getReserveTokensAddresses(
+      dai.address, 1
+    );
+
+    const aDai1 = await getMockAToken(aTokenAddress1);
+
+    expect((await aDai1.newFunction()).toString()).to.be.eq('2', 'Invalid revision for other atokens');
   });
 
   it('Tries to update the DAI variable debt token implementation with a different address than the lendingPoolManager', async () => {
-    const {dai, configurator, users} = testEnv;
-
-    const updateDebtTokenInput: {
-      asset: string;
-      trancheId: BigNumberish;
-      implementation: string;
-      params: string;
-    } = {
-      asset: dai.address,
-      trancheId: tranche,
-      implementation: newVariableTokenAddress,
-      params: '0x10'
-    }
+    const {dai, varDebtBeacon, users} = testEnv;
 
     await expect(
-      configurator
+      varDebtBeacon
         .connect(users[1].signer)
-        .updateVariableDebtToken(updateDebtTokenInput)
-    ).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
+        .upgradeTo(newVariableTokenAddress)
+    ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
   it('Upgrades the DAI variable debt token implementation ', async () => {
-    const {dai, configurator, pool, helpersContract} = testEnv;
+    const {dai, varDebtBeacon, pool, helpersContract} = testEnv;
 
-    const updateDebtTokenInput: {
-      asset: string;
-      trancheId: BigNumberish;
-      implementation: string;
-      params: string;
-    } = {
-      asset: dai.address,
-      trancheId: tranche,
-      implementation: newVariableTokenAddress,
-      params: '0x10'
-    }
-    //const name = await (await getAToken(newATokenAddress)).name();
-
-    await configurator.updateVariableDebtToken(updateDebtTokenInput);
+    await varDebtBeacon.upgradeTo(newVariableTokenAddress);
 
     const { variableDebtTokenAddress } = await helpersContract.getReserveTokensAddresses(
       dai.address, tranche
@@ -150,5 +114,13 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const revision = await debtToken.newFunction();
 
     expect(revision.toString()).to.be.eq('2', 'Invalid revision');
+
+    const { variableDebtTokenAddress: variableDebtTokenAddress1 } = await helpersContract.getReserveTokensAddresses(
+      dai.address, 1
+    );
+
+    const debtToken1 = await getMockAToken(variableDebtTokenAddress1);
+
+    expect((await debtToken1.newFunction()).toString()).to.be.eq('2', 'Invalid revision for other variable debt tokens');
   });
 });

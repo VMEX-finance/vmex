@@ -36,7 +36,9 @@ interface ILendingPoolAddressesProvider {
 
 
     event ATokenUpdated(address indexed newAddress);
+    event ATokenBeaconUpdated(address indexed newAddress);
     event VariableDebtUpdated(address indexed newAddress);
+    event VariableDebtBeaconUpdated(address indexed newAddress);
 
     event IncentivesControllerUpdated(address indexed newAddress);
 
@@ -57,10 +59,6 @@ interface ILendingPoolAddressesProvider {
     function getLendingPool() external view returns (address);
 
     function setLendingPoolImpl(address pool) external;
-
-    // function getATokenAndRatesHelper() external view returns (address);
-
-    // function setATokenAndRatesHelper(address newAdd) external;
 
     function getLendingPoolConfigurator() external view returns (address);
 
@@ -107,8 +105,14 @@ interface ILendingPoolAddressesProvider {
     function getAToken() external view returns (address);
     function setATokenImpl(address pool) external;
 
+    function getATokenBeacon() external view returns (address);
+    function setATokenBeacon(address pool) external;
+
     function getVariableDebtToken() external view returns (address);
     function setVariableDebtToken(address pool) external;
+
+    function getVariableDebtTokenBeacon() external view returns (address);
+    function setVariableDebtTokenBeacon(address pool) external;
 
     function getAssetMappings() external view returns (address);
     function setAssetMappingsImpl(address pool) external;

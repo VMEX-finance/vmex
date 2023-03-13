@@ -16,6 +16,8 @@ import {
   getAssetMappings,
   getYearnTokenMocked,
   getVariableDebtToken,
+  getATokenBeacon,
+  getVariableDebtTokenBeacon,
   // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
@@ -46,7 +48,7 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, CurveWrapper, FlashLiquidationAdapter, VariableDebtToken, YearnTokenMocked } from "../../../types";
+import { AssetMappings, ATokenBeacon, CurveWrapper, FlashLiquidationAdapter, VariableDebtToken, VariableDebtTokenBeacon, YearnTokenMocked } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -89,6 +91,8 @@ export interface TestEnv {
   wethGateway: WETHGateway;
   flashLiquidationAdapter: FlashLiquidationAdapter;
   paraswapLiquiditySwapAdapter: ParaSwapLiquiditySwapAdapter;
+  aTokenBeacon: ATokenBeacon;
+  varDebtBeacon: VariableDebtTokenBeacon;
 }
 
 let buidlerevmSnapshotId: string = "0x1";
@@ -124,6 +128,8 @@ const testEnv: TestEnv = {
   paraswapLiquiditySwapAdapter: {} as ParaSwapLiquiditySwapAdapter,
   registry: {} as LendingPoolAddressesProviderRegistry,
   wethGateway: {} as WETHGateway,
+  aTokenBeacon: {} as ATokenBeacon,
+  varDebtBeacon: {} as VariableDebtTokenBeacon,
 } as TestEnv;
 
 export async function initializeMakeSuite() {
@@ -162,6 +168,10 @@ export async function initializeMakeSuite() {
   }
 
   testEnv.helpersContract = await getAaveProtocolDataProvider();
+
+  testEnv.aTokenBeacon = await getATokenBeacon(await testEnv.addressesProvider.getATokenBeacon());
+  testEnv.varDebtBeacon = await getVariableDebtTokenBeacon(await testEnv.addressesProvider.getVariableDebtTokenBeacon());
+
 
   const allTokensT0 = await testEnv.helpersContract.getAllATokens("0");
   const aDaiAddress = allTokensT0.find(

@@ -7,6 +7,8 @@ import {IInitializableAToken} from "../../../interfaces/IInitializableAToken.sol
 import {IAaveIncentivesController} from "../../../interfaces/IAaveIncentivesController.sol";
 import {IInitializableDebtToken} from "../../../interfaces/IInitializableDebtToken.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 // import "hardhat/console.sol";
 library DeployATokens {
@@ -61,11 +63,10 @@ library DeployATokens {
         address implementation,
         bytes memory initParams
     ) public returns (address) {
-        InitializableImmutableAdminUpgradeabilityProxy proxy = new InitializableImmutableAdminUpgradeabilityProxy(
-                address(this)
+        BeaconProxy proxy = new BeaconProxy(
+                implementation, 
+                initParams
             );
-
-        proxy.initialize(implementation, initParams);
 
         return address(proxy);
     }
