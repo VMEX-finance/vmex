@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.17; 
 
-import {FixedPointMathLib} from "./FixedPointMathLib.sol"; 
-import {IntegralMath} from "./IntegralMath.sol"; 
+import {LogExpMath} from "../../../dependencies/balancer/LogExpMath.sol";
 
 library vMath {
 
@@ -28,11 +27,7 @@ library vMath {
 	
 	//limited to curve pools only, either 2 or 3 assets (mostly 2) 
 	function geometric_mean(uint8 n, uint256 _product) internal pure returns(uint256) {
-		if (n == 2) {
-			return FixedPointMathLib.sqrt(_product); 
-		} else { //n == 3
-			return IntegralMath.floorCbrt(_product); 
-		}
+		return LogExpMath.pow(_product, 1e18 / n)/1e12;
 	}
 
 }

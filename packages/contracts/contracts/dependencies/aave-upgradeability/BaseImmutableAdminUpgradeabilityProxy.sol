@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.17;
 
-import "../../../dependencies/openzeppelin/upgradeability/BaseUpgradeabilityProxy.sol";
+import "../openzeppelin/upgradeability/BaseUpgradeabilityProxy.sol";
 /**
  * @title BaseImmutableAdminUpgradeabilityProxy
  * @author Aave, inspired by the OpenZeppelin upgradeability proxy pattern

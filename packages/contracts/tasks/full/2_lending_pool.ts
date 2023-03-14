@@ -5,9 +5,11 @@ import {
   getContractAddressWithJsonFallback
 } from "../../helpers/contracts-helpers";
 import {
+  deployATokenBeacon,
   deployATokenImplementations,
   deployLendingPool,
   deployLendingPoolConfigurator,
+  deployVariableDebtTokenBeacon,
 } from "../../helpers/contracts-deployments";
 import { eContractid, eNetwork } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
@@ -107,23 +109,41 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
       );
 
 
-  await waitForTx(
-    await addressesProvider.setATokenImpl(
-      await getContractAddressWithJsonFallback(
-        eContractid.AToken,
+      const aTokenImplAddress = await getContractAddressWithJsonFallback(
+        eContractid.AToken, //this is implementation contract
         ConfigNames.Aave
       )
-    )
-  );
-
-  await waitForTx(
-    await addressesProvider.setVariableDebtToken(
-      await getContractAddressWithJsonFallback(
+      const varDebtTokenImplAddress = await getContractAddressWithJsonFallback(
         eContractid.VariableDebtToken,
         ConfigNames.Aave
       )
-    )
-  );
+      await waitForTx(
+        await addressesProvider.setATokenImpl(
+          aTokenImplAddress
+        )
+      );
+  
+      await waitForTx(
+        await addressesProvider.setVariableDebtToken(
+          varDebtTokenImplAddress
+        )
+      );
+  
+      const aTokenBeacon = await deployATokenBeacon([aTokenImplAddress], false);
+  
+      await waitForTx(
+        await addressesProvider.setATokenBeacon(
+          aTokenBeacon.address
+        )
+      );
+  
+      const variableDebtBeacon = await deployVariableDebtTokenBeacon([varDebtTokenImplAddress], false);
+  
+      await waitForTx(
+        await addressesProvider.setVariableDebtTokenBeacon(
+          variableDebtBeacon.address
+        )
+      );
 
     } catch (error) {
       throw error;

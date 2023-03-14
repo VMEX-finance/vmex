@@ -7,7 +7,7 @@ import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {ILendingPoolCollateralManager} from "../../interfaces/ILendingPoolCollateralManager.sol";
-import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
+import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";

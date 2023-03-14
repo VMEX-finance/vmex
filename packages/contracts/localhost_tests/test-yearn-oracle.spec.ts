@@ -11,6 +11,8 @@ import {getCurvePrice} from "./helpers/curve-calculation";
 import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
 import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
+
+import AaveConfig from "../markets/aave";
 chai.use(function (chai: any, utils: any) {
   chai.Assertion.overwriteMethod(
     "almostEqualOrEqual",
@@ -26,7 +28,7 @@ chai.use(function (chai: any, utils: any) {
 
 
 makeSuite(
-    "yearn oracle test ",
+    "yearn and curve oracle test ",
     () => {
         const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');
@@ -40,7 +42,22 @@ makeSuite(
             '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',//frax usdc
             '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',//frax 3crv
          ];
-        var CurveTokenAddabi = [
+         const curvePools = [
+          '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46',//tricrypto
+          '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',//threepool
+          '0xDC24316b9AE028F1497c275EB9192a3Ea0f67022',//stetheth
+          '0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2',//frax usdc
+          '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',//frax 3crv
+       ];
+
+       const curveSize = [
+        3,//tricrypto
+        3,//threepool
+        2,//stetheth
+        2,//frax usdc
+        2,//frax 3crv
+     ];
+        const CurveTokenAddabi = [
             "function allowance(address owner, address spender) external view returns (uint256 remaining)",
             "function approve(address spender, uint256 value) external returns (bool success)",
             "function balanceOf(address owner) external view returns (uint256 balance)",
@@ -52,6 +69,12 @@ makeSuite(
             "function transferFrom(address from, address to, uint256 value) external returns (bool success)",
             "function deposit() public payable",
             "function withdraw(uint wad) public"
+        ];
+        const CurvePoolAbi = [
+          `function add_liquidity(uint256[2] calldata amounts,uint256 min_mint_amount) external payable`,
+          `function add_liquidity(uint256[3] calldata amounts,uint256 min_mint_amount) external payable`,
+          `function coins(uint256 arg0) external view returns (address out)`,
+          `function get_virtual_price() external view returns (uint256 out)`,
         ];
         const yvAddr = [
              '0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3',
@@ -71,7 +94,7 @@ makeSuite(
           "function approve(address spender, uint256 value) external returns (bool success)",
       ];
       
-      const curveOracleAbi = [
+      const oracleAbi = [
           "function getAssetPrice(address asset) public view returns (uint256)"
       ]
 
@@ -82,18 +105,46 @@ makeSuite(
 
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
-            const curveOracleAdd = await addProv.connect(signer).getPriceOracle();
+            const oracleAdd = await addProv.connect(signer).getPriceOracle();
 
 
 
-            const curveOracle = new DRE.ethers.Contract(curveOracleAdd,curveOracleAbi);
+            const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi);
 
             for(let i =0;i<curveAssets.length;i++){
                 const CurveToken = new DRE.ethers.Contract(curveAssets[i],CurveTokenAddabi)
+                const CurvePool = new DRE.ethers.Contract(curvePools[i],CurvePoolAbi)
                 const yearnVault = new DRE.ethers.Contract(yvAddr[i],yvAbi)
-                const pricePerCurveToken = await curveOracle.connect(signer).getAssetPrice(CurveToken.address);
+                const pricePerCurveToken = await oracle.connect(signer).getAssetPrice(CurveToken.address);
                 console.log("pricePerCurveToken: ",pricePerCurveToken)
-                const pricePerYearnToken = await curveOracle.connect(signer).getAssetPrice(yearnVault.address);
+                var cumProduct = 1;
+                var minAmount = ethers.constants.MaxUint256
+                const vp = await CurvePool.connect(signer).get_virtual_price()
+                var expectedPrice;
+                for(let j = 0;j<curveSize[i];j++) {
+                  var tokenAddr = await CurvePool.connect(signer).coins(j);
+                  if(tokenAddr == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"){
+                    tokenAddr = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                  }
+                  const tokenPrice = await oracle.connect(signer).getAssetPrice(tokenAddr);
+                  cumProduct *= Number(ethers.utils.formatUnits(tokenPrice, 18))
+                  minAmount = tokenPrice.lt(minAmount) ? tokenPrice : minAmount
+                }
+                
+                if(i==0) {//v2 
+                  expectedPrice = curveSize[i] * Math.pow(cumProduct, 1/curveSize[i]) * vp
+                  
+                }
+                else {
+                  expectedPrice = ethers.utils.formatUnits(minAmount.mul(vp),18)
+                }
+                console.log("expected curve price: ",expectedPrice)
+                const diff = Math.abs(Number(expectedPrice) - Number(pricePerCurveToken))
+                expect(
+                  diff
+                ).to.be.lte(100, "Curve prices do not match");
+
+                const pricePerYearnToken = await oracle.connect(signer).getAssetPrice(yearnVault.address);
                 const pricePerShare = await yearnVault.connect(signer).pricePerShare();
                 
                 console.log("pricePerYearnToken: ",pricePerYearnToken)

@@ -7,7 +7,7 @@ import {
 } from "../../../interfaces/ICreditDelegationToken.sol";
 import {
     VersionedInitializable
-} from "../../libraries/aave-upgradeability/VersionedInitializable.sol";
+} from "../../../dependencies/aave-upgradeability/VersionedInitializable.sol";
 import {IncentivizedERC20} from "../IncentivizedERC20.sol";
 import {Errors} from "../../libraries/helpers/Errors.sol";
 import {
