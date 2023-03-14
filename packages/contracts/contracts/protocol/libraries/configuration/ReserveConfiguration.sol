@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {PercentageMath} from "../math/PercentageMath.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 
 /**
@@ -191,66 +190,6 @@ library ReserveConfiguration {
             getBorrowingEnabled(self, asset, a)
         );
     }
-
-    // NOTE: commented to clarify we won't be using these values, use asset mappings (if you want reserve factor, call it directly)
-
-    // /**
-    //  * @dev Gets the configuration paramters of the reserve
-    //  * @param self The reserve configuration
-    //  * @return The state params representing ltv, liquidation threshold, liquidation bonus, the reserve decimals
-    //  **/
-    // function getParams(DataTypes.ReserveConfigurationMap memory self)
-    //     internal
-    //     pure
-    //     returns (
-    //         uint256,
-    //         uint256,
-    //         uint256,
-    //         uint256,
-    //         uint256
-    //     )
-    // {
-    //     uint256 dataLocal = self.data;
-
-    //     return (
-    //         dataLocal & ~LTV_MASK,
-    //         (dataLocal & ~LIQUIDATION_THRESHOLD_MASK) >>
-    //             LIQUIDATION_THRESHOLD_START_BIT_POSITION,
-    //         (dataLocal & ~LIQUIDATION_BONUS_MASK) >>
-    //             LIQUIDATION_BONUS_START_BIT_POSITION,
-    //         (dataLocal & ~DECIMALS_MASK) >> RESERVE_DECIMALS_START_BIT_POSITION,
-    //         (dataLocal & ~RESERVE_FACTOR_MASK) >>
-    //             RESERVE_FACTOR_START_BIT_POSITION
-    //     );
-    // }
-
-    // /**
-    //  * @dev Gets the configuration paramters of the reserve from a memory object
-    //  * @param self The reserve configuration
-    //  * @return The state params representing ltv, liquidation threshold, liquidation bonus, the reserve decimals
-    //  **/
-    // function getParamsMemory(DataTypes.ReserveConfigurationMap memory self)
-    //     internal
-    //     pure
-    //     returns (
-    //         uint256,
-    //         uint256,
-    //         uint256,
-    //         uint256,
-    //         uint256
-    //     )
-    // {
-    //     return (
-    //         self.data & ~LTV_MASK,
-    //         (self.data & ~LIQUIDATION_THRESHOLD_MASK) >>
-    //             LIQUIDATION_THRESHOLD_START_BIT_POSITION,
-    //         (self.data & ~LIQUIDATION_BONUS_MASK) >>
-    //             LIQUIDATION_BONUS_START_BIT_POSITION,
-    //         (self.data & ~DECIMALS_MASK) >> RESERVE_DECIMALS_START_BIT_POSITION,
-    //         (self.data & ~RESERVE_FACTOR_MASK) >>
-    //             RESERVE_FACTOR_START_BIT_POSITION
-    //     );
-    // }
 
     /**
      * @dev Gets the configuration flags of the reserve from a memory object

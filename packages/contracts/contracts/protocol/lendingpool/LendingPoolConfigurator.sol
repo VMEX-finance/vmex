@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {VersionedInitializable} from "../libraries/aave-upgradeability/VersionedInitializable.sol";
-import {InitializableImmutableAdminUpgradeabilityProxy} from "../libraries/aave-upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
@@ -11,14 +10,9 @@ import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20De
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.sol";
-import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
-import {IAToken} from "../../interfaces/IAToken.sol";
 import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
 import {AssetMappings} from "./AssetMappings.sol";
-
-import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 /**
  * @title LendingPoolConfigurator contract
  * @author Aave

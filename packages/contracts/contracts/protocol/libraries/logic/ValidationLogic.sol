@@ -11,12 +11,10 @@ import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {UserConfiguration} from "../configuration/UserConfiguration.sol";
 import {Errors} from "../helpers/Errors.sol";
-import {IReserveInterestRateStrategy} from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
-import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 
 /**
  * @title ReserveLogic library

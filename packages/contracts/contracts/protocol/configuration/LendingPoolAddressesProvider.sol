@@ -2,13 +2,10 @@
 pragma solidity 0.8.17;
 
 import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
-
 // Prettier ignore to prevent buidler flatter bug
 // prettier-ignore
 import {InitializableImmutableAdminUpgradeabilityProxy} from '../libraries/aave-upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol';
-
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
-import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 /**
  * @title LendingPoolAddressesProvider contract

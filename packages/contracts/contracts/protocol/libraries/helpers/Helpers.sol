@@ -3,8 +3,6 @@ pragma solidity 0.8.17;
 
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {IERC20Detailed} from "../../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {IERC20DetailedBytes} from "../../../dependencies/openzeppelin/contracts/IERC20DetailedBytes.sol";
 /**
  * @title Helpers library
  * @author Aave

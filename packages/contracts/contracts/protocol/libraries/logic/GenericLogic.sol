@@ -10,10 +10,8 @@ import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {Errors} from "../helpers/Errors.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
-import {IAToken} from "../../../interfaces/IAToken.sol";
 /**
  * @title GenericLogic library
  * @author Aave
