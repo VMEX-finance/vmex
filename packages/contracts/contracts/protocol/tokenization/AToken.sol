@@ -18,7 +18,6 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
 
 /**
  * @title VMEX ERC20 AToken (vToken)
@@ -165,7 +164,7 @@ contract AToken is
     ) external override onlyLendingPool {
         uint256 amountScaled = amount.rayDiv(index);
         require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
-        _burn(user, amountScaled); // Burn the entire amount of atokens that the user has, not just the amount they receive
+        _burn(user, amountScaled);
 
         IERC20(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
 
@@ -281,8 +280,6 @@ contract AToken is
         override(IncentivizedERC20, IERC20)
         returns (uint256)
     {
-        // console.log("super.balanceOf(user): ",super.balanceOf(user));
-        // console.log("_pool.getReserveNormalizedIncome(_underlyingAsset, _tranche): ",_pool.getReserveNormalizedIncome(_underlyingAsset, _tranche));
         return
             super.balanceOf(user).rayMul(
                 _pool.getReserveNormalizedIncome(_underlyingAsset, _tranche)

@@ -25,7 +25,6 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 import {AssetMappings} from "./AssetMappings.sol";
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
-// import "hardhat/console.sol";
 /**
  * @title LendingPool contract
  * @dev Main point of interaction with an Aave protocol's market
@@ -85,9 +84,9 @@ contract LendingPool is
      */
     function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(isUsingWhitelist[trancheId]){
-            require(whitelist[trancheId][user], "Tranche requires whitelist");
+            require(whitelist[user][trancheId], "Tranche requires whitelist");
         }
-        require(blacklist[trancheId][user]==false, "You are blacklisted from this tranche");
+        require(blacklist[user][trancheId]==false, "You are blacklisted from this tranche");
     }
 
     function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
@@ -822,10 +821,10 @@ contract LendingPool is
             isUsingWhitelist[trancheId] = true;
         }
 
-        whitelist[trancheId][user] = isWhitelisted;
+        whitelist[user][trancheId] = isWhitelisted;
     }
 
     function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external override onlyLendingPoolConfigurator {
-        blacklist[trancheId][user] = isBlacklisted;
+        blacklist[user][trancheId] = isBlacklisted;
     }
 }

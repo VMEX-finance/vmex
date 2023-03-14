@@ -10,7 +10,6 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
 import "../../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-// import "hardhat/console.sol";
 library DeployATokens {
     /**
      * @dev Deploys and initializes the aToken and variableDebtToken for a reserve through a proxy

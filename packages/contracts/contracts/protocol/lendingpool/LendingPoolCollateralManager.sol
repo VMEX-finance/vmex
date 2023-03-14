@@ -22,7 +22,6 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
 import {AssetMappings} from "./AssetMappings.sol";
-//import "hardhat/console.sol";
 
 /**
  * @title LendingPoolCollateralManager contract

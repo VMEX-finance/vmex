@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 
-// import "hardhat/console.sol";
 contract BaseUniswapOracle is IPriceOracleGetter {
 	//returns the latest price in a WAD fixed number
 	function getAssetPrice(address asset) public pure override returns(uint256) {
