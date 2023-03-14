@@ -164,7 +164,7 @@ contract AToken is
     ) external override onlyLendingPool {
         uint256 amountScaled = amount.rayDiv(index);
         require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
-        _burn(user, amountScaled); // Burn the entire amount of atokens that the user has, not just the amount they receive
+        _burn(user, amountScaled);
 
         IERC20(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
 

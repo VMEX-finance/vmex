@@ -34,6 +34,6 @@ contract LendingPoolStorage {
     uint256 constant internal _maxNumberOfReserves = 128;
 
     mapping(uint64 => bool) public isUsingWhitelist;
-    mapping(uint64 => mapping(address=>bool)) whitelist; //tranche to user address to boolean on whether user is whitelisted
-    mapping(uint64 => mapping(address=>bool)) blacklist;
+    mapping(address => mapping(uint64=>bool)) whitelist; //user address to tranche to boolean on whether user is whitelisted
+    mapping(address => mapping(uint64=>bool)) blacklist;
 }
