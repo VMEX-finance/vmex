@@ -7,7 +7,6 @@ import {ILendingPool} from "../../../interfaces/ILendingPool.sol";
 
 library DataTypes {
     struct CurveMetadata {
-        uint256 _pid;
         uint8 _poolSize;
         address _curvePool;
     }

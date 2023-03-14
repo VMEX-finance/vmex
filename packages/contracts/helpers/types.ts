@@ -666,7 +666,6 @@ export interface ITokenTarget {
 }
 
 export interface CurveMetadata {
-  _pid: string;
   _poolSize: string;
   _curvePool: tEthereumAddress;
 }

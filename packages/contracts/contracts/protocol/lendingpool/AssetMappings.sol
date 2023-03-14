@@ -379,7 +379,6 @@ contract AssetMappings is VersionedInitializable{
     }
 
     function getCurveMetadata(address asset) external view returns (DataTypes.CurveMetadata memory) {
-        // require(curveMetadata[asset]._curvePool!=address(0), "Curve doesn't have metadata");
         return curveMetadata[asset];
     }
 
