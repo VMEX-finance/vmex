@@ -183,7 +183,7 @@ contract LendingPool is
         uint256 amount,
         address to
     )
-        public
+        external
         override
         whenTrancheNotPausedAndExists(trancheId)
         returns (uint256)
@@ -230,7 +230,7 @@ contract LendingPool is
         uint16 referralCode,
         address onBehalfOf
     )
-        public
+        external
         override
         whenTrancheNotPausedAndExists(trancheId)
     {
@@ -462,7 +462,7 @@ contract LendingPool is
      * @return healthFactor the current health factor of the user
      **/
     function getUserAccountData(address user, uint64 trancheId)
-        public
+        external
         view
         override
         returns (

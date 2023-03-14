@@ -25,7 +25,7 @@ library CurveOracle {
 	function calculate_v1_token_price(
 		uint256 virtual_price,
 		uint256[] memory prices
-	) public pure returns(uint256) {
+	) internal pure returns(uint256) {
 
 		uint256 min = vMath.min(prices); 
 		return (virtual_price * min) / 1e18; 

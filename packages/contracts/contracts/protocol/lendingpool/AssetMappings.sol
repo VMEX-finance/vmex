@@ -84,7 +84,7 @@ contract AssetMappings is VersionedInitializable{
 
     function getVMEXReserveFactor(
         address asset
-    ) public view returns(uint256) {
+    ) external view returns(uint256) {
         return assetMappings[asset].VMEXReserveFactor;
     }
 
@@ -96,7 +96,7 @@ contract AssetMappings is VersionedInitializable{
     function setVMEXReserveFactor(
         address asset,
         uint256 reserveFactor //the value here should only occupy 16 bits. This value only has two decimal points
-    ) public onlyGlobalAdmin {
+    ) external onlyGlobalAdmin {
         uint256 thisReserveFactor = reserveFactor.convertToPercent();
         require(
                 thisReserveFactor < PercentageMath.PERCENTAGE_FACTOR,
@@ -115,7 +115,7 @@ contract AssetMappings is VersionedInitializable{
     function setBorrowingEnabled(
         address asset,
         bool borrowingEnabled //the value here should only occupy 16 bits
-    ) public onlyGlobalAdmin {
+    ) external onlyGlobalAdmin {
         assetMappings[asset].borrowingEnabled = borrowingEnabled;
 
         emit BorrowingEnabledChanged(asset, borrowingEnabled);

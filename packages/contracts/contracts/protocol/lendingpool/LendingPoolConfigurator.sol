@@ -223,7 +223,7 @@ contract LendingPoolConfigurator is
     function updateTreasuryAddress(
         address newAddress,
         uint64 trancheId
-    ) public onlyTrancheAdmin(trancheId) {
+    ) external onlyTrancheAdmin(trancheId) {
         trancheAdminTreasuryAddresses[trancheId] = newAddress;
         //emit
         emit UpdatedTreasuryAddress(trancheId, newAddress);
@@ -238,7 +238,7 @@ contract LendingPoolConfigurator is
         address[] calldata asset,
         uint64 trancheId,
         bool[] calldata borrowingEnabled
-    ) public onlyTrancheAdmin(trancheId) {
+    ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == borrowingEnabled.length, "Array lengths are not equal");
         for(uint i = 0; i<asset.length;i++){
             require(!borrowingEnabled[i] || assetMappings.getAssetBorrowable(asset[i]), "Asset is not approved to be set as borrowable");
@@ -283,7 +283,7 @@ contract LendingPoolConfigurator is
         address[] calldata asset,
         uint64 trancheId,
         uint256[] calldata reserveFactor
-    ) public onlyTrancheAdmin(trancheId) {
+    ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == reserveFactor.length, "Array lengths are not equal");
         for(uint i = 0; i<asset.length;i++){
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(

@@ -203,7 +203,7 @@ contract AToken is
      * @param index The new liquidity index of the reserve
      */
     function mintToTreasury(uint256 amount, uint256 index)
-        public
+        external
         override
         onlyLendingPool
     {
@@ -230,7 +230,7 @@ contract AToken is
      * @param index The new liquidity index of the reserve
      */
     function mintToVMEXTreasury(uint256 amount, uint256 index)
-        public
+        external
         override
         onlyLendingPool
     {
