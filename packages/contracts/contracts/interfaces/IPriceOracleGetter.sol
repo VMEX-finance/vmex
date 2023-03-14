@@ -5,7 +5,6 @@ pragma solidity 0.8.17;
  * @title IPriceOracleGetter interface
  * @notice Interface for the Aave price oracle.
  **/
-//import "hardhat/console.sol";
 interface IPriceOracleGetter {
     /**
      * @dev returns the asset price in ETH

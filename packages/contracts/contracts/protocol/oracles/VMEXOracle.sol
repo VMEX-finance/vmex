@@ -16,7 +16,6 @@ import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "../../interfaces/IYearnToken.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
-import "hardhat/console.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -43,7 +42,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     uint256 public BASE_CURRENCY_UNIT;
 
     address public constant THREE_POOL = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
-    address public constant ethNative = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address public constant ETH_NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     uint256 public constant SECONDS_PER_DAY = 1 days;
 
@@ -129,7 +128,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         DataTypes.ReserveAssetType tmp = assetMappings.getAssetType(asset);
 
         if(tmp==DataTypes.ReserveAssetType.AAVE){
-            return getAaveAssetPrice(asset);
+            return getOracleAssetPrice(asset);
         }
         else if(tmp==DataTypes.ReserveAssetType.CURVE || tmp==DataTypes.ReserveAssetType.CURVEV2){
             return getCurveAssetPrice(asset, tmp);
@@ -141,7 +140,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     }
 
 
-    function getAaveAssetPrice(address asset) internal view returns (uint256){
+    function getOracleAssetPrice(address asset) internal view returns (uint256){
         IChainlinkPriceFeed source = assetsSources[asset];
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
@@ -169,7 +168,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
 
         if (!Address.isContract(c._curvePool)) {
-            console.log("curve pool is not a contract");
             return _fallbackOracle.getAssetPrice(asset);
         }
 
@@ -177,7 +175,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
         for (uint256 i = 0; i < c._poolSize; i++) {
             address underlying = ICurvePool(c._curvePool).coins(i);
-            if(underlying == ethNative){
+            if(underlying == ETH_NATIVE){
                 underlying = WETH;
             }
             prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
@@ -190,10 +188,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(assetType==DataTypes.ReserveAssetType.CURVEV2){
             price = CurveOracle.get_price_v2(c._curvePool, prices);
         }
-        //TODO: incorporate backup oracles here?
-        // require(price > 0, "Curve oracle encountered an error");
         if(price == 0){
-            console.log("curve price is zero");
             return _fallbackOracle.getAssetPrice(asset);
         }
         return price;

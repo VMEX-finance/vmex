@@ -18,7 +18,6 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
 
 /**
  * @title VMEX ERC20 AToken (vToken)
@@ -281,8 +280,6 @@ contract AToken is
         override(IncentivizedERC20, IERC20)
         returns (uint256)
     {
-        // console.log("super.balanceOf(user): ",super.balanceOf(user));
-        // console.log("_pool.getReserveNormalizedIncome(_underlyingAsset, _tranche): ",_pool.getReserveNormalizedIncome(_underlyingAsset, _tranche));
         return
             super.balanceOf(user).rayMul(
                 _pool.getReserveNormalizedIncome(_underlyingAsset, _tranche)

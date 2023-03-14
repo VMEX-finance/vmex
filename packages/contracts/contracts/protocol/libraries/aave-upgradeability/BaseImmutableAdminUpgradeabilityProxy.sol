@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import "../../../dependencies/openzeppelin/upgradeability/BaseUpgradeabilityProxy.sol";
-// import "hardhat/console.sol";
 /**
  * @title BaseImmutableAdminUpgradeabilityProxy
  * @author Aave, inspired by the OpenZeppelin upgradeability proxy pattern
@@ -68,7 +67,6 @@ contract BaseImmutableAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
         _upgradeTo(newImplementation);
         if (data.length > 0) {
             (bool success, ) = newImplementation.delegatecall(data);
-            // console.log("Result of delegate call: ",string(abi.encodePacked(result)));
             require(success, "upgradeToAndCall failed");
         }
         

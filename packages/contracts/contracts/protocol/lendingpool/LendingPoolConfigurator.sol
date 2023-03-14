@@ -19,7 +19,6 @@ import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
 import {AssetMappings} from "./AssetMappings.sol";
 
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
-// import "hardhat/console.sol";
 /**
  * @title LendingPoolConfigurator contract
  * @author Aave
