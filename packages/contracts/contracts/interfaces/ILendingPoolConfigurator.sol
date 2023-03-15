@@ -2,6 +2,15 @@
 pragma solidity 0.8.17;
 
 interface ILendingPoolConfigurator {
+    struct InitReserveInput {
+        //choose asset, the other properties come with asset
+        address underlyingAsset;
+        uint256 reserveFactor;
+        uint8 interestRateChoice; //0 for default, others are undefined until set
+        bool canBorrow;
+        bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
+    }
+    
     /**
      * @dev Emitted when a reserve factor is updated
      * @param asset The address of the underlying asset of the reserve

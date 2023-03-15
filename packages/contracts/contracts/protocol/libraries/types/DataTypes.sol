@@ -32,29 +32,6 @@ library DataTypes {
         address nextApprovedAsset;
     }
 
-    struct InitReserveInput {
-        // address aTokenImpl; //individual tranche users should not have control over this
-        // address stableDebtTokenImpl;
-        // address variableDebtTokenImpl;
-
-        //choose asset, the other properties come with asset
-        address underlyingAsset;
-        uint256 reserveFactor;
-        uint8 interestRateChoice; //0 for default, others are undefined until set
-        bool canBorrow;
-        bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
-    }
-
-    struct InitReserveInputInternal {
-        InitReserveInput input;
-        uint64 trancheId;
-        address aTokenBeacon;
-        address variableDebtTokenBeacon;
-        AssetData assetdata;
-        ILendingPool cachedPool;
-        ILendingPoolAddressesProvider addressesProvider;
-    }
-
     enum ReserveAssetType {
         AAVE,
         CURVE,
