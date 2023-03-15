@@ -7,8 +7,6 @@ import {IERC20} from "../../interfaces/IERC20WithPermit.sol";
 
 //some minor differences to univ2 pairs, but mostly the same
 contract VelodromeOracle {
-	using FixedPointMathLib for *; 
-
 	function get_lp_price(address lp_token, uint256[] memory prices) public view returns(uint256) {
 		IPair token = IPair(lp_token); 	
 		uint256 total_supply = IERC20(lp_token).totalSupply(); 

@@ -6,24 +6,33 @@ import {vMath} from "./libs/vMath.sol";
 
 //used for all curveV1 amd V2 tokens, no need to redeploy
 library CurveOracle {
+	//Helper to prevent read-only re-entrancy attacks with virtual price
+	//Maybe this is only needed if the underlying has ETH.
+	function get_virtual_price_reentrant_protected(address curve_pool, uint256 numTokens) internal returns(uint256 virtual_price) {
+		//makerdao uses remove_liquidity to trigger reentrancy lock
+        //exchange is also reentrancy locked, so I'm assuming it will do what we want
+		if(numTokens==2){
+			uint256[2] memory amounts;
+        	ICurvePool(curve_pool).remove_liquidity(0, amounts);
+		}
+		if(numTokens==3){
+			uint256[3] memory amounts;
+        	ICurvePool(curve_pool).remove_liquidity(0, amounts);
+		}
+		if(numTokens==4){
+			uint256[4] memory amounts;
+        	ICurvePool(curve_pool).remove_liquidity(0, amounts);
+		}
+
+		virtual_price = ICurvePool(curve_pool).get_virtual_price(); 
+	}
 	
 	//where total supply is the total supply of the LP token in the pools calculated using the virtual price
 	function get_price_v1(address curve_pool, uint256[] memory prices) internal returns(uint256) {
 	//prevent read-only reentrancy -- possibly a better way than this
 		require(prices.length > 1, "invalid pool length");
-		if (prices.length == 2) {
-			uint256[2] memory amounts;
-            ICurvePool(curve_pool).remove_liquidity(0, amounts);
-		} else if (prices.length == 3) {
-			uint256[3] memory amounts;
-            ICurvePool(curve_pool).remove_liquidity(0, amounts);
-        } else {
-			uint256[4] memory amounts;
-            ICurvePool(curve_pool).remove_liquidity(0, amounts);
-        }
- 	
-	
-		uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price(); 
+		
+		uint256 virtual_price = get_virtual_price_reentrant_protected(curve_pool, prices.length); 
 		
 		uint256 lp_price = calculate_v1_token_price(
 			virtual_price,
@@ -46,11 +55,7 @@ library CurveOracle {
 	}
 
 	function get_price_v2(address curve_pool, uint256[] memory prices) internal returns(uint256) {
-        //calling remove_liquidity with 0s as args in v2 poolsis causing a revert rn and I'm not sure why
-        //exchange is also reentrancy locked, so I'm assuming it will do what we want
-        ICurvePool(curve_pool).exchange(0, 0, 0, 0);
-
-		uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price(); 
+        uint256 virtual_price = get_virtual_price_reentrant_protected(curve_pool, prices.length);
 
 		uint256 lp_price = calculate_v2_token_price(
 			uint8(prices.length),

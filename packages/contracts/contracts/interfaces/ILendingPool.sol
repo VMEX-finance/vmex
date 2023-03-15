@@ -284,7 +284,6 @@ interface ILendingPool {
      **/
     function getUserAccountData(address user, uint64 trancheId)
         external
-        view
         returns (
             uint256 totalCollateralETH,
             uint256 totalDebtETH,

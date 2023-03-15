@@ -463,7 +463,6 @@ contract LendingPool is
      **/
     function getUserAccountData(address user, uint64 trancheId)
         external
-        view
         override
         returns (
             uint256 totalCollateralETH,

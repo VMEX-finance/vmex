@@ -117,7 +117,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param asset The asset address
     function getAssetPrice(address asset)
         public
-		view
         override
         returns (uint256)
     {
@@ -140,7 +139,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     }
 
 
-    function getOracleAssetPrice(address asset) internal view returns (uint256){
+    function getOracleAssetPrice(address asset) internal returns (uint256){
         IChainlinkPriceFeed source = assetsSources[asset];
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
@@ -194,7 +193,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
-    function getYearnPrice(address asset) internal view returns (uint256){
+    function getYearnPrice(address asset) internal returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
         uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth)
         //note: pricePerShare has decimals equal to underlying tokens (ex: yvUSDC has 6 decimals). By dividing by 10**yearnVault.decimals(), we keep the decimals of underlyingPrice which is 18 decimals.
@@ -209,7 +208,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param assets The list of assets addresses
     function getAssetsPrices(address[] calldata assets)
         external
-        view
         returns (uint256[] memory)
     {
         uint256[] memory prices = new uint256[](assets.length);

@@ -70,7 +70,7 @@ library GenericLogic {
         DataTypes.UserConfigurationMap calldata userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount
-    ) external view returns (bool) {
+    ) external returns (bool) {
         if (
             !userConfig.isBorrowingAny() ||
             !userConfig.isUsingAsCollateral(
@@ -196,7 +196,6 @@ library GenericLogic {
         AssetMappings assetMappings
     )
         internal
-        view
         returns (
             uint256,
             uint256,

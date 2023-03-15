@@ -83,7 +83,7 @@ library ValidationLogic {
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
         AssetMappings _assetMappings
-    ) external view {
+    ) external {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
             amount <= userBalance,
@@ -140,7 +140,7 @@ library ValidationLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider
-    ) external view {
+    ) external {
         ValidateBorrowLocalVars memory vars;
 
         (
@@ -259,7 +259,7 @@ library ValidationLogic {
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
         AssetMappings _assetMappings
-    ) external view {
+    ) external {
         DataTypes.ReserveData storage reserve = reservesData[reserveAddress][trancheId];
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
             msg.sender
@@ -392,7 +392,7 @@ library ValidationLogic {
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
         AssetMappings _assetMappings
-    ) internal view {
+    ) internal {
         (, , , , uint256 healthFactor,) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(from, trancheId),
             reservesData,

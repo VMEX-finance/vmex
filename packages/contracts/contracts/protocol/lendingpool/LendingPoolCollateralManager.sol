@@ -318,7 +318,7 @@ contract LendingPoolCollateralManager is
         address debtAsset,
         uint256 debtToCover,
         uint256 userCollateralBalance
-    ) internal view returns (uint256, uint256) {
+    ) internal returns (uint256, uint256) {
         uint256 collateralAmount = 0;
         uint256 debtAmountNeeded = 0;
 
