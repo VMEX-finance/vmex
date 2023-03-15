@@ -160,6 +160,7 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
 
   });
 
+  // dev: This most likely works (passes most of the time) but randomly fails across identical runs (hardhat issue?)
   // it("Calculate the max available borrows for user 0 for weth and usdc", async () => {
   //   const { users, pool, usdc, weth, oracle, helpersContract, aUsdc, varDebtUsdc } = testEnv;
 
