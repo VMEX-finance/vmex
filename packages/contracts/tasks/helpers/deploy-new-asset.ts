@@ -1,6 +1,5 @@
 import { task } from 'hardhat/config';
 import { eEthereumNetwork } from '../../helpers/types';
-import { getTreasuryAddress } from '../../helpers/configuration';
 import * as marketConfigs from '../../markets/aave';
 import * as reserveConfigs from '../../markets/aave/reservesConfigs';
 import { getLendingPoolAddressesProvider } from './../../helpers/contracts-getters';

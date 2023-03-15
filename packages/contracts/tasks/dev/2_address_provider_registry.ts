@@ -1,4 +1,5 @@
 import { task } from 'hardhat/config';
+import { getVMEXTreasury } from '../../helpers/configuration';
 import {
   deployLendingPoolAddressesProvider,
   deployLendingPoolAddressesProviderRegistry,
@@ -25,6 +26,11 @@ task(
     );
 
     // 3. Set pool admins
+    await waitForTx(
+      await addressesProvider.setVMEXTreasury(
+        "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49"
+      )
+    );
     await waitForTx(
       await addressesProvider.setGlobalAdmin(
         admin

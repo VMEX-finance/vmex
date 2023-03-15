@@ -13,7 +13,6 @@ import { ICommonConfiguration, eEthereumNetwork } from '../../helpers/types';
 export const CommonsConfig: ICommonConfiguration = {
   MarketId: 'Commons',
   ATokenNamePrefix: 'Vmex interest bearing',
-  StableDebtTokenNamePrefix: 'Vmex stable debt bearing',
   VariableDebtTokenNamePrefix: 'Vmex variable debt bearing',
   SymbolPrefix: '',
   ProviderId: 0, // Overriden in index.ts
@@ -62,6 +61,16 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.ropsten]: undefined,
     [eEthereumNetwork.main]: undefined,
     [eEthereumNetwork.goerli]: undefined,
+    [eEthereumNetwork.tenderly]: undefined,
+  },
+  VMEXTreasury: {
+    [eEthereumNetwork.hardhat]: "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
+    [eEthereumNetwork.coverage]: undefined,
+    [eEthereumNetwork.buidlerevm]: undefined,
+    [eEthereumNetwork.kovan]: undefined,
+    [eEthereumNetwork.ropsten]: undefined,
+    [eEthereumNetwork.main]: "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
+    [eEthereumNetwork.goerli]: "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
     [eEthereumNetwork.tenderly]: undefined,
   },
   EmergencyAdminIndex: 1,
