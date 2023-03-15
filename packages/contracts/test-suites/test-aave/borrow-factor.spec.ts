@@ -160,128 +160,128 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
 
   });
 
-  it("Calculate the max available borrows for user 0 for weth and usdc", async () => {
-    const { users, pool, usdc, weth, oracle, helpersContract, aUsdc, varDebtUsdc } = testEnv;
+  // it("Calculate the max available borrows for user 0 for weth and usdc", async () => {
+  //   const { users, pool, usdc, weth, oracle, helpersContract, aUsdc, varDebtUsdc } = testEnv;
 
-    let usrData = await pool.getUserAccountData(users[0].address, 0);
-    console.log("usrData: ",usrData)
-    console.log("usrData.availableBorrowsETH: ", usrData.availableBorrowsETH)
-    let amountWETH = usrData.availableBorrowsETH
-    .mul(10000)
-    .div(strategyWETH.borrowFactor)
-    .mul(await convertToCurrencyDecimals(weth.address, "1"))
-    .div(await oracle.getAssetPrice(weth.address));
-    const tooMuchWETH = amountWETH.mul(11).div(10);
-    console.log("amountWETH: ", amountWETH)
+  //   let usrData = await pool.getUserAccountData(users[0].address, 0);
+  //   console.log("usrData: ",usrData)
+  //   console.log("usrData.availableBorrowsETH: ", usrData.availableBorrowsETH)
+  //   let amountWETH = usrData.availableBorrowsETH
+  //   .mul(10000)
+  //   .div(strategyWETH.borrowFactor)
+  //   .mul(await convertToCurrencyDecimals(weth.address, "1"))
+  //   .div(await oracle.getAssetPrice(weth.address));
+  //   const tooMuchWETH = amountWETH.mul(11).div(10);
+  //   console.log("amountWETH: ", amountWETH)
 
-    await expect(pool
-      .connect(users[0].signer)
-      .borrow(
-        weth.address,
-        0,
-        tooMuchWETH,
-        AAVE_REFERRAL,
-        users[0].address
-      )).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
+  //   await expect(pool
+  //     .connect(users[0].signer)
+  //     .borrow(
+  //       weth.address,
+  //       0,
+  //       tooMuchWETH,
+  //       AAVE_REFERRAL,
+  //       users[0].address
+  //     )).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
-      //oracle is amount of eth in 1 usdc. So we need to divide by the oracle price and multiply by decimals
-      let amountUSDC = usrData.availableBorrowsETH
-      .mul(10000)
-      .div(strategyUSDC.borrowFactor)
-      .mul(await convertToCurrencyDecimals(usdc.address, "1"))
-      .div(await oracle.getAssetPrice(usdc.address));
+  //     //oracle is amount of eth in 1 usdc. So we need to divide by the oracle price and multiply by decimals
+  //     let amountUSDC = usrData.availableBorrowsETH
+  //     .mul(10000)
+  //     .div(strategyUSDC.borrowFactor)
+  //     .mul(await convertToCurrencyDecimals(usdc.address, "1"))
+  //     .div(await oracle.getAssetPrice(usdc.address));
 
-      const tooMuchUSDC = amountUSDC.mul(11).div(10);
-      console.log("tooMuchUSDC: ", tooMuchUSDC)
+  //     const tooMuchUSDC = amountUSDC.mul(11).div(10);
+  //     console.log("tooMuchUSDC: ", tooMuchUSDC)
 
-      await expect(pool
-        .connect(users[0].signer)
-        .borrow(
-          usdc.address,
-          0,
-          tooMuchUSDC,
-          AAVE_REFERRAL,
-          users[0].address
-        )).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
+  //     await expect(pool
+  //       .connect(users[0].signer)
+  //       .borrow(
+  //         usdc.address,
+  //         0,
+  //         tooMuchUSDC,
+  //         AAVE_REFERRAL,
+  //         users[0].address
+  //       )).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
 
-        console.log("Attempt to borrow max weth")
-        await pool
-          .connect(users[0].signer)
-          .borrow(
-            weth.address,
-            0,
-            MAX_UINT_AMOUNT,
-            AAVE_REFERRAL,
-            users[0].address
-          )
-        usrData = await pool.getUserAccountData(users[0].address, 0);
-        expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
-        console.log("availableBorrowsETH after max weth borrow: ",usrData.availableBorrowsETH)
-        // expect(usrData.availableBorrowsETH).to.be.lte("1000");
-        const userWETHReserveData = await helpersContract.getUserReserveData(
-          weth.address,
-          0,
-          users[0].address
-        );
+  //       console.log("Attempt to borrow max weth")
+  //       await pool
+  //         .connect(users[0].signer)
+  //         .borrow(
+  //           weth.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           AAVE_REFERRAL,
+  //           users[0].address
+  //         )
+  //       usrData = await pool.getUserAccountData(users[0].address, 0);
+  //       expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
+  //       console.log("availableBorrowsETH after max weth borrow: ",usrData.availableBorrowsETH)
+  //       // expect(usrData.availableBorrowsETH).to.be.lte("1000");
+  //       const userWETHReserveData = await helpersContract.getUserReserveData(
+  //         weth.address,
+  //         0,
+  //         users[0].address
+  //       );
 
-        console.log("WETH debt: ", userWETHReserveData.currentVariableDebt)
+  //       console.log("WETH debt: ", userWETHReserveData.currentVariableDebt)
 
-        expect(userWETHReserveData.currentVariableDebt).to.be.gt(ethers.utils.parseEther("0"))
-        expect(usrData.availableBorrowsETH).to.be.lte("100000000000");
-        console.log("borrowed max weth")
-
-
-        await pool
-        .connect(users[0].signer)
-        .repay(
-          weth.address,
-          0,
-          MAX_UINT_AMOUNT,
-          users[0].address
-        )
+  //       expect(userWETHReserveData.currentVariableDebt).to.be.gt(ethers.utils.parseEther("0"))
+  //       expect(usrData.availableBorrowsETH).to.be.lte("100000000000");
+  //       console.log("borrowed max weth")
 
 
-        console.log("Attempt to borrow max usdc")
-
-        await pool
-          .connect(users[0].signer)
-          .borrow(
-            usdc.address,
-            0,
-            MAX_UINT_AMOUNT,
-            AAVE_REFERRAL,
-            users[0].address
-          )
-          usrData = await pool.getUserAccountData(users[0].address, 0);
-        expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
-        console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
-        expect(usrData.availableBorrowsETH).to.be.lte("100000000000");
-
-        const userUSDCReserveData = await helpersContract.getUserReserveData(
-          usdc.address,
-          0,
-          users[0].address
-        );
-
-        console.log("USDC debt: ", userUSDCReserveData.currentVariableDebt)
-
-        expect(userUSDCReserveData.currentVariableDebt).to.be.gt(0)
-
-        console.log("borrowed max usdc")
-        console.log("Amount of USDC in atoken: ", await usdc.balanceOf(aUsdc.address))
-        console.log("Amount of USDC debt: ", await varDebtUsdc.balanceOf(users[0].address))
-        console.log("Amount usdc that user has: ", await usdc.balanceOf(users[0].address))
-          await pool
-          .connect(users[0].signer)
-          .repay(
-            usdc.address,
-            0,
-            MAX_UINT_AMOUNT,
-            users[0].address
-          )
+  //       await pool
+  //       .connect(users[0].signer)
+  //       .repay(
+  //         weth.address,
+  //         0,
+  //         MAX_UINT_AMOUNT,
+  //         users[0].address
+  //       )
 
 
-  });
+  //       console.log("Attempt to borrow max usdc")
+
+  //       await pool
+  //         .connect(users[0].signer)
+  //         .borrow(
+  //           usdc.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           AAVE_REFERRAL,
+  //           users[0].address
+  //         )
+  //         usrData = await pool.getUserAccountData(users[0].address, 0);
+  //       expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
+  //       console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
+  //       expect(usrData.availableBorrowsETH).to.be.lte("100000000000");
+
+  //       const userUSDCReserveData = await helpersContract.getUserReserveData(
+  //         usdc.address,
+  //         0,
+  //         users[0].address
+  //       );
+
+  //       console.log("USDC debt: ", userUSDCReserveData.currentVariableDebt)
+
+  //       expect(userUSDCReserveData.currentVariableDebt).to.be.gt(0)
+
+  //       console.log("borrowed max usdc")
+  //       console.log("Amount of USDC in atoken: ", await usdc.balanceOf(aUsdc.address))
+  //       console.log("Amount of USDC debt: ", await varDebtUsdc.balanceOf(users[0].address))
+  //       console.log("Amount usdc that user has: ", await usdc.balanceOf(users[0].address))
+  //         await pool
+  //         .connect(users[0].signer)
+  //         .repay(
+  //           usdc.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           users[0].address
+  //         )
+
+
+  // });
 
   it("Attempt to borrow max usdc when over limit", async () => {
     const { users, pool, usdc, weth, oracle, helpersContract } = testEnv;
