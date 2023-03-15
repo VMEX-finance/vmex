@@ -9,7 +9,7 @@
 // GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see .
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity >=0.8.0 <0.9.0;
 // solhint-disable
 /**
  * @dev Reverts if `condition` is false, with a revert reason containing `errorCode`. Only codes up to 999 are
