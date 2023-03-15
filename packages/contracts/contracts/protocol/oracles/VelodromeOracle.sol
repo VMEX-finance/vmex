@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import {FixedPointMathLib} from "./libs/FixedPointMathLib.sol";
+import {vMath} from "./libs/vMath.sol";
 import {IPair} from "../../interfaces/IVeloPair.sol"; 
 import {IERC20} from "../../interfaces/IERC20WithPermit.sol"; 
 
@@ -37,8 +37,8 @@ contract VelodromeOracle {
 		uint256 reserve0,
 		uint256 reserve1
 	) internal pure returns (uint256) {
-		uint256 a = FixedPointMathLib.sqrt(reserve0 * reserve1); 
-		uint256 b = FixedPointMathLib.sqrt(price0 * price1);
+		uint256 a = vMath.nthroot(2, reserve0 * reserve1); //square root
+		uint256 b = vMath.nthroot(2, price0 * price1);
 		uint256 c = 2 * ((a * b) / total_supply); 
 
 		return c; 

@@ -71,7 +71,7 @@ library CurveOracle {
 		uint256[] memory prices	
 	) internal pure returns(uint256) {
 		uint256 product = vMath.product(prices); 
-		uint256 geo_mean = vMath.geometric_mean(n, product); 
+		uint256 geo_mean = vMath.nthroot(n, product); 
 		return (n * virtual_price * geo_mean) / 1e18; 
 	}
 
