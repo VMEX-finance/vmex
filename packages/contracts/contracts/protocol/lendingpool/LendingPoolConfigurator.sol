@@ -11,8 +11,10 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
-import {DeployATokens} from "../libraries/helpers/DeployATokens.sol";
 import {AssetMappings} from "./AssetMappings.sol";
+import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
+import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 /**
  * @title LendingPoolConfigurator contract
  * @author Aave
@@ -131,86 +133,99 @@ contract LendingPoolConfigurator is
      * @param trancheId The trancheId that the msg.sender should be the admin of
      **/
     function batchInitReserve(
-        DataTypes.InitReserveInput[] calldata input,
+        InitReserveInput[] calldata input,
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
-        address aTokenBeacon = addressesProvider.getATokenBeacon(); //beacon proxy allows all atokens to be upgraded simultaneously
-        address varDebtTokenBeacon = addressesProvider.getVariableDebtTokenBeacon();
         for (uint256 i = 0; i < input.length; i++) {
             _initReserve(
-                DataTypes.InitReserveInputInternal(
-                    input[i],
-                    trancheId,
-                    aTokenBeacon,
-                    varDebtTokenBeacon,
-                    assetMappings.getAssetMapping(input[i].underlyingAsset),
-                    cachedPool,
-                    addressesProvider
-                ) //by putting assetmappings in the addresses provider, we have flexibility to upgrade it in the future
+                input[i],
+                trancheId,
+                assetMappings.getAssetMapping(input[i].underlyingAsset),
+                cachedPool
             );
         }
     }
 
     function _initReserve(
-        DataTypes.InitReserveInputInternal memory internalInput
+        InitReserveInput memory input,
+        uint64 trancheId,
+        DataTypes.AssetData memory assetdata,
+        ILendingPool cachedPool
     ) internal {
-        (
-            address aTokenProxyAddress,
-            address variableDebtTokenProxyAddress
-        ) = DeployATokens.deployATokens(
-                internalInput
-            );
+        
+        address aTokenProxyAddress = _initTokenWithProxy(
+            addressesProvider.getATokenBeacon(),
+            abi.encodeWithSelector(
+                IInitializableAToken.initialize.selector,
+                cachedPool,
+                address(this), //lendingPoolConfigurator address
+                address(addressesProvider), //
+                input.underlyingAsset,
+                trancheId
+            )
+        );
+        address variableDebtTokenProxyAddress = _initTokenWithProxy(
+            addressesProvider.getVariableDebtTokenBeacon(),
+            abi.encodeWithSelector(
+                IInitializableDebtToken.initialize.selector,
+                cachedPool,
+                input.underlyingAsset,
+                trancheId,
+                addressesProvider
+            )
+        );
+        
 
-        internalInput.cachedPool.initReserve(
-            internalInput.input.underlyingAsset,
-            internalInput.trancheId,
-            assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
+        cachedPool.initReserve(
+            input.underlyingAsset,
+            trancheId,
+            assetMappings.getInterestRateStrategyAddress(input.underlyingAsset,input.interestRateChoice),
             aTokenProxyAddress,
             variableDebtTokenProxyAddress
         );
 
-        DataTypes.ReserveConfigurationMap memory currentConfig = internalInput.cachedPool
+        DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool
             .getConfiguration(
-                internalInput.input.underlyingAsset,
-                internalInput.trancheId
+                input.underlyingAsset,
+                trancheId
             );
-        if (internalInput.assetdata.liquidationThreshold != 0) { //asset mappings does not force disable borrow
+        if (assetdata.liquidationThreshold != 0) { //asset mappings does not force disable borrow
             //user's choice matters
-            currentConfig.setCollateralEnabled(internalInput.input.canBeCollateral);
+            currentConfig.setCollateralEnabled(input.canBeCollateral);
         }
         else{
             currentConfig.setCollateralEnabled(false);
         }
 
-        if (internalInput.assetdata.borrowingEnabled) {
+        if (assetdata.borrowingEnabled) {
             //user's choice matters
-            currentConfig.setBorrowingEnabled(internalInput.input.canBorrow);
+            currentConfig.setBorrowingEnabled(input.canBorrow);
         }
         else {
             //force to be disabled
             currentConfig.setBorrowingEnabled(false);
         }
 
-        currentConfig.setReserveFactor(internalInput.input.reserveFactor.convertToPercent()); //accounts for new number of decimals
+        currentConfig.setReserveFactor(input.reserveFactor.convertToPercent()); //accounts for new number of decimals
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
 
-        internalInput.cachedPool.setConfiguration(
-            internalInput.input.underlyingAsset,
-            internalInput.trancheId,
+        cachedPool.setConfiguration(
+            input.underlyingAsset,
+            trancheId,
             currentConfig.data
         );
 
         emit ReserveInitialized(
-            internalInput.input.underlyingAsset,
-            internalInput.trancheId,
+            input.underlyingAsset,
+            trancheId,
             aTokenProxyAddress,
             variableDebtTokenProxyAddress,
-            assetMappings.getInterestRateStrategyAddress(internalInput.input.underlyingAsset,internalInput.input.interestRateChoice),
-            currentConfig.getBorrowingEnabled(internalInput.input.underlyingAsset, assetMappings),
-            currentConfig.getCollateralEnabled(internalInput.input.underlyingAsset, assetMappings),
+            assetMappings.getInterestRateStrategyAddress(input.underlyingAsset,input.interestRateChoice),
+            currentConfig.getBorrowingEnabled(input.underlyingAsset, assetMappings),
+            currentConfig.getCollateralEnabled(input.underlyingAsset, assetMappings),
             currentConfig.getReserveFactor()
         );
     }
@@ -446,5 +461,17 @@ contract LendingPoolConfigurator is
             availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
             Errors.LPC_RESERVE_LIQUIDITY_NOT_0
         );
+    }
+
+    function _initTokenWithProxy(
+        address beacon,
+        bytes memory initParams
+    ) internal returns (address) {
+        BeaconProxy proxy = new BeaconProxy(
+                beacon, 
+                initParams
+            );
+
+        return address(proxy);
     }
 }
