@@ -281,7 +281,7 @@ makeSuite(
     //       .approveDelegation(wethGateway.address, borrowSize)
     //   );
 
-    //   var usrDat = await pool.getUserAccountData(user.address, tranche);
+    //   var usrDat = await pool.callStatic.getUserAccountData(user.address, tranche);
     //   console.log("usrDat tranche: ",tranche)
     //   console.log("usrDat address: ",user.address)
     //   console.log("usrDat: ",usrDat)
@@ -292,7 +292,7 @@ makeSuite(
     //       .connect(user.signer)
     //       .borrowETH(pool.address, tranche, borrowSize, "2", "0")
     //   );
-    //   var usrDat = await pool.getUserAccountData(user.address, tranche);
+    //   var usrDat = await pool.callStatic.getUserAccountData(user.address, tranche);
     //   console.log("after borrow: ",usrDat)
 
     //   const debtBalance = await varDebtToken.balanceOf(user.address);

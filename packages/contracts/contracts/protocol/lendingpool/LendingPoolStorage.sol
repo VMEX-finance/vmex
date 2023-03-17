@@ -6,7 +6,7 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {AssetMappings} from "./AssetMappings.sol";
+import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 
 contract LendingPoolStorage {
     using ReserveLogic for DataTypes.ReserveData;
@@ -14,7 +14,7 @@ contract LendingPoolStorage {
     using UserConfiguration for DataTypes.UserConfigurationMap;
 
     ILendingPoolAddressesProvider internal _addressesProvider;
-    AssetMappings internal _assetMappings;
+    IAssetMappings internal _assetMappings;
 
     // asset address to trancheId number to reserve data
     mapping(address => mapping(uint64 => DataTypes.ReserveData))

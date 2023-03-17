@@ -13,4 +13,4 @@ Only one instance of the oracle needs to be deployed. They are less of an oracle
     - UniswapV2-style (Sushi) 
     - UniswapV3 NFTs
     - Yearn Vaults 
-    - Convex Tokens for CurveV1 and V2 pools (currently unused by VMEX but supported)
+

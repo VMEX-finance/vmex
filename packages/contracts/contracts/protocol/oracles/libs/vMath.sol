@@ -26,7 +26,7 @@ library vMath {
 	}
 	
 	//limited to curve pools only, either 2 or 3 assets (mostly 2) 
-	function geometric_mean(uint8 n, uint256 _product) internal pure returns(uint256) {
+	function nthroot(uint8 n, uint256 _product) internal pure returns(uint256) {
 		return LogExpMath.pow(_product, 1e18 / n)/1e12;
 	}
 

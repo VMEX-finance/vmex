@@ -15,7 +15,7 @@ import {IAToken} from "../../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {GenericLogic} from "./GenericLogic.sol";
-import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 /**
  * @title DepositWithdrawLogic library
  * @author VMEX
@@ -92,7 +92,7 @@ library DepositWithdrawLogic {
         mapping(uint256 => address) storage _reservesList,
         DataTypes.WithdrawParams memory vars,
         ILendingPoolAddressesProvider _addressesProvider,
-        AssetMappings _assetMappings
+        IAssetMappings _assetMappings
     ) external returns (uint256) {
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
         address aToken = reserve.aTokenAddress;

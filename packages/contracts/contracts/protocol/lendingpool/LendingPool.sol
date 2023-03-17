@@ -23,7 +23,7 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {UserConfiguration} from "../libraries/configuration/UserConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
-import {AssetMappings} from "./AssetMappings.sol";
+import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
 /**
  * @title LendingPool contract
@@ -112,7 +112,7 @@ contract LendingPool is
         initializer
     {
         _addressesProvider = provider;
-        _assetMappings =  AssetMappings(_addressesProvider.getAssetMappings());
+        _assetMappings =  IAssetMappings(_addressesProvider.getAssetMappings());
     }
 
     /**
@@ -463,7 +463,6 @@ contract LendingPool is
      **/
     function getUserAccountData(address user, uint64 trancheId)
         external
-        view
         override
         returns (
             uint256 totalCollateralETH,

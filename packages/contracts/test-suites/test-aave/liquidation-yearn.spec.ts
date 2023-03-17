@@ -59,8 +59,8 @@ makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underl
 
     //user 2 borrows
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
-    const daiPrice = await oracle.getAssetPrice(dai.address);
+    const userGlobalData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
+    const daiPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
     const amountDAIToBorrow = await convertToCurrencyDecimals(
       dai.address,
@@ -70,14 +70,14 @@ makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underl
         .toFixed(0)
     );
 
-    console.log("yvTricrypto price: ", await oracle.getAssetPrice(yvTricrypto2.address))
-    console.log("weth price: ", await oracle.getAssetPrice(weth.address))
+    console.log("yvTricrypto price: ", await oracle.callStatic.getAssetPrice(yvTricrypto2.address))
+    console.log("weth price: ", await oracle.callStatic.getAssetPrice(weth.address))
 
     await pool
       .connect(borrower.signer)
       .borrow(dai.address, tranche, amountDAIToBorrow, '0', borrower.address);
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalDataAfter = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
     // expect(userGlobalDataAfter.currentLiquidationThreshold.toString()).to.be.bignumber.equal(
     //   '8250',
@@ -89,14 +89,14 @@ makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underl
     const { dai, weth, users, pool, oracle } = testEnv;
     const borrower = users[1];
 
-    const daiPrice = await oracle.getAssetPrice(dai.address);
+    const daiPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
     await oracle.setAssetPrice(
       dai.address,
       new BigNumber(daiPrice.toString()).multipliedBy(2.18).toFixed(0)
     );
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
     expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
       oneEther.toFixed(0),
@@ -145,8 +145,8 @@ makeSuite('LendingPool liquidation of yvtokens - liquidator receiving the underl
     const daiReserveDataAfter = await helpersContract.getReserveData(dai.address, tranche);
     const ethReserveDataAfter = await helpersContract.getReserveData(yvTricrypto2.address, tranche);
 
-    const collateralPrice = await oracle.getAssetPrice(yvTricrypto2.address);
-    const principalPrice = await oracle.getAssetPrice(dai.address);
+    const collateralPrice = await oracle.callStatic.getAssetPrice(yvTricrypto2.address);
+    const principalPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
     const collateralDecimals = (
       await helpersContract.getReserveConfigurationData(yvTricrypto2.address, tranche)

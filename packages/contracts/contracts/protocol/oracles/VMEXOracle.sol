@@ -10,7 +10,7 @@ import {IChainlinkPriceFeed} from "../../interfaces/IChainlinkPriceFeed.sol";
 import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Initializable} from "../../dependencies/openzeppelin/upgradeability/Initializable.sol";
-import {AssetMappings} from "../lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "../../interfaces/IYearnToken.sol";
@@ -35,7 +35,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
 
     ILendingPoolAddressesProvider internal addressProvider;
-    AssetMappings internal assetMappings;
+    IAssetMappings internal assetMappings;
     mapping(address => IChainlinkPriceFeed) private assetsSources;
     IPriceOracleGetter private _fallbackOracle;
     address public BASE_CURRENCY; //removed immutable keyword since
@@ -64,7 +64,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         ILendingPoolAddressesProvider provider
     ) public initializer {
         addressProvider = provider;
-        assetMappings = AssetMappings(addressProvider.getAssetMappings());
+        assetMappings = IAssetMappings(addressProvider.getAssetMappings());
     }
 
     function setBaseCurrency(
@@ -117,7 +117,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param asset The asset address
     function getAssetPrice(address asset)
         public
-        view
         override
         returns (uint256)
     {
@@ -140,7 +139,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     }
 
 
-    function getOracleAssetPrice(address asset) internal view returns (uint256){
+    function getOracleAssetPrice(address asset) internal returns (uint256){
         IChainlinkPriceFeed source = assetsSources[asset];
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
@@ -164,7 +163,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function getCurveAssetPrice(
         address asset,
         DataTypes.ReserveAssetType assetType
-    ) internal view returns (uint256 price) {
+    ) internal returns (uint256 price) {
         DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
 
         if (!Address.isContract(c._curvePool)) {
@@ -183,10 +182,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
 
         if(assetType==DataTypes.ReserveAssetType.CURVE){
-            price = CurveOracle.get_price_v1(c._curvePool, prices);
+            price = CurveOracle.get_price_v1(c._curvePool, prices, c._checkReentrancy);
         }
         else if(assetType==DataTypes.ReserveAssetType.CURVEV2){
-            price = CurveOracle.get_price_v2(c._curvePool, prices);
+            price = CurveOracle.get_price_v2(c._curvePool, prices, c._checkReentrancy);
         }
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);
@@ -194,7 +193,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
-    function getYearnPrice(address asset) internal view returns (uint256){
+    function getYearnPrice(address asset) internal returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
         uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth)
         //note: pricePerShare has decimals equal to underlying tokens (ex: yvUSDC has 6 decimals). By dividing by 10**yearnVault.decimals(), we keep the decimals of underlyingPrice which is 18 decimals.
@@ -209,7 +208,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param assets The list of assets addresses
     function getAssetsPrices(address[] calldata assets)
         external
-        view
         returns (uint256[] memory)
     {
         uint256[] memory prices = new uint256[](assets.length);

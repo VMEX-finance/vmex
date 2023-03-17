@@ -258,9 +258,9 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
       .deposit(weth.address, tranche, amountETHtoDeposit, borrower.address, '0');
 
     //user 4 borrows
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
-    const usdcPrice = await oracle.getAssetPrice(usdc.address);
+    const usdcPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
     const amountUSDCToBorrow = await convertToCurrencyDecimals(
       usdc.address,

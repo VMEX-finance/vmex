@@ -328,7 +328,7 @@ export const deposit = async (
     );
     logger("After depost: origin user: ",userDataAfter);
 
-    const userAccountData = await pool.getUserAccountData(
+    const userAccountData = await pool.callStatic.getUserAccountData(
       sender.address,
       tranche);
 
@@ -465,7 +465,7 @@ export const withdraw = async (
     logger("After withdraw: reserve: ",reserveDataAfter);
     logger("After withdraw: user: ",userDataAfter);
 
-    const userAccountData = await pool.getUserAccountData(
+    const userAccountData = await pool.callStatic.getUserAccountData(
       user.address,
       tranche);
 
@@ -692,7 +692,7 @@ export const borrow = async (
     logger("After borrow: user: ",userDataAfter);
 
     logger("After borrow: expectedUserData: ",expectedUserData);
-    // const userAccountData = await pool.getUserAccountData(
+    // const userAccountData = await pool.callStatic.getUserAccountData(
     //   user.address,
     //   tranche);
 

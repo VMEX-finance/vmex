@@ -204,7 +204,7 @@ var triCryptoDepositAbi = [
             // await CurveToken.connect(signer).approve(lendingPool.address,ethers.utils.parseEther("100000.0"))
 
             // await lendingPool.connect(signer).deposit(yearnVault.address, 1, DRE.ethers.utils.parseUnits('1'), await signer.getAddress(), '0');
-            // const userCollateralYearn = (await lendingPool.connect(signer).getUserAccountData(signer.address,1)).totalCollateralETH.toString();
+            // const userCollateralYearn = (await lendingPool.connect(signer).callStatic.getUserAccountData(signer.address,1)).totalCollateralETH.toString();
             // console.log("userCollateralYearn: ",userCollateralYearn)
 
             // await lendingPool.connect(signer).withdraw(yearnVault.address, 1, DRE.ethers.utils.parseUnits('1'), await signer.getAddress());
@@ -217,7 +217,7 @@ var triCryptoDepositAbi = [
 
             // await lendingPool.connect(signer).deposit(CurveToken.address, 1, curveAmount, await signer.getAddress(), '0');
 
-            // const userCollateralCurve = (await lendingPool.connect(signer).getUserAccountData(signer.address,1)).totalCollateralETH.toString();
+            // const userCollateralCurve = (await lendingPool.connect(signer).callStatic.getUserAccountData(signer.address,1)).totalCollateralETH.toString();
 
             // expect(userCollateralYearn).to.be.equal(userCollateralCurve, "Pricing of yearn doesn't match Curve token");
 
@@ -241,7 +241,7 @@ var triCryptoDepositAbi = [
 
             await lendingPool.connect(signer).setUserUseReserveAsCollateral(yearnVault.address, 1, true);
 
-            var userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            var userDat = await lendingPool.connect(signer).callStatic.getUserAccountData(signer.address,1)
 
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
@@ -252,7 +252,7 @@ var triCryptoDepositAbi = [
 
             const curveOracle = new DRE.ethers.Contract(curveOracleAdd,curveOracleAbi);
 
-            const pricePerToken = await curveOracle.connect(signer).getAssetPrice(yearnVault.address);
+            const pricePerToken = await curveOracle.connect(signer).callStatic.getAssetPrice(yearnVault.address);
             console.log("pricePerToken: ",pricePerToken)
             var col = BigNumber.from(pricePerToken.toString()).mul(1000)
 
@@ -266,7 +266,7 @@ var triCryptoDepositAbi = [
               '0', 
               signer.address);
 
-            userDat = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+            userDat = await lendingPool.connect(signer).callStatic.getUserAccountData(signer.address,1)
 
             expect(
               userDat.totalDebtETH.toString()
@@ -317,7 +317,7 @@ var triCryptoDepositAbi = [
           //       1,
           //       DRE.ethers.utils.parseEther("1.0"),
           //       await signer.getAddress());
-          //       var userData:UserAccountData = await lendingPool.connect(signer).getUserAccountData(signer.address,1)
+          //       var userData:UserAccountData = await lendingPool.connect(signer).callStatic.getUserAccountData(signer.address,1)
           //       console.log("USER DATA after repay: ", userData);
           //   const tricrypto2Tranch1ATokenAddress =
           //     (await lendingPool.getReserveData(CurveToken.address, 1)).aTokenAddress;

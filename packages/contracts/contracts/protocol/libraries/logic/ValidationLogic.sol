@@ -13,7 +13,7 @@ import {UserConfiguration} from "../configuration/UserConfiguration.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
-import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
 
 /**
@@ -42,7 +42,7 @@ library ValidationLogic {
         address asset,
         DataTypes.ReserveData storage reserve,
         uint256 amount,
-        AssetMappings _assetMappings
+        IAssetMappings _assetMappings
     ) external view {
         (bool isActive, bool isFrozen, ) = reserve.configuration.getFlags(asset, _assetMappings);
 
@@ -82,8 +82,8 @@ library ValidationLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        AssetMappings _assetMappings
-    ) external view {
+        IAssetMappings _assetMappings
+    ) external {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
             amount <= userBalance,
@@ -140,7 +140,7 @@ library ValidationLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider
-    ) external view {
+    ) external {
         ValidateBorrowLocalVars memory vars;
 
         (
@@ -224,7 +224,7 @@ library ValidationLogic {
         address onBehalfOf,
         uint256 variableDebt,
         address asset,
-        AssetMappings a
+        IAssetMappings a
     ) external view {
         bool isActive = reserve.configuration.getActive(asset, a);
 
@@ -258,8 +258,8 @@ library ValidationLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        AssetMappings _assetMappings
-    ) external view {
+        IAssetMappings _assetMappings
+    ) external {
         DataTypes.ReserveData storage reserve = reservesData[reserveAddress][trancheId];
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
             msg.sender
@@ -321,7 +321,7 @@ library ValidationLogic {
         uint256 userVariableDebt,
         address collateralAsset,
         address principalAsset,
-        AssetMappings a
+        IAssetMappings a
     ) internal view returns (uint256, string memory) {
         if (
             !collateralReserve.configuration.getActive(collateralAsset, a) ||
@@ -391,8 +391,8 @@ library ValidationLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider,
-        AssetMappings _assetMappings
-    ) internal view {
+        IAssetMappings _assetMappings
+    ) internal {
         (, , , , uint256 healthFactor,) = GenericLogic.calculateUserAccountData(
             DataTypes.AcctTranche(from, trancheId),
             reservesData,
