@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.17;
 
-import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../../../interfaces/ILendingPool.sol";
 
 library DataTypes {
     struct CurveMetadata {
+        bool _checkReentrancy;
         uint8 _poolSize;
         address _curvePool;
     }
@@ -103,7 +104,7 @@ library DataTypes {
         address asset;
         uint64 trancheId;
         address _addressesProvider;
-        AssetMappings _assetMappings;
+        IAssetMappings _assetMappings;
         uint256 amount;
         address onBehalfOf;
         uint16 referralCode;
@@ -120,7 +121,7 @@ library DataTypes {
         address onBehalfOf;
         address aTokenAddress;
         bool releaseUnderlying;
-        AssetMappings _assetMappings;
+        IAssetMappings _assetMappings;
 
     }
 

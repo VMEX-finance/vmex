@@ -11,7 +11,7 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {IPriceOracleGetter} from "../../../interfaces/IPriceOracleGetter.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
-import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 /**
  * @title GenericLogic library
  * @author Aave
@@ -52,7 +52,7 @@ library GenericLogic {
         address user;
         uint256 amount;
         ILendingPoolAddressesProvider addressesProvider;
-        AssetMappings assetMappings;
+        IAssetMappings assetMappings;
     }
 
     /**
@@ -193,7 +193,7 @@ library GenericLogic {
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider addressesProvider,
-        AssetMappings assetMappings
+        IAssetMappings assetMappings
     )
         internal
         returns (

@@ -10,7 +10,7 @@ import {UserConfiguration} from "../protocol/libraries/configuration/UserConfigu
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeMath} from "../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {AssetMappings} from "../protocol/lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../interfaces/IAssetMappings.sol";
 
 contract AaveProtocolDataProvider {
     using SafeMath for uint256;
@@ -133,7 +133,7 @@ contract AaveProtocolDataProvider {
             bool borrowingEnabled
         )
     {
-        AssetMappings a = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings());
+        IAssetMappings a = IAssetMappings(ADDRESSES_PROVIDER.getAssetMappings());
         DataTypes.ReserveConfigurationMap memory configuration = ILendingPool(
             ADDRESSES_PROVIDER.getLendingPool()
         ).getConfiguration(asset, trancheId);
@@ -152,7 +152,7 @@ contract AaveProtocolDataProvider {
             getReserveConfigurationDataReturn memory ret
         )
     {
-        AssetMappings a = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings());
+        IAssetMappings a = IAssetMappings(ADDRESSES_PROVIDER.getAssetMappings());
         DataTypes.ReserveConfigurationMap memory configuration = ILendingPool(
             ADDRESSES_PROVIDER.getLendingPool()
         ).getConfiguration(asset, trancheId);
@@ -168,13 +168,13 @@ contract AaveProtocolDataProvider {
         ret.borrowCap = a.getBorrowCap(asset);
 
         ret.reserveFactor = configuration.getReserveFactor();
-        ret.VMEXReserveFactor = AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()).getVMEXReserveFactor(asset);
+        ret.VMEXReserveFactor = IAssetMappings(ADDRESSES_PROVIDER.getAssetMappings()).getVMEXReserveFactor(asset);
 
         (
             ret.isActive,
             ret.isFrozen,
             ret.borrowingEnabled
-        ) = configuration.getFlagsMemory(asset, AssetMappings(ADDRESSES_PROVIDER.getAssetMappings()));
+        ) = configuration.getFlagsMemory(asset, IAssetMappings(ADDRESSES_PROVIDER.getAssetMappings()));
 
         ret.usageAsCollateralEnabled =  configuration.getCollateralEnabled(asset, a);//liquidationThreshold > 0;
     }

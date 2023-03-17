@@ -79,8 +79,8 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
 
     //user 2 borrows
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
-    const daiPrice = await oracle.getAssetPrice(dai.address);
+    const userGlobalData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
+    const daiPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
     const amountDAIToBorrow = await convertToCurrencyDecimals(
       dai.address,
@@ -94,7 +94,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       .connect(borrower.signer)
       .borrow(dai.address, tranche, amountDAIToBorrow, '0', borrower.address);
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalDataAfter = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
     // expect(userGlobalDataAfter.currentLiquidationThreshold.toString()).to.be.bignumber.equal(
     //   '8250',
@@ -106,14 +106,14 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
     const { dai, weth, users, pool, oracle } = testEnv;
     const borrower = users[1];
 
-    const daiPrice = await oracle.getAssetPrice(dai.address);
+    const daiPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
     await oracle.setAssetPrice(
       dai.address,
       new BigNumber(daiPrice.toString()).multipliedBy(1.18).toFixed(0)
     );
 
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
     expect(userGlobalData.healthFactor.toString()).to.be.bignumber.lt(
       oneEther.toFixed(0),
@@ -162,8 +162,8 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
     const daiReserveDataAfter = await helpersContract.getReserveData(dai.address, tranche);
     const ethReserveDataAfter = await helpersContract.getReserveData(weth.address, tranche);
 
-    const collateralPrice = await oracle.getAssetPrice(weth.address);
-    const principalPrice = await oracle.getAssetPrice(dai.address);
+    const collateralPrice = await oracle.callStatic.getAssetPrice(weth.address);
+    const principalPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
     const collateralDecimals = (
       await helpersContract.getReserveConfigurationData(weth.address, tranche)
@@ -265,9 +265,9 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       .deposit(weth.address, tranche, amountETHtoDeposit, borrower.address, '0');
 
     //borrower borrows
-    const userGlobalData = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
-    const usdcPrice = await oracle.getAssetPrice(usdc.address);
+    const usdcPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
     const amountUSDCToBorrow = await convertToCurrencyDecimals(
       usdc.address,
@@ -321,13 +321,13 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       borrower.address
     );
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalDataAfter = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
     const usdcReserveDataAfter = await helpersContract.getReserveData(usdc.address, tranche);
     const ethReserveDataAfter = await helpersContract.getReserveData(weth.address, tranche);
 
-    const collateralPrice = await oracle.getAssetPrice(weth.address);
-    const principalPrice = await oracle.getAssetPrice(usdc.address);
+    const collateralPrice = await oracle.callStatic.getAssetPrice(weth.address);
+    const principalPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
     const collateralDecimals = (
       await helpersContract.getReserveConfigurationData(weth.address, tranche)
@@ -403,7 +403,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
     await pool
       .connect(borrower.signer)
       .deposit(aave.address, tranche, amountToDeposit, borrower.address, '0');
-    const usdcPrice = await oracle.getAssetPrice(usdc.address);
+    const usdcPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
     //drops HF below 1
     await oracle.setAssetPrice(
@@ -433,8 +433,8 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       .decimalPlaces(0, BigNumber.ROUND_DOWN)
       .toFixed(0);
 
-    const collateralPrice = await oracle.getAssetPrice(aave.address);
-    const principalPrice = await oracle.getAssetPrice(usdc.address);
+    const collateralPrice = await oracle.callStatic.getAssetPrice(aave.address);
+    const principalPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
     await pool
       .connect(liquidator.signer)
@@ -446,7 +446,7 @@ makeSuite('LendingPool liquidation - liquidator receiving the underlying asset',
       borrower.address
     );
 
-    const userGlobalDataAfter = await pool.getUserAccountData(borrower.address, tranche);
+    const userGlobalDataAfter = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
     const usdcReserveDataAfter = await helpersContract.getReserveData(usdc.address, tranche);
     const aaveReserveDataAfter = await helpersContract.getReserveData(aave.address, tranche);

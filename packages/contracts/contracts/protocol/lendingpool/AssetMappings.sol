@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
-
+import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
@@ -11,10 +11,9 @@ import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 
-contract AssetMappings is VersionedInitializable{
+contract AssetMappings is IAssetMappings, VersionedInitializable{
     using PercentageMath for uint256;
     using Helpers for address;
-
 
     ILendingPoolAddressesProvider internal addressesProvider;
     address public approvedAssetsHead;
@@ -25,40 +24,6 @@ contract AssetMappings is VersionedInitializable{
     mapping(address => mapping(uint8=>address)) internal interestRateStrategyAddress;
     mapping(address => uint8) public numInterestRateStrategyAddress;
     mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
-
-    event AssetDataSet(
-        address indexed asset,
-        uint8 underlyingAssetDecimals,
-        string underlyingAssetSymbol,
-        uint256 supplyCap,
-        uint256 borrowCap,
-        uint256 baseLTV,
-        uint256 liquidationThreshold,
-        uint256 liquidationBonus,
-        uint256 borrowFactor,
-        bool borrowingEnabled,
-        uint256 VMEXReserveFactor
-    );
-
-    event ConfiguredReserves(
-        address indexed asset,
-        uint256 baseLTV,
-        uint256 liquidationThreshold,
-        uint256 liquidationBonus,
-        uint256 supplyCap,
-        uint256 borrowCap,
-        uint256 borrowFactor
-    );
-
-    event AddedInterestRateStrategyAddress(
-        address indexed asset,
-        uint256 index,
-        address strategyAddress
-    );
-
-    event VMEXReserveFactorChanged(address indexed asset, uint256 factor);
-
-    event BorrowingEnabledChanged(address indexed asset, bool borrowingEnabled);
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -145,21 +110,6 @@ contract AssetMappings is VersionedInitializable{
                 Errors.LPC_INVALID_CONFIGURATION
             );
         }
-    }
-
-    struct AddAssetMappingInput {
-        address asset;
-        address defaultInterestRateStrategyAddress;
-        uint128 supplyCap; //can get up to 10^38. Good enough.
-        uint128 borrowCap; //can get up to 10^38. Good enough.
-        uint64 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
-        uint64 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
-        uint64 liquidationBonus; // 64 bits
-        uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
-
-        bool borrowingEnabled;
-        uint8 assetType; //to choose what oracle to use
-        uint64 VMEXReserveFactor;
     }
 
     /**

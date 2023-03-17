@@ -150,4 +150,6 @@ interface ICurvePool {
         external
         view
         returns (uint256 out);
+
+    function claim_admin_fees() external;
 }

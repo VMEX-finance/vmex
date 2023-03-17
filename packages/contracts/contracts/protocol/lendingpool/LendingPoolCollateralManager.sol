@@ -21,7 +21,7 @@ import {UserConfiguration} from "../libraries/configuration/UserConfiguration.so
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {LendingPoolStorage} from "./LendingPoolStorage.sol";
 
-import {AssetMappings} from "./AssetMappings.sol";
+import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 
 /**
  * @title LendingPoolCollateralManager contract
@@ -63,7 +63,7 @@ contract LendingPoolCollateralManager is
         DataTypes.InterestRateMode borrowRateMode;
         uint256 errorCode;
         string errorMsg;
-        AssetMappings _assetMappings;
+        IAssetMappings _assetMappings;
         address debtAsset;
         address collateralAsset;
     }

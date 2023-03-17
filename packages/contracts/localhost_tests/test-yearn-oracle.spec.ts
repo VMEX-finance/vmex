@@ -75,6 +75,7 @@ makeSuite(
           `function add_liquidity(uint256[3] calldata amounts,uint256 min_mint_amount) external payable`,
           `function coins(uint256 arg0) external view returns (address out)`,
           `function get_virtual_price() external view returns (uint256 out)`,
+          `function claim_admin_fees() external`,
         ];
         const yvAddr = [
              '0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3',
@@ -115,10 +116,12 @@ makeSuite(
                 const CurveToken = new DRE.ethers.Contract(curveAssets[i],CurveTokenAddabi)
                 const CurvePool = new DRE.ethers.Contract(curvePools[i],CurvePoolAbi)
                 const yearnVault = new DRE.ethers.Contract(yvAddr[i],yvAbi)
-                const pricePerCurveToken = await oracle.connect(signer).getAssetPrice(CurveToken.address);
+                console.log("Pricing ",curveAssets[i])
+                const pricePerCurveToken = await oracle.connect(signer).callStatic.getAssetPrice(CurveToken.address);
                 console.log("pricePerCurveToken: ",pricePerCurveToken)
                 var cumProduct = 1;
                 var minAmount = ethers.constants.MaxUint256
+                // await CurvePool.connect(signer).claim_admin_fees();
                 const vp = await CurvePool.connect(signer).get_virtual_price()
                 var expectedPrice;
                 for(let j = 0;j<curveSize[i];j++) {
@@ -126,7 +129,7 @@ makeSuite(
                   if(tokenAddr == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"){
                     tokenAddr = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
                   }
-                  const tokenPrice = await oracle.connect(signer).getAssetPrice(tokenAddr);
+                  const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(tokenAddr);
                   cumProduct *= Number(ethers.utils.formatUnits(tokenPrice, 18))
                   minAmount = tokenPrice.lt(minAmount) ? tokenPrice : minAmount
                 }
@@ -144,7 +147,7 @@ makeSuite(
                   diff
                 ).to.be.lte(100, "Curve prices do not match");
 
-                const pricePerYearnToken = await oracle.connect(signer).getAssetPrice(yearnVault.address);
+                const pricePerYearnToken = await oracle.connect(signer).callStatic.getAssetPrice(yearnVault.address);
                 const pricePerShare = await yearnVault.connect(signer).pricePerShare();
                 
                 console.log("pricePerYearnToken: ",pricePerYearnToken)

@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {AssetMappings} from "../../lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 
 /**
  * @title ReserveConfiguration library
@@ -44,7 +44,7 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The active state
      **/
-    function getActive(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
+    function getActive(DataTypes.ReserveConfigurationMap memory self, address asset, IAssetMappings a)
         internal
         view
         returns (bool)
@@ -98,7 +98,7 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The borrowing state
      **/
-    function getBorrowingEnabled(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
+    function getBorrowingEnabled(DataTypes.ReserveConfigurationMap memory self, address asset, IAssetMappings a)
         internal
         view
         returns (bool)
@@ -158,7 +158,7 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The active state
      **/
-    function getCollateralEnabled(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
+    function getCollateralEnabled(DataTypes.ReserveConfigurationMap memory self, address asset, IAssetMappings a)
         internal
         view
         returns (bool)
@@ -173,7 +173,7 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The state flags representing active, frozen, borrowing enabled
      **/
-    function getFlags(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
+    function getFlags(DataTypes.ReserveConfigurationMap memory self, address asset, IAssetMappings a)
         internal
         view
         returns (
@@ -196,7 +196,7 @@ library ReserveConfiguration {
      * @param self The reserve configuration
      * @return The state flags representing active, frozen, borrowing enabled
      **/
-    function getFlagsMemory(DataTypes.ReserveConfigurationMap memory self, address asset, AssetMappings a)
+    function getFlagsMemory(DataTypes.ReserveConfigurationMap memory self, address asset, IAssetMappings a)
         internal
         view
         returns (

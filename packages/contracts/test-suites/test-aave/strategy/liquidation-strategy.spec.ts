@@ -179,11 +179,11 @@ makeSuite(
         testEnv;
       const borrower = users[1];
 
-      const userGlobalData = await pool.getUserAccountData(
+      const userGlobalData = await pool.callStatic.getUserAccountData(
         borrower.address,
         tranche
       );
-      const daiPrice = await oracle.getAssetPrice(dai.address);
+      const daiPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
       const amountDAIToBorrow = await convertToCurrencyDecimals(
         dai.address,
@@ -210,7 +210,7 @@ makeSuite(
           borrower.address
         );
 
-      const userGlobalDataAfter = await pool.getUserAccountData(
+      const userGlobalDataAfter = await pool.callStatic.getUserAccountData(
         borrower.address,
         tranche
       );
@@ -225,14 +225,14 @@ makeSuite(
       const { dai, users, pool, oracle } = testEnv;
       const borrower = users[1];
 
-      const daiPrice = await oracle.getAssetPrice(dai.address);
+      const daiPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
       await oracle.setAssetPrice(
         dai.address,
         new BigNumber(daiPrice.toString()).multipliedBy(1.18).toFixed(0)
       );
 
-      const userGlobalData = await pool.getUserAccountData(
+      const userGlobalData = await pool.callStatic.getUserAccountData(
         borrower.address,
         tranche
       );
@@ -319,10 +319,10 @@ makeSuite(
         tranche
       );
 
-      const collateralPrice = await curveOracle.getAssetPrice(
+      const collateralPrice = await curveOracle.callStatic.getAssetPrice(
         tricrypto2.address
       );
-      const principalPrice = await oracle.getAssetPrice(dai.address);
+      const principalPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
       const collateralDecimals = (
         await helpersContract.getReserveConfigurationData(
@@ -474,12 +474,12 @@ makeSuite(
         );
 
       //borrower borrows
-      const userGlobalData = await pool.getUserAccountData(
+      const userGlobalData = await pool.callStatic.getUserAccountData(
         borrower.address,
         tranche
       );
 
-      const usdcPrice = await oracle.getAssetPrice(usdc.address);
+      const usdcPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
       const amountUSDCToBorrow = await convertToCurrencyDecimals(
         usdc.address,
@@ -556,7 +556,7 @@ makeSuite(
         borrower.address
       );
 
-      const userGlobalDataAfter = await pool.getUserAccountData(
+      const userGlobalDataAfter = await pool.callStatic.getUserAccountData(
         borrower.address,
         tranche
       );
@@ -570,8 +570,8 @@ makeSuite(
         tranche
       );
 
-      const collateralPrice = await oracle.getAssetPrice(tricrypto2.address);
-      const principalPrice = await oracle.getAssetPrice(usdc.address);
+      const collateralPrice = await oracle.callStatic.getAssetPrice(tricrypto2.address);
+      const principalPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
       const collateralDecimals = (
         await helpersContract.getReserveConfigurationData(
@@ -669,7 +669,7 @@ makeSuite(
       await pool
         .connect(borrower.signer)
         .deposit(aave.address, tranche, amountToDeposit, borrower.address, "0");
-      const usdcPrice = await oracle.getAssetPrice(usdc.address);
+      const usdcPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
       //drops HF below 1
       await oracle.setAssetPrice(
@@ -709,8 +709,8 @@ makeSuite(
         .decimalPlaces(0, BigNumber.ROUND_DOWN)
         .toFixed(0);
 
-      const collateralPrice = await oracle.getAssetPrice(aave.address);
-      const principalPrice = await oracle.getAssetPrice(usdc.address);
+      const collateralPrice = await oracle.callStatic.getAssetPrice(aave.address);
+      const principalPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
       await pool
         .connect(liquidator.signer)
@@ -729,7 +729,7 @@ makeSuite(
         borrower.address
       );
 
-      const userGlobalDataAfter = await pool.getUserAccountData(
+      const userGlobalDataAfter = await pool.callStatic.getUserAccountData(
         borrower.address,
         tranche
       );

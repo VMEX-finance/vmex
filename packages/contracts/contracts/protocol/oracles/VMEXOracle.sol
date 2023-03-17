@@ -10,7 +10,7 @@ import {IChainlinkPriceFeed} from "../../interfaces/IChainlinkPriceFeed.sol";
 import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Initializable} from "../../dependencies/openzeppelin/upgradeability/Initializable.sol";
-import {AssetMappings} from "../lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "../../interfaces/IYearnToken.sol";
@@ -35,7 +35,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
 
     ILendingPoolAddressesProvider internal addressProvider;
-    AssetMappings internal assetMappings;
+    IAssetMappings internal assetMappings;
     mapping(address => IChainlinkPriceFeed) private assetsSources;
     IPriceOracleGetter private _fallbackOracle;
     address public BASE_CURRENCY; //removed immutable keyword since
@@ -64,7 +64,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         ILendingPoolAddressesProvider provider
     ) public initializer {
         addressProvider = provider;
-        assetMappings = AssetMappings(addressProvider.getAssetMappings());
+        assetMappings = IAssetMappings(addressProvider.getAssetMappings());
     }
 
     function setBaseCurrency(
@@ -182,10 +182,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
 
         if(assetType==DataTypes.ReserveAssetType.CURVE){
-            price = CurveOracle.get_price_v1(c._curvePool, prices);
+            price = CurveOracle.get_price_v1(c._curvePool, prices, c._checkReentrancy);
         }
         else if(assetType==DataTypes.ReserveAssetType.CURVEV2){
-            price = CurveOracle.get_price_v2(c._curvePool, prices);
+            price = CurveOracle.get_price_v2(c._curvePool, prices, c._checkReentrancy);
         }
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);

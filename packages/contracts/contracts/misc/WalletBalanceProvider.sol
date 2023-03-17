@@ -9,7 +9,7 @@ import {ILendingPool} from "../interfaces/ILendingPool.sol";
 import {SafeERC20} from "../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
-import {AssetMappings} from "../protocol/lendingpool/AssetMappings.sol";
+import {IAssetMappings} from "../interfaces/IAssetMappings.sol";
 
 /**
  * @title WalletBalanceProvider contract
@@ -108,7 +108,7 @@ contract WalletBalanceProvider {
 
             (bool isActive, , ) = configuration.getFlagsMemory(
                 reservesWithEth[j],
-                AssetMappings(
+                IAssetMappings(
                     ILendingPoolAddressesProvider(provider).getAssetMappings()
                 )
             );

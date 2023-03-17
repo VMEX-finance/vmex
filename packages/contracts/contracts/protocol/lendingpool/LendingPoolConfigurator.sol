@@ -11,7 +11,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
-import {AssetMappings} from "./AssetMappings.sol";
+import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
 import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
@@ -30,7 +30,7 @@ contract LendingPoolConfigurator is
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
 
     ILendingPoolAddressesProvider internal addressesProvider;
-    AssetMappings internal assetMappings;
+    IAssetMappings internal assetMappings;
     ILendingPool internal pool;
     uint64 public override totalTranches;
     mapping(uint64 => address) override public trancheAdminTreasuryAddresses; //tranche to address of treasury of that tranche
@@ -89,7 +89,7 @@ contract LendingPoolConfigurator is
     function initialize(address provider) public initializer {
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
-        assetMappings = AssetMappings(addressesProvider.getAssetMappings());
+        assetMappings = IAssetMappings(addressesProvider.getAssetMappings());
     }
 
     /* ************************************************************************* */
