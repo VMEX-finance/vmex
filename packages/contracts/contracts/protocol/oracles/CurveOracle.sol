@@ -11,10 +11,22 @@ library CurveOracle {
 	function check_reentrancy(address curve_pool) internal {
 		//makerdao uses remove_liquidity to trigger reentrancy lock
         //exchange is also reentrancy locked, so I'm assuming it will do what we want
-		bytes4 sig = bytes4(keccak256(bytes('remove_liquidity_one_coin(uint256,int128,uint256)')));
-		(bool success, ) = curve_pool.call(abi.encodeWithSelector(sig, uint256(0), int128(1), uint256(0)));
-		require(success, 'remove_liquidity_one_coin failed. Could be reentrancy detected or call failed for some other reason');
-		// ICurvePool(curve_pool).remove_liquidity_one_coin(0,0,0);
+
+		// bytes4 sig = bytes4(keccak256(bytes('remove_liquidity_one_coin(uint256,int128,uint256)')));
+		// (bool success, ) = curve_pool.call(abi.encodeWithSelector(sig, uint256(0), int128(1), uint256(0)));
+		// require(success, 'remove_liquidity_one_coin failed. Could be reentrancy detected or call failed for some other reason');
+
+		bool success = false;
+		(success, ) = curve_pool.call(
+			abi.encodeWithSignature("claim_admin_fees()")
+		);
+		if (!success) {
+			(success, ) = ICurvePool(curve_pool).owner().call(
+				abi.encodeWithSignature("withdraw_admin_fees()")
+			);
+			require(success, "reentrancy guard not called");
+		}
+		
 	}
 	
 	//where total supply is the total supply of the LP token in the pools calculated using the virtual price
