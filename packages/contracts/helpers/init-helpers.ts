@@ -393,7 +393,7 @@ export const getTranche1MockedData = (
     allReservesAddresses["Steth"],
     allReservesAddresses["yvFraxUSDC"],
     allReservesAddresses["yvFrax3Crv"],
-    allReservesAddresses["Frax"],
+    allReservesAddresses["FRAX"],
     allReservesAddresses["BAL"],
     allReservesAddresses["CRV"],
     allReservesAddresses["CVX"],
@@ -401,6 +401,33 @@ export const getTranche1MockedData = (
     allReservesAddresses["LDO"],
     allReservesAddresses["ALCX"],
     allReservesAddresses["Oneinch"],
+  ];
+
+  let reserveFactors0:string[] = [];
+  let canBorrow0:boolean[] = [];
+  let canBeCollateral0:boolean[] = [];
+  for(let i =0;i<assets0.length;i++){
+    reserveFactors0.push("1000")
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
+  }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0]
+}
+
+
+
+export const getTranche0MockedDataOP = (
+  allReservesAddresses: { [symbol: string]: tEthereumAddress },
+): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0:tEthereumAddress[] = [
+    allReservesAddresses["DAI"],
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDT"],
+    allReservesAddresses["SUSD"],
+    allReservesAddresses["WBTC"],
+    allReservesAddresses["SNX"],
+    allReservesAddresses["WETH"],
   ];
 
   let reserveFactors0:string[] = [];

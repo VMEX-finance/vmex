@@ -28,7 +28,6 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
     const {
       Mocks: { AllAssetsInitialPrices },
       ProtocolGlobalParams: { UsdAddress, MockUsdPriceInWei },
-      LendingRateOracleRatesCommon,
       OracleQuoteCurrency,
       OracleQuoteUnit,
     } = poolConfig as ICommonConfiguration;

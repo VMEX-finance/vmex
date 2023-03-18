@@ -54,6 +54,10 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   WBTC: oneEther.multipliedBy("47.332685").toFixed(),
   YFI: oneEther.multipliedBy("22.407436").toFixed(),
   ZRX: oneEther.multipliedBy("0.001151").toFixed(),
+  OP: oneEther.multipliedBy("0.006").toFixed(),
+  ThreeCRV: oneEther.multipliedBy("0.00369068412860").toFixed(),
+  sUSD3CRV: oneEther.multipliedBy("0.00369068412860").toFixed(),
+  wstETHCRV: oneEther.toFixed(),
   UniDAIWETH: oneEther.multipliedBy("22.407436").toFixed(),
   UniWBTCWETH: oneEther.multipliedBy("22.407436").toFixed(),
   UniAAVEWETH: oneEther.multipliedBy("0.003620948469").toFixed(),
@@ -78,9 +82,10 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   ThreePool: oneEther.toFixed(), //this should not be used, just placed here to compile
   StethEth: oneEther.toFixed(), //this should not be used, just placed here to compile
   Steth: oneEther.toFixed(), //this should not be used, just placed here to compile
+  wstETH: oneEther.toFixed(), //this should not be used, just placed here to compile
   FraxUSDC: oneEther.toFixed(), //this should not be used, just placed here to compile
   Frax3Crv: oneEther.toFixed(), //this should not be used, just placed here to compile
-  Frax: oneEther.multipliedBy("0.00367714136416").toFixed(), //this should not be used, just placed here to compile
+  FRAX: oneEther.multipliedBy("0.00367714136416").toFixed(), //this should not be used, just placed here to compile
   BAL: oneEther.multipliedBy("0.00443515").toFixed(), //this should not be used, just placed here to compile
   CRV: oneEther.multipliedBy("0.0007007323").toFixed(), //this should not be used, just placed here to compile
   CVX: oneEther.multipliedBy("0.00325699").toFixed(), //this should not be used, just placed here to compile

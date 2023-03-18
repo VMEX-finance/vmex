@@ -39,9 +39,6 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       const {
         ProtocolGlobalParams: { UsdAddress },
         ReserveAssets,
-        FallbackOracle,
-        UniswapV3OracleAddresses,
-        UniswapV3OracleTargets,
         ChainlinkAggregator,
       } = poolConfig as ICommonConfiguration;
       const addressesProvider = await getLendingPoolAddressesProvider();
@@ -51,26 +48,12 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       // );
       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
-      const uniswapV3OracleAddresses = await getParamPerNetwork(
-        UniswapV3OracleAddresses,
-        network
-      );
-      const uniswapV3OracleTargets = await getParamPerNetwork(
-        UniswapV3OracleTargets,
-        network
-      );
-
       let tokensToWatch: SymbolMap<string> = {
         ...reserveAssets,
         // USD: UsdAddress,
       };
 
-      if(!uniswapV3OracleAddresses){
-        console.log("No uniswapV3OracleAddresses")
-        exit(1);
-      }
 
-      console.log("uniswapV3OracleAddresses: ", uniswapV3OracleAddresses)
 
       // const [tokens, uniswapAddresses] = getPairsTokenAggregator(
       //   tokensToWatch,

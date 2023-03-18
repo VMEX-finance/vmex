@@ -244,7 +244,7 @@ library GenericLogic {
                 vars.compoundedLiquidityBalance = IERC20(
                     currentReserve.aTokenAddress
                 ).balanceOf(vars.user);
-
+                // could also be in USD if reserveUnitPrice is in USD (with 8 decimals)
                 vars.liquidityBalanceETH = vars
                     .reserveUnitPrice
                     .mul(vars.compoundedLiquidityBalance)

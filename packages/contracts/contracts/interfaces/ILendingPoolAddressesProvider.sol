@@ -26,7 +26,6 @@ interface ILendingPoolAddressesProvider {
     event CurvePriceOracleUpdated(address indexed newAddress);
     event CurvePriceOracleWrapperUpdated(address indexed newAddress);
     event CurveAddressProviderUpdated(address indexed newAddress);
-    event LendingRateOracleUpdated(address indexed newAddress);
     event ProxyCreated(bytes32 id, address indexed newAddress);
     event AddressSet(bytes32 id, address indexed newAddress, bool hasProxy);
 

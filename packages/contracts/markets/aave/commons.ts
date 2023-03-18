@@ -37,69 +37,6 @@ export const CommonsConfig: ICommonConfiguration = {
       ...MOCK_CHAINLINK_AGGREGATORS_PRICES,
     },
   },
-  // TODO: reorg alphabetically, checking the reason of tests failing
-  LendingRateOracleRatesCommon: {
-    WETH: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    DAI: {
-      borrowRate: oneRay.multipliedBy(0.039).toFixed(),
-    },
-    TUSD: {
-      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
-    },
-    USDC: {
-      borrowRate: oneRay.multipliedBy(0.039).toFixed(),
-    },
-    SUSD: {
-      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
-    },
-    USDT: {
-      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
-    },
-    BAT: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    AAVE: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    LINK: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    KNC: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    MKR: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    MANA: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    WBTC: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    ZRX: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    SNX: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    YFI: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    REN: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    UNI: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    ENJ: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    BUSD: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-  },
   // ----------------
   // COMMON PROTOCOL ADDRESSES ACROSS POOLS
   // ----------------
@@ -147,16 +84,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.buidlerevm]: '',
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.tenderly]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
-  },
-  LendingRateOracle: {
-    [eEthereumNetwork.coverage]: '',
-    [eEthereumNetwork.hardhat]: '',
-    [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.kovan]: '', //'0xdCde9Bb6a49e37fA433990832AB541AE2d4FEB4a',
-    [eEthereumNetwork.ropsten]: '0x05dcca805a6562c1bdd0423768754acb6993241b',
-    [eEthereumNetwork.goerli]: '',
-    [eEthereumNetwork.main]: '', //'0x8A32f49FFbA88aba6EFF96F45D8BD1D4b3f35c7D',
-    [eEthereumNetwork.tenderly]: '' // '0x8A32f49FFbA88aba6EFF96F45D8BD1D4b3f35c7D',
   },
   LendingPoolCollateralManager: {
     [eEthereumNetwork.coverage]: '',
@@ -208,16 +135,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.tenderly]: '0xe3d9988f676457123c5fd01297605efdd0cba1ae',
   },
-  AaveOracle: {
-    [eEthereumNetwork.coverage]: '',
-    [eEthereumNetwork.hardhat]: '',
-    [eEthereumNetwork.buidlerevm]: '',
-    [eEthereumNetwork.kovan]: '', //'0xB8bE51E6563BB312Cbb2aa26e352516c25c26ac1',
-    [eEthereumNetwork.ropsten]: ZERO_ADDRESS,
-    [eEthereumNetwork.main]: '', //'0xA50ba011c48153De246E5192C8f9258A2ba79Ca9',
-    [eEthereumNetwork.goerli]: '',
-    [eEthereumNetwork.tenderly]: '' //'0xA50ba011c48153De246E5192C8f9258A2ba79Ca9',
-  },
   FallbackOracle: {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
@@ -262,7 +179,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: ZERO_ADDRESS,
       FraxUSDC: ZERO_ADDRESS,
       Frax3Crv: ZERO_ADDRESS,
-      Frax: ZERO_ADDRESS,
+      FRAX: ZERO_ADDRESS,
       BAL: '0xDC2c21F1B54dDaF39e944689a8f90cb844135cc9',
       CRV: '0x4c83A7f819A5c37D64B4c5A2f8238Ea082fA1f4e',
       CVX: '0x2E4784446A0a06dF3D1A040b03e1680Ee266c35a',
@@ -303,7 +220,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: ZERO_ADDRESS,
       FraxUSDC: ZERO_ADDRESS,
       Frax3Crv: ZERO_ADDRESS,
-      Frax: ZERO_ADDRESS,
+      FRAX: ZERO_ADDRESS,
       BAL: '0xDC2c21F1B54dDaF39e944689a8f90cb844135cc9',
       CRV: '0x4c83A7f819A5c37D64B4c5A2f8238Ea082fA1f4e',
       CVX: '0x2E4784446A0a06dF3D1A040b03e1680Ee266c35a',
@@ -352,7 +269,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0',
       FraxUSDC: '0',
       Frax3Crv: '0',
-      Frax: '0',
+      FRAX: '0',
       BAL: '0',
       CRV: '1',
       CVX: '0',
@@ -393,7 +310,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0',
       FraxUSDC: '0',
       Frax3Crv: '0',
-      Frax: '0',
+      FRAX: '0',
       BAL: '0',
       CRV: '1',
       CVX: '0',
@@ -443,26 +360,6 @@ export const CommonsConfig: ICommonConfiguration = {
       },
     },
     [eEthereumNetwork.tenderly]: {
-      Tricrypto2: {
-        _poolSize: '3',
-        _curvePool: '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46'
-      },
-      ThreePool: {
-        _poolSize: '3',
-        _curvePool: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7'
-      },
-      StethEth: {
-        _poolSize: '2',
-        _curvePool: '0xDC24316b9AE028F1497c275EB9192a3Ea0f67022'
-      },
-      FraxUSDC: {
-        _poolSize: '2',
-        _curvePool: '0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2'
-      },
-      Frax3Crv: {
-        _poolSize: '2',
-        _curvePool: '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B'
-      },
     },
   },
   ChainlinkAggregator: {
@@ -541,7 +438,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
       FraxUSDC: ZERO_ADDRESS, //this should not be used
       Frax3Crv: ZERO_ADDRESS, //this should not be used
-      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      FRAX: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
       BAL: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
       CRV: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
       CVX: '0xC9CbF687f43176B302F03f5e58470b77D07c61c6',
@@ -582,7 +479,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
       FraxUSDC: ZERO_ADDRESS, //this should not be used
       Frax3Crv: ZERO_ADDRESS, //this should not be used
-      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      FRAX: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
       BAL: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
       CRV: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
       CVX: '0xC9CbF687f43176B302F03f5e58470b77D07c61c6',

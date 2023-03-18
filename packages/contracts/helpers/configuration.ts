@@ -13,6 +13,7 @@ import {
 import AaveConfig from "../markets/aave";
 import MaticConfig from "../markets/matic";
 import AvalancheConfig from "../markets/avalanche";
+import OptimismConfig from "../markets/optimism";
 import AmmConfig from "../markets/amm";
 
 import { CommonsConfig } from "../markets/aave/commons";
@@ -28,6 +29,7 @@ export enum ConfigNames {
   Matic = "Matic",
   Amm = "Amm",
   Avalanche = "Avalanche",
+  Optimism = "Optimism",
 }
 
 export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
@@ -40,6 +42,8 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
       return AmmConfig;
     case ConfigNames.Avalanche:
       return AvalancheConfig;
+    case ConfigNames.Optimism:
+      return OptimismConfig;
     case ConfigNames.Commons:
       return CommonsConfig;
     default:
@@ -154,19 +158,6 @@ export const getWrappedNativeTokenAddress = async (
   }
   const weth = await deployWETHMocked();
   return weth.address;
-};
-
-export const getLendingRateOracles = (poolConfig: IBaseConfiguration) => {
-  const {
-    ProtocolGlobalParams: { UsdAddress },
-    LendingRateOracleRatesCommon,
-    ReserveAssets,
-  } = poolConfig;
-
-  const network = process.env.FORK ? process.env.FORK : DRE.network.name;
-  return filterMapBy(LendingRateOracleRatesCommon, (key) =>
-    Object.keys(ReserveAssets[network]).includes(key)
-  );
 };
 
 export const getQuoteCurrency = async (config: IBaseConfiguration) => {

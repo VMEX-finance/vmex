@@ -291,7 +291,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
       FraxUSDC: ZERO_ADDRESS, //this should not be used
       Frax3Crv: ZERO_ADDRESS, //this should not be used
-      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      FRAX: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
       BAL: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
       CRV: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
       CVX: '0xC9CbF687f43176B302F03f5e58470b77D07c61c6',
@@ -327,7 +327,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
       FraxUSDC: ZERO_ADDRESS, //this should not be used
       Frax3Crv: ZERO_ADDRESS, //this should not be used
-      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      FRAX: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
     },
   },
   ReserveAssets: {

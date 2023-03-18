@@ -37,7 +37,7 @@ task(
       await DRE.run("set-DRE");
       
       const network = <eNetwork>DRE.network.name;
-      const poolConfig = loadPoolConfig(ConfigNames.Aave);
+      const poolConfig = loadPoolConfig(pool);
       const {
         ATokenNamePrefix,
         StableDebtTokenNamePrefix,

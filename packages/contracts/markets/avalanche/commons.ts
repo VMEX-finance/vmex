@@ -37,69 +37,6 @@ export const CommonsConfig: ICommonConfiguration = {
       ...MOCK_CHAINLINK_AGGREGATORS_PRICES,
     },
   },
-  // TODO: reorg alphabetically, checking the reason of tests failing
-  LendingRateOracleRatesCommon: {
-    WETH: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    DAI: {
-      borrowRate: oneRay.multipliedBy(0.039).toFixed(),
-    },
-    TUSD: {
-      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
-    },
-    USDC: {
-      borrowRate: oneRay.multipliedBy(0.039).toFixed(),
-    },
-    SUSD: {
-      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
-    },
-    USDT: {
-      borrowRate: oneRay.multipliedBy(0.035).toFixed(),
-    },
-    BAT: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    AAVE: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    LINK: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    KNC: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    MKR: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    MANA: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    WBTC: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    ZRX: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    SNX: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    YFI: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    REN: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    UNI: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    ENJ: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    BUSD: {
-      borrowRate: oneRay.multipliedBy(0.05).toFixed(),
-    },
-  },
   // ----------------
   // COMMON PROTOCOL ADDRESSES ACROSS POOLS
   // ----------------
@@ -291,7 +228,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
       FraxUSDC: ZERO_ADDRESS, //this should not be used
       Frax3Crv: ZERO_ADDRESS, //this should not be used
-      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      FRAX: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
       BAL: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
       CRV: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
       CVX: '0xC9CbF687f43176B302F03f5e58470b77D07c61c6',
@@ -327,7 +264,7 @@ export const CommonsConfig: ICommonConfiguration = {
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
       FraxUSDC: ZERO_ADDRESS, //this should not be used
       Frax3Crv: ZERO_ADDRESS, //this should not be used
-      Frax: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
+      FRAX: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
     },
   },
   ReserveAssets: {

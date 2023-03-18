@@ -4,7 +4,8 @@ MNEMONIC=""
 # Add Alchemy or Infura provider keys, alchemy takes preference at the config level
 ALCHEMY_KEY= ""
 
-
+# alchemy key for optimism mainnet
+OP_ALCHEMY_KEY= ""
 
 # Optional Etherscan key, for automatize the verification of the contracts at Etherscan
 ETHERSCAN_KEY=""

@@ -25,6 +25,9 @@ task('sidechain:mainnet', 'Deploy market at sidechain')
     console.log('1. Deploy address provider');
     await DRE.run('full:deploy-address-provider', { pool: POOL_NAME, skipRegistry });
 
+    console.log("1.5. Deploy asset mappings");
+    await DRE.run("full:deploy-asset-mappings", { pool: POOL_NAME });
+
     console.log('2. Deploy lending pool');
     await DRE.run('full:deploy-lending-pool', { pool: POOL_NAME });
 
@@ -38,6 +41,16 @@ task('sidechain:mainnet', 'Deploy market at sidechain')
 
     console.log('6. Initialize lending pool');
     await DRE.run('full:initialize-lending-pool', { pool: POOL_NAME });
+
+    console.log("6.1. Initialize lending pool tranche 0");
+    await DRE.run("full:initialize-lending-pool-tranches-0-OP", {
+      pool: POOL_NAME,
+    });
+
+    // console.log("6.2. Initialize lending pool tranche 1");
+    // await DRE.run("full:initialize-lending-pool-tranches-1", {
+    //   pool: POOL_NAME,
+    // });
 
     if (verify) {
       printContracts();

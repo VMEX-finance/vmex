@@ -178,10 +178,10 @@ library DepositWithdrawLogic {
                 vars.amount=totalAmount;
             }
         }
-        // amountInETH always has 18 decimals, since the assetPrice always has 18 decimals. Scaling by amount/asset decimals. 
+        // amountInETH always has 18 decimals (or if oracle has 8 decimals, this also has 8 decimals), since the assetPrice always has 18 decimals. Scaling by amount/asset decimals. 
         uint256 amountInETH = vars.assetPrice.mul(vars.amount).div(
                 10**vars._assetMappings.getDecimals(vars.asset)
-            ); //lp token decimals are 18, like ETH
+            ); 
 
         ValidationLogic.validateBorrow(
             vars,
