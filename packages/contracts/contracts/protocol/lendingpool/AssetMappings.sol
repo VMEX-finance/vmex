@@ -61,12 +61,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     function setVMEXReserveFactor(
         address asset,
         uint256 reserveFactor //the value here should only occupy 16 bits. This value only has two decimal points
-    ) external onlyGlobalAdmin {
+    ) public onlyGlobalAdmin {
         uint256 thisReserveFactor = reserveFactor.convertToPercent();
-        require(
-                thisReserveFactor < PercentageMath.PERCENTAGE_FACTOR,
-                Errors.LPC_INVALID_CONFIGURATION
-            );
+        validateVMEXReserveFactor(thisReserveFactor);
+        
         assetMappings[asset].VMEXReserveFactor = uint64(thisReserveFactor);
 
         emit VMEXReserveFactorChanged(asset, thisReserveFactor);
@@ -134,6 +132,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             inputAsset.VMEXReserveFactor = uint64(uint256(inputAsset.VMEXReserveFactor).convertToPercent());
 
             validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus);
+            validateVMEXReserveFactor(inputAsset.VMEXReserveFactor);
 
             DataTypes.AssetData storage currentAssetMapping = assetMappings[currentAssetAddress];
 
@@ -365,5 +364,11 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
 
         return IERC20Detailed(asset).decimals();
     }
-    //TODO: add governance functions to add or edit config
+
+    function validateVMEXReserveFactor(uint256 vmexReserveFactor) internal pure {
+        require(
+                vmexReserveFactor < PercentageMath.PERCENTAGE_FACTOR,
+                Errors.LPC_INVALID_CONFIGURATION
+            );
+    }
 }
