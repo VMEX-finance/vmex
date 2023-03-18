@@ -54,39 +54,11 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       };
 
 
-
-      // const [tokens, uniswapAddresses] = getPairsTokenAggregator(
-      //   tokensToWatch,
-      //   uniswapV3OracleAddresses,
-      //   poolConfig.OracleQuoteCurrency
-      // );
-
-      // console.log("uniswapV3OracleTargets: ", uniswapV3OracleTargets)
-
-
-      // const [, uniswapTokenToPrice] = getPairsTokenAggregator(
-      //   tokensToWatch,
-      //   uniswapV3OracleTargets,
-      //   poolConfig.OracleQuoteCurrency
-      // );
-
       let uniswapOracle: BaseUniswapOracle;
 
-        // uniswapOracle = await deployUniswapOracle(
-        //   [
-        //     tokens,
-        //     uniswapAddresses,
-        //     uniswapTokenToPrice,
-        //     await getQuoteCurrency(poolConfig),
-        //     poolConfig.OracleQuoteUnit,
-        //   ],
-        //   verify
-        // );
         uniswapOracle = await deployUniswapOracle(
           verify
         );
-        // await waitForTx(await uniswapOracle.setAssetSources(tokens, aggregators));
-      // }
 
       console.log("Uniswap oracle deployed at: ", uniswapOracle.address)
 
@@ -98,6 +70,10 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         ...reserveAssets,
         USD: UsdAddress,
       };
+      
+      if (!chainlinkAggregators) {
+        throw "chainlinkAggregators is undefined. Check configuration at config directory";
+      }
       const [tokens2, aggregators] = getPairsTokenAggregator(
         tokensToWatch,
         chainlinkAggregators,

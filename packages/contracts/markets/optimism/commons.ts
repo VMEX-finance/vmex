@@ -112,6 +112,9 @@ export const CommonsConfig: ICommonConfiguration = {
       wstETH: '0x698B585CbC4407e2D54aa898B2600B53C68958f7',
       FRAX: '0xc7D132BeCAbE7Dcc4204841F33bae45841e41D9C',
       OP: '0x0D276FC14719f9292D5C1eA2198673d1f4269246',
+      ThreeCRV: ZERO_ADDRESS, //this should not be used
+      sUSD3CRV: ZERO_ADDRESS, //this should not be used
+      wstETHCRV: ZERO_ADDRESS, //this should not be used
     },
   },
   ReserveAssets: {

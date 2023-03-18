@@ -102,11 +102,13 @@ const buidlerConfig: HardhatUserConfig = {
         initialIndex: 0,
         count: 20,
       },
+      chainId: 10,
       // ovm: true
     },
     optimism_localhost: {
       url: "http://0.0.0.0:8545",
       forking: buildForkConfig(),
+      chainId: 31337,
     },
     coverage: {
       url: 'http://localhost:8555',
