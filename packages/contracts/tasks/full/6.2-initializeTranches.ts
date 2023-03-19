@@ -172,12 +172,7 @@ task(
 
       // console.log("Finished deploying strategy in tranche 1");
 
-      // Unpause market during deployment
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(admin)
-          .setPoolPause(false, 0)
-      );
+      
       // Unpause market during deployment
       await waitForTx(
         await lendingPoolConfiguratorProxy

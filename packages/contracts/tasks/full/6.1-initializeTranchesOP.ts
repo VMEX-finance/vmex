@@ -78,6 +78,13 @@ task(
         treasuryAddress,
         0
       );
+
+      // Unpause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(admin)
+          .setPoolPause(false, 0)
+      );
     } catch (err) {
       console.error(err);
       exit(1);
