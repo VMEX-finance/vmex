@@ -92,5 +92,5 @@ export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eXDaiNetwork.xdai]: undefined,
   [eAvalancheNetwork.avalanche]: undefined,
   [eAvalancheNetwork.fuji]: undefined,
-  [eOptimismNetwork.optimism]: 81819000,
+  [eOptimismNetwork.optimism]: 81810000,
 };

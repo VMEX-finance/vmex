@@ -428,6 +428,9 @@ export const getTranche0MockedDataOP = (
     allReservesAddresses["WBTC"],
     allReservesAddresses["SNX"],
     allReservesAddresses["WETH"],
+    allReservesAddresses["FRAX"],
+    allReservesAddresses["wstETH"],
+    allReservesAddresses["OP"],
   ];
 
   let reserveFactors0:string[] = [];
