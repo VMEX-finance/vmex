@@ -110,11 +110,18 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const network = DRE.network.name;
   const aaveAdmin = await deployer.getAddress();
   var config = loadPoolConfig(ConfigNames.Aave);
-
   let mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
-  } = await getAllMockedTokens();
-  if(network == "localhost" || network=="hardhat" || !notFalsyOrZeroAddress(mockTokens["USDC"].address)){
+  };
+  if(network == "localhost" || network=="hardhat"){
+    console.log("deploying mock tokens")
+    mockTokens = {
+      ...(await deployAllMockTokens()),
+    };
+  }
+
+  mockTokens = await getAllMockedTokens();
+  if(!notFalsyOrZeroAddress(mockTokens["USDC"].address)){
     console.log("deploying mock tokens")
     mockTokens = {
       ...(await deployAllMockTokens()),
@@ -348,6 +355,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         WAVAX: mockTokens.WAVAX.address,
         Tricrypto2: mockTokens.Tricrypto2.address,
         ThreePool: mockTokens.ThreePool.address,
+        ThreeCRV: ZERO_ADDRESS,
         StethEth: mockTokens.StethEth.address,
         Steth: mockTokens.Steth.address,
         FraxUSDC: mockTokens.FraxUSDC.address,
@@ -365,6 +373,10 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         yvStethEth: mockTokens.yvStethEth.address,
         yvFraxUSDC: mockTokens.yvFraxUSDC.address,
         yvFrax3Crv: mockTokens.yvFrax3Crv.address,
+        wstETH: ZERO_ADDRESS,
+        wstETHCRV: ZERO_ADDRESS,
+        sUSD3CRV: ZERO_ADDRESS,
+        OP: ZERO_ADDRESS,
       },
       fallbackOracle
     );

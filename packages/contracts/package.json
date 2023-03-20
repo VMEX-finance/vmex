@@ -88,6 +88,7 @@
     "get-uniswap-data": "hardhat get-uniswap-data --network localhost"
   },
   "devDependencies": {
+    "@eth-optimism/plugins": "^1.0.0-alpha.3",
     "@nomiclabs/buidler": "^1.4.7",
     "@nomiclabs/buidler-ethers": "2.0.0",
     "@nomiclabs/buidler-etherscan": "^2.1.0",

@@ -306,6 +306,8 @@ export const getAllMockedTokens = async () => {
     Promise<MockTokenMap>
   >(async (acc, tokenSymbol) => {
     const accumulator = await acc;
+    console.log("tokenSymbol.toUpperCase(): ",tokenSymbol.toUpperCase())
+    console.log("DRE.network.name: ",DRE.network.name)
     const address = db
       .get(`${tokenSymbol.toUpperCase()}.${DRE.network.name}`)
       .value().address;
