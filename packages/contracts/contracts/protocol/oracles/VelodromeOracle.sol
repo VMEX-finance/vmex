@@ -12,6 +12,7 @@ contract VelodromeOracle {
 		uint256 total_supply = IERC20(lp_token).totalSupply(); 
 		(uint256 d0, uint256 d1, uint256 r0, uint256 r1, , ,) = token.metadata(); 
 
+		//TODO: check that 1e18 works for USD oracles too
 		uint256 reserve0 = (r0 * 1e18) / 10**d0; 
 		uint256 reserve1 = (r1 * 1e18) / 10**d1; 
 		

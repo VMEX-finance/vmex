@@ -13,7 +13,8 @@ export type eNetwork =
   | eEthereumNetwork
   | ePolygonNetwork
   | eXDaiNetwork
-  | eAvalancheNetwork;
+  | eAvalancheNetwork
+  | eOptimismNetwork;
 
 export enum eEthereumNetwork {
   buidlerevm = "buidlerevm",
@@ -38,6 +39,10 @@ export enum eXDaiNetwork {
 export enum eAvalancheNetwork {
   avalanche = "avalanche",
   fuji = "fuji",
+}
+
+export enum eOptimismNetwork {
+  optimism = "optimism",
 }
 
 export enum EthereumNetworkNames {
@@ -83,7 +88,6 @@ export enum eContractid {
   PriceOracle = "PriceOracle",
   Proxy = "Proxy",
   MockAggregator = "MockAggregator",
-  LendingRateOracle = "LendingRateOracle",
   VMEXOracle = "VMEXOracle",
   DefaultReserveInterestRateStrategy = "DefaultReserveInterestRateStrategy",
   LendingPoolCollateralManager = "LendingPoolCollateralManager",
@@ -269,6 +273,10 @@ export interface iAssetBase<T> {
   USD: T;
   REN: T;
   ENJ: T;
+  ThreeCRV: T;
+  wstETH: T;
+  sUSD3CRV: T;
+  wstETHCRV: T;
   UniDAIWETH: T;
   UniWBTCWETH: T;
   UniAAVEWETH: T;
@@ -294,7 +302,7 @@ export interface iAssetBase<T> {
   Steth: T;
   FraxUSDC: T;
   Frax3Crv: T;
-  Frax: T;
+  FRAX: T;
   BAL: T;
   CRV: T;
   CVX: T;
@@ -307,6 +315,7 @@ export interface iAssetBase<T> {
   yvStethEth: T;
   yvFraxUSDC: T;
   yvFrax3Crv: T;
+  OP: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -342,7 +351,7 @@ export type iAavePoolAssets<T> = Partial<
     | "Steth"
     | "FraxUSDC"
     | "Frax3Crv"
-    | "Frax"
+    | "FRAX"
     | "BAL"
     | "CRV"
     | "CVX"
@@ -398,6 +407,26 @@ export type iAvalanchePoolAssets<T> = Pick<
   "WETH" | "DAI" | "USDT" | "AAVE" | "WBTC" | "WAVAX" | "USDC"
 >;
 
+export type iOptimismPoolAssets<T> = Partial<
+  Pick<
+    iAssetsWithoutUSD<T>,
+    | "DAI"
+    | "USDC"
+    | "USDT"
+    | "SUSD"
+    | "WBTC"
+    | "SNX"
+    | "WETH"
+    | "wstETH"
+    | "FRAX"
+    | "OP"
+    | "ThreeCRV"
+    | "sUSD3CRV"
+    | "wstETHCRV"
+
+  >
+>;
+
 export type iMultiPoolsAssets<T> = iAssetCommon<T> | iAavePoolAssets<T>;
 
 export type iAavePoolTokens<T> = Omit<iAavePoolAssets<T>, "ETH">;
@@ -426,6 +455,8 @@ export enum TokenContractId {
   YFI = "YFI",
   UNI = "UNI",
   ENJ = "ENJ",
+  wstETH = "wstETH",
+  OP = "OP",
   UniDAIWETH = "UniDAIWETH",
   UniWBTCWETH = "UniWBTCWETH",
   UniAAVEWETH = "UniAAVEWETH",
@@ -451,7 +482,7 @@ export enum TokenContractId {
   Steth = "Steth",
   FraxUSDC = "FraxUSDC",
   Frax3Crv = "Frax3Crv",
-  Frax = "Frax",
+  FRAX = "FRAX",
   BAL = "BAL",
   CRV = "CRV",
   CVX = "CVX",
@@ -498,7 +529,6 @@ export interface IReserveBorrowParams {
   // stableRateSlope1: string;
   // stableRateSlope2: string;
   borrowingEnabled: boolean;
-  stableBorrowRateEnabled: boolean;
   reserveDecimals: string;
 }
 
@@ -517,7 +547,8 @@ export type iParamsPerNetwork<T> =
   | iEthereumParamsPerNetwork<T>
   | iPolygonParamsPerNetwork<T>
   | iXDaiParamsPerNetwork<T>
-  | iAvalancheParamsPerNetwork<T>;
+  | iAvalancheParamsPerNetwork<T>
+  | iOptimismParamsPerNetwork<T>;
 
 export interface iParamsPerNetworkAll<T>
   extends iEthereumParamsPerNetwork<T>,
@@ -547,6 +578,10 @@ export interface iXDaiParamsPerNetwork<T> {
 export interface iAvalancheParamsPerNetwork<T> {
   [eAvalancheNetwork.avalanche]: T;
   [eAvalancheNetwork.fuji]: T;
+}
+
+export interface iOptimismParamsPerNetwork<T> {
+  [eOptimismNetwork.optimism]: T;
 }
 
 export interface iParamsPerPool<T> {
@@ -605,10 +640,7 @@ export interface IBaseConfiguration {
   LendingPoolCollateralManager: iParamsPerNetwork<tEthereumAddress>;
   LendingPoolConfigurator: iParamsPerNetwork<tEthereumAddress>;
   LendingPool: iParamsPerNetwork<tEthereumAddress>;
-  LendingRateOracleRatesCommon: iMultiPoolsAssets<IMarketRates>;
-  LendingRateOracle: iParamsPerNetwork<tEthereumAddress>;
   TokenDistributor: iParamsPerNetwork<tEthereumAddress>;
-  AaveOracle: iParamsPerNetwork<tEthereumAddress>;
   FallbackOracle: iParamsPerNetwork<tEthereumAddress>;
   UniswapV3OracleAddresses: iParamsPerNetwork<ITokenAddress>;
   UniswapV3OracleTargets: iParamsPerNetwork<ITokenTarget>;
@@ -656,6 +688,9 @@ export interface IAvalancheConfiguration extends ICommonConfiguration {
   ReservesConfig: iAvalanchePoolAssets<IReserveParams>;
 }
 
+export interface IOptimismConfiguration extends ICommonConfiguration {
+  ReservesConfig: iOptimismPoolAssets<IReserveParams>;
+}
 
 export interface ITokenAddress {
   [token: string]: tEthereumAddress;

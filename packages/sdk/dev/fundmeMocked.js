@@ -71,7 +71,7 @@ describe("Fund accounts", () => {
     "Steth",
     "FraxUSDC",
     "Frax3Crv",
-    "Frax",
+    "FRAX",
     "BAL",
     "CRV",
     "CVX",

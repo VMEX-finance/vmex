@@ -45,7 +45,7 @@ task(
       
   
       const network = <eNetwork>DRE.network.name;
-      const poolConfig = loadPoolConfig(ConfigNames.Aave);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
+      const poolConfig = loadPoolConfig(pool);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
         ReserveAssets,
         ReservesConfig,

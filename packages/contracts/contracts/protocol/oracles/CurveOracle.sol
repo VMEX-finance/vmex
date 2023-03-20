@@ -54,9 +54,9 @@ library CurveOracle {
 		uint256 virtual_price,
 		uint256[] memory prices
 	) internal pure returns(uint256) {
-
 		uint256 min = vMath.min(prices); 
-		return (virtual_price * min) / 1e18; 
+		// divide by virtual price decimals, which is always 18 for all existing curve pools.
+		return (virtual_price * min) / 10**18; //decimals equal to the number of decimals in chainlink price
 	}
 
 	function get_price_v2(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {

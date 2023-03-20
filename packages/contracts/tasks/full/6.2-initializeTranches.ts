@@ -37,7 +37,7 @@ task(
       await DRE.run("set-DRE");
       
       const network = <eNetwork>DRE.network.name;
-      const poolConfig = loadPoolConfig(ConfigNames.Aave);
+      const poolConfig = loadPoolConfig(pool);
       const {
         ATokenNamePrefix,
         StableDebtTokenNamePrefix,
@@ -172,12 +172,7 @@ task(
 
       // console.log("Finished deploying strategy in tranche 1");
 
-      // Unpause market during deployment
-      await waitForTx(
-        await lendingPoolConfiguratorProxy
-          .connect(admin)
-          .setPoolPause(false, 0)
-      );
+      
       // Unpause market during deployment
       await waitForTx(
         await lendingPoolConfiguratorProxy

@@ -34,13 +34,10 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
   .setAction(async ({ verify, pool, skipRegistry }, DRE) => {
     await DRE.run("set-DRE");
     const network = <eNetwork>DRE.network.name;
-    const poolConfig = loadPoolConfig(ConfigNames.Aave); //await loadCustomAavePoolConfig("0"); //this is only for mainnet
+    const poolConfig = loadPoolConfig(pool); //await loadCustomAavePoolConfig("0"); //this is only for mainnet
     const {
       ReserveAssets,
       ReservesConfig,
-      LendingPoolCollateralManager,
-      WethGateway,
-      IncentivesController,
       CurveMetadata,
     } = poolConfig as ICommonConfiguration;
 
@@ -53,6 +50,7 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
     const admin = await DRE.ethers.getSigner(
       await addressesProvider.getGlobalAdmin()
     );
+
 
     // const oracle = await addressesProvider.getPriceOracle();
 

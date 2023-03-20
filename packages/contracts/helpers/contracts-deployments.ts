@@ -352,7 +352,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         Steth: mockTokens.Steth.address,
         FraxUSDC: mockTokens.FraxUSDC.address,
         Frax3Crv: mockTokens.Frax3Crv.address,
-        Frax: mockTokens.Frax.address,
+        FRAX: mockTokens.FRAX.address,
         BAL: mockTokens.BAL.address,
         CRV: mockTokens.CRV.address,
         CVX: mockTokens.CVX.address,

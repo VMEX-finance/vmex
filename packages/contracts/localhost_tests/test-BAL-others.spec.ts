@@ -6,7 +6,6 @@ import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
 import { ProtocolErrors } from '../helpers/types';
-import {getCurvePrice} from "./helpers/curve-calculation";
 makeSuite(
     "Bal and other tokens",
     () => {

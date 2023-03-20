@@ -82,23 +82,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         address[] calldata assets,
         address[] calldata sources
     ) external onlyGlobalAdmin {
-        _setAssetsSources(assets, sources);
-    }
-
-    /// @notice Sets the fallbackOracle
-    /// - Callable only by the Aave governance
-    /// @param fallbackOracle The address of the fallbackOracle
-    function setFallbackOracle(address fallbackOracle) external onlyGlobalAdmin {
-        _setFallbackOracle(fallbackOracle);
-    }
-
-    /// @notice Internal function to set the sources for each asset
-    /// @param assets The addresses of the assets
-    /// @param sources The address of the source of each asset
-    function _setAssetsSources(
-        address[] memory assets,
-        address[] memory sources
-    ) internal {
         require(assets.length == sources.length, "INCONSISTENT_PARAMS_LENGTH");
         for (uint256 i = 0; i < assets.length; i++) {
             assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
@@ -106,14 +89,15 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
     }
 
-    /// @notice Internal function to set the fallbackOracle
+    /// @notice Sets the fallbackOracle
+    /// - Callable only by the Aave governance
     /// @param fallbackOracle The address of the fallbackOracle
-    function _setFallbackOracle(address fallbackOracle) internal {
+    function setFallbackOracle(address fallbackOracle) external onlyGlobalAdmin {
         _fallbackOracle = IPriceOracleGetter(fallbackOracle);
         emit FallbackOracleUpdated(fallbackOracle);
     }
 
-    /// @notice Gets an asset price by address. Note the result should always have 18 decimals.
+    /// @notice Gets an asset price by address. Note the result should always have 18 decimals if using ETH as base. If using USD as base, there will be 8 decimals
     /// @param asset The asset address
     function getAssetPrice(address asset)
         public
@@ -195,8 +179,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
     function getYearnPrice(address asset) internal returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
-        uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth)
-        //note: pricePerShare has decimals equal to underlying tokens (ex: yvUSDC has 6 decimals). By dividing by 10**yearnVault.decimals(), we keep the decimals of underlyingPrice which is 18 decimals.
+        uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth), or 8 decimals if prices in USD
+        //note: pricePerShare has decimals equal to underlying tokens (ex: yvUSDC has 6 decimals). By dividing by 10**yearnVault.decimals(), we keep the decimals of underlyingPrice which is 18 decimals for eth base, 8 for usd base.
         uint256 price = yearnVault.pricePerShare()*underlyingPrice / 10**yearnVault.decimals();
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);

@@ -10,7 +10,7 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
-  getTranche0MockedData,
+  getTranche0MockedDataOP,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -20,7 +20,7 @@ import {
 } from "../../helpers/contracts-getters";
 
 task(
-  "full:initialize-lending-pool-tranches-0",
+  "full:initialize-lending-pool-tranches-0-OP",
   "Initialize lending pool tranche 1 configuration."
 )
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -68,7 +68,7 @@ task(
         await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
       );
 
-      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedData(reserveAssets);
+      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedDataOP(reserveAssets);
       await initReservesByHelper(
         assets0,
         reserveFactors0,
