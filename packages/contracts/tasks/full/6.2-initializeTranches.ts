@@ -3,10 +3,8 @@ import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   loadPoolConfig,
   ConfigNames,
-  getTreasuryAddress,
   getEmergencyAdmin,
 } from "../../helpers/configuration";
-import { getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
@@ -35,7 +33,7 @@ task(
   .setAction(async ({ verify, pool }, DRE) => {
     try {
       await DRE.run("set-DRE");
-      
+
       const network = <eNetwork>DRE.network.name;
       const poolConfig = loadPoolConfig(pool);
       const {

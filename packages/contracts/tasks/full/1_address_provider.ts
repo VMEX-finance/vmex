@@ -6,6 +6,7 @@ import {
   loadPoolConfig,
   getGenesisPoolAdmin,
   getEmergencyAdmin,
+  getVMEXTreasury,
 } from "../../helpers/configuration";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { eNetwork } from "../../helpers/types";
@@ -46,7 +47,12 @@ task(
         deployRegistry: !notFalsyOrZeroAddress(providerRegistryAddress),
       });
     }
-    // 3. Set pool admins
+    // 3. Set pool admins and vmex treasury
+    await waitForTx(
+      await addressesProvider.setVMEXTreasury(
+        await getVMEXTreasury(poolConfig)
+      )
+    );
     await waitForTx(
       await addressesProvider.setGlobalAdmin(
         await getGenesisPoolAdmin(poolConfig)

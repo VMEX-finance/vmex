@@ -9,7 +9,38 @@ import { deployLendingPool } from '../../helpers/contracts-deployments';
 const { utils } = ethers;
 
 makeSuite('LendingPoolAddressesProvider', (testEnv: TestEnv) => {
-  const tranche = 0;
+  it('Check default vmex treasury and modification', async () => {
+    const { addressesProvider, users } = testEnv;
+
+    let vmexTreasury = await addressesProvider.getVMEXTreasury();
+    expect(vmexTreasury).to.be.equal("0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49", "Invalid initial value for vmex treasury");
+
+    await addressesProvider.setVMEXTreasury(users[1].address);
+    vmexTreasury = await addressesProvider.getVMEXTreasury();
+    expect(vmexTreasury).to.be.equal(users[1].address, "Invalid value for set vmex treasury");
+  });
+  it('Check whitelisted addresses to create tranches', async () => {
+    const { addressesProvider, users } = testEnv;
+
+    let isWhitelisted = await addressesProvider.isWhitelistedAddress(users[1].address);
+    expect(isWhitelisted).to.be.eq(true, "Iniital whitelist not set properly");
+
+    await addressesProvider.addWhitelistedAddress(users[1].address, false);
+
+    isWhitelisted = await addressesProvider.isWhitelistedAddress(users[1].address);
+    expect(isWhitelisted).to.be.eq(false, "Set whitelist not set properly");
+  });
+  it('Check market id', async () => {
+    const { addressesProvider, users } = testEnv;
+
+    let marketId = await addressesProvider.getMarketId();
+    expect(marketId).to.be.eq("VMEX genesis market", "Iniital market id not set properly");
+
+    await addressesProvider.setMarketId("non-commons");
+
+    marketId = await addressesProvider.getMarketId();
+    expect(marketId).to.be.eq("non-commons", "Set market id not set properly");
+  });
   it('Test the accessibility of the LendingPoolAddressesProvider', async () => {
     const { addressesProvider, users } = testEnv;
     const mockAddress = createRandomAddress();

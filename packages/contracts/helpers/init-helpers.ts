@@ -78,17 +78,15 @@ export const initAssetData = async (
   let initInputParams: {
     asset: string;
     defaultInterestRateStrategyAddress: string;
-    supplyCap: string; //1,000,000
-    borrowCap: string; //1,000,000
+    supplyCap: BigNumberish; //1,000,000
+    borrowCap: BigNumberish; //1,000,000
     baseLTV: BigNumberish;
     liquidationThreshold: BigNumberish;
     liquidationBonus: BigNumberish;
-    borrowFactor: string;
-
+    borrowFactor: BigNumberish;
     borrowingEnabled: boolean;
     assetType: BigNumberish;
-    VMEXReserveFactor: string;
-
+    VMEXReserveFactor: BigNumberish;
   }[] = [];
 
   let strategyRates: [

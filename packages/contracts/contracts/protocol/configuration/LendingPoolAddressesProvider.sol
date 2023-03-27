@@ -57,7 +57,6 @@ contract LendingPoolAddressesProvider is
     constructor(string memory marketId) {
         _setMarketId(marketId);
         permissionlessTranches = false;
-        _setVMEXTreasury(0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49);
     }
 
     function getVMEXTreasury() external view override returns(address){

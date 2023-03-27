@@ -5,6 +5,7 @@ import {
   PoolConfiguration,
   eNetwork,
   IBaseConfiguration,
+  iParamsPerNetwork,
 } from "./types";
 import {
   getEthersSignersAddresses,
@@ -80,46 +81,38 @@ export const getReservesConfigByPool = (
     pool
   );
 
-export const getGenesisPoolAdmin = async (
-  config: IBaseConfiguration
+const getAddressFromConfig = async (
+  target: iParamsPerNetwork<string | undefined>,
+  targetIndex: number
 ): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
   const targetAddress = getParamPerNetwork(
-    config.PoolAdmin,
+    target,
     <eNetwork>currentNetwork
   );
   if (targetAddress) {
     return targetAddress;
   }
   const addressList = await getEthersSignersAddresses();
-  const addressIndex = config.PoolAdminIndex;
-  return addressList[addressIndex];
+  return addressList[targetIndex];
+}
+
+export const getGenesisPoolAdmin = async (
+  config: IBaseConfiguration
+): Promise<tEthereumAddress> => {
+  return getAddressFromConfig(config.PoolAdmin, config.PoolAdminIndex);
 };
 
 export const getEmergencyAdmin = async (
   config: IBaseConfiguration
 ): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
-  const targetAddress = getParamPerNetwork(
-    config.EmergencyAdmin,
-    <eNetwork>currentNetwork
-  );
-  if (targetAddress) {
-    return targetAddress;
-  }
-  const addressList = await getEthersSignersAddresses();
-  const addressIndex = config.EmergencyAdminIndex;
-  return addressList[addressIndex];
+  return getAddressFromConfig(config.EmergencyAdmin, config.EmergencyAdminIndex);
 };
 
-export const getTreasuryAddress = async (
+export const getVMEXTreasury = async (
   config: IBaseConfiguration
 ): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
-  return getParamPerNetwork(
-    config.ReserveFactorTreasuryAddress,
-    <eNetwork>currentNetwork
-  );
+  return getAddressFromConfig(config.VMEXTreasury, 0);
 };
 
 export const getATokenDomainSeparatorPerNetwork = (
