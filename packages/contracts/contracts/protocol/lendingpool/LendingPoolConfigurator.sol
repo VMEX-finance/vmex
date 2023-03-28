@@ -86,6 +86,14 @@ contract LendingPoolConfigurator is
         return CONFIGURATOR_REVISION;
     }
 
+    function validateReserveFactor(address asset, uint256 reserveFactor) internal view {
+        //make sure user reserve factor does not exceed our reserve factor to prevent tranche admins rugging users
+        require(
+                reserveFactor < assetMappings.getVMEXReserveFactor(asset), 
+                Errors.LPC_INVALID_CONFIGURATION
+            );
+    }
+
     function initialize(address provider) public initializer {
         addressesProvider = ILendingPoolAddressesProvider(provider);
         pool = ILendingPool(addressesProvider.getLendingPool());
@@ -207,7 +215,11 @@ contract LendingPoolConfigurator is
             currentConfig.setBorrowingEnabled(false);
         }
 
-        currentConfig.setReserveFactor(input.reserveFactor.convertToPercent()); //accounts for new number of decimals
+        uint256 percentReserveFactor = input.reserveFactor.convertToPercent();
+
+        validateReserveFactor(input.underlyingAsset, percentReserveFactor);
+
+        currentConfig.setReserveFactor(percentReserveFactor); //accounts for new number of decimals
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
@@ -307,6 +319,7 @@ contract LendingPoolConfigurator is
 
             uint256 thisReserveFactor = reserveFactor[i].convertToPercent();
             // TODO: require the reserve factor to be less than 100%
+            validateReserveFactor(asset[i], thisReserveFactor);
 
             currentConfig.setReserveFactor(thisReserveFactor);
 
