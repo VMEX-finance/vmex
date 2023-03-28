@@ -10,6 +10,8 @@ metamask should now be able to connect to http://127.0.0.1:8545
 
 run `yarn vmex:deploy` in another terminal to deploy the contracts and the fork of mainnet on the localhost network
 
+Or, run `yarn start:dev` to run a node and deploy in the same terminal
+
 you can use metamask to execute contract calls on the frontend
 
 run `yarn console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
@@ -18,51 +20,22 @@ Run `vmex:mainnetfork:unit-tests` to test all localhost tests
 
 ### How to test in hardhat network mock environment:
 
-Run `npm run test`
+Run `yarn test`
 These are a separate set of tests than the above unit-tests
+
+Or, to avoid having to redeploy on a hardhat network every test (if debugging tests), first run a local node and then deploy (in another terminal):
+
+1. `yarn vmex:node`
+2. `yarn vmex:dev:deploy`
+
+Then you can keep running `vmex:dev:test` without having to redeploy the test contracts
 
 ### Check and update uniswapv3 pool addresses with most volume
 
 Run `yarn get-uniswap-data`
 Copy the ouput in the terminal to markets/aave/commons.ts
 
-### VMEX supported assets
-
-BUSD (L&B only)
-DAI (L&B + Collateral)
-LINK (L&B + Collateral)
-MANA (L&B + Collateral)
-MKR (L&B + Collateral)
-REN (L&B + Collateral)
-SNX (L&B + Collateral)
-SUSD (L&B only)
-UNI (L&B + Collateral)
-USDC (L&B + Collateral)
-USDT (L&B + Collateral)
-WBTC (L&B + Collateral)
-YFI (L&B + Collateral)
-ZRX (L&B + Collateral)
-xSUSHI (L&B + Collateral)
-
-Our special assets
-FRAX (L&B only)
-Steth (L&B + Collateral)
-
-BAL (L&B + Collateral)
-CRV (Collateral)
-CVX (Collateral)
-BADGER (L&B + Collateral)
-LDO (L&B + Collateral)
-ALCX (L&B + Collateral)
-1inch (L&B + Collateral)
-
-Tricrypto2 Curve LP (Collateral only)
-ThreePool Curve LP (Collateral only)
-StethEth Curve LP (Collateral only)
-FraxUSDC Curve LP (Collateral only)
-Frax3Crv Curve LP (Collateral only)
-
-# Accounts
+# Hardhat Accounts
 
 Account #0: 0xc783df8a850f42e7F7e57013759C285caa701eB6 (1000000 ETH)
 
@@ -79,90 +52,3 @@ Account #5: 0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39 (1000000 ETH)
 Account #6: 0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE (1000000 ETH)
 
 Account #7: 0x8BffC896D42F07776561A5814D6E4240950d6D3a (1000000 ETH)
-
-Users in scenario-engine:
-
-$$
-USERS:  [
-  {
-    signer: SignerWithAddress {
-      _isSigner: true,
-      address: '0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4',
-      _signer: [JsonRpcSigner],
-      provider: [EthersProviderWrapper]
-    },
-    address: '0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4'
-  },
-  {
-    signer: SignerWithAddress {
-      _isSigner: true,
-      address: '0xE5904695748fe4A84b40b3fc79De2277660BD1D3',
-      _signer: [JsonRpcSigner],
-      provider: [EthersProviderWrapper]
-    },
-    address: '0xE5904695748fe4A84b40b3fc79De2277660BD1D3'
-  },
-  {
-    signer: SignerWithAddress {
-      _isSigner: true,
-      address: '0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2',
-      _signer: [JsonRpcSigner],
-      provider: [EthersProviderWrapper]
-    },
-    address: '0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2'
-  },
-  {
-    signer: SignerWithAddress {
-      _isSigner: true,
-      address: '0x2fFd013AaA7B5a7DA93336C2251075202b33FB2B',
-      _signer: [JsonRpcSigner],
-      provider: [EthersProviderWrapper]
-    },
-    address: '0x2fFd013AaA7B5a7DA93336C2251075202b33FB2B'
-  },
-  {
-    signer: SignerWithAddress {
-      _isSigner: true,
-      address: '0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39',
-      _signer: [JsonRpcSigner],
-      provider: [EthersProviderWrapper]
-    },
-    address: '0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39'
-  },
-  {
-    signer: SignerWithAddress {
-      _isSigner: true,
-      address: '0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE',
-      _signer: [JsonRpcSigner],
-      provider: [EthersProviderWrapper]
-    },
-    address: '0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE'
-  },
-  {
-    signer: SignerWithAddress {
-      _isSigner: true,
-      address: '0x8BffC896D42F07776561A5814D6E4240950d6D3a',
-      _signer: [JsonRpcSigner],
-      provider: [EthersProviderWrapper]
-    },
-    address: '0x8BffC896D42F07776561A5814D6E4240950d6D3a'
-  }
-]
-$$
-
-$$
-addressList:  [
-  '0xc783df8a850f42e7F7e57013759C285caa701eB6',
-  '0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4',
-  '0xE5904695748fe4A84b40b3fc79De2277660BD1D3',
-  '0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2',
-  '0x2fFd013AaA7B5a7DA93336C2251075202b33FB2B',
-  '0x9FC9C2DfBA3b6cF204C37a5F690619772b926e39',
-  '0xaD9fbD38281F615e7DF3DeF2Aad18935a9e0fFeE',
-  '0x8BffC896D42F07776561A5814D6E4240950d6D3a'
-]
-$$$$$$$$$$ admin of tranche 1:  0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4
-$$
-
-$$
-$$
