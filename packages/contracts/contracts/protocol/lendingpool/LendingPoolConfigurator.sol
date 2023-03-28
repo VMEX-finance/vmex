@@ -89,8 +89,8 @@ contract LendingPoolConfigurator is
     function validateReserveFactor(address asset, uint256 reserveFactor) internal view {
         //make sure user reserve factor does not exceed our reserve factor to prevent tranche admins rugging users
         require(
-                reserveFactor < assetMappings.getVMEXReserveFactor(asset), 
-                Errors.LPC_INVALID_CONFIGURATION
+                reserveFactor <= assetMappings.getVMEXReserveFactor(asset), 
+                Errors.RC_INVALID_RESERVE_FACTOR
             );
     }
 

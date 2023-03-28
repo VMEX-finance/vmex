@@ -41,7 +41,7 @@
     "vmex:dev:deploy": "npm run compile && hardhat vmex:dev --network localhost",
     "vmex:goerli:deploy": "npm run compile && hardhat vmex:dev --verify --network goerli",
     "vmex:dev:test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/*.spec.ts --network localhost",
-    "vmex:dev:test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/liquidation-yearn.spec.ts --network localhost",
+    "vmex:dev:test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/configurator.spec.ts --network localhost",
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/*.spec.ts --network localhost",
     "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/test-yearn-oracle.spec.ts --network localhost",
     "vmex:OPfork:unit-tests": "FORK=optimism hardhat test ./localhost_tests_OP/__setup.spec.ts ./localhost_tests_OP/*.spec.ts --network optimism_localhost",

@@ -149,6 +149,11 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     await expect(
       assetMappings.setVMEXReserveFactor(usdc.address, 10000)
     ).to.be.revertedWith(LPC_INVALID_CONFIGURATION);
+
+
+    await expect(
+      assetMappings.setVMEXReserveFactor(usdc.address, 10001)
+    ).to.be.revertedWith(LPC_INVALID_CONFIGURATION);
   });
 
   it("Change borrow enabled for an asset", async () => {
