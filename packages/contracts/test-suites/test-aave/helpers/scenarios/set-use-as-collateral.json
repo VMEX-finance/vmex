@@ -231,6 +231,63 @@
           "expected": "success"
         }
       ]
+    },
+    {
+      "description": "User 0 tries to enable collateral for an asset with no deposits",
+      "actions": [
+        {
+          "name": "setUseAsCollateral",
+          "args": {
+            "reserve": "BAT",
+            "user": "0",
+            "useAsCollateral": "true"
+          },
+          "expected": "revert",
+          "revertMessage": "19"
+        }
+      ]
+    },
+    {
+      "description": "User 0 tries to enable collateral for an asset that is not collateralizable",
+      "actions": [
+        {
+          "name": "mint",
+          "args": {
+            "reserve": "BUSD",
+            "amount": "1000",
+            "user": "0"
+          },
+          "expected": "success"
+        },
+        {
+          "name": "approve",
+          "args": {
+            "reserve": "BUSD",
+            "user": "0"
+          },
+          "expected": "success"
+        },
+        {
+          "name": "deposit",
+          "args": {
+            "reserve": "BUSD",
+            "amount": "1000",
+            "user": "0",
+            "isCollateral": "false"
+          },
+          "expected": "success"
+        },
+        {
+          "name": "setUseAsCollateral",
+          "args": {
+            "reserve": "BUSD",
+            "user": "0",
+            "useAsCollateral": "true"
+          },
+          "expected": "revert",
+          "revertMessage": "This asset is disabled as collateral"
+        }
+      ]
     }
   ]
 }

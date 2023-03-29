@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Errors} from "../helpers/Errors.sol";
+import {PercentageMath} from "../math/PercentageMath.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 
@@ -22,8 +23,6 @@ library ReserveConfiguration {
     uint256 constant BORROWING_ENABLED_START_BIT_POSITION = 2;
     uint256 constant COLLATERAL_ENABLED_START_BIT_POSITION = 3;
     uint256 constant RESERVE_FACTOR_START_BIT_POSITION = 4;
-
-    uint256 constant MAX_VALID_RESERVE_FACTOR = 2**64-1; //64 bits
 
     /**
      * @dev Sets the active state of the reserve
@@ -115,8 +114,8 @@ library ReserveConfiguration {
      **/
     function setReserveFactor(
         DataTypes.ReserveConfigurationMap memory self,
-        uint256 reserveFactor, 
-        address asset, 
+        uint256 reserveFactor,
+        address asset,
         IAssetMappings a
     ) internal view {
         //make sure user reserve factor does not exceed our reserve factor to prevent tranche admins rugging users

@@ -62,17 +62,19 @@ library ValidationLogic {
 
     /**
      * @dev Validates a withdraw action
-     * @param reserveAddress The address of the reserve
+     * @param asset The address of the asset in the reserve
+     * @param trancheId The trancheId of the reserve
      * @param amount The amount to be withdrawn
      * @param userBalance The balance of the user
      * @param reservesData The reserves state
      * @param userConfig The user configuration
      * @param reserves The addresses of the reserves
      * @param reservesCount The number of reserves
-     * @param _addressesProvider The price oracle
+     * @param _addressesProvider The addresses provider
+     * @param _assetMappings The asset mappings
      */
     function validateWithdraw(
-        address reserveAddress,
+        address asset,
         uint64 trancheId,
         uint256 amount,
         uint256 userBalance,
@@ -90,15 +92,15 @@ library ValidationLogic {
             Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
 
-        (bool isActive, , ) = reservesData[reserveAddress][trancheId]
+        (bool isActive, , ) = reservesData[asset][trancheId]
             .configuration
-            .getFlags(reserveAddress, _assetMappings);
+            .getFlags(asset, _assetMappings);
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         require(
             GenericLogic.balanceDecreaseAllowed(
                 GenericLogic.BalanceDecreaseAllowedParameters(
-                    reserveAddress,
+                    asset,
                     trancheId,
                     msg.sender,
                     amount,
@@ -242,14 +244,14 @@ library ValidationLogic {
 
     /**
      * @dev Validates the action of setting an asset as collateral
-     * @param reserveAddress The address of the reserve
+     * @param asset The address of the reserve
      * @param reservesData The data of all the reserves
      * @param userConfig The state of the user for the specific reserve
      * @param reserves The addresses of all the active reserves
      * @param _addressesProvider The price oracle
      */
     function validateSetUseReserveAsCollateral(
-        address reserveAddress,
+        address asset,
         uint64 trancheId,
         bool useAsCollateral,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
@@ -260,7 +262,10 @@ library ValidationLogic {
         ILendingPoolAddressesProvider _addressesProvider,
         IAssetMappings _assetMappings
     ) external {
-        DataTypes.ReserveData storage reserve = reservesData[reserveAddress][trancheId];
+        // if the user is trying to set the reserve as collateral, then the asset must be collateralizable
+        require(!useAsCollateral || _assetMappings.getAssetCollateralizable(asset), "This asset is disabled as collateral");
+
+        DataTypes.ReserveData storage reserve = reservesData[asset][trancheId];
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
             msg.sender
         );
@@ -274,7 +279,7 @@ library ValidationLogic {
             useAsCollateral ||
                 GenericLogic.balanceDecreaseAllowed(
                     GenericLogic.BalanceDecreaseAllowedParameters(
-                        reserveAddress,
+                        asset,
                         trancheId,
                         msg.sender,
                         underlyingBalance,
