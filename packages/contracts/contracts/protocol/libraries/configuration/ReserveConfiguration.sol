@@ -121,7 +121,6 @@ library ReserveConfiguration {
         //make sure user reserve factor does not exceed our reserve factor to prevent tranche admins rugging users
         //also make sure it doesn't exceed the max number of bits allocated
         require(
-            reserveFactor <= MAX_VALID_RESERVE_FACTOR &&
             reserveFactor <= a.getVMEXReserveFactor(asset),
             Errors.RC_INVALID_RESERVE_FACTOR
         );
