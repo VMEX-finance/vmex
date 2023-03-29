@@ -110,13 +110,20 @@ library ReserveConfiguration {
      * @dev Sets the reserve factor of the reserve
      * @param self The reserve configuration
      * @param reserveFactor The reserve factor
+     * @param asset The asset address
+     * @param a asset mappings
      **/
     function setReserveFactor(
         DataTypes.ReserveConfigurationMap memory self,
-        uint256 reserveFactor
-    ) internal pure {
+        uint256 reserveFactor, 
+        address asset, 
+        IAssetMappings a
+    ) internal view {
+        //make sure user reserve factor does not exceed our reserve factor to prevent tranche admins rugging users
+        //also make sure it doesn't exceed the max number of bits allocated
         require(
-            reserveFactor <= MAX_VALID_RESERVE_FACTOR,
+            reserveFactor <= MAX_VALID_RESERVE_FACTOR &&
+            reserveFactor <= a.getVMEXReserveFactor(asset),
             Errors.RC_INVALID_RESERVE_FACTOR
         );
 

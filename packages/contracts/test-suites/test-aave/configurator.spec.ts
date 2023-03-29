@@ -31,6 +31,17 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     ).to.be.revertedWith(RC_INVALID_RESERVE_FACTOR);
   });
 
+  it("Reverts trying to set an invalid reserve factor that's greater than what's set in assetmappings", async () => {
+    const { configurator, weth } = testEnv;
+
+    const invalidReserveFactor = "5000";
+
+    await expect(
+      configurator.setReserveFactor([weth.address], 0, [invalidReserveFactor])
+    ).to.be.revertedWith(RC_INVALID_RESERVE_FACTOR);
+  });
+
+
   it("Deactivates the ETH0 reserve", async () => {
     const { configurator, weth, helpersContract } = testEnv;
     await configurator.deactivateReserve(weth.address, 0);

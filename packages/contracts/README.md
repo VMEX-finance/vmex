@@ -28,7 +28,7 @@ Or, to avoid having to redeploy on a hardhat network every test (if debugging te
 1. `yarn vmex:node`
 2. `yarn vmex:dev:deploy`
 
-Then you can keep running `vmex:dev:test` without having to redeploy the test contracts
+Then you can keep running `yarn vmex:dev:test` without having to redeploy the test contracts
 
 ### Check and update uniswapv3 pool addresses with most volume
 
