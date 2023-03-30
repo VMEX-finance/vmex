@@ -645,6 +645,7 @@ contract LendingPool is
             msg.sender == _reserves[asset][trancheId].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
         );
+        checkWhitelistBlacklist(trancheId, to);
 
         ValidationLogic.validateTransfer(
             from,
