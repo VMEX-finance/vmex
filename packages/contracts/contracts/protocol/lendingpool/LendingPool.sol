@@ -86,7 +86,7 @@ contract LendingPool is
         if(isUsingWhitelist[trancheId]){
             require(whitelist[user][trancheId], "Tranche requires whitelist");
         }
-        require(!blacklist[user][trancheId], "You are blacklisted from this tranche");
+        require(!blacklist[user][trancheId], "User is blacklisted from this tranche");
     }
 
     function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {

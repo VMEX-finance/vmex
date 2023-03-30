@@ -10,17 +10,19 @@ import { RateMode, ProtocolErrors } from "../../helpers/types";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { CommonsConfig } from "../../markets/aave/commons";
 
-makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
+makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
   const {
     INVALID_FROM_BALANCE_AFTER_TRANSFER,
     INVALID_TO_BALANCE_AFTER_TRANSFER,
     VL_TRANSFER_NOT_ALLOWED,
   } = ProtocolErrors;
 
-  it('makes users[3] blacklisted', async () => {
+  it("makes users[3] blacklisted", async () => {
     const { users, deployer, pool, configurator, helpersContract } = testEnv;
 
-    configurator.connect(deployer.signer).setBlacklist(0, [users[3].address], [true]);
+    configurator
+      .connect(deployer.signer)
+      .setBlacklist(0, [users[3].address], [true]);
   });
 
   it("User 3 deposits 1000 DAI, should be blocked since on blacklist. User 0 can deposit fine", async () => {
@@ -40,9 +42,11 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
       "1000"
     );
 
-    await expect( pool
-      .connect(users[0].signer)
-      .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0")).to.not.be.revertedWith("You are blacklisted from this tranche");
+    await expect(
+      pool
+        .connect(users[0].signer)
+        .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0")
+    ).to.not.be.revertedWith("User is blacklisted from this tranche");
 
     await dai
       .connect(users[3].signer)
@@ -52,10 +56,20 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
       .connect(users[3].signer)
       .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
-
-    await expect( pool
-      .connect(users[3].signer)
-      .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0")).to.be.revertedWith("You are blacklisted from this tranche");
+    await expect(
+      pool
+        .connect(users[3].signer)
+        .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0")
+    ).to.be.revertedWith("User is blacklisted from this tranche");
   });
 
+  it("User 0 should be unable to transfer tokens to User 3", async () => {
+    const { users, pool, dai, aDai } = testEnv;
+
+    await expect(
+      aDai
+        .connect(users[0].signer)
+        .transfer(users[3].address, "100")
+    ).to.be.revertedWith("User is blacklisted from this tranche");
+  });
 });
