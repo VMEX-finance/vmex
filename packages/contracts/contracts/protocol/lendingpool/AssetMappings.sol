@@ -56,15 +56,15 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     /**
      * @dev Updates the vmex reserve factor of a reserve
      * @param asset The address of the reserve you want to set
-     * @param reserveFactor The new reserve factor of the reserve
+     * @param reserveFactor The new reserve factor of the reserve. Passed in with 2 decimal places.
      **/
     function setVMEXReserveFactor(
         address asset,
-        uint256 reserveFactor //the value here should only occupy 16 bits. This value only has two decimal points
+        uint256 reserveFactor
     ) public onlyGlobalAdmin {
         uint256 thisReserveFactor = reserveFactor.convertToPercent();
         validateVMEXReserveFactor(thisReserveFactor);
-        
+
         assetMappings[asset].VMEXReserveFactor = uint64(thisReserveFactor);
 
         emit VMEXReserveFactorChanged(asset, thisReserveFactor);
@@ -77,7 +77,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
      **/
     function setBorrowingEnabled(
         address asset,
-        bool borrowingEnabled //the value here should only occupy 16 bits
+        bool borrowingEnabled
     ) external onlyGlobalAdmin {
         assetMappings[asset].borrowingEnabled = borrowingEnabled;
 
@@ -195,7 +195,6 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         liquidationBonus = liquidationBonus.convertToPercent();
         borrowFactor = borrowFactor.convertToPercent();
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus);
-        //originally, aave used 4 decimals for percentages. VMEX is increasing the number, but the input still only has 4 decimals
 
         assetMappings[asset].baseLTV = uint64(baseLTV);
         assetMappings[asset].liquidationThreshold = uint64(liquidationThreshold);

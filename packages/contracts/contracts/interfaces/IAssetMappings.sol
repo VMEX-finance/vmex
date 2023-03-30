@@ -60,12 +60,12 @@ interface IAssetMappings {
 
     function setVMEXReserveFactor(
         address asset,
-        uint256 reserveFactor //the value here should only occupy 16 bits. This value only has two decimal points
+        uint256 reserveFactor
     ) external;
 
     function setBorrowingEnabled(
         address asset,
-        bool borrowingEnabled //the value here should only occupy 16 bits
+        bool borrowingEnabled
     ) external;
 
     function addAssetMapping(
