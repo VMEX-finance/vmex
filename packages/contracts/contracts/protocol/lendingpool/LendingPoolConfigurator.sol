@@ -75,7 +75,7 @@ contract LendingPoolConfigurator is
     modifier whitelistedAddress() {
         require(
             addressesProvider.isWhitelistedAddress(msg.sender),
-            "Sender is not whitelisted to add new tranche"
+            Errors.LPC_NOT_WHITELISTED_TRANCHE_CREATION
         );
         _;
     }
@@ -257,9 +257,9 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         bool[] calldata borrowingEnabled
     ) external onlyTrancheAdmin(trancheId) {
-        require(asset.length == borrowingEnabled.length, "Array lengths are not equal");
+        require(asset.length == borrowingEnabled.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
-            require(!borrowingEnabled[i] || assetMappings.getAssetBorrowable(asset[i]), "Asset is not approved to be set as borrowable");
+            require(!borrowingEnabled[i] || assetMappings.getAssetBorrowable(asset[i]), Errors.LPC_NOT_APPROVED_BORROWABLE);
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
 
@@ -275,13 +275,13 @@ contract LendingPoolConfigurator is
         external
         onlyTrancheAdmin(trancheId)
     {
-        require(asset.length == collateralEnabled.length, "Array lengths are not equal");
+        require(asset.length == collateralEnabled.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
             //note: ideally, we check that no collateral is enabled, but that's hard to do without a complete list of users, so this is a more conservative and easier approach
             if(!collateralEnabled[i]){
                 _checkNoLiquidity(asset[i], trancheId);
             }
-            require(!collateralEnabled[i] || assetMappings.getAssetCollateralizable(asset[i]), "Asset is not approved to be set as collateral");
+            require(!collateralEnabled[i] || assetMappings.getAssetCollateralizable(asset[i]), Errors.LPC_NOT_APPROVED_COLLATERAL);
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
 
@@ -302,7 +302,7 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         uint256[] calldata reserveFactor
     ) external onlyTrancheAdmin(trancheId) {
-        require(asset.length == reserveFactor.length, "Array lengths are not equal");
+        require(asset.length == reserveFactor.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
                 pool
@@ -330,7 +330,7 @@ contract LendingPoolConfigurator is
         external
         onlyTrancheAdmin(trancheId)
     {
-        require(asset.length == isFrozen.length, "Array lengths are not equal");
+        require(asset.length == isFrozen.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
                 pool
@@ -354,7 +354,7 @@ contract LendingPoolConfigurator is
     }
 
     function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyTrancheAdmin(trancheId) {
-        require(user.length == isWhitelisted.length, "whitelist lengths not equal");
+        require(user.length == isWhitelisted.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0;i<user.length;i++){
             pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
             emit UserChangedWhitelist(trancheId, user[i], isWhitelisted[i]);
@@ -362,7 +362,7 @@ contract LendingPoolConfigurator is
     }
 
     function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyTrancheAdmin(trancheId) {
-        require(user.length == isBlacklisted.length, "Blacklisted lengths not equal");
+        require(user.length == isBlacklisted.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0;i<user.length;i++){
             pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
             emit UserChangedBlacklist(trancheId, user[i], isBlacklisted[i]);

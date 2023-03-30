@@ -64,7 +64,7 @@ contract LendingPool is
     function _whenTrancheNotPausedAndExists(uint64 trancheId) internal view {
         require(!_paused[trancheId] && !_everythingPaused, Errors.LP_IS_PAUSED);
         uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
-        require(trancheId<totalTranches, "trancheId does not exist");
+        require(trancheId<totalTranches, Errors.INVALID_TRANCHE);
     }
 
     modifier onlyLendingPoolConfigurator() {
@@ -84,9 +84,9 @@ contract LendingPool is
      */
     function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(isUsingWhitelist[trancheId]){
-            require(whitelist[user][trancheId], "Tranche requires whitelist");
+            require(whitelist[user][trancheId], Errors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
         }
-        require(!blacklist[user][trancheId], "User is blacklisted from this tranche");
+        require(!blacklist[user][trancheId], Errors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
     }
 
     function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {

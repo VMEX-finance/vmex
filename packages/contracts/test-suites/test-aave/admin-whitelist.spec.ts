@@ -42,7 +42,8 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
 
     await expect( pool
       .connect(users[0].signer)
-      .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0")).to.be.revertedWith("Tranche requires whitelist");
+      .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0"))
+      .to.be.revertedWith(ProtocolErrors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
 
     await dai
       .connect(users[3].signer)
@@ -55,7 +56,8 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
 
     await expect( pool
       .connect(users[3].signer)
-      .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0")).to.not.be.revertedWith("Tranche requires whitelist");
+      .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0"))
+      .to.not.be.revertedWith(ProtocolErrors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
   });
 
   it("User 3 should be unable to transfer tokens to User 0", async () => {
@@ -65,7 +67,7 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
       aDai
         .connect(users[3].signer)
         .transfer(users[0].address, "100")
-    ).to.be.revertedWith("Tranche requires whitelist");
+    ).to.be.revertedWith(ProtocolErrors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
   });
 
 });

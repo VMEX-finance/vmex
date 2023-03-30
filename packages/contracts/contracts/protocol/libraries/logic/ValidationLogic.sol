@@ -56,7 +56,7 @@ library ValidationLogic {
             supplyCap == 0 ||
                 (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=
                 supplyCap * (10**_assetMappings.getDecimals(asset)),
-            Errors.SUPPLY_CAP_EXCEEDED
+            Errors.VL_SUPPLY_CAP_EXCEEDED
         );
     }
 
@@ -164,7 +164,7 @@ library ValidationLogic {
                 require(
                     IERC20(reserve.variableDebtTokenAddress).totalSupply() + exvars.amount <=
                         vars.borrowCap * 10**exvars._assetMappings.getDecimals(exvars.asset),
-                    Errors.BORROW_CAP_EXCEEDED
+                    Errors.VL_BORROW_CAP_EXCEEDED
                 );
             }
         }
@@ -263,7 +263,7 @@ library ValidationLogic {
         IAssetMappings _assetMappings
     ) external {
         // if the user is trying to set the reserve as collateral, then the asset must be collateralizable
-        require(!useAsCollateral || _assetMappings.getAssetCollateralizable(asset), "This asset is disabled as collateral");
+        require(!useAsCollateral || _assetMappings.getAssetCollateralizable(asset), Errors.VL_COLLATERAL_DISABLED);
 
         DataTypes.ReserveData storage reserve = reservesData[asset][trancheId];
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
