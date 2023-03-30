@@ -58,4 +58,14 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
       .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0")).to.not.be.revertedWith("Tranche requires whitelist");
   });
 
+  it("User 3 should be unable to transfer tokens to User 0", async () => {
+    const { users, pool, dai, aDai } = testEnv;
+
+    await expect(
+      aDai
+        .connect(users[3].signer)
+        .transfer(users[0].address, "100")
+    ).to.be.revertedWith("Tranche requires whitelist");
+  });
+
 });

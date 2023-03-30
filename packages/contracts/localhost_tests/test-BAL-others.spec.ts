@@ -527,28 +527,7 @@ var triCryptoDepositAbi = [
             /****************** deposit CRV to pool and then borrow WETH  **********************/ 
             /************************************************************************************/
             await lendingPool.connect(signer).deposit(USDC.address, 1, ethers.utils.parseUnits('805'), await signer.getAddress(), '0'); 
-            await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 1, true); 
-
-            var userResDat = await dataProv.getUserReserveData("0x853d955aCEf822Db058eb8505911ED77F175b99e",1,signer.address)
-
-            expect(userResDat.currentATokenBalance.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("805"), "Did not get atoken");
-
-            var resDat =  await dataProv.getReserveData("0x853d955aCEf822Db058eb8505911ED77F175b99e",1)
-
-            expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(DRE.ethers.utils.parseEther("805"), "Reserve doesn't have liquidity");
-
-            
-            await lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("0.1"), '0', await signer.getAddress()); 
-
-            var userDat = await lendingPool.connect(signer).callStatic.getUserAccountData(signer.address,1)
-
-            // expect(
-            //     userDat.totalDebtETH.toString()
-            //   ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("0.1"), "Did not get debt token");
-
-            await expect(
-                lendingPool.connect(signer).borrow(myWETH.address, 1, ethers.utils.parseEther("10"), '0', await signer.getAddress())
-              ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
+            await expect(lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 1, true)).to.be.revertedWith("This asset is disabled as collateral"); 
 
 
           });

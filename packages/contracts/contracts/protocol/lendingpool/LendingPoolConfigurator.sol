@@ -153,7 +153,7 @@ contract LendingPoolConfigurator is
         DataTypes.AssetData memory assetdata,
         ILendingPool cachedPool
     ) internal {
-        
+
         address aTokenProxyAddress = _initTokenWithProxy(
             addressesProvider.getATokenBeacon(),
             abi.encodeWithSelector(
@@ -175,7 +175,7 @@ contract LendingPoolConfigurator is
                 addressesProvider
             )
         );
-        
+
 
         cachedPool.initReserve(
             input.underlyingAsset,
@@ -469,7 +469,7 @@ contract LendingPoolConfigurator is
         bytes memory initParams
     ) internal returns (address) {
         BeaconProxy proxy = new BeaconProxy(
-                beacon, 
+                beacon,
                 initParams
             );
 

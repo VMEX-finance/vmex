@@ -265,7 +265,7 @@ library GenericLogic {
             if (userConfig.isBorrowing(vars.i)) {
                 vars.compoundedBorrowBalance =
                     IERC20(currentReserve.variableDebtTokenAddress).balanceOf(vars.user);
-                
+
                 vars.thisDebtInEth = vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(
                         vars.tokenUnit
                     );

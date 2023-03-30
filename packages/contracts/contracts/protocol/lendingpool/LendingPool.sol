@@ -86,7 +86,7 @@ contract LendingPool is
         if(isUsingWhitelist[trancheId]){
             require(whitelist[user][trancheId], "Tranche requires whitelist");
         }
-        require(blacklist[user][trancheId]==false, "You are blacklisted from this tranche");
+        require(!blacklist[user][trancheId], "User is blacklisted from this tranche");
     }
 
     function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
@@ -298,7 +298,6 @@ contract LendingPool is
         uint256 amount,
         address onBehalfOf
     ) external override whenTrancheNotPausedAndExists(trancheId) returns (uint256) {
-        // require(!_paused[trancheId], Errors.LP_IS_PAUSED);
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         uint256 variableDebt = Helpers.getUserCurrentDebt(
@@ -337,8 +336,6 @@ contract LendingPool is
 
         IERC20(asset).safeTransferFrom(msg.sender, reserve.aTokenAddress, paybackAmount);
 
-        // IAToken(aToken).handleRepayment(msg.sender, paybackAmount); //no-op
-
         emit Repay(asset, trancheId, onBehalfOf, msg.sender, paybackAmount);
 
         return paybackAmount;
@@ -354,10 +351,6 @@ contract LendingPool is
         uint64 trancheId,
         bool useAsCollateral
     ) external override whenTrancheNotPausedAndExists(trancheId) {
-        // require(
-        //     assetDatas[asset].isLendable,
-        //     "nonlendable assets must be set as collateral"
-        // ); // TODO: not sure if something like this is needed
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         ValidationLogic.validateSetUseReserveAsCollateral(
@@ -652,6 +645,7 @@ contract LendingPool is
             msg.sender == _reserves[asset][trancheId].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
         );
+        checkWhitelistBlacklist(trancheId, to);
 
         ValidationLogic.validateTransfer(
             from,

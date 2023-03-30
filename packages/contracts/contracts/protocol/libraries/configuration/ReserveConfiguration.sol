@@ -115,8 +115,8 @@ library ReserveConfiguration {
      **/
     function setReserveFactor(
         DataTypes.ReserveConfigurationMap memory self,
-        uint256 reserveFactor, 
-        address asset, 
+        uint256 reserveFactor,
+        address asset,
         IAssetMappings a
     ) internal view {
         //make sure user reserve factor does not exceed our reserve factor to prevent tranche admins rugging users

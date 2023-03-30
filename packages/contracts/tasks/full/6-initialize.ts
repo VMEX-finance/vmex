@@ -2,11 +2,7 @@ import { task } from "hardhat/config";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   deployLendingPoolCollateralManager,
-  deployWalletBalancerProvider,
   authorizeWETHGateway,
-  deployUiPoolDataProviderV2,
-  deployAssetMapping,
-  deployStrategies,
 } from "../../helpers/contracts-deployments";
 import {
   loadPoolConfig,
@@ -42,8 +38,8 @@ task(
   .setAction(async ({ verify, pool }, DRE) => {
     try {
       await DRE.run("set-DRE");
-      
-  
+
+
       const network = <eNetwork>DRE.network.name;
       const poolConfig = loadPoolConfig(pool);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
@@ -53,7 +49,7 @@ task(
         WethGateway,
         IncentivesController,
       } = poolConfig as ICommonConfiguration;
-      
+
 
       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
