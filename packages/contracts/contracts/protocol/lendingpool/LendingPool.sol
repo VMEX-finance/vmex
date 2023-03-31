@@ -187,19 +187,28 @@ contract LendingPool is
         returns (uint256)
     {
         checkWhitelistBlacklist(trancheId, msg.sender);
+        GenericLogic.BalanceDecreaseAllowedParameters memory vars;
+        {
+            vars = GenericLogic.BalanceDecreaseAllowedParameters(
+                    asset,
+                    trancheId,
+                    msg.sender,
+                    amount,
+                    IPriceOracleGetter(
+                        _addressesProvider.getPriceOracle(
+                        )
+                    ).getAssetPrice(asset),
+                    _addressesProvider,
+                    _assetMappings
+                );
+        }
         uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
                 _usersConfig[msg.sender][trancheId].configuration,
                 _reservesList[trancheId],
-                DataTypes.WithdrawParams(
-                    uint8(_reservesCount[trancheId]),
-                    asset,
-                    trancheId,
-                    amount,
-                    to
-                ),
-                _addressesProvider,
-                _assetMappings
+                uint8(_reservesCount[trancheId]),
+                to,
+                vars
             );
 
         emit Withdraw(asset, trancheId, msg.sender, to, actualAmount);
@@ -352,15 +361,25 @@ contract LendingPool is
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         ValidationLogic.validateSetUseReserveAsCollateral(
-            asset,
-            trancheId,
             useAsCollateral,
             _reserves,
             _usersConfig[msg.sender][trancheId].configuration,
             _reservesList[trancheId],
             _reservesCount[trancheId],
-            _addressesProvider,
-            _assetMappings
+            GenericLogic.BalanceDecreaseAllowedParameters(
+                asset,
+                trancheId,
+                msg.sender,
+                IERC20(reserve.aTokenAddress).balanceOf(
+                    msg.sender
+                ),
+                IPriceOracleGetter(
+                    _addressesProvider.getPriceOracle(
+                    )
+                ).getAssetPrice(asset),
+                _addressesProvider,
+                _assetMappings
+            )
         );
 
         _usersConfig[msg.sender][trancheId].configuration.setUsingAsCollateral(

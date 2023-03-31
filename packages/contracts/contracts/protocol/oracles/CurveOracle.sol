@@ -10,8 +10,6 @@ library CurveOracle {
 	//Helper to prevent read-only re-entrancy attacks with virtual price
 	//Maybe this is only needed if the underlying has ETH.
 	function check_reentrancy(address curve_pool) internal {
-		//makerdao uses remove_liquidity to trigger reentrancy lock
-        //exchange is also reentrancy locked, so I'm assuming it will do what we want
 		bool success = false;
 		(success, ) = curve_pool.call(
 			abi.encodeWithSignature("claim_admin_fees()")

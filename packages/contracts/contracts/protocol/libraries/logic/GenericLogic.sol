@@ -38,7 +38,6 @@ library GenericLogic {
         uint256 collateralBalanceAfterDecrease;
         uint256 liquidationThresholdAfterDecrease;
         uint256 healthFactorAfterDecrease;
-        uint256 currentPrice;
         bool reserveUsageAsCollateralEnabled;
 
     }
@@ -51,6 +50,7 @@ library GenericLogic {
         uint64 trancheId;
         address user;
         uint256 amount;
+        uint256 currentPrice;
         ILendingPoolAddressesProvider addressesProvider;
         IAssetMappings assetMappings;
     }
@@ -107,13 +107,7 @@ library GenericLogic {
             return true;
         }
 
-        //using current price instead of 24 hour average
-        vars.currentPrice= IPriceOracleGetter(
-            params.addressesProvider.getPriceOracle(
-            )
-        ).getAssetPrice(params.asset);
-
-        vars.amountToDecreaseInETH  = vars.currentPrice.mul(params.amount).div(10**vars.decimals);
+        vars.amountToDecreaseInETH  = params.currentPrice.mul(params.amount).div(10**vars.decimals);
 
         vars.collateralBalanceAfterDecrease = vars.totalCollateralInETH.sub(
             vars.amountToDecreaseInETH

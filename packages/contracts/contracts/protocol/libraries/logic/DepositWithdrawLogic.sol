@@ -90,9 +90,9 @@ library DepositWithdrawLogic {
             storage _reserves,
         DataTypes.UserConfigurationMap storage user,
         mapping(uint256 => address) storage _reservesList,
-        DataTypes.WithdrawParams memory vars,
-        ILendingPoolAddressesProvider _addressesProvider,
-        IAssetMappings _assetMappings
+        uint8 reservesCount,
+        address to,
+        GenericLogic.BalanceDecreaseAllowedParameters memory vars
     ) external returns (uint256) {
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
         address aToken = reserve.aTokenAddress;
@@ -108,20 +108,16 @@ library DepositWithdrawLogic {
         }
 
         ValidationLogic.validateWithdraw(
-            vars.asset,
-            vars.trancheId,
-            vars.amount,
             userBalance,
             _reserves,
             user,
             _reservesList,
-            vars._reservesCount,
-            _addressesProvider,
-            _assetMappings
+            reservesCount,
+            vars
         );
 
-        reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
-        reserve.updateInterestRates(vars.asset, vars.trancheId, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
+        reserve.updateState(vars.assetMappings.getVMEXReserveFactor(vars.asset));
+        reserve.updateInterestRates(vars.asset, vars.trancheId, 0, vars.amount, vars.assetMappings.getVMEXReserveFactor(vars.asset));
 
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
@@ -130,7 +126,7 @@ library DepositWithdrawLogic {
 
         IAToken(aToken).burn(
             msg.sender,
-            vars.to,
+            to,
             vars.amount,
             reserve.liquidityIndex
         );

@@ -45,7 +45,7 @@ library DataTypes {
         uint64 trancheId;
         address asset;
     }
-    struct ReserveData {
+    struct ReserveData { 
         //stores the reserve configuration
         ReserveConfigurationMap configuration; //a lot of this is per asset rather than per reserve. But it's fine to keep since pretty gas efficient
         
@@ -53,6 +53,7 @@ library DataTypes {
         uint128 liquidityIndex; //not used for nonlendable assets
         //variable borrow index. Expressed in ray
         uint128 variableBorrowIndex; //not used for nonlendable assets
+
         //the current supply rate. Expressed in ray
         uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY //not used for nonlendable assets
         //the current variable borrow rate. Expressed in ray
@@ -61,7 +62,7 @@ library DataTypes {
         //the current stable borrow rate. Expressed in ray
         uint40 lastUpdateTimestamp; //5
         //tokens addresses
-        address aTokenAddress;
+        address aTokenAddress; //20
         address variableDebtTokenAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
@@ -122,14 +123,6 @@ library DataTypes {
         bool releaseUnderlying;
         IAssetMappings _assetMappings;
 
-    }
-
-    struct WithdrawParams {
-        uint8 _reservesCount; //number of reserves per tranche cannot exceed 128 (126 if we are packing whitelist and blacklist too)
-        address asset;
-        uint64 trancheId;
-        uint256 amount;
-        address to;
     }
 
     struct calculateInterestRatesVars {

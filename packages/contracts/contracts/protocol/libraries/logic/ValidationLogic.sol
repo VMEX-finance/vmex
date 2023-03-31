@@ -62,51 +62,35 @@ library ValidationLogic {
 
     /**
      * @dev Validates a withdraw action
-     * @param asset The address of the asset in the reserve
-     * @param trancheId The trancheId of the reserve
-     * @param amount The amount to be withdrawn
      * @param userBalance The balance of the user
      * @param reservesData The reserves state
      * @param userConfig The user configuration
      * @param reserves The addresses of the reserves
      * @param reservesCount The number of reserves
-     * @param _addressesProvider The addresses provider
-     * @param _assetMappings The asset mappings
      */
     function validateWithdraw(
-        address asset,
-        uint64 trancheId,
-        uint256 amount,
         uint256 userBalance,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        ILendingPoolAddressesProvider _addressesProvider,
-        IAssetMappings _assetMappings
+        GenericLogic.BalanceDecreaseAllowedParameters memory vars
     ) external {
-        require(amount != 0, Errors.VL_INVALID_AMOUNT);
+        require(vars.amount != 0, Errors.VL_INVALID_AMOUNT);
         require(
-            amount <= userBalance,
+            vars.amount <= userBalance,
             Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
 
-        (bool isActive, , ) = reservesData[asset][trancheId]
+        (bool isActive, , ) = reservesData[vars.asset][vars.trancheId]
             .configuration
-            .getFlags(asset, _assetMappings);
+            .getFlags(vars.asset, vars.assetMappings);
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
         require(
             GenericLogic.balanceDecreaseAllowed(
-                GenericLogic.BalanceDecreaseAllowedParameters(
-                    asset,
-                    trancheId,
-                    msg.sender,
-                    amount,
-                    _addressesProvider,
-                    _assetMappings
-                ),
+                vars,
                 reservesData,
                 userConfig,
                 reserves,
@@ -284,48 +268,31 @@ library ValidationLogic {
 
     /**
      * @dev Validates the action of setting an asset as collateral
-     * @param asset The address of the reserve
      * @param reservesData The data of all the reserves
      * @param userConfig The state of the user for the specific reserve
      * @param reserves The addresses of all the active reserves
-     * @param _addressesProvider The price oracle
      */
     function validateSetUseReserveAsCollateral(
-        address asset,
-        uint64 trancheId,
         bool useAsCollateral,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
-        ILendingPoolAddressesProvider _addressesProvider,
-        IAssetMappings _assetMappings
+        GenericLogic.BalanceDecreaseAllowedParameters memory vars
     ) external {
         // if the user is trying to set the reserve as collateral, then the asset must be collateralizable
-        require(!useAsCollateral || _assetMappings.getAssetCollateralizable(asset), Errors.VL_COLLATERAL_DISABLED);
-
-        DataTypes.ReserveData storage reserve = reservesData[asset][trancheId];
-        uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
-            msg.sender
-        );
+        require(!useAsCollateral || vars.assetMappings.getAssetCollateralizable(vars.asset), Errors.VL_COLLATERAL_DISABLED);
 
         require(
-            underlyingBalance > 0,
+            vars.amount > 0,
             Errors.VL_UNDERLYING_BALANCE_NOT_GREATER_THAN_0
         );
 
         require(
             useAsCollateral ||
                 GenericLogic.balanceDecreaseAllowed(
-                    GenericLogic.BalanceDecreaseAllowedParameters(
-                        asset,
-                        trancheId,
-                        msg.sender,
-                        underlyingBalance,
-                        _addressesProvider,
-                        _assetMappings
-                    ),
+                    vars,
                     reservesData,
                     userConfig,
                     reserves,
