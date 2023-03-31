@@ -17,7 +17,7 @@ import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
 
 /**
- * @title ReserveLogic library
+ * @title ValidationLogic library
  * @author Aave
  * @notice Implements functions to validate the different actions of the protocol
  */
