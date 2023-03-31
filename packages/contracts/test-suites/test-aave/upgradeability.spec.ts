@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { makeSuite, TestEnv } from './helpers/make-suite';
 import { ProtocolErrors, eContractid } from '../../helpers/types';
-import { deployContract, getContract } from '../../helpers/contracts-helpers';
+import { convertToCurrencyDecimals, deployContract, getContract } from '../../helpers/contracts-helpers';
 import { MockAToken } from '../../types/MockAToken';
 import { MockStableDebtToken } from '../../types/MockStableDebtToken';
 import { MockVariableDebtToken } from '../../types/MockVariableDebtToken';
-import { ZERO_ADDRESS } from '../../helpers/constants';
+import { AAVE_REFERRAL, APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from '../../helpers/constants';
 import {
   getAToken,
   getEmergencyAdminT0,
@@ -20,7 +20,7 @@ import {
   deployMockStableDebtToken,
   deployMockVariableDebtToken,
 } from '../../helpers/contracts-deployments';
-import { BigNumberish } from 'ethers';
+import { BigNumberish, ethers } from 'ethers';
 
 makeSuite('Upgradeability', (testEnv: TestEnv) => {
   const { CALLER_NOT_GLOBAL_ADMIN } = ProtocolErrors;
@@ -122,5 +122,145 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const debtToken1 = await getMockAToken(variableDebtTokenAddress1);
 
     expect((await debtToken1.newFunction()).toString()).to.be.eq('2', 'Invalid revision for other variable debt tokens');
+  });
+
+  //'Test that protocol still works after upgrades'
+
+
+  it("User 0 deposits 1000 DAI and 2000 aave", async () => {
+    const { users, pool, dai, aave, aAave, aDai } = testEnv;
+
+    await dai
+      .connect(users[0].signer)
+      .mint(await convertToCurrencyDecimals(dai.address, "1000"));
+
+    await dai
+      .connect(users[0].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    //user 1 deposits 1000 DAI
+    const amountDAItoDeposit = await convertToCurrencyDecimals(
+      dai.address,
+      "1000"
+    );
+
+    await pool
+      .connect(users[0].signer)
+      .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0");
+
+      await aave
+      .connect(users[0].signer)
+      .mint(ethers.utils.parseEther("2000"));
+
+    await aave
+      .connect(users[0].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    //user 1 deposits 1000 DAI
+    const amountUSDCtoDeposit = ethers.utils.parseEther("2000");
+
+    await pool
+      .connect(users[0].signer)
+      .deposit(aave.address, 0, amountUSDCtoDeposit, users[0].address, "0");
+
+    const balanceDAI = await aDai.balanceOf(users[0].address);
+    const balanceUSDC = await aAave.balanceOf(users[0].address);
+
+    expect(balanceDAI.toString()).to.be.equal(
+      amountDAItoDeposit.toString(),
+      "invalid balance"
+    );
+
+    expect(balanceUSDC.toString()).to.be.equal(
+      amountUSDCtoDeposit.toString(),
+      "invalid balance"
+    );
+  });
+
+  it("User 1 deposits 100 WETH and usdc and user 0 tries to borrow the WETH and usdc", async () => {
+    const { users, pool, weth, usdc, helpersContract } = testEnv;
+
+    await weth
+      .connect(users[0].signer)
+      .mint(await convertToCurrencyDecimals(weth.address, "1000"));
+
+    await weth
+      .connect(users[0].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    await weth
+      .connect(users[1].signer)
+      .mint(await convertToCurrencyDecimals(weth.address, "1000"));
+
+    await weth
+      .connect(users[1].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    await pool
+      .connect(users[1].signer)
+      .deposit(
+        weth.address,
+        0,
+        ethers.utils.parseEther("100.0"),
+        users[1].address,
+        "0"
+      );
+
+
+    await usdc
+    .connect(users[0].signer)
+    .mint(await convertToCurrencyDecimals(usdc.address, "1000000"));
+
+    await usdc
+      .connect(users[0].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    await usdc
+      .connect(users[1].signer)
+      .mint(await convertToCurrencyDecimals(usdc.address, "10000"));
+
+    await usdc
+      .connect(users[1].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    await pool
+      .connect(users[1].signer)
+      .deposit(
+        usdc.address,
+        0,
+        await convertToCurrencyDecimals(usdc.address, "10000"),
+        users[1].address,
+        "0"
+      );
+    await pool
+      .connect(users[0].signer)
+      .borrow(
+        weth.address,
+        0,
+        ethers.utils.parseEther("0.1"),
+        AAVE_REFERRAL,
+        users[0].address
+      );
+
+    const userReserveData = await helpersContract.getUserReserveData(
+      weth.address,
+      0,
+      users[0].address
+    );
+
+    expect(userReserveData.currentVariableDebt.toString()).to.be.eq(
+      ethers.utils.parseEther("0.1")
+    );
+
+    await pool
+      .connect(users[0].signer)
+      .borrow(
+        usdc.address,
+        0,
+        await convertToCurrencyDecimals(usdc.address, "10"),
+        AAVE_REFERRAL,
+        users[0].address
+      );
+
   });
 });
