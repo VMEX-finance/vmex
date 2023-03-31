@@ -336,21 +336,6 @@ library ValidationLogic {
     }
 
     /**
-     * @dev Validates a flashloan action
-     * @param assets The assets being flashborrowed
-     * @param amounts The amounts for each asset being borrowed
-     **/
-    function validateFlashloan(
-        address[] memory assets,
-        uint256[] memory amounts
-    ) internal pure {
-        require(
-            assets.length == amounts.length,
-            Errors.VL_INCONSISTENT_FLASHLOAN_PARAMS
-        );
-    }
-
-    /**
      * @dev Validates the liquidation action
      * @param collateralReserve The reserve data of the collateral
      * @param principalReserve The reserve data of the principal
