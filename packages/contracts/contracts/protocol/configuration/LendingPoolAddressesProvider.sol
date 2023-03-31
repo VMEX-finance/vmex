@@ -380,6 +380,7 @@ contract LendingPoolAddressesProvider is
             _msgSender() == getAddress(LENDING_POOL_CONFIGURATOR),
             Errors.LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR
         );
+        assert(_addressesTranche[TRANCHE_ADMIN][trancheId] == address(0)); //this should never be false
         _addressesTranche[TRANCHE_ADMIN][trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
