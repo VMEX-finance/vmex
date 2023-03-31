@@ -48,7 +48,7 @@ library DataTypes {
     struct ReserveData {
         //stores the reserve configuration
         ReserveConfigurationMap configuration; //a lot of this is per asset rather than per reserve. But it's fine to keep since pretty gas efficient
-        //these are for sure per reserve
+        
         //the liquidity index. Expressed in ray
         uint128 liquidityIndex; //not used for nonlendable assets
         //variable borrow index. Expressed in ray
@@ -57,8 +57,9 @@ library DataTypes {
         uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY //not used for nonlendable assets
         //the current variable borrow rate. Expressed in ray
         uint128 currentVariableBorrowRate; //not used for nonlendable assets
+        
         //the current stable borrow rate. Expressed in ray
-        uint40 lastUpdateTimestamp;
+        uint40 lastUpdateTimestamp; //5
         //tokens addresses
         address aTokenAddress;
         address variableDebtTokenAddress; //not used for nonlendable assets
@@ -74,11 +75,9 @@ library DataTypes {
         //bit 0: Reserve is active
         //bit 1: reserve is frozen
         //bit 2: borrowing is enabled
-        //bit 3: stable rate borrowing enabled
-        //bit 4: collateral is enabled
-        //bit 5-7: reserved
-        //bit 8-71: reserve factor (64 bit)
-        uint256 data;
+        //bit 3: collateral is enabled
+        //bit 4-67: reserve factor (64 bit)
+        uint256 data; //in total we only need 68 bits, so that's 9 bytes = 72 bits
     }
 
     struct UserData {
@@ -126,7 +125,7 @@ library DataTypes {
     }
 
     struct WithdrawParams {
-        uint256 _reservesCount;
+        uint8 _reservesCount; //number of reserves per tranche cannot exceed 128 (126 if we are packing whitelist and blacklist too)
         address asset;
         uint64 trancheId;
         uint256 amount;

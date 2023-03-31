@@ -207,7 +207,7 @@ contract LendingPoolConfigurator is
             currentConfig.setBorrowingEnabled(false);
         }
 
-        uint256 percentReserveFactor = input.reserveFactor.convertToPercent();
+        uint256 percentReserveFactor = uint256(input.reserveFactor).convertToPercent();
 
 
         currentConfig.setReserveFactor(percentReserveFactor, input.underlyingAsset, assetMappings); //accounts for new number of decimals
