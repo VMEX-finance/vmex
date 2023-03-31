@@ -56,7 +56,7 @@ library ValidationLogic {
             supplyCap == 0 ||
                 (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=
                 supplyCap * (10**_assetMappings.getDecimals(asset)),
-            Errors.SUPPLY_CAP_EXCEEDED
+            Errors.VL_SUPPLY_CAP_EXCEEDED
         );
     }
 
@@ -124,25 +124,41 @@ library ValidationLogic {
         uint256 userBorrowBalanceETH;
         uint256 availableLiquidity;
         uint256 healthFactor;
-        uint256 borrowCap;
         uint256 avgBorrowFactor;
-
+        uint256 totalAmount;
         bool isActive;
         bool isFrozen;
         bool borrowingEnabled;
     }
 
+    function checkAmount(
+        uint256 borrowCap, 
+        uint256 amount, 
+        uint256 totalDebt, 
+        uint256 decimals
+    ) internal pure {
+        require(amount != 0, Errors.VL_INVALID_AMOUNT);
+        if (borrowCap != 0) {
+            unchecked {
+                require(
+                    totalDebt + amount <=
+                        borrowCap * 10**decimals,
+                    Errors.VL_BORROW_CAP_EXCEEDED
+                );
+            }
+        }
+    }
+
     function validateBorrow(
         DataTypes.ExecuteBorrowParams memory exvars,
         DataTypes.ReserveData storage reserve,
-        uint256 amountInETH,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,
         DataTypes.UserConfigurationMap storage userConfig,
         mapping(uint256 => address) storage reserves,
         uint256 reservesCount,
         ILendingPoolAddressesProvider _addressesProvider
-    ) external {
+    ) external returns(uint256){
         ValidateBorrowLocalVars memory vars;
 
         (
@@ -153,20 +169,17 @@ library ValidationLogic {
 
         require(vars.isActive, Errors.VL_NO_ACTIVE_RESERVE);
         require(!vars.isFrozen, Errors.VL_RESERVE_FROZEN);
-        require(exvars.amount != 0, Errors.VL_INVALID_AMOUNT);
 
         require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
 
-        vars.borrowCap = exvars._assetMappings.getBorrowCap(exvars.asset);
-
-        if (vars.borrowCap != 0) {
-            unchecked {
-                require(
-                    IERC20(reserve.variableDebtTokenAddress).totalSupply() + exvars.amount <=
-                        vars.borrowCap * 10**exvars._assetMappings.getDecimals(exvars.asset),
-                    Errors.BORROW_CAP_EXCEEDED
-                );
-            }
+        //precheck so in case we aren't trying to borrow max, and already borrowing over the cap, don't need to run calculateUserAccountData
+        if(exvars.amount!=type(uint256).max) { 
+            checkAmount(
+                exvars._assetMappings.getBorrowCap(exvars.asset), 
+                exvars.amount, 
+                IERC20(reserve.variableDebtTokenAddress).totalSupply(), 
+                exvars._assetMappings.getDecimals(exvars.asset)
+            );
         }
 
         (
@@ -185,6 +198,31 @@ library ValidationLogic {
             _addressesProvider,
             exvars._assetMappings
         );
+
+        if(exvars.amount == type(uint256).max){
+            vars.totalAmount = IERC20(exvars.asset).balanceOf(reserve.aTokenAddress);
+            exvars.amount = (
+                vars.userCollateralBalanceETH.percentMul(vars.currentLtv) //risk adjusted collateral
+                .sub(vars.userBorrowBalanceETH.percentMul(vars.avgBorrowFactor)) //risk adjusted debt
+            ) // amount available to use for borrow
+            .mul(10**exvars._assetMappings.getDecimals(exvars.asset))
+            .percentDiv(exvars._assetMappings.getBorrowFactor(exvars.asset)) //adjust for this asset's borrow factor, in ETH
+            .div(exvars.assetPrice); //converted to native token
+
+            if(exvars.amount>vars.totalAmount){
+                exvars.amount=vars.totalAmount;
+            }
+            checkAmount(
+                exvars._assetMappings.getBorrowCap(exvars.asset), 
+                exvars.amount, 
+                IERC20(reserve.variableDebtTokenAddress).totalSupply(), 
+                exvars._assetMappings.getDecimals(exvars.asset)
+            );
+        }
+        // amountInETH always has 18 decimals (or if oracle has 8 decimals, this also has 8 decimals), since the assetPrice always has 18 decimals. Scaling by amount/asset decimals. 
+        uint256 amountInETH = exvars.assetPrice.mul(exvars.amount).div(
+                10**exvars._assetMappings.getDecimals(exvars.asset)
+            ); 
 
         //(uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
@@ -211,6 +249,8 @@ library ValidationLogic {
             vars.amountOfCollateralNeededETH <= vars.userCollateralBalanceETH,
             Errors.VL_COLLATERAL_CANNOT_COVER_NEW_BORROW
         );
+
+        return exvars.amount;
     }
 
     /**
@@ -263,7 +303,7 @@ library ValidationLogic {
         IAssetMappings _assetMappings
     ) external {
         // if the user is trying to set the reserve as collateral, then the asset must be collateralizable
-        require(!useAsCollateral || _assetMappings.getAssetCollateralizable(asset), "This asset is disabled as collateral");
+        require(!useAsCollateral || _assetMappings.getAssetCollateralizable(asset), Errors.VL_COLLATERAL_DISABLED);
 
         DataTypes.ReserveData storage reserve = reservesData[asset][trancheId];
         uint256 underlyingBalance = IERC20(reserve.aTokenAddress).balanceOf(
@@ -292,21 +332,6 @@ library ValidationLogic {
                     reservesCount
                 ),
             Errors.VL_DEPOSIT_ALREADY_IN_USE
-        );
-    }
-
-    /**
-     * @dev Validates a flashloan action
-     * @param assets The assets being flashborrowed
-     * @param amounts The amounts for each asset being borrowed
-     **/
-    function validateFlashloan(
-        address[] memory assets,
-        uint256[] memory amounts
-    ) internal pure {
-        require(
-            assets.length == amounts.length,
-            Errors.VL_INCONSISTENT_FLASHLOAN_PARAMS
         );
     }
 

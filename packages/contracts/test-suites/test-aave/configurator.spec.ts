@@ -316,7 +316,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Deactivates the ETH0 reserve as collateral in asset mappings", async () => {
     const { assetMappings, helpersContract, weth } = testEnv;
 
-    await assetMappings.configureReserveAsCollateral(weth.address, 0, 0, 0, 0, 0, 0);
+    await assetMappings.configureReserves(weth.address, 0, 0, 0, 0, 0, 10000);
 
     const ret1 = await helpersContract.getReserveConfigurationData(weth.address, 0);
 
@@ -329,7 +329,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(ret1.liquidationBonus).to.be.equal(0);
     expect(ret1.supplyCap).to.be.equal(0);
     expect(ret1.borrowCap).to.be.equal(0);
-    expect(ret1.borrowFactor).to.be.equal(0);
+    expect(ret1.borrowFactor).to.be.equal("1000000000000000000");
 
     const ret2 = await helpersContract.getReserveConfigurationData(weth.address, 0);
 
@@ -342,7 +342,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(ret2.liquidationBonus).to.be.equal(0);
     expect(ret2.supplyCap).to.be.equal(0);
     expect(ret2.borrowCap).to.be.equal(0);
-    expect(ret2.borrowFactor).to.be.equal(0);
+    expect(ret2.borrowFactor).to.be.equal("1000000000000000000");
     // expect(stableBorrowRateEnabled).to.be.equal(true);
     // expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
   });
@@ -351,13 +351,13 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     const { configurator, helpersContract, weth } = testEnv;
     await expect(
       configurator.setCollateralEnabledOnReserve([weth.address], 0, [true])
-    ).to.be.revertedWith("Asset is not approved to be set as collateral");
+    ).to.be.revertedWith(ProtocolErrors.LPC_NOT_APPROVED_COLLATERAL);
   });
 
   it("Deactivates the ETH0 reserve as collateral in asset mappings", async () => {
     const { assetMappings, helpersContract, weth } = testEnv;
 
-    await assetMappings.configureReserveAsCollateral(
+    await assetMappings.configureReserves(
       weth.address,
       strategyWETH.baseLTVAsCollateral,
       strategyWETH.liquidationThreshold,

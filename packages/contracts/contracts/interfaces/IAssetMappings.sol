@@ -72,14 +72,14 @@ interface IAssetMappings {
         AddAssetMappingInput[] memory input
     ) external;
 
-    function configureReserveAsCollateral(
-        address asset,
-        uint256 baseLTV,
-        uint256 liquidationThreshold,
-        uint256 liquidationBonus,
-        uint256 supplyCap,
-        uint256 borrowCap,
-        uint256 borrowFactor
+    function configureReserves(
+        address asset,//20
+        uint64 baseLTV, //28
+        uint64 liquidationThreshold, //36 --> 1 word, 8 bytes
+        uint64 liquidationBonus, //1 word, 16 bytes
+        uint128 supplyCap, //1 word, 32 bytes -> 1 word
+        uint128 borrowCap, //2 words, 16 bytes
+        uint64 borrowFactor //2 words, 24 bytes --> 3 words total
     ) external;
 
     function setAssetAllowed(address asset, bool isAllowed) external;

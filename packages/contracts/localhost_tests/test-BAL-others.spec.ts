@@ -527,7 +527,7 @@ var triCryptoDepositAbi = [
             /****************** deposit CRV to pool and then borrow WETH  **********************/ 
             /************************************************************************************/
             await lendingPool.connect(signer).deposit(USDC.address, 1, ethers.utils.parseUnits('805'), await signer.getAddress(), '0'); 
-            await expect(lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 1, true)).to.be.revertedWith("This asset is disabled as collateral"); 
+            await expect(lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 1, true)).to.be.revertedWith(ProtocolErrors.VL_COLLATERAL_DISABLED); 
 
 
           });

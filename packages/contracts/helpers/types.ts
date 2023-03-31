@@ -149,13 +149,15 @@ export enum eContractid {
  */
 export enum ProtocolErrors {
   //common errors
-  CALLER_NOT_TRANCHE_ADMIN = "33", // 'The caller must be the pool admin'
-  CALLER_NOT_GLOBAL_ADMIN = "84", // 'The caller must be the global admin'
-
+  CALLER_NOT_TRANCHE_ADMIN = "33", // 'The caller must be the tranche admin'
+  CALLER_NOT_GLOBAL_ADMIN = "0", // 'The caller must be the global admin'
+  BORROW_ALLOWANCE_NOT_ENOUGH = "59", // User borrows on behalf, but allowance are too small
+  INVALID_TRANCHE = "100", // 'The caller must be the global admin'
+  ARRAY_LENGTH_MISMATCH = "85",
   //contract specific errors
   VL_INVALID_AMOUNT = "1", // 'Amount must be greater than 0'
-  VL_NO_ACTIVE_RESERVE = "2", // 'Action requires an active reserve'
-  VL_RESERVE_FROZEN = "3", // 'Action requires an unfrozen reserve'
+  VL_NO_ACTIVE_RESERVE = "2", // 'Action requires an active reserve' 
+  VL_RESERVE_FROZEN = "3", // 'Action cannot be performed because the reserve is frozen'
   VL_CURRENT_AVAILABLE_LIQUIDITY_NOT_ENOUGH = "4", // 'The current liquidity is not enough'
   VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE = "5", // 'User cannot withdraw more than the available balance'
   VL_TRANSFER_NOT_ALLOWED = "6", // 'Transfer cannot be allowed.'
@@ -173,13 +175,16 @@ export enum ProtocolErrors {
   VL_NO_VARIABLE_RATE_LOAN_IN_RESERVE = "18", // 'User does not have a variable rate loan in progress on this reserve'
   VL_UNDERLYING_BALANCE_NOT_GREATER_THAN_0 = "19", // 'The underlying balance needs to be greater than 0'
   VL_DEPOSIT_ALREADY_IN_USE = "20", // 'User deposit is already being used as collateral'
+  VL_SUPPLY_CAP_EXCEEDED = "82",
+  VL_BORROW_CAP_EXCEEDED = "83",
+  VL_COLLATERAL_DISABLED = "93",
   LP_NOT_ENOUGH_STABLE_BORROW_BALANCE = "21", // 'User does not have any stable rate loan for this reserve'
   LP_INTEREST_RATE_REBALANCE_CONDITIONS_NOT_MET = "22", // 'Interest rate rebalance conditions were not met'
   LP_LIQUIDATION_CALL_FAILED = "23", // 'Liquidation call failed'
   LP_NOT_ENOUGH_LIQUIDITY_TO_BORROW = "24", // 'There is not enough liquidity available to borrow'
   LP_REQUESTED_AMOUNT_TOO_SMALL = "25", // 'The requested amount is too small for a FlashLoan.'
   LP_INCONSISTENT_PROTOCOL_ACTUAL_BALANCE = "26", // 'The actual balance of the protocol is inconsistent'
-  LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR = "27", // 'The caller is not the lending pool configurator'
+  LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR = "27", // 'The caller of the function is not the lending pool configurator'
   LP_INCONSISTENT_FLASHLOAN_PARAMS = "28",
   CT_CALLER_MUST_BE_LENDING_POOL = "29", // 'The caller of this function must be a lending pool'
   CT_CANNOT_GIVE_ALLOWANCE_TO_HIMSELF = "30", // 'User cannot give allowance to himself'
@@ -189,10 +194,16 @@ export enum ProtocolErrors {
   LPC_INVALID_ATOKEN_POOL_ADDRESS = "35", // 'The liquidity of the reserve needs to be 0'
   LPC_INVALID_STABLE_DEBT_TOKEN_POOL_ADDRESS = "36", // 'The liquidity of the reserve needs to be 0'
   LPC_INVALID_VARIABLE_DEBT_TOKEN_POOL_ADDRESS = "37", // 'The liquidity of the reserve needs to be 0'
-  LPC_INVALID_STABLE_DEBT_TOKEN_UNDERLYING_ADDRESS = "38", // 'The liquidity of the reserve needs to be 0'
-  LPC_INVALID_VARIABLE_DEBT_TOKEN_UNDERLYING_ADDRESS = "39", // 'The liquidity of the reserve needs to be 0'
+  LPC_INVALID_STABLE_DEBT_TOKEN_UNDERLYING_ADDRESS =
+      "38", // 'The liquidity of the reserve needs to be 0'
+  LPC_INVALID_VARIABLE_DEBT_TOKEN_UNDERLYING_ADDRESS =
+      "39", // 'The liquidity of the reserve needs to be 0'
   LPC_INVALID_ADDRESSES_PROVIDER_ID = "40", // 'The liquidity of the reserve needs to be 0'
-  LPC_CALLER_NOT_EMERGENCY_ADMIN = "76", // 'The caller must be the emergencya admin'
+  LPC_INVALID_CONFIGURATION = "75", // 'Invalid risk parameters for the reserve'
+  LPC_CALLER_NOT_EMERGENCY_ADMIN = "76", // 'The caller must be the emergency admin'
+  LPC_NOT_WHITELISTED_TRANCHE_CREATION = "84", //not whitelisted to create a tranche
+  LPC_NOT_APPROVED_BORROWABLE = "86", //assetmappings does not allow setting borrowable
+  LPC_NOT_APPROVED_COLLATERAL = "87", //assetmappings does not allow setting collateral
   LPAPR_PROVIDER_NOT_REGISTERED = "41", // 'Provider is not registered'
   LPCM_HEALTH_FACTOR_NOT_BELOW_THRESHOLD = "42", // 'Health factor is not below the threshold'
   LPCM_COLLATERAL_CANNOT_BE_LIQUIDATED = "43", // 'The collateral chosen cannot be liquidated'
@@ -211,7 +222,6 @@ export enum ProtocolErrors {
   CT_INVALID_MINT_AMOUNT = "56", //invalid amount to mint
   LP_FAILED_REPAY_WITH_COLLATERAL = "57",
   CT_INVALID_BURN_AMOUNT = "58", //invalid amount to burn
-  LP_BORROW_ALLOWANCE_NOT_ENOUGH = "59", // User borrows on behalf, but allowance are too small
   LP_FAILED_COLLATERAL_SWAP = "60",
   LP_INVALID_EQUAL_ASSETS_TO_SWAP = "61",
   LP_REENTRANCY_NOT_ALLOWED = "62",
@@ -219,18 +229,28 @@ export enum ProtocolErrors {
   LP_IS_PAUSED = "64", // 'Pool is paused'
   LP_NO_MORE_RESERVES_ALLOWED = "65",
   LP_INVALID_FLASH_LOAN_EXECUTOR_RETURN = "66",
+  LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT = "91",
+  LP_BLACKLISTED_TRANCHE_PARTICIPANT = "92",
   RC_INVALID_LTV = "67",
   RC_INVALID_LIQ_THRESHOLD = "68",
   RC_INVALID_LIQ_BONUS = "69",
   RC_INVALID_DECIMALS = "70",
   RC_INVALID_RESERVE_FACTOR = "71",
   LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "72",
+  VL_INCONSISTENT_FLASHLOAN_PARAMS = "73",
+  LP_INCONSISTENT_PARAMS_LENGTH = "74",
+  UL_INVALID_INDEX = "77",
+  LP_NOT_CONTRACT = "78",
+  SDT_STABLE_DEBT_OVERFLOW = "79",
+  SDT_BURN_EXCEEDS_BALANCE = "80",
+  CT_CALLER_MUST_BE_STRATEGIST = "81",
 
+  AM_ASSET_DOESNT_EXIST = "88",
+  AM_ASSET_NOT_ALLOWED = "89",
+  AM_NO_INTEREST_STRATEGY = "90",
 
-  LPC_INVALID_CONFIGURATION = "75", // 'Invalid risk parameters for the reserve'
-
-  SUPPLY_CAP_EXCEEDED = "82",
-  BORROW_CAP_EXCEEDED = "83",
+  VO_REENTRANCY_GUARD_FAIL = "94", //vmex curve oracle view reentrancy call failed
+  VO_UNDERLYING_FAIL = "95", //underlying oracle for curve asset returned 0 
 
   // old
 

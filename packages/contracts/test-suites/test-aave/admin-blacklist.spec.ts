@@ -46,7 +46,7 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
       pool
         .connect(users[0].signer)
         .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0")
-    ).to.not.be.revertedWith("User is blacklisted from this tranche");
+    ).to.not.be.revertedWith(ProtocolErrors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
 
     await dai
       .connect(users[3].signer)
@@ -60,7 +60,7 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
       pool
         .connect(users[3].signer)
         .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0")
-    ).to.be.revertedWith("User is blacklisted from this tranche");
+    ).to.be.revertedWith(ProtocolErrors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
   });
 
   it("User 0 should be unable to transfer tokens to User 3", async () => {
@@ -70,6 +70,6 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
       aDai
         .connect(users[0].signer)
         .transfer(users[3].address, "100")
-    ).to.be.revertedWith("User is blacklisted from this tranche");
+    ).to.be.revertedWith(ProtocolErrors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
   });
 });

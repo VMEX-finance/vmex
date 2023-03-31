@@ -18,8 +18,8 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
     INVALID_FROM_BALANCE_AFTER_TRANSFER,
     INVALID_TO_BALANCE_AFTER_TRANSFER,
     VL_TRANSFER_NOT_ALLOWED,
-    SUPPLY_CAP_EXCEEDED,
-    BORROW_CAP_EXCEEDED,
+    VL_SUPPLY_CAP_EXCEEDED,
+    VL_BORROW_CAP_EXCEEDED,
   } = ProtocolErrors;
 
   it("User 0 deposits 1000000 DAI, Tries to deposit 1 more but will revert. Another user tries depositing and also reverts", async () => {
@@ -58,12 +58,12 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
 
     await expect(pool
       .connect(users[0].signer)
-      .deposit(dai.address, 0, amountDAItoDeposit2, users[0].address, "0")).to.be.revertedWith(SUPPLY_CAP_EXCEEDED);
+      .deposit(dai.address, 0, amountDAItoDeposit2, users[0].address, "0")).to.be.revertedWith(VL_SUPPLY_CAP_EXCEEDED);
 
     
       await expect(pool
         .connect(users[1].signer)
-        .deposit(dai.address, 0, amountDAItoDeposit2, users[1].address, "0")).to.be.revertedWith(SUPPLY_CAP_EXCEEDED);
+        .deposit(dai.address, 0, amountDAItoDeposit2, users[1].address, "0")).to.be.revertedWith(VL_SUPPLY_CAP_EXCEEDED);
 
     
         await pool
@@ -77,7 +77,7 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
 
       await expect(pool
         .connect(users[1].signer)
-        .deposit(dai.address, 1, amountDAItoDeposit, users[1].address, "0")).to.be.revertedWith(SUPPLY_CAP_EXCEEDED);
+        .deposit(dai.address, 1, amountDAItoDeposit, users[1].address, "0")).to.be.revertedWith(VL_SUPPLY_CAP_EXCEEDED);
   });
 
   it("User 1 deposits 1000 WETH and user 0 tries to borrow the WETH deposited DAI as collateral, tries to borrow more than borrow cap", async () => {
@@ -121,7 +121,7 @@ makeSuite("Supply cap", (testEnv: TestEnv) => {
         ethers.utils.parseEther("800.01"),
         AAVE_REFERRAL,
         users[0].address
-      )).to.be.revertedWith(BORROW_CAP_EXCEEDED);
+      )).to.be.revertedWith(VL_BORROW_CAP_EXCEEDED);
 
     await pool
     .connect(users[0].signer)

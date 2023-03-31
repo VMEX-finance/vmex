@@ -78,7 +78,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     await assetMappings.setAssetAllowed(weth.address, false);
     await expect(
       assetMappings.getAssetMapping(weth.address)
-    ).to.be.revertedWith("Asset is not allowed in asset mappings");
+    ).to.be.revertedWith(ProtocolErrors.AM_ASSET_NOT_ALLOWED);
   });
 
   it("Checks all WETH reserves are deactivated", async () => {
@@ -88,13 +88,13 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
         weth.address,
         0
       )
-    ).to.be.revertedWith("Asset is not allowed in asset mappings");
+    ).to.be.revertedWith(ProtocolErrors.AM_ASSET_NOT_ALLOWED);
     await expect(
       helpersContract.getReserveFlags(
         weth.address,
         1
       )
-    ).to.be.revertedWith("Asset is not allowed in asset mappings");
+    ).to.be.revertedWith(ProtocolErrors.AM_ASSET_NOT_ALLOWED);
   });
 
   it("Determine number of approved assets", async () => {
@@ -148,12 +148,12 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
 
     await expect(
       assetMappings.setVMEXReserveFactor(usdc.address, 10000)
-    ).to.be.revertedWith(LPC_INVALID_CONFIGURATION);
+    ).to.be.revertedWith(ProtocolErrors.RC_INVALID_RESERVE_FACTOR);
 
 
     await expect(
       assetMappings.setVMEXReserveFactor(usdc.address, 10001)
-    ).to.be.revertedWith(LPC_INVALID_CONFIGURATION);
+    ).to.be.revertedWith(ProtocolErrors.RC_INVALID_RESERVE_FACTOR);
   });
 
   it("Change borrow enabled for an asset", async () => {
@@ -215,7 +215,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       baseLTV: 1000,
       liquidationThreshold: 2000,
       liquidationBonus: 10001,
-      borrowFactor: 1000,
+      borrowFactor: 10000,
       borrowingEnabled: true,
       VMEXReserveFactor: 1000
     });

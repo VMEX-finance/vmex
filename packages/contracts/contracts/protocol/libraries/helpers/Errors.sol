@@ -22,12 +22,14 @@ pragma solidity 0.8.17;
 library Errors {
     //common errors
     string public constant CALLER_NOT_TRANCHE_ADMIN = "33"; // 'The caller must be the tranche admin'
-    string public constant CALLER_NOT_GLOBAL_ADMIN = "84"; // 'The caller must be the global admin'
+    string public constant CALLER_NOT_GLOBAL_ADMIN = "0"; // 'The caller must be the global admin'
     string public constant BORROW_ALLOWANCE_NOT_ENOUGH = "59"; // User borrows on behalf, but allowance are too small
+    string public constant INVALID_TRANCHE = "100"; // 'The caller must be the global admin'
+    string public constant ARRAY_LENGTH_MISMATCH = "85";
 
     //contract specific errors
     string public constant VL_INVALID_AMOUNT = "1"; // 'Amount must be greater than 0'
-    string public constant VL_NO_ACTIVE_RESERVE = "2"; // 'Action requires an active reserve' also if try to deposit in tranche that doesn't exist
+    string public constant VL_NO_ACTIVE_RESERVE = "2"; // 'Action requires an active reserve' 
     string public constant VL_RESERVE_FROZEN = "3"; // 'Action cannot be performed because the reserve is frozen'
     string public constant VL_CURRENT_AVAILABLE_LIQUIDITY_NOT_ENOUGH = "4"; // 'The current liquidity is not enough'
     string public constant VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE = "5"; // 'User cannot withdraw more than the available balance'
@@ -47,6 +49,9 @@ library Errors {
     string public constant VL_NO_VARIABLE_RATE_LOAN_IN_RESERVE = "18"; // 'User does not have a variable rate loan in progress on this reserve'
     string public constant VL_UNDERLYING_BALANCE_NOT_GREATER_THAN_0 = "19"; // 'The underlying balance needs to be greater than 0'
     string public constant VL_DEPOSIT_ALREADY_IN_USE = "20"; // 'User deposit is already being used as collateral'
+    string public constant VL_SUPPLY_CAP_EXCEEDED = "82";
+    string public constant VL_BORROW_CAP_EXCEEDED = "83";
+    string public constant VL_COLLATERAL_DISABLED = "93";
     string public constant LP_NOT_ENOUGH_STABLE_BORROW_BALANCE = "21"; // 'User does not have any stable rate loan for this reserve'
     string public constant LP_INTEREST_RATE_REBALANCE_CONDITIONS_NOT_MET = "22"; // 'Interest rate rebalance conditions were not met'
     string public constant LP_LIQUIDATION_CALL_FAILED = "23"; // 'Liquidation call failed'
@@ -70,6 +75,9 @@ library Errors {
     string public constant LPC_INVALID_ADDRESSES_PROVIDER_ID = "40"; // 'The liquidity of the reserve needs to be 0'
     string public constant LPC_INVALID_CONFIGURATION = "75"; // 'Invalid risk parameters for the reserve'
     string public constant LPC_CALLER_NOT_EMERGENCY_ADMIN = "76"; // 'The caller must be the emergency admin'
+    string public constant LPC_NOT_WHITELISTED_TRANCHE_CREATION = "84"; //not whitelisted to create a tranche
+    string public constant LPC_NOT_APPROVED_BORROWABLE = "86"; //assetmappings does not allow setting borrowable
+    string public constant LPC_NOT_APPROVED_COLLATERAL = "87"; //assetmappings does not allow setting collateral
     string public constant LPAPR_PROVIDER_NOT_REGISTERED = "41"; // 'Provider is not registered'
     string public constant LPCM_HEALTH_FACTOR_NOT_BELOW_THRESHOLD = "42"; // 'Health factor is not below the threshold'
     string public constant LPCM_COLLATERAL_CANNOT_BE_LIQUIDATED = "43"; // 'The collateral chosen cannot be liquidated'
@@ -95,6 +103,8 @@ library Errors {
     string public constant LP_IS_PAUSED = "64"; // 'Pool is paused'
     string public constant LP_NO_MORE_RESERVES_ALLOWED = "65";
     string public constant LP_INVALID_FLASH_LOAN_EXECUTOR_RETURN = "66";
+    string public constant LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT = "91";
+    string public constant LP_BLACKLISTED_TRANCHE_PARTICIPANT = "92";
     string public constant RC_INVALID_LTV = "67";
     string public constant RC_INVALID_LIQ_THRESHOLD = "68";
     string public constant RC_INVALID_LIQ_BONUS = "69";
@@ -108,8 +118,14 @@ library Errors {
     string public constant SDT_STABLE_DEBT_OVERFLOW = "79";
     string public constant SDT_BURN_EXCEEDS_BALANCE = "80";
     string public constant CT_CALLER_MUST_BE_STRATEGIST = "81";
-    string public constant SUPPLY_CAP_EXCEEDED = "82";
-    string public constant BORROW_CAP_EXCEEDED = "83";
+
+    string public constant AM_ASSET_DOESNT_EXIST = "88";
+    string public constant AM_ASSET_NOT_ALLOWED = "89";
+    string public constant AM_NO_INTEREST_STRATEGY = "90";
+
+    string public constant VO_REENTRANCY_GUARD_FAIL = "94"; //vmex curve oracle view reentrancy call failed
+    string public constant VO_UNDERLYING_FAIL = "95"; //underlying oracle for curve asset returned 0 
+
 
     enum CollateralManagerErrors {
         NO_ERROR,

@@ -48,11 +48,6 @@ contract AToken is
 
     uint256 public constant ATOKEN_REVISION = 0x1;
 
-    // totalSupply / targetSupplyQuotient = targetSupply
-    uint256 public constant targetSupplyQuotient = 10;
-    // totalSupply / minSupplyQuotient = minSupply
-    uint256 public constant minSupplyQuotient = 20;
-
     /// @dev owner => next valid nonce to submit with permit()
     mapping(address => uint256) public _nonces;
 

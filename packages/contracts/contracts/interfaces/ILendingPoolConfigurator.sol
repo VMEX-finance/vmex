@@ -4,11 +4,12 @@ pragma solidity 0.8.17;
 interface ILendingPoolConfigurator {
     struct InitReserveInput {
         //choose asset, the other properties come with asset
-        address underlyingAsset;
-        uint256 reserveFactor;
-        uint8 interestRateChoice; //0 for default, others are undefined until set
-        bool canBorrow;
-        bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche
+        //below is 31 bytes, fits in one word
+        address underlyingAsset; //20 bytes
+        uint64 reserveFactor; //28 bytes
+        uint8 interestRateChoice; //0 for default, others are undefined until set, 29 bytes
+        bool canBorrow; //30 bytes
+        bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche, 31 bytes
     }
     
     /**

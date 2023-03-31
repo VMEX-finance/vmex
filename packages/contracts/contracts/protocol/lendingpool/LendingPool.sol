@@ -15,7 +15,6 @@ import {VersionedInitializable} from "../../dependencies/aave-upgradeability/Ver
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
-import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
@@ -48,7 +47,6 @@ contract LendingPool is
 {
     using SafeMath for uint256;
     using WadRayMath for uint256;
-    using PercentageMath for uint256;
     using SafeERC20 for IERC20;
     using ReserveLogic for *;
     using UserConfiguration for *;
@@ -64,7 +62,7 @@ contract LendingPool is
     function _whenTrancheNotPausedAndExists(uint64 trancheId) internal view {
         require(!_paused[trancheId] && !_everythingPaused, Errors.LP_IS_PAUSED);
         uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
-        require(trancheId<totalTranches, "trancheId does not exist");
+        require(trancheId<totalTranches, Errors.INVALID_TRANCHE);
     }
 
     modifier onlyLendingPoolConfigurator() {
@@ -84,9 +82,9 @@ contract LendingPool is
      */
     function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(isUsingWhitelist[trancheId]){
-            require(whitelist[user][trancheId], "Tranche requires whitelist");
+            require(whitelist[user][trancheId], Errors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
         }
-        require(!blacklist[user][trancheId], "User is blacklisted from this tranche");
+        require(!blacklist[user][trancheId], Errors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
     }
 
     function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
@@ -194,7 +192,7 @@ contract LendingPool is
                 _usersConfig[msg.sender][trancheId].configuration,
                 _reservesList[trancheId],
                 DataTypes.WithdrawParams(
-                    _reservesCount[trancheId],
+                    uint8(_reservesCount[trancheId]),
                     asset,
                     trancheId,
                     amount,
@@ -587,23 +585,6 @@ contract LendingPool is
     }
 
     /**
-     * @dev Returns the list of the initialized reserves
-     **/
-    // function getReservesList(uint64 trancheId)
-    //     external
-    //     view
-    //     override
-    //     returns (address[] memory)
-    // {
-    //     address[] memory _activeReserves = new address[](_reservesCount[trancheId]);
-
-    //     for (uint256 i = 0; i < _reservesCount[trancheId]; i++) {
-    //         _activeReserves[i] = _reservesList[trancheId][i];
-    //     }
-    //     return _activeReserves;
-    // }
-
-    /**
      * @dev Returns the cached LendingPoolAddressesProvider connected to this contract
      **/
     function getAddressesProvider()
@@ -614,13 +595,6 @@ contract LendingPool is
     {
         return _addressesProvider;
     }
-
-    /**
-     * @dev Returns the maximum number of reserves supported to be listed in this LendingPool
-     */
-    // function MAX_NUMBER_RESERVES() public view returns (uint256) {
-    //     return _maxNumberOfReserves;
-    // }
 
     /**
      * @dev Validates and finalizes an aToken transfer
@@ -709,15 +683,6 @@ contract LendingPool is
         // TODO: update for tranches
         _addReserveToList(underlyingAsset, trancheId);
     }
-
-    // function setAssetData(address asset, uint8 _assetType)
-    //     external
-    //     override
-    //     onlyLendingPoolConfigurator
-    // {
-    //     //TODO: edit permissions. Right now is onlyLendingPoolConfigurator
-    //     assetDatas[asset] = DataTypes.ReserveAssetType(_assetType);
-    // }
 
     /**
      * @dev Updates the address of the interest rate strategy contract

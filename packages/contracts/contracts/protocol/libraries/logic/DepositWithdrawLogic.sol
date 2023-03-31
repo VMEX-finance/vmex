@@ -148,45 +148,9 @@ library DepositWithdrawLogic {
     ) external returns(uint256){
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
 
-        if(vars.amount == type(uint256).max){
-            uint256 totalAmount = IERC20(vars.asset).balanceOf(reserve.aTokenAddress);
-            (
-                uint256 userCollateralBalanceETH,
-                uint256 userBorrowBalanceETH,
-                uint256 currentLtv,
-                ,
-                ,
-                uint256 avgBorrowFactor
-            ) = GenericLogic.calculateUserAccountData(
-                DataTypes.AcctTranche(vars.user, vars.trancheId),
-                _reserves,
-                userConfig,
-                _reservesList,
-                vars._reservesCount,
-                _addressesProvider,
-                vars._assetMappings
-            );
-            vars.amount = (
-                userCollateralBalanceETH.percentMul(currentLtv) //risk adjusted collateral
-                .sub(userBorrowBalanceETH.percentMul(avgBorrowFactor)) //risk adjusted debt
-            ) // amount available to use for borrow
-            .percentDiv(vars._assetMappings.getBorrowFactor(vars.asset)) //adjust for this asset's borrow factor, in ETH
-            .mul(10**vars._assetMappings.getDecimals(vars.asset))
-            .div(vars.assetPrice); //converted to native token
-
-            if(vars.amount>totalAmount){
-                vars.amount=totalAmount;
-            }
-        }
-        // amountInETH always has 18 decimals (or if oracle has 8 decimals, this also has 8 decimals), since the assetPrice always has 18 decimals. Scaling by amount/asset decimals. 
-        uint256 amountInETH = vars.assetPrice.mul(vars.amount).div(
-                10**vars._assetMappings.getDecimals(vars.asset)
-            ); 
-
-        ValidationLogic.validateBorrow(
+        vars.amount = ValidationLogic.validateBorrow(
             vars,
             reserve,
-            amountInETH,
             _reserves,
             userConfig,
             _reservesList,

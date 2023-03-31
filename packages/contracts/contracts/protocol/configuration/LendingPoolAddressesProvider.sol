@@ -6,7 +6,7 @@ import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
 // prettier-ignore
 import {InitializableImmutableAdminUpgradeabilityProxy} from '../../dependencies/aave-upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol';
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
-
+import {Errors} from "../libraries/helpers/Errors.sol";
 /**
  * @title LendingPoolAddressesProvider contract
  * @dev Main registry of addresses part of or connected to the protocol, including permissioned roles
@@ -363,7 +363,7 @@ contract LendingPoolAddressesProvider is
         require(
             _msgSender() == owner() ||
                 _msgSender() == getAddressTranche(TRANCHE_ADMIN, trancheId),
-            "Sender is not VMEX admin or the original admin of the tranche"
+            Errors.CALLER_NOT_TRANCHE_ADMIN
         );
         _addressesTranche[TRANCHE_ADMIN][trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
@@ -377,14 +377,10 @@ contract LendingPoolAddressesProvider is
     function addTrancheAdmin(address admin, uint64 trancheId) external override {
         // anyone can add their own tranche, but you just have to choose a trancheId that hasn't been used yet
         require(
-            _msgSender() == getAddress(LENDING_POOL_CONFIGURATOR) ||
-                _msgSender() == owner(),
-            "Caller must be lending pool configurator that is creating a new tranche"
+            _msgSender() == getAddress(LENDING_POOL_CONFIGURATOR),
+            Errors.LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR
         );
-        require(
-            _addressesTranche[TRANCHE_ADMIN][trancheId] == address(0),
-            "Pool admin trancheId input is already in use"
-        );
+        assert(_addressesTranche[TRANCHE_ADMIN][trancheId] == address(0)); //this should never be false
         _addressesTranche[TRANCHE_ADMIN][trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
     }

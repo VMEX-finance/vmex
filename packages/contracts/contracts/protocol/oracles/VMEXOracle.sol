@@ -82,7 +82,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         address[] calldata assets,
         address[] calldata sources
     ) external onlyGlobalAdmin {
-        require(assets.length == sources.length, "INCONSISTENT_PARAMS_LENGTH");
+        require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         for (uint256 i = 0; i < assets.length; i++) {
             assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
             emit AssetSourceUpdated(assets[i], sources[i]);
@@ -162,7 +162,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
                 underlying = WETH;
             }
             prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
-            require(prices[i] > 0, "underlying oracle encountered an error");
+            require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
         }
 
         if(assetType==DataTypes.ReserveAssetType.CURVE){
