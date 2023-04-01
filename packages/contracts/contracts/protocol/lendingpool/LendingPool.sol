@@ -48,9 +48,9 @@ contract LendingPool is
     using SafeMath for uint256;
     using WadRayMath for uint256;
     using SafeERC20 for IERC20;
-    using ReserveLogic for *;
-    using UserConfiguration for *;
-    using ReserveConfiguration for *;
+    using ReserveLogic for DataTypes.ReserveData;
+    using UserConfiguration for DataTypes.UserConfigurationMap;
+    using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using DepositWithdrawLogic for DataTypes.ReserveData;
 
     uint256 public constant LENDINGPOOL_REVISION = 0x1;
@@ -82,9 +82,9 @@ contract LendingPool is
      */
     function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(isUsingWhitelist[trancheId]){
-            require(whitelist[user][trancheId], Errors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
+            require(_usersConfig[user][trancheId].configuration.getWhitelist(), Errors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
         }
-        require(!blacklist[user][trancheId], Errors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
+        require(!_usersConfig[user][trancheId].configuration.getBlacklist(), Errors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
     }
 
     function checkWhitelistBlacklist(uint64 trancheId, address onBehalfOf) internal view {
@@ -186,7 +186,7 @@ contract LendingPool is
         whenTrancheNotPausedAndExists(trancheId)
         returns (uint256)
     {
-        checkWhitelistBlacklist(trancheId, msg.sender);
+        //note: no check whitelist and blacklist here, cause if users are blacklisted or taken out of whitelist after tranche creation, they should be able to withdraw their funds
         uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
                 _usersConfig[msg.sender][trancheId].configuration,
@@ -296,6 +296,7 @@ contract LendingPool is
         uint256 amount,
         address onBehalfOf
     ) external override whenTrancheNotPausedAndExists(trancheId) returns (uint256) {
+        //note: no check whitelist and blacklist here, cause if users are blacklisted or taken out of whitelist after tranche creation, they should be able to withdraw their funds
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         uint256 variableDebt = Helpers.getUserCurrentDebt(
@@ -399,7 +400,8 @@ contract LendingPool is
         override
         whenTrancheNotPausedAndExists(trancheId)
     {
-        checkWhitelistBlacklist(trancheId, msg.sender);
+        //liquidators should not be restricted to whitelisted users and ban blacklisted users
+
         address collateralManager = _addressesProvider
             .getLendingPoolCollateralManager();
 
@@ -753,7 +755,7 @@ contract LendingPool is
         uint256 reservesCount = _reservesCount[trancheId];
 
         require(
-            reservesCount < _maxNumberOfReserves,
+            reservesCount < UserConfiguration.MAX_RESERVES,
             Errors.LP_NO_MORE_RESERVES_ALLOWED
         );
 
@@ -779,10 +781,10 @@ contract LendingPool is
             isUsingWhitelist[trancheId] = true;
         }
 
-        whitelist[user][trancheId] = isWhitelisted;
+        _usersConfig[user][trancheId].configuration.setWhitelist(isWhitelisted);
     }
 
     function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external override onlyLendingPoolConfigurator {
-        blacklist[user][trancheId] = isBlacklisted;
+        _usersConfig[user][trancheId].configuration.setBlacklist(isBlacklisted);
     }
 }

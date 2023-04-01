@@ -15,17 +15,13 @@ contract LendingPoolStorage {
 
     ILendingPoolAddressesProvider internal _addressesProvider;
     IAssetMappings internal _assetMappings;
-
-    // asset address to trancheId number to reserve data
-    mapping(address => mapping(uint64 => DataTypes.ReserveData))
-        internal _reserves;
     
     mapping(address => mapping(uint64 => DataTypes.UserData))
         internal _usersConfig; //user address to trancheId to user configuration
-    mapping(address => mapping(uint64=>bool)) whitelist; //user address to tranche to boolean on whether user is whitelisted
-    mapping(address => mapping(uint64=>bool)) blacklist;
-
-    // mapping(address => DataTypes.ReserveAssetType) internal assetDatas;
+    
+    // asset address to trancheId number to reserve data
+    mapping(address => mapping(uint64 => DataTypes.ReserveData))
+        internal _reserves;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
     mapping(uint64 => mapping(uint256 => address)) internal _reservesList; //trancheId id -> array of available reserves
@@ -34,7 +30,4 @@ contract LendingPoolStorage {
     mapping(uint64 => bool) public isUsingWhitelist;
 
     bool internal _everythingPaused; //true if all tranches in the lendingpool is paused
-
-    uint256 constant public _maxNumberOfReserves = 126; //NOTE: changed from 128 to 126 since two bits at the end are used for whitelist and blacklist.
-
 }
