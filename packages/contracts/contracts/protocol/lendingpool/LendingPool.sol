@@ -60,7 +60,7 @@ contract LendingPool is
         _;
     }
     function _whenTrancheNotPausedAndExists(uint64 trancheId) internal view {
-        require(!_paused[trancheId] && !_everythingPaused, Errors.LP_IS_PAUSED);
+        require(!trancheParams[trancheId].paused && !_everythingPaused, Errors.LP_IS_PAUSED);
         uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
         require(trancheId<totalTranches, Errors.INVALID_TRANCHE);
     }
@@ -81,7 +81,7 @@ contract LendingPool is
      * Function instead of modifier to avoid stack too deep
      */
     function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
-        if(isUsingWhitelist[trancheId]){
+        if(trancheParams[trancheId].isUsingWhitelist){
             require(_usersConfig[user][trancheId].configuration.getWhitelist(), Errors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
         }
         require(!_usersConfig[user][trancheId].configuration.getBlacklist(), Errors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
@@ -192,7 +192,7 @@ contract LendingPool is
                 _usersConfig[msg.sender][trancheId].configuration,
                 _reservesList[trancheId],
                 DataTypes.WithdrawParams(
-                    uint8(_reservesCount[trancheId]),
+                    uint8(trancheParams[trancheId].reservesCount),
                     asset,
                     trancheId,
                     amount,
@@ -238,7 +238,7 @@ contract LendingPool is
 
         DataTypes.ExecuteBorrowParams memory vars = DataTypes.ExecuteBorrowParams(
                 amount,
-                _reservesCount[trancheId],
+                trancheParams[trancheId].reservesCount,
                 IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
                     _addressesProvider.getPriceOracle(
                     )
@@ -359,7 +359,7 @@ contract LendingPool is
             _reserves,
             _usersConfig[msg.sender][trancheId].configuration,
             _reservesList[trancheId],
-            _reservesCount[trancheId],
+            trancheParams[trancheId].reservesCount,
             _addressesProvider,
             _assetMappings
         );
@@ -479,7 +479,7 @@ contract LendingPool is
             _reserves,
             _usersConfig[user][trancheId].configuration,
             _reservesList[trancheId],
-            _reservesCount[trancheId],
+            trancheParams[trancheId].reservesCount,
             _addressesProvider,
             _assetMappings
         );
@@ -563,7 +563,7 @@ contract LendingPool is
      * @param trancheId The trancheId
      */
     function paused(uint64 trancheId) external view override returns (bool) {
-        return _paused[trancheId];
+        return trancheParams[trancheId].paused;
     }
 
     /**
@@ -577,10 +577,10 @@ contract LendingPool is
         returns (address[] memory)
     {
         address[] memory _activeReserves = new address[](
-            _reservesCount[trancheId]
+            trancheParams[trancheId].reservesCount
         );
 
-        for (uint256 i = 0; i < _reservesCount[trancheId]; i++) {
+        for (uint256 i = 0; i < trancheParams[trancheId].reservesCount; i++) {
             _activeReserves[i] = _reservesList[trancheId][i];
         }
         return _activeReserves;
@@ -629,7 +629,7 @@ contract LendingPool is
             _reserves,
             _usersConfig[from][trancheId].configuration,
             _reservesList[trancheId],
-            _reservesCount[trancheId],
+            trancheParams[trancheId].reservesCount,
             _addressesProvider,
             _assetMappings
         );
@@ -675,7 +675,7 @@ contract LendingPool is
             Address.isContract(underlyingAsset),
             Errors.LP_NOT_CONTRACT
         );
-        //considering requiring _reservesCount[trancheId] = 0, but you can add another asset to an existing tranche too.
+        //considering requiring trancheParams[trancheId].reservesCount = 0, but you can add another asset to an existing tranche too.
         _reserves[underlyingAsset][trancheId].init(
             aTokenAddress,
             variableDebtAddress,
@@ -743,8 +743,8 @@ contract LendingPool is
         override
         onlyLendingPoolConfigurator     // TODO: change to onlyTrancheAdmin
     {
-        _paused[trancheId] = val;
-        if (_paused[trancheId]) {
+        trancheParams[trancheId].paused = val;
+        if (trancheParams[trancheId].paused) {
             emit Paused(trancheId);
         } else {
             emit Unpaused(trancheId);
@@ -752,7 +752,7 @@ contract LendingPool is
     }
 
     function _addReserveToList(address asset, uint64 trancheId) internal {
-        uint256 reservesCount = _reservesCount[trancheId];
+        uint256 reservesCount = trancheParams[trancheId].reservesCount;
 
         require(
             reservesCount < UserConfiguration.MAX_RESERVES,
@@ -766,19 +766,19 @@ contract LendingPool is
             _reserves[asset][trancheId].id = uint8(reservesCount);
             _reservesList[trancheId][reservesCount] = asset;
 
-            _reservesCount[trancheId] = reservesCount + 1;
+            trancheParams[trancheId].reservesCount = uint8(reservesCount + 1);
         }
     }
 
     function setWhitelist(uint64 trancheId, bool isWhitelisted) external override onlyLendingPoolConfigurator{
-        isUsingWhitelist[trancheId] = isWhitelisted;
+        trancheParams[trancheId].isUsingWhitelist = isWhitelisted;
 
     }
 
     function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external override onlyLendingPoolConfigurator {
         // using this function enables the whitelist
-        if(!isUsingWhitelist[trancheId]) {
-            isUsingWhitelist[trancheId] = true;
+        if(!trancheParams[trancheId].isUsingWhitelist) {
+            trancheParams[trancheId].isUsingWhitelist = true;
         }
 
         _usersConfig[user][trancheId].configuration.setWhitelist(isWhitelisted);

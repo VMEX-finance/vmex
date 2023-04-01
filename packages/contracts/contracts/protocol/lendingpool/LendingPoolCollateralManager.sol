@@ -113,7 +113,7 @@ contract LendingPoolCollateralManager is
             _reserves,
             userConfig,
             _reservesList[trancheId],
-            _reservesCount[trancheId],
+            trancheParams[trancheId].reservesCount,
             _addressesProvider,
             vars._assetMappings
         );
