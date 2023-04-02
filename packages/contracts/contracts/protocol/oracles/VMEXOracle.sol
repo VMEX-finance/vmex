@@ -219,6 +219,17 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
         return price;
     }
+	
+	//TODO: add to asset mappings, don't want to mess with this
+//	function getBeefyPrice(address asset) internal returns (uint256) {
+//		IBeefyVault beefyVault = IBeefyVault(asset); 
+//		uint256 underlyingPrice = getAssetPrice(); 
+//        uint256 price = yearnVault.pricePerShare()*underlyingPrice / 10**yearnVault.decimals();
+//        if(price == 0){
+//            return _fallbackOracle.getAssetPrice(asset);
+//        }
+//        return price;
+//	}
 
     /// @notice Gets a list of prices from a list of assets addresses
     /// @param assets The list of assets addresses
