@@ -6,6 +6,12 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import {ILendingPool} from "../../../interfaces/ILendingPool.sol";
 
 library DataTypes {
+    struct TrancheParams { 
+        uint8 reservesCount;
+        bool paused;
+        bool isUsingWhitelist;
+    }
+
     struct CurveMetadata {
         bool _checkReentrancy;
         uint8 _poolSize;

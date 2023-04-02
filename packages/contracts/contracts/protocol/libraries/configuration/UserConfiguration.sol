@@ -6,12 +6,18 @@ import {DataTypes} from "../types/DataTypes.sol";
 
 /**
  * @title UserConfiguration library
- * @author Aave
+ * @author Aave and VMEX
  * @notice Implements the bitmap logic to handle the user configuration
  */
 library UserConfiguration {
-    uint256 internal constant BORROWING_MASK =
-        0x5555555555555555555555555555555555555555555555555555555555555555;
+    uint256 internal constant BORROWING_MASK =      0x5555555555555555555555555555555555555555555555555555555555555555; // prettier-ignore
+    uint256 constant WHITELISTED_MASK =             0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+    uint256 constant BLACKLISTED_MASK =             0xBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+    //NOTE: changed from 128 to 126 since two bits at the end are used for whitelist and blacklist.
+    uint256 internal constant MAX_RESERVES = 126;
+
+    uint256 constant WHITELISTED_START_BIT_POSITION = 255;
+    uint256 constant BLACKLISTED_START_BIT_POSITION = 254;
 
     /**
      * @dev Sets if the user is borrowing the reserve identified by reserveIndex
@@ -24,7 +30,7 @@ library UserConfiguration {
         uint256 reserveIndex,
         bool borrowing
     ) internal {
-        require(reserveIndex < 128, Errors.UL_INVALID_INDEX);
+        require(reserveIndex < MAX_RESERVES, Errors.UL_INVALID_INDEX);
         self.data =
             (self.data & ~(1 << (reserveIndex * 2))) |
             (uint256(borrowing ? 1 : 0) << (reserveIndex * 2));
@@ -41,7 +47,7 @@ library UserConfiguration {
         uint256 reserveIndex,
         bool usingAsCollateral
     ) internal {
-        require(reserveIndex < 128, Errors.UL_INVALID_INDEX);
+        require(reserveIndex < MAX_RESERVES, Errors.UL_INVALID_INDEX);
         self.data =
             (self.data & ~(1 << (reserveIndex * 2 + 1))) |
             (uint256(usingAsCollateral ? 1 : 0) << (reserveIndex * 2 + 1));
@@ -57,7 +63,7 @@ library UserConfiguration {
         DataTypes.UserConfigurationMap memory self,
         uint256 reserveIndex
     ) internal pure returns (bool) {
-        require(reserveIndex < 128, Errors.UL_INVALID_INDEX);
+        require(reserveIndex < MAX_RESERVES, Errors.UL_INVALID_INDEX);
         return (self.data >> (reserveIndex * 2)) & 3 != 0;
     }
 
@@ -71,7 +77,7 @@ library UserConfiguration {
         DataTypes.UserConfigurationMap memory self,
         uint256 reserveIndex
     ) internal pure returns (bool) {
-        require(reserveIndex < 128, Errors.UL_INVALID_INDEX);
+        require(reserveIndex < MAX_RESERVES, Errors.UL_INVALID_INDEX);
         return (self.data >> (reserveIndex * 2)) & 1 != 0;
     }
 
@@ -85,7 +91,7 @@ library UserConfiguration {
         DataTypes.UserConfigurationMap memory self,
         uint256 reserveIndex
     ) internal pure returns (bool) {
-        require(reserveIndex < 128, Errors.UL_INVALID_INDEX);
+        require(reserveIndex < MAX_RESERVES, Errors.UL_INVALID_INDEX);
         return (self.data >> (reserveIndex * 2 + 1)) & 1 != 0;
     }
 
@@ -113,5 +119,59 @@ library UserConfiguration {
         returns (bool)
     {
         return self.data == 0;
+    }
+
+    /**
+     * @dev Sets if user is whitelisted
+     * @param self The user configuration
+     * @param whitelisted The whitelisted state
+     **/
+    function setWhitelist(
+        DataTypes.UserConfigurationMap storage self,
+        bool whitelisted
+    ) internal {
+        self.data =
+            (self.data & WHITELISTED_MASK) |
+            (uint256(whitelisted ? 1 : 0) << WHITELISTED_START_BIT_POSITION);
+    }
+
+    /**
+     * @dev Gets the active state of the reserve
+     * @param self The user configuration
+     * @return The active state
+     **/
+    function getWhitelist(DataTypes.UserConfigurationMap memory self)
+        internal
+        pure
+        returns (bool)
+    {
+        return (self.data & ~WHITELISTED_MASK) != 0;
+    }
+
+    /**
+     * @dev Sets the blacklisted state of the user
+     * @param self The user configuration
+     * @param blacklisted The blacklisted state
+     **/
+    function setBlacklist(
+        DataTypes.UserConfigurationMap storage self,
+        bool blacklisted
+    ) internal {
+        self.data =
+            (self.data & BLACKLISTED_MASK) |
+            (uint256(blacklisted ? 1 : 0) << BLACKLISTED_START_BIT_POSITION);
+    }
+
+    /**
+     * @dev Gets the blacklisted state of the reserve
+     * @param self The user configuration
+     * @return The blacklisted state
+     **/
+    function getBlacklist(DataTypes.UserConfigurationMap memory self)
+        internal
+        pure
+        returns (bool)
+    {
+        return (self.data & ~BLACKLISTED_MASK) != 0;
     }
 }

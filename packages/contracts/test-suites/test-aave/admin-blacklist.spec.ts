@@ -20,17 +20,21 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
   it("makes users[3] blacklisted", async () => {
     const { users, deployer, pool, configurator, helpersContract } = testEnv;
 
-    configurator
+    await configurator
       .connect(deployer.signer)
       .setBlacklist(0, [users[3].address], [true]);
+    
+    const config = await pool
+      .connect(deployer.signer).getUserConfiguration(users[3].address, 0)
+    expect(config.data.toHexString()).to.be.equal("0x4000000000000000000000000000000000000000000000000000000000000000");
   });
 
-  it("User 3 deposits 1000 DAI, should be blocked since on blacklist. User 0 can deposit fine", async () => {
+  it("User 3 deposits 1000 DAI, should be blocked since on blacklist. User 0 can deposit and borrow fine", async () => {
     const { users, pool, dai, aDai } = testEnv;
 
     await dai
       .connect(users[0].signer)
-      .mint(await convertToCurrencyDecimals(dai.address, "1000"));
+      .mint(await convertToCurrencyDecimals(dai.address, "10000"));
 
     await dai
       .connect(users[0].signer)
@@ -42,11 +46,16 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
       "1000"
     );
 
-    await expect(
-      pool
-        .connect(users[0].signer)
-        .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0")
-    ).to.not.be.revertedWith(ProtocolErrors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
+    await pool
+      .connect(users[0].signer)
+      .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0")
+        
+    await pool
+      .connect(users[0].signer)
+      .borrow(dai.address, 0, await convertToCurrencyDecimals(
+        dai.address,
+        "20"
+      ), "0", users[0].address)
 
     await dai
       .connect(users[3].signer)
@@ -61,6 +70,10 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
         .connect(users[3].signer)
         .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0")
     ).to.be.revertedWith(ProtocolErrors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
+
+    const config = await pool
+      .connect(users[3].signer).getUserConfiguration(users[3].address, 0)
+    expect(config.data.toHexString()).to.be.equal("0x4000000000000000000000000000000000000000000000000000000000000000");
   });
 
   it("User 0 should be unable to transfer tokens to User 3", async () => {
@@ -71,5 +84,35 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
         .connect(users[0].signer)
         .transfer(users[3].address, "100")
     ).to.be.revertedWith(ProtocolErrors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
+  });
+  //DAI is the first token init, so it would have the highest chance of messing with the blacklist/whitelist cause it occupies space 0
+  it("makes users[0] now blacklisted. He should still be able to withdraw and repay, but not deposit or borrow more", async () => {
+    const { users, deployer, pool, configurator, helpersContract, dai } = testEnv;
+
+    await configurator
+      .connect(deployer.signer)
+      .setBlacklist(0, [users[0].address], [true]);
+    
+    const config = await pool
+      .connect(deployer.signer).getUserConfiguration(users[0].address, 0)
+    expect(config.data.toHexString()).to.be.equal("0x4000000000000000000000000000000000000000000000000000000000000003");
+
+    await expect(pool
+      .connect(users[0].signer)
+      .borrow(dai.address, 0, await convertToCurrencyDecimals(
+        dai.address,
+        "20"
+      ), "0", users[0].address)).to.be.revertedWith(ProtocolErrors.LP_BLACKLISTED_TRANCHE_PARTICIPANT);
+
+    await pool
+      .connect(users[0].signer)
+      .repay(dai.address, 0, await convertToCurrencyDecimals(
+        dai.address,
+        "200"
+      ), users[0].address)
+    
+    await pool
+      .connect(users[0].signer)
+      .withdraw(dai.address, 0, MAX_UINT_AMOUNT, users[0].address)
   });
 });
