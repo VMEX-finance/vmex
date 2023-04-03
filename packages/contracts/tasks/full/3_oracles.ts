@@ -110,6 +110,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       const seqUpFeed = getParamPerNetwork(SequencerUptimeFeed, network);
       //link sequencer uptime oracle for applicable markets
       if(seqUpFeed && !notFalsyOrZeroAddress(seqUpFeed)) {
+        console.log("setting up sequencer uptime feed for chainid: ", ProviderId)
         await waitForTx(await VMEXOracleProxy.setSequencerUptimeFeed(ProviderId, seqUpFeed));
       }
 
