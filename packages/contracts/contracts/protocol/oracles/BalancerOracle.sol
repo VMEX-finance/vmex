@@ -142,7 +142,7 @@ contract BalancerOracle is BNum {
 		uint256 rate = IBalancer(bal_pool).getRate(); 	
 		uint256 min = vMath.min(prices); 
 
-		return (rate * min) / 1e18;  	
+		return rate * min; 
 
 	}
 }
