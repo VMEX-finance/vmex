@@ -1,35 +1,51 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.17;
 
-import {IPriceOracle} from "../../interfaces/IPriceOracle.sol";
+import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 
-contract PriceOracle is IPriceOracle {
-    mapping(address => uint256) prices;
-    uint256 ethPriceUsd;
+contract SequencerUptimeFeed is AggregatorV3Interface {
+    int256 public isDown;
+    uint256 public _startedAt;
 
-    event AssetPriceUpdated(address _asset, uint256 _price, uint256 timestamp);
-    event EthPriceUpdated(uint256 _price, uint256 timestamp);
 
-    function getAssetPrice(address _asset)
+  function decimals() external view override returns (uint8) {}
+
+  function description() external view override returns (string memory) {}
+
+  function version() external view override returns (uint256) {}
+
+    function latestRoundData()
         public
         view
         override
-        returns (uint256)
+        returns (
+      uint80 roundId,
+      int256 answer,
+      uint256 startedAt,
+      uint256 updatedAt,
+      uint80 answeredInRound)
     {
-        return prices[_asset];
+        answer = isDown;
+        startedAt = _startedAt;
     }
 
-    function setAssetPrice(address _asset, uint256 _price) external override {
-        prices[_asset] = _price;
-        emit AssetPriceUpdated(_asset, _price, block.timestamp);
+    function getRoundData(uint80 _roundId)
+    external
+    view
+    override
+    returns (
+      uint80 roundId,
+      int256 answer,
+      uint256 startedAt,
+      uint256 updatedAt,
+      uint80 answeredInRound
+    ) {}
+
+    function setDown(int256 down) external {
+        isDown = down;
     }
 
-    function getEthUsdPrice() external view returns (uint256) {
-        return ethPriceUsd;
-    }
-
-    function setEthUsdPrice(uint256 _price) external {
-        ethPriceUsd = _price;
-        emit EthPriceUpdated(_price, block.timestamp);
+    function setStartedAt(uint256 s) external {
+        _startedAt = s;
     }
 }

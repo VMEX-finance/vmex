@@ -18,6 +18,7 @@ import {
   getVariableDebtToken,
   getATokenBeacon,
   getVariableDebtTokenBeacon,
+  getVMEXOracle,
   // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
@@ -48,7 +49,7 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, ATokenBeacon, CurveWrapper, FlashLiquidationAdapter, VariableDebtToken, VariableDebtTokenBeacon, YearnTokenMocked } from "../../../types";
+import { AssetMappings, ATokenBeacon, CurveWrapper, FlashLiquidationAdapter, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, YearnTokenMocked } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -69,6 +70,7 @@ export interface TestEnv {
   assetMappings: AssetMappings;
   // aTokensAndRatesHelper: ATokensAndRatesHelper;
   oracle: PriceOracle;
+  vmexOracle: VMEXOracle;
   curveOracle: CurveWrapper;
   helpersContract: AaveProtocolDataProvider;
   weth: WETH9Mocked;
@@ -166,6 +168,8 @@ export async function initializeMakeSuite() {
     testEnv.oracle = await getPriceOracle();
     // testEnv.curveOracle = await getCurvePriceOracleWrapper();
   }
+
+  testEnv.vmexOracle = await getVMEXOracle();
 
   testEnv.helpersContract = await getAaveProtocolDataProvider();
 

@@ -16,7 +16,7 @@ import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "../../interfaces/IYearnToken.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
-import "../../interfaces/AggregatorV2V3Interface.sol";
+import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -31,7 +31,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     IAssetMappings internal assetMappings;
     mapping(address => IChainlinkPriceFeed) private assetsSources;
     IPriceOracleGetter private _fallbackOracle;
-    mapping(uint256 => AggregatorV2V3Interface) public sequencerUptimeFeeds;
+    mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
 
     address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
@@ -97,12 +97,12 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// - Callable only by the VMEX governance
     /// @param sequencerUptimeFeed The address of the fallbackOracle
     function setSequencerUptimeFeed(uint256 chainId, address sequencerUptimeFeed) external onlyGlobalAdmin {
-        sequencerUptimeFeeds[chainId] = AggregatorV2V3Interface(sequencerUptimeFeed);
+        sequencerUptimeFeeds[chainId] = AggregatorV3Interface(sequencerUptimeFeed);
         emit SequencerUptimeFeedUpdated(chainId, sequencerUptimeFeed);
     }
 
     function checkSequencerUp() internal view {
-        AggregatorV2V3Interface seqUpFeed = sequencerUptimeFeeds[block.chainid];
+        AggregatorV3Interface seqUpFeed = sequencerUptimeFeeds[block.chainid];
 
         if(address(seqUpFeed)!=address(0)) {
             // prettier-ignore
@@ -121,6 +121,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
             // Make sure the grace period has passed after the sequencer is back up.
             uint256 timeSinceUp = block.timestamp - startedAt;
+
             require(timeSinceUp > GRACE_PERIOD_TIME, Errors.VO_SEQUENCER_GRACE_PERIOD_NOT_OVER);
         }
     }

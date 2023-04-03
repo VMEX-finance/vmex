@@ -133,6 +133,7 @@ export enum eContractid {
   YearnTokenMocked="YearnTokenMocked",
   ATokenBeacon = "ATokenBeacon",
   VariableDebtTokenBeacon = "VariableDebtTokenBeacon",
+  SequencerUptimeFeed = "SequencerUptimeFeed",
 }
 
 /*
@@ -251,6 +252,10 @@ export enum ProtocolErrors {
 
   VO_REENTRANCY_GUARD_FAIL = "94", //vmex curve oracle view reentrancy call failed
   VO_UNDERLYING_FAIL = "95", //underlying oracle for curve asset returned 0 
+  VO_ORACLE_ADDRESS_NOT_FOUND = "96", //underlying oracle for curve asset returned 0 
+  VO_SEQUENCER_DOWN = "97", //underlying oracle for curve asset returned 0 
+  VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98", //underlying oracle for curve asset returned 0 
+
 
   // old
 
