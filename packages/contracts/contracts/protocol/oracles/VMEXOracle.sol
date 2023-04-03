@@ -16,6 +16,7 @@ import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "../../interfaces/IYearnToken.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -26,18 +27,12 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     using SafeERC20 for IERC20;
 
-    event BaseCurrencySet(
-        address indexed baseCurrency,
-        uint256 baseCurrencyUnit
-    );
-    event AssetSourceUpdated(address indexed asset, address indexed source);
-    event FallbackOracleUpdated(address indexed fallbackOracle);
-
-
     ILendingPoolAddressesProvider internal addressProvider;
     IAssetMappings internal assetMappings;
     mapping(address => IChainlinkPriceFeed) private assetsSources;
     IPriceOracleGetter private _fallbackOracle;
+    mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
+
     address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
 
@@ -45,6 +40,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     address public constant ETH_NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     uint256 public constant SECONDS_PER_DAY = 1 days;
+    uint256 private constant GRACE_PERIOD_TIME = 1 hours;
 
     modifier onlyGlobalAdmin() {
         //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
@@ -90,11 +86,44 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     }
 
     /// @notice Sets the fallbackOracle
-    /// - Callable only by the Aave governance
+    /// - Callable only by the VMEX governance
     /// @param fallbackOracle The address of the fallbackOracle
     function setFallbackOracle(address fallbackOracle) external onlyGlobalAdmin {
         _fallbackOracle = IPriceOracleGetter(fallbackOracle);
         emit FallbackOracleUpdated(fallbackOracle);
+    }
+
+    /// @notice Sets the sequencerUptimeFeed
+    /// - Callable only by the VMEX governance
+    /// @param sequencerUptimeFeed The address of the fallbackOracle
+    function setSequencerUptimeFeed(uint256 chainId, address sequencerUptimeFeed) external onlyGlobalAdmin {
+        sequencerUptimeFeeds[chainId] = AggregatorV3Interface(sequencerUptimeFeed);
+        emit SequencerUptimeFeedUpdated(chainId, sequencerUptimeFeed);
+    }
+
+    function checkSequencerUp() internal view {
+        AggregatorV3Interface seqUpFeed = sequencerUptimeFeeds[block.chainid];
+
+        if(address(seqUpFeed)!=address(0)) {
+            // prettier-ignore
+            (
+                /*uint80 roundID*/,
+                int256 answer,
+                uint256 startedAt,
+                /*uint256 updatedAt*/,
+                /*uint80 answeredInRound*/
+            ) = seqUpFeed.latestRoundData();
+
+            // Answer == 0: Sequencer is up
+            // Answer == 1: Sequencer is down
+            bool isSequencerUp = answer == 0;
+            require(isSequencerUp, Errors.VO_SEQUENCER_DOWN);
+
+            // Make sure the grace period has passed after the sequencer is back up.
+            uint256 timeSinceUp = block.timestamp - startedAt;
+
+            require(timeSinceUp > GRACE_PERIOD_TIME, Errors.VO_SEQUENCER_GRACE_PERIOD_NOT_OVER);
+        }
     }
 
     /// @notice Gets an asset price by address. Note the result should always have 18 decimals if using ETH as base. If using USD as base, there will be 8 decimals
@@ -108,6 +137,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
             return BASE_CURRENCY_UNIT;
         }
 
+        checkSequencerUp();
+
         DataTypes.ReserveAssetType tmp = assetMappings.getAssetType(asset);
 
         if(tmp==DataTypes.ReserveAssetType.AAVE){
@@ -119,7 +150,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(tmp==DataTypes.ReserveAssetType.YEARN){
             return getYearnPrice(asset);
         }
-        revert("error determining oracle address");
+        revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
 

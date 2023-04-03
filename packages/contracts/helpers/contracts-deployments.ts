@@ -96,6 +96,7 @@ import {
   VariableDebtTokenBeaconFactory,
   UpgradeableBeacon,
   UpgradeableBeaconFactory,
+  SequencerUptimeFeedFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -481,6 +482,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     );
 
     console.log("Set vmex oracle fallback oracle");
+
 
     //we want to use the fallback oracle, so don't set aggregators
     // await waitForTx(
@@ -945,6 +947,15 @@ export const deployVMEXOracle = async (verify?: boolean) =>
   withSaveAndVerify(
     await new VMEXOracleFactory(await getFirstSigner()).deploy(),
     eContractid.VMEXOracle,
+    [],
+    verify
+  );
+
+
+export const deploySequencerUptimeFeed = async (verify?: boolean) =>
+  withSaveAndVerify(
+    await new SequencerUptimeFeedFactory(await getFirstSigner()).deploy(),
+    eContractid.SequencerUptimeFeed,
     [],
     verify
   );

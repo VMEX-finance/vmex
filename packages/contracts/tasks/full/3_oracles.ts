@@ -4,8 +4,8 @@ import {
   deployVMEXOracle,
   deployUniswapOracle,
 } from "../../helpers/contracts-deployments";
-import { ICommonConfiguration, eNetwork, SymbolMap } from "../../helpers/types";
-import { waitForTx } from "../../helpers/misc-utils";
+import { ICommonConfiguration, eNetwork, SymbolMap, IOptimismConfiguration } from "../../helpers/types";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   ConfigNames,
   loadPoolConfig,
@@ -40,6 +40,8 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         ProtocolGlobalParams: { UsdAddress },
         ReserveAssets,
         ChainlinkAggregator,
+        SequencerUptimeFeed,
+        ProviderId
       } = poolConfig as ICommonConfiguration;
       const addressesProvider = await getLendingPoolAddressesProvider();
       // const fallbackOracleAddress = await getParamPerNetwork(
@@ -105,7 +107,14 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators));
       await waitForTx(await VMEXOracleProxy.setFallbackOracle(uniswapOracle.address));
 
-      //TODO: deploy the other LP token contracts
+      const seqUpFeed = getParamPerNetwork(SequencerUptimeFeed, network);
+      //link sequencer uptime oracle for applicable markets
+      if(seqUpFeed && !notFalsyOrZeroAddress(seqUpFeed)) {
+        console.log("setting up sequencer uptime feed for chainid: ", ProviderId)
+        await waitForTx(await VMEXOracleProxy.setSequencerUptimeFeed(ProviderId, seqUpFeed));
+      }
+
+      
     } catch (error) {
       // if (DRE.network.name.includes("tenderly")) {
       //   const transactionLink = `https://dashboard.tenderly.co/${

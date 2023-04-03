@@ -567,4 +567,14 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: ZERO_ADDRESS,
     [eEthereumNetwork.tenderly]: ZERO_ADDRESS,
   },
+  SequencerUptimeFeed: {
+    [eEthereumNetwork.coverage]: ZERO_ADDRESS,
+    [eEthereumNetwork.hardhat]: ZERO_ADDRESS,
+    [eEthereumNetwork.buidlerevm]: ZERO_ADDRESS,
+    [eEthereumNetwork.kovan]: ZERO_ADDRESS,
+    [eEthereumNetwork.ropsten]: ZERO_ADDRESS,
+    [eEthereumNetwork.main]: ZERO_ADDRESS,
+    [eEthereumNetwork.goerli]: ZERO_ADDRESS,
+    [eEthereumNetwork.tenderly]: ZERO_ADDRESS,
+  }
 };

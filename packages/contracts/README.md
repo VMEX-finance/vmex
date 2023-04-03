@@ -2,13 +2,13 @@
 
 Run `yarn install` to install node_modules or update them
 
-### How to deploy:
+### How to deploy on mainnet:
 
 run `yarn vmex:node:fork:main` in one terminal (starts up localhost network) as a fork
 
 metamask should now be able to connect to http://127.0.0.1:8545
 
-run `yarn vmex:deploy` in another terminal to deploy the contracts and the fork of mainnet on the localhost network
+run `yarn vmex:deploy:fork:main` in another terminal to deploy the contracts and the fork of mainnet on the localhost network
 
 Or, run `yarn start:dev` to run a node and deploy in the same terminal
 
@@ -16,7 +16,17 @@ you can use metamask to execute contract calls on the frontend
 
 run `yarn console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
 
-Run `vmex:mainnetfork:unit-tests` to test all localhost tests
+Run `yarn vmex:mainnetfork:unit-tests` to test all localhost tests
+
+### How to deploy on OP:
+
+run `yarn vmex:node:fork:optimism` in one terminal (starts up localhost network) as a fork
+
+metamask should now be able to connect to http://127.0.0.1:8545
+
+run `yarn vmex:deploy:fork:optimism` in another terminal to deploy the contracts and the fork of OP on the localhost network
+
+Run `yarn vmex:OPfork:unit-tests` to test all localhost tests
 
 ### How to test in hardhat network mock environment:
 

@@ -14,7 +14,6 @@ import { ICommonConfiguration, eEthereumNetwork, eOptimismNetwork } from '../../
 export const CommonsConfig: ICommonConfiguration = {
   MarketId: 'Commons',
   ATokenNamePrefix: 'Vmex interest bearing',
-  StableDebtTokenNamePrefix: 'Vmex stable debt bearing',
   VariableDebtTokenNamePrefix: 'Vmex variable debt bearing',
   SymbolPrefix: '',
   ProviderId: 0, // Overriden in index.ts
@@ -136,4 +135,10 @@ export const CommonsConfig: ICommonConfiguration = {
   IncentivesController: {
     [eOptimismNetwork.optimism]: ZERO_ADDRESS,
   },
+  VMEXTreasury: {
+    [eOptimismNetwork.optimism]: "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
+  },
+  SequencerUptimeFeed: {
+    [eOptimismNetwork.optimism]: "0x371EAD81c9102C9BF4874A9075FFFf170F2Ee389"
+  }
 };

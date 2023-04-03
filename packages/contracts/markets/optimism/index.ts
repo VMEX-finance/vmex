@@ -24,7 +24,7 @@ import {
 export const OptimismConfig: IOptimismConfiguration = {
   ...CommonsConfig,
   MarketId: 'VMEX genesis market OP',
-  ProviderId: 1,
+  ProviderId: 10,
 
   ReservesConfig: {
     DAI: strategyDAI,
