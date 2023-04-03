@@ -32,7 +32,6 @@ import { network } from "hardhat";
         console.log("Set vmex oracle sequencer address");
 
         await seqAdd.connect(deployer.signer).setDown(0);
-
         await seqAdd.connect(deployer.signer).setStartedAt(0);
 
 
@@ -44,19 +43,10 @@ import { network } from "hardhat";
 
         await expect(vmexOracle.getAssetPrice(dai.address)).to.be.revertedWith(VO_SEQUENCER_DOWN);
 
-        const tx = await seqAdd.connect(deployer.signer).setDown(0);
-        tx.wait();
-        console.log("blocknumber: ", tx.blockNumber)
-
-        const provider = new ethers.providers.JsonRpcProvider();
-
-        const block = await provider.getBlock(tx.blockNumber || 0);
-        const timestamp = block.timestamp
-        console.log("time: ", timestamp)
-        const tx2 = await seqAdd.connect(deployer.signer).setStartedAt(timestamp);
+        await seqAdd.connect(deployer.signer).setDown(0);
         console.log("started at: ", await seqAdd.connect(deployer.signer)._startedAt())
         await expect(vmexOracle.getAssetPrice(dai.address)).to.be.revertedWith(VO_SEQUENCER_GRACE_PERIOD_NOT_OVER);
-        await network.provider.send("evm_increaseTime", [3600])
+        await network.provider.send("evm_increaseTime", [3601])
         await vmexOracle.getAssetPrice(dai.address);
 
     });

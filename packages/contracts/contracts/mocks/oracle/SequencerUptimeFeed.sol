@@ -43,6 +43,7 @@ contract SequencerUptimeFeed is AggregatorV3Interface {
 
     function setDown(int256 down) external {
         isDown = down;
+        _startedAt = block.timestamp;
     }
 
     function setStartedAt(uint256 s) external {
