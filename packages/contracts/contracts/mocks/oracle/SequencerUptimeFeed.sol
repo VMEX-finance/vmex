@@ -8,38 +8,38 @@ contract SequencerUptimeFeed is AggregatorV3Interface {
     uint256 public _startedAt;
 
 
-  function decimals() external view override returns (uint8) {}
+    function decimals() external view override returns (uint8) {}
 
-  function description() external view override returns (string memory) {}
+    function description() external view override returns (string memory) {}
 
-  function version() external view override returns (uint256) {}
+    function version() external view override returns (uint256) {}
 
     function latestRoundData()
         public
         view
         override
         returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound)
-    {
-        answer = isDown;
-        startedAt = _startedAt;
-    }
+            uint80 roundId,
+            int256 answer,
+            uint256 startedAt,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        ) {
+            answer = isDown;
+            startedAt = _startedAt;
+        }
 
     function getRoundData(uint80 _roundId)
-    external
-    view
-    override
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    ) {}
+        external
+        view
+        override
+        returns (
+            uint80 roundId,
+            int256 answer,
+            uint256 startedAt,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        ) {}
 
     function setDown(int256 down) external {
         isDown = down;
