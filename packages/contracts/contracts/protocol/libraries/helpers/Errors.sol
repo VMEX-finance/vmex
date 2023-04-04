@@ -29,7 +29,7 @@ library Errors {
 
     //contract specific errors
     string public constant VL_INVALID_AMOUNT = "1"; // 'Amount must be greater than 0'
-    string public constant VL_NO_ACTIVE_RESERVE = "2"; // 'Action requires an active reserve' 
+    string public constant VL_NO_ACTIVE_RESERVE = "2"; // 'Action requires an active reserve'
     string public constant VL_RESERVE_FROZEN = "3"; // 'Action cannot be performed because the reserve is frozen'
     string public constant VL_CURRENT_AVAILABLE_LIQUIDITY_NOT_ENOUGH = "4"; // 'The current liquidity is not enough'
     string public constant VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE = "5"; // 'User cannot withdraw more than the available balance'
@@ -124,16 +124,17 @@ library Errors {
     string public constant AM_NO_INTEREST_STRATEGY = "90";
 
     string public constant VO_REENTRANCY_GUARD_FAIL = "94"; //vmex curve oracle view reentrancy call failed
-    string public constant VO_UNDERLYING_FAIL = "95"; //underlying oracle for curve asset returned 0 
-    string public constant VO_ORACLE_ADDRESS_NOT_FOUND = "96"; //underlying oracle for curve asset returned 0 
-    string public constant VO_SEQUENCER_DOWN = "97"; //underlying oracle for curve asset returned 0 
-    string public constant VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98"; //underlying oracle for curve asset returned 0 
-    string public constant VO_BASE_CURRENCY_SET_ONLY_ONCE = "99"; //underlying oracle for curve asset returned 0 
-    
-    string public constant AM_ASSET_ALREADY_IN_MAPPINGS = "100"; //underlying oracle for curve asset returned 0 
-    string public constant AM_ASSET_NOT_CONTRACT = "101"; //underlying oracle for curve asset returned 0 
-    string public constant AM_INTEREST_STRATEGY_NOT_CONTRACT = "102"; //underlying oracle for curve asset returned 0 
-    string public constant AM_INVALID_CONFIGURATION = "103"; //underlying oracle for curve asset returned 0 
+    string public constant VO_UNDERLYING_FAIL = "95";
+    string public constant VO_ORACLE_ADDRESS_NOT_FOUND = "96";
+    string public constant VO_SEQUENCER_DOWN = "97";
+    string public constant VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98";
+    string public constant VO_BASE_CURRENCY_SET_ONLY_ONCE = "99";
+
+    string public constant AM_ASSET_ALREADY_IN_MAPPINGS = "100";
+    string public constant AM_ASSET_NOT_CONTRACT = "101";
+    string public constant AM_INTEREST_STRATEGY_NOT_CONTRACT = "102";
+    string public constant AM_INVALID_CONFIGURATION = "103";
+    string public constant AM_UNABLE_TO_DISALLOW_ASSET = "103";
 
 
 

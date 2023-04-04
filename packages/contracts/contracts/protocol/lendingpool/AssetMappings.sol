@@ -2,6 +2,8 @@
 pragma solidity 0.8.17;
 
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPool} from "../../interfaces/ILendingPool.sol";
+import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -239,9 +241,24 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
      **/
     function setAssetAllowed(address asset, bool isAllowed) external onlyGlobalAdmin{
         require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
-        if(isAllowed == false){
+        if (!isAllowed) {
             //check no borrows open
-            
+            uint64 totalTranches = ILendingPoolConfigurator(
+                addressesProvider.getLendingPoolConfigurator()
+            ).totalTranches;
+
+            for (uint64 tranche = 0; tranche < totalTranches; tranche++) {
+                DataTypes.ReserveData memory reserve = ILendingPool(
+                    addressesProvider.getLendingPool()
+                ).getReserveData(asset, tranche);
+                if (reserve.aTokenAddress) {
+                    // if the reserve exists in the tranche
+                    require(
+                        IERC20Detailed(reserve.aTokenAddress).totalSupply() == 0,
+                        Errors.AM_UNABLE_TO_DISALLOW_ASSET
+                    );
+                }
+            }
         }
         assetMappings[asset].isAllowed = isAllowed;
     }
