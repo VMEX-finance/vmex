@@ -51,7 +51,6 @@ contract AToken is
     /// @dev owner => next valid nonce to submit with permit()
     mapping(address => uint256) public _nonces;
 
-    bytes32 public DOMAIN_SEPARATOR;
     ILendingPoolAddressesProvider public _addressesProvider;
     ILendingPool public _pool;
     address public _lendingPoolConfigurator;
@@ -78,6 +77,18 @@ contract AToken is
         return ATOKEN_REVISION;
     }
 
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        return keccak256(
+                abi.encode(
+                    EIP712_DOMAIN,
+                    keccak256(bytes("VMEX vToken")),
+                    keccak256(EIP712_REVISION),
+                    block.chainid,
+                    address(this)
+                )
+            );
+    }
+
     /**
      * @dev Initializes the aToken
      * @param pool The address of the lending pool where this aToken will be used
@@ -87,13 +98,6 @@ contract AToken is
         ILendingPool pool,
         InitializeTreasuryVars memory vars
     ) external override initializer {
-        uint256 chainId;
-
-        //solium-disable-next-line
-        assembly {
-            chainId := chainid()
-        }
-
         uint8 aTokenDecimals = IERC20Detailed(vars.underlyingAsset).decimals();
 
         string memory aTokenName = string(
@@ -110,18 +114,6 @@ contract AToken is
                 Strings.toString(vars.trancheId)
             )
         );
-
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                EIP712_DOMAIN,
-                keccak256(bytes(aTokenName)),
-                keccak256(EIP712_REVISION),
-                chainId,
-                address(this)
-            )
-        );
-        
-        
 
         _setName(aTokenName);
         _setSymbol(aTokenSymbol);
@@ -441,7 +433,7 @@ contract AToken is
         bytes32 digest = keccak256(
             abi.encodePacked(
                 "\x19\x01",
-                DOMAIN_SEPARATOR,
+                DOMAIN_SEPARATOR(),
                 keccak256(
                     abi.encode(
                         PERMIT_TYPEHASH,
