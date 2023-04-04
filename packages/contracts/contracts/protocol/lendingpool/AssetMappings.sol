@@ -245,13 +245,13 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             //check no borrows open
             uint64 totalTranches = ILendingPoolConfigurator(
                 addressesProvider.getLendingPoolConfigurator()
-            ).totalTranches;
+            ).totalTranches();
 
             for (uint64 tranche = 0; tranche < totalTranches; tranche++) {
                 DataTypes.ReserveData memory reserve = ILendingPool(
                     addressesProvider.getLendingPool()
                 ).getReserveData(asset, tranche);
-                if (reserve.variableDebtTokenAddress) {
+                if (reserve.variableDebtTokenAddress != address(0)) {
                     // if the reserve exists in the tranche
                     require(
                         IERC20Detailed(reserve.variableDebtTokenAddress).totalSupply() == 0,
