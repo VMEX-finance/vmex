@@ -207,7 +207,8 @@ library GenericLogic {
         }
 
         for (vars.i = 0; vars.i < reservesCount; vars.i++) {
-            if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i)) {
+            //can continue if not allowed. Not allowed will only be set if NO Borrows outstanding, so no chance of unaccounted debt
+            if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i) || !assetMappings.getAssetAllowed(reserves[vars.i])) {
                 continue;
             }
 

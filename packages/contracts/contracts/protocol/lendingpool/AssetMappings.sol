@@ -239,6 +239,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
      **/
     function setAssetAllowed(address asset, bool isAllowed) external onlyGlobalAdmin{
         require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
+        if(isAllowed == false){
+            //check no borrows open
+            
+        }
         assetMappings[asset].isAllowed = isAllowed;
     }
 
