@@ -24,7 +24,7 @@ task('dev:initialize-lending-pool', 'Initialize lending pool configuration.')
   .addParam('pool', `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {
     await localBRE.run('set-DRE');
-    
+
     const network = <eNetwork>localBRE.network.name;
     const poolConfig = loadPoolConfig(ConfigNames.Aave);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
     const {
@@ -57,12 +57,12 @@ task('dev:initialize-lending-pool', 'Initialize lending pool configuration.')
     const treasuryAddress = admin.address;
     console.log("before initReservesByHelper");
 
-    
+
     await claimTrancheId("Vmex tranche 0", admin);
 
     // Pause market during deployment
     await waitForTx(
-      await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
+      await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 0)
     );
 
     let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedData(reserveAssets);

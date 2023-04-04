@@ -15,17 +15,20 @@ contract LendingPoolStorage {
 
     ILendingPoolAddressesProvider internal _addressesProvider;
     IAssetMappings internal _assetMappings;
-    
-    mapping(address => mapping(uint64 => DataTypes.UserData))
-        internal _usersConfig; //user address to trancheId to user configuration
-    
-    // asset address to trancheId number to reserve data
-    mapping(address => mapping(uint64 => DataTypes.ReserveData))
-        internal _reserves;
+
+    // user address -> trancheId -> user configuration
+    mapping(address => mapping(uint64 => DataTypes.UserData)) internal _usersConfig;
+
+    // asset address -> trancheId number -> reserve data
+    mapping(address => mapping(uint64 => DataTypes.ReserveData)) internal _reserves;
 
     // the list of the available reserves, structured as a mapping for gas savings reasons
-    mapping(uint64 => mapping(uint256 => address)) internal _reservesList; //trancheId id -> array of available reserves
+    // trancheId -> to array of available reserves
+    mapping(uint64 => mapping(uint256 => address)) internal _reservesList;
+
+    // trancheId -> tranche params
     mapping(uint64 => DataTypes.TrancheParams) public trancheParams;
 
-    bool internal _everythingPaused; //true if all tranches in the lendingpool is paused
+    //true if all tranches in the protocol is paused
+    bool internal _everythingPaused;
 }

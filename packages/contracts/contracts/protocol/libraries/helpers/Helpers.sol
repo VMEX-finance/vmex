@@ -5,7 +5,7 @@ import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 /**
  * @title Helpers library
- * @author Aave
+ * @author Aave and VMEX
  */
 library Helpers {
     /**
@@ -28,7 +28,6 @@ library Helpers {
         return IERC20(reserve.variableDebtTokenAddress).balanceOf(user);
     }
 
-    // TODO: review assembly
     function bytes32ToBytes(bytes memory data) internal pure returns (bytes memory result) {
         assembly {
             result := mload(0x40)

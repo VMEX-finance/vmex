@@ -316,7 +316,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Deactivates the ETH0 reserve as collateral in asset mappings", async () => {
     const { assetMappings, helpersContract, weth } = testEnv;
 
-    await assetMappings.configureReserves(weth.address, 0, 0, 0, 0, 0, 10000);
+    await assetMappings.configureAssetMapping(weth.address, 0, 0, 0, 0, 0, 10000);
 
     const ret1 = await helpersContract.getReserveConfigurationData(weth.address, 0);
 
@@ -357,7 +357,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Deactivates the ETH0 reserve as collateral in asset mappings", async () => {
     const { assetMappings, helpersContract, weth } = testEnv;
 
-    await assetMappings.configureReserves(
+    await assetMappings.configureAssetMapping(
       weth.address,
       strategyWETH.baseLTVAsCollateral,
       strategyWETH.liquidationThreshold,

@@ -393,7 +393,7 @@ interface ILendingPool {
 
     function paused(uint64 trancheId) external view returns (bool);
 
-    function setWhitelist(uint64 trancheId, bool isWhitelisted) external;
+    function setWhitelistEnabled(uint64 trancheId, bool isUsingWhitelist) external;
     function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external;
     function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external;
 }

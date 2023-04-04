@@ -18,7 +18,7 @@ import {IAToken} from "../../../interfaces/IAToken.sol";
 
 /**
  * @title ValidationLogic library
- * @author Aave
+ * @author Aave and VMEX
  * @notice Implements functions to validate the different actions of the protocol
  */
 library ValidationLogic {
@@ -132,9 +132,9 @@ library ValidationLogic {
     }
 
     function checkAmount(
-        uint256 borrowCap, 
-        uint256 amount, 
-        uint256 totalDebt, 
+        uint256 borrowCap,
+        uint256 amount,
+        uint256 totalDebt,
         uint256 decimals
     ) internal pure {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
@@ -173,11 +173,11 @@ library ValidationLogic {
         require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
 
         //precheck so in case we aren't trying to borrow max, and already borrowing over the cap, don't need to run calculateUserAccountData
-        if(exvars.amount!=type(uint256).max) { 
+        if(exvars.amount!=type(uint256).max) {
             checkAmount(
-                exvars._assetMappings.getBorrowCap(exvars.asset), 
-                exvars.amount, 
-                IERC20(reserve.variableDebtTokenAddress).totalSupply(), 
+                exvars._assetMappings.getBorrowCap(exvars.asset),
+                exvars.amount,
+                IERC20(reserve.variableDebtTokenAddress).totalSupply(),
                 exvars._assetMappings.getDecimals(exvars.asset)
             );
         }
@@ -213,16 +213,16 @@ library ValidationLogic {
                 exvars.amount=vars.totalAmount;
             }
             checkAmount(
-                exvars._assetMappings.getBorrowCap(exvars.asset), 
-                exvars.amount, 
-                IERC20(reserve.variableDebtTokenAddress).totalSupply(), 
+                exvars._assetMappings.getBorrowCap(exvars.asset),
+                exvars.amount,
+                IERC20(reserve.variableDebtTokenAddress).totalSupply(),
                 exvars._assetMappings.getDecimals(exvars.asset)
             );
         }
-        // amountInETH always has 18 decimals (or if oracle has 8 decimals, this also has 8 decimals), since the assetPrice always has 18 decimals. Scaling by amount/asset decimals. 
+        // amountInETH always has 18 decimals (or if oracle has 8 decimals, this also has 8 decimals), since the assetPrice always has 18 decimals. Scaling by amount/asset decimals.
         uint256 amountInETH = exvars.assetPrice.mul(exvars.amount).div(
                 10**exvars._assetMappings.getDecimals(exvars.asset)
-            ); 
+            );
 
         //(uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 

@@ -367,7 +367,7 @@ export async function lendingPoolPause(
       providerRpc: params.providerRpc,
     });
 
-    await configurator.setPoolPause(false, params.tranche);
+    await configurator.setTranchePause(false, params.tranche);
     return await lendingPool.paused(params.tranche);
   } catch (error) {
     console.log(error);
@@ -490,7 +490,7 @@ export async function initTranche(
   },
   callback?: () => Promise<any>
 ) {
-  
+
   params.assetAddresses = convertListSymbolToAddress(params.assetAddresses,params.network);
   // assert(params.assetAddresses.length == params.reserveFactors.length, "array lengths not equal");
   // assert(params.assetAddresses.length == params.canBorrow.length, "array lengths not equal");
@@ -536,7 +536,7 @@ export async function initTranche(
   if (params.whitelisted.length != 0) {
     try {
       console.log("Setting whitelist");
-      const tx4 = await configurator.setWhitelist(
+      const tx4 = await configurator.setTrancheWhitelist(
         mytranche,
         params.whitelisted,
         new Array(params.whitelisted.length).fill(true)
@@ -551,7 +551,7 @@ export async function initTranche(
   if (params.blacklisted.length != 0) {
     try {
       console.log("Setting blacklisted");
-      const tx4 = await configurator.setBlacklist(
+      const tx4 = await configurator.setTrancheBlacklist(
         mytranche,
         params.blacklisted,
         new Array(params.blacklisted.length).fill(true)
@@ -590,7 +590,7 @@ export async function configureExistingTranche(
   },
   callback?: () => Promise<any>
 ) {
-  //configure existing 
+  //configure existing
   console.log(params)
   let tx;
   const mytranche = params.trancheId;
@@ -631,7 +631,7 @@ export async function configureExistingTranche(
   if(params.isTrancheWhitelisted !== undefined){
     try {
     console.log("Setting isTrancheWhitelisted");
-      const tx4 = await configurator.setTrancheWhitelist(
+      const tx4 = await configurator.setTrancheWhitelistEnabled(
         mytranche,
         params.isTrancheWhitelisted
       );
@@ -645,7 +645,7 @@ export async function configureExistingTranche(
   if (params.whitelisted && params.whitelisted.length != 0) {
     try {
       console.log("Setting whitelist");
-      const tx4 = await configurator.setWhitelist(
+      const tx4 = await configurator.setTrancheWhitelist(
         mytranche,
         params.whitelisted.map((el:SetAddress) => el.addr),
         params.whitelisted.map((el:SetAddress) => el.newValue)
@@ -660,7 +660,7 @@ export async function configureExistingTranche(
   if (params.blacklisted && params.blacklisted.length != 0) {
     try {
       console.log("Setting blacklisted");
-      const tx4 = await configurator.setBlacklist(
+      const tx4 = await configurator.setTrancheBlacklist(
         mytranche,
         params.blacklisted.map((el:SetAddress) => el.addr),
         params.blacklisted.map((el:SetAddress) => el.newValue)

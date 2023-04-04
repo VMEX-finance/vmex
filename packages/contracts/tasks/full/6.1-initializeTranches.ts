@@ -33,14 +33,14 @@ task(
   .setAction(async ({ verify, pool }, DRE) => {
     try {
       await DRE.run("set-DRE");
-      
+
       const network = <eNetwork>DRE.network.name;
       const poolConfig = loadPoolConfig(pool);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
         ReserveAssets,
       } = poolConfig as ICommonConfiguration;
       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
-      
+
       const addressesProvider = await getLendingPoolAddressesProvider();
 
       const lendingPoolConfiguratorProxy =
@@ -60,12 +60,12 @@ task(
       const treasuryAddress = admin.address;
       console.log("before initReservesByHelper");
 
-      
+
       await claimTrancheId("Vmex tranche 0", admin);
 
       // Pause market during deployment
       await waitForTx(
-        await lendingPoolConfiguratorProxy.connect(admin).setPoolPause(true, 0)
+        await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 0)
       );
 
       let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedData(reserveAssets);
@@ -83,7 +83,7 @@ task(
       await waitForTx(
         await lendingPoolConfiguratorProxy
           .connect(admin)
-          .setPoolPause(false, 0)
+          .setTranchePause(false, 0)
       );
     } catch (err) {
       console.error(err);

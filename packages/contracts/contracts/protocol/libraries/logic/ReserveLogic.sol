@@ -15,7 +15,7 @@ import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 /**
  * @title ReserveLogic library
- * @author Aave
+ * @author Aave and VMEX
  * @notice Implements the logic to update the reserves state
  */
 library ReserveLogic {
@@ -327,7 +327,8 @@ library ReserveLogic {
             )
             .percentMul(
                 vars.globalVMEXReserveFactor //for global VMEX reserve
-            ); //we will get (1-reserveFactor) * vmexReserveFactor * debt
+            );
+        //we will get (1-reserveFactor) * vmexReserveFactor * debt
         //P = total earned
         //x = reserveFactor
         //y = VMEX reserve factor
@@ -363,15 +364,13 @@ library ReserveLogic {
         uint256 newLiquidityIndex = liquidityIndex;
         uint256 newVariableBorrowIndex = variableBorrowIndex;
 
-        //only cumulating if there is any income being produced
+        // only cumulating if there is any income being produced
         if (currentLiquidityRate > 0) {
-            //consider strategies cumulatedLiquidityInterest can be calculated via ppfs approach
             uint256 cumulatedLiquidityInterest = MathUtils
-                .calculateLinearInterest(currentLiquidityRate, timestamp); //if currentLiquidityRate is 1% APR, and the time difference between current block and last update was half a year then this function will return 0.5% + 100%
+                .calculateLinearInterest(currentLiquidityRate, timestamp);
             newLiquidityIndex = cumulatedLiquidityInterest.rayMul(
                 liquidityIndex
-            ); //now this will calculate the true interest earned on the previous balance (liquidityIndex), 1.005 * liquidityIndex = new liquidityIndex. liquidityIndex will always increase regardless of borrows and withdraws
-            //note if x is original liquidity index, and you deposit 100, your scaled aToken balance is 100/x. Then, you wait a year at 1 % interest rate, so this newLiquidityIndex will be 1.01 * x, so your balance is 100/x * x *1.01 = 101 as expected
+            );
             require(
                 newLiquidityIndex <= type(uint128).max,
                 Errors.RL_LIQUIDITY_INDEX_OVERFLOW
