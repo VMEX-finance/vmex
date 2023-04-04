@@ -8,7 +8,12 @@ import { deployMintableERC20, deployMockAToken } from "../../helpers/contracts-d
 const { expect } = require("chai");
 
 makeSuite("Asset mappings", (testEnv: TestEnv) => {
-  const { LPC_INVALID_CONFIGURATION } = ProtocolErrors;
+  const { 
+    AM_INVALID_CONFIGURATION, 
+    AM_ASSET_ALREADY_IN_MAPPINGS, 
+    AM_ASSET_NOT_CONTRACT, 
+    AM_INTEREST_STRATEGY_NOT_CONTRACT 
+  } = ProtocolErrors;
 
   const defaultAssetMappingAssets = new Set<string>([
     "0x8858eeB3DfffA017D4BCE9801D340D36Cf895CCf",
@@ -193,7 +198,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
 
     initInputParams.push({
       asset: asset,
-      defaultInterestRateStrategyAddress: newInterestRateStrategy,
+      defaultInterestRateStrategyAddress: newERC20.address, //so passes isContract test
       assetType: 0,
       supplyCap: 0, //1,000,000
       borrowCap: 0, //1,000,000
@@ -208,7 +213,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     // adding a new asset mapping should still work
     initInputParams.push({
       asset: newERC20.address,
-      defaultInterestRateStrategyAddress: newInterestRateStrategy,
+      defaultInterestRateStrategyAddress: newERC20.address,
       assetType: 0,
       supplyCap: 1000, //1,000,000
       borrowCap: 1000, //1,000,000
@@ -220,7 +225,8 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       VMEXReserveFactor: 1000
     });
 
-    await assetMappings.addAssetMapping(initInputParams);
+    await expect(assetMappings.addAssetMapping(initInputParams))
+    .to.be.revertedWith(AM_ASSET_ALREADY_IN_MAPPINGS);
 
     const usdcMapping = await assetMappings.getAssetMapping(asset);
     expect(usdcMapping.supplyCap.toString() != "0").to.be.equal(
@@ -232,21 +238,11 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     expect(usdcMapping.borrowingEnabled).to.be.equal(
       false
     );
-
-    const mapping = await assetMappings.getAssetMapping(newERC20.address);
-    expect(mapping.supplyCap.toString()).to.be.equal(
-      "1000"
-    );
-    expect(mapping.borrowCap.toString()).to.be.equal(
-      "1000"
-    );
-    expect(mapping.borrowingEnabled).to.be.equal(
-      true
-    );
   });
 
   it("Add asset mappings with bad params should revert", async () => {
     const { assetMappings } = testEnv;
+    const newERC20 = await deployMintableERC20(["MOCK", "MOCK", "18"]);
     const newAsset = createRandomAddress();
     let initInputParams: {
       asset: string;
@@ -265,8 +261,8 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     const newInterestRateStrategy = createRandomAddress();
 
     initInputParams.push({
-      asset: newAsset,
-      defaultInterestRateStrategyAddress: newInterestRateStrategy,
+      asset: newERC20.address,
+      defaultInterestRateStrategyAddress: newERC20.address,
       assetType: 0,
       supplyCap: 1000, //1,000,000
       borrowCap: 1000, //1,000,000
@@ -279,9 +275,87 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     });
 
     await expect(assetMappings.addAssetMapping(initInputParams)).to.be.revertedWith(
-      LPC_INVALID_CONFIGURATION
+      AM_INVALID_CONFIGURATION
     );
   });
 
+
+  it("Add asset mappings not contract revert", async () => {
+    const { assetMappings } = testEnv;
+    const notContract = createRandomAddress();
+    const newERC20 = await deployMintableERC20(["MOCK", "MOCK", "18"]);
+    let initInputParams: {
+      asset: string;
+      defaultInterestRateStrategyAddress: string;
+      supplyCap: BigNumberish; //1,000,000
+      borrowCap: BigNumberish; //1,000,000
+      baseLTV: BigNumberish;
+      liquidationThreshold: BigNumberish;
+      liquidationBonus: BigNumberish;
+      borrowFactor: BigNumberish;
+      borrowingEnabled: boolean;
+      assetType: BigNumberish;
+      VMEXReserveFactor: BigNumberish;
+    }[] = [];
+
+    const newInterestRateStrategy = createRandomAddress();
+
+    initInputParams.push({
+      asset: notContract,
+      defaultInterestRateStrategyAddress: newERC20.address,
+      assetType: 0,
+      supplyCap: 1000, //1,000,000
+      borrowCap: 1000, //1,000,000
+      baseLTV: 2000,
+      liquidationThreshold: 1000,
+      liquidationBonus: 10001,
+      borrowFactor: 1000,
+      borrowingEnabled: true,
+      VMEXReserveFactor: 1000
+    });
+
+    await expect(assetMappings.addAssetMapping(initInputParams)).to.be.revertedWith(
+      AM_ASSET_NOT_CONTRACT
+    );
+  });
+
+  it("Add asset mappings interest rate strategy not contract revert", async () => {
+    const { assetMappings } = testEnv;
+    const notContract = createRandomAddress();
+    const newERC20 = await deployMintableERC20(["MOCK", "MOCK", "18"]);
+    let initInputParams: {
+      asset: string;
+      defaultInterestRateStrategyAddress: string;
+      supplyCap: BigNumberish; //1,000,000
+      borrowCap: BigNumberish; //1,000,000
+      baseLTV: BigNumberish;
+      liquidationThreshold: BigNumberish;
+      liquidationBonus: BigNumberish;
+      borrowFactor: BigNumberish;
+      borrowingEnabled: boolean;
+      assetType: BigNumberish;
+      VMEXReserveFactor: BigNumberish;
+    }[] = [];
+
+    const newInterestRateStrategy = createRandomAddress();
+
+    initInputParams.push({
+      asset: newERC20.address,
+      defaultInterestRateStrategyAddress: notContract,
+      assetType: 0,
+      supplyCap: 1000, //1,000,000
+      borrowCap: 1000, //1,000,000
+      baseLTV: 2000,
+      liquidationThreshold: 1000,
+      liquidationBonus: 10001,
+      borrowFactor: 1000,
+      borrowingEnabled: true,
+      VMEXReserveFactor: 1000
+    });
+
+    await expect(assetMappings.addAssetMapping(initInputParams)).to.be.revertedWith(
+      AM_INTEREST_STRATEGY_NOT_CONTRACT
+    );
+  });
 
 });

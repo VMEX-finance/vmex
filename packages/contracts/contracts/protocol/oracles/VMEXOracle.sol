@@ -67,6 +67,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         address baseCurrency,
         uint256 baseCurrencyUnit
     ) external onlyGlobalAdmin {
+        require(BASE_CURRENCY == address(0), Errors.VO_BASE_CURRENCY_SET_ONLY_ONCE);
         BASE_CURRENCY = baseCurrency;
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
     }

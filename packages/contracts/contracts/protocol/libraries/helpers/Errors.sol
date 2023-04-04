@@ -128,6 +128,13 @@ library Errors {
     string public constant VO_ORACLE_ADDRESS_NOT_FOUND = "96"; //underlying oracle for curve asset returned 0 
     string public constant VO_SEQUENCER_DOWN = "97"; //underlying oracle for curve asset returned 0 
     string public constant VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98"; //underlying oracle for curve asset returned 0 
+    string public constant VO_BASE_CURRENCY_SET_ONLY_ONCE = "99"; //underlying oracle for curve asset returned 0 
+    
+    string public constant AM_ASSET_ALREADY_IN_MAPPINGS = "100"; //underlying oracle for curve asset returned 0 
+    string public constant AM_ASSET_NOT_CONTRACT = "101"; //underlying oracle for curve asset returned 0 
+    string public constant AM_INTEREST_STRATEGY_NOT_CONTRACT = "102"; //underlying oracle for curve asset returned 0 
+    string public constant AM_INVALID_CONFIGURATION = "103"; //underlying oracle for curve asset returned 0 
+
 
 
     enum CollateralManagerErrors {

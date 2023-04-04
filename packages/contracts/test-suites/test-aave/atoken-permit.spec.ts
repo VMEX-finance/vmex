@@ -20,7 +20,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
     const separator = await aDai.DOMAIN_SEPARATOR();
 
     const domain = {
-      name: await aDai.name(),
+      name: "VMEX vToken",
       version: "1",
       chainId: DRE.network.config.chainId,
       verifyingContract: aDai.address,
@@ -50,7 +50,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
     const owner = deployer;
     const spender = users[1];
 
-    const tokenName = await aDai.name();
+    const tokenName = "VMEX vToken";
 
     const chainId = DRE.network.config.chainId || BUIDLEREVM_CHAINID;
     const expiration = 0;
@@ -112,7 +112,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
       chainId,
       aDai.address,
       "1",
-      await aDai.name(),
+      "VMEX vToken",
       owner.address,
       spender.address,
       nonce,
@@ -154,7 +154,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
       chainId,
       aDai.address,
       "1",
-      await aDai.name(),
+      "VMEX vToken",
       owner.address,
       spender.address,
       nonce,
@@ -202,7 +202,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
       chainId,
       aDai.address,
       "1",
-      await aDai.name(),
+      "VMEX vToken",
       owner.address,
       spender.address,
       nonce,
@@ -238,7 +238,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
       chainId,
       aDai.address,
       "1",
-      await aDai.name(),
+      "VMEX vToken",
       owner.address,
       spender.address,
       nonce,
@@ -282,7 +282,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
       chainId,
       aDai.address,
       "1",
-      await aDai.name(),
+      "VMEX vToken",
       owner.address,
       spender.address,
       nonce,
@@ -318,7 +318,7 @@ makeSuite("AToken: Permit", (testEnv: TestEnv) => {
       chainId,
       aDai.address,
       "1",
-      await aDai.name(),
+      "VMEX vToken",
       owner.address,
       spender.address,
       nonce,

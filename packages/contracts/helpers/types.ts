@@ -256,7 +256,12 @@ export enum ProtocolErrors {
   VO_SEQUENCER_DOWN = "97", //underlying oracle for curve asset returned 0 
   VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98", //underlying oracle for curve asset returned 0 
 
-
+  VO_BASE_CURRENCY_SET_ONLY_ONCE = "99", //underlying oracle for curve asset returned 0 
+    
+  AM_ASSET_ALREADY_IN_MAPPINGS = "100", //underlying oracle for curve asset returned 0 
+  AM_ASSET_NOT_CONTRACT = "101", //underlying oracle for curve asset returned 0 
+  AM_INTEREST_STRATEGY_NOT_CONTRACT = "102", //underlying oracle for curve asset returned 0 
+  AM_INVALID_CONFIGURATION = "103",
   // old
 
   INVALID_FROM_BALANCE_AFTER_TRANSFER = "Invalid from balance after transfer",

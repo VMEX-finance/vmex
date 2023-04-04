@@ -85,14 +85,14 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     function validateCollateralParams(uint64 baseLTV, uint64 liquidationThreshold, uint64 liquidationBonus, uint64 borrowFactor, bool borrowingEnabled) internal pure {
-        require(baseLTV <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+        require(baseLTV <= liquidationThreshold, Errors.AM_INVALID_CONFIGURATION);
 
         if (liquidationThreshold != 0) {
             //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
             //collateral than needed to cover the debt
             require(
                 uint256(liquidationBonus) > PercentageMath.PERCENTAGE_FACTOR,
-                Errors.LPC_INVALID_CONFIGURATION
+                Errors.AM_INVALID_CONFIGURATION
             );
 
             //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
@@ -105,15 +105,22 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             require(
                 uint256(liquidationThreshold).percentMul(uint256(liquidationBonus)) <=
                     PercentageMath.PERCENTAGE_FACTOR,
-                Errors.LPC_INVALID_CONFIGURATION
+                Errors.AM_INVALID_CONFIGURATION
             );
         }
         if(borrowingEnabled){
             require(
                 uint256(borrowFactor) >= PercentageMath.PERCENTAGE_FACTOR,
-                Errors.LPC_INVALID_CONFIGURATION
+                Errors.AM_INVALID_CONFIGURATION
             );
         }
+    }
+
+    function validateAddAssetMapping(AddAssetMappingInput memory inputAsset) internal view {
+        address currentAssetAddress = inputAsset.asset;
+        require(!isAssetInMappings(currentAssetAddress),Errors.AM_ASSET_ALREADY_IN_MAPPINGS);
+        require(Address.isContract(currentAssetAddress),Errors.AM_ASSET_NOT_CONTRACT);
+        require(Address.isContract(inputAsset.defaultInterestRateStrategyAddress), Errors.AM_INTEREST_STRATEGY_NOT_CONTRACT);
     }
 
     /**
@@ -126,10 +133,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         for(uint256 i = 0; i<input.length; i++) {
             AddAssetMappingInput memory inputAsset = input[i];
             address currentAssetAddress = inputAsset.asset;
-            if (isAssetInMappings(currentAssetAddress) || !Address.isContract(currentAssetAddress)) {
-                // asset has already been added to linked list, will not be added again
-                continue;
-            }
+            validateAddAssetMapping(inputAsset);
 
             inputAsset.baseLTV = uint64(uint256(inputAsset.baseLTV).convertToPercent());
             inputAsset.liquidationThreshold = uint64(uint256(inputAsset.liquidationThreshold).convertToPercent());
@@ -314,7 +318,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     function addInterestRateStrategyAddress(address asset, address strategy) external onlyGlobalAdmin {
-        require(Address.isContract(strategy), Errors.LP_NOT_CONTRACT);
+        require(Address.isContract(strategy), Errors.AM_INTEREST_STRATEGY_NOT_CONTRACT);
         while(interestRateStrategyAddress[asset][numInterestRateStrategyAddress[asset]]!=address(0)){
             numInterestRateStrategyAddress[asset]++;
         }
