@@ -126,7 +126,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         for(uint256 i = 0; i<input.length; i++) {
             AddAssetMappingInput memory inputAsset = input[i];
             address currentAssetAddress = inputAsset.asset;
-            if (isAssetInMappings(currentAssetAddress)) {
+            if (isAssetInMappings(currentAssetAddress) || !Address.isContract(currentAssetAddress)) {
                 // asset has already been added to linked list, will not be added again
                 continue;
             }
