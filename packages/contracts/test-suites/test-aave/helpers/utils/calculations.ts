@@ -61,6 +61,9 @@ export const calculateHF = async (testEnv: TestEnv, trancheId: string, user: tEt
   let totalSupplied = new BigNumber("0");
   let totalBorrowed = new BigNumber("0");
   for(let i = 0;i<reserves.length;i++){
+    if (!(await assetMappings.getAssetAllowed(reserves[i]))) {
+      continue;
+    }
     const reserve = await pool.getReserveData(reserves[i], trancheId);
     // logger("Asset address: ", reserve)
     // logger("reserve.aTokenAddress: ", reserve.aTokenAddress)

@@ -1,18 +1,27 @@
 import { TestEnv, makeSuite } from "./helpers/make-suite";
-import { oneEther } from "../../helpers/constants";
+import {
+  APPROVAL_AMOUNT_LENDING_POOL,
+  MAX_UINT_AMOUNT,
+  oneEther,
+} from "../../helpers/constants";
 import { ProtocolErrors } from "../../helpers/types";
-import { BigNumberish } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import { createRandomAddress } from "../../helpers/misc-utils";
-import { deployMintableERC20, deployMockAToken } from "../../helpers/contracts-deployments";
+import {
+  deployMintableERC20,
+  deployMockAToken,
+} from "../../helpers/contracts-deployments";
+import { convertToCurrencyDecimals } from "../../helpers/contracts-helpers";
 
 const { expect } = require("chai");
 
 makeSuite("Asset mappings", (testEnv: TestEnv) => {
-  const { 
-    AM_INVALID_CONFIGURATION, 
-    AM_ASSET_ALREADY_IN_MAPPINGS, 
-    AM_ASSET_NOT_CONTRACT, 
-    AM_INTEREST_STRATEGY_NOT_CONTRACT 
+  const {
+    AM_INVALID_CONFIGURATION,
+    AM_ASSET_ALREADY_IN_MAPPINGS,
+    AM_ASSET_NOT_CONTRACT,
+    AM_INTEREST_STRATEGY_NOT_CONTRACT,
+    AM_UNABLE_TO_DISALLOW_ASSET,
   } = ProtocolErrors;
 
   const defaultAssetMappingAssets = new Set<string>([
@@ -56,7 +65,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     "0xA40A2298B02a8597321580fdAD8518A6d6601b6C",
     "0x26d1E94963C8b382Ad66320826399E4B30347404",
     "0xEC8Ec2A30c3E9Fb0cE7031ac4A52DbdFAD57a0D2",
-    "0xD036a8F254ef782cb93af4F829A1568E992c3864"
+    "0xD036a8F254ef782cb93af4F829A1568E992c3864",
   ]);
 
   it("Determine number of approved assets", async () => {
@@ -89,16 +98,10 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
   it("Checks all WETH reserves are deactivated", async () => {
     const { weth, helpersContract } = testEnv;
     await expect(
-      helpersContract.getReserveFlags(
-        weth.address,
-        0
-      )
+      helpersContract.getReserveFlags(weth.address, 0)
     ).to.be.revertedWith(ProtocolErrors.AM_ASSET_NOT_ALLOWED);
     await expect(
-      helpersContract.getReserveFlags(
-        weth.address,
-        1
-      )
+      helpersContract.getReserveFlags(weth.address, 1)
     ).to.be.revertedWith(ProtocolErrors.AM_ASSET_NOT_ALLOWED);
   });
 
@@ -113,14 +116,14 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
 
     const tokens = await assetMappings.getAllApprovedTokens();
 
-    const expected = [...defaultAssetMappingAssets]
-    expected.splice(
-      expected.indexOf(weth.address),
-      1
-    );
+    const expected = [...defaultAssetMappingAssets];
+    expected.splice(expected.indexOf(weth.address), 1);
 
     for (let i = 0; i < tokens.length; i++) {
-      expect(defaultAssetMappingAssets.has(tokens[i])).to.be.equal(true, "Unexpected token in asset mappings: " + tokens[i]);
+      expect(defaultAssetMappingAssets.has(tokens[i])).to.be.equal(
+        true,
+        "Unexpected token in asset mappings: " + tokens[i]
+      );
     }
   });
 
@@ -154,7 +157,6 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     await expect(
       assetMappings.setVMEXReserveFactor(usdc.address, 10000)
     ).to.be.revertedWith(ProtocolErrors.RC_INVALID_RESERVE_FACTOR);
-
 
     await expect(
       assetMappings.setVMEXReserveFactor(usdc.address, 10001)
@@ -207,7 +209,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       liquidationBonus: 0,
       borrowFactor: 0,
       borrowingEnabled: false,
-      VMEXReserveFactor: 0
+      VMEXReserveFactor: 0,
     });
 
     // adding a new asset mapping should still work
@@ -222,22 +224,17 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       liquidationBonus: 10001,
       borrowFactor: 10000,
       borrowingEnabled: true,
-      VMEXReserveFactor: 1000
+      VMEXReserveFactor: 1000,
     });
 
-    await expect(assetMappings.addAssetMapping(initInputParams))
-    .to.be.revertedWith(AM_ASSET_ALREADY_IN_MAPPINGS);
+    await expect(
+      assetMappings.addAssetMapping(initInputParams)
+    ).to.be.revertedWith(AM_ASSET_ALREADY_IN_MAPPINGS);
 
     const usdcMapping = await assetMappings.getAssetMapping(asset);
-    expect(usdcMapping.supplyCap.toString() != "0").to.be.equal(
-      true
-    );
-    expect(usdcMapping.borrowCap.toString() != "0").to.be.equal(
-      true
-    );
-    expect(usdcMapping.borrowingEnabled).to.be.equal(
-      false
-    );
+    expect(usdcMapping.supplyCap.toString() != "0").to.be.equal(true);
+    expect(usdcMapping.borrowCap.toString() != "0").to.be.equal(true);
+    expect(usdcMapping.borrowingEnabled).to.be.equal(false);
   });
 
   it("Add asset mappings with bad params should revert", async () => {
@@ -271,14 +268,13 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       liquidationBonus: 10001,
       borrowFactor: 1000,
       borrowingEnabled: true,
-      VMEXReserveFactor: 1000
+      VMEXReserveFactor: 1000,
     });
 
-    await expect(assetMappings.addAssetMapping(initInputParams)).to.be.revertedWith(
-      AM_INVALID_CONFIGURATION
-    );
+    await expect(
+      assetMappings.addAssetMapping(initInputParams)
+    ).to.be.revertedWith(AM_INVALID_CONFIGURATION);
   });
-
 
   it("Add asset mappings not contract revert", async () => {
     const { assetMappings } = testEnv;
@@ -311,12 +307,12 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       liquidationBonus: 10001,
       borrowFactor: 1000,
       borrowingEnabled: true,
-      VMEXReserveFactor: 1000
+      VMEXReserveFactor: 1000,
     });
 
-    await expect(assetMappings.addAssetMapping(initInputParams)).to.be.revertedWith(
-      AM_ASSET_NOT_CONTRACT
-    );
+    await expect(
+      assetMappings.addAssetMapping(initInputParams)
+    ).to.be.revertedWith(AM_ASSET_NOT_CONTRACT);
   });
 
   it("Add asset mappings interest rate strategy not contract revert", async () => {
@@ -350,12 +346,92 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       liquidationBonus: 10001,
       borrowFactor: 1000,
       borrowingEnabled: true,
-      VMEXReserveFactor: 1000
+      VMEXReserveFactor: 1000,
     });
 
-    await expect(assetMappings.addAssetMapping(initInputParams)).to.be.revertedWith(
-      AM_INTEREST_STRATEGY_NOT_CONTRACT
-    );
+    await expect(
+      assetMappings.addAssetMapping(initInputParams)
+    ).to.be.revertedWith(AM_INTEREST_STRATEGY_NOT_CONTRACT);
   });
 
+  it("Disallow asset can only happen when there is no outstanding debt in any tranche", async () => {
+    const { assetMappings, pool, dai, weth, users } = testEnv;
+    const tranche = 1;
+
+    expect(defaultAssetMappingAssets.has(dai.address)).to.be.equal(
+      true,
+      "Incorrect configuration of default asset mappings"
+    );
+
+    // this should work fine since no outstanding debt
+    await assetMappings.setAssetAllowed(dai.address, false);
+    await assetMappings.setAssetAllowed(dai.address, true);
+
+    // user 0 will deposit 1000 dai
+    await dai
+      .connect(users[0].signer)
+      .mint(await convertToCurrencyDecimals(dai.address, "1000"));
+    await dai
+      .connect(users[1].signer)
+      .mint(await convertToCurrencyDecimals(dai.address, "10"));
+
+    await dai
+      .connect(users[0].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await dai
+      .connect(users[1].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    const amountDAItoDeposit = await convertToCurrencyDecimals(
+      dai.address,
+      "1000"
+    );
+
+    await pool
+      .connect(users[0].signer)
+      .deposit(dai.address, tranche, amountDAItoDeposit, users[0].address, "0");
+
+    // user 1 will deposit 1000 weth into the lending pool
+    await weth
+      .connect(users[1].signer)
+      .mint(await convertToCurrencyDecimals(weth.address, "1000"));
+
+    await weth
+      .connect(users[1].signer)
+      .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    await pool
+      .connect(users[1].signer)
+      .deposit(
+        weth.address,
+        tranche,
+        ethers.utils.parseEther("1.0"),
+        users[1].address,
+        "0"
+      );
+
+    // user 1 borrows dai using weth as collateral
+    await pool
+      .connect(users[1].signer)
+      .borrow(
+        dai.address,
+        tranche,
+        ethers.utils.parseEther("0.1"),
+        "0",
+        users[1].address
+      );
+
+    await expect(
+      assetMappings.setAssetAllowed(dai.address, false)
+    ).to.be.revertedWith(AM_UNABLE_TO_DISALLOW_ASSET);
+
+    // user 1 repays all dai debts
+    await pool
+      .connect(users[1].signer)
+      .repay(dai.address, tranche, MAX_UINT_AMOUNT, users[1].address);
+
+    await expect(
+      assetMappings.setAssetAllowed(dai.address, false)
+    ).to.be.not.revertedWith(AM_UNABLE_TO_DISALLOW_ASSET);
+  });
 });

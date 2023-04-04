@@ -134,7 +134,7 @@ library Errors {
     string public constant AM_ASSET_NOT_CONTRACT = "101";
     string public constant AM_INTEREST_STRATEGY_NOT_CONTRACT = "102";
     string public constant AM_INVALID_CONFIGURATION = "103";
-    string public constant AM_UNABLE_TO_DISALLOW_ASSET = "103";
+    string public constant AM_UNABLE_TO_DISALLOW_ASSET = "104";
 
 
 
