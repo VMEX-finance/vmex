@@ -27,7 +27,7 @@ library GenericLogic {
 
     uint256 public constant HEALTH_FACTOR_LIQUIDATION_THRESHOLD = 1 ether;
 
-    struct balanceDecreaseAllowedLocalVars {
+    struct BalanceDecreaseAllowedLocalVars {
         uint256 decimals;
         uint256 liquidationThreshold;
         uint256 totalCollateralInETH;
@@ -43,9 +43,6 @@ library GenericLogic {
 
     }
 
-    //  * @param asset The address of the underlying asset of the reserve
-    //  * @param user The address of the user
-    //  * @param amount The amount to decrease
     struct BalanceDecreaseAllowedParameters {
         address asset;
         uint64 trancheId;
@@ -80,11 +77,9 @@ library GenericLogic {
             return true;
         }
 
-        balanceDecreaseAllowedLocalVars memory vars;
+        BalanceDecreaseAllowedLocalVars memory vars;
 
         (, vars.liquidationThreshold, , vars.decimals, ) = params.assetMappings.getParams(params.asset);
-
-
 
         (
             vars.totalCollateralInETH,
@@ -123,8 +118,6 @@ library GenericLogic {
         if (vars.collateralBalanceAfterDecrease == 0) {
             return false;
         }
-
-
 
         vars.liquidationThresholdAfterDecrease = vars
             .totalCollateralInETH

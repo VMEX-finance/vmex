@@ -19,7 +19,7 @@ interface IAssetMappings {
         uint256 VMEXReserveFactor
     );
 
-    event ConfiguredReserves(
+    event ConfiguredAssetMapping(
         address indexed asset,
         uint256 baseLTV,
         uint256 liquidationThreshold,
@@ -72,7 +72,7 @@ interface IAssetMappings {
         AddAssetMappingInput[] memory input
     ) external;
 
-    function configureReserves(
+    function configureAssetMapping(
         address asset,//20
         uint64 baseLTV, //28
         uint64 liquidationThreshold, //36 --> 1 word, 8 bytes
@@ -106,7 +106,7 @@ interface IAssetMappings {
 
     function getBorrowFactor(address asset) view external returns(uint256);
 
-    function getAssetActive(address asset) view external returns(bool);
+    function getAssetAllowed(address asset) view external returns(bool);
 
     function addInterestRateStrategyAddress(address asset, address strategy) external;
 

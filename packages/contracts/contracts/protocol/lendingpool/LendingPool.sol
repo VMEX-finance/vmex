@@ -26,7 +26,7 @@ import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol";
 /**
  * @title LendingPool contract
- * @dev Main point of interaction with an Aave protocol's market
+ * @dev Main point of interaction with a VMEX protocol's market
  * - Users can:
  *   # Deposit
  *   # Withdraw
@@ -34,11 +34,10 @@ import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol"
  *   # Repay
  *   # Enable/disable their deposits as collateral
  *   # Liquidate positions
- *   # Execute Flash Loans
  * - To be covered by a proxy contract, owned by the LendingPoolAddressesProvider of the specific market
  * - All admin functions are callable by the LendingPoolConfigurator contract defined also in the
  *   LendingPoolAddressesProvider
- * @author Aave
+ * @author Aave and VMEX
  **/
 contract LendingPool is
     VersionedInitializable,
@@ -77,9 +76,6 @@ contract LendingPool is
         );
     }
 
-    /**
-     * Function instead of modifier to avoid stack too deep
-     */
     function _checkWhitelistBlacklist(uint64 trancheId, address user) internal view {
         if(trancheParams[trancheId].isUsingWhitelist){
             require(_usersConfig[user][trancheId].configuration.getWhitelist(), Errors.LP_NOT_WHITELISTED_TRANCHE_PARTICIPANT);
@@ -124,7 +120,7 @@ contract LendingPool is
      *   wants to receive them on his own wallet, or a different address if the beneficiary of aTokens
      *   is a different wallet
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-     *   0 if the action is executed directly by the user, without any middle-man
+     *   0 if the action is executed directly by the user, without any middle-man. Currently unused.
      **/
     function deposit(
         address asset,
@@ -186,7 +182,8 @@ contract LendingPool is
         whenTrancheNotPausedAndExists(trancheId)
         returns (uint256)
     {
-        //note: no check whitelist and blacklist here, cause if users are blacklisted or taken out of whitelist after tranche creation, they should be able to withdraw their funds
+        // note: no check whitelist and blacklist here, cause if users are blacklisted or taken out of whitelist
+        // after tranche creation, they should be able to withdraw their funds
         uint256 actualAmount = DepositWithdrawLogic._withdraw(
                 _reserves,
                 _usersConfig[msg.sender][trancheId].configuration,
@@ -239,9 +236,8 @@ contract LendingPool is
         DataTypes.ExecuteBorrowParams memory vars = DataTypes.ExecuteBorrowParams(
                 amount,
                 trancheParams[trancheId].reservesCount,
-                IPriceOracleGetter( //if we change the address of the oracle to give the price in usd, it should still work
-                    _addressesProvider.getPriceOracle(
-                    )
+                IPriceOracleGetter(
+                    _addressesProvider.getPriceOracle()
                 ).getAssetPrice(asset),
                 trancheId,
                 referralCode,
@@ -296,7 +292,8 @@ contract LendingPool is
         uint256 amount,
         address onBehalfOf
     ) external override whenTrancheNotPausedAndExists(trancheId) returns (uint256) {
-        //note: no check whitelist and blacklist here, cause if users are blacklisted or taken out of whitelist after tranche creation, they should be able to withdraw their funds
+        // note: no check whitelist and blacklist here, cause if users are blacklisted or taken out of whitelist
+        // after tranche creation, they should be able to repay their loans
         DataTypes.ReserveData storage reserve = _reserves[asset][trancheId];
 
         uint256 variableDebt = Helpers.getUserCurrentDebt(
@@ -343,6 +340,7 @@ contract LendingPool is
     /**
      * @dev Allows depositors to enable/disable a specific deposited asset as collateral
      * @param asset The address of the underlying asset deposited
+     * @param trancheId The trancheId of the underlying asset
      * @param useAsCollateral `true` if the user wants to use the deposit as collateral, `false` otherwise
      **/
     function setUserUseReserveAsCollateral(
@@ -400,7 +398,7 @@ contract LendingPool is
         override
         whenTrancheNotPausedAndExists(trancheId)
     {
-        //liquidators should not be restricted to whitelisted users and ban blacklisted users
+        // note: liquidators should not be restricted to whitelisted users and ban blacklisted users
 
         address collateralManager = _addressesProvider
             .getLendingPoolCollateralManager();
@@ -490,11 +488,6 @@ contract LendingPool is
             ltv,
             avgBorrowFactor
         );
-
-        //Then, to know how much of an asset you can borrow,
-        //amount you are trying to borrow = x
-        //debt value = x * borrow factor = availableBorrowsEth
-        //just do availableBorrowsETH / asset borrow factor (and then convert to native amount)
     }
 
     /**
@@ -602,6 +595,7 @@ contract LendingPool is
      * @dev Validates and finalizes an aToken transfer
      * - Only callable by the overlying aToken of the `asset`
      * @param asset The address of the underlying asset of the aToken
+     * @param trancheId The tranche id of the aToken
      * @param from The user from which the aTokens are transferred
      * @param to The user receiving the aTokens
      * @param amount The amount being transferred/withdrawn
@@ -675,14 +669,12 @@ contract LendingPool is
             Address.isContract(underlyingAsset),
             Errors.LP_NOT_CONTRACT
         );
-        //considering requiring trancheParams[trancheId].reservesCount = 0, but you can add another asset to an existing tranche too.
         _reserves[underlyingAsset][trancheId].init(
             aTokenAddress,
             variableDebtAddress,
             interestRateStrategyAddress
         );
 
-        // TODO: update for tranches
         _addReserveToList(underlyingAsset, trancheId);
     }
 
@@ -690,6 +682,7 @@ contract LendingPool is
      * @dev Updates the address of the interest rate strategy contract
      * - Only callable by the LendingPoolConfigurator contract
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
      * @param rateStrategyAddress The address of the interest rate strategy contract
      **/
     function setReserveInterestRateStrategyAddress(
@@ -705,6 +698,7 @@ contract LendingPool is
      * @dev Sets the configuration bitmap of the reserve as a whole
      * - Only callable by the LendingPoolConfigurator contract
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
      * @param configuration The new configuration bitmap
      **/
     function setConfiguration(
@@ -741,7 +735,7 @@ contract LendingPool is
     function setPause(bool val, uint64 trancheId)
         external
         override
-        onlyLendingPoolConfigurator     // TODO: change to onlyTrancheAdmin
+        onlyLendingPoolConfigurator
     {
         trancheParams[trancheId].paused = val;
         if (trancheParams[trancheId].paused) {
@@ -759,8 +753,10 @@ contract LendingPool is
             Errors.LP_NO_MORE_RESERVES_ALLOWED
         );
 
-        bool reserveAlreadyAdded = _reserves[asset][trancheId].id != 0 || //all reserves start at zero, so if it is not zero then it was already added
-            _reservesList[trancheId][0] == asset; //this is since the first asset that was added will have id = 0, so we need to make sure that that asset wasn't already added
+        // all reserves start at zero, so if it is not zero then it was already added OR
+        // the first asset that was added will have id = 0, so we need to make sure that that asset wasn't already added
+        bool reserveAlreadyAdded = _reserves[asset][trancheId].id != 0 ||
+            _reservesList[trancheId][0] == asset;
 
         if (!reserveAlreadyAdded) {
             _reserves[asset][trancheId].id = uint8(reservesCount);
@@ -770,21 +766,51 @@ contract LendingPool is
         }
     }
 
-    function setWhitelist(uint64 trancheId, bool isWhitelisted) external override onlyLendingPoolConfigurator{
-        trancheParams[trancheId].isUsingWhitelist = isWhitelisted;
-
+    /**
+     * @dev Enables or disables the whitelist for a tranche
+     * - Only callable by the LendingPoolConfigurator contract
+     * @param trancheId The tranche id to change whitelist on
+     * @param isUsingWhitelist `true` to enable whitelist, `false` to disable whitelist
+     */
+    function setWhitelistEnabled(
+        uint64 trancheId,
+        bool isUsingWhitelist
+    ) external override onlyLendingPoolConfigurator{
+        trancheParams[trancheId].isUsingWhitelist = isUsingWhitelist;
     }
 
-    function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external override onlyLendingPoolConfigurator {
-        // using this function enables the whitelist
-        if(!trancheParams[trancheId].isUsingWhitelist) {
+    /**
+     * @dev Add/remove a user from the whitelist, enabling the whitelist if it was not enabled
+     * - Only callable by the LendingPoolConfigurator contract
+     * @param trancheId The tranche id to configure the user on
+     * @param user The address of the user to configure
+     * @param isWhitelisted `true` to add the user to the whitelist, `false` to remove user from whitelist
+     */
+    function addToWhitelist(
+        uint64 trancheId,
+        address user,
+        bool isWhitelisted
+    ) external override onlyLendingPoolConfigurator {
+        // adding a user to the whitelist enables the whitelist
+        if(isWhitelisted && !trancheParams[trancheId].isUsingWhitelist) {
             trancheParams[trancheId].isUsingWhitelist = true;
         }
 
         _usersConfig[user][trancheId].configuration.setWhitelist(isWhitelisted);
     }
 
-    function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external override onlyLendingPoolConfigurator {
+    /**
+     * @dev Add/remove a user from the blacklist
+     * - Only callable by the LendingPoolConfigurator contract
+     * @param trancheId The tranche id to configure the user on
+     * @param user The address of the user to configure
+     * @param isBlacklisted `true` to add the user to the blacklist, `false` to remove user from blacklist
+     */
+    function addToBlacklist(
+        uint64 trancheId,
+        address user,
+        bool isBlacklisted
+    ) external override onlyLendingPoolConfigurator {
         _usersConfig[user][trancheId].configuration.setBlacklist(isBlacklisted);
     }
 }

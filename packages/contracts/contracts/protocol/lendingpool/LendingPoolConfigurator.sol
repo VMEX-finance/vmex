@@ -14,13 +14,13 @@ import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurato
 import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
 import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.sol";
-import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+
 /**
  * @title LendingPoolConfigurator contract
- * @author Aave
- * @dev Implements the configuration methods for the Aave protocol
+ * @author Aave and VMEX
+ * @dev Implements the configuration methods for the VMEX protocol
  **/
-
 contract LendingPoolConfigurator is
     VersionedInitializable,
     ILendingPoolConfigurator
@@ -33,7 +33,11 @@ contract LendingPoolConfigurator is
     IAssetMappings internal assetMappings;
     ILendingPool internal pool;
     uint64 public override totalTranches;
-    mapping(uint64 => address) override public trancheAdminTreasuryAddresses; //tranche to address of treasury of that tranche
+
+    /**
+     * @dev Mapping from trancheId to the address of the given tranche's treasury.
+     **/
+    mapping(uint64 => address) override public trancheAdminTreasuryAddresses;
 
     modifier onlyEmergencyAdmin {
         require(
@@ -45,13 +49,11 @@ contract LendingPoolConfigurator is
     }
 
     modifier onlyGlobalAdmin() {
-        //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         _onlyGlobalAdmin();
         _;
     }
 
     function _onlyGlobalAdmin() internal view {
-        //this contract handles the updates to the configuration
         require(
             addressesProvider.getGlobalAdmin() == msg.sender,
             Errors.CALLER_NOT_GLOBAL_ADMIN
@@ -64,7 +66,6 @@ contract LendingPoolConfigurator is
     }
 
     function _onlyTrancheAdmin(uint64 trancheId) internal view {
-        //this contract handles the updates to the configuration
         require(
             addressesProvider.getTrancheAdmin(trancheId) == msg.sender ||
                 addressesProvider.getGlobalAdmin() == msg.sender,
@@ -107,7 +108,6 @@ contract LendingPoolConfigurator is
         string calldata name,
         address admin
     ) external whitelistedAddress returns (uint256 trancheId) {
-        //whitelist only
         uint64 givenTranche = totalTranches;
         addressesProvider.addTrancheAdmin(admin, givenTranche);
         totalTranches += 1;
@@ -120,12 +120,18 @@ contract LendingPoolConfigurator is
     /* This next section contains functions only accessible to Tranche Admins and above */
     /* ******************************************************************************** */
 
+    /**
+     * @dev Changes the tranche name of
+     * @param trancheId The tranche id that the admin now manages
+     * @param name The string name of the tranche
+     **/
     function changeTrancheName(
         uint64 trancheId,
         string calldata name
     ) external onlyTrancheAdmin(trancheId) {
         emit TrancheNameChanged(trancheId, name);
     }
+
     /**
      * @dev Initializes reserves in batch. Can be called directly by those who created tranches
      * and want to add new reserves to their tranche
@@ -190,8 +196,8 @@ contract LendingPoolConfigurator is
                 input.underlyingAsset,
                 trancheId
             );
-        if (assetdata.liquidationThreshold != 0) { //asset mappings does not force disable borrow
-            //user's choice matters
+        if (assetdata.liquidationThreshold != 0) {
+            // asset mappings does not force disable borrow, so the user's choice matters
             currentConfig.setCollateralEnabled(input.canBeCollateral);
         }
         else{
@@ -199,18 +205,17 @@ contract LendingPoolConfigurator is
         }
 
         if (assetdata.borrowingEnabled) {
-            //user's choice matters
+            // if borrowing is enabled, the user's choice matters
             currentConfig.setBorrowingEnabled(input.canBorrow);
         }
         else {
-            //force to be disabled
+            // otherwise force to be disabled
             currentConfig.setBorrowingEnabled(false);
         }
 
         uint256 percentReserveFactor = uint256(input.reserveFactor).convertToPercent();
 
-
-        currentConfig.setReserveFactor(percentReserveFactor, input.underlyingAsset, assetMappings); //accounts for new number of decimals
+        currentConfig.setReserveFactor(percentReserveFactor, input.underlyingAsset, assetMappings);
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
@@ -243,7 +248,6 @@ contract LendingPoolConfigurator is
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         trancheAdminTreasuryAddresses[trancheId] = newAddress;
-        //emit
         emit UpdatedTreasuryAddress(trancheId, newAddress);
     }
 
@@ -251,6 +255,8 @@ contract LendingPoolConfigurator is
     /**
      * @dev Enables borrowing on a reserve
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
+     * @param borrowingEnabled 'true' to enable borrowing, 'false' to disable borrowing
      **/
     function setBorrowingOnReserve(
         address[] calldata asset,
@@ -271,13 +277,19 @@ contract LendingPoolConfigurator is
         }
     }
 
-    function setCollateralEnabledOnReserve(address[] calldata asset, uint64 trancheId, bool[] calldata collateralEnabled)
-        external
-        onlyTrancheAdmin(trancheId)
-    {
+    /**
+     * @dev Enables borrowing on a reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
+     * @param collateralEnabled 'true' to enable borrowing, 'false' to disable borrowing
+     **/
+    function setCollateralEnabledOnReserve(
+        address[] calldata asset,
+        uint64 trancheId,
+        bool[] calldata collateralEnabled
+    ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == collateralEnabled.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
-            //note: ideally, we check that no collateral is enabled, but that's hard to do without a complete list of users, so this is a more conservative and easier approach
             if(!collateralEnabled[i]){
                 _checkNoLiquidity(asset[i], trancheId);
             }
@@ -295,6 +307,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Updates the reserve factor of a reserve
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
      * @param reserveFactor The new reserve factor of the reserve, given with 2 decimals (ie 12.55)
      **/
     function setReserveFactor(
@@ -322,9 +335,11 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Freezes a reserve. A frozen reserve doesn't allow any new deposit, borrow or rate swap
-     *  but allows repayments, liquidations, rate rebalances and withdrawals
+     * @dev Freezes a reserve. A frozen reserve doesn't allow any new deposit or borrow
+     *  but allows repayments, liquidations, and withdrawals
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
+     * @param isFrozen 'true' to freeze reserve, 'false' to unfreeze reserve
      **/
     function setFreezeReserve(address[] calldata asset, uint64 trancheId, bool[] calldata isFrozen)
         external
@@ -348,22 +363,51 @@ contract LendingPoolConfigurator is
         }
     }
 
-    function setTrancheWhitelist(uint64 trancheId, bool isWhitelisted) external onlyTrancheAdmin(trancheId){
-        pool.setWhitelist(trancheId,isWhitelisted);
-        emit UserSetWhitelistEnabled(trancheId, isWhitelisted);
+    /**
+     * @dev Enables or disables the whitelist on a tranche
+     * @param trancheId The tranche id
+     * @param isUsingWhitelist 'true' to enable whitelist, 'false' to disable whitelist
+     **/
+    function setTrancheWhitelistEnabled(
+        uint64 trancheId,
+        bool isUsingWhitelist
+    ) external onlyTrancheAdmin(trancheId) {
+        pool.setWhitelistEnabled(trancheId, isUsingWhitelist);
+        emit UserSetWhitelistEnabled(trancheId, isUsingWhitelist);
     }
 
-    function setWhitelist(uint64 trancheId, address[] calldata user, bool[] calldata isWhitelisted) external onlyTrancheAdmin(trancheId) {
+    /**
+     * @dev Add/remove a list of users from the whitelist, enabling the whitelist if it was not enabled
+     * @param trancheId The tranche id
+     * @param user The list of addresses of the users to configure
+     * @param isWhitelisted `true` to add the user to the whitelist, `false` to remove user from whitelist
+     */
+    function setTrancheWhitelist(
+        uint64 trancheId,
+        address[] calldata user,
+        bool[] calldata isWhitelisted
+    ) external onlyTrancheAdmin(trancheId) {
         require(user.length == isWhitelisted.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0;i<user.length;i++){
+        for(uint i = 0;i<user.length;i++) {
             pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
             emit UserChangedWhitelist(trancheId, user[i], isWhitelisted[i]);
         }
     }
 
-    function setBlacklist(uint64 trancheId, address[] calldata user, bool[] calldata isBlacklisted) external onlyTrancheAdmin(trancheId) {
+    /**
+     * @dev Add/remove a user from the blacklist
+     * - Only callable by the LendingPoolConfigurator contract
+     * @param trancheId The tranche id
+     * @param user The address of the user to configure
+     * @param isBlacklisted `true` to add the user to the blacklist, `false` to remove user from blacklist
+     */
+    function setTrancheBlacklist(
+        uint64 trancheId,
+        address[] calldata user,
+        bool[] calldata isBlacklisted
+    ) external onlyTrancheAdmin(trancheId) {
         require(user.length == isBlacklisted.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0;i<user.length;i++){
+        for(uint i = 0;i<user.length;i++) {
             pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
             emit UserChangedBlacklist(trancheId, user[i], isBlacklisted[i]);
         }
@@ -372,6 +416,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Sets the interest rate strategy of a reserve
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id to set strategy on
      * @param rateStrategyAddressId The new address of the interest strategy contract
      **/
     function setReserveInterestRateStrategyAddress(
@@ -379,7 +424,7 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         uint8 rateStrategyAddressId
     ) external onlyTrancheAdmin(trancheId) {
-        address rateStrategyAddress =assetMappings.getInterestRateStrategyAddress(asset,rateStrategyAddressId);
+        address rateStrategyAddress = assetMappings.getInterestRateStrategyAddress(asset, rateStrategyAddressId);
 
         pool.setReserveInterestRateStrategyAddress(
             asset,
@@ -395,6 +440,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Activates a reserve
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
      **/
     function activateReserve(address asset, uint64 trancheId)
         external
@@ -413,6 +459,7 @@ contract LendingPoolConfigurator is
     /**
      * @dev Deactivates a reserve
      * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
      **/
     function deactivateReserve(address asset, uint64 trancheId)
         external
@@ -431,17 +478,22 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev pauses or unpauses all the actions of the protocol, including aToken transfers
-     * @param val true if protocol needs to be paused, false otherwise
+     * @dev pauses or unpauses all the actions of a tranche, including aToken transfers
+     * @param val true if tranche needs to be paused, false otherwise
+     * @param trancheId The tranche id of the reserve
      **/
-    function setPoolPause(bool val, uint64 trancheId)
+    function setTranchePause(bool val, uint64 trancheId)
         external
         onlyEmergencyAdmin
     {
         pool.setPause(val, trancheId);
     }
 
-    function setEveryPoolPause(bool val)
+    /**
+     * @dev pauses or unpauses all the actions of all tranches, including aToken transfers
+     * @param val true if all tranches needs to be paused, false otherwise
+     **/
+    function setEveryTranchePause(bool val)
         external
         onlyEmergencyAdmin
     {

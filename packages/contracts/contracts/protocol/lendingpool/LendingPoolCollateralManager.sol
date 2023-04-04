@@ -25,7 +25,7 @@ import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 
 /**
  * @title LendingPoolCollateralManager contract
- * @author Aave
+ * @author Aave and VMEX
  * @dev Implements actions involving management of collateral in the protocol, the main one being the liquidations
  * IMPORTANT This contract will run always via DELEGATECALL, through the LendingPool, so the chain of inheritance
  * is the same as the LendingPool, to have compatible storage layouts
@@ -70,7 +70,7 @@ contract LendingPoolCollateralManager is
     }
 
     /**
-     * @dev As thIS contract extends the VersionedInitializable contract to match the state
+     * @dev As this contract extends the VersionedInitializable contract to match the state
      * of the LendingPool contract, the getRevision() function is needed, but the value is not
      * important, as the initialize() function will never be called here
      */
@@ -84,6 +84,7 @@ contract LendingPoolCollateralManager is
      *   a proportionally amount of the `collateralAsset` plus a bonus to cover market risk
      * @param collateralAsset The address of the underlying asset used as collateral, to receive as result of the liquidation
      * @param debtAsset The address of the underlying borrowed asset to be repaid with the liquidation
+     * @param trancheId The tranche id where the liquidation occurs
      * @param user The address of the borrower getting liquidated
      * @param debtToCover The debt amount of borrowed `asset` the liquidator wants to cover
      * @param receiveAToken `true` if the liquidators wants to receive the collateral aTokens, `false` if he wants
@@ -93,7 +94,6 @@ contract LendingPoolCollateralManager is
         address collateralAsset,
         address debtAsset,
         uint64 trancheId,
-        // uint8 debtAssetTranche, //this would actually be the same trancheId as the collateral (you can only borrow from the same trancheId that your collateral is in)
         address user,
         uint256 debtToCover,
         bool receiveAToken
@@ -162,7 +162,7 @@ contract LendingPoolCollateralManager is
             : debtToCover;
 
         (
-            vars.maxCollateralToLiquidate, //considers exchange rate between debt token and collateral
+            vars.maxCollateralToLiquidate,
             vars.debtAmountNeeded
         ) = _calculateAvailableCollateralToLiquidate(
             vars.collateralAsset,
@@ -314,7 +314,7 @@ contract LendingPoolCollateralManager is
      * @param userCollateralBalance The collateral balance for the specific `collateralAsset` of the user being liquidated
      * @return collateralAmount: The maximum amount that is possible to liquidate given all the liquidation constraints
      *                           (user balance, close factor)
-     *         debtAmountNeeded: The amount to repay with the liquidation
+     * @return debtAmountNeeded: The amount to repay with the liquidation
      **/
     function _calculateAvailableCollateralToLiquidate(
         address collateralAsset,

@@ -48,23 +48,29 @@ library DepositWithdrawLogic {
         DataTypes.UserConfigurationMap storage user
     ) external returns(uint256){
         if (vars.amount == type(uint256).max) {
-            vars.amount = IAToken(vars.asset).balanceOf(msg.sender); //amount to deposit is the user's balance
+            // if amount is type(uint256).max, this indicates the user wants to deposit the maximum possible
+            vars.amount = IAToken(vars.asset).balanceOf(msg.sender);
         }
         ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
 
         address aToken = self.aTokenAddress;
 
-        //these will simply not be used for collateral vault, and even if it is, it won't change anything, so this will just save gas
         self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
-        self.updateInterestRates(vars.asset, vars.trancheId, vars.amount, 0, vars._assetMappings.getVMEXReserveFactor(vars.asset));
-        
-        IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount); //msg.sender should still be the user, not the contract
+        self.updateInterestRates(
+            vars.asset,
+            vars.trancheId,
+            vars.amount,
+            0,
+            vars._assetMappings.getVMEXReserveFactor(vars.asset)
+        );
+
+        IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount);
 
         bool isFirstDeposit = IAToken(aToken).mint(
             vars.onBehalfOf,
             vars.amount,
             self.liquidityIndex
-        ); //this also considers if it is a first deposit into a trancheId, not just a specific asset
+        );
 
         if (isFirstDeposit) {
             // if collateral is enabled, by default the user's deposit is marked as collateral
@@ -98,13 +104,9 @@ library DepositWithdrawLogic {
         address aToken = reserve.aTokenAddress;
 
         uint256 userBalance = IAToken(aToken).balanceOf(msg.sender);
-        //balanceOf actually multiplies the atokens that the user has by the liquidity index.
-        //User A deposits 1000 DAI at the liquidity index of 1.1. He is actually minted 1000/1.1 = 909 scaled aTokens. But when he checks his balance, he finds 909 *1.1 = 1000
-        //User B deposits another amount into the same pool. The liquidity index is now 1.2. User A now checks 909*1.2 = 1090.9, so he gets "interest" despite his scaled aTokens remaining the same
-        //liquidityIndex is not 1 to 1 with pool amount. So there are additional funds left in pool in above case.
 
         if (vars.amount == type(uint256).max) {
-            vars.amount = userBalance; //amount to withdraw
+            vars.amount = userBalance;
         }
 
         ValidationLogic.validateWithdraw(
@@ -161,13 +163,13 @@ library DepositWithdrawLogic {
         reserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
 
         bool isFirstBorrowing = IVariableDebtToken(
-                reserve.variableDebtTokenAddress
-            ).mint(
-                    vars.user, //msg.sender is the delegatee
-                    vars.onBehalfOf, //onBehalfOf is the one with collateral, takes the debt tokens on behalf of the msg.sender
-                    vars.amount,
-                    reserve.variableBorrowIndex
-                );
+            reserve.variableDebtTokenAddress
+        ).mint(
+            vars.user, //msg.sender is the delegatee
+            vars.onBehalfOf, //onBehalfOf is the one with collateral, takes the debt tokens on behalf of the msg.sender
+            vars.amount,
+            reserve.variableBorrowIndex
+        );
 
         if (isFirstBorrowing) {
             userConfig.setBorrowing(reserve.id, true);

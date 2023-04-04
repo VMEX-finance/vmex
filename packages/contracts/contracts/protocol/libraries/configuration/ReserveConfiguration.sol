@@ -7,7 +7,7 @@ import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 
 /**
  * @title ReserveConfiguration library
- * @author Aave
+ * @author Aave and VMEX
  * @notice Implements the bitmap logic to handle the reserve configuration
  */
 library ReserveConfiguration {
@@ -49,7 +49,7 @@ library ReserveConfiguration {
         view
         returns (bool)
     {
-        return a.getAssetActive(asset) && (self.data & ~ACTIVE_MASK) != 0;
+        return a.getAssetAllowed(asset) && (self.data & ~ACTIVE_MASK) != 0;
     }
 
     /**
@@ -119,8 +119,8 @@ library ReserveConfiguration {
         address asset,
         IAssetMappings a
     ) internal view {
-        //make sure user reserve factor does not exceed our reserve factor to prevent tranche admins rugging users
-        //also make sure it doesn't exceed the max number of bits allocated
+        // user set reserve factor <= our reserve factor to prevent tranche admins rugging users
+        // also make sure it doesn't exceed the max number of bits allocated
         require(
             reserveFactor <= MAX_VALID_RESERVE_FACTOR &&
             reserveFactor <= a.getVMEXReserveFactor(asset),
@@ -170,9 +170,7 @@ library ReserveConfiguration {
         view
         returns (bool)
     {
-        //note: only if we allow an asset as collateral, do we give tranche admins to choose to set asset as collateral
         return a.getAssetCollateralizable(asset) && (self.data & ~COLLATERAL_ENABLED_MASK) != 0;
-
     }
 
     /**

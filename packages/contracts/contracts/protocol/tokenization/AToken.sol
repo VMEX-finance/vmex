@@ -22,7 +22,7 @@ import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
 /**
  * @title VMEX ERC20 AToken (vToken)
  * @dev Implementation of the interest bearing token for the Aave protocol
- * @author Aave/VMEX
+ * @author Aave and VMEX
  */
 contract AToken is
     VersionedInitializable,
@@ -54,7 +54,7 @@ contract AToken is
     ILendingPoolAddressesProvider public _addressesProvider;
     ILendingPool public _pool;
     address public _lendingPoolConfigurator;
-    address public _underlyingAsset; //yearn address
+    address public _underlyingAsset;
     uint64 public _tranche;
 
     modifier onlyLendingPool() {

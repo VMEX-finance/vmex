@@ -69,7 +69,7 @@ task('dev:initialize-tranche-2', 'Initialize lending pool configuration.')
     await waitForTx(
       await lendingPoolConfiguratorProxy
         .connect(admin)
-        .setPoolPause(true, 1)
+        .setTranchePause(true, 1)
     );
 
     let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche1MockedData(reserveAssets);
@@ -86,12 +86,12 @@ task('dev:initialize-tranche-2', 'Initialize lending pool configuration.')
     await waitForTx(
       await lendingPoolConfiguratorProxy
         .connect(admin)
-        .setPoolPause(false, 0)
+        .setTranchePause(false, 0)
     );
     // Unpause market during deployment
     await waitForTx(
       await lendingPoolConfiguratorProxy
         .connect(admin)
-        .setPoolPause(false, 1)
+        .setTranchePause(false, 1)
     );
   });

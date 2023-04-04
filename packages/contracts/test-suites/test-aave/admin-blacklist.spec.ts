@@ -22,8 +22,8 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .setBlacklist(0, [users[3].address], [true]);
-    
+      .setTrancheBlacklist(0, [users[3].address], [true]);
+
     const config = await pool
       .connect(deployer.signer).getUserConfiguration(users[3].address, 0)
     expect(config.data.toHexString()).to.be.equal("0x4000000000000000000000000000000000000000000000000000000000000000");
@@ -49,7 +49,7 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
     await pool
       .connect(users[0].signer)
       .deposit(dai.address, 0, amountDAItoDeposit, users[0].address, "0")
-        
+
     await pool
       .connect(users[0].signer)
       .borrow(dai.address, 0, await convertToCurrencyDecimals(
@@ -91,8 +91,8 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .setBlacklist(0, [users[0].address], [true]);
-    
+      .setTrancheBlacklist(0, [users[0].address], [true]);
+
     const config = await pool
       .connect(deployer.signer).getUserConfiguration(users[0].address, 0)
     expect(config.data.toHexString()).to.be.equal("0x4000000000000000000000000000000000000000000000000000000000000003");
@@ -110,7 +110,7 @@ makeSuite("Admin whitelisting and blacklisting tests", (testEnv: TestEnv) => {
         dai.address,
         "200"
       ), users[0].address)
-    
+
     await pool
       .connect(users[0].signer)
       .withdraw(dai.address, 0, MAX_UINT_AMOUNT, users[0].address)

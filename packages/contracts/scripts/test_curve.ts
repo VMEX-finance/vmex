@@ -33,7 +33,7 @@ const WETHabi = [
     if (LendingPool.paused()) {
         console.log('unpausing Lending Pool')
         const LendingPoolConfiguratorProxy = await LendingPoolConfiguratorFactory.connect(deployments.LendingPoolConfigurator.localhost.address, emergency);
-        await LendingPoolConfiguratorProxy.setPoolPause(false, { gasLimit: "8000000"});
+        await LendingPoolConfiguratorProxy.setTranchePause(false, { gasLimit: "8000000"});
     }
 
 

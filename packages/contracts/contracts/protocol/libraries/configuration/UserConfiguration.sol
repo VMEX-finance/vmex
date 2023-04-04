@@ -13,6 +13,7 @@ library UserConfiguration {
     uint256 internal constant BORROWING_MASK =      0x5555555555555555555555555555555555555555555555555555555555555555; // prettier-ignore
     uint256 constant WHITELISTED_MASK =             0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
     uint256 constant BLACKLISTED_MASK =             0xBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+
     //NOTE: changed from 128 to 126 since two bits at the end are used for whitelist and blacklist.
     uint256 internal constant MAX_RESERVES = 126;
 

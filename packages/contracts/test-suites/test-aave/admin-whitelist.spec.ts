@@ -20,7 +20,7 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
   it('makes users[3] whitelisted', async () => {
     const { users, deployer, pool, configurator, helpersContract } = testEnv;
 
-    await configurator.connect(deployer.signer).setWhitelist(0, [users[3].address], [true]);
+    await configurator.connect(deployer.signer).setTrancheWhitelist(0, [users[3].address], [true]);
 
     const config = await pool
       .connect(deployer.signer).getUserConfiguration(users[3].address, 0)
@@ -61,14 +61,14 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
     await pool
       .connect(users[3].signer)
       .deposit(dai.address, 0, amountDAItoDeposit, users[3].address, "0")
-    
+
     await pool
       .connect(users[3].signer)
       .borrow(dai.address, 0, await convertToCurrencyDecimals(
         dai.address,
         "20"
       ), "0", users[3].address)
-    
+
     const config = await pool
       .connect(users[3].signer).getUserConfiguration(users[3].address, 0)
     expect(config.data.toHexString()).to.be.equal("0x8000000000000000000000000000000000000000000000000000000000000003");
@@ -89,8 +89,8 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .setWhitelist(0, [users[3].address], [false]);
-    
+      .setTrancheWhitelist(0, [users[3].address], [false]);
+
     const config = await pool
       .connect(deployer.signer).getUserConfiguration(users[3].address, 0)
     expect(config.data.toHexString()).to.be.equal("0x03");
@@ -108,7 +108,7 @@ makeSuite('Admin whitelisting and blacklisting tests', (testEnv: TestEnv) => {
         dai.address,
         "200"
       ), users[3].address)
-    
+
     await pool
       .connect(users[3].signer)
       .withdraw(dai.address, 0, MAX_UINT_AMOUNT, users[3].address)

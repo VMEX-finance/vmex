@@ -36,7 +36,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     const user1Balance = await aDai.balanceOf(users[1].address);
 
     // Configurator pauses the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
 
     // User 0 tries the transfer to User 1
     await expect(
@@ -56,10 +56,10 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     );
 
     // Configurator unpauses the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
 
     // Configurator pauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(true);
 
     // User 0 tries the transfer to User 1
     await expect(
@@ -79,7 +79,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     );
 
     // Configurator unpauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(false);
 
     // User 0 succeeds transfer to User 1
     await aDai.connect(users[0].signer).transfer(users[1].address, amountDAItoDeposit);
@@ -109,17 +109,17 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     await dai.connect(users[0].signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
     // Configurator pauses the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
     await expect(
       pool.connect(users[0].signer).deposit(dai.address, tranche, amountDAItoDeposit, users[0].address, '0')
     ).to.revertedWith(LP_IS_PAUSED);
 
     // Configurator unpauses the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
 
 
     // Configurator pauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(true);
 
     // User 0 tries the transfer to User 1
     await expect(
@@ -127,7 +127,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     ).to.revertedWith(LP_IS_PAUSED);
 
     // Configurator unpauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(false);
   });
 
   it('Withdraw', async () => {
@@ -145,7 +145,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
       .deposit(dai.address, tranche, amountDAItoDeposit, users[0].address, '0');
 
     // Configurator pauses the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
 
     // user tries to burn
     await expect(
@@ -153,10 +153,10 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     ).to.revertedWith(LP_IS_PAUSED);
 
     // Configurator unpauses the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
 
     // Configurator pauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(true);
 
     // User 0 tries the transfer to User 1
     await expect(
@@ -164,7 +164,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     ).to.revertedWith(LP_IS_PAUSED);
 
     // Configurator unpauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(false);
   });
 
   it('Borrow', async () => {
@@ -173,7 +173,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     const user = users[1];
     // Pause the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
 
     // Try to execute liquidation
     await expect(
@@ -181,10 +181,10 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     ).revertedWith(LP_IS_PAUSED);
 
     // Unpause the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
 
     // Configurator pauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(true);
 
     // User 0 tries the transfer to User 1
     await expect(
@@ -192,7 +192,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     ).to.revertedWith(LP_IS_PAUSED);
 
     // Configurator unpauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(false);
   });
 
   it('Repay', async () => {
@@ -201,7 +201,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
 
     const user = users[1];
     // Pause the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
 
     // Try to execute liquidation
     await expect(pool.connect(user.signer).repay(dai.address, tranche, '1', user.address)).revertedWith(
@@ -209,10 +209,10 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     );
 
     // Unpause the pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
 
     // Configurator pauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(true);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(true);
 
     // User 0 tries the transfer to User 1
     await expect(
@@ -220,7 +220,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     ).to.revertedWith(LP_IS_PAUSED);
 
     // Configurator unpauses everything the pool
-    await configurator.connect(t0EmergencyAdmin).setEveryPoolPause(false);
+    await configurator.connect(t0EmergencyAdmin).setEveryTranchePause(false);
   });
 
   it('Liquidation call', async () => {
@@ -295,7 +295,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
       .toFixed(0);
 
     // Pause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
 
     // Do liquidation
     await expect(
@@ -303,7 +303,7 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     ).revertedWith(LP_IS_PAUSED);
 
     // Unpause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
   });
 
   it('SwapBorrowRateMode', async () => {
@@ -325,10 +325,10 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     await pool.connect(user.signer).borrow(usdc.address, tranche, amountToBorrow, 0, user.address);
 
     // Pause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
 
     // Unpause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
   });
 
   it('setUserUseReserveAsCollateral', async () => {
@@ -342,13 +342,13 @@ makeSuite('Pausable Pool', (testEnv: TestEnv) => {
     await pool.connect(user.signer).deposit(weth.address, tranche, amountWETHToDeposit, user.address, '0');
 
     // Pause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(true, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(true, tranche);
 
     await expect(
       pool.connect(user.signer).setUserUseReserveAsCollateral(weth.address, tranche, false)
     ).revertedWith(LP_IS_PAUSED);
 
     // Unpause pool
-    await configurator.connect(t0EmergencyAdmin).setPoolPause(false, tranche);
+    await configurator.connect(t0EmergencyAdmin).setTranchePause(false, tranche);
   });
 });

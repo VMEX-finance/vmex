@@ -78,7 +78,7 @@ task(
       await waitForTx(
         await lendingPoolConfiguratorProxy
           .connect(admin)
-          .setPoolPause(true, 1)
+          .setTranchePause(true, 1)
       );
 
       let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche1MockedData(reserveAssets);
@@ -170,12 +170,12 @@ task(
 
       // console.log("Finished deploying strategy in tranche 1");
 
-      
+
       // Unpause market during deployment
       await waitForTx(
         await lendingPoolConfiguratorProxy
           .connect(admin)
-          .setPoolPause(false, 1)
+          .setTranchePause(false, 1)
       );
 
     } catch (err) {

@@ -11,6 +11,20 @@ import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 
+/**
+ * @title AssetMappings contract
+ * @notice Stores information on the assets used across all tranches in the VMEX protocol
+ * @dev The global admin has control over the asset mappings and the risk parameters
+ * - The global admin can:
+ *   # Add asset mappings
+ *   # Configure asset mappings
+ *   # Set asset as allowed or disallowed in the protocol
+ *   # Set VMEX reserve factor
+ *   # Enable or disable assets for borrowing
+ *   # Add interest rate strategies
+ *   # Add curve metadata for pricing curve assets
+ * @author VMEX
+ **/
 contract AssetMappings is IAssetMappings, VersionedInitializable{
     using PercentageMath for uint256;
     using Helpers for address;
@@ -20,13 +34,11 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     address public approvedAssetsTail;
 
     mapping(address => DataTypes.AssetData) internal assetMappings;
-    // mapping(address => DataTypes.AssetDataConfiguration) internal assetConfigurationMappings;
     mapping(address => mapping(uint8=>address)) internal interestRateStrategyAddress;
     mapping(address => uint8) public numInterestRateStrategyAddress;
     mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
 
     modifier onlyGlobalAdmin() {
-        //global admin will be able to have access to other tranches, also can set portion of reserve taken as fee for VMEX admin
         require(
             addressesProvider.getGlobalAdmin() == msg.sender,
             Errors.CALLER_NOT_GLOBAL_ADMIN
@@ -56,7 +68,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     /**
      * @dev Updates the vmex reserve factor of a reserve
      * @param asset The address of the reserve you want to set
-     * @param reserveFactor The new reserve factor of the reserve. Passed in with 2 decimal places.
+     * @param reserveFactor The new reserve factor of the reserve. Passed in with 2 decimal places (0 < reserveFactor < 10000).
      **/
     function setVMEXReserveFactor(
         address asset,
@@ -73,7 +85,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     /**
      * @dev Updates the vmex reserve factor of a reserve
      * @param asset The address of the reserve you want to set
-     * @param borrowingEnabled The new borrowingEnabled of the reserve
+     * @param borrowingEnabled True to enable borrowing, false to disable borrowing
      **/
     function setBorrowingEnabled(
         address asset,
@@ -84,7 +96,13 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         emit BorrowingEnabledChanged(asset, borrowingEnabled);
     }
 
-    function validateCollateralParams(uint64 baseLTV, uint64 liquidationThreshold, uint64 liquidationBonus, uint64 borrowFactor, bool borrowingEnabled) internal pure {
+    function validateCollateralParams(
+        uint64 baseLTV,
+        uint64 liquidationThreshold,
+        uint64 liquidationBonus,
+        uint64 borrowFactor,
+        bool borrowingEnabled
+    ) internal pure {
         require(baseLTV <= liquidationThreshold, Errors.AM_INVALID_CONFIGURATION);
 
         if (liquidationThreshold != 0) {
@@ -98,10 +116,6 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
             //a loan is taken there is enough collateral available to cover the liquidation bonus
 
-            //ex: if liquidation threshold is 50%, that means during liquidation we should have half of the collateral not used to back up loan. If user wants to liquidate and gets 200% liquidation bonus, then they would need
-            //2 times the amount of debt asset they are covering, meaning that they need twice the value of the ccollateral asset. Since liquidation threshold is 50%, this is possible
-
-            //with borrow factors, the liquidation threshold is always less than or equal to what it should be, so this still stands
             require(
                 uint256(liquidationThreshold).percentMul(uint256(liquidationBonus)) <=
                     PercentageMath.PERCENTAGE_FACTOR,
@@ -160,7 +174,8 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
 
             interestRateStrategyAddress[currentAssetAddress][0] = inputAsset.defaultInterestRateStrategyAddress;
 
-            if (approvedAssetsHead==address(0)) { //this means we are adding the first asset
+            if (approvedAssetsHead==address(0)) {
+                // head not set, add first asset to linked list
                 approvedAssetsHead = currentAssetAddress;
                 approvedAssetsTail = currentAssetAddress;
             }
@@ -190,7 +205,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
      * @dev Configures an existing asset mapping's risk parameters
      * @param asset Address of asset token you want to set
      **/
-    function configureReserves(
+    function configureAssetMapping(
         address asset,//20
         uint64 baseLTV, //28
         uint64 liquidationThreshold, //36 --> 1 word, 8 bytes
@@ -214,7 +229,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         assetMappings[asset].borrowFactor = (borrowFactor);
         assetMappings[asset].isAllowed = true;
 
-        emit ConfiguredReserves(asset, baseLTV, liquidationThreshold, liquidationBonus, supplyCap, borrowCap, borrowFactor);
+        emit ConfiguredAssetMapping(asset, baseLTV, liquidationThreshold, liquidationBonus, supplyCap, borrowCap, borrowFactor);
     }
 
     /**
@@ -235,6 +250,9 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         return assetMappings[asset].exists;
     }
 
+    /**
+     * @dev Gets the number of allowed assets in the linked list
+     **/
     function getNumApprovedTokens() view public returns (uint256) {
         uint256 numTokens = 0;
         address tmp = approvedAssetsHead;
@@ -251,8 +269,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         return numTokens;
     }
 
+    /**
+     * @dev Gets a list of the allowed assets in the linked list
+     **/
     function getAllApprovedTokens() view external returns (address[] memory tokens) {
-        //just a view function so this is a bit gassy. Could also store the length but for gas reasons, do not
         if(approvedAssetsHead == address(0)){
             return new address[](0);
         }
@@ -313,10 +333,13 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         return assetMappings[asset].borrowFactor;
     }
 
-    function getAssetActive(address asset) view external returns(bool){
+    function getAssetAllowed(address asset) view external returns(bool){
         return assetMappings[asset].isAllowed;
     }
 
+    /**
+     * @dev Adds an interest rate strategy to the end of the array.
+     **/
     function addInterestRateStrategyAddress(address asset, address strategy) external onlyGlobalAdmin {
         require(Address.isContract(strategy), Errors.AM_INTEREST_STRATEGY_NOT_CONTRACT);
         while(interestRateStrategyAddress[asset][numInterestRateStrategyAddress[asset]]!=address(0)){
@@ -330,6 +353,9 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         );
     }
 
+    /**
+     * @dev Sets curve metadata for an array of assets.
+     **/
     function setCurveMetadata(address[] calldata asset, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
         require(asset.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0;i<asset.length;i++){
