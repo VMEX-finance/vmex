@@ -251,10 +251,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
                 DataTypes.ReserveData memory reserve = ILendingPool(
                     addressesProvider.getLendingPool()
                 ).getReserveData(asset, tranche);
-                if (reserve.aTokenAddress) {
+                if (reserve.variableDebtTokenAddress) {
                     // if the reserve exists in the tranche
                     require(
-                        IERC20Detailed(reserve.aTokenAddress).totalSupply() == 0,
+                        IERC20Detailed(reserve.variableDebtTokenAddress).totalSupply() == 0,
                         Errors.AM_UNABLE_TO_DISALLOW_ASSET
                     );
                 }
