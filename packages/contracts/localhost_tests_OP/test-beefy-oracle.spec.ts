@@ -36,26 +36,17 @@ makeSuite(
         // const lendingPool = await contractGetters.getLendingPool();
         // Load the first signer
         const curveAssets = [
-            '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',//tricrypto
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',//threepool
-            '0x06325440D014e39736583c165C2963BA99fAf14E',//stetheth
-            '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',//frax usdc
-            '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',//frax 3crv
+            '0x061b87122Ed14b9526A813209C8a59a633257bAb',//susd 3crv
+            '0xEfDE221f306152971D8e9f181bFe998447975810',//wsteth eth
          ];
          const curvePools = [
-          '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46',//tricrypto, needs read reentrancy protection
-          '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',//threepool
-          '0xDC24316b9AE028F1497c275EB9192a3Ea0f67022',//stetheth, needs read reentrancy protection
-          '0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2',//frax usdc
-          '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',//frax 3crv
+          '0x061b87122Ed14b9526A813209C8a59a633257bAb',//susd 3crv
+          '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415',//wsteth eth
        ];
 
        const curveSize = [
-        3,//tricrypto
-        3,//threepool
-        2,//stetheth
-        2,//frax usdc
-        2,//frax 3crv
+        2,//tricrypto
+        2,//threepool
      ];
         const CurveTokenAddabi = [
             "function allowance(address owner, address spender) external view returns (uint256 remaining)",
@@ -80,11 +71,8 @@ makeSuite(
           `function owner() external view returns(address)`,
         ];
         const yvAddr = [
-             '0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3',
-             '0x84E13785B5a27879921D6F685f041421C7F482dA',
-             '0x5B8C556B8b2a78696F0B9B830B3d67623122E270',
-             '0x1A5ebfF0E881Aec34837845e4D0EB430a1B4b737',
-             '0xb37094c1B5614Bd6EcE40AFb295C26F4377069d3',
+             '0x107Dbf9c9C0EF2Df114159e5C7DC2baf7C444cFF',
+             '0x0892a178c363b4739e5Ac89E9155B9c30214C0c0',
             ]
         const yvAbi = [
           "function totalAssets() external view returns(uint256)", 

@@ -208,3 +208,18 @@ export const strategyYearnToken: IReserveParams = {
   borrowFactor: '10100', //100% for now
   reserveFactor: '2000',
 };
+
+export const strategyBeefyToken: IReserveParams = {
+  strategy: rateStrategyCurve,
+  baseLTVAsCollateral: '2500', //change
+  liquidationThreshold: '4500',//change
+  liquidationBonus: '11500', //change
+  borrowingEnabled: false,
+  reserveDecimals: '18', //this is the important information
+  aTokenImpl: eContractid.AToken,
+  assetType: 4, //4 is enum for beefy
+  supplyCap: '10000', 
+  borrowCap: '10000', 
+  borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
+};

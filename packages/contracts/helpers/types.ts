@@ -350,6 +350,8 @@ export interface iAssetBase<T> {
   yvFraxUSDC: T;
   yvFrax3Crv: T;
   OP: T;
+  mooCurveFsUSD: T;
+  mooCurveWSTETH: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -457,7 +459,8 @@ export type iOptimismPoolAssets<T> = Partial<
     | "ThreeCRV"
     | "sUSD3CRV"
     | "wstETHCRV"
-
+    | "mooCurveFsUSD"
+    | "mooCurveWSTETH"
   >
 >;
 

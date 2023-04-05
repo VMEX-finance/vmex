@@ -17,6 +17,7 @@ import {IYearnToken} from "../../interfaces/IYearnToken.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
+import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -151,6 +152,12 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(tmp==DataTypes.ReserveAssetType.YEARN){
             return getYearnPrice(asset);
         }
+        else if(tmp==DataTypes.ReserveAssetType.BEEFY) {
+            return getBeefyPrice(asset);
+        }
+        // else if(tmp==DataTypes.ReserveAssetType.VELODROME) {
+        //     return getVeloPrice(asset);
+        // }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
@@ -209,6 +216,38 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
+    // function getVeloPrice(
+    //     address asset
+    // ) internal returns (uint256 price) {
+    //     DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
+
+    //     if (!Address.isContract(c._curvePool)) {
+    //         return _fallbackOracle.getAssetPrice(asset);
+    //     }
+
+    //     uint256[] memory prices = new uint256[](c._poolSize);
+
+    //     for (uint256 i = 0; i < c._poolSize; i++) {
+    //         address underlying = ICurvePool(c._curvePool).coins(i);
+    //         if(underlying == ETH_NATIVE){
+    //             underlying = WETH;
+    //         }
+    //         prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
+    //         require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+    //     }
+
+    //     if(assetType==DataTypes.ReserveAssetType.CURVE){
+    //         price = CurveOracle.get_price_v1(c._curvePool, prices, c._checkReentrancy);
+    //     }
+    //     else if(assetType==DataTypes.ReserveAssetType.CURVEV2){
+    //         price = CurveOracle.get_price_v2(c._curvePool, prices, c._checkReentrancy);
+    //     }
+    //     if(price == 0){
+    //         return _fallbackOracle.getAssetPrice(asset);
+    //     }
+    //     return price;
+    // }
+
     function getYearnPrice(address asset) internal returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
         uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth), or 8 decimals if prices in USD
@@ -220,16 +259,15 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 	
-	//TODO: add to asset mappings, don't want to mess with this
-//	function getBeefyPrice(address asset) internal returns (uint256) {
-//		IBeefyVault beefyVault = IBeefyVault(asset); 
-//		uint256 underlyingPrice = getAssetPrice(); 
-//        uint256 price = yearnVault.pricePerShare()*underlyingPrice / 10**yearnVault.decimals();
-//        if(price == 0){
-//            return _fallbackOracle.getAssetPrice(asset);
-//        }
-//        return price;
-//	}
+	function getBeefyPrice(address asset) internal returns (uint256) {
+        IBeefyVault beefyVault = IBeefyVault(asset); 
+        uint256 underlyingPrice = getAssetPrice(beefyVault.want()); 
+        uint256 price = beefyVault.getPricePerFullShare()*underlyingPrice / 10**beefyVault.decimals();
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+	}
 
     /// @notice Gets a list of prices from a list of assets addresses
     /// @param assets The list of assets addresses

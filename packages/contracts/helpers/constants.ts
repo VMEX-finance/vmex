@@ -98,6 +98,8 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   yvStethEth: oneEther.toFixed(), //this should not be used, just placed here to compile
   yvFraxUSDC: oneEther.toFixed(), //this should not be used, just placed here to compile
   yvFrax3Crv: oneEther.toFixed(), //this should not be used, just placed here to compile
+  mooCurveFsUSD: oneEther.toFixed(), //this should not be used, just placed here to compile
+  mooCurveWSTETH: oneEther.toFixed(), //this should not be used, just placed here to compile
 };
 
 export const chainlinkAggregatorProxy = {

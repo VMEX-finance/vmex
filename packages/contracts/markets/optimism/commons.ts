@@ -114,6 +114,8 @@ export const CommonsConfig: ICommonConfiguration = {
       ThreeCRV: ZERO_ADDRESS, //this should not be used
       sUSD3CRV: ZERO_ADDRESS, //this should not be used
       wstETHCRV: ZERO_ADDRESS, //this should not be used
+      mooCurveFsUSD: ZERO_ADDRESS, //this should not be used
+      mooCurveWSTETH: ZERO_ADDRESS, //this should not be used
     },
   },
   ReserveAssets: {

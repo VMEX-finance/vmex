@@ -15,6 +15,7 @@ import {
   strategyWBTC,
   strategyWETH,
   strategyCurveV1LPToken,
+  strategyBeefyToken,
 } from './reservesConfigs';
 
 // ----------------
@@ -40,6 +41,8 @@ export const OptimismConfig: IOptimismConfiguration = {
     ThreeCRV: strategyCurveV1LPToken,
     sUSD3CRV: strategyCurveV1LPToken,
     wstETHCRV: strategyCurveV1LPToken,
+    mooCurveFsUSD: strategyBeefyToken,
+    mooCurveWSTETH: strategyBeefyToken,
   },
   ReserveAssets: {
     [eOptimismNetwork.optimism]: {
@@ -56,6 +59,8 @@ export const OptimismConfig: IOptimismConfiguration = {
       ThreeCRV: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
       sUSD3CRV: '0x061b87122Ed14b9526A813209C8a59a633257bAb',
       wstETHCRV: '0xEfDE221f306152971D8e9f181bFe998447975810',
+      mooCurveFsUSD: '0x107Dbf9c9C0EF2Df114159e5C7DC2baf7C444cFF',
+      mooCurveWSTETH: '0x0892a178c363b4739e5Ac89E9155B9c30214C0c0',
     },
   },
 };

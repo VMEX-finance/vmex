@@ -6,12 +6,15 @@ interface IBeefyVault {
 	function balance() external view returns (uint256); 
 	function getPricePerFullShare() external view returns(uint256); 
 	function totalSupply() external view returns (uint256); 
+	function decimals() external view returns (uint256); 
 	function strategy() external view returns (address); 
 	function withdraw(uint256 amount) external; 
 
 	function balanceOf(address token) external view returns (uint256); 
 	
 	function deposit(uint256 amount) external; 
+
+    function want() external view returns (address);
 }
 
 interface IFeeConfig {
