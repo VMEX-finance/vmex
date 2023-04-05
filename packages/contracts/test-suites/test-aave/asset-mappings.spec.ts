@@ -5,16 +5,16 @@ import {
   oneEther,
 } from "../../helpers/constants";
 import { ProtocolErrors } from "../../helpers/types";
-import { BigNumberish, ethers } from "ethers";
+import { BigNumberish } from "ethers";
 import { createRandomAddress } from "../../helpers/misc-utils";
 import {
   deployMintableERC20,
   deployMockAToken,
 } from "../../helpers/contracts-deployments";
 import { convertToCurrencyDecimals } from "../../helpers/contracts-helpers";
-
+import rawBRE, { ethers } from "hardhat";
+import { getAToken, getTrancheAdminT1, getVariableDebtToken } from "../../helpers/contracts-getters";
 const { expect } = require("chai");
-
 makeSuite("Asset mappings", (testEnv: TestEnv) => {
   const {
     AM_INVALID_CONFIGURATION,
@@ -89,7 +89,12 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
 
   it("Deletes weth from approved tokens", async () => {
     const { assetMappings, weth } = testEnv;
+    await expect(assetMappings.setAssetAllowed(weth.address, false)).to.be.revertedWith(AM_UNABLE_TO_DISALLOW_ASSET);
+    await assetMappings.setBorrowingEnabled(weth.address, false);
+    await expect(assetMappings.setAssetAllowed(weth.address, false)).to.be.revertedWith(AM_UNABLE_TO_DISALLOW_ASSET);
+    await assetMappings.configureAssetMapping(weth.address, 0,0,0,0,0,10000);
     await assetMappings.setAssetAllowed(weth.address, false);
+    
     await expect(
       assetMappings.getAssetMapping(weth.address)
     ).to.be.revertedWith(ProtocolErrors.AM_ASSET_NOT_ALLOWED);
@@ -355,17 +360,13 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
   });
 
   it("Disallow asset can only happen when there is no outstanding debt in any tranche", async () => {
-    const { assetMappings, pool, dai, weth, users } = testEnv;
-    const tranche = 1;
+    const { assetMappings, pool, dai, usdc, users, addressesProvider } = testEnv;
+    const tranche = 0;
 
     expect(defaultAssetMappingAssets.has(dai.address)).to.be.equal(
       true,
       "Incorrect configuration of default asset mappings"
     );
-
-    // this should work fine since no outstanding debt
-    await assetMappings.setAssetAllowed(dai.address, false);
-    await assetMappings.setAssetAllowed(dai.address, true);
 
     // user 0 will deposit 1000 dai
     await dai
@@ -373,7 +374,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       .mint(await convertToCurrencyDecimals(dai.address, "1000"));
     await dai
       .connect(users[1].signer)
-      .mint(await convertToCurrencyDecimals(dai.address, "10"));
+      .mint(await convertToCurrencyDecimals(dai.address, "1000"));
 
     await dai
       .connect(users[0].signer)
@@ -392,20 +393,20 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       .deposit(dai.address, tranche, amountDAItoDeposit, users[0].address, "0");
 
     // user 1 will deposit 1000 weth into the lending pool
-    await weth
+    await usdc
       .connect(users[1].signer)
-      .mint(await convertToCurrencyDecimals(weth.address, "1000"));
+      .mint(await convertToCurrencyDecimals(usdc.address, "1000"));
 
-    await weth
+    await usdc
       .connect(users[1].signer)
       .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
     await pool
       .connect(users[1].signer)
       .deposit(
-        weth.address,
+        usdc.address,
         tranche,
-        ethers.utils.parseEther("1.0"),
+        await convertToCurrencyDecimals(usdc.address,"1000.0"),
         users[1].address,
         "0"
       );
@@ -421,6 +422,10 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
         users[1].address
       );
 
+    //governance decides to disallow dai
+    await assetMappings.setBorrowingEnabled(dai.address, false);
+    await assetMappings.configureAssetMapping(dai.address, 0,0,0,0,0,10000);
+
     await expect(
       assetMappings.setAssetAllowed(dai.address, false)
     ).to.be.revertedWith(AM_UNABLE_TO_DISALLOW_ASSET);
@@ -430,8 +435,45 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       .connect(users[1].signer)
       .repay(dai.address, tranche, MAX_UINT_AMOUNT, users[1].address);
 
+    //not all has been withdrawn
     await expect(
       assetMappings.setAssetAllowed(dai.address, false)
-    ).to.be.not.revertedWith(AM_UNABLE_TO_DISALLOW_ASSET);
+    ).to.be.revertedWith(AM_UNABLE_TO_DISALLOW_ASSET);
+
+    await pool
+      .connect(users[0].signer)
+      .withdraw(dai.address, tranche, MAX_UINT_AMOUNT, users[0].address);
+    //tranche admin and global admin also need to withdraw their amount
+
+    await rawBRE.network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: ["0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49"],
+    });
+    const globalAdmin = await ethers.getSigner("0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49")
+    const trancheAdminAdd = await addressesProvider.getTrancheAdmin(tranche)
+    const trancheAdmin = await ethers.getSigner(trancheAdminAdd);
+
+    const reserveDat = await pool.connect(users[0].signer).getReserveData(dai.address, tranche);
+    const varDebt = await getVariableDebtToken(reserveDat.variableDebtTokenAddress);
+    const aToken = await getAToken(reserveDat.aTokenAddress);
+    console.log("amount global admin has: ", await aToken.connect(users[0].signer).balanceOf("0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49"))
+
+    console.log("amount tranche admin has: ", await aToken.connect(users[0].signer).balanceOf(trancheAdminAdd))
+
+    console.log("total atokens: ", await aToken.connect(users[0].signer).totalSupply())
+    console.log("total debt tokens: ", await varDebt.connect(users[0].signer).totalSupply())
+    await users[0].signer.sendTransaction({
+      to: globalAdmin.address,
+      value: ethers.utils.parseEther("100.0"), // Sends exactly 100.0 ether
+    });
+    await pool
+      .connect(globalAdmin)
+      .withdraw(dai.address, tranche, MAX_UINT_AMOUNT, globalAdmin.address);
+
+    await pool
+      .connect(trancheAdmin)
+      .withdraw(dai.address, tranche, MAX_UINT_AMOUNT, trancheAdminAdd);
+
+    await assetMappings.setAssetAllowed(dai.address, false); //should be allowed now
   });
 });

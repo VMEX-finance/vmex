@@ -48,6 +48,38 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         _;
     }
 
+    function validateAssetAllowed(address asset) internal view {
+        require(!assetMappings[asset].borrowingEnabled, Errors.AM_UNABLE_TO_DISALLOW_ASSET);
+        require(assetMappings[asset].baseLTV == 0, Errors.AM_UNABLE_TO_DISALLOW_ASSET);
+        //check no borrows open
+        uint64 totalTranches = ILendingPoolConfigurator(
+            addressesProvider.getLendingPoolConfigurator()
+        ).totalTranches();
+
+        for (uint64 tranche = 0; tranche < totalTranches; tranche++) {
+            DataTypes.ReserveData memory reserve = ILendingPool(
+                addressesProvider.getLendingPool()
+            ).getReserveData(asset, tranche);
+            //no outstanding borrows allowed
+            if (reserve.variableDebtTokenAddress != address(0)) {
+                // if the reserve exists in the tranche
+                require(
+                    IERC20Detailed(reserve.variableDebtTokenAddress).totalSupply() == 0,
+                    Errors.AM_UNABLE_TO_DISALLOW_ASSET
+                );
+            }
+            //no outstanding deposits allowed, or else they are unable to withdraw
+            if (reserve.aTokenAddress != address(0)) {
+                // if the reserve exists in the tranche
+                require(
+                    IERC20Detailed(reserve.aTokenAddress).totalSupply() == 0,
+                    Errors.AM_UNABLE_TO_DISALLOW_ASSET
+                );
+            }
+        }
+
+    }
+
     function getRevision() internal pure override returns (uint256) {
         return 0x1;
     }
@@ -242,23 +274,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     function setAssetAllowed(address asset, bool isAllowed) external onlyGlobalAdmin{
         require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
         if (!isAllowed) {
-            //check no borrows open
-            uint64 totalTranches = ILendingPoolConfigurator(
-                addressesProvider.getLendingPoolConfigurator()
-            ).totalTranches();
-
-            for (uint64 tranche = 0; tranche < totalTranches; tranche++) {
-                DataTypes.ReserveData memory reserve = ILendingPool(
-                    addressesProvider.getLendingPool()
-                ).getReserveData(asset, tranche);
-                if (reserve.variableDebtTokenAddress != address(0)) {
-                    // if the reserve exists in the tranche
-                    require(
-                        IERC20Detailed(reserve.variableDebtTokenAddress).totalSupply() == 0,
-                        Errors.AM_UNABLE_TO_DISALLOW_ASSET
-                    );
-                }
-            }
+            validateAssetAllowed(asset);
         }
         assetMappings[asset].isAllowed = isAllowed;
     }

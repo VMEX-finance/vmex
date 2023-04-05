@@ -25,7 +25,7 @@ import {
   getAToken,
   getDbEntry,
   getEmergencyAdminT0,
-  getEmergencyAdminT1,
+  getTrancheAdminT1,
   getFirstSigner,
   getLendingPool,
   getLendingPoolAddressesProvider,
@@ -600,7 +600,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   //deploy tranche 1 with tricrypto
 
   const user1 = await DRE.ethers.getSigner(
-    await (await getEmergencyAdminT1(network)).getAddress()
+    await (await getTrancheAdminT1(network)).getAddress()
   );
   if (
     network == "localhost" ||
