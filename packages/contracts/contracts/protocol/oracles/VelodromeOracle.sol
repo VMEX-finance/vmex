@@ -2,13 +2,13 @@
 pragma solidity >=0.8.0;
 
 import {vMath} from "./libs/vMath.sol";
-import {IPair} from "../../interfaces/IVeloPair.sol"; 
+import {IVeloPair} from "../../interfaces/IVeloPair.sol"; 
 import {IERC20} from "../../interfaces/IERC20WithPermit.sol"; 
 
 //some minor differences to univ2 pairs, but mostly the same
-contract VelodromeOracle {
-	function get_lp_price(address lp_token, uint256[] memory prices) public view returns(uint256) {
-		IPair token = IPair(lp_token); 	
+library VelodromeOracle {
+	function get_lp_price(address lp_token, uint256[] memory prices) internal view returns(uint256) {
+		IVeloPair token = IVeloPair(lp_token); 	
 		uint256 total_supply = IERC20(lp_token).totalSupply(); 
 		(uint256 d0, uint256 d1, uint256 r0, uint256 r1, , ,) = token.metadata(); 
 

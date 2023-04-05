@@ -18,6 +18,8 @@ import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
+import {IVeloPair} from "../../interfaces/IVeloPair.sol";
+import {VelodromeOracle} from "./VelodromeOracle.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -160,8 +162,11 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(tmp==DataTypes.ReserveAssetType.BEEFY) {
             return getBeefyPrice(asset);
         }
-        // else if(tmp==DataTypes.ReserveAssetType.VELODROME) {
-        //     return getVeloPrice(asset);
+        else if(tmp==DataTypes.ReserveAssetType.VELODROME) {
+            return getVeloPrice(asset);
+        }
+        // else if(tmp == DataTypes.ReserveAssetType.BEETHOVEN) {
+        //     return getBeethovenPrice(asset);
         // }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
@@ -221,32 +226,54 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
-    // function getVeloPrice(
+    function getVeloPrice(
+        address asset
+    ) internal returns (uint256 price) {
+        //assuming we only support velodrome pairs (exactly two assets)
+        uint256[] memory prices = new uint256[](2); 
+
+        (address token0, address token1) = IVeloPair(asset).tokens();
+
+        if(token0 == ETH_NATIVE){
+            token0 = WETH;
+        }
+        prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
+        require(prices[0] > 0, Errors.VO_UNDERLYING_FAIL);
+
+        if(token1 == ETH_NATIVE){
+            token1 = WETH;
+        }
+        prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
+        require(prices[1] > 0, Errors.VO_UNDERLYING_FAIL);
+
+        price = VelodromeOracle.get_lp_price(asset, prices);
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+    }
+
+    // function getBeethovenPrice(
     //     address asset
     // ) internal returns (uint256 price) {
-    //     DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
+    //     //assuming we only support velodrome pairs (exactly two assets)
+    //     uint256[] memory prices = new uint256[](2); 
 
-    //     if (!Address.isContract(c._curvePool)) {
-    //         return _fallbackOracle.getAssetPrice(asset);
-    //     }
+    //     (address token0, address token1) = IVeloPair(asset).tokens();
 
-    //     uint256[] memory prices = new uint256[](c._poolSize);
+    //     if(token0 == ETH_NATIVE){
+    //         token0 = WETH;
+    //     }
+    //     prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
+    //     require(prices[0] > 0, Errors.VO_UNDERLYING_FAIL);
 
-    //     for (uint256 i = 0; i < c._poolSize; i++) {
-    //         address underlying = ICurvePool(c._curvePool).coins(i);
-    //         if(underlying == ETH_NATIVE){
-    //             underlying = WETH;
-    //         }
-    //         prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
-    //         require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+    //     if(token1 == ETH_NATIVE){
+    //         token1 = WETH;
     //     }
+    //     prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
+    //     require(prices[1] > 0, Errors.VO_UNDERLYING_FAIL);
 
-    //     if(assetType==DataTypes.ReserveAssetType.CURVE){
-    //         price = CurveOracle.get_price_v1(c._curvePool, prices, c._checkReentrancy);
-    //     }
-    //     else if(assetType==DataTypes.ReserveAssetType.CURVEV2){
-    //         price = CurveOracle.get_price_v2(c._curvePool, prices, c._checkReentrancy);
-    //     }
+    //     price = VelodromeOracle.get_lp_price(asset, prices);
     //     if(price == 0){
     //         return _fallbackOracle.getAssetPrice(asset);
     //     }

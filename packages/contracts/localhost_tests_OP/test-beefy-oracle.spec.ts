@@ -140,7 +140,8 @@ makeSuite(
                 
                 console.log("pricePerYearnToken: ",pricePerBeefyToken)
 
-                var expectedBeefyPrice = BigNumber.from(pricePerCurveToken.toString()).mul(BigNumber.from(pricePerShare.toString())).div(DRE.ethers.utils.parseEther("1"));
+                //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
+                var expectedBeefyPrice = BigNumber.from(pricePerCurveToken.toString()).mul(BigNumber.from(pricePerShare.toString())).div(DRE.ethers.utils.parseEther("1")); 
                 expect(
                   pricePerBeefyToken.toString()
                 ).to.be.bignumber.equal(expectedBeefyPrice.toString(), "Prices do not match");

@@ -45,7 +45,8 @@ library DataTypes {
         CURVEV2, //2
         YEARN, //3
         BEEFY, //4
-        VELODROME //5
+        VELODROME, //5
+        BEETHOVEN //6
     } //update with other possible types of the underlying asset
     //AAVE is the original assets in the aave protocol
     //CURVE is the new LP tokens we are providing support for
