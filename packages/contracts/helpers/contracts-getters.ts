@@ -56,7 +56,7 @@ import {
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];
 export const getEmergencyAdminT0 = async () => (await getEthersSigners())[0];
-export const getEmergencyAdminT1 = async (network?: string) => (await getEthersSigners())[network && network=="goerli" ? 1 : 7];
+export const getTrancheAdminT1 = async (network?: string) => (await getEthersSigners())[network && network=="goerli" ? 1 : 7];
 
 export const getDbEntry = async (
   id: eContractid

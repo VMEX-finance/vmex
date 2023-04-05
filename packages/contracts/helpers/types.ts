@@ -157,7 +157,7 @@ export enum ProtocolErrors {
   ARRAY_LENGTH_MISMATCH = "85",
   //contract specific errors
   VL_INVALID_AMOUNT = "1", // 'Amount must be greater than 0'
-  VL_NO_ACTIVE_RESERVE = "2", // 'Action requires an active reserve' 
+  VL_NO_ACTIVE_RESERVE = "2", // 'Action requires an active reserve'
   VL_RESERVE_FROZEN = "3", // 'Action cannot be performed because the reserve is frozen'
   VL_CURRENT_AVAILABLE_LIQUIDITY_NOT_ENOUGH = "4", // 'The current liquidity is not enough'
   VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE = "5", // 'User cannot withdraw more than the available balance'
@@ -251,17 +251,18 @@ export enum ProtocolErrors {
   AM_NO_INTEREST_STRATEGY = "90",
 
   VO_REENTRANCY_GUARD_FAIL = "94", //vmex curve oracle view reentrancy call failed
-  VO_UNDERLYING_FAIL = "95", //underlying oracle for curve asset returned 0 
-  VO_ORACLE_ADDRESS_NOT_FOUND = "96", //underlying oracle for curve asset returned 0 
-  VO_SEQUENCER_DOWN = "97", //underlying oracle for curve asset returned 0 
-  VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98", //underlying oracle for curve asset returned 0 
+  VO_UNDERLYING_FAIL = "95", //underlying oracle for curve asset returned 0
+  VO_ORACLE_ADDRESS_NOT_FOUND = "96", //underlying oracle for curve asset returned 0
+  VO_SEQUENCER_DOWN = "97", //underlying oracle for curve asset returned 0
+  VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98", //underlying oracle for curve asset returned 0
 
-  VO_BASE_CURRENCY_SET_ONLY_ONCE = "99", //underlying oracle for curve asset returned 0 
-    
-  AM_ASSET_ALREADY_IN_MAPPINGS = "100", //underlying oracle for curve asset returned 0 
-  AM_ASSET_NOT_CONTRACT = "101", //underlying oracle for curve asset returned 0 
-  AM_INTEREST_STRATEGY_NOT_CONTRACT = "102", //underlying oracle for curve asset returned 0 
+  VO_BASE_CURRENCY_SET_ONLY_ONCE = "99", //underlying oracle for curve asset returned 0
+
+  AM_ASSET_ALREADY_IN_MAPPINGS = "100", //underlying oracle for curve asset returned 0
+  AM_ASSET_NOT_CONTRACT = "101", //underlying oracle for curve asset returned 0
+  AM_INTEREST_STRATEGY_NOT_CONTRACT = "102", //underlying oracle for curve asset returned 0
   AM_INVALID_CONFIGURATION = "103",
+  AM_UNABLE_TO_DISALLOW_ASSET = "104",
   // old
 
   INVALID_FROM_BALANCE_AFTER_TRANSFER = "Invalid from balance after transfer",
