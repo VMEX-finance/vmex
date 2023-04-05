@@ -40,8 +40,8 @@ makeSuite(
             '0xEfDE221f306152971D8e9f181bFe998447975810',//wsteth eth
          ];
          const curvePools = [
-          '0x061b87122Ed14b9526A813209C8a59a633257bAb',//susd 3crv
-          '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415',//wsteth eth
+          '0x061b87122Ed14b9526A813209C8a59a633257bAb',//susd 3crv, withdraw admin fees
+          '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415',//wsteth eth, withdraw admin fees
        ];
 
        const curveSize = [
@@ -70,15 +70,15 @@ makeSuite(
           `function withdraw_admin_fees() external`,
           `function owner() external view returns(address)`,
         ];
-        const yvAddr = [
+        const beefyAddr = [
              '0x107Dbf9c9C0EF2Df114159e5C7DC2baf7C444cFF',
              '0x0892a178c363b4739e5Ac89E9155B9c30214C0c0',
             ]
-        const yvAbi = [
+        const beefyAbi = [
           "function totalAssets() external view returns(uint256)", 
 	        "function totalSupply() external view returns(uint256)", 
-	        "function pricePerShare() external view returns(uint256)",
-	        "function token() external view returns(address)",
+	        "function getPricePerFullShare() external view returns(uint256)",
+	        "function want() external view returns(address)",
 	        "function decimals() external view returns(uint256)",
 	        "function balanceOf(address owner) external view returns (uint256 balance)",
 	        "function deposit() external returns(uint256)",
@@ -105,16 +105,13 @@ makeSuite(
             for(let i =0;i<curveAssets.length;i++){
                 const CurveToken = new DRE.ethers.Contract(curveAssets[i],CurveTokenAddabi)
                 const CurvePool = new DRE.ethers.Contract(curvePools[i],CurvePoolAbi)
-                const yearnVault = new DRE.ethers.Contract(yvAddr[i],yvAbi)
+                const beefyVault = new DRE.ethers.Contract(beefyAddr[i],beefyAbi)
                 console.log("Pricing ",curveAssets[i])
                 const pricePerCurveToken = await oracle.connect(signer).callStatic.getAssetPrice(CurveToken.address);
                 console.log("pricePerCurveToken: ",pricePerCurveToken)
                 var cumProduct = 1;
                 var minAmount = ethers.constants.MaxUint256
-                if(i==0)
-                  await CurvePool.connect(signer).claim_admin_fees();
-                
-                if(i==2){
+                if(i==1){
                   const ownerContract = new DRE.ethers.Contract(await CurvePool.connect(signer).owner(), CurvePoolAbi)
                   await ownerContract.connect(signer).withdraw_admin_fees();
                 }
@@ -123,35 +120,30 @@ makeSuite(
                 for(let j = 0;j<curveSize[i];j++) {
                   var tokenAddr = await CurvePool.connect(signer).coins(j);
                   if(tokenAddr == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"){
-                    tokenAddr = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                    tokenAddr = "0x4200000000000000000000000000000000000006"
                   }
                   const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(tokenAddr);
                   cumProduct *= Number(ethers.utils.formatUnits(tokenPrice, 18))
                   minAmount = tokenPrice.lt(minAmount) ? tokenPrice : minAmount
                 }
                 
-                if(i==0) {//v2 
-                  expectedPrice = curveSize[i] * Math.pow(cumProduct, 1/curveSize[i]) * vp
-                  
-                }
-                else {
-                  expectedPrice = ethers.utils.formatUnits(minAmount.mul(vp),18)
-                }
+                expectedPrice = ethers.utils.formatUnits(minAmount.mul(vp),18)
+                
                 console.log("expected curve price: ",expectedPrice)
                 const diff = Math.abs(Number(expectedPrice) - Number(pricePerCurveToken))
                 expect(
                   diff
                 ).to.be.lte(100, "Curve prices do not match");
 
-                const pricePerYearnToken = await oracle.connect(signer).callStatic.getAssetPrice(yearnVault.address);
-                const pricePerShare = await yearnVault.connect(signer).pricePerShare();
+                const pricePerBeefyToken = await oracle.connect(signer).callStatic.getAssetPrice(beefyVault.address);
+                const pricePerShare = await beefyVault.connect(signer).getPricePerFullShare();
                 
-                console.log("pricePerYearnToken: ",pricePerYearnToken)
+                console.log("pricePerYearnToken: ",pricePerBeefyToken)
 
-                var expectedYearnPrice = BigNumber.from(pricePerCurveToken.toString()).mul(BigNumber.from(pricePerShare.toString())).div(DRE.ethers.utils.parseEther("1"));
+                var expectedBeefyPrice = BigNumber.from(pricePerCurveToken.toString()).mul(BigNumber.from(pricePerShare.toString())).div(DRE.ethers.utils.parseEther("1"));
                 expect(
-                    pricePerYearnToken.toString()
-                ).to.be.bignumber.equal(expectedYearnPrice.toString(), "Prices do not match");
+                  pricePerBeefyToken.toString()
+                ).to.be.bignumber.equal(expectedBeefyPrice.toString(), "Prices do not match");
             }
 
             

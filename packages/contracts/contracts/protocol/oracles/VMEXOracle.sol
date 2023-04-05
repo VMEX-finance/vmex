@@ -37,9 +37,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
 
-    address public constant THREE_POOL = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
     address public constant ETH_NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public WETH;
     uint256 public constant SECONDS_PER_DAY = 1 days;
     uint256 private constant GRACE_PERIOD_TIME = 1 hours;
 
@@ -93,6 +92,12 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function setFallbackOracle(address fallbackOracle) external onlyGlobalAdmin {
         _fallbackOracle = IPriceOracleGetter(fallbackOracle);
         emit FallbackOracleUpdated(fallbackOracle);
+    }
+
+    function setWETH(
+        address weth
+    ) external onlyGlobalAdmin {
+        WETH = weth;
     }
 
     /// @notice Sets the sequencerUptimeFeed
