@@ -29,6 +29,7 @@
     "test-coverage": "TS_NODE_TRANSPILE_ONLY=1 hardhat coverage --testfiles './test-suites/test-aave/*.spec.ts'",
     "test-unit": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/$TEST.spec.ts",
     "test-mainnet-fork": "FORK=main hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/scenario.spec.ts  --network localhost",
+    "test-incentives": "npm run compile && npx hardhat test test-suites/test-aave/__setup.spec.ts test-suites/test-aave/incentives/*.spec.ts",
     "test-strategy": "TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test-suites/test-aave/__setup.spec.ts  ./test-suites/test-aave/strategy/*.spec.ts",
     "test-scenarios": "npm run compile && npx hardhat test test-suites/test-aave/__setup.spec.ts test-suites/test-aave/scenario.spec.ts",
     "test-subgraph:scenarios": "npm run compile && hardhat --network hardhatevm_docker test test-suites/test-aave/__setup.spec.ts test-suites/test-aave/subgraph-scenarios.spec.ts",
