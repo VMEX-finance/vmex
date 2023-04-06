@@ -17,7 +17,7 @@
 
 pragma solidity >=0.8.0;
 
-contract BConst {
+library BConst {
   uint public constant BONE = 10**18;
 
   uint public constant MIN_BOUND_TOKENS = 2;

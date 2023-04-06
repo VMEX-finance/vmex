@@ -20,6 +20,7 @@ import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol"
 import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
 import {IVeloPair} from "../../interfaces/IVeloPair.sol";
 import {VelodromeOracle} from "./VelodromeOracle.sol";
+import {BalancerOracle} from "./BalancerOracle.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -230,7 +231,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         address asset
     ) internal returns (uint256 price) {
         //assuming we only support velodrome pairs (exactly two assets)
-        uint256[] memory prices = new uint256[](2); 
+        uint256[] memory prices = new uint256[](2);
 
         (address token0, address token1) = IVeloPair(asset).tokens();
 
@@ -257,8 +258,13 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     //     address asset
     // ) internal returns (uint256 price) {
     //     //assuming we only support velodrome pairs (exactly two assets)
-    //     uint256[] memory prices = new uint256[](2); 
-
+    //     uint256[] memory prices = new uint256[](2);
+    //     BalancerOracle.get_lp_price(
+    //         asset,
+    //         prices,
+    //         0,
+    //         true
+    //     );
     //     (address token0, address token1) = IVeloPair(asset).tokens();
 
     //     if(token0 == ETH_NATIVE){
@@ -290,10 +296,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
         return price;
     }
-	
+
 	function getBeefyPrice(address asset) internal returns (uint256) {
-        IBeefyVault beefyVault = IBeefyVault(asset); 
-        uint256 underlyingPrice = getAssetPrice(beefyVault.want()); 
+        IBeefyVault beefyVault = IBeefyVault(asset);
+        uint256 underlyingPrice = getAssetPrice(beefyVault.want());
         uint256 price = beefyVault.getPricePerFullShare()*underlyingPrice / 10**beefyVault.decimals();
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);
