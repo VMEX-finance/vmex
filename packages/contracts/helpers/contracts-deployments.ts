@@ -432,6 +432,9 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         moo_velo_FRAXUSDC: ZERO_ADDRESS,
         velo_USDTUSDC: ZERO_ADDRESS,
         moo_velo_USDTUSDC: ZERO_ADDRESS,
+        beethoven_rETHETH: ZERO_ADDRESS,
+        beethoven_USDCDAI: ZERO_ADDRESS,
+        beethoven_wstETHETH: ZERO_ADDRESS,
       },
       fallbackOracle
     );

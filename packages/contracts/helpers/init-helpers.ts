@@ -7,7 +7,9 @@ import {
   ITrancheInitParams,
   iParamsPerNetwork,
   ICurveMetadata,
+  IBeethovenMetadata,
   CurveMetadata,
+  BeethovenMetadata,
 } from "./types";
 import { AaveProtocolDataProvider } from "../types/AaveProtocolDataProvider";
 import { chunk, getDb, waitForTx } from "./misc-utils";
@@ -47,10 +49,7 @@ export const claimTrancheId = async (
   const configurator = await getLendingPoolConfiguratorProxy();
 
   let ret = await waitForTx(
-    await configurator.claimTrancheId(
-      name,
-      admin.address
-    )
+    await configurator.claimTrancheId(name, admin.address)
   );
 
   console.log(`-${ret}:${name} claimed for ${admin.address}`);
@@ -65,7 +64,8 @@ export const initAssetData = async (
   tokenAddresses: { [symbol: string]: tEthereumAddress },
   admin: SignerWithAddress,
   verify: boolean,
-  CurveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
+  curveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
+  beethovenMetadata?: iMultiPoolsAssets<IBeethovenMetadata>
 ) => {
   // initTrancheMultiplier();
   const addressProvider = await getLendingPoolAddressesProvider();
@@ -94,7 +94,7 @@ export const initAssetData = async (
     string,
     string,
     string,
-    string,
+    string
   ];
   let rateStrategies: Record<string, typeof strategyRates> = {};
   let strategyAddresses: Record<string, tEthereumAddress> = {};
@@ -125,7 +125,7 @@ export const initAssetData = async (
       optimalUtilizationRate,
       baseVariableBorrowRate,
       variableRateSlope1,
-      variableRateSlope2
+      variableRateSlope2,
     } = strategy;
     if (!strategyAddresses[strategy.name]) {
       // Strategy does not exist, create a new one
@@ -134,7 +134,7 @@ export const initAssetData = async (
         optimalUtilizationRate,
         baseVariableBorrowRate,
         variableRateSlope1,
-        variableRateSlope2
+        variableRateSlope2,
       ];
       strategyAddresses[strategy.name] = await deployRateStrategy(
         strategy.name,
@@ -163,7 +163,7 @@ export const initAssetData = async (
       liquidationBonus: liquidationBonus,
       borrowFactor: borrowFactor,
       borrowingEnabled: borrowingEnabled,
-      VMEXReserveFactor: reserveFactor
+      VMEXReserveFactor: reserveFactor,
     });
   }
 
@@ -171,42 +171,62 @@ export const initAssetData = async (
   // tranche CONFIGURATION
   const assetMappings = await getAssetMappings();
 
-  console.log(
-    `- AssetData initialization`
-  );
+  console.log(`- AssetData initialization`);
   const tx3 = await waitForTx(
-    await assetMappings
-      .connect(admin)
-      .addAssetMapping(initInputParams)
+    await assetMappings.connect(admin).addAssetMapping(initInputParams)
   );
 
   console.log("    * gasUsed", tx3.gasUsed.toString());
 
-  if(!CurveMetadata){
-    return;
-  }
-  let curveToken: string[] = []
-  let curveParams: CurveMetadata[] = []
+  if (curveMetadata) {
+    let curveToken: string[] = [];
+    let curveParams: CurveMetadata[] = [];
 
-  for(let[symbol, params] of Object.entries(CurveMetadata)) {
-    if (!tokenAddresses[symbol]) {
-      console.log(
-        `- Skipping init of ${symbol} due token address is not set at markets config`
-      );
-      continue;
+    for (let [symbol, params] of Object.entries(curveMetadata)) {
+      if (!tokenAddresses[symbol]) {
+        console.log(
+          `- Skipping init of ${symbol} due token address is not set at markets config`
+        );
+        continue;
+      }
+      curveToken.push(tokenAddresses[symbol]);
+      curveParams.push(params);
     }
-    curveToken.push(tokenAddresses[symbol]);
-    curveParams.push(params);
+    console.log("- Setting curve metadata");
+
+    const tx4 = await waitForTx(
+      await assetMappings
+        .connect(admin)
+        .setCurveMetadata(curveToken, curveParams)
+    );
+
+    console.log("    * gasUsed", tx4.gasUsed.toString());
   }
-  console.log("- Setting curve metadata");
 
-  const tx4 = await waitForTx(
-    await assetMappings
-      .connect(admin)
-      .setCurveMetadata(curveToken, curveParams )
-  );
+  if (beethovenMetadata) {
+    let beethovenToken: string[] = [];
+    let beethovenParams: BeethovenMetadata[] = [];
 
-  console.log("    * gasUsed", tx4.gasUsed.toString());
+    for (let [symbol, params] of Object.entries(beethovenMetadata)) {
+      if (!tokenAddresses[symbol]) {
+        console.log(
+          `- Skipping init of ${symbol} due token address is not set at markets config`
+        );
+        continue;
+      }
+      beethovenToken.push(tokenAddresses[symbol]);
+      beethovenParams.push(params);
+    }
+    console.log("- Setting beethoven metadata");
+
+    const tx4 = await waitForTx(
+      await assetMappings
+        .connect(admin)
+        .setBeethovenMetadata(beethovenToken, beethovenParams)
+    );
+
+    console.log("    * gasUsed", tx4.gasUsed.toString());
+  }
 };
 
 //create another initReserves that initializes the curve v2, or just use this.
@@ -230,13 +250,13 @@ export const initReservesByHelper = async (
     canBorrow: boolean;
     canBeCollateral: boolean;
   }[] = [];
-  for (let i=0;i<assetAddresses.length; i++) {
+  for (let i = 0; i < assetAddresses.length; i++) {
     initInputParams.push({
       underlyingAsset: assetAddresses[i],
       interestRateChoice: "0",
       reserveFactor: reserveFactors[i],
       canBorrow: canBorrow[i],
-      canBeCollateral: canBeCollateral[i]
+      canBeCollateral: canBeCollateral[i],
     });
   }
 
@@ -262,8 +282,8 @@ export const initReservesByHelper = async (
     );
 
     await configurator
-        .connect(admin)
-        .updateTreasuryAddress(treasuryAddress, trancheId)
+      .connect(admin)
+      .updateTreasuryAddress(treasuryAddress, trancheId);
 
     console.log(
       `  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`
@@ -316,10 +336,10 @@ const isErc20SymbolCorrect = async (
   return symbol === erc20Symbol;
 };
 
-export const getTranche0MockedData = (
-  allReservesAddresses: { [symbol: string]: tEthereumAddress },
-): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0:tEthereumAddress[] = [
+export const getTranche0MockedData = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
     allReservesAddresses["DAI"],
     allReservesAddresses["TUSD"],
     allReservesAddresses["USDC"],
@@ -341,24 +361,22 @@ export const getTranche0MockedData = (
     allReservesAddresses["ENJ"],
   ];
 
-  let reserveFactors0:string[] = [];
-  let canBorrow0:boolean[] = [];
-  let canBeCollateral0:boolean[] = [];
-  for(let i =0;i<assets0.length;i++){
-    reserveFactors0.push("1000")
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("1000");
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }
 
-  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0]
-}
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
 
-
-
-export const getTranche1MockedData = (
-  allReservesAddresses: { [symbol: string]: tEthereumAddress },
-): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0:tEthereumAddress[] = [
+export const getTranche1MockedData = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
     allReservesAddresses["DAI"],
     allReservesAddresses["TUSD"],
     allReservesAddresses["USDC"],
@@ -401,24 +419,22 @@ export const getTranche1MockedData = (
     allReservesAddresses["Oneinch"],
   ];
 
-  let reserveFactors0:string[] = [];
-  let canBorrow0:boolean[] = [];
-  let canBeCollateral0:boolean[] = [];
-  for(let i =0;i<assets0.length;i++){
-    reserveFactors0.push("1000")
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("1000");
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }
 
-  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0]
-}
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
 
-
-
-export const getTranche0MockedDataOP = (
-  allReservesAddresses: { [symbol: string]: tEthereumAddress },
-): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0:tEthereumAddress[] = [
+export const getTranche0MockedDataOP = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
     allReservesAddresses["DAI"],
     allReservesAddresses["USDC"],
     allReservesAddresses["USDT"],
@@ -431,14 +447,14 @@ export const getTranche0MockedDataOP = (
     allReservesAddresses["OP"],
   ];
 
-  let reserveFactors0:string[] = [];
-  let canBorrow0:boolean[] = [];
-  let canBeCollateral0:boolean[] = [];
-  for(let i =0;i<assets0.length;i++){
-    reserveFactors0.push("1000")
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("1000");
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }
 
-  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0]
-}
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};

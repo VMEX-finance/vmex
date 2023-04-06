@@ -33,9 +33,9 @@ import {BalancerOracle} from "./BalancerOracle.sol";
 contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     using SafeERC20 for IERC20;
 
-    ILendingPoolAddressesProvider internal addressProvider;
-    IAssetMappings internal assetMappings;
-    mapping(address => IChainlinkPriceFeed) private assetsSources;
+    ILendingPoolAddressesProvider internal _addressProvider;
+    IAssetMappings internal _assetMappings;
+    mapping(address => IChainlinkPriceFeed) private _assetsSources;
     IPriceOracleGetter private _fallbackOracle;
     mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
 
@@ -56,7 +56,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function _onlyGlobalAdmin() internal view {
         //this contract handles the updates to the configuration
         require(
-            addressProvider.getGlobalAdmin() == msg.sender,
+            _addressProvider.getGlobalAdmin() == msg.sender,
             Errors.CALLER_NOT_GLOBAL_ADMIN
         );
     }
@@ -64,8 +64,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function initialize (
         ILendingPoolAddressesProvider provider
     ) public initializer {
-        addressProvider = provider;
-        assetMappings = IAssetMappings(addressProvider.getAssetMappings());
+        _addressProvider = provider;
+        _assetMappings = IAssetMappings(_addressProvider.getAssetMappings());
     }
 
     function setBaseCurrency(
@@ -86,7 +86,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     ) external onlyGlobalAdmin {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         for (uint256 i = 0; i < assets.length; i++) {
-            assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
+            _assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
             emit AssetSourceUpdated(assets[i], sources[i]);
         }
     }
@@ -151,7 +151,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
         checkSequencerUp();
 
-        DataTypes.ReserveAssetType tmp = assetMappings.getAssetType(asset);
+        DataTypes.ReserveAssetType tmp = _assetMappings.getAssetType(asset);
 
         if(tmp==DataTypes.ReserveAssetType.AAVE){
             return getOracleAssetPrice(asset);
@@ -176,7 +176,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
 
     function getOracleAssetPrice(address asset) internal returns (uint256){
-        IChainlinkPriceFeed source = assetsSources[asset];
+        IChainlinkPriceFeed source = _assetsSources[asset];
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
         } else {
@@ -200,7 +200,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         address asset,
         DataTypes.ReserveAssetType assetType
     ) internal returns (uint256 price) {
-        DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
+        DataTypes.CurveMetadata memory c = _assetMappings.getCurveMetadata(asset);
 
         if (!Address.isContract(c._curvePool)) {
             return _fallbackOracle.getAssetPrice(asset);
@@ -277,14 +277,13 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
             require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
         }
 
-        (bool success, ) = IBalancer(asset).staticcall(abi.encodeWithSignature("actualSupply()"));
+        DataTypes.BeethovenMetadata memory md = _assetMappings.getBeethovenMetadata(asset);
 
-        // if actualSupply() is successful, then that means the pool is not legacy
         uint256 price = BalancerOracle.get_lp_price(
             asset,
             prices,
-            0, // TODO: Determine the type_of_pool with factory
-            !success
+            md._typeOfPool,
+            md._legacy
         );
 
         if(price == 0){
@@ -331,7 +330,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param asset The address of the asset
     /// @return address The address of the source
     function getSourceOfAsset(address asset) external view returns (address) {
-        return address(assetsSources[asset]);
+        return address(_assetsSources[asset]);
     }
 
     /// @notice Gets the address of the fallback oracle

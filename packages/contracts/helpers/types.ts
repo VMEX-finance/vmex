@@ -370,6 +370,9 @@ export interface iAssetBase<T> {
   moo_velo_FRAXUSDC: T;
   velo_USDTUSDC: T;
   moo_velo_USDTUSDC: T;
+  beethoven_rETHETH: T;
+  beethoven_USDCDAI: T;
+  beethoven_wstETHETH: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -497,6 +500,9 @@ export type iOptimismPoolAssets<T> = Partial<
     | "moo_velo_FRAXUSDC"
     | "velo_USDTUSDC"
     | "moo_velo_USDTUSDC"
+    | "beethoven_rETHETH"
+    | "beethoven_USDCDAI"
+    | "beethoven_wstETHETH"
   >
 >;
 
@@ -717,6 +723,7 @@ export interface IBaseConfiguration {
   UniswapV3OracleAddresses: iParamsPerNetwork<ITokenAddress>;
   UniswapV3OracleTargets: iParamsPerNetwork<ITokenTarget>;
   CurveMetadata: iParamsPerNetwork<ICurveMetadata>;
+  BeethovenMetadata: iParamsPerNetwork<IBeethovenMetadata>;
   ChainlinkAggregator: iParamsPerNetwork<ITokenAddress>;
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
@@ -781,6 +788,16 @@ export interface CurveMetadata {
 
 export interface ICurveMetadata {
   [token: string]: CurveMetadata;
+}
+
+export interface BeethovenMetadata {
+  _typeOfPool: string;
+  _legacy: boolean;
+  _exists: boolean;
+}
+
+export interface IBeethovenMetadata {
+  [token: string]: BeethovenMetadata;
 }
 
 export type PoolConfiguration = ICommonConfiguration | IAaveConfiguration;

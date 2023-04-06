@@ -82,17 +82,36 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   CurveMetadata: {
     [eOptimismNetwork.optimism]: {
-      ThreeCRV: { 
+      ThreeCRV: {
         _checkReentrancy: false,
         _poolSize: '3',
         _curvePool: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
       },
-      sUSD3CRV: { 
+      sUSD3CRV: {
         _checkReentrancy: false,
         _poolSize: '2',
         _curvePool: '0x061b87122Ed14b9526A813209C8a59a633257bAb'
       },
-      wstETHCRV: { 
+      wstETHCRV: {
+        _checkReentrancy: true,
+        _poolSize: '2',
+        _curvePool: '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415'
+      },
+    },
+  },
+  BeethovenMetadata: {
+    [eOptimismNetwork.optimism]: {
+      ThreeCRV: {
+        _checkReentrancy: false,
+        _poolSize: '3',
+        _curvePool: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
+      },
+      sUSD3CRV: {
+        _checkReentrancy: false,
+        _poolSize: '2',
+        _curvePool: '0x061b87122Ed14b9526A813209C8a59a633257bAb'
+      },
+      wstETHCRV: {
         _checkReentrancy: true,
         _poolSize: '2',
         _curvePool: '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415'
@@ -116,7 +135,7 @@ export const CommonsConfig: ICommonConfiguration = {
       wstETHCRV: ZERO_ADDRESS, //this should not be used
       mooCurveFsUSD: ZERO_ADDRESS, //this should not be used
       mooCurveWSTETH: ZERO_ADDRESS, //this should not be used
-      
+
       velo_wstETHWETH: ZERO_ADDRESS,
       moo_velo_wstETHWETH: ZERO_ADDRESS,
       velo_USDCsUSD: ZERO_ADDRESS,
@@ -135,6 +154,9 @@ export const CommonsConfig: ICommonConfiguration = {
       moo_velo_FRAXUSDC: ZERO_ADDRESS,
       velo_USDTUSDC: ZERO_ADDRESS,
       moo_velo_USDTUSDC: ZERO_ADDRESS,
+      beethoven_rETHETH: ZERO_ADDRESS,
+      beethoven_USDCDAI: ZERO_ADDRESS,
+      beethoven_wstETHETH: ZERO_ADDRESS,
     },
   },
   ReserveAssets: {

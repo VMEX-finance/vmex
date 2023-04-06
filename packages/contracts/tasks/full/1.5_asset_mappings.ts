@@ -39,11 +39,14 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
       ReserveAssets,
       ReservesConfig,
       CurveMetadata,
+      BeethovenMetadata,
     } = poolConfig as ICommonConfiguration;
 
     const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
     const curveAssets = await getParamPerNetwork(CurveMetadata, network);
+
+    const beethovenAssets = await getParamPerNetwork(BeethovenMetadata, network);
 
     const addressesProvider = await getLendingPoolAddressesProvider();
 
@@ -78,10 +81,9 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
       reserveAssets,
       admin,
       false,
-      curveAssets
+      curveAssets,
+      beethovenAssets
     );
-
-    
 
     // deploy strategies
     // const [CrvLpStrategy, CrvLpEthStrategy, CvxStrategy] =
