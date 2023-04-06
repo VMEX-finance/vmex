@@ -116,6 +116,25 @@ export const CommonsConfig: ICommonConfiguration = {
       wstETHCRV: ZERO_ADDRESS, //this should not be used
       mooCurveFsUSD: ZERO_ADDRESS, //this should not be used
       mooCurveWSTETH: ZERO_ADDRESS, //this should not be used
+      
+      velo_wstETHWETH: ZERO_ADDRESS,
+      moo_velo_wstETHWETH: ZERO_ADDRESS,
+      velo_USDCsUSD: ZERO_ADDRESS,
+      moo_velo_USDCsUSD: ZERO_ADDRESS,
+      velo_ETHUSDC: ZERO_ADDRESS,
+      moo_velo_ETHUSDC: ZERO_ADDRESS,
+      velo_OPETH: ZERO_ADDRESS,
+      moo_velo_OPETH: ZERO_ADDRESS,
+      velo_ETHSNX: ZERO_ADDRESS,
+      moo_velo_ETHSNX: ZERO_ADDRESS,
+      velo_OPUSDC: ZERO_ADDRESS,
+      moo_velo_OPUSDC: ZERO_ADDRESS,
+      velo_DAIUSDC: ZERO_ADDRESS,
+      moo_velo_DAIUSDC: ZERO_ADDRESS,
+      velo_FRAXUSDC: ZERO_ADDRESS,
+      moo_velo_FRAXUSDC: ZERO_ADDRESS,
+      velo_USDTUSDC: ZERO_ADDRESS,
+      moo_velo_USDTUSDC: ZERO_ADDRESS,
     },
   },
   ReserveAssets: {

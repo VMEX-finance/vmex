@@ -352,6 +352,24 @@ export interface iAssetBase<T> {
   OP: T;
   mooCurveFsUSD: T;
   mooCurveWSTETH: T;
+  velo_wstETHWETH: T;
+  moo_velo_wstETHWETH: T;
+  velo_USDCsUSD: T;
+  moo_velo_USDCsUSD: T;
+  velo_ETHUSDC: T;
+  moo_velo_ETHUSDC: T;
+  velo_OPETH: T;
+  moo_velo_OPETH: T;
+  velo_ETHSNX: T;
+  moo_velo_ETHSNX: T;
+  velo_OPUSDC: T;
+  moo_velo_OPUSDC: T;
+  velo_DAIUSDC: T;
+  moo_velo_DAIUSDC: T;
+  velo_FRAXUSDC: T;
+  moo_velo_FRAXUSDC: T;
+  velo_USDTUSDC: T;
+  moo_velo_USDTUSDC: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -461,6 +479,24 @@ export type iOptimismPoolAssets<T> = Partial<
     | "wstETHCRV"
     | "mooCurveFsUSD"
     | "mooCurveWSTETH"
+    | "velo_wstETHWETH"
+    | "moo_velo_wstETHWETH"
+    | "velo_USDCsUSD"
+    | "moo_velo_USDCsUSD"
+    | "velo_ETHUSDC"
+    | "moo_velo_ETHUSDC"
+    | "velo_OPETH"
+    | "moo_velo_OPETH"
+    | "velo_ETHSNX"
+    | "moo_velo_ETHSNX"
+    | "velo_OPUSDC"
+    | "moo_velo_OPUSDC"
+    | "velo_DAIUSDC"
+    | "moo_velo_DAIUSDC"
+    | "velo_FRAXUSDC"
+    | "moo_velo_FRAXUSDC"
+    | "velo_USDTUSDC"
+    | "moo_velo_USDTUSDC"
   >
 >;
 

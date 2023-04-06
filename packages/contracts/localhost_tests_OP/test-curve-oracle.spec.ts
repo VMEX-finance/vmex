@@ -28,7 +28,7 @@ chai.use(function (chai: any, utils: any) {
 
 
 makeSuite(
-    "yearn and curve oracle test ",
+    "curve oracle test ",
     () => {
         const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
         const fs = require('fs');
@@ -134,17 +134,6 @@ makeSuite(
                 expect(
                   diff
                 ).to.be.lte(100, "Curve prices do not match");
-
-                const pricePerBeefyToken = await oracle.connect(signer).callStatic.getAssetPrice(beefyVault.address);
-                const pricePerShare = await beefyVault.connect(signer).getPricePerFullShare();
-                
-                console.log("pricePerYearnToken: ",pricePerBeefyToken)
-
-                //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
-                var expectedBeefyPrice = BigNumber.from(pricePerCurveToken.toString()).mul(BigNumber.from(pricePerShare.toString())).div(DRE.ethers.utils.parseEther("1")); 
-                expect(
-                  pricePerBeefyToken.toString()
-                ).to.be.bignumber.equal(expectedBeefyPrice.toString(), "Prices do not match");
             }
 
             

@@ -10,11 +10,13 @@ library VelodromeOracle {
 	function get_lp_price(address lp_token, uint256[] memory prices) internal view returns(uint256) {
 		IVeloPair token = IVeloPair(lp_token); 	
 		uint256 total_supply = IERC20(lp_token).totalSupply(); 
+		uint256 decimals = 10**token.decimals();
 		(uint256 d0, uint256 d1, uint256 r0, uint256 r1, , ,) = token.metadata(); 
 
-		//TODO: check that 1e18 works for USD oracles too
-		uint256 reserve0 = (r0 * 1e18) / 10**d0; 
-		uint256 reserve1 = (r1 * 1e18) / 10**d1; 
+		//converts to number of decimals that lp token has, regardless of original number of decimals that it has
+		//this is independent of chainlink oracle denomination in USD or ETH
+		uint256 reserve0 = (r0 * decimals) / d0; 
+		uint256 reserve1 = (r1 * decimals) / d1; 
 		
 		uint256 lp_price = calculate_lp_token_price(
 			total_supply, 
@@ -37,8 +39,9 @@ library VelodromeOracle {
 		uint256 reserve1
 	) internal pure returns (uint256) {
 		uint256 a = vMath.nthroot(2, reserve0 * reserve1); //square root
-		uint256 b = vMath.nthroot(2, price0 * price1);
-		uint256 c = 2 * ((a * b) / total_supply); 
+		uint256 b = vMath.nthroot(2, price0 * price1); //this is in decimals of chainlink oracle
+		//we want a and total supply to have same number of decimals so c has decimals of chainlink oracle
+		uint256 c = 2 * a * b / total_supply; 
 
 		return c; 
 	}

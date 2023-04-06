@@ -27,7 +27,14 @@ library vMath {
 	
 	//limited to curve pools only, either 2 or 3 assets (mostly 2) 
 	function nthroot(uint8 n, uint256 _product) internal pure returns(uint256) {
-		return LogExpMath.pow(_product, 1e18 / n)/1e12;
+		//VMEX empirically checked that this is only accurate for square roots and cube roots, and the decimals are 9 and 12 respectively
+		if(n==2){
+			return LogExpMath.pow(_product, 1e18 / n)/1e9;
+		}
+		if(n==3){
+			return LogExpMath.pow(_product, 1e18 / n)/1e12;
+		}
+		revert("Balancer math only can handle square roots and cube roots");
 	}
 
 }
