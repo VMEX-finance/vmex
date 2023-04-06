@@ -37,6 +37,7 @@ import {
   getVMEXOracle,
   getvStrategyHelper,
   getWETHGateway,
+  getMintableERC20,
 } from "./contracts-getters";
 import {
   AssetMappingsFactory,
@@ -58,38 +59,19 @@ import {
   MintableERC20Factory,
   MockAggregatorFactory,
   MockATokenFactory,
-  MockFlashLoanReceiverFactory,
-  MockParaSwapAugustusFactory,
-  MockParaSwapAugustusRegistryFactory,
-  MockStableDebtTokenFactory,
   MockVariableDebtTokenFactory,
-  MockUniswapV2Router02Factory,
-  ParaSwapLiquiditySwapAdapterFactory,
   PriceOracleFactory,
   ReserveLogicFactory,
   SelfdestructTransferFactory,
-  StableDebtTokenFactory,
-  UniswapLiquiditySwapAdapterFactory,
-  UniswapRepayAdapterFactory,
   VariableDebtTokenFactory,
   WalletBalanceProviderFactory,
   WETH9MockedFactory,
   WETHGatewayFactory,
-  FlashLiquidationAdapterFactory,
-  // UiPoolDataProviderV2Factory,
-  // UiPoolDataProviderV2V3Factory,
-  UiIncentiveDataProviderV2V3,
-  UiIncentiveDataProviderV2Factory,
   BoosterFactory,
   BaseRewardPoolFactory,
-  VStrategyHelperFactory,
-  CrvLpStrategyFactory,
-  CrvLpEthStrategyFactory,
-  CvxStrategyFactory,
   LendingPoolAddressesProvider,
   // CurveOracleV1Factory,
   BaseUniswapOracleFactory,
-  MockStrategyFactory,
   YearnTokenMockedFactory,
   WETH9Mocked,
   ATokenBeaconFactory,
@@ -97,6 +79,8 @@ import {
   UpgradeableBeacon,
   UpgradeableBeaconFactory,
   SequencerUptimeFeedFactory,
+  IncentivesControllerFactory,
+  ATokenMockFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -110,6 +94,7 @@ import {
   getEthersSignersAddresses,
   getContractAddressWithJsonFallback,
   getParamPerNetwork,
+  getEthersSigners,
   // getContractAddressWithJsonFallback,
 } from "./contracts-helpers";
 import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
@@ -126,7 +111,7 @@ import {
   initAssetData,
   initReservesByHelper,
 } from "./init-helpers";
-import { MOCK_USD_PRICE_IN_WEI, oneEther, ZERO_ADDRESS } from "./constants";
+import { MAX_UINT_AMOUNT, MOCK_USD_PRICE_IN_WEI, oneEther, ZERO_ADDRESS } from "./constants";
 import {
   deployAllMockAggregators,
   setInitialAssetPricesInOracle,
@@ -142,16 +127,16 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   let mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
   };
-  if(network == "localhost" || network=="hardhat"){
-    console.log("deploying mock tokens")
+  if (network == "localhost" || network == "hardhat") {
+    console.log("deploying mock tokens");
     mockTokens = {
       ...(await deployAllMockTokens()),
     };
   }
 
   mockTokens = await getAllMockedTokens();
-  if(!notFalsyOrZeroAddress(mockTokens["USDC"].address)){
-    console.log("deploying mock tokens")
+  if (!notFalsyOrZeroAddress(mockTokens["USDC"].address)) {
+    console.log("deploying mock tokens");
     mockTokens = {
       ...(await deployAllMockTokens()),
     };
@@ -483,7 +468,6 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
     console.log("Set vmex oracle fallback oracle");
 
-
     //we want to use the fallback oracle, so don't set aggregators
     // await waitForTx(
     //   await VMEXOracleProxy.connect(admin).setAssetSources(
@@ -657,73 +641,29 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     const gateWay = await deployWETHGateway([mockTokens.WETH.address]);
     await authorizeWETHGateway(gateWay.address, lendingPoolProxy.address);
   }
+
+  //-------------------------------------------------------------
+  // Deploy Incentives Controller
+  const signers = await getEthersSigners();
+  const vaultOfRewards = signers[3];
+  const rewardToken = await getMintableERC20(mockTokens.USDC.address);
+  rewardToken.connect(vaultOfRewards).mint(MAX_UINT_AMOUNT);
+
+  const proxyAdmin = signers[4];
+  const { vmexIncentivesControllerProxy } = await testDeployVmexIncentives(
+    deployer,
+    vaultOfRewards,
+    proxyAdmin,
+    [rewardToken]
+  );
+
+  await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
+  await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
+  await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdc");
+  await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
+  await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
+
   console.timeEnd("setup");
-};
-
-export const deployUiIncentiveDataProviderV2 = async (verify?: boolean) =>
-  withSaveAndVerify(
-    await new UiIncentiveDataProviderV2Factory(await getFirstSigner()).deploy(),
-    eContractid.UiIncentiveDataProviderV2,
-    [],
-    verify
-  );
-
-export const deployUiIncentiveDataProviderV2V3 = async (verify?: boolean) => {
-  const id = eContractid.UiIncentiveDataProviderV2V3;
-  const instance = await deployContract<UiIncentiveDataProviderV2V3>(id, []);
-  if (verify) {
-    await verifyContract(id, instance, []);
-  }
-  return instance;
-};
-
-export const deployUiPoolDataProviderV2 = async (
-  chainlinkAggregatorProxy: string,
-  chainlinkEthUsdAggregatorProxy: string,
-  verify?: boolean
-) => {
-  console.log("aggregator: ", chainlinkAggregatorProxy);
-  console.log(
-    "chainlinkEthUsdAggregatorProxy: ",
-    chainlinkEthUsdAggregatorProxy
-  );
-  return withSaveAndVerify(
-    await new UiPoolDataProviderV2Factory(await getFirstSigner()).deploy(
-      chainlinkAggregatorProxy,
-      chainlinkEthUsdAggregatorProxy
-    ),
-    eContractid.UiPoolDataProvider,
-    [chainlinkAggregatorProxy, chainlinkEthUsdAggregatorProxy],
-    verify
-  );
-};
-
-export const deployUiPoolDataProviderV2V3 = async (
-  chainlinkAggregatorProxy: string,
-  chainlinkEthUsdAggregatorProxy: string,
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new UiPoolDataProviderV2V3Factory(await getFirstSigner()).deploy(
-      chainlinkAggregatorProxy,
-      chainlinkEthUsdAggregatorProxy
-    ),
-    eContractid.UiPoolDataProvider,
-    [chainlinkAggregatorProxy, chainlinkEthUsdAggregatorProxy],
-    verify
-  );
-
-export const deployUiPoolDataProvider = async (
-  [incentivesController, aaveOracle]: [tEthereumAddress, tEthereumAddress],
-  verify?: boolean
-) => {
-  const id = eContractid.UiPoolDataProvider;
-  const args: string[] = [incentivesController, aaveOracle];
-  const instance = await deployContract<UiPoolDataProvider>(id, args);
-  if (verify) {
-    await verifyContract(id, instance, args);
-  }
-  return instance;
 };
 
 const readArtifact = async (id: string) => {
@@ -951,7 +891,6 @@ export const deployVMEXOracle = async (verify?: boolean) =>
     verify
   );
 
-
 export const deploySequencerUptimeFeed = async (verify?: boolean) =>
   withSaveAndVerify(
     await new SequencerUptimeFeedFactory(await getFirstSigner()).deploy(),
@@ -983,103 +922,6 @@ export const deployLendingPoolCollateralManager = async (verify?: boolean) => {
   );
 };
 
-export const deployvStrategyHelper = async (verify?: boolean) =>
-  withSaveAndVerify(
-    await new VStrategyHelperFactory(await getFirstSigner()).deploy(),
-    eContractid.vStrategyHelper,
-    [],
-    verify
-  );
-
-export const deployStrategyLibraries = async (
-  verify?: boolean
-): Promise<CrvLpStrategyLibraryAddresses> => {
-  // TODO: pull this out of db instead
-  // const vMath = getContractAddressWithJsonFallback(eContractid.vMath, DRE.network.name);
-  const vStrategyHelper = await deployvStrategyHelper();
-  return {
-    ["__$7512de7f1b86abca670bc1676b640da4fd$__"]: vStrategyHelper.address,
-  };
-};
-
-export const deployStrategies = async (verify?: boolean) => {
-  const libraries = await deployStrategyLibraries(verify);
-  const crvLpStrategyImpl = await new CrvLpStrategyFactory(
-    libraries,
-    await getFirstSigner()
-  ).deploy();
-  await insertContractAddressInDb(
-    eContractid.CrvLpStrategy,
-    crvLpStrategyImpl.address
-  );
-
-  const crvLpEthStrategyImpl = await new CrvLpEthStrategyFactory(
-    libraries,
-    await getFirstSigner()
-  ).deploy();
-  await insertContractAddressInDb(
-    eContractid.CrvLpEthStrategy,
-    crvLpEthStrategyImpl.address
-  );
-
-  const cvxStrategyImpl = await new CvxStrategyFactory(
-    libraries,
-    await getFirstSigner()
-  ).deploy();
-  await insertContractAddressInDb(
-    eContractid.CvxStrategy,
-    cvxStrategyImpl.address
-  );
-  return [
-    await withSaveAndVerify(
-      crvLpStrategyImpl,
-      eContractid.CrvLpStrategy,
-      [],
-      verify
-    ),
-    await withSaveAndVerify(
-      crvLpEthStrategyImpl,
-      eContractid.CrvLpEthStrategy,
-      [],
-      verify
-    ),
-    await withSaveAndVerify(
-      cvxStrategyImpl,
-      eContractid.CvxStrategy,
-      [],
-      verify
-    ),
-  ];
-};
-
-export const deployConvexBooster = async (verify?: boolean) => {
-  return await withSaveAndVerify(
-    await new BoosterFactory(await getFirstSigner()).deploy(),
-    eContractid.Booster,
-    [],
-    verify
-  );
-};
-
-export const deployConvexBaseRewardPool = async (verify?: boolean) => {
-  return await withSaveAndVerify(
-    await new BaseRewardPoolFactory(await getFirstSigner()).deploy(),
-    eContractid.BaseRewardPool,
-    [],
-    verify
-  );
-};
-
-export const deployCurveLibraries = async (
-  verify?: boolean
-): Promise<CurveOracleV2LibraryAddresses> => {
-  const vMath = await deployvMath(verify);
-
-  return {
-    ["__$fc961522ee25e21dc45bf9241cf35e1d80$__"]: vMath.address,
-  };
-};
-
 export const deployInitializableAdminUpgradeabilityProxy = async (
   verify?: boolean
 ) =>
@@ -1089,19 +931,6 @@ export const deployInitializableAdminUpgradeabilityProxy = async (
     ).deploy(),
     eContractid.InitializableAdminUpgradeabilityProxy,
     [],
-    verify
-  );
-
-export const deployMockFlashLoanReceiver = async (
-  addressesProvider: tEthereumAddress,
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new MockFlashLoanReceiverFactory(await getFirstSigner()).deploy(
-      addressesProvider
-    ),
-    eContractid.MockFlashLoanReceiver,
-    [addressesProvider],
     verify
   );
 
@@ -1162,31 +991,6 @@ export const deployDefaultReserveInterestRateStrategy = async (
     verify
   );
 
-export const deployStableDebtToken = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string, string],
-  verify: boolean
-) => {
-  const instance = await withSaveAndVerify(
-    await new StableDebtTokenFactory(await getFirstSigner()).deploy(),
-    eContractid.StableDebtToken,
-    [],
-    verify
-  );
-
-  await instance.initialize(
-    args[0],
-    args[1],
-    0, //set tranche to zero for now
-    args[2],
-    "18",
-    args[3],
-    args[4],
-    "0x10"
-  );
-
-  return instance;
-};
-
 export const deployVariableDebtToken = async (
   args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string, string],
   verify: boolean
@@ -1211,14 +1015,6 @@ export const deployVariableDebtToken = async (
 
   return instance;
 };
-
-export const deployGenericStableDebtToken = async (verify?: boolean) =>
-  withSaveAndVerify(
-    await new StableDebtTokenFactory(await getFirstSigner()).deploy(),
-    eContractid.StableDebtToken,
-    [],
-    verify
-  );
 
 export const deployGenericVariableDebtToken = async (verify?: boolean) =>
   withSaveAndVerify(
@@ -1277,54 +1073,6 @@ export const deployGenericATokenImpl = async (verify: boolean) =>
     [],
     verify
   );
-
-// export const deployDelegationAwareAToken = async (
-//   [
-//     pool,
-//     configurator,
-//     underlyingAssetAddress,
-//     treasuryAddress,
-//     VMEXTreasuryAddress,
-//     incentivesController,
-//     name,
-//     symbol,
-//   ]: [
-//     tEthereumAddress,
-//     tEthereumAddress,
-//     tEthereumAddress,
-//     tEthereumAddress,
-//     tEthereumAddress,
-//     tEthereumAddress,
-//     string,
-//     string
-//   ],
-//   verify: boolean
-// ) => {
-//   const instance = await withSaveAndVerify(
-//     await new DelegationAwareATokenFactory(await getFirstSigner()).deploy(),
-//     eContractid.DelegationAwareAToken,
-//     [],
-//     verify
-//   );
-
-//   await instance.initialize(
-//     pool,
-//     {
-//       lendingPoolConfigurator: configurator,
-//       treasury: treasuryAddress,
-//       VMEXTreasury: VMEXTreasuryAddress,
-//       underlyingAsset: underlyingAssetAddress,
-//       trancheId: 0,
-//     }, //set tranche to zero for now
-//     incentivesController,
-//     "18",
-//     name,
-//     symbol,
-//     "0x10"
-//   );
-
-//   return instance;
-// };
 
 export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
   withSaveAndVerify(
@@ -1440,30 +1188,6 @@ export const authorizeWETHGateway = async (
     .attach(wethGateWay)
     .authorizeLendingPool(lendingPool);
 
-export const deployMockStableDebtToken = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string, string],
-  verify?: boolean
-) => {
-  const instance = await withSaveAndVerify(
-    await new MockStableDebtTokenFactory(await getFirstSigner()).deploy(),
-    eContractid.MockStableDebtToken,
-    [],
-    verify
-  );
-
-  await instance.initialize(
-    args[0],
-    args[1],
-    0,
-    args[2],
-    "18",
-    args[3],
-    args[4]
-  );
-
-  return instance;
-};
-
 export const deployWETHMocked = async (verify?: boolean) =>
   withSaveAndVerify(
     await new WETH9MockedFactory(await getFirstSigner()).deploy(),
@@ -1526,79 +1250,11 @@ export const deployMockAToken = async (
   return instance;
 };
 
-export const deployMockStrategy = async (
-  [addressProvider, underlyingAssetAddress, tranche]: [
-    tEthereumAddress,
-    tEthereumAddress,
-    string
-  ],
-  verify?: boolean
-) => {
-  const libraries = await deployStrategyLibraries(verify);
-  const instance = await withSaveAndVerify(
-    await new MockStrategyFactory(libraries, await getFirstSigner()).deploy(),
-    eContractid.MockStrategy,
-    [],
-    verify
-  );
-
-  await instance.initialize(addressProvider, underlyingAssetAddress, tranche);
-
-  return instance;
-};
-
 export const deploySelfdestructTransferMock = async (verify?: boolean) =>
   withSaveAndVerify(
     await new SelfdestructTransferFactory(await getFirstSigner()).deploy(),
     eContractid.SelfdestructTransferMock,
     [],
-    verify
-  );
-
-export const deployMockUniswapRouter = async (verify?: boolean) =>
-  withSaveAndVerify(
-    await new MockUniswapV2Router02Factory(await getFirstSigner()).deploy(),
-    eContractid.MockUniswapV2Router02,
-    [],
-    verify
-  );
-
-export const deployUniswapLiquiditySwapAdapter = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new UniswapLiquiditySwapAdapterFactory(await getFirstSigner()).deploy(
-      ...args
-    ),
-    eContractid.UniswapLiquiditySwapAdapter,
-    args,
-    verify
-  );
-
-export const deployUniswapRepayAdapter = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new UniswapRepayAdapterFactory(await getFirstSigner()).deploy(
-      ...args
-    ),
-    eContractid.UniswapRepayAdapter,
-    args,
-    verify
-  );
-
-export const deployFlashLiquidationAdapter = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new FlashLiquidationAdapterFactory(await getFirstSigner()).deploy(
-      ...args
-    ),
-    eContractid.FlashLiquidationAdapter,
-    args,
     verify
   );
 
@@ -1699,40 +1355,6 @@ export const deployRateStrategy = async (
       ).address;
   }
 };
-export const deployMockParaSwapAugustus = async (verify?: boolean) =>
-  withSaveAndVerify(
-    await new MockParaSwapAugustusFactory(await getFirstSigner()).deploy(),
-    eContractid.MockParaSwapAugustus,
-    [],
-    verify
-  );
-
-export const deployMockParaSwapAugustusRegistry = async (
-  args: [tEthereumAddress],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new MockParaSwapAugustusRegistryFactory(
-      await getFirstSigner()
-    ).deploy(...args),
-    eContractid.MockParaSwapAugustusRegistry,
-    args,
-    verify
-  );
-
-export const deployParaSwapLiquiditySwapAdapter = async (
-  args: [tEthereumAddress, tEthereumAddress],
-  verify?: boolean
-) =>
-  withSaveAndVerify(
-    await new ParaSwapLiquiditySwapAdapterFactory(
-      await getFirstSigner()
-    ).deploy(...args),
-    eContractid.ParaSwapLiquiditySwapAdapter,
-    args,
-    verify
-  );
-
 export const deployAssetMapping = async (verify?: boolean) =>
   withSaveAndVerify(
     await new AssetMappingsFactory(await getFirstSigner()).deploy(),
@@ -1740,3 +1362,76 @@ export const deployAssetMapping = async (verify?: boolean) =>
     [],
     verify
   );
+
+export const deployIncentivesController = async (
+  args: [tEthereumAddress, tEthereumAddress],
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new IncentivesControllerFactory(await getFirstSigner()).deploy(
+      ...args
+    ),
+    eContractid.IncentivesControllerImpl,
+    [],
+    verify
+  );
+
+export const deployATokenMock = async (
+  aicAddress: tEthereumAddress,
+  id?: string,
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new ATokenMockFactory(await getFirstSigner()).deploy(aicAddress),
+    id || eContractid.ATokenMock,
+    [],
+    verify
+  );
+
+export const testDeployVmexIncentives = async (
+  deployer: Signer,
+  vaultOfRewards: Signer,
+  proxyAdmin: Signer,
+  rewardTokens: MintableERC20[]
+) => {
+  const emissionManager = await deployer.getAddress();
+
+  const vaultOfRewardsAddress = await vaultOfRewards.getAddress();
+
+  const vmexIncentivesControllerProxy =
+    await deployInitializableAdminUpgradeabilityProxy();
+
+  const vmexIncentivesControllerImplementation =
+    await deployIncentivesController([
+      vaultOfRewardsAddress,
+      emissionManager,
+    ]);
+
+  const peiEncodedInitialize =
+    vmexIncentivesControllerImplementation.interface.encodeFunctionData(
+      "initialize"
+    );
+  await vmexIncentivesControllerProxy["initialize(address,address,bytes)"](
+    vmexIncentivesControllerImplementation.address,
+    await proxyAdmin.getAddress(),
+    peiEncodedInitialize
+  );
+
+  // TODO: approve incentives controller access to all tokens
+  for (const rewardToken of rewardTokens) {
+    await waitForTx(
+      await rewardToken
+        .connect(vaultOfRewards)
+        .approve(vmexIncentivesControllerProxy.address, MAX_UINT_AMOUNT)
+    );
+  }
+
+  await insertContractAddressInDb(
+    eContractid.IncentivesControllerProxy,
+    vmexIncentivesControllerProxy.address
+  );
+
+  return {
+    vmexIncentivesControllerProxy,
+  };
+};

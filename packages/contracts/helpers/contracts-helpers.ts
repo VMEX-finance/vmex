@@ -111,6 +111,14 @@ export const getCurrentBlock = async () => {
   return DRE.ethers.provider.getBlockNumber();
 };
 
+export const getBlockTimestamp = async (blockNumber?: number): Promise<number> => {
+  if (!blockNumber) {
+    throw new Error('No block number passed');
+  }
+  const block = await DRE.ethers.provider.getBlock(blockNumber);
+  return block.timestamp;
+};
+
 export const decodeAbiNumber = (data: string): number =>
   parseInt(utils.defaultAbiCoder.decode(["uint256"], data).toString());
 

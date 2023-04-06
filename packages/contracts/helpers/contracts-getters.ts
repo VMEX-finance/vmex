@@ -42,7 +42,9 @@ import {
   YearnTokenMockedFactory,
   ATokenBeaconFactory,
   VariableDebtTokenBeaconFactory,
-  UpgradeableBeaconFactory
+  UpgradeableBeaconFactory,
+  IncentivesControllerFactory,
+  ATokenMockFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -677,6 +679,55 @@ export const getParaSwapLiquiditySwapAdapter = async (
         await getDb()
           .get(
             `${eContractid.ParaSwapLiquiditySwapAdapter}.${DRE.network.name}`
+          )
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getIncentivesControllerImpl = async (
+  address?: tEthereumAddress
+) =>
+  await IncentivesControllerFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(
+            `${eContractid.IncentivesControllerImpl}.${DRE.network.name}`
+          )
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getIncentivesControllerProxy = async (
+  address?: tEthereumAddress
+) =>
+  await IncentivesControllerFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(
+            `${eContractid.IncentivesControllerProxy}.${DRE.network.name}`
+          )
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getATokenMock = async ({
+  address,
+  slug
+}: {
+  address?: tEthereumAddress,
+  slug?: string
+}) =>
+  await ATokenMockFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(
+            `${slug || eContractid.ATokenMock}.${DRE.network.name}`
           )
           .value()
       ).address,
