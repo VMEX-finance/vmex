@@ -134,6 +134,9 @@ export enum eContractid {
   ATokenBeacon = "ATokenBeacon",
   VariableDebtTokenBeacon = "VariableDebtTokenBeacon",
   SequencerUptimeFeed = "SequencerUptimeFeed",
+  IncentivesControllerImpl = "IncentivesControllerImpl",
+  IncentivesControllerProxy = "IncentivesControllerProxy",
+  ATokenMock = "ATokenMock",
 }
 
 /*
