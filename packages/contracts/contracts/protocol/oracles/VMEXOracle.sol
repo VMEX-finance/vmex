@@ -19,6 +19,8 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
 import {IVeloPair} from "../../interfaces/IVeloPair.sol";
+import {IBalancer} from "../../interfaces/IBalancer.sol";
+import {IVault} from "../../interfaces/IVault.sol";
 import {VelodromeOracle} from "./VelodromeOracle.sol";
 import {BalancerOracle} from "./BalancerOracle.sol";
 /// @title VMEXOracle
@@ -166,9 +168,9 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(tmp==DataTypes.ReserveAssetType.VELODROME) {
             return getVeloPrice(asset);
         }
-        // else if(tmp == DataTypes.ReserveAssetType.BEETHOVEN) {
-        //     return getBeethovenPrice(asset);
-        // }
+        else if(tmp == DataTypes.ReserveAssetType.BEETHOVEN) {
+            return getBeethovenPrice(asset);
+        }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
@@ -254,37 +256,42 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
-    // function getBeethovenPrice(
-    //     address asset
-    // ) internal returns (uint256 price) {
-    //     //assuming we only support velodrome pairs (exactly two assets)
-    //     uint256[] memory prices = new uint256[](2);
-    //     BalancerOracle.get_lp_price(
-    //         asset,
-    //         prices,
-    //         0,
-    //         true
-    //     );
-    //     (address token0, address token1) = IVeloPair(asset).tokens();
+    function getBeethovenPrice(
+        address asset
+    ) internal returns (uint256 price) {
+        // get the underlying assets
+        IVault vault = IBalancer(asset).getVault();
+        bytes32 poolId = IBalancer(asset).getPoolId();
 
-    //     if(token0 == ETH_NATIVE){
-    //         token0 = WETH;
-    //     }
-    //     prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
-    //     require(prices[0] > 0, Errors.VO_UNDERLYING_FAIL);
+        (
+            IERC20[] memory tokens,
+            uint256[] memory prices,
+        ) = vault.getPoolTokens(poolId);
 
-    //     if(token1 == ETH_NATIVE){
-    //         token1 = WETH;
-    //     }
-    //     prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
-    //     require(prices[1] > 0, Errors.VO_UNDERLYING_FAIL);
+        for (int i = 0; i < tokens.length; i++) {
+            address token = address(tokens[i]);
+            if(token == ETH_NATIVE){
+                token = WETH;
+            }
+            prices[i] = getAssetPrice(token);
+            require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+        }
 
-    //     price = VelodromeOracle.get_lp_price(asset, prices);
-    //     if(price == 0){
-    //         return _fallbackOracle.getAssetPrice(asset);
-    //     }
-    //     return price;
-    // }
+        (bool success, ) = IBalancer(asset).staticcall(abi.encodeWithSignature("actualSupply()"));
+
+        // if actualSupply() is successful, then that means the pool is not legacy
+        uint256 price = BalancerOracle.get_lp_price(
+            asset,
+            prices,
+            0, // TODO: Determine the type_of_pool with factory
+            !success
+        );
+
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+    }
 
     function getYearnPrice(address asset) internal returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
