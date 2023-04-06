@@ -51,8 +51,8 @@ contract IncentivesController is
   /**
    * @dev Called by the corresponding asset on any update that affects the rewards distribution
    * @param user The address of the user
-   * @param userBalance The balance of the user of the asset in the lending pool
-   * @param totalSupply The total supply of the asset in the lending pool
+   * @param userBalance The (old) balance of the user of the asset in the lending pool
+   * @param totalSupply The (old) total supply of the asset in the lending pool
    **/
   function handleAction(address user, uint256 userBalance, uint256 totalSupply) external override {
     // note: msg.sender is the incentivized asset (the vToken)
@@ -112,8 +112,8 @@ contract IncentivesController is
   /**
    * @dev Claims reward for an user on all the given incentivized assets, accumulating the accured rewards
    *      then transferring the reward asset to the user
-   * @param incentivizedAssets The list of incentivized asset addresses
-   * @param reward The reward to claim
+   * @param incentivizedAssets The list of incentivized asset addresses (atoken addresses)
+   * @param reward The reward to claim (only claims this reward address across all atokens you enter)
    * @param amountToClaim The amount of the reward to claim
    * @param to The address to send the claimed funds to
    * @return rewardAccured The total amount of rewards claimed by the user

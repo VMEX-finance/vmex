@@ -15,6 +15,7 @@ import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20De
 contract DistributionManager is IDistributionManager {
   using SafeMath for uint256;
 
+  //atoken address to distribution data
   mapping(address => DistributionTypes.IncentivizedAsset) internal _incentivizedAssets;
 
   address[] internal _allIncentivizedAssets;
