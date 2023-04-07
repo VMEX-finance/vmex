@@ -258,23 +258,33 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
     function getBeethovenPrice(
         address asset
-    ) internal returns (uint256 price) {
+    ) internal returns (uint256) {
         // get the underlying assets
         IVault vault = IBalancer(asset).getVault();
         bytes32 poolId = IBalancer(asset).getPoolId();
 
+
         (
             IERC20[] memory tokens,
-            uint256[] memory prices,
+            ,
         ) = vault.getPoolTokens(poolId);
 
-        for (int i = 0; i < tokens.length; i++) {
+        uint256 i = 0;
+
+        if(address(tokens[0]) == asset) { //boosted tokens first token is itself
+            i = 1;
+        }
+
+        uint256[] memory prices = new uint256[](tokens.length-i);
+
+        while(i<tokens.length) {
             address token = address(tokens[i]);
             if(token == ETH_NATIVE){
                 token = WETH;
             }
             prices[i] = getAssetPrice(token);
             require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+            i++;
         }
 
         DataTypes.BeethovenMetadata memory md = _assetMappings.getBeethovenMetadata(asset);

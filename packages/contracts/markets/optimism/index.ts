@@ -63,8 +63,7 @@ export const OptimismConfig: IOptimismConfiguration = {
     moo_velo_FRAXUSDC: strategyBeefyToken,
     velo_USDTUSDC: strategyVeloToken,
     moo_velo_USDTUSDC: strategyBeefyToken,
-    beethoven_rETHETH: strategyBeethovenToken,
-    beethoven_USDCDAI: strategyBeethovenToken,
+    // beethoven_USDCDAI: strategyBeethovenToken,
     beethoven_wstETHETH: strategyBeethovenToken,
   },
   ReserveAssets: {
@@ -103,9 +102,8 @@ export const OptimismConfig: IOptimismConfiguration = {
       moo_velo_FRAXUSDC: '0x587c3e2e17c59b09B120fc2D27E0eAd6edD2C71D',
       velo_USDTUSDC: '0xe08d427724d8a2673FE0bE3A81b7db17BE835B36',
       moo_velo_USDTUSDC: '0x0495a700407975b2641Fa61Aef5Ccd0106F525Cc',
-      beethoven_rETHETH: 'TODO',
-      beethoven_USDCDAI: 'TODO',
-      beethoven_wstETHETH: 'TODO',
+      // beethoven_USDCDAI: '0x43da214fab3315aA6c02e0B8f2BfB7Ef2E3C60A5',
+      beethoven_wstETHETH: '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2',
     },
   },
 };

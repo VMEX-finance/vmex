@@ -500,7 +500,6 @@ export type iOptimismPoolAssets<T> = Partial<
     | "moo_velo_FRAXUSDC"
     | "velo_USDTUSDC"
     | "moo_velo_USDTUSDC"
-    | "beethoven_rETHETH"
     | "beethoven_USDCDAI"
     | "beethoven_wstETHETH"
   >

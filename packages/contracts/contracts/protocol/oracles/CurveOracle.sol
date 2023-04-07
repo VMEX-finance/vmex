@@ -52,7 +52,7 @@ library CurveOracle {
 	) internal pure returns(uint256) {
 		uint256 min = vMath.min(prices); 
 		// divide by virtual price decimals, which is always 18 for all existing curve pools.
-		return (virtual_price * min) / 10**18; //decimals equal to the number of decimals in chainlink price
+		return (virtual_price * min) / 1e18; //decimals equal to the number of decimals in chainlink price
 	}
 
 	function get_price_v2(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {
@@ -77,7 +77,7 @@ library CurveOracle {
 	function calculate_v2_token_price(
 		uint8 n,
 		uint256 virtual_price,
-		uint256[] memory prices	
+		uint256[] memory prices
 	) internal pure returns(uint256) {
 		uint256 product = vMath.product(prices); 
 		uint256 geo_mean = vMath.nthroot(n, product); 

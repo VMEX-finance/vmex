@@ -401,7 +401,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         }
     }
 
-    function getCurveMetadata(address asset) external view returns (DataTypes.CurveMetadata memory) {
+    function getCurveMetadata(address asset) external view override returns (DataTypes.CurveMetadata memory) {
         return curveMetadata[asset];
     }
 
@@ -415,7 +415,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         }
     }
 
-    function getBeethovenMetadata(address asset) external view returns (DataTypes.BeethovenMetadata memory) {
+    function getBeethovenMetadata(address asset) external view override returns (DataTypes.BeethovenMetadata memory) {
         require(beethovenMetadata[asset]._exists, Errors.AM_ASSET_DOESNT_EXIST);
         return beethovenMetadata[asset];
     }

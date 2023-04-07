@@ -101,20 +101,15 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   BeethovenMetadata: {
     [eOptimismNetwork.optimism]: {
-      ThreeCRV: {
-        _checkReentrancy: false,
-        _poolSize: '3',
-        _curvePool: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
+      beethoven_USDCDAI: {
+        _typeOfPool: "1",
+        _legacy: false,
+        _exists: true
       },
-      sUSD3CRV: {
-        _checkReentrancy: false,
-        _poolSize: '2',
-        _curvePool: '0x061b87122Ed14b9526A813209C8a59a633257bAb'
-      },
-      wstETHCRV: {
-        _checkReentrancy: true,
-        _poolSize: '2',
-        _curvePool: '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415'
+      beethoven_wstETHETH: {
+        _typeOfPool: "1",
+        _legacy: false,
+        _exists: true
       },
     },
   },
@@ -154,7 +149,6 @@ export const CommonsConfig: ICommonConfiguration = {
       moo_velo_FRAXUSDC: ZERO_ADDRESS,
       velo_USDTUSDC: ZERO_ADDRESS,
       moo_velo_USDTUSDC: ZERO_ADDRESS,
-      beethoven_rETHETH: ZERO_ADDRESS,
       beethoven_USDCDAI: ZERO_ADDRESS,
       beethoven_wstETHETH: ZERO_ADDRESS,
     },

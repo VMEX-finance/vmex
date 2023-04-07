@@ -27,10 +27,11 @@ library BalancerOracle {
 		uint256[] memory prices,
 		uint8 type_of_pool,
 		bool legacy //if stable, ignore
-	) external returns (uint256 price) {
+	) internal returns (uint256 price) {
 		//check for reentrancy on bal and beets
 		IVault vault = IBalancer(bal_pool).getVault();
 		VaultReentrancyLib.ensureNotInVaultContext(vault);
+
 
 		if (type_of_pool == 0) {
 			price = calc_balancer_lp_price(
@@ -45,7 +46,7 @@ library BalancerOracle {
 				prices
 			);
 		} else {
-			revert();
+			revert("Balancer pool not supported");
 		}
 
 		return price;
@@ -139,7 +140,6 @@ library BalancerOracle {
 		uint256 rate = IBalancer(bal_pool).getRate();
 		uint256 min = vMath.min(prices);
 
-		return rate * min;
-
+		return rate * min / 10**IBalancer(bal_pool).decimals();
 	}
 }

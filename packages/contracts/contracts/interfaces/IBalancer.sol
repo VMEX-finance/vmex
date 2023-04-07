@@ -14,5 +14,6 @@ interface IBalancer {
 	function getNumTokens() external view returns (uint256); 
 	function getFinalTokens() external view returns (address[] memory);
 	function getRate() external view returns (uint256); 
+	function decimals() external view returns (uint8); 
 
 }

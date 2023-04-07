@@ -62,6 +62,19 @@ makeSuite(
         "function tokens() external returns (address, address)",
         "function metadata() external view returns (uint dec0, uint dec1, uint r0, uint r1, bool st, address t0, address t1)"
     ];
+    const BeethovenAbi = [
+       "function allowance(address owner, address spender) external view returns (uint256 remaining)",
+       "function approve(address spender, uint256 value) external returns (bool success)",
+       "function balanceOf(address owner) external view returns (uint256 balance)",
+       "function decimals() external view returns (uint8 decimalPlaces)",
+       "function name() external view returns (string memory tokenName)",
+       "function symbol() external view returns (string memory tokenSymbol)",
+       "function totalSupply() external view returns (uint256 totalTokensIssued)",
+       "function transfer(address to, uint256 value) external returns (bool success)",
+       "function getPoolId() external returns (bytes32 poolID)",
+       "function getVault() external returns (IVault vaultAddress)",
+       "function getRate() external view returns (uint256)"
+   ];
     const CurveTokenAddabi = [
         "function allowance(address owner, address spender) external view returns (uint256 remaining)",
         "function approve(address spender, uint256 value) external returns (bool success)",
@@ -150,7 +163,17 @@ makeSuite(
                 const price1 = await oracle.connect(signer).callStatic.getAssetPrice(met.t1)
                 const b = Math.sqrt(Number(price0) * Number(price1) )
                 console.log("b: ",b)
+                console.log("totalSupply: ", totalSupply)
                 expectedPrice = 2 * a * b / Number(totalSupply);
+            }
+            else if(strat.assetType == 6) { //beethoven
+                const beet = new DRE.ethers.Contract(currentAsset, BeethovenAbi);
+                const rate = await beet.connect(signer).getRate()
+                if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
+                    const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
+                    const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
+                    expectedPrice = Number(rate) * Math.min(Number(price0), Number(price1)) / Math.pow(10,18)
+                }
             }
             else {
                 continue
