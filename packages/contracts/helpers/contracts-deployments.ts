@@ -95,6 +95,7 @@ import {
   getContractAddressWithJsonFallback,
   getParamPerNetwork,
   getEthersSigners,
+  convertToCurrencyDecimals,
   // getContractAddressWithJsonFallback,
 } from "./contracts-helpers";
 import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
@@ -647,7 +648,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const signers = await getEthersSigners();
   const vaultOfRewards = signers[3];
   const rewardToken = await getMintableERC20(mockTokens.USDC.address);
-  rewardToken.connect(vaultOfRewards).mint(MAX_UINT_AMOUNT);
+  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
 
   const proxyAdmin = signers[4];
   const { vmexIncentivesControllerProxy } = await testDeployVmexIncentives(

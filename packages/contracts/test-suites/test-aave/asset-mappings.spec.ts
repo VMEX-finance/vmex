@@ -372,6 +372,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
     await dai
       .connect(users[0].signer)
       .mint(await convertToCurrencyDecimals(dai.address, "1000"));
+    
     await dai
       .connect(users[1].signer)
       .mint(await convertToCurrencyDecimals(dai.address, "1000"));
@@ -387,16 +388,15 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       dai.address,
       "1000"
     );
-
+    
     await pool
       .connect(users[0].signer)
       .deposit(dai.address, tranche, amountDAItoDeposit, users[0].address, "0");
-
     // user 1 will deposit 1000 weth into the lending pool
     await usdc
       .connect(users[1].signer)
       .mint(await convertToCurrencyDecimals(usdc.address, "1000"));
-
+      console.log("HERE5")
     await usdc
       .connect(users[1].signer)
       .approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
