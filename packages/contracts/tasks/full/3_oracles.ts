@@ -106,6 +106,9 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         poolConfig.OracleQuoteUnit));
       await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators));
       await waitForTx(await VMEXOracleProxy.setFallbackOracle(uniswapOracle.address));
+      console.log("WETH addr: ",tokensToWatch["WETH"])
+      await waitForTx(await VMEXOracleProxy.setWETH(tokensToWatch["WETH"]));
+      
 
       const seqUpFeed = getParamPerNetwork(SequencerUptimeFeed, network);
       //link sequencer uptime oracle for applicable markets

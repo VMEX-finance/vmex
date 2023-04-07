@@ -6,7 +6,7 @@ import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAdd
 import {ILendingPool} from "../../../interfaces/ILendingPool.sol";
 
 library DataTypes {
-    struct TrancheParams { 
+    struct TrancheParams {
         uint8 reservesCount;
         bool paused;
         bool isUsingWhitelist;
@@ -16,6 +16,12 @@ library DataTypes {
         bool _checkReentrancy;
         uint8 _poolSize;
         address _curvePool;
+    }
+
+    struct BeethovenMetadata {
+        uint8 _typeOfPool;
+        bool _legacy;
+        bool _exists;
     }
 
     // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
@@ -40,10 +46,13 @@ library DataTypes {
     }
 
     enum ReserveAssetType {
-        AAVE,
-        CURVE,
-        CURVEV2,
-        YEARN
+        AAVE, //0
+        CURVE, //1
+        CURVEV2, //2
+        YEARN, //3
+        BEEFY, //4
+        VELODROME, //5
+        BEETHOVEN //6
     } //update with other possible types of the underlying asset
     //AAVE is the original assets in the aave protocol
     //CURVE is the new LP tokens we are providing support for
@@ -54,7 +63,7 @@ library DataTypes {
     struct ReserveData {
         //stores the reserve configuration
         ReserveConfigurationMap configuration; //a lot of this is per asset rather than per reserve. But it's fine to keep since pretty gas efficient
-        
+
         //the liquidity index. Expressed in ray
         uint128 liquidityIndex; //not used for nonlendable assets
         //variable borrow index. Expressed in ray
@@ -63,7 +72,7 @@ library DataTypes {
         uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY //not used for nonlendable assets
         //the current variable borrow rate. Expressed in ray
         uint128 currentVariableBorrowRate; //not used for nonlendable assets
-        
+
         //the current stable borrow rate. Expressed in ray
         uint40 lastUpdateTimestamp; //5
         //tokens addresses

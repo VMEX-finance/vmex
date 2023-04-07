@@ -98,6 +98,28 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   yvStethEth: oneEther.toFixed(), //this should not be used, just placed here to compile
   yvFraxUSDC: oneEther.toFixed(), //this should not be used, just placed here to compile
   yvFrax3Crv: oneEther.toFixed(), //this should not be used, just placed here to compile
+  mooCurveFsUSD: oneEther.toFixed(), //this should not be used, just placed here to compile
+  mooCurveWSTETH: oneEther.toFixed(), //this should not be used, just placed here to compile
+  velo_wstETHWETH: oneEther.toFixed(),
+  moo_velo_wstETHWETH: oneEther.toFixed(),
+  velo_USDCsUSD: oneEther.toFixed(),
+  moo_velo_USDCsUSD: oneEther.toFixed(),
+  velo_ETHUSDC: oneEther.toFixed(),
+  moo_velo_ETHUSDC: oneEther.toFixed(),
+  velo_OPETH: oneEther.toFixed(),
+  moo_velo_OPETH: oneEther.toFixed(),
+  velo_ETHSNX: oneEther.toFixed(),
+  moo_velo_ETHSNX: oneEther.toFixed(),
+  velo_OPUSDC: oneEther.toFixed(),
+  moo_velo_OPUSDC: oneEther.toFixed(),
+  velo_DAIUSDC: oneEther.toFixed(),
+  moo_velo_DAIUSDC: oneEther.toFixed(),
+  velo_FRAXUSDC: oneEther.toFixed(),
+  moo_velo_FRAXUSDC: oneEther.toFixed(),
+  velo_USDTUSDC: oneEther.toFixed(),
+  moo_velo_USDTUSDC: oneEther.toFixed(),
+  beethoven_USDCDAI: oneEther.toFixed(),
+  beethoven_wstETHETH: oneEther.toFixed(),
 };
 
 export const chainlinkAggregatorProxy = {

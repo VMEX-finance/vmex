@@ -17,6 +17,12 @@ import {IYearnToken} from "../../interfaces/IYearnToken.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
+import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
+import {IVeloPair} from "../../interfaces/IVeloPair.sol";
+import {IBalancer} from "../../interfaces/IBalancer.sol";
+import {IVault} from "../../interfaces/IVault.sol";
+import {VelodromeOracle} from "./VelodromeOracle.sol";
+import {BalancerOracle} from "./BalancerOracle.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -27,18 +33,17 @@ import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol"
 contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     using SafeERC20 for IERC20;
 
-    ILendingPoolAddressesProvider internal addressProvider;
-    IAssetMappings internal assetMappings;
-    mapping(address => IChainlinkPriceFeed) private assetsSources;
+    ILendingPoolAddressesProvider internal _addressProvider;
+    IAssetMappings internal _assetMappings;
+    mapping(address => IChainlinkPriceFeed) private _assetsSources;
     IPriceOracleGetter private _fallbackOracle;
     mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
 
     address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
 
-    address public constant THREE_POOL = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
     address public constant ETH_NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public WETH;
     uint256 public constant SECONDS_PER_DAY = 1 days;
     uint256 private constant GRACE_PERIOD_TIME = 1 hours;
 
@@ -51,7 +56,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function _onlyGlobalAdmin() internal view {
         //this contract handles the updates to the configuration
         require(
-            addressProvider.getGlobalAdmin() == msg.sender,
+            _addressProvider.getGlobalAdmin() == msg.sender,
             Errors.CALLER_NOT_GLOBAL_ADMIN
         );
     }
@@ -59,8 +64,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function initialize (
         ILendingPoolAddressesProvider provider
     ) public initializer {
-        addressProvider = provider;
-        assetMappings = IAssetMappings(addressProvider.getAssetMappings());
+        _addressProvider = provider;
+        _assetMappings = IAssetMappings(_addressProvider.getAssetMappings());
     }
 
     function setBaseCurrency(
@@ -81,7 +86,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     ) external onlyGlobalAdmin {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         for (uint256 i = 0; i < assets.length; i++) {
-            assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
+            _assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
             emit AssetSourceUpdated(assets[i], sources[i]);
         }
     }
@@ -92,6 +97,12 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function setFallbackOracle(address fallbackOracle) external onlyGlobalAdmin {
         _fallbackOracle = IPriceOracleGetter(fallbackOracle);
         emit FallbackOracleUpdated(fallbackOracle);
+    }
+
+    function setWETH(
+        address weth
+    ) external onlyGlobalAdmin {
+        WETH = weth;
     }
 
     /// @notice Sets the sequencerUptimeFeed
@@ -140,7 +151,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
         checkSequencerUp();
 
-        DataTypes.ReserveAssetType tmp = assetMappings.getAssetType(asset);
+        DataTypes.ReserveAssetType tmp = _assetMappings.getAssetType(asset);
 
         if(tmp==DataTypes.ReserveAssetType.AAVE){
             return getOracleAssetPrice(asset);
@@ -151,12 +162,21 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         else if(tmp==DataTypes.ReserveAssetType.YEARN){
             return getYearnPrice(asset);
         }
+        else if(tmp==DataTypes.ReserveAssetType.BEEFY) {
+            return getBeefyPrice(asset);
+        }
+        else if(tmp==DataTypes.ReserveAssetType.VELODROME) {
+            return getVeloPrice(asset);
+        }
+        else if(tmp == DataTypes.ReserveAssetType.BEETHOVEN) {
+            return getBeethovenPrice(asset);
+        }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
 
     function getOracleAssetPrice(address asset) internal returns (uint256){
-        IChainlinkPriceFeed source = assetsSources[asset];
+        IChainlinkPriceFeed source = _assetsSources[asset];
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
         } else {
@@ -180,7 +200,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         address asset,
         DataTypes.ReserveAssetType assetType
     ) internal returns (uint256 price) {
-        DataTypes.CurveMetadata memory c = assetMappings.getCurveMetadata(asset);
+        DataTypes.CurveMetadata memory c = _assetMappings.getCurveMetadata(asset);
 
         if (!Address.isContract(c._curvePool)) {
             return _fallbackOracle.getAssetPrice(asset);
@@ -209,6 +229,79 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
+    function getVeloPrice(
+        address asset
+    ) internal returns (uint256 price) {
+        //assuming we only support velodrome pairs (exactly two assets)
+        uint256[] memory prices = new uint256[](2);
+
+        (address token0, address token1) = IVeloPair(asset).tokens();
+
+        if(token0 == ETH_NATIVE){
+            token0 = WETH;
+        }
+        prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
+        require(prices[0] > 0, Errors.VO_UNDERLYING_FAIL);
+
+        if(token1 == ETH_NATIVE){
+            token1 = WETH;
+        }
+        prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
+        require(prices[1] > 0, Errors.VO_UNDERLYING_FAIL);
+
+        price = VelodromeOracle.get_lp_price(asset, prices);
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+    }
+
+    function getBeethovenPrice(
+        address asset
+    ) internal returns (uint256) {
+        // get the underlying assets
+        IVault vault = IBalancer(asset).getVault();
+        bytes32 poolId = IBalancer(asset).getPoolId();
+
+
+        (
+            IERC20[] memory tokens,
+            ,
+        ) = vault.getPoolTokens(poolId);
+
+        uint256 i = 0;
+
+        if(address(tokens[0]) == asset) { //boosted tokens first token is itself
+            i = 1;
+        }
+
+        uint256[] memory prices = new uint256[](tokens.length-i);
+
+        while(i<tokens.length) {
+            address token = address(tokens[i]);
+            if(token == ETH_NATIVE){
+                token = WETH;
+            }
+            prices[i] = getAssetPrice(token);
+            require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+            i++;
+        }
+
+        DataTypes.BeethovenMetadata memory md = _assetMappings.getBeethovenMetadata(asset);
+
+        uint256 price = BalancerOracle.get_lp_price(
+            asset,
+            prices,
+            md._typeOfPool,
+            md._legacy
+        );
+
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+    }
+
     function getYearnPrice(address asset) internal returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
         uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth), or 8 decimals if prices in USD
@@ -219,6 +312,16 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
         return price;
     }
+
+	function getBeefyPrice(address asset) internal returns (uint256) {
+        IBeefyVault beefyVault = IBeefyVault(asset);
+        uint256 underlyingPrice = getAssetPrice(beefyVault.want());
+        uint256 price = beefyVault.getPricePerFullShare()*underlyingPrice / 10**beefyVault.decimals();
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+	}
 
     /// @notice Gets a list of prices from a list of assets addresses
     /// @param assets The list of assets addresses
@@ -237,7 +340,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param asset The address of the asset
     /// @return address The address of the source
     function getSourceOfAsset(address asset) external view returns (address) {
-        return address(assetsSources[asset]);
+        return address(_assetsSources[asset]);
     }
 
     /// @notice Gets the address of the fallback oracle

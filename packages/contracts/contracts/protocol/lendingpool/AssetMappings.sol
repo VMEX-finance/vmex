@@ -39,6 +39,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     mapping(address => mapping(uint8=>address)) internal interestRateStrategyAddress;
     mapping(address => uint8) public numInterestRateStrategyAddress;
     mapping(address => DataTypes.CurveMetadata) internal curveMetadata;
+    mapping(address => DataTypes.BeethovenMetadata) internal beethovenMetadata;
 
     modifier onlyGlobalAdmin() {
         require(
@@ -393,15 +394,30 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     /**
      * @dev Sets curve metadata for an array of assets.
      **/
-    function setCurveMetadata(address[] calldata asset, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
-        require(asset.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0;i<asset.length;i++){
-            curveMetadata[asset[i]] = vars[i];
+    function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
+        require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
+        for(uint i = 0;i<assets.length;i++){
+            curveMetadata[assets[i]] = vars[i];
         }
     }
 
-    function getCurveMetadata(address asset) external view returns (DataTypes.CurveMetadata memory) {
+    function getCurveMetadata(address asset) external view override returns (DataTypes.CurveMetadata memory) {
         return curveMetadata[asset];
+    }
+
+    /**
+     * @dev Sets beethoven metadata for an array of assets.
+     **/
+    function setBeethovenMetadata(address[] calldata assets, DataTypes.BeethovenMetadata[] calldata vars) external onlyGlobalAdmin {
+        require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
+        for(uint i = 0;i<assets.length;i++){
+            beethovenMetadata[assets[i]] = vars[i];
+        }
+    }
+
+    function getBeethovenMetadata(address asset) external view override returns (DataTypes.BeethovenMetadata memory) {
+        require(beethovenMetadata[asset]._exists, Errors.AM_ASSET_DOESNT_EXIST);
+        return beethovenMetadata[asset];
     }
 
 

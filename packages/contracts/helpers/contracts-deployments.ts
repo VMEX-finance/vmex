@@ -412,6 +412,29 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         wstETHCRV: ZERO_ADDRESS,
         sUSD3CRV: ZERO_ADDRESS,
         OP: ZERO_ADDRESS,
+        mooCurveFsUSD: ZERO_ADDRESS,
+        mooCurveWSTETH: ZERO_ADDRESS,
+        velo_wstETHWETH: ZERO_ADDRESS,
+        moo_velo_wstETHWETH: ZERO_ADDRESS,
+        velo_USDCsUSD: ZERO_ADDRESS,
+        moo_velo_USDCsUSD: ZERO_ADDRESS,
+        velo_ETHUSDC: ZERO_ADDRESS,
+        moo_velo_ETHUSDC: ZERO_ADDRESS,
+        velo_OPETH: ZERO_ADDRESS,
+        moo_velo_OPETH: ZERO_ADDRESS,
+        velo_ETHSNX: ZERO_ADDRESS,
+        moo_velo_ETHSNX: ZERO_ADDRESS,
+        velo_OPUSDC: ZERO_ADDRESS,
+        moo_velo_OPUSDC: ZERO_ADDRESS,
+        velo_DAIUSDC: ZERO_ADDRESS,
+        moo_velo_DAIUSDC: ZERO_ADDRESS,
+        velo_FRAXUSDC: ZERO_ADDRESS,
+        moo_velo_FRAXUSDC: ZERO_ADDRESS,
+        velo_USDTUSDC: ZERO_ADDRESS,
+        moo_velo_USDTUSDC: ZERO_ADDRESS,
+        beethoven_rETHETH: ZERO_ADDRESS,
+        beethoven_USDCDAI: ZERO_ADDRESS,
+        beethoven_wstETHETH: ZERO_ADDRESS,
       },
       fallbackOracle
     );
@@ -468,6 +491,10 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     );
 
     console.log("Set vmex oracle fallback oracle");
+
+
+    console.log("WETH addr: ",mockTokens["WETH"].address)
+    await waitForTx(await VMEXOracleProxy.setWETH(mockTokens["WETH"].address));
 
     //we want to use the fallback oracle, so don't set aggregators
     // await waitForTx(

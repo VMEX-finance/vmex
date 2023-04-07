@@ -82,20 +82,34 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   CurveMetadata: {
     [eOptimismNetwork.optimism]: {
-      ThreeCRV: { 
+      ThreeCRV: {
         _checkReentrancy: false,
         _poolSize: '3',
         _curvePool: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
       },
-      sUSD3CRV: { 
+      sUSD3CRV: {
         _checkReentrancy: false,
         _poolSize: '2',
         _curvePool: '0x061b87122Ed14b9526A813209C8a59a633257bAb'
       },
-      wstETHCRV: { 
+      wstETHCRV: {
         _checkReentrancy: true,
         _poolSize: '2',
         _curvePool: '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415'
+      },
+    },
+  },
+  BeethovenMetadata: {
+    [eOptimismNetwork.optimism]: {
+      beethoven_USDCDAI: {
+        _typeOfPool: "1",
+        _legacy: false,
+        _exists: true
+      },
+      beethoven_wstETHETH: {
+        _typeOfPool: "1",
+        _legacy: false,
+        _exists: true
       },
     },
   },
@@ -114,6 +128,29 @@ export const CommonsConfig: ICommonConfiguration = {
       ThreeCRV: ZERO_ADDRESS, //this should not be used
       sUSD3CRV: ZERO_ADDRESS, //this should not be used
       wstETHCRV: ZERO_ADDRESS, //this should not be used
+      mooCurveFsUSD: ZERO_ADDRESS, //this should not be used
+      mooCurveWSTETH: ZERO_ADDRESS, //this should not be used
+
+      velo_wstETHWETH: ZERO_ADDRESS,
+      moo_velo_wstETHWETH: ZERO_ADDRESS,
+      velo_USDCsUSD: ZERO_ADDRESS,
+      moo_velo_USDCsUSD: ZERO_ADDRESS,
+      velo_ETHUSDC: ZERO_ADDRESS,
+      moo_velo_ETHUSDC: ZERO_ADDRESS,
+      velo_OPETH: ZERO_ADDRESS,
+      moo_velo_OPETH: ZERO_ADDRESS,
+      velo_ETHSNX: ZERO_ADDRESS,
+      moo_velo_ETHSNX: ZERO_ADDRESS,
+      velo_OPUSDC: ZERO_ADDRESS,
+      moo_velo_OPUSDC: ZERO_ADDRESS,
+      velo_DAIUSDC: ZERO_ADDRESS,
+      moo_velo_DAIUSDC: ZERO_ADDRESS,
+      velo_FRAXUSDC: ZERO_ADDRESS,
+      moo_velo_FRAXUSDC: ZERO_ADDRESS,
+      velo_USDTUSDC: ZERO_ADDRESS,
+      moo_velo_USDTUSDC: ZERO_ADDRESS,
+      beethoven_USDCDAI: ZERO_ADDRESS,
+      beethoven_wstETHETH: ZERO_ADDRESS,
     },
   },
   ReserveAssets: {

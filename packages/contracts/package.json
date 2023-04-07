@@ -46,7 +46,7 @@
     "vmex:mainnetfork:unit-tests": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/*.spec.ts --network localhost",
     "vmex:mainnetfork:unit-test": "FORK=main hardhat test ./localhost_tests/__setup.spec.ts ./localhost_tests/test-yearn-oracle.spec.ts --network localhost",
     "vmex:OPfork:unit-tests": "FORK=optimism hardhat test ./localhost_tests_OP/__setup.spec.ts ./localhost_tests_OP/*.spec.ts --network optimism_localhost",
-    "vmex:OPfork:unit-test": "FORK=optimism hardhat test ./localhost_tests_OP/__setup.spec.ts ./localhost_tests_OP/test-general-tokens.spec.ts --network optimism_localhost",
+    "vmex:OPfork:unit-test": "FORK=optimism hardhat test ./localhost_tests_OP/__setup.spec.ts ./localhost_tests_OP/$TEST.spec.ts --network optimism_localhost",
     "vmex:docker:full:migration": "npm run compile && npm run hardhat:docker -- vmex:mainnet --skip-registry",
     "matic:mumbai:full:migration": "npm run compile && npm run hardhat:mumbai sidechain:mainnet -- --pool Matic --skip-registry",
     "matic:matic:full:migration": "npm run compile && npm run hardhat:matic sidechain:mainnet -- --pool Matic --skip-registry",

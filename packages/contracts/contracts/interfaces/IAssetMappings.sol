@@ -114,6 +114,9 @@ interface IAssetMappings {
 
     function getCurveMetadata(address asset) external view returns (DataTypes.CurveMetadata memory);
 
+    function getBeethovenMetadata(address asset) external view returns (DataTypes.BeethovenMetadata memory);
+
+
     function getParams(address asset)
         external view
         returns (
