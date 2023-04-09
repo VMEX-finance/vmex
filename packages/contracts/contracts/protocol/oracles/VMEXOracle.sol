@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
@@ -68,6 +68,11 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         _assetMappings = IAssetMappings(_addressProvider.getAssetMappings());
     }
 
+    /**
+     * @dev Sets the base currency that all other assets are priced based on. Can only be set once
+     * @param baseCurrency The address of the base currency
+     * @param baseCurrencyUnit What price the base currency is. Usually this is just how many decimals the base currency has
+     **/
     function setBaseCurrency(
         address baseCurrency,
         uint256 baseCurrencyUnit
@@ -77,9 +82,11 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
     }
 
-    /// @notice External function called by the Aave governance to set or replace sources of assets
-    /// @param assets The addresses of the assets
-    /// @param sources The address of the source of each asset
+    /**
+     * @dev External function called by the VMEX governance to set or replace sources of assets
+     * @param assets The addresses of the assets
+     * @param sources The address of the source of each asset
+     **/
     function setAssetSources(
         address[] calldata assets,
         address[] calldata sources
@@ -91,9 +98,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
     }
 
-    /// @notice Sets the fallbackOracle
-    /// - Callable only by the VMEX governance
-    /// @param fallbackOracle The address of the fallbackOracle
+    /**
+     * @dev Sets the fallback oracle. Callable only by the VMEX governance
+     * @param fallbackOracle The address of the fallbackOracle
+     **/
     function setFallbackOracle(address fallbackOracle) external onlyGlobalAdmin {
         _fallbackOracle = IPriceOracleGetter(fallbackOracle);
         emit FallbackOracleUpdated(fallbackOracle);
@@ -105,14 +113,18 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         WETH = weth;
     }
 
-    /// @notice Sets the sequencerUptimeFeed
-    /// - Callable only by the VMEX governance
-    /// @param sequencerUptimeFeed The address of the fallbackOracle
+    /**
+     * @dev Sets the sequencerUptimeFeed. Callable only by the VMEX governance
+     * @param sequencerUptimeFeed The address of the sequencerUptimeFeed
+     **/
     function setSequencerUptimeFeed(uint256 chainId, address sequencerUptimeFeed) external onlyGlobalAdmin {
         sequencerUptimeFeeds[chainId] = AggregatorV3Interface(sequencerUptimeFeed);
         emit SequencerUptimeFeedUpdated(chainId, sequencerUptimeFeed);
     }
 
+    /**
+     * @dev Checks if sequencer is up. If not, reverts. If sequencer came back online, need to wait for the grace period before resuming
+     **/
     function checkSequencerUp() internal view {
         AggregatorV3Interface seqUpFeed = sequencerUptimeFeeds[block.chainid];
 
@@ -138,8 +150,11 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
     }
 
-    /// @notice Gets an asset price by address. Note the result should always have 18 decimals if using ETH as base. If using USD as base, there will be 8 decimals
-    /// @param asset The asset address
+    /**
+     * @dev Gets an asset price by address. 
+     * Note the result should always have 18 decimals if using ETH as base. If using USD as base, there will be 8 decimals
+     * @param asset The asset address
+     **/
     function getAssetPrice(address asset)
         public
         override
@@ -174,7 +189,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
-
+    /**
+     * @dev Gets an asset price for an asset with a chainlink aggregator
+     * @param asset The asset address
+     **/
     function getOracleAssetPrice(address asset) internal returns (uint256){
         IChainlinkPriceFeed source = _assetsSources[asset];
         if (address(source) == address(0)) {
@@ -196,6 +214,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
     }
 
+    /**
+     * @dev Gets an asset price for an asset with a chainlink aggregator
+     * @param asset The asset address
+     **/
     function getCurveAssetPrice(
         address asset,
         DataTypes.ReserveAssetType assetType
@@ -229,6 +251,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
+    /**
+     * @dev Gets an asset price for a velodrome token
+     * @param asset The asset address
+     **/
     function getVeloPrice(
         address asset
     ) internal returns (uint256 price) {
@@ -256,6 +282,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
+    /**
+     * @dev Gets an asset price for a beethoven or balancer token
+     * @param asset The asset address
+     **/
     function getBeethovenPrice(
         address asset
     ) internal returns (uint256) {
@@ -302,6 +332,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
+    /**
+     * @dev Gets an asset price for a yearn token
+     * @param asset The asset address
+     **/
     function getYearnPrice(address asset) internal returns (uint256){
         IYearnToken yearnVault = IYearnToken(asset);
         uint256 underlyingPrice = getAssetPrice(yearnVault.token()); //getAssetPrice() will always have 18 decimals for Aave and Curve tokens (prices in eth), or 8 decimals if prices in USD
@@ -313,6 +347,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         return price;
     }
 
+    /**
+     * @dev Gets an asset price for a beefy token
+     * @param asset The asset address
+     **/
 	function getBeefyPrice(address asset) internal returns (uint256) {
         IBeefyVault beefyVault = IBeefyVault(asset);
         uint256 underlyingPrice = getAssetPrice(beefyVault.want());

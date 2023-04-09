@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17; 
+pragma solidity 0.8.19; 
 
 import {ICurvePool} from "../../interfaces/ICurvePool.sol"; 
 import {vMath} from "./libs/vMath.sol"; 
@@ -7,8 +7,10 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 
 //used for all curveV1 amd V2 tokens, no need to redeploy
 library CurveOracle {
-	//Helper to prevent read-only re-entrancy attacks with virtual price
-	//Maybe this is only needed if the underlying has ETH.
+	/**
+     * @dev Helper to prevent read-only re-entrancy attacks with virtual price. Only needed if the underlying has ETH.
+     * @param curve_pool The curve pool address (not the token address!)
+     **/
 	function check_reentrancy(address curve_pool) internal {
 		//makerdao uses remove_liquidity to trigger reentrancy lock
         //exchange is also reentrancy locked, so I'm assuming it will do what we want
@@ -25,7 +27,12 @@ library CurveOracle {
 		
 	}
 	
-	//where total supply is the total supply of the LP token in the pools calculated using the virtual price
+	/**
+     * @dev Calculates the value of a curve v1 lp token
+     * @param curve_pool The curve pool address (not the token address!)
+     * @param prices The price of the underlying assets in the curve pool
+     * @param checkReentrancy Whether reentrancy check is needed
+     **/
 	function get_price_v1(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {
 	//prevent read-only reentrancy -- possibly a better way than this
 		assert(prices.length > 1);
@@ -55,6 +62,12 @@ library CurveOracle {
 		return (virtual_price * min) / 1e18; //decimals equal to the number of decimals in chainlink price
 	}
 
+	/**	
+     * @dev Calculates the value of a curve v2 lp token (not pegged)
+     * @param curve_pool The curve pool address (not the token address!)
+     * @param prices The price of the underlying assets in the curve pool
+     * @param checkReentrancy Whether reentrancy check is needed
+     **/
 	function get_price_v2(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {
 		if(checkReentrancy){
 			check_reentrancy(curve_pool);

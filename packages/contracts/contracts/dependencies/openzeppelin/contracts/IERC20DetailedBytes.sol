@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 interface IERC20DetailedBytes {
     function symbol() external view returns (bytes32);

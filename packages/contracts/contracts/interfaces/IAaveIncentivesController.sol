@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 interface IAaveIncentivesController {
     event RewardsAccrued(address indexed user, uint256 amount);

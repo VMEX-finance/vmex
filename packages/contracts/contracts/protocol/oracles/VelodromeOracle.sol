@@ -7,6 +7,11 @@ import {IERC20} from "../../interfaces/IERC20WithPermit.sol";
 
 //some minor differences to univ2 pairs, but mostly the same
 library VelodromeOracle {
+	/**
+     * @dev Gets the price of a velodrome lp token
+     * @param lp_token The lp token address
+     * @param prices The prices of the underlying in the liquidity pool
+     **/
 	function get_lp_price(address lp_token, uint256[] memory prices) internal view returns(uint256) {
 		IVeloPair token = IVeloPair(lp_token); 	
 		uint256 total_supply = IERC20(lp_token).totalSupply(); 

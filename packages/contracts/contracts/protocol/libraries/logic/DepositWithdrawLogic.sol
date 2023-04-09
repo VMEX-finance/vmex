@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
@@ -42,6 +42,9 @@ library DepositWithdrawLogic {
         address indexed user
     );
 
+    /**
+     * @dev Called by deposit function in LendingPool, to save bytecode in LendingPool.sol
+     **/
     function _deposit(
         DataTypes.ReserveData storage self,
         DataTypes.DepositVars memory vars,
@@ -91,6 +94,9 @@ library DepositWithdrawLogic {
         address indexed user
     );
 
+    /**
+     * @dev Called by withdraw function in LendingPool, to save bytecode in LendingPool.sol
+     **/
     function _withdraw(
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage _reserves,
@@ -140,6 +146,9 @@ library DepositWithdrawLogic {
         return vars.amount;
     }
 
+    /**
+     * @dev Called by borrow function in LendingPool, to save bytecode in LendingPool.sol
+     **/
     function _borrowHelper(
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage _reserves,

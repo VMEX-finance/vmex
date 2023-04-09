@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
@@ -49,6 +49,11 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         _;
     }
 
+    /**
+     * @dev Validates if the global admin can set asset as not allowed. 
+     * We are being very conservative: there cannot be any outstanding borrows or deposits in the reserve, and it must be set off for borrowing and collateral
+     * @param asset The address of the asset you want to disallow
+     **/
     function validateAssetAllowed(address asset) internal view {
         require(!assetMappings[asset].borrowingEnabled, Errors.AM_UNABLE_TO_DISALLOW_ASSET);
         require(assetMappings[asset].baseLTV == 0, Errors.AM_UNABLE_TO_DISALLOW_ASSET);
@@ -94,6 +99,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         approvedAssetsTail = address(0);
     }
 
+    /**
+     * @dev Gets the vmex reserve factor of a reserve
+     * @param asset The address of the reserve you want to get
+     **/
     function getVMEXReserveFactor(
         address asset
     ) external view returns(uint256) {
@@ -131,6 +140,15 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         emit BorrowingEnabledChanged(asset, borrowingEnabled);
     }
 
+    /**
+     * @dev Validates the collateral params: ltv must be less than 100%, liquidation Bonus must be greater than 100%, 
+     * liquidation threshold * liquidation bonus must be less than 100% for liquidators to break even, borrow factor must be greater than 100%
+     * @param baseLTV The LTV (in decimals adjusted for percentage math decimals)
+     * @param liquidationThreshold The liquidation threshold (in decimals adjusted for percentage math decimals)
+     * @param liquidationBonus The liquidation bonus (in decimals adjusted for percentage math decimals)
+     * @param borrowFactor The borrow factor (in decimals adjusted for percentage math decimals)
+     * @param borrowingEnabled If borrowing is enabled for a reserve
+     **/
     function validateCollateralParams(
         uint64 baseLTV,
         uint64 liquidationThreshold,
@@ -165,6 +183,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         }
     }
 
+    /**
+     * @dev validates if asset is able to be added to the asset mappings
+     * @param inputAsset contains all input info for an asset
+     **/
     function validateAddAssetMapping(AddAssetMappingInput memory inputAsset) internal view {
         address currentAssetAddress = inputAsset.asset;
         require(!isAssetInMappings(currentAssetAddress),Errors.AM_ASSET_ALREADY_IN_MAPPINGS);
@@ -331,22 +353,22 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     function getAssetMapping(address asset) view external returns(DataTypes.AssetData memory){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
         return assetMappings[asset];
     }
 
     function getAssetBorrowable(address asset) view external returns (bool){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
         return assetMappings[asset].borrowingEnabled;
     }
 
     function getAssetCollateralizable(address asset) view external returns (bool){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
         return assetMappings[asset].liquidationThreshold != 0;
     }
 
     function getInterestRateStrategyAddress(address asset, uint8 choice) view external returns(address){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
         require(interestRateStrategyAddress[asset][choice]!=address(0), Errors.AM_NO_INTEREST_STRATEGY);
         return interestRateStrategyAddress[asset][choice];
     }
@@ -454,6 +476,9 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         return IERC20Detailed(asset).decimals();
     }
 
+    /**
+     * @dev validates the vmex reserve factor
+     **/
     function validateVMEXReserveFactor(uint256 vmexReserveFactor) internal pure {
         require(
                 vmexReserveFactor < PercentageMath.PERCENTAGE_FACTOR,

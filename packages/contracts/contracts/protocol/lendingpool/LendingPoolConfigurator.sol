@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
@@ -500,6 +500,11 @@ contract LendingPoolConfigurator is
         pool.setPauseEverything(val);
     }
 
+    /**
+     * @dev checks that there is no liquidity (no underlying balance owned by the atoken) and no liquidity rate
+     * @param asset asset to check
+     * @param trancheId trancheId to check in
+     **/
     function _checkNoLiquidity(address asset, uint64 trancheId) internal view {
         DataTypes.ReserveData memory reserveData = pool.getReserveData(
             asset,
@@ -516,6 +521,11 @@ contract LendingPoolConfigurator is
         );
     }
 
+    /**
+     * @dev initializes beacon proxy (for atoken and variable debt token use)
+     * @param beacon address of beacon contract that relays the address of the underlying implementation contract
+     * @param initParams params to initialize proxy (calldata for the initialize method in the underlying implementation)
+     **/
     function _initTokenWithProxy(
         address beacon,
         bytes memory initParams

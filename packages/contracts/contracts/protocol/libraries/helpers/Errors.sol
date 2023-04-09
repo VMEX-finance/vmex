@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 /**
  * @title Errors library
@@ -18,6 +18,8 @@ pragma solidity 0.8.17;
  *  - RL = ReserveLogic
  *  - LPCM = LendingPoolCollateralManager
  *  - P = Pausable
+ *  - AM = Asset Mappings
+ *  - VO = VMEX Oracle
  */
 library Errors {
     //common errors
