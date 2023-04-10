@@ -24,10 +24,12 @@ contract ATokenMock is MintableERC20 {
 
   function handleActionOnAic(
     address user,
-    uint256 userBalance,
-    uint256 totalSupply
+    uint256 oldBalance,
+    uint256 totalSupply,
+    uint256 newBalance,
+    DistributionTypes.Action action
   ) external {
-    _aic.handleAction(user, totalSupply, userBalance);
+    _aic.handleAction(user, totalSupply, oldBalance, newBalance, action);
   }
 
   function setUserBalanceAndSupply(uint256 userBalance, uint256 totalSupply) public {
