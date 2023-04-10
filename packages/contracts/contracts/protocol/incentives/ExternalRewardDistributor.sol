@@ -161,5 +161,14 @@ contract ExternalRewardDistributor {
     }
   }
 
-//   function getAssetData(address asset) external view returns (address, address, )
+  function getDataByAToken(address aToken) external view
+  returns (address, address, address, uint256, uint256) {
+      return (
+          aTokenMap[aToken],
+          address(stakingData[aTokenMap[aToken]].staking),
+          address(stakingData[aTokenMap[aToken]].reward),
+          stakingData[aTokenMap[aToken]].cumulativeRewardPerToken,
+          stakingData[aTokenMap[aToken]].lastUpdateTimestamp
+      );
+  }
 }
