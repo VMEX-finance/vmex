@@ -45,7 +45,8 @@ import {
   UpgradeableBeaconFactory,
   IncentivesControllerFactory,
   ATokenMockFactory,
-  VmexTokenFactory
+  VmexTokenFactory,
+  StakingRewardsMockFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -745,6 +746,23 @@ export const getVmexToken = async (
           .get(
             `${eContractid.VmexToken}.${DRE.network.name}`
           )
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+  export const getStakingRewardsMock = async ({
+    address,
+    slug
+  }: {
+    address?: tEthereumAddress,
+    slug?: string
+  }) =>
+  await StakingRewardsMockFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${slug || eContractid.StakingRewardsMock}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

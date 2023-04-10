@@ -10,6 +10,7 @@ import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {
     IIncentivesController
 } from "../../interfaces/IIncentivesController.sol";
+import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
 
 /**
  * @title ERC20
@@ -225,13 +226,17 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
             _getIncentivesController().handleAction(
                 sender,
                 currentTotalSupply,
-                oldSenderBalance
+                oldSenderBalance,
+                _balances[sender],
+                DistributionTypes.Action.TRANSFER
             );
             if (sender != recipient) {
                 _getIncentivesController().handleAction(
                     recipient,
                     currentTotalSupply,
-                    oldRecipientBalance
+                    oldRecipientBalance,
+                    _balances[recipient],
+                    DistributionTypes.Action.TRANSFER
                 );
             }
         }
@@ -252,7 +257,9 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
             _getIncentivesController().handleAction(
                 account,
                 oldTotalSupply,
-                oldAccountBalance
+                oldAccountBalance,
+                _balances[account],
+                DistributionTypes.Action.DEPOSIT
             );
         }
     }
@@ -275,7 +282,9 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
             _getIncentivesController().handleAction(
                 account,
                 oldTotalSupply,
-                oldAccountBalance
+                oldAccountBalance,
+                _balances[account],
+                DistributionTypes.Action.WITHDRAW
             );
         }
     }
