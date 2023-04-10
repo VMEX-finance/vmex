@@ -45,7 +45,7 @@ import {
   UpgradeableBeaconFactory,
   IncentivesControllerFactory,
   ATokenMockFactory,
-  VmexTokenFactory
+  VmexTokenFactory,
   StakingRewardsMockFactory
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
@@ -763,7 +763,7 @@ export const getVmexToken = async (
       ).address,
     await getFirstSigner()
   );
-  
+
   export const getStakingRewardsMock = async ({
     address,
     slug

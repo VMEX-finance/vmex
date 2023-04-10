@@ -700,7 +700,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const aAave = await deployATokenMock(vmexIncentivesControllerProxy.address, "aAave");
   const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
   const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
-  
+
   // need mocks used for linking external rewards to link to 'real' tokens
   await aDai.setUnderlying(mockTokens["DAI"].address)
   await aBusd.setUnderlying(mockTokens["BUSD"].address)
@@ -1519,7 +1519,7 @@ export const testDeployVmexIncentives = async (
         .approve(vmexIncentivesControllerProxy.address, MAX_UINT_AMOUNT)
     );
 
-  
+
   }
 
   await insertContractAddressInDb(

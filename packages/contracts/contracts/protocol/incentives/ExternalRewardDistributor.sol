@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IStakingRewards} from '../../interfaces/IStakingRewards.sol';
@@ -93,7 +93,7 @@ contract ExternalRewardDistributor {
       address[] calldata stakingContracts,
       address[] calldata rewards
   ) external {
-    require(aTokens.length == stakingContracts.length 
+    require(aTokens.length == stakingContracts.length
         && stakingContracts.length == rewards.length, "Malformed input");
 
     for(uint i = 0; i < aTokens.length; i++) {
@@ -108,7 +108,7 @@ contract ExternalRewardDistributor {
     address underlying = aTokenMap[msg.sender];
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
-        
+
     IERC20(underlying).transferFrom(msg.sender, address(this), amount);
     rewardData.staking.stake(amount);
     rewardData.users[user].assetBalance += amount;

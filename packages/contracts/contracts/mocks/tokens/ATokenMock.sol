@@ -77,16 +77,7 @@ contract ATokenMock is MintableERC20 {
     _totalSupply = totalSupply;
   }
 
-  function setMultiUserBalancesAndSupply(uint256[] calldata balances, address[] calldata users) public {
-    require(balances.length == users.length, "setMultiUserBalancesAndSupply: arrays don't match");
-    _totalSupply = 0;
-    for (uint256 i = 0; i < balances.length; i++) {
-      _multiUserBalances[users[i]] = balances[i];
-      _totalSupply += balances[i];
-    }
-  }
-
-  function getScaledUserBalanceAndSupply(address)
+  function getScaledUserBalanceAndSupply(address user)
     external
     view
     returns (uint256, uint256)
