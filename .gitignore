@@ -1,7 +1,6 @@
 node_modules
 artifacts
 cache
-yarn.lock
 dist/
 .npmrc
 .env
