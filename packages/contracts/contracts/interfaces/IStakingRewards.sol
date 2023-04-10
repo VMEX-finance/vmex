@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: agpl-3.0
+pragma solidity 0.8.17;
+
+import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
+
 interface IStakingRewards {
   // Views
 
@@ -11,9 +16,7 @@ interface IStakingRewards {
 
   function rewardPerToken() external view returns (uint256);
 
-  function rewardsDistribution() external view returns (address);
-
-  function rewardsToken() external view returns (address);
+  function rewardsToken() external view returns (IERC20);
 
   function totalSupply() external view returns (uint256);
 

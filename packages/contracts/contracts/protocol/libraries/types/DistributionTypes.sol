@@ -55,4 +55,10 @@ library DistributionTypes {
     uint256 index;
     uint256 accrued;
   }
+
+  enum Action {
+    DEPOSIT,
+    WITHDRAW,
+    TRANSFER
+  }
 }

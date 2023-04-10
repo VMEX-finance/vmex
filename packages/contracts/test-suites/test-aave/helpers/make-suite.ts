@@ -19,6 +19,7 @@ import {
   getVMEXOracle,
   getATokenMock,
   getIncentivesControllerProxy,
+  getStakingRewardsMock,
   // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
@@ -49,7 +50,7 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, YearnTokenMocked } from "../../../types";
+import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, StakingRewardsMock, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, YearnTokenMocked } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -100,6 +101,7 @@ export interface TestEnv {
   vmexToken: MintableERC20;
   incentivizedTokens: ATokenMock[];
   rewardTokens: MintableERC20[];
+  stakingContracts: StakingRewardsMock[];
 }
 
 let buidlerevmSnapshotId: string = "0x1";
@@ -139,6 +141,7 @@ const testEnv: TestEnv = {
   vmexToken: {} as MintableERC20,
   incentivizedTokens: [] as ATokenMock[],
   rewardTokens: [] as MintableERC20[],
+  stakingContracts: [] as StakingRewardsMock[]
 } as TestEnv;
 
 export async function initializeMakeSuite() {
@@ -277,6 +280,11 @@ export async function initializeMakeSuite() {
   ]
 
   testEnv.rewardTokens = [testEnv.usdc];
+
+  testEnv.stakingContracts = [
+    await getStakingRewardsMock({ slug: 'yaDai'}),
+    await getStakingRewardsMock({ slug: 'yaWeth'})
+  ];
 
   // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 

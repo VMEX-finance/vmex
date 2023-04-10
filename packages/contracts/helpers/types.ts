@@ -137,6 +137,7 @@ export enum eContractid {
   IncentivesControllerImpl = "IncentivesControllerImpl",
   IncentivesControllerProxy = "IncentivesControllerProxy",
   ATokenMock = "ATokenMock",
+  StakingRewardsMock = "StakingRewardsMock",
 }
 
 /*

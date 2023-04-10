@@ -81,6 +81,7 @@ import {
   SequencerUptimeFeedFactory,
   IncentivesControllerFactory,
   ATokenMockFactory,
+  StakingRewardsMockFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -685,11 +686,22 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     [rewardToken]
   );
 
-  await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
-  await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
+  const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
+  const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
   await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdc");
   await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
   await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
+
+  // deploy and set up mock yToken staking contracts
+  const stakingA = await deployStakingRewardsMock([aDai.address, rewardToken.address], "yaDai");
+  const stakingB = await deployStakingRewardsMock([aWeth.address, rewardToken.address], "yaWeth");
+
+  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"200000000000000.0"));
+  const totalStakingRewardsPer = await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")
+  rewardToken.connect(vaultOfRewards).transfer(stakingA.address, totalStakingRewardsPer);
+  stakingA.notifyRewardAmount(totalStakingRewardsPer);
+  rewardToken.connect(vaultOfRewards).transfer(stakingB.address, totalStakingRewardsPer);
+  stakingB.notifyRewardAmount(totalStakingRewardsPer);
 
   console.timeEnd("setup");
 };
@@ -1392,7 +1404,7 @@ export const deployAssetMapping = async (verify?: boolean) =>
   );
 
 export const deployIncentivesController = async (
-  args: [tEthereumAddress, tEthereumAddress],
+  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress],
   verify?: boolean
 ) =>
   withSaveAndVerify(
@@ -1416,6 +1428,20 @@ export const deployATokenMock = async (
     verify
   );
 
+export const deployStakingRewardsMock = async (
+  args: [tEthereumAddress, tEthereumAddress],
+  id?: string,
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new StakingRewardsMockFactory(await getFirstSigner()).deploy(
+      ...args
+    ),
+    id || eContractid.StakingRewardsMock,
+    [],
+    verify
+  );
+
 export const testDeployVmexIncentives = async (
   deployer: Signer,
   vaultOfRewards: Signer,
@@ -1433,6 +1459,7 @@ export const testDeployVmexIncentives = async (
     await deployIncentivesController([
       vaultOfRewardsAddress,
       emissionManager,
+      emissionManager
     ]);
 
   const peiEncodedInitialize =
@@ -1452,6 +1479,8 @@ export const testDeployVmexIncentives = async (
         .connect(vaultOfRewards)
         .approve(vmexIncentivesControllerProxy.address, MAX_UINT_AMOUNT)
     );
+
+  
   }
 
   await insertContractAddressInDb(

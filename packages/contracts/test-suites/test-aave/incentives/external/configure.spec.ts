@@ -16,134 +16,54 @@ import { BigNumberish } from 'ethers';
 type ScenarioAction = {
   caseName: string;
   customTimeMovement?: number;
-  assets: Omit<AssetUpdateData, 'underlyingAsset'>[];
-  compareRules?: CompareRules<AssetUpdateData, AssetData>;
+//   assets: Omit<AssetUpdateData, 'underlyingAsset'>[];
+//   compareRules?: CompareRules<AssetUpdateData, AssetData>;
 };
 
 const configureAssetScenarios: ScenarioAction[] = [
   {
-    caseName: 'Submit initial config for the assets',
-    assets: [
-      {
-        emissionPerSecond: '11',
-        totalStaked: '0',
-      },
-    ],
-    compareRules: {
-      fieldsEqualToInput: ['emissionPerSecond'],
-    },
+    caseName: 'Configure single asset rewards',
+    // compareRules: {
+    //   fieldsEqualToInput: ['emissionPerSecond'],
+    // },
   },
   {
-    caseName: 'Submit updated config for the assets',
-    assets: [
-      {
-        emissionPerSecond: '33',
-        totalStaked: '0',
-      },
-      {
-        emissionPerSecond: '22',
-        totalStaked: '0',
-      },
-    ],
-    compareRules: {
-      fieldsEqualToInput: ['emissionPerSecond'],
-    },
+    caseName: 'Batch configure asset rewards',
   },
   {
-    caseName:
-      'Indexes should change if emission are set not to 0, and pool has deposited and borrowed funds',
-    assets: [
-      {
-        emissionPerSecond: '33',
-        totalStaked: '100000',
-      },
-      {
-        emissionPerSecond: '22',
-        totalStaked: '123123123',
-      },
-    ],
-    compareRules: {
-      fieldsEqualToInput: ['emissionPerSecond'],
-    },
+    caseName: 'Reject repeat configuration',
   },
   {
-    caseName: 'Indexes should cumulate rewards if next emission is 0',
-    assets: [
-      {
-        emissionPerSecond: '0',
-        totalStaked: '100000',
-      },
-    ],
-    compareRules: {
-      fieldsEqualToInput: ['emissionPerSecond'],
-    },
-  },
-  {
-    caseName: 'Indexes should not change if no emission',
-    assets: [
-      {
-        emissionPerSecond: '222',
-        totalStaked: '213213213213',
-      },
-    ],
-    compareRules: {
-      fieldsEqualToInput: ['emissionPerSecond'],
-    },
-  },
-  {
-    caseName: 'Should go to the limit if distribution ended',
-    // customTimeMovement: 4000 * 60 * 100,
-    assets: [
-      {
-        emissionPerSecond: '222',
-        totalStaked: '213213213213',
-      },
-    ],
-    compareRules: {
-      fieldsEqualToInput: ['emissionPerSecond'],
-    },
-  },
-  {
-    caseName: 'Should not accrue any rewards after end or distribution',
-    // customTimeMovement: 1000,
-    assets: [
-      {
-        emissionPerSecond: '222',
-        totalStaked: '213213213213',
-      },
-    ],
-    compareRules: {
-      fieldsEqualToInput: ['emissionPerSecond'],
-    },
+    caseName: 'Update asset staking contract only',
   },
 ];
 
 makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
-  // custom checks
-  it('Tries to submit config updates not from emission manager', async () => {
-    const { incentivesController, users } = testEnv;
+  it('Rejects reward config not from manager', async () => {
+    const { incentivesController, users, rewardTokens, incentivizedTokens, stakingContracts } = testEnv;
     await expect(
-      incentivesController.connect(users[2].signer).configureRewards([])
-    ).to.be.revertedWith('ONLY_EMISSION_MANAGER');
+      incentivesController.connect(users[2].signer).addStakingReward(
+          incentivizedTokens[0].address, 
+          stakingContracts[0].address, 
+          rewardTokens[0].address
+    )).to.be.revertedWith('Only manager');
+
+    await expect(
+        incentivesController.connect(users[2].signer).batchAddStakingRewards(
+            incentivizedTokens.slice(0, 1).map(t => t.address),
+            stakingContracts.slice(0, 1).map(t => t.address), 
+            [rewardTokens[0].address, rewardTokens[0].address]
+      )).to.be.revertedWith('Only manager');
   });
 
   // mutate compatible scenarios
   // TODO: add events emission
-  for (const { assets, caseName, compareRules, customTimeMovement } of configureAssetScenarios) {
+  for (const { caseName, customTimeMovement } of configureAssetScenarios) {
     it(caseName, async () => {
-      const { incentivesController, rewardTokens, incentivizedTokens } = testEnv;
+      const { incentivesController, rewardTokens, incentivizedTokens, stakingContracts } = testEnv;
       const { timestamp } = await hre.ethers.provider.getBlock('latest');
 
-      const distributionEndTimestamp = timestamp + 2000 * 60 * 60;
-      const assetConfigsUpdate: AssetUpdateData[] = [];
       const rewardToken = rewardTokens[0];
-
-      const configureRewardsInput: {
-        emissionPerSecond: BigNumberish;
-        endTimestamp: BigNumberish;
-        incentivizedAsset: string;
-        reward: string;
-      }[] = [];
 
       assets.forEach((assetConfig, i) => {
         if (i > incentivizedTokens.length) {

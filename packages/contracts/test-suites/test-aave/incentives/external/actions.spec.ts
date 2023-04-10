@@ -1,17 +1,16 @@
 import { fail } from 'assert';
 const { expect } = require('chai');
 
-import { increaseTime, waitForTx } from '../../../helpers/misc-utils';
-import { makeSuite } from '../helpers/make-suite';
-import { eventChecker } from './helpers/comparator-engine';
-import { getBlockTimestamp } from '../../../helpers/contracts-helpers';
+import { increaseTime, waitForTx } from '../../../../helpers/misc-utils';
+import { makeSuite } from '../../helpers/make-suite';
+import { getBlockTimestamp } from '../../../../helpers/contracts-helpers';
 
-import { getUserIndex } from './data-helpers/asset-user-data';
+import { getUserIndex } from '.././data-helpers/asset-user-data';
 import {
   assetDataComparator,
   getRewardAssetsData,
-} from './data-helpers/asset-data';
-import { getRewards } from './data-helpers/base-math';
+} from '.././data-helpers/asset-data';
+import { getRewards } from '.././data-helpers/base-math';
 import hre from 'hardhat';
 
 type ScenarioAction = {
@@ -24,7 +23,7 @@ type ScenarioAction = {
 
 const handleActionScenarios: ScenarioAction[] = [
   {
-    caseName: 'All 0',
+    caseName: 'First deposit',
     emissionPerSecond: '0',
     userBalance: '0',
     totalSupply: '0',
@@ -105,7 +104,7 @@ makeSuite('AaveIncentivesController handleAction tests', (testEnv) => {
       }
 
       const handleActionReceipt = await waitForTx(
-        await incentivizedTokens[0].handleActionOnAic(userAddress, userBalance, totalSupply, 0)
+        await incentivizedTokens[0].handleActionOnAic(userAddress, userBalance, totalSupply)
       );
       const eventsEmitted = handleActionReceipt.events || [];
       const actionBlockTimestamp = await getBlockTimestamp(handleActionReceipt.blockNumber);
