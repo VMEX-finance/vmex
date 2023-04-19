@@ -576,5 +576,16 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: ZERO_ADDRESS,
     [eEthereumNetwork.goerli]: ZERO_ADDRESS,
     [eEthereumNetwork.tenderly]: ZERO_ADDRESS,
-  }
+  },
+  BeethovenMetadata: {
+    [eEthereumNetwork.coverage]: {},
+    [eEthereumNetwork.buidlerevm]: {},
+    [eEthereumNetwork.coverage]: {},
+    [eEthereumNetwork.hardhat]: {},
+    [eEthereumNetwork.kovan]: {},
+    [eEthereumNetwork.ropsten]: {},
+    [eEthereumNetwork.main]: {},
+    [eEthereumNetwork.goerli]: {},
+    [eEthereumNetwork.tenderly]: {},
+  },
 };
