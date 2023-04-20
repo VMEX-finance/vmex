@@ -38,4 +38,6 @@ interface IIncentivesController {
     address[] calldata assets,
     address to
   ) external returns (address[] memory, uint256[] memory);
+
+  function totalStaked() external view returns (uint256);
 }
