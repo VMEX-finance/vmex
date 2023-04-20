@@ -10,6 +10,8 @@ contract ATokenMock is MintableERC20 {
   uint256 internal _userBalance;
   uint256 internal _totalSupply;
 
+  address public underlying;
+
   // hack to be able to test event from EI properly
   event RewardsAccrued(address indexed user, uint256 amount);
 
@@ -20,6 +22,14 @@ contract ATokenMock is MintableERC20 {
 
   constructor(IIncentivesController aic) MintableERC20('Atoken Mock', 'aMOCK', 18) {
     _aic = aic;
+  }
+
+  function setUnderlying(address token) external {
+    underlying = token;
+  }
+
+  function UNDERLYING_ASSET_ADDRESS() external view returns (address) {
+    return underlying;
   }
 
   function handleActionOnAic(

@@ -689,19 +689,27 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
   const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
   await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdc");
-  await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
+  const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
   await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
+  
+  // need mocks used for linking external rewards to link to 'real' tokens
+  await aDai.setUnderlying(mockTokens["DAI"].address)
+  await aWeth.setUnderlying(mockTokens["WETH"].address)
+  await aBusd.setUnderlying(mockTokens["BUSD"].address)
 
-  // deploy and set up mock yToken staking contracts
-  const stakingA = await deployStakingRewardsMock([aDai.address, rewardToken.address], "yaDai");
-  const stakingB = await deployStakingRewardsMock([aWeth.address, rewardToken.address], "yaWeth");
+  // deploy and fund test staking contracts
+  const stakingA = await deployStakingRewardsMock([mockTokens["DAI"].address, rewardToken.address], "yaDai");
+  const stakingB = await deployStakingRewardsMock([mockTokens["WETH"].address, rewardToken.address], "yaWeth");
+  const stakingC = await deployStakingRewardsMock([mockTokens["BUSD"].address, rewardToken.address], "yaBusd");
 
-  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"200000000000000.0"));
+  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"300000000000000.0"));
   const totalStakingRewardsPer = await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")
   rewardToken.connect(vaultOfRewards).transfer(stakingA.address, totalStakingRewardsPer);
-  stakingA.notifyRewardAmount(totalStakingRewardsPer);
+  stakingA.notifyRewardAmount(100000000000000);
   rewardToken.connect(vaultOfRewards).transfer(stakingB.address, totalStakingRewardsPer);
-  stakingB.notifyRewardAmount(totalStakingRewardsPer);
+  stakingB.notifyRewardAmount(100000000000000);
+  rewardToken.connect(vaultOfRewards).transfer(stakingC.address, totalStakingRewardsPer);
+  stakingC.notifyRewardAmount(100000000000000);
 
   console.timeEnd("setup");
 };
