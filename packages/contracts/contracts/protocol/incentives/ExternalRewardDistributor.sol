@@ -172,7 +172,7 @@ contract ExternalRewardDistributor {
       );
   }
 
-  function _totalStaked() internal view virtual returns (uint256) {
+  function _totalStaked() internal view returns (uint256) {
     return stakingData[aTokenMap[msg.sender]].staking.balanceOf(address(this));
   }
 }
