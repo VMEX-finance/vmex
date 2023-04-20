@@ -79,6 +79,7 @@ export interface TestEnv {
   aUsdc: AToken;
   varDebtUsdc: VariableDebtToken;
   aave: MintableERC20;
+  busd: MintableERC20;
   aAave: AToken;
   tricrypto2: MintableERC20;
   yvTricrypto2: YearnTokenMocked;
@@ -122,6 +123,7 @@ const testEnv: TestEnv = {
   aUsdc: {} as  AToken,
   varDebtUsdc: {} as  VariableDebtToken,
   aave: {} as MintableERC20,
+  busd: {} as MintableERC20,
   tricrypto2: {} as MintableERC20,
   yvTricrypto2: {} as YearnTokenMocked,
   ayvTricrypto2: {} as AToken,
@@ -213,6 +215,9 @@ export async function initializeMakeSuite() {
   const daiAddress = reservesTokensT0.find(
     (token) => token.symbol === "DAI"
   )?.tokenAddress;
+  const busdAddress = reservesTokensT0.find(
+    (token) => token.symbol === "BUSD"
+  )?.tokenAddress;
   const usdcAddress = reservesTokensT0.find(
     (token) => token.symbol === "USDC"
   )?.tokenAddress;
@@ -258,6 +263,7 @@ export async function initializeMakeSuite() {
   testEnv.dai = await getMintableERC20(daiAddress);
   testEnv.usdc = await getMintableERC20(usdcAddress);
   testEnv.aave = await getMintableERC20(aaveAddress);
+  testEnv.busd = await getMintableERC20(busdAddress)
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
   testEnv.yvTricrypto2 = await getYearnTokenMocked(yvTricrypto2Address);
@@ -271,8 +277,8 @@ export async function initializeMakeSuite() {
   testEnv.incentivizedTokens = [
     await getATokenMock({ slug: 'aDai' }),
     await getATokenMock({ slug: 'aWeth' }),
-    await getATokenMock({ slug: 'aUsdc' }),
     await getATokenMock({ slug: 'aBusd' }),
+    await getATokenMock({ slug: 'aUsdc' }),
     await getATokenMock({ slug: 'aUsdt' })
   ]
 
@@ -280,7 +286,8 @@ export async function initializeMakeSuite() {
 
   testEnv.stakingContracts = [
     await getStakingRewardsMock({ slug: 'yaDai'}),
-    await getStakingRewardsMock({ slug: 'yaWeth'})
+    await getStakingRewardsMock({ slug: 'yaWeth'}),
+    await getStakingRewardsMock({ slug: 'yaBusd'})
   ];
 
   // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
