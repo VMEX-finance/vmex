@@ -48,10 +48,12 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
           rewardTokens[0].address
     )).to.be.revertedWith('Only manager');
 
+    
+
     await expect(
         incentivesController.connect(users[2].signer).batchAddStakingRewards(
-            incentivizedTokens.slice(0, 1).map(t => t.address),
-            stakingContracts.slice(0, 1).map(t => t.address), 
+            incentivizedTokens.slice(0, 2).map(t => t.address),
+            stakingContracts.slice(0, 2).map(t => t.address), 
             [rewardTokens[0].address, rewardTokens[0].address]
       )).to.be.revertedWith('Only manager');
   });
@@ -63,7 +65,7 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
         stakingContracts[0].address, 
         rewardTokens[0].address
     );
-    const assetData = await incentivesController.getDataByAToken(rewardTokens[0].address);
+    const assetData = await incentivesController.getDataByAToken(incentivizedTokens[0].address);
     expect(assetData[0]).equal(dai.address)
     expect(assetData[1]).equal(stakingContracts[0].address)
     expect(assetData[2]).equal(usdc.address)
@@ -79,25 +81,24 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
             stakingContracts.slice(0, 2).map(t => t.address), 
             [rewardTokens[0].address, rewardTokens[0].address]
       )).to.be.revertedWith('Malformed input');
-    
     const receipt = await waitForTx(
         await incentivesController.batchAddStakingRewards(
-            incentivizedTokens.slice(1, 2).map(t => t.address),
-            stakingContracts.slice(1, 2).map(t => t.address), 
+            incentivizedTokens.slice(2, 4).map(t => t.address),
+            stakingContracts.slice(2, 4).map(t => t.address), 
             [rewardTokens[0].address, rewardTokens[0].address]
     ));
 
-    const assetBData = await incentivesController.getDataByAToken(incentivizedTokens[1].address)
-    const assetCData = await incentivesController.getDataByAToken(incentivizedTokens[2].address)
+    const assetBData = await incentivesController.getDataByAToken(incentivizedTokens[2].address)
+    const assetCData = await incentivesController.getDataByAToken(incentivizedTokens[3].address)
 
-    expect(assetBData[0]).equal(weth.address)
-    expect(assetBData[1]).equal(stakingContracts[1].address)
+    expect(assetBData[0]).equal(busd.address)
+    expect(assetBData[1]).equal(stakingContracts[2].address)
     expect(assetBData[2]).equal(usdc.address)
     expect(assetBData[3]).equal(0)
     expect(assetBData[4]).equal(0)
 
-    expect(assetCData[0]).equal(busd.address)
-    expect(assetCData[1]).equal(stakingContracts[2].address)
+    expect(assetCData[0]).equal(usdc.address)
+    expect(assetCData[1]).equal(stakingContracts[3].address)
     expect(assetCData[2]).equal(usdc.address)
     expect(assetCData[3]).equal(0)
     expect(assetCData[4]).equal(0)
@@ -107,17 +108,17 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
     expect(emitted.length).equal(2)
 
     eventChecker(emitted[0], 'RewardConfigured', [
-        incentivizedTokens[1].address,
-        weth.address,
-        usdc.address,
-        stakingContracts[1].address
-    ]);
-
-    eventChecker(emitted[1], 'RewardConfigured', [
         incentivizedTokens[2].address,
         busd.address,
         usdc.address,
         stakingContracts[2].address
+    ]);
+
+    eventChecker(emitted[1], 'RewardConfigured', [
+        incentivizedTokens[3].address,
+        usdc.address,
+        usdc.address,
+        stakingContracts[3].address
     ]);
   });  
 });

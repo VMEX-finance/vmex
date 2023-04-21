@@ -5,6 +5,7 @@ import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol
 import {IStakingRewards} from '../../interfaces/IStakingRewards.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
+import "hardhat/console.sol";
 
 contract ExternalRewardDistributor {
   using SafeERC20 for IERC20;
@@ -75,10 +76,18 @@ contract ExternalRewardDistributor {
     require(aTokenMap[aToken] == address(0), 'Already registered');
 
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
+    console.log('OUTSIDE CONDITIONAL');
+    console.log(underlying);
     if (address(stakingData[underlying].reward) == address(0)) {
         require(staking != address(0) && reward != address(0), 'No zero address');
-        stakingData[aToken].staking = IStakingRewards(staking);
-        stakingData[aToken].reward = IERC20(reward);
+        stakingData[underlying].staking = IStakingRewards(staking);
+        stakingData[underlying].reward = IERC20(reward);
+        console.log('config underlying');
+        console.log(underlying);
+        console.log('config staking');
+        console.log(address(stakingData[underlying].staking));
+        console.log('config reward');
+        console.log(address(stakingData[underlying].reward));
     }
     aTokenMap[aToken] = underlying;
 
@@ -163,12 +172,17 @@ contract ExternalRewardDistributor {
 
   function getDataByAToken(address aToken) external view
   returns (address, address, address, uint256, uint256) {
+      address underlying = aTokenMap[aToken];
+      console.log('view underlying');
+      console.log(underlying);
+      // console.log('view staking');
+      // console.log(stakingData[underlying].staking);
       return (
-          aTokenMap[aToken],
-          address(stakingData[aTokenMap[aToken]].staking),
-          address(stakingData[aTokenMap[aToken]].reward),
-          stakingData[aTokenMap[aToken]].cumulativeRewardPerToken,
-          stakingData[aTokenMap[aToken]].lastUpdateTimestamp
+          underlying,
+          address(stakingData[underlying].staking),
+          address(stakingData[underlying].reward),
+          stakingData[underlying].cumulativeRewardPerToken,
+          stakingData[underlying].lastUpdateTimestamp
       );
   }
 

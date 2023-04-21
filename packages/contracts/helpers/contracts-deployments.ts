@@ -697,28 +697,38 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
   const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
-  await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdc");
+  const aUsdc = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdc");
   const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
-  await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
+  const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
   
   // need mocks used for linking external rewards to link to 'real' tokens
   await aDai.setUnderlying(mockTokens["DAI"].address)
   await aWeth.setUnderlying(mockTokens["WETH"].address)
   await aBusd.setUnderlying(mockTokens["BUSD"].address)
+  await aUsdc.setUnderlying(mockTokens["USDC"].address)
+  await aUsdt.setUnderlying(mockTokens["USDT"].address)
+
+
 
   // deploy and fund test staking contracts
   const stakingA = await deployStakingRewardsMock([mockTokens["DAI"].address, rewardToken.address], "yaDai");
   const stakingB = await deployStakingRewardsMock([mockTokens["WETH"].address, rewardToken.address], "yaWeth");
   const stakingC = await deployStakingRewardsMock([mockTokens["BUSD"].address, rewardToken.address], "yaBusd");
+  const stakingD = await deployStakingRewardsMock([mockTokens["USDC"].address, rewardToken.address], "yaUsdc");
+  const stakingE = await deployStakingRewardsMock([mockTokens["USDT"].address, rewardToken.address], "yaUsdt");
 
-  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"300000000000000.0"));
-  const totalStakingRewardsPer = await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")
-  rewardToken.connect(vaultOfRewards).transfer(stakingA.address, totalStakingRewardsPer);
+
+  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"500000000000000.0"));
+  rewardToken.connect(vaultOfRewards).transfer(stakingA.address, 100000000000000);
   stakingA.notifyRewardAmount(100000000000000);
-  rewardToken.connect(vaultOfRewards).transfer(stakingB.address, totalStakingRewardsPer);
+  rewardToken.connect(vaultOfRewards).transfer(stakingB.address, 100000000000000);
   stakingB.notifyRewardAmount(100000000000000);
-  rewardToken.connect(vaultOfRewards).transfer(stakingC.address, totalStakingRewardsPer);
+  rewardToken.connect(vaultOfRewards).transfer(stakingC.address, 100000000000000);
   stakingC.notifyRewardAmount(100000000000000);
+  rewardToken.connect(vaultOfRewards).transfer(stakingD.address, 100000000000000);
+  stakingD.notifyRewardAmount(100000000000000);
+  rewardToken.connect(vaultOfRewards).transfer(stakingE.address, 100000000000000);
+  stakingE.notifyRewardAmount(100000000000000);
 
   console.timeEnd("setup");
 };
