@@ -34,8 +34,8 @@ contract ATokenMock is MintableERC20 {
 
   function handleActionOnAic(
     address user,
-    uint256 oldBalance,
     uint256 totalSupply,
+    uint256 oldBalance,
     uint256 newBalance,
     DistributionTypes.Action action
   ) external {

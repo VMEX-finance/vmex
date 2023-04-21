@@ -13,31 +13,6 @@ import {
 import hre from 'hardhat';
 import { BigNumberish } from 'ethers';
 
-type ScenarioAction = {
-  caseName: string;
-  customTimeMovement?: number;
-//   assets: Omit<AssetUpdateData, 'underlyingAsset'>[];
-//   compareRules?: CompareRules<AssetUpdateData, AssetData>;
-};
-
-const configureAssetScenarios: ScenarioAction[] = [
-  {
-    caseName: 'Configure single asset rewards',
-    // compareRules: {
-    //   fieldsEqualToInput: ['emissionPerSecond'],
-    // },
-  },
-  {
-    caseName: 'Batch configure asset rewards',
-  },
-  {
-    caseName: 'Reject repeat configuration',
-  },
-  {
-    caseName: 'Update asset staking contract only',
-  },
-];
-
 makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
   it('Reject reward config not from manager', async () => {
     const { incentivesController, users, rewardTokens, incentivizedTokens, stakingContracts } = testEnv;
