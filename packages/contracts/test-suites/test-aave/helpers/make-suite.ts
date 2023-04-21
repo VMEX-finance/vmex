@@ -290,7 +290,9 @@ export async function initializeMakeSuite() {
   testEnv.stakingContracts = [
     await getStakingRewardsMock({ slug: 'yaDai'}),
     await getStakingRewardsMock({ slug: 'yaWeth'}),
-    await getStakingRewardsMock({ slug: 'yaBusd'})
+    await getStakingRewardsMock({ slug: 'yaBusd'}),
+    await getStakingRewardsMock({ slug: 'yaUsdc'}),
+    await getStakingRewardsMock({ slug: 'yaUsdt'}),
   ];
 
   // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
