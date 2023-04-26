@@ -19,7 +19,7 @@ import {
   getVMEXOracle,
   getATokenMock,
   getIncentivesControllerProxy,
-  // getATokensAndRatesHelper,
+  getVmexToken,
 } from "../../../helpers/contracts-getters";
 import {
   eEthereumNetwork,
@@ -31,7 +31,6 @@ import { AaveProtocolDataProvider } from "../../../types/AaveProtocolDataProvide
 import { MintableERC20 } from "../../../types/MintableERC20";
 import { AToken } from "../../../types/AToken";
 import { LendingPoolConfigurator } from "../../../types/LendingPoolConfigurator";
-import { CrvLpStrategy } from "../../../types/CrvLpStrategy";
 
 import chai from "chai";
 // @ts-ignore
@@ -41,15 +40,12 @@ import { PriceOracle } from "../../../types/PriceOracle";
 import { LendingPoolAddressesProvider } from "../../../types/LendingPoolAddressesProvider";
 import { LendingPoolAddressesProviderRegistry } from "../../../types/LendingPoolAddressesProviderRegistry";
 import { getEthersSigners } from "../../../helpers/contracts-helpers";
-import { UniswapLiquiditySwapAdapter } from "../../../types/UniswapLiquiditySwapAdapter";
-import { UniswapRepayAdapter } from "../../../types/UniswapRepayAdapter";
-import { ParaSwapLiquiditySwapAdapter } from "../../../types/ParaSwapLiquiditySwapAdapter";
 import { getParamPerNetwork } from "../../../helpers/contracts-helpers";
 import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, YearnTokenMocked } from "../../../types";
+import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, VmexToken, YearnTokenMocked } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -97,7 +93,7 @@ export interface TestEnv {
 
   // items for the incentives controller
   incentivesController: IncentivesController;
-  vmexToken: MintableERC20;
+  vmexToken: VmexToken;
   incentivizedTokens: ATokenMock[];
   rewardTokens: MintableERC20[];
 }
@@ -136,7 +132,7 @@ const testEnv: TestEnv = {
   varDebtBeacon: {} as VariableDebtTokenBeacon,
 
   incentivesController: {} as IncentivesController,
-  vmexToken: {} as MintableERC20,
+  vmexToken: {} as VmexToken,
   incentivizedTokens: [] as ATokenMock[],
   rewardTokens: [] as MintableERC20[],
 } as TestEnv;
@@ -266,7 +262,7 @@ export async function initializeMakeSuite() {
   testEnv.varDebtUsdc = await getVariableDebtToken(varDebtUsdcAddress);
 
   testEnv.incentivesController = await getIncentivesControllerProxy();
-  // testEnv.vmexToken = await deployMintableERC20(["VMEX", "VMEX Governance Token", "18"]);
+  testEnv.vmexToken = await getVmexToken();
 
   testEnv.incentivizedTokens = [
     await getATokenMock({ slug: 'aDai' }),
