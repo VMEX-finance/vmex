@@ -81,6 +81,9 @@ import {
   SequencerUptimeFeedFactory,
   IncentivesControllerFactory,
   ATokenMockFactory,
+  VmexTokenFactory,
+  ERC20,
+  DoubleTransferHelper,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -671,18 +674,24 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   }
 
   //-------------------------------------------------------------
+  // Deploy Vmex Token
+
+  const vmexToken = await deployVmexToken();
+
   // Deploy Incentives Controller
   const signers = await getEthersSigners();
   const vaultOfRewards = signers[3];
   const rewardToken = await getMintableERC20(mockTokens.USDC.address);
-  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+
+  // give the vault reward tokens to distribute
+  await rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
 
   const proxyAdmin = signers[4];
   const { vmexIncentivesControllerProxy } = await testDeployVmexIncentives(
     deployer,
     vaultOfRewards,
     proxyAdmin,
-    [rewardToken]
+    [rewardToken, vmexToken]
   );
 
   await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
@@ -1416,11 +1425,21 @@ export const deployATokenMock = async (
     verify
   );
 
+export const deployVmexToken = async (
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new VmexTokenFactory(await getFirstSigner()).deploy(),
+    eContractid.VmexToken,
+    [],
+    verify
+  );
+
 export const testDeployVmexIncentives = async (
   deployer: Signer,
   vaultOfRewards: Signer,
   proxyAdmin: Signer,
-  rewardTokens: MintableERC20[]
+  rewardTokens: ERC20[]
 ) => {
   const emissionManager = await deployer.getAddress();
 
@@ -1445,7 +1464,6 @@ export const testDeployVmexIncentives = async (
     peiEncodedInitialize
   );
 
-  // TODO: approve incentives controller access to all tokens
   for (const rewardToken of rewardTokens) {
     await waitForTx(
       await rewardToken
@@ -1462,4 +1480,15 @@ export const testDeployVmexIncentives = async (
   return {
     vmexIncentivesControllerProxy,
   };
+};
+
+export const deployDoubleTransferHelper = async (aaveToken: tEthereumAddress, verify?: boolean) => {
+  const id = eContractid.DoubleTransferHelper;
+  const args = [aaveToken];
+  const instance = await deployContract<DoubleTransferHelper>(id, args);
+  await instance.deployTransaction.wait();
+  if (verify) {
+    await verifyContract(id, instance, args);
+  }
+  return instance;
 };
