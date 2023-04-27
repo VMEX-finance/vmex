@@ -6,7 +6,7 @@ import "./Context.sol";
 import "./IERC20.sol";
 import "./SafeMath.sol";
 import "./Address.sol";
-import "./IERC20Metadata.sol";
+import "./IERC20Detailed.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -32,7 +32,7 @@ import "./IERC20Metadata.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is Context, IERC20, IERC20Metadata {
+contract ERC20 is Context, IERC20, IERC20Detailed {
     using SafeMath for uint256;
     using Address for address;
 

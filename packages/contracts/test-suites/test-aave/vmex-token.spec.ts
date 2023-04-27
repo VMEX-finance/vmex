@@ -196,7 +196,8 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       permitAmount
     );
 
-    const ownerPrivateKey = require("../../test-wallets.js").accounts[0].secretKey;
+    const ownerPrivateKey = require("../../test-wallets.js").accounts[0]
+      .secretKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -241,7 +242,8 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       permitAmount
     );
 
-    const ownerPrivateKey = require("../../test-wallets.js").accounts[0].secretKey;
+    const ownerPrivateKey = require("../../test-wallets.js").accounts[0]
+      .secretKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -290,7 +292,8 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       permitAmount
     );
 
-    const ownerPrivateKey = require("../../test-wallets.js").accounts[0].secretKey;
+    const ownerPrivateKey = require("../../test-wallets.js").accounts[0]
+      .secretKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -328,7 +331,8 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       permitAmount
     );
 
-    const ownerPrivateKey = require("../../test-wallets.js").accounts[0].secretKey;
+    const ownerPrivateKey = require("../../test-wallets.js").accounts[0]
+      .secretKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -366,7 +370,8 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       permitAmount
     );
 
-    const ownerPrivateKey = require("../../test-wallets.js").accounts[0].secretKey;
+    const ownerPrivateKey = require("../../test-wallets.js").accounts[0]
+      .secretKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -404,7 +409,8 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       permitAmount
     );
 
-    const ownerPrivateKey = require("../../test-wallets.js").accounts[0].secretKey;
+    const ownerPrivateKey = require("../../test-wallets.js").accounts[0]
+      .secretKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -428,30 +434,19 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
     const receiver = users[2].address;
     const transferBalance = ethers.utils.parseEther("1");
 
-    console.log("dth addr", doubleTransferHelper.address)
-    console.log("user2 addr", receiver)
-    console.log("first sender addr", users[1].address)
-
     // enable doubletransferhelper, user2 for voting
-    await waitForTx(
-      await doubleTransferHelper.enableVoting()
-    );
+    await waitForTx(await doubleTransferHelper.enableVoting());
 
-    console.log("done enable dth");
     await waitForTx(
       await vmexToken.connect(users[2].signer).delegate(users[2].address)
-      );
-      console.log("done enable user 2");
+    );
 
     // send tokens
     await waitForTx(
-      await vmexToken.connect(users[1].signer).transfer(
-        doubleTransferHelper.address,
-        transferBalance
-      )
+      await vmexToken
+        .connect(users[1].signer)
+        .transfer(doubleTransferHelper.address, transferBalance)
     );
-
-    console.log("sent tokens from user 1 to dth")
 
     await waitForTx(
       await doubleTransferHelper.doubleSend(
@@ -461,8 +456,6 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       )
     );
 
-    console.log("sent tokens from dth to user2")
-
     const countSnapshotsReceiver = (
       await vmexToken.numCheckpoints(receiver)
     ).toString();
@@ -471,10 +464,7 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
       "INVALID_COUNT_SNAPSHOTS_RECEIVER"
     );
 
-    const snapshotReceiver = await vmexToken.checkpoints(
-      receiver,
-      0
-    );
+    const snapshotReceiver = await vmexToken.checkpoints(receiver, 0);
 
     expect(snapshotReceiver.votes.toString()).to.be.equal(
       ethers.utils.parseEther("1")
@@ -521,11 +511,8 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
     expect((await vmexToken.numCheckpoints(from)).toString()).to.be.equal(
       "2",
       "INVALID_SNAPSHOT_COUNT"
-    )
-    await waitForTx(
-      await vmexToken
-        .transfer(to, ethers.utils.parseEther("1"))
     );
+    await waitForTx(await vmexToken.transfer(to, ethers.utils.parseEther("1")));
     const fromCountOfSnapshots = await vmexToken.numCheckpoints(from);
     const fromLastSnapshot = await vmexToken.checkpoints(
       from,
@@ -537,10 +524,7 @@ makeSuite("Vmex token tests", (testEnv: TestEnv) => {
     );
 
     const toCountOfSnapshots = await vmexToken.numCheckpoints(to);
-    const toSnapshot = await vmexToken.checkpoints(
-      to,
-      toCountOfSnapshots - 1
-    );
+    const toSnapshot = await vmexToken.checkpoints(to, toCountOfSnapshots - 1);
 
     expect(fromCountOfSnapshots.toString()).to.be.equal(
       "2",
