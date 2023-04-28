@@ -10,6 +10,8 @@ contract ATokenMock is MintableERC20 {
   uint256 internal _userBalance;
   uint256 internal _totalSupply;
 
+  mapping(address => uint256) internal _multiUserBalances;
+
   address public underlying;
 
   // hack to be able to test event from EI properly
@@ -26,6 +28,7 @@ contract ATokenMock is MintableERC20 {
 
   function setUnderlying(address token) external {
     underlying = token;
+    MintableERC20(underlying).approve(address(_aic), type(uint).max);
   }
 
   function UNDERLYING_ASSET_ADDRESS() external view returns (address) {
@@ -45,6 +48,15 @@ contract ATokenMock is MintableERC20 {
   function setUserBalanceAndSupply(uint256 userBalance, uint256 totalSupply) public {
     _userBalance = userBalance;
     _totalSupply = totalSupply;
+  }
+
+  function setMultiUserBalancesAndSupply(uint256[] calldata balances, address[] calldata users) public {
+    require(balances.length == users.length, "setMultiUserBalancesAndSupply: arrays don't match");
+    _totalSupply = 0;
+    for (uint256 i = 0; i < balances.length; i++) {
+      _multiUserBalances[users[i]] = balances[i];
+      _totalSupply += balances[i];
+    }
   }
 
   function getScaledUserBalanceAndSupply(address)

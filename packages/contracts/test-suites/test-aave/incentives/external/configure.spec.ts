@@ -13,7 +13,7 @@ import {
 import hre from 'hardhat';
 import { BigNumberish } from 'ethers';
 
-makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
+makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
   it('Reject reward config not from manager', async () => {
     const { incentivesController, users, rewardTokens, incentivizedTokens, stakingContracts } = testEnv;
     await expect(
@@ -49,7 +49,7 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
   })
 
   it('Configure batch assets, fail on inconsistent parameter lengths', async () => {
-    const { incentivesController, rewardTokens, incentivizedTokens, stakingContracts, weth, usdc, busd } = testEnv;
+    const { incentivesController, rewardTokens, incentivizedTokens, stakingContracts, usdc, busd, aave } = testEnv;
     await expect(
         incentivesController.batchAddStakingRewards(
             incentivizedTokens.slice(0, 1).map(t => t.address),
@@ -58,8 +58,8 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
       )).to.be.revertedWith('Malformed input');
     const receipt = await waitForTx(
         await incentivesController.batchAddStakingRewards(
-            incentivizedTokens.slice(2, 4).map(t => t.address),
-            stakingContracts.slice(2, 4).map(t => t.address), 
+            incentivizedTokens.slice(1, 3).map(t => t.address),
+            stakingContracts.slice(1, 3).map(t => t.address), 
             [rewardTokens[0].address, rewardTokens[0].address]
     ));
 
@@ -72,7 +72,7 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
     expect(assetBData[3]).equal(0)
     expect(assetBData[4]).equal(0)
 
-    expect(assetCData[0]).equal(usdc.address)
+    expect(assetCData[0]).equal(aave.address)
     expect(assetCData[1]).equal(stakingContracts[3].address)
     expect(assetCData[2]).equal(usdc.address)
     expect(assetCData[3]).equal(0)
@@ -91,7 +91,7 @@ makeSuite('IncentivesController configureAssets', (testEnv: TestEnv) => {
 
     eventChecker(emitted[1], 'RewardConfigured', [
         incentivizedTokens[3].address,
-        usdc.address,
+        aave.address,
         usdc.address,
         stakingContracts[3].address
     ]);

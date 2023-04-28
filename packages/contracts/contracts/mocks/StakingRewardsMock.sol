@@ -119,6 +119,10 @@ contract StakingRewardsMock is IStakingRewards {
         emit Staked(msg.sender, amount);
     }
 
+    function increaseTotalSupply(uint256 amount) external updateReward(msg.sender) {
+        _totalSupply = _totalSupply.add(amount);
+    }
+
     /// @notice Withdraw vault tokens from the staking pool.
     /// @dev Can't withdraw zero. If trying to claim, call getReward() instead.
     /// @param amount Amount of vault tokens to withdraw.
