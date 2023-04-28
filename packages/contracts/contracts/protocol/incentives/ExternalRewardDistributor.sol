@@ -177,4 +177,8 @@ contract ExternalRewardDistributor {
   function totalStaked() external view returns (uint256) {
     return stakingData[aTokenMap[msg.sender]].staking.balanceOf(address(this));
   }
+
+  function getUserDataByAToken(address user, address aToken) external view returns (UserState memory) {
+    return stakingData[aTokenMap[aToken]].users[user];
+  }
 }

@@ -688,7 +688,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
   const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
-  const aUsdc = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdc");
+  const aUsdc = await deployATokenMock(vmexIncentivesControllerProxy.address, "aAave");
   const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
   const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
   
@@ -696,7 +696,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   await aDai.setUnderlying(mockTokens["DAI"].address)
   await aWeth.setUnderlying(mockTokens["WETH"].address)
   await aBusd.setUnderlying(mockTokens["BUSD"].address)
-  await aUsdc.setUnderlying(mockTokens["USDC"].address)
+  await aUsdc.setUnderlying(mockTokens["AAVE"].address)
   await aUsdt.setUnderlying(mockTokens["USDT"].address)
 
 
@@ -705,7 +705,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const stakingA = await deployStakingRewardsMock([mockTokens["DAI"].address, rewardToken.address], "yaDai");
   const stakingB = await deployStakingRewardsMock([mockTokens["WETH"].address, rewardToken.address], "yaWeth");
   const stakingC = await deployStakingRewardsMock([mockTokens["BUSD"].address, rewardToken.address], "yaBusd");
-  const stakingD = await deployStakingRewardsMock([mockTokens["USDC"].address, rewardToken.address], "yaUsdc");
+  const stakingD = await deployStakingRewardsMock([mockTokens["AAVE"].address, rewardToken.address], "yaAave");
   const stakingE = await deployStakingRewardsMock([mockTokens["USDT"].address, rewardToken.address], "yaUsdt");
 
 

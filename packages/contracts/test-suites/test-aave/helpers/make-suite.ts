@@ -83,6 +83,7 @@ export interface TestEnv {
   varDebtUsdc: VariableDebtToken;
   aave: MintableERC20;
   busd: MintableERC20;
+  usdt: MintableERC20;
   aAave: AToken;
   tricrypto2: MintableERC20;
   yvTricrypto2: YearnTokenMocked;
@@ -103,6 +104,7 @@ export interface TestEnv {
   incentivizedTokens: ATokenMock[];
   rewardTokens: MintableERC20[];
   stakingContracts: StakingRewardsMock[];
+  incentUnderlying: MintableERC20[];
 }
 
 let buidlerevmSnapshotId: string = "0x1";
@@ -127,6 +129,7 @@ const testEnv: TestEnv = {
   varDebtUsdc: {} as  VariableDebtToken,
   aave: {} as MintableERC20,
   busd: {} as MintableERC20,
+  usdt: {} as MintableERC20,
   tricrypto2: {} as MintableERC20,
   yvTricrypto2: {} as YearnTokenMocked,
   ayvTricrypto2: {} as AToken,
@@ -143,7 +146,8 @@ const testEnv: TestEnv = {
   vmexToken: {} as MintableERC20,
   incentivizedTokens: [] as ATokenMock[],
   rewardTokens: [] as MintableERC20[],
-  stakingContracts: [] as StakingRewardsMock[]
+  stakingContracts: [] as StakingRewardsMock[],
+  incentUnderlying: [] as MintableERC20[]
 } as TestEnv;
 
 export async function initializeMakeSuite() {
@@ -227,6 +231,9 @@ export async function initializeMakeSuite() {
   const aaveAddress = reservesTokensT0.find(
     (token) => token.symbol === "AAVE"
   )?.tokenAddress;
+  const usdtAddress = reservesTokensT0.find(
+    (token) => token.symbol === "USDT"
+  )?.tokenAddress;
   const wethAddress = reservesTokensT0.find(
     (token) => token.symbol === "WETH"
   )?.tokenAddress;
@@ -267,6 +274,7 @@ export async function initializeMakeSuite() {
   testEnv.usdc = await getMintableERC20(usdcAddress);
   testEnv.aave = await getMintableERC20(aaveAddress);
   testEnv.busd = await getMintableERC20(busdAddress)
+  testEnv.usdt = await getMintableERC20(usdtAddress)
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
   testEnv.yvTricrypto2 = await getYearnTokenMocked(yvTricrypto2Address);
@@ -279,9 +287,8 @@ export async function initializeMakeSuite() {
 
   testEnv.incentivizedTokens = [
     await getATokenMock({ slug: 'aDai' }),
-    await getATokenMock({ slug: 'aWeth' }),
     await getATokenMock({ slug: 'aBusd' }),
-    await getATokenMock({ slug: 'aUsdc' }),
+    await getATokenMock({ slug: 'aAave' }),
     await getATokenMock({ slug: 'aUsdt' })
   ]
 
@@ -289,11 +296,12 @@ export async function initializeMakeSuite() {
 
   testEnv.stakingContracts = [
     await getStakingRewardsMock({ slug: 'yaDai'}),
-    await getStakingRewardsMock({ slug: 'yaWeth'}),
     await getStakingRewardsMock({ slug: 'yaBusd'}),
-    await getStakingRewardsMock({ slug: 'yaUsdc'}),
+    await getStakingRewardsMock({ slug: 'yaAave'}),
     await getStakingRewardsMock({ slug: 'yaUsdt'}),
   ];
+
+  testEnv.incentUnderlying = [testEnv.dai, testEnv.busd, testEnv.aave, testEnv.usdt]
 
   // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 
