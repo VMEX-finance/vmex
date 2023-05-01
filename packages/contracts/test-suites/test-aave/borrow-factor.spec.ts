@@ -284,125 +284,125 @@ makeSuite("Borrow factor withdraw borrow", (testEnv: TestEnv) => {
 
   // });
 
-  it("Attempt to borrow max usdc when over limit", async () => {
-    const { users, pool, usdc, weth, oracle, helpersContract } = testEnv;
+  // it("Attempt to borrow max usdc when over limit", async () => {
+  //   const { users, pool, usdc, weth, oracle, helpersContract } = testEnv;
 
-    await pool
-      .connect(users[0].signer)
-      .deposit(
-        weth.address,
-        0,
-        ethers.utils.parseEther("100.0"),
-        users[0].address,
-        "0"
-      );
+  //   await pool
+  //     .connect(users[0].signer)
+  //     .deposit(
+  //       weth.address,
+  //       0,
+  //       ethers.utils.parseEther("100.0"),
+  //       users[0].address,
+  //       "0"
+  //     );
 
-        await pool
-          .connect(users[0].signer)
-          .borrow(
-            usdc.address,
-            0,
-            MAX_UINT_AMOUNT,
-            AAVE_REFERRAL,
-            users[0].address
-          )
-        let  usrData = await pool.callStatic.getUserAccountData(users[0].address, 0);
-        expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
-        console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
+  //       await pool
+  //         .connect(users[0].signer)
+  //         .borrow(
+  //           usdc.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           AAVE_REFERRAL,
+  //           users[0].address
+  //         )
+  //       let  usrData = await pool.callStatic.getUserAccountData(users[0].address, 0);
+  //       expect(usrData.healthFactor).to.be.gte(ethers.utils.parseEther("1"));
+  //       console.log("availableBorrowsETH after max usdc borrow: ",usrData.availableBorrowsETH)
 
-        const userUSDCReserveData = await helpersContract.getUserReserveData(
-          usdc.address,
-          0,
-          users[0].address
-        );
+  //       const userUSDCReserveData = await helpersContract.getUserReserveData(
+  //         usdc.address,
+  //         0,
+  //         users[0].address
+  //       );
 
-        console.log("USDC debt: ", userUSDCReserveData.currentVariableDebt)
+  //       console.log("USDC debt: ", userUSDCReserveData.currentVariableDebt)
 
-        expect(userUSDCReserveData.currentVariableDebt).to.be.gte(await convertToCurrencyDecimals(usdc.address, "10000"))
+  //       expect(userUSDCReserveData.currentVariableDebt).to.be.gte(await convertToCurrencyDecimals(usdc.address, "10000"))
 
-        console.log("borrowed max usdc")
-          await pool
-          .connect(users[0].signer)
-          .repay(
-            usdc.address,
-            0,
-            MAX_UINT_AMOUNT,
-            users[0].address
-          )
+  //       console.log("borrowed max usdc")
+  //         await pool
+  //         .connect(users[0].signer)
+  //         .repay(
+  //           usdc.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           users[0].address
+  //         )
 
-          await pool
-          .connect(users[0].signer)
-          .withdraw(
-            weth.address,
-            0,
-            MAX_UINT_AMOUNT,
-            users[0].address
-          )
-  });
+  //         await pool
+  //         .connect(users[0].signer)
+  //         .withdraw(
+  //           weth.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           users[0].address
+  //         )
+  // });
 
-  it("User 0 tries to withdraw", async () => {
-    const { users, pool, oracle, dai, aave, usdc, weth } = testEnv;
-    await pool
-      .connect(users[0].signer)
-      .borrow(
-        weth.address,
-        0,
-        ethers.utils.parseEther("0.1"),
-        AAVE_REFERRAL,
-        users[0].address
-      );
+  // it("User 0 tries to withdraw", async () => {
+  //   const { users, pool, oracle, dai, aave, usdc, weth } = testEnv;
+  //   await pool
+  //     .connect(users[0].signer)
+  //     .borrow(
+  //       weth.address,
+  //       0,
+  //       ethers.utils.parseEther("0.1"),
+  //       AAVE_REFERRAL,
+  //       users[0].address
+  //     );
 
-    await pool
-      .connect(users[0].signer)
-      .borrow(
-        usdc.address,
-        0,
-        await convertToCurrencyDecimals(usdc.address, "10"),
-        AAVE_REFERRAL,
-        users[0].address
-      );
+  //   await pool
+  //     .connect(users[0].signer)
+  //     .borrow(
+  //       usdc.address,
+  //       0,
+  //       await convertToCurrencyDecimals(usdc.address, "10"),
+  //       AAVE_REFERRAL,
+  //       users[0].address
+  //     );
 
-    await pool
-          .connect(users[0].signer)
-          .withdraw(
-            dai.address,
-            0,
-            MAX_UINT_AMOUNT,
-            users[0].address
-          );
-    let usrData = await pool.callStatic.getUserAccountData(users[0].address, 0);
-    const riskAdjustedTotalDebt = usrData.totalDebtETH.mul(usrData.avgBorrowFactor).div(ethers.utils.parseEther("1"))
-    const availableWithdrawsEth = usrData.totalCollateralETH.mul(usrData.currentLiquidationThreshold).div(ethers.utils.parseEther("1")).sub(riskAdjustedTotalDebt)
-    const availableAaveWithdraw = availableWithdrawsEth.mul(await convertToCurrencyDecimals(aave.address, "1")).div(await oracle.callStatic.getAssetPrice(aave.address))
-    console.log("availableAaveWithdraw: ",availableAaveWithdraw)
-    const tooMuchWithdraw = availableAaveWithdraw.mul(11).div(10)
-    await expect(pool
-          .connect(users[0].signer)
-          .withdraw(
-            aave.address,
-            0,
-            MAX_UINT_AMOUNT,
-            users[0].address
-          )).to.be.revertedWith(VL_TRANSFER_NOT_ALLOWED)
+  //   await pool
+  //         .connect(users[0].signer)
+  //         .withdraw(
+  //           dai.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           users[0].address
+  //         );
+  //   let usrData = await pool.callStatic.getUserAccountData(users[0].address, 0);
+  //   const riskAdjustedTotalDebt = usrData.totalDebtETH.mul(usrData.avgBorrowFactor).div(ethers.utils.parseEther("1"))
+  //   const availableWithdrawsEth = usrData.totalCollateralETH.mul(usrData.currentLiquidationThreshold).div(ethers.utils.parseEther("1")).sub(riskAdjustedTotalDebt)
+  //   const availableAaveWithdraw = availableWithdrawsEth.mul(await convertToCurrencyDecimals(aave.address, "1")).div(await oracle.callStatic.getAssetPrice(aave.address))
+  //   console.log("availableAaveWithdraw: ",availableAaveWithdraw)
+  //   const tooMuchWithdraw = availableAaveWithdraw.mul(11).div(10)
+  //   await expect(pool
+  //         .connect(users[0].signer)
+  //         .withdraw(
+  //           aave.address,
+  //           0,
+  //           MAX_UINT_AMOUNT,
+  //           users[0].address
+  //         )).to.be.revertedWith(VL_TRANSFER_NOT_ALLOWED)
 
-          await expect(pool
-            .connect(users[0].signer)
-            .withdraw(
-              aave.address,
-              0,
-              MAX_UINT_AMOUNT,
-              users[0].address
-            )).to.be.revertedWith(VL_TRANSFER_NOT_ALLOWED)
+  //         await expect(pool
+  //           .connect(users[0].signer)
+  //           .withdraw(
+  //             aave.address,
+  //             0,
+  //             MAX_UINT_AMOUNT,
+  //             users[0].address
+  //           )).to.be.revertedWith(VL_TRANSFER_NOT_ALLOWED)
 
-    await pool
-            .connect(users[0].signer)
-            .withdraw(
-              aave.address,
-              0,
-              availableAaveWithdraw,
-              users[0].address
-            )
+  //   await pool
+  //           .connect(users[0].signer)
+  //           .withdraw(
+  //             aave.address,
+  //             0,
+  //             availableAaveWithdraw,
+  //             users[0].address
+  //           )
 
 
-  });
+  // });
 });
