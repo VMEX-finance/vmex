@@ -31,6 +31,10 @@ contract ATokenMock is MintableERC20 {
     MintableERC20(underlying).approve(address(_aic), type(uint).max);
   }
 
+  function increaseApproval(address spender, uint256 amount) external {
+    MintableERC20(underlying).increaseAllowance(spender, amount);
+  }
+
   function UNDERLYING_ASSET_ADDRESS() external view returns (address) {
     return underlying;
   }
@@ -41,8 +45,31 @@ contract ATokenMock is MintableERC20 {
     uint256 oldBalance,
     uint256 newBalance,
     DistributionTypes.Action action
-  ) external {
+  ) public {
     _aic.handleAction(user, totalSupply, oldBalance, newBalance, action);
+  }
+
+  function handleTransferAction(
+    address to, 
+    address from,
+    uint256 supply,
+    uint256 fromBal,
+    uint256 toBal,
+    uint256 amount) external {
+    handleActionOnAic(from, supply, fromBal, fromBal - amount, DistributionTypes.Action.TRANSFER);
+    handleActionOnAic(to, supply, toBal, toBal + amount, DistributionTypes.Action.TRANSFER);
+  }
+
+  function multiAction(
+    address[] calldata users,
+    uint256[] calldata supplies,
+    uint256[] calldata oldBals,
+    uint256[] calldata newBals,
+    DistributionTypes.Action[] calldata actions
+  ) external {
+    for(uint i = 0; i < users.length; i++) {
+      handleActionOnAic(users[i], supplies[i], oldBals[i], newBals[i], actions[i]);
+    }
   }
 
   function setUserBalanceAndSupply(uint256 userBalance, uint256 totalSupply) public {

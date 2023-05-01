@@ -8,7 +8,7 @@ import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import "hardhat/console.sol";
 
 contract ExternalRewardDistributor {
-  using SafeERC20 for IERC20;
+  // using SafeERC20 for IERC20;
 
   struct UserState {
     uint256 assetBalance;
@@ -49,12 +49,12 @@ contract ExternalRewardDistributor {
       uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
 
       uint256 totalSupply = rewardData.staking.balanceOf(address(this));
-      uint256 accruedPerToken = received / totalSupply;
-
-      rewardData.cumulativeRewardPerToken += accruedPerToken;
+      if (totalSupply > 0) {
+        uint256 accruedPerToken = received / totalSupply;
+        rewardData.cumulativeRewardPerToken += accruedPerToken;
+        emit Harvested(underlying, accruedPerToken);
+      }
       rewardData.lastUpdateTimestamp = block.timestamp;
-
-      emit Harvested(underlying, accruedPerToken);
     }
 
     if (rewardData.users[user].lastUpdateRewardPerToken < rewardData.cumulativeRewardPerToken) {
@@ -79,6 +79,7 @@ contract ExternalRewardDistributor {
     if (address(stakingData[underlying].reward) == address(0)) {
         require(staking != address(0) && reward != address(0), 'No zero address');
         stakingData[underlying].staking = IStakingRewards(staking);
+        IERC20(underlying).approve(staking, type(uint).max);
         stakingData[underlying].reward = IERC20(reward);
     }
     aTokenMap[aToken] = underlying;
@@ -107,7 +108,7 @@ contract ExternalRewardDistributor {
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
         
-    IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
+    IERC20(underlying).transferFrom(msg.sender, address(this), amount);
     rewardData.staking.stake(amount);
     rewardData.users[user].assetBalance += amount;
   }
@@ -121,7 +122,7 @@ contract ExternalRewardDistributor {
     StakingReward storage rewardData = stakingData[underlying];
 
     rewardData.staking.withdraw(amount);
-    IERC20(underlying).safeTransfer(msg.sender, amount);
+    IERC20(underlying).transfer(msg.sender, amount);
     rewardData.users[user].assetBalance -= amount;
   }
 
@@ -148,7 +149,7 @@ contract ExternalRewardDistributor {
 
     StakingReward storage rewardData = stakingData[underlying];
     require(rewardData.users[msg.sender].rewardBalance >= amount, 'Insufficient balance');
-    rewardData.reward.safeTransfer(msg.sender, amount);
+    rewardData.reward.transfer(msg.sender, amount);
     rewardData.users[msg.sender].rewardBalance -= amount;
   }
 
