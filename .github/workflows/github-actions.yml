@@ -24,6 +24,9 @@ jobs:
       - name: Install Dependencies
         run: yarn install
 
+      - name: Clean
+        run: yarn contracts ci:clean
+        
       - name: Compile
         run: yarn contracts compile
 
