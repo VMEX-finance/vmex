@@ -63,37 +63,37 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
             [rewardTokens[0].address, rewardTokens[0].address]
     ));
 
-    const assetBData = await incentivesController.getDataByAToken(incentivizedTokens[2].address)
-    const assetCData = await incentivesController.getDataByAToken(incentivizedTokens[3].address)
+    const assetBData = await incentivesController.getDataByAToken(incentivizedTokens[1].address)
+    const assetCData = await incentivesController.getDataByAToken(incentivizedTokens[2].address)
 
     expect(assetBData[0]).equal(busd.address)
-    expect(assetBData[1]).equal(stakingContracts[2].address)
+    expect(assetBData[1]).equal(stakingContracts[1].address)
     expect(assetBData[2]).equal(usdc.address)
     expect(assetBData[3]).equal(0)
     expect(assetBData[4]).equal(0)
 
     expect(assetCData[0]).equal(aave.address)
-    expect(assetCData[1]).equal(stakingContracts[3].address)
+    expect(assetCData[1]).equal(stakingContracts[2].address)
     expect(assetCData[2]).equal(usdc.address)
     expect(assetCData[3]).equal(0)
     expect(assetCData[4]).equal(0)
 
     const emitted = receipt.events || [];
 
-    expect(emitted.length).equal(2)
-
-    eventChecker(emitted[0], 'RewardConfigured', [
-        incentivizedTokens[2].address,
-        busd.address,
-        usdc.address,
-        stakingContracts[2].address
-    ]);
+    expect(emitted.length).equal(4)
 
     eventChecker(emitted[1], 'RewardConfigured', [
-        incentivizedTokens[3].address,
+        incentivizedTokens[1].address,
+        busd.address,
+        usdc.address,
+        stakingContracts[1].address
+    ]);
+
+    eventChecker(emitted[3], 'RewardConfigured', [
+        incentivizedTokens[2].address,
         aave.address,
         usdc.address,
-        stakingContracts[3].address
+        stakingContracts[2].address
     ]);
   });  
 });

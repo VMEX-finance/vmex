@@ -38,6 +38,7 @@ import {
   getvStrategyHelper,
   getWETHGateway,
   getMintableERC20,
+  getIncentivesControllerProxy,
 } from "./contracts-getters";
 import {
   AssetMappingsFactory,
@@ -696,39 +697,41 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   );
 
   const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
-  const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
-  const aUsdc = await deployATokenMock(vmexIncentivesControllerProxy.address, "aAave");
+  const aAave = await deployATokenMock(vmexIncentivesControllerProxy.address, "aAave");
   const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
   const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
   
   // need mocks used for linking external rewards to link to 'real' tokens
   await aDai.setUnderlying(mockTokens["DAI"].address)
-  await aWeth.setUnderlying(mockTokens["WETH"].address)
   await aBusd.setUnderlying(mockTokens["BUSD"].address)
-  await aUsdc.setUnderlying(mockTokens["AAVE"].address)
+  await aAave.setUnderlying(mockTokens["AAVE"].address)
   await aUsdt.setUnderlying(mockTokens["USDT"].address)
 
-
-
   // deploy and fund test staking contracts
-  const stakingA = await deployStakingRewardsMock([mockTokens["DAI"].address, rewardToken.address], "yaDai");
-  const stakingB = await deployStakingRewardsMock([mockTokens["WETH"].address, rewardToken.address], "yaWeth");
-  const stakingC = await deployStakingRewardsMock([mockTokens["BUSD"].address, rewardToken.address], "yaBusd");
-  const stakingD = await deployStakingRewardsMock([mockTokens["AAVE"].address, rewardToken.address], "yaAave");
-  const stakingE = await deployStakingRewardsMock([mockTokens["USDT"].address, rewardToken.address], "yaUsdt");
+  const stakingA = await deployStakingRewardsMock([rewardToken.address, mockTokens["DAI"].address], "yaDai");
+  const stakingC = await deployStakingRewardsMock([rewardToken.address, mockTokens["BUSD"].address], "yaBusd");
+  const stakingD = await deployStakingRewardsMock([rewardToken.address, mockTokens["AAVE"].address], "yaAave");
+  const stakingE = await deployStakingRewardsMock([rewardToken.address, mockTokens["USDT"].address], "yaUsdt");
 
+  await rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"500000000000000.0"));
+  console.log(`minted USDC ${await rewardToken.balanceOf(await vaultOfRewards.getAddress())}`)
+  await rewardToken.connect(vaultOfRewards).transfer(stakingA.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  console.log(`staking A received USDC ${await rewardToken.balanceOf(stakingA.address)}`)
+  await stakingA.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  console.log('first notifyReward succeeded')
+  await rewardToken.connect(vaultOfRewards).transfer(stakingC.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await stakingC.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await rewardToken.connect(vaultOfRewards).transfer(stakingD.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await stakingD.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await rewardToken.connect(vaultOfRewards).transfer(stakingE.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await stakingE.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
 
-  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"500000000000000.0"));
-  rewardToken.connect(vaultOfRewards).transfer(stakingA.address, 100000000000000);
-  stakingA.notifyRewardAmount(100000000000000);
-  rewardToken.connect(vaultOfRewards).transfer(stakingB.address, 100000000000000);
-  stakingB.notifyRewardAmount(100000000000000);
-  rewardToken.connect(vaultOfRewards).transfer(stakingC.address, 100000000000000);
-  stakingC.notifyRewardAmount(100000000000000);
-  rewardToken.connect(vaultOfRewards).transfer(stakingD.address, 100000000000000);
-  stakingD.notifyRewardAmount(100000000000000);
-  rewardToken.connect(vaultOfRewards).transfer(stakingE.address, 100000000000000);
-  stakingE.notifyRewardAmount(100000000000000);
+  // const ic = await getIncentivesControllerProxy();
+  // await ic.batchAddStakingRewards(
+  //   [aDai.address, aBusd.address, aAave.address, aUsdt.address],
+  //   [stakingA.address, stakingC.address, stakingD.address, stakingE.address],
+  //   [rewardToken.address, rewardToken.address, rewardToken.address, rewardToken.address]
+  // )
 
   console.timeEnd("setup");
 };
