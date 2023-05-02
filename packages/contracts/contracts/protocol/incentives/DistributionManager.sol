@@ -121,6 +121,7 @@ contract DistributionManager is IDistributionManager {
     uint256 userBalance,
     uint256 assetSupply
   ) internal {
+    assert(userBalance <= assetSupply); // will catch cases such as if userBalance and assetSupply were flipped
     DistributionTypes.IncentivizedAsset storage incentivizedAsset = _incentivizedAssets[asset];
 
     if (incentivizedAsset.numRewards == 0) {
