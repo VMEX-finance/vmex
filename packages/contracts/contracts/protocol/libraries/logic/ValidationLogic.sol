@@ -190,7 +190,7 @@ library ValidationLogic {
             vars.healthFactor,
             vars.avgBorrowFactor
         ) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(exvars.user, exvars.trancheId),
+            DataTypes.AcctTranche(exvars.onBehalfOf, exvars.trancheId),
             reservesData,
             userConfig,
             reserves,
