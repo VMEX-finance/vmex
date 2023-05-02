@@ -483,7 +483,7 @@ contract LendingPoolAddressesProvider is
         return getAddress(INCENTIVES_CONTROLLER);
     }
 
-    function setIncentivesController(address incentives) external override {
+    function setIncentivesController(address incentives) external override onlyOwner{
         _addresses[INCENTIVES_CONTROLLER] = incentives;
         emit IncentivesControllerUpdated(incentives);
     }
