@@ -5,7 +5,6 @@ import {
 } from "../../helpers/contracts-helpers";
 import {
   deployAssetMapping,
-  deployStrategies,
 } from "../../helpers/contracts-deployments";
 import {
   loadPoolConfig,
