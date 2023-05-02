@@ -18,7 +18,7 @@ interface IIncentivesController {
     uint256 amount
   );
 
-  function handleAction(address asset, uint256 userBalance, uint256 totalSupply) external;
+  function handleAction(address asset, uint256 totalSupply, uint256 userBalance) external;
 
   function getPendingRewards(
     address[] calldata assets,

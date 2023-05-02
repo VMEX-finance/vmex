@@ -54,7 +54,7 @@ contract IncentivesController is
    * @param userBalance The (old) balance of the user of the asset in the lending pool
    * @param totalSupply The (old) total supply of the asset in the lending pool
    **/
-  function handleAction(address user, uint256 userBalance, uint256 totalSupply) external override {
+  function handleAction(address user, uint256 totalSupply, uint256 userBalance) external override {
     // note: msg.sender is the incentivized asset (the vToken)
     _updateIncentivizedAsset(msg.sender, user, userBalance, totalSupply);
   }
