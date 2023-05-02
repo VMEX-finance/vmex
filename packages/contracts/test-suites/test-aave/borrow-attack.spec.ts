@@ -103,7 +103,7 @@ import {
                 attackerAddress1.address
             ); 
         } catch (e) {
-            console.log("Borrow failed: ",e)
+            console.log("Borrow failed (may be expected behavior): ")
         }
         
 
