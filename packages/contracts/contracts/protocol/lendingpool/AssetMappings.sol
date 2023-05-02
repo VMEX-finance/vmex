@@ -147,14 +147,12 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
      * @param liquidationThreshold The liquidation threshold (in decimals adjusted for percentage math decimals)
      * @param liquidationBonus The liquidation bonus (in decimals adjusted for percentage math decimals)
      * @param borrowFactor The borrow factor (in decimals adjusted for percentage math decimals)
-     * @param borrowingEnabled If borrowing is enabled for a reserve
      **/
     function validateCollateralParams(
         uint64 baseLTV,
         uint64 liquidationThreshold,
         uint64 liquidationBonus,
-        uint64 borrowFactor,
-        bool borrowingEnabled
+        uint64 borrowFactor
     ) internal pure {
         require(baseLTV <= liquidationThreshold, Errors.AM_INVALID_CONFIGURATION);
 
@@ -175,12 +173,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
                 Errors.AM_INVALID_CONFIGURATION
             );
         }
-        if(borrowingEnabled){
-            require(
-                uint256(borrowFactor) >= PercentageMath.PERCENTAGE_FACTOR,
-                Errors.AM_INVALID_CONFIGURATION
-            );
-        }
+        require(
+            uint256(borrowFactor) >= PercentageMath.PERCENTAGE_FACTOR,
+            Errors.AM_INVALID_CONFIGURATION
+        );
     }
 
     /**
@@ -212,7 +208,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             inputAsset.borrowFactor = uint64(uint256(inputAsset.borrowFactor).convertToPercent());
             inputAsset.VMEXReserveFactor = uint64(uint256(inputAsset.VMEXReserveFactor).convertToPercent());
 
-            validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus, inputAsset.borrowFactor, inputAsset.borrowingEnabled);
+            validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus, inputAsset.borrowFactor);
             validateVMEXReserveFactor(inputAsset.VMEXReserveFactor);
 
             DataTypes.AssetData storage currentAssetMapping = assetMappings[currentAssetAddress];
@@ -276,7 +272,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         liquidationThreshold = uint64(uint256(liquidationThreshold).convertToPercent());
         liquidationBonus = uint64(uint256(liquidationBonus).convertToPercent());
         borrowFactor = uint64(uint256(borrowFactor).convertToPercent());
-        validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus, borrowFactor, assetMappings[asset].borrowingEnabled);
+        validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus, borrowFactor);
 
         assetMappings[asset].baseLTV = baseLTV;
         assetMappings[asset].liquidationThreshold = (liquidationThreshold);
