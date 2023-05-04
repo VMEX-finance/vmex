@@ -9,6 +9,7 @@ import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {IChainlinkPriceFeed} from "../../interfaces/IChainlinkPriceFeed.sol";
 import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Initializable} from "../../dependencies/openzeppelin/upgradeability/Initializable.sol";
 import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
@@ -110,6 +111,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function setWETH(
         address weth
     ) external onlyGlobalAdmin {
+        require(WETH == address(0), Errors.VO_WETH_SET_ONLY_ONCE);
         WETH = weth;
     }
 
@@ -229,6 +231,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
 
         uint256[] memory prices = new uint256[](c._poolSize);
+        uint8[] memory decimals = new uint8[](c._poolSize);
 
         for (uint256 i = 0; i < c._poolSize; i++) {
             address underlying = ICurvePool(c._curvePool).coins(i);
@@ -236,11 +239,12 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
                 underlying = WETH;
             }
             prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
+            decimals[i] = IERC20Detailed(underlying).decimals();
             require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
         }
 
         if(assetType==DataTypes.ReserveAssetType.CURVE){
-            price = CurveOracle.get_price_v1(c._curvePool, prices, c._checkReentrancy);
+            price = CurveOracle.get_price_v1(c._curvePool, prices, decimals, c._checkReentrancy);
         }
         else if(assetType==DataTypes.ReserveAssetType.CURVEV2){
             price = CurveOracle.get_price_v2(c._curvePool, prices, c._checkReentrancy);
@@ -296,7 +300,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
         (
             IERC20[] memory tokens,
-            ,
+            uint256[] memory _balances,
         ) = vault.getPoolTokens(poolId);
 
         uint256 i = 0;
@@ -306,15 +310,22 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         }
 
         uint256[] memory prices = new uint256[](tokens.length-i);
+        uint8[] memory decimals = new uint8[](tokens.length-i);
+        uint256[] memory balances = new uint256[](tokens.length-i);
+
+        uint256 j = 0;
 
         while(i<tokens.length) {
             address token = address(tokens[i]);
             if(token == ETH_NATIVE){
                 token = WETH;
             }
-            prices[i] = getAssetPrice(token);
-            require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+            prices[j] = getAssetPrice(token);
+            require(prices[j] > 0, Errors.VO_UNDERLYING_FAIL);
+            balances[j] = _balances[i];
+            decimals[j] = IERC20Detailed(token).decimals();
             i++;
+            j++;
         }
 
         DataTypes.BeethovenMetadata memory md = _assetMappings.getBeethovenMetadata(asset);
@@ -322,6 +333,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         uint256 price = BalancerOracle.get_lp_price(
             asset,
             prices,
+            balances,
+            decimals,
             md._typeOfPool,
             md._legacy
         );

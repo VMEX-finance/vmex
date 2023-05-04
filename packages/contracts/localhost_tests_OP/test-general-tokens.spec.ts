@@ -85,7 +85,7 @@ makeSuite(
           });
 
           
-          it("Uniswap ETH for USDC, emergency uses WETH as collateral to borrow USDC", async () => {
+          it("Testing general tokens deposit and borrow", async () => {
             const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
             const config = OptimismConfig.ReservesConfig
             const WETHConfig = config["WETH"]
