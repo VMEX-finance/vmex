@@ -2,6 +2,7 @@
 pragma solidity 0.8.19; 
 
 import {ICurvePool} from "../../interfaces/ICurvePool.sol"; 
+import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol"; 
 import {vMath} from "./libs/vMath.sol"; 
 import {Errors} from "../libraries/helpers/Errors.sol";
 
@@ -33,7 +34,7 @@ library CurveOracle {
      * @param prices The price of the underlying assets in the curve pool
      * @param checkReentrancy Whether reentrancy check is needed
      **/
-	function get_price_v1(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {
+	function get_price_v1(address curve_pool, uint256[] memory prices, uint8[] memory decimals, bool checkReentrancy) internal returns(uint256) {
 	//prevent read-only reentrancy -- possibly a better way than this
 		assert(prices.length > 1);
 		
@@ -41,10 +42,20 @@ library CurveOracle {
 			check_reentrancy(curve_pool);
 		}
 		uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price();
+
+
+        uint256[] memory balances = new uint256[](prices.length);
+
+		for(uint i = 0;i<prices.length;i++) {
+			balances[i] = ICurvePool(curve_pool).balances(i);
+		}
+
+		uint256 avgPrice = vMath.weightedAvg(prices, balances, decimals);
+		
 		
 		uint256 lp_price = calculate_v1_token_price(
 			virtual_price,
-			prices
+			avgPrice
 		);	
 		
 		return lp_price; 	
@@ -52,14 +63,13 @@ library CurveOracle {
 	}
 
 	//where virtual price is the price of the pool in USD
-	//returns lp_value = virtual price * min(prices); 
+	//returns lp_value = virtual price * weighted average(prices); 
 	function calculate_v1_token_price(
 		uint256 virtual_price,
-		uint256[] memory prices
+		uint256 avgPrice
 	) internal pure returns(uint256) {
-		uint256 min = vMath.min(prices); 
 		// divide by virtual price decimals, which is always 18 for all existing curve pools.
-		return (virtual_price * min) / 1e18; //decimals equal to the number of decimals in chainlink price
+		return (virtual_price * avgPrice) / 1e18; //decimals equal to the number of decimals in chainlink price
 	}
 
 	/**	
