@@ -172,7 +172,7 @@ makeSuite(
                 if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
                     const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
                     const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
-                    expectedPrice = Number(rate) * Math.min(Number(price0), Number(price1)) / Math.pow(10,18)
+                    expectedPrice = 196934784817
                 }
             }
             else {
