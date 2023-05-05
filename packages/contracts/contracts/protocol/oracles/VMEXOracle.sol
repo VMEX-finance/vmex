@@ -26,7 +26,6 @@ import {IVault} from "../../interfaces/IVault.sol";
 import {VelodromeOracle} from "./VelodromeOracle.sol";
 import {BalancerOracle} from "./BalancerOracle.sol";
 
-import "hardhat/console.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -103,8 +102,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
         for (uint256 i = 0; i < assets.length; i++) {
             require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i]).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
             _assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
-            console.log("Setting: ",sources[i]);
-            console.log("Description: ",_assetsSources[assets[i]].description());
             emit AssetSourceUpdated(assets[i], sources[i]);
         }
     }

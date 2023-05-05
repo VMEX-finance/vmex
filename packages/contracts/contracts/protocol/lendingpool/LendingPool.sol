@@ -107,6 +107,7 @@ contract LendingPool is
     {
         _addressesProvider = provider;
         _assetMappings =  IAssetMappings(_addressesProvider.getAssetMappings());
+        assert(address(_assetMappings)!=address(0));
     }
 
     /**

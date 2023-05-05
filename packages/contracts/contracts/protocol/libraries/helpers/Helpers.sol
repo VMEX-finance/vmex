@@ -3,7 +3,6 @@ pragma solidity 0.8.19;
 
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import "hardhat/console.sol";
 /**
  * @title Helpers library
  * @author Aave and VMEX
@@ -107,11 +106,7 @@ library Helpers {
 
         string memory suffix = string(suffixBytes);
 
-        console.log("Suffix: ",suffix);
-
         bool ret = (keccak256(bytes(suffix)) == keccak256(bytes(target)));
-
-        console.log("ret: ",ret);
 
         return ret;
     }
