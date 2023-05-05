@@ -139,9 +139,10 @@ library ValidationLogic {
     ) internal pure {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         if (borrowCap != 0) {
+            uint256 totalAmount = totalDebt + amount;
             unchecked {
                 require(
-                    totalDebt + amount <=
+                    totalAmount <=
                         borrowCap * 10**decimals,
                     Errors.VL_BORROW_CAP_EXCEEDED
                 );
