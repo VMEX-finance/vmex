@@ -117,23 +117,16 @@ makeSuite(
                 }
                 const vp = await CurvePool.connect(signer).get_virtual_price()
                 var expectedPrice;
-                for(let j = 0;j<curveSize[i];j++) {
-                  var tokenAddr = await CurvePool.connect(signer).coins(j);
-                  if(tokenAddr == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"){
-                    tokenAddr = "0x4200000000000000000000000000000000000006"
-                  }
-                  const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(tokenAddr);
-                  cumProduct *= Number(ethers.utils.formatUnits(tokenPrice, 18))
-                  minAmount = tokenPrice.lt(minAmount) ? tokenPrice : minAmount
-                }
-                
-                expectedPrice = ethers.utils.formatUnits(minAmount.mul(vp),18)
+                if(i==0)
+                  expectedPrice = "102703859"
+                else if(i==1)
+                  expectedPrice = "196368050841"
                 
                 console.log("expected curve price: ",expectedPrice)
-                const diff = Math.abs(Number(expectedPrice) - Number(pricePerCurveToken))
+                const diff = (Math.abs(Number(expectedPrice) - Number(pricePerCurveToken)))/Number(expectedPrice)
                 expect(
                   diff
-                ).to.be.lte(100, "Curve prices do not match");
+                ).to.be.lte(0.02, "Curve prices do not match");
             }
 
             

@@ -125,32 +125,6 @@ export const CommonsConfig: ICommonConfiguration = {
       wstETH: '0x698B585CbC4407e2D54aa898B2600B53C68958f7',
       FRAX: '0xc7D132BeCAbE7Dcc4204841F33bae45841e41D9C',
       OP: '0x0D276FC14719f9292D5C1eA2198673d1f4269246',
-      ThreeCRV: ZERO_ADDRESS, //this should not be used
-      sUSD3CRV: ZERO_ADDRESS, //this should not be used
-      wstETHCRV: ZERO_ADDRESS, //this should not be used
-      mooCurveFsUSD: ZERO_ADDRESS, //this should not be used
-      mooCurveWSTETH: ZERO_ADDRESS, //this should not be used
-
-      velo_wstETHWETH: ZERO_ADDRESS,
-      moo_velo_wstETHWETH: ZERO_ADDRESS,
-      velo_USDCsUSD: ZERO_ADDRESS,
-      moo_velo_USDCsUSD: ZERO_ADDRESS,
-      velo_ETHUSDC: ZERO_ADDRESS,
-      moo_velo_ETHUSDC: ZERO_ADDRESS,
-      velo_OPETH: ZERO_ADDRESS,
-      moo_velo_OPETH: ZERO_ADDRESS,
-      velo_ETHSNX: ZERO_ADDRESS,
-      moo_velo_ETHSNX: ZERO_ADDRESS,
-      velo_OPUSDC: ZERO_ADDRESS,
-      moo_velo_OPUSDC: ZERO_ADDRESS,
-      velo_DAIUSDC: ZERO_ADDRESS,
-      moo_velo_DAIUSDC: ZERO_ADDRESS,
-      velo_FRAXUSDC: ZERO_ADDRESS,
-      moo_velo_FRAXUSDC: ZERO_ADDRESS,
-      velo_USDTUSDC: ZERO_ADDRESS,
-      moo_velo_USDTUSDC: ZERO_ADDRESS,
-      beethoven_USDCDAI: ZERO_ADDRESS,
-      beethoven_wstETHETH: ZERO_ADDRESS,
     },
   },
   ReserveAssets: {

@@ -440,13 +440,7 @@ export const CommonsConfig: ICommonConfiguration = {
       WBTC: '0xdeb288f737066589598e9214e782fa5a8ed689e8',
       YFI: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
       ZRX: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
-      USD: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
-      Tricrypto2: ZERO_ADDRESS, //this should not be used
-      ThreePool: ZERO_ADDRESS, //this should not be used
-      StethEth: ZERO_ADDRESS, //this should not be used
       Steth: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
-      FraxUSDC: ZERO_ADDRESS, //this should not be used
-      Frax3Crv: ZERO_ADDRESS, //this should not be used
       FRAX: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
       BAL: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
       CRV: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
@@ -455,11 +449,6 @@ export const CommonsConfig: ICommonConfiguration = {
       LDO: '0x4e844125952d32acdf339be976c98e22f6f318db',
       ALCX: '0x194a9aaf2e0b67c35915cd01101585a33fe25caa',
       Oneinch: '0x72afaecf99c9d9c8215ff44c77b94b99c28741e8',
-      yvTricrypto2: ZERO_ADDRESS, //this should not be used
-      yvThreePool: ZERO_ADDRESS, //this should not be used
-      yvStethEth: ZERO_ADDRESS, //this should not be used
-      yvFraxUSDC: ZERO_ADDRESS, //this should not be used
-      yvFrax3Crv: ZERO_ADDRESS, //this should not be used
     },
     [eEthereumNetwork.tenderly]: {
       AAVE: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',

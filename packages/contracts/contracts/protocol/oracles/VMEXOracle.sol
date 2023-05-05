@@ -17,6 +17,7 @@ import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "../../interfaces/IYearnToken.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
 import {IVeloPair} from "../../interfaces/IVeloPair.sol";
@@ -24,6 +25,8 @@ import {IBalancer} from "../../interfaces/IBalancer.sol";
 import {IVault} from "../../interfaces/IVault.sol";
 import {VelodromeOracle} from "./VelodromeOracle.sol";
 import {BalancerOracle} from "./BalancerOracle.sol";
+
+import "hardhat/console.sol";
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -42,6 +45,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
     address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
+    string public BASE_CURRENCY_STRING;
 
     address public constant ETH_NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public WETH;
@@ -73,14 +77,17 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
      * @dev Sets the base currency that all other assets are priced based on. Can only be set once
      * @param baseCurrency The address of the base currency
      * @param baseCurrencyUnit What price the base currency is. Usually this is just how many decimals the base currency has
+     * @param baseCurrencyString "ETH" or "USD" for purposes of checking correct denomination
      **/
     function setBaseCurrency(
         address baseCurrency,
-        uint256 baseCurrencyUnit
+        uint256 baseCurrencyUnit,
+        string calldata baseCurrencyString
     ) external onlyGlobalAdmin {
         require(BASE_CURRENCY == address(0), Errors.VO_BASE_CURRENCY_SET_ONLY_ONCE);
         BASE_CURRENCY = baseCurrency;
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
+        BASE_CURRENCY_STRING = baseCurrencyString;
     }
 
     /**
@@ -94,7 +101,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     ) external onlyGlobalAdmin {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         for (uint256 i = 0; i < assets.length; i++) {
+            require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i]).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
             _assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
+            console.log("Setting: ",sources[i]);
+            console.log("Description: ",_assetsSources[assets[i]].description());
             emit AssetSourceUpdated(assets[i], sources[i]);
         }
     }

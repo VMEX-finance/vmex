@@ -236,7 +236,8 @@ contract LendingPoolCollateralManager is
                     ].configuration;
                 liquidatorConfig.setUsingAsCollateral(
                     collateralReserve.id,
-                    true
+                    collateralReserve.configuration
+                        .getCollateralEnabled(vars.collateralAsset, _assetMappings)
                 );
                 emit ReserveUsedAsCollateralEnabled(
                     vars.collateralAsset,

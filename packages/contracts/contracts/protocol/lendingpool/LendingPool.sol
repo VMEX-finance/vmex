@@ -628,13 +628,14 @@ contract LendingPool is
             _assetMappings
         );
 
-        uint256 reserveId = _reserves[asset][trancheId].id;
+        DataTypes.ReserveData memory reserve = _reserves[asset][trancheId];
+
 
         if (from != to) {
             if (balanceFromBefore.sub(amount) == 0) {
                 DataTypes.UserConfigurationMap
                     storage fromConfig = _usersConfig[from][trancheId].configuration;
-                fromConfig.setUsingAsCollateral(reserveId, false);
+                fromConfig.setUsingAsCollateral(reserve.id, false);
                 emit ReserveUsedAsCollateralDisabled(asset, trancheId, from);
             }
 
@@ -642,7 +643,11 @@ contract LendingPool is
                 DataTypes.UserConfigurationMap storage toConfig = _usersConfig[
                     to
                 ][trancheId].configuration;
-                toConfig.setUsingAsCollateral(reserveId, true);
+                toConfig.setUsingAsCollateral(
+                    reserve.id, 
+                    reserve.configuration
+                        .getCollateralEnabled(asset, _assetMappings)
+                );
                 emit ReserveUsedAsCollateralEnabled(asset, trancheId, to);
             }
         }

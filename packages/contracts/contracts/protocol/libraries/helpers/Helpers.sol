@@ -3,6 +3,7 @@ pragma solidity 0.8.19;
 
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../types/DataTypes.sol";
+import "hardhat/console.sol";
 /**
  * @title Helpers library
  * @author Aave and VMEX
@@ -81,5 +82,37 @@ library Helpers {
      **/ 
     function getName(address token) internal view returns(string memory) {
         return getStringAttribute(token, "name()");
+    }
+
+    /**
+     * @dev Helper function to compare suffix of str to a target
+     * @param str String with suffix to compare
+     * @param target target string
+     **/ 
+    function compareSuffix(string memory str, string memory target) internal view returns(bool) {
+        uint strLen = bytes(str).length;
+        uint targetLen = bytes(target).length;
+
+        if (strLen < targetLen) {
+            return false;
+        }
+
+        uint suffixStart = strLen - targetLen;
+
+        bytes memory suffixBytes = new bytes(targetLen);
+
+        for (uint i = 0; i < targetLen; i++) {
+            suffixBytes[i] = bytes(str)[suffixStart + i];
+        }
+
+        string memory suffix = string(suffixBytes);
+
+        console.log("Suffix: ",suffix);
+
+        bool ret = (keccak256(bytes(suffix)) == keccak256(bytes(target)));
+
+        console.log("ret: ",ret);
+
+        return ret;
     }
 }

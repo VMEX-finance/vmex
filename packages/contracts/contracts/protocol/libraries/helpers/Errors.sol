@@ -132,6 +132,7 @@ library Errors {
     string public constant VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98";
     string public constant VO_BASE_CURRENCY_SET_ONLY_ONCE = "99";
     string public constant VO_WETH_SET_ONLY_ONCE = "105";
+    string public constant VO_BAD_DENOMINATION = "106";
 
     string public constant AM_ASSET_ALREADY_IN_MAPPINGS = "100";
     string public constant AM_ASSET_NOT_CONTRACT = "101";
