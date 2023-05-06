@@ -10,6 +10,10 @@ contract ATokenMock is MintableERC20 {
   uint256 internal _userBalance;
   uint256 internal _totalSupply;
 
+  mapping(address => uint256) internal _multiUserBalances;
+
+  address public underlying;
+
   // hack to be able to test event from EI properly
   event RewardsAccrued(address indexed user, uint256 amount);
 
@@ -22,19 +26,64 @@ contract ATokenMock is MintableERC20 {
     _aic = aic;
   }
 
+  function setUnderlying(address token) external {
+    underlying = token;
+    MintableERC20(underlying).approve(address(_aic), type(uint).max);
+  }
+
+  function increaseApproval(address spender, uint256 amount) external {
+    MintableERC20(underlying).increaseAllowance(spender, amount);
+  }
+
+  function UNDERLYING_ASSET_ADDRESS() external view returns (address) {
+    return underlying;
+  }
+
   function handleActionOnAic(
     address user,
-    uint256 oldBalance,
     uint256 totalSupply,
+    uint256 oldBalance,
     uint256 newBalance,
     DistributionTypes.Action action
-  ) external {
+  ) public {
     _aic.handleAction(user, totalSupply, oldBalance, newBalance, action);
+  }
+
+  function handleTransferAction(
+    address to, 
+    address from,
+    uint256 supply,
+    uint256 fromBal,
+    uint256 toBal,
+    uint256 amount) external {
+    handleActionOnAic(from, supply, fromBal, fromBal - amount, DistributionTypes.Action.TRANSFER);
+    handleActionOnAic(to, supply, toBal, toBal + amount, DistributionTypes.Action.TRANSFER);
+  }
+
+  function multiAction(
+    address[] calldata users,
+    uint256[] calldata supplies,
+    uint256[] calldata oldBals,
+    uint256[] calldata newBals,
+    DistributionTypes.Action[] calldata actions
+  ) external {
+    for(uint i = 0; i < users.length; i++) {
+      handleActionOnAic(users[i], supplies[i], oldBals[i], newBals[i], actions[i]);
+    }
   }
 
   function setUserBalanceAndSupply(uint256 userBalance, uint256 totalSupply) public {
     _userBalance = userBalance;
     _totalSupply = totalSupply;
+  }
+
+  function setMultiUserBalancesAndSupply(uint256[] calldata balances, address[] calldata users) public {
+    require(balances.length == users.length, "setMultiUserBalancesAndSupply: arrays don't match");
+    _totalSupply = 0;
+    for (uint256 i = 0; i < balances.length; i++) {
+      _multiUserBalances[users[i]] = balances[i];
+      _totalSupply += balances[i];
+    }
   }
 
   function getScaledUserBalanceAndSupply(address user)

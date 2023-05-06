@@ -5,9 +5,10 @@ import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol
 import {IStakingRewards} from '../../interfaces/IStakingRewards.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
+import "hardhat/console.sol";
 
 contract ExternalRewardDistributor {
-  using SafeERC20 for IERC20;
+  // using SafeERC20 for IERC20;
 
   struct UserState {
     uint256 assetBalance;
@@ -31,6 +32,7 @@ contract ExternalRewardDistributor {
   event RewardConfigured(address indexed aToken, address indexed underlying, address indexed reward, address staking);
   event Harvested(address indexed underlying, uint256 rewardPerToken);
   event UserUpdated(address indexed user, address indexed aToken, address indexed underlying, uint256 rewardBalance);
+  event StakingRewardClaimed(address indexed user, address indexed underlying, address indexed reward, uint256 amount);
 
   constructor(address _manager) {
     manager = _manager;
@@ -48,12 +50,12 @@ contract ExternalRewardDistributor {
       uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
 
       uint256 totalSupply = rewardData.staking.balanceOf(address(this));
-      uint256 accruedPerToken = received / totalSupply;
-
-      rewardData.cumulativeRewardPerToken += accruedPerToken;
+      if (totalSupply > 0) {
+        uint256 accruedPerToken = received / totalSupply;
+        rewardData.cumulativeRewardPerToken += accruedPerToken;
+        emit Harvested(underlying, accruedPerToken);
+      }
       rewardData.lastUpdateTimestamp = block.timestamp;
-
-      emit Harvested(underlying, accruedPerToken);
     }
 
     if (rewardData.users[user].lastUpdateRewardPerToken < rewardData.cumulativeRewardPerToken) {
@@ -77,8 +79,9 @@ contract ExternalRewardDistributor {
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     if (address(stakingData[underlying].reward) == address(0)) {
         require(staking != address(0) && reward != address(0), 'No zero address');
-        stakingData[aToken].staking = IStakingRewards(staking);
-        stakingData[aToken].reward = IERC20(reward);
+        stakingData[underlying].staking = IStakingRewards(staking);
+        IERC20(underlying).approve(staking, type(uint).max);
+        stakingData[underlying].reward = IERC20(reward);
     }
     aTokenMap[aToken] = underlying;
 
@@ -106,7 +109,7 @@ contract ExternalRewardDistributor {
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
         
-    IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
+    IERC20(underlying).transferFrom(msg.sender, address(this), amount);
     rewardData.staking.stake(amount);
     rewardData.users[user].assetBalance += amount;
   }
@@ -120,7 +123,7 @@ contract ExternalRewardDistributor {
     StakingReward storage rewardData = stakingData[underlying];
 
     rewardData.staking.withdraw(amount);
-    IERC20(underlying).safeTransfer(msg.sender, amount);
+    IERC20(underlying).transfer(msg.sender, amount);
     rewardData.users[user].assetBalance -= amount;
   }
 
@@ -139,16 +142,21 @@ contract ExternalRewardDistributor {
     }
   }
 
-  function claimStakingReward(
+  function _claimStakingReward(
     address underlying,
     uint256 amount
-  ) public {
+  ) internal {
     harvestAndUpdate(msg.sender, underlying);
 
     StakingReward storage rewardData = stakingData[underlying];
     require(rewardData.users[msg.sender].rewardBalance >= amount, 'Insufficient balance');
-    rewardData.reward.safeTransfer(msg.sender, amount);
+    rewardData.reward.transfer(msg.sender, amount);
     rewardData.users[msg.sender].rewardBalance -= amount;
+    emit StakingRewardClaimed(msg.sender, underlying, address(rewardData.reward), amount);
+  }
+
+  function claimStakingReward(address underlying, uint256 amount) external {
+    _claimStakingReward(underlying, amount);
   }
 
   function batchClaimStakingRewards(
@@ -157,22 +165,27 @@ contract ExternalRewardDistributor {
   ) external {
     require(assets.length == amounts.length, 'Malformed input');
     for (uint256 i = 0; i < assets.length; i++) {
-      claimStakingReward(assets[i], amounts[i]);
+      _claimStakingReward(assets[i], amounts[i]);
     }
   }
 
   function getDataByAToken(address aToken) external view
   returns (address, address, address, uint256, uint256) {
+      address underlying = aTokenMap[aToken];
       return (
-          aTokenMap[aToken],
-          address(stakingData[aTokenMap[aToken]].staking),
-          address(stakingData[aTokenMap[aToken]].reward),
-          stakingData[aTokenMap[aToken]].cumulativeRewardPerToken,
-          stakingData[aTokenMap[aToken]].lastUpdateTimestamp
+          underlying,
+          address(stakingData[underlying].staking),
+          address(stakingData[underlying].reward),
+          stakingData[underlying].cumulativeRewardPerToken,
+          stakingData[underlying].lastUpdateTimestamp
       );
   }
 
-  function _totalStaked() internal view returns (uint256) {
+  function totalStaked() external view returns (uint256) {
     return stakingData[aTokenMap[msg.sender]].staking.balanceOf(address(this));
+  }
+
+  function getUserDataByAToken(address user, address aToken) external view returns (UserState memory) {
+    return stakingData[aTokenMap[aToken]].users[user];
   }
 }
