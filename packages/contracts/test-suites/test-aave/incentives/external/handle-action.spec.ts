@@ -12,8 +12,6 @@ import {
 } from '../data-helpers/asset-data';
 import hre from 'hardhat';
 import { BigNumber, BigNumberish } from 'ethers';
-import { ATokenMock, IncentivesController, MintableERC20, StakingRewardsMock } from '../../../../types';
-import { SignerWithAddress } from '../../helpers/make-suite'
 
 makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 	it('single deposit is staked', async () => {
