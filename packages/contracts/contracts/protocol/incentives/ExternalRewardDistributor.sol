@@ -32,6 +32,7 @@ contract ExternalRewardDistributor {
   event RewardConfigured(address indexed aToken, address indexed underlying, address indexed reward, address staking);
   event Harvested(address indexed underlying, uint256 rewardPerToken);
   event UserUpdated(address indexed user, address indexed aToken, address indexed underlying, uint256 rewardBalance);
+  event StakingRewardClaimed(address indexed user, address indexed underlying, address indexed reward, uint256 amount);
 
   constructor(address _manager) {
     manager = _manager;
@@ -141,16 +142,21 @@ contract ExternalRewardDistributor {
     }
   }
 
-  function claimStakingReward(
+  function _claimStakingReward(
     address underlying,
     uint256 amount
-  ) public {
+  ) internal {
     harvestAndUpdate(msg.sender, underlying);
 
     StakingReward storage rewardData = stakingData[underlying];
     require(rewardData.users[msg.sender].rewardBalance >= amount, 'Insufficient balance');
     rewardData.reward.transfer(msg.sender, amount);
     rewardData.users[msg.sender].rewardBalance -= amount;
+    emit StakingRewardClaimed(msg.sender, underlying, address(rewardData.reward), amount);
+  }
+
+  function claimStakingReward(address underlying, uint256 amount) external {
+    _claimStakingReward(underlying, amount);
   }
 
   function batchClaimStakingRewards(
@@ -159,7 +165,7 @@ contract ExternalRewardDistributor {
   ) external {
     require(assets.length == amounts.length, 'Malformed input');
     for (uint256 i = 0; i < assets.length; i++) {
-      claimStakingReward(assets[i], amounts[i]);
+      _claimStakingReward(assets[i], amounts[i]);
     }
   }
 
