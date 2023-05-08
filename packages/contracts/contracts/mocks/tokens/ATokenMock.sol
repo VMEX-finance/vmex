@@ -35,7 +35,7 @@ contract ATokenMock is MintableERC20 {
     _totalSupply = totalSupply;
   }
 
-  function getScaledUserBalanceAndSupply(address user)
+  function getScaledUserBalanceAndSupply(address)
     external
     view
     returns (uint256, uint256)

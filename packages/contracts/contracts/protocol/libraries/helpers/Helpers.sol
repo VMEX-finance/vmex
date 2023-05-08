@@ -88,7 +88,7 @@ library Helpers {
      * @param str String with suffix to compare
      * @param target target string
      **/ 
-    function compareSuffix(string memory str, string memory target) internal view returns(bool) {
+    function compareSuffix(string memory str, string memory target) internal pure returns(bool) {
         uint strLen = bytes(str).length;
         uint targetLen = bytes(target).length;
 

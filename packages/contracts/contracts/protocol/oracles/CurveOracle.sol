@@ -34,7 +34,7 @@ library CurveOracle {
      * @param prices The price of the underlying assets in the curve pool
      * @param checkReentrancy Whether reentrancy check is needed
      **/
-	function get_price_v1(address curve_pool, uint256[] memory prices, uint8[] memory decimals, bool checkReentrancy) internal returns(uint256) {
+	function get_price_v1(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {
 	//prevent read-only reentrancy -- possibly a better way than this
 		assert(prices.length > 1);
 		
@@ -43,19 +43,12 @@ library CurveOracle {
 		}
 		uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price();
 
-
-        uint256[] memory balances = new uint256[](prices.length);
-
-		for(uint i = 0;i<prices.length;i++) {
-			balances[i] = ICurvePool(curve_pool).balances(i);
-		}
-
-		uint256 avgPrice = vMath.weightedAvg(prices, balances, decimals);
+		uint256 minPrice = vMath.min(prices);
 		
 		
 		uint256 lp_price = calculate_v1_token_price(
 			virtual_price,
-			avgPrice
+			minPrice
 		);	
 		
 		return lp_price; 	
@@ -66,10 +59,10 @@ library CurveOracle {
 	//returns lp_value = virtual price * weighted average(prices); 
 	function calculate_v1_token_price(
 		uint256 virtual_price,
-		uint256 avgPrice
+		uint256 minPrice
 	) internal pure returns(uint256) {
 		// divide by virtual price decimals, which is always 18 for all existing curve pools.
-		return (virtual_price * avgPrice) / 1e18; //decimals equal to the number of decimals in chainlink price
+		return (virtual_price * minPrice) / 1e18; //decimals equal to the number of decimals in chainlink price
 	}
 
 	/**	

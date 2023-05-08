@@ -25,8 +25,6 @@ library BalancerOracle {
 	function get_lp_price(
 		address bal_pool,
 		uint256[] memory prices,
-		uint256[] memory balances,
-		uint8[] memory decimals,
 		uint8 type_of_pool,
 		bool legacy //if stable, ignore
 	) internal returns (uint256 price) {
@@ -45,9 +43,7 @@ library BalancerOracle {
 		} else if (type_of_pool == 1) {
 			price = calc_stable_lp_price(
 				bal_pool,
-				prices,
-				balances,
-				decimals
+				prices
 			);
 		} else {
 			revert("Balancer pool not supported");
@@ -142,13 +138,11 @@ library BalancerOracle {
 	//assumes that prices are scaled properly, esp for stable assets prior to being passed in here
 	function calc_stable_lp_price(
 		address bal_pool, 
-		uint256[] memory prices, 
-		uint256[] memory balances,
-		uint8[] memory decimals
+		uint256[] memory prices
 	) internal view returns (uint256) {
 		uint256 rate = IBalancer(bal_pool).getRate();
 
-		uint256 min = vMath.weightedAvg(prices, balances, decimals);
+		uint256 min = vMath.min(prices);
 
 		return rate * min / 10**IBalancer(bal_pool).decimals();
 	}
