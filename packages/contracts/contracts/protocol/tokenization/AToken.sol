@@ -11,7 +11,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
-import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
+import {IIncentivesController} from "../../interfaces/IIncentivesController.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
@@ -361,9 +361,9 @@ contract AToken is
         internal
         view
         override
-        returns (IAaveIncentivesController)
+        returns (IIncentivesController)
     {
-        return IAaveIncentivesController(_addressesProvider.getIncentivesController());
+        return IIncentivesController(_addressesProvider.getIncentivesController());
     }
 
     /**
@@ -373,7 +373,7 @@ contract AToken is
         external
         view
         override
-        returns (IAaveIncentivesController)
+        returns (IIncentivesController)
     {
         return _getIncentivesController();
     }

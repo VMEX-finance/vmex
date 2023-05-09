@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 import {ILendingPool} from "./ILendingPool.sol";
-import {IAaveIncentivesController} from "./IAaveIncentivesController.sol";
 import {ILendingPoolAddressesProvider} from "./ILendingPoolAddressesProvider.sol";
 
 /**
