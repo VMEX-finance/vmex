@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {IERC20Detailed} from "../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {ILendingPoolAddressesProvider} from "../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../interfaces/ILendingPool.sol";
+import {IAToken} from "../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../interfaces/IVariableDebtToken.sol";
 import {ReserveConfiguration} from "../protocol/libraries/configuration/ReserveConfiguration.sol";
 import {UserConfiguration} from "../protocol/libraries/configuration/UserConfiguration.sol";
@@ -198,7 +199,7 @@ contract AaveProtocolDataProvider {
         ).getReserveData(asset, trancheId);
 
         return (
-            IERC20Detailed(asset).balanceOf(reserve.aTokenAddress),
+            IERC20Detailed(asset).balanceOf(reserve.aTokenAddress) + IAToken(reserve.aTokenAddress).getStakedAmount(),
             IERC20Detailed(reserve.aTokenAddress).totalSupply(),
             IERC20Detailed(reserve.variableDebtTokenAddress).totalSupply(),
             reserve.currentLiquidityRate,

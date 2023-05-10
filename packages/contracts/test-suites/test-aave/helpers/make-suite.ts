@@ -286,7 +286,8 @@ export async function initializeMakeSuite() {
     await getATokenMock({ slug: 'aDai' }),
     await getATokenMock({ slug: 'aBusd' }),
     await getATokenMock({ slug: 'aAave' }),
-    await getATokenMock({ slug: 'aUsdt' })
+    await getATokenMock({ slug: 'aUsdt' }),
+    await getATokenMock({ slug: 'aWeth' }),
   ]
 
   testEnv.rewardTokens = [testEnv.usdc];
@@ -296,6 +297,7 @@ export async function initializeMakeSuite() {
     await getStakingRewardsMock({ slug: 'yaBusd'}),
     await getStakingRewardsMock({ slug: 'yaAave'}),
     await getStakingRewardsMock({ slug: 'yaUsdt'}),
+    await getStakingRewardsMock({ slug: 'yaWeth'}),
   ];
 
   testEnv.incentUnderlying = [testEnv.dai, testEnv.busd, testEnv.aave, testEnv.usdt]
