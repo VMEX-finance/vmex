@@ -2,8 +2,9 @@
 pragma solidity 0.8.19;
 
 import {DistributionTypes} from '../protocol/libraries/types/DistributionTypes.sol';
+import {IExternalRewardsDistributor} from './IExternalRewardsDistributor.sol';
 
-interface IIncentivesController {
+interface IIncentivesController is IExternalRewardsDistributor{
   event RewardsAccrued(address indexed user, uint256 amount);
 
   /**

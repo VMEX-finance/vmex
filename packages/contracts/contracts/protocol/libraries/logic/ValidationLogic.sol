@@ -161,6 +161,7 @@ library ValidationLogic {
         ILendingPoolAddressesProvider _addressesProvider
     ) external returns(uint256){
         ValidateBorrowLocalVars memory vars;
+        // TODO: validate that the borrowed token is not staked for incentives
 
         (
             vars.isActive,
