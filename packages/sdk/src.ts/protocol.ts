@@ -1,8 +1,10 @@
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import {
+  getIncentivesController,
   getLendingPool,
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
+  getProvider,
 } from "./contract-getters";
 import {
   approveUnderlyingIfFirstInteraction,
@@ -12,7 +14,7 @@ import {
   convertToCurrencyDecimals,
 } from "./utils";
 import { getTotalTranches } from "./analytics";
-import { SetAddress } from "./interfaces";
+import { RewardConfig, SetAddress } from "./interfaces";
 import { MAX_UINT_AMOUNT } from "./constants";
 
 export async function borrow(
@@ -287,7 +289,6 @@ export async function supply(
         amount.toString()
     );
   }
-
   try {
     if (params.test) {
       tx = await lendingPool.deposit(
@@ -310,7 +311,7 @@ export async function supply(
       );
     }
   } catch (error) {
-    console.log("Lending Pool Failed with ")
+    console.log("Lending Pool Failed with ", error)
     throw new Error(error);
   }
 
@@ -734,4 +735,81 @@ export async function configureExistingTranche(
       );
     }
   }
+}
+
+export async function claimIncentives(
+  params: {
+    aTokens: BigNumberish[];
+    signer: ethers.Signer;
+    to: BigNumberish;
+    network: string;
+    test?: boolean;
+    providerRpc?: string;
+  },
+  callback?: () => Promise<any>
+) {
+  let incentivesController = await getIncentivesController({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  const tx = await incentivesController.claimAllRewards(
+    params.aTokens,
+    params.to
+  );
+
+  if (callback) {
+    await callback().catch((error) => {
+      console.error("CALLBACK_ERROR: \n", error);
+    });
+  }
+  return tx;
+}
+
+export async function setIncentives(
+  params: {
+    rewardConfigs: RewardConfig[];
+    signer: ethers.Signer;
+    network: string;
+    rewardsVaultSigner: ethers.Signer;
+    test?: boolean;
+    providerRpc?: string;
+  },
+  callback?: () => Promise<any>
+) {
+  let incentivesController = await getIncentivesController({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  console.log("dis view func", await incentivesController.getAccruedRewards(await params.signer.getAddress(), params.rewardConfigs[0].reward))
+
+  const tx = await incentivesController.configureRewards(
+    params.rewardConfigs
+  );
+
+  const rewardsVault = await incentivesController.REWARDS_VAULT();
+  if (rewardsVault != await params.signer.getAddress()) {
+    console.error("INVARIANT FAILED: rewards vault is not the same as the emissions manager")
+    return
+  }
+
+  params.rewardConfigs.map((config) => {
+    approveUnderlyingIfFirstInteraction(
+      params.signer,
+      config.reward.toString(),
+      incentivesController.address
+    )
+  })
+
+  if (callback) {
+    await callback().catch((error) => {
+      console.error("CALLBACK_ERROR: \n", error);
+    });
+  }
+  return tx;
 }

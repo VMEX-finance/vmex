@@ -1,7 +1,7 @@
 // import { BigNumber, utils } from "ethers";
 
-require('dotenv').config();
-const {deployments} = require("../dist/constants.js")
+require("dotenv").config();
+const { deployments } = require("../dist/constants.js");
 const { ethers, BigNumber, Wallet } = require("ethers");
 const chai = require("chai");
 const { expect, assert } = require("chai");
@@ -27,9 +27,9 @@ const {
   getTopAssets,
   getAllMarketsData,
   getTotalTranches,
-  getUserWalletData
+  getUserWalletData,
 } = require("../dist/analytics.js");
-const {getAssetPrices, mintTokens} = require("../dist/utils.js")
+const { getAssetPrices, mintTokens, convertSymbolToAddress } = require("../dist/utils.js");
 const { RateMode } = require("../dist/interfaces.js");
 const { MAINNET_ASSET_MAPPINGS } = require("../dist/constants.js");
 
@@ -49,26 +49,31 @@ const IERC20abi = [
 
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 const UNISWAP_ROUTER_ABI = [
-  "function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)"
-]
+  "function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)",
+];
 
-const network = "goerli";
+const network = process.env.NETWORK;
 
-const WETHaddr = deployments["WETH"][network] && network!="localhost" ? deployments["WETH"][network].address : "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-const USDCaddr = deployments["USDC"][network] && network!="localhost" ? deployments["USDC"][network].address : "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+const WETHaddr = convertSymbolToAddress("WETH", network)
+const USDCaddr = convertSymbolToAddress("USDC", network);
 
-let provider, temp, owner;
-  if(network=="localhost"){
-    provider = "http://127.0.0.1:8545";
-    temp = getProvider(provider, true).getSigner(2);
-    owner = getProvider(provider, true).getSigner(0);
-  }
-  else if (network=="goerli"){
-    const myprovider = new ethers.providers.AlchemyProvider(network, process.env.ALCHEMY_KEY);
-    temp = Wallet.fromMnemonic(process.env.MNEMONIC,`m/44'/60'/0'/0/0`).connect(myprovider); //0th signer
-    owner = temp;
-    provider = 'https://eth-goerli.public.blastapi.io';
-  }
+let providerRpc, provider, temp, owner;
+if (network == "localhost") {
+  providerRpc = "http://127.0.0.1:8545";
+  provider = new ethers.providers.JsonRpcProvider(providerRpc);
+  temp = provider.getSigner(2);
+  owner = provider.getSigner(0);
+} else if (network == "goerli") {
+  const myprovider = new ethers.providers.AlchemyProvider(
+    network,
+    process.env.ALCHEMY_KEY
+  );
+  temp = Wallet.fromMnemonic(process.env.MNEMONIC, `m/44'/60'/0'/0/0`).connect(
+    myprovider
+  ); //0th signer
+  owner = temp;
+  providerRpc = "https://eth-goerli.public.blastapi.io";
+}
 
 describe("Analytics", () => {
   var mytranche;
@@ -80,7 +85,7 @@ describe("Analytics", () => {
       test: true,
     });
 
-    // console.log(dat)
+    console.log(dat)
   });
 
   // it("1 - test get tranche data", async () => {
@@ -106,47 +111,38 @@ describe("Analytics", () => {
 
 });
 
-describe("CustomTest", () => {
+describe("Test Supply", () => {
   // it("1- mint AAVE", async () => {
   //   await mintTokens({
   //     token: "AAVE",
   //     signer: owner,
   //     network: network,
-  //     providerRpc: provider
+  //     providerRpc: providerRpc
   //   })
   // })
-  it("5 - should test the protocol supply function", async () => {
-    
+  it("1 - should test the protocol supply function", async () => {
+    const signerETH = await provider.getBalance(await owner.getAddress());
     const tx = await supply(
       {
         underlying: "AAVE",
-        trancheId: 21,
+        trancheId: 0,
         amount: "2.0",
         signer: owner,
         network: network,
         isMax: false,
         test: true,
-        providerRpc: provider,
+        providerRpc: providerRpc,
       },
       () => {
         return true;
       }
-    )
-    await tx.wait();  // wait 1 network confirmation
-    console.log("tx: ",tx);
-
+    );
+    await tx.wait(); // wait 1 network confirmation
+    console.log("tx: ", tx);
   });
 });
 
 describe("CreateNewTranche", () => {
-  // it("1- mint AAVE", async () => {
-  //   await mintTokens({
-  //     token: "AAVE",
-  //     signer: owner,
-  //     network: network,
-  //     providerRpc: provider
-  //   })
-  // })
   it("1 - init reserves in this tranche", async () => {
     let assets0 = ["AAVE", "DAI"];
     let reserveFactors0 = [];
@@ -157,111 +153,115 @@ describe("CreateNewTranche", () => {
       canBorrow0.push(true);
       canBeCollateral0.push(true);
     }
-    await initTranche(
-      {
-        name: "New test tranche",
-        whitelisted: [await temp.getAddress()],
-        blacklisted: [],
-        assetAddresses: assets0,
-        reserveFactors: reserveFactors0,
-        canBorrow: canBorrow0,
-        canBeCollateral: canBeCollateral0,
-        admin: temp,
-        treasuryAddress: "0x0000000000000000000000000000000000000000",
-        incentivesController: "0x0000000000000000000000000000000000000000",
-        network: network,
-        test: true,
-        providerRpc: provider,
-      }
-    )
+    await initTranche({
+      name: "New test tranche",
+      whitelisted: [await temp.getAddress()],
+      blacklisted: [],
+      assetAddresses: assets0,
+      reserveFactors: reserveFactors0,
+      canBorrow: canBorrow0,
+      canBeCollateral: canBeCollateral0,
+      admin: temp,
+      treasuryAddress: "0x0000000000000000000000000000000000000000",
+      incentivesController: "0x0000000000000000000000000000000000000000",
+      network: network,
+      test: true,
+      providerRpc: providerRpc,
+    });
   });
 });
 
 describe("ConfigureTranche", () => {
-  // it("1- mint AAVE", async () => {
-  //   await mintTokens({
-  //     token: "AAVE",
-  //     signer: owner,
-  //     network: network,
-  //     providerRpc: provider
-  //   })
-  // })
   it("configure existing tranche, removing whitelister", async () => {
-    const createdTranche = "20";
+    const createdTranche = await getTotalTranches({
+      network: network,
+      test: true,
+      providerRpc: providerRpc
+    }) - 1;
+    console.log("created tranche is", createdTranche)
 
-    await configureExistingTranche(
-      {
-        trancheId: createdTranche,
-        whitelisted: [{
+    await configureExistingTranche({
+      trancheId: createdTranche,
+      whitelisted: [
+        {
           addr: await temp.getAddress(),
-          value: false
-        }],
-        admin: temp,
-        network: network,
-        test: true
-      }
-    )
-
+          value: false,
+        },
+      ],
+      admin: temp,
+      network: network,
+      test: true,
+    });
   });
   it("check that whitelister is not able to interact anymore", async () => {
-    const createdTranche = "20";
+    const createdTranche = await getTotalTranches({
+      network: network,
+      test: true,
+      providerRpc: providerRpc
+    }) - 1;
 
-    await expect(supply(
-      {
-        underlying: "WETH",
-        trancheId: createdTranche,
-        amount: "2.0",
-        signer: temp,
-        network: network,
-        isMax: false,
-        test: true,
-        providerRpc: provider,
-      },
-      () => {
-        return true;
-      }
-    )).to.be.revertedWith("Tranche requires whitelist")
-
+    await expect(
+      supply(
+        {
+          underlying: "WETH",
+          trancheId: createdTranche,
+          amount: "2.0",
+          signer: temp,
+          network: network,
+          isMax: false,
+          test: true,
+          providerRpc: providerRpc,
+        },
+        () => {
+          return true;
+        }
+      )
+    ).to.be.revertedWith("91");
   });
   it("configure existing tranche, removing whitelist in general", async () => {
-    const createdTranche = "20";
+    const createdTranche = await getTotalTranches({
+      network: network,
+      test: true,
+      providerRpc: providerRpc
+    }) - 1;
 
-    await configureExistingTranche(
-      {
-        trancheId: createdTranche,
-        isTrancheWhitelisted: false,
-        admin: temp,
-        network: network,
-        test: true
-      }
-    )
-
+    await configureExistingTranche({
+      trancheId: createdTranche,
+      isTrancheWhitelisted: false,
+      admin: temp,
+      network: network,
+      test: true,
+    });
   });
   it("now temp can interact with tranche", async () => {
-    const createdTranche = "20";
+    const createdTranche = await getTotalTranches({
+      network: network,
+      test: true,
+      providerRpc: providerRpc
+    }) - 1;
 
     await supply(
       {
-        underlying: "WETH",
+        underlying: "DAI",
         trancheId: createdTranche,
         amount: "2.0",
         signer: temp,
         network: network,
         isMax: false,
         test: true,
-        providerRpc: provider,
+        providerRpc: providerRpc,
       },
       () => {
         return true;
       }
-    )
-
+    );
   });
 });
 
-describe("Supply", () => { //this assumes you already have funds in your wallet
+describe("Supply", () => {
+  //this assumes you already have funds in your wallet
   // it("0 - total tranches is correct", async () => {
-  //   const totalTranches = await getTotalTranches({ network: network, providerRpc: provider });
+  //   const totalTranches = await getTotalTranches({ network: network, providerRpc: providerRpc });
   //   expect(totalTranches >= 3, "Incorrect number of tranches");
   // });
 
@@ -293,7 +293,7 @@ describe("Supply", () => { //this assumes you already have funds in your wallet
         network: network,
         tranche: 0,
         test: true,
-        providerRpc: provider
+        providerRpc: providerRpc,
       })
     ).to.be.false;
   });
@@ -302,7 +302,7 @@ describe("Supply", () => { //this assumes you already have funds in your wallet
     let lendingPool = await getLendingPool({
       signer: owner,
       network: network,
-      providerRpc: provider
+      providerRpc: providerRpc,
     });
     expect(await lendingPool.paused(0)).to.be.false;
   });
@@ -317,12 +317,12 @@ describe("Supply", () => { //this assumes you already have funds in your wallet
         network: network,
         isMax: false,
         test: true,
-        providerRpc: provider,
+        providerRpc: providerRpc,
       },
       () => {
         return true;
       }
-    )
+    );
   });
 
   // it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
@@ -331,7 +331,7 @@ describe("Supply", () => { //this assumes you already have funds in your wallet
   //     tranche: 0,
   //     network: network,
   //     test: true,
-  //     providerRpc: provider,
+  //     providerRpc: providerRpc,
   //   });
   //   expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("1.0"));
   // });
@@ -354,24 +354,19 @@ describe("Supply", () => { //this assumes you already have funds in your wallet
 });
 
 describe("Borrow - end-to-end test", () => {
-  let provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
   const temp = provider.getSigner(0);
   const tranche = 0;
 
   it("1 - should give temp 10 WETH", async () => {
-    const { suppliedAssetData } = await getUserTrancheData({
-      user: await temp.getAddress(),
-      tranche: 0,
-      network: network,
-      test: true,
-    });
-
     const WETH = new ethers.Contract(WETHaddr, IERC20abi, temp);
     await WETH.connect(temp).deposit({
       value: ethers.utils.parseEther("10.0"),
     });
     await WETH.approve(UNISWAP_ROUTER_ADDRESS, ethers.utils.parseEther("5.0"));
-    console.log("weth balance", (await WETH.balanceOf(await temp.getAddress())).toString());
+    console.log(
+      "weth balance",
+      (await WETH.balanceOf(await temp.getAddress())).toString()
+    );
     expect(await WETH.balanceOf(await temp.getAddress())).to.be.above(
       ethers.utils.parseEther("4.0")
     );
@@ -398,12 +393,12 @@ describe("Borrow - end-to-end test", () => {
       ethers.utils.parseUnits("100", 6)
     );
 
-    const { suppliedAssetData } = await getUserTrancheData({
-      user: await temp.getAddress(),
-      tranche: 0,
-      network: network,
-      test: true,
-    });
+    // const { suppliedAssetData } = await getUserTrancheData({
+    //   user: await temp.getAddress(),
+    //   tranche: 0,
+    //   network: network,
+    //   test: true,
+    // });
   });
 
   it("4 - should supply USDC tokens for aTokens with fn supply()", async () => {
@@ -411,31 +406,30 @@ describe("Borrow - end-to-end test", () => {
     const userBalance = await USDC.balanceOf(await temp.getAddress());
     const amountToDepositT1 = userBalance.div(ethers.BigNumber.from(5));
     const amountToDepositT0 = userBalance.sub(amountToDepositT1);
-    await supply(
-      {
-        underlying: USDCaddr,
-        trancheId: 0,
-        amount: ethers.utils.formatUnits(amountToDepositT0, 6),
-        signer: temp,
-        network: network,
-        test: true,
-      }
-    )
-    await supply(
-      {
-        underlying: USDCaddr,
-        trancheId: 1,
-        amount: ethers.utils.formatUnits(amountToDepositT1, 6),
-        signer: temp,
-        network: network,
-        test: true,
-      }
-    )
+    await supply({
+      underlying: "USDC",
+      trancheId: 0,
+      amount: ethers.utils.formatUnits(amountToDepositT0, 6),
+      signer: temp,
+      network: network,
+      test: true,
+    });
+    console.log("after supply 1")
+    await supply({
+      underlying: "USDC",
+      trancheId: 1,
+      amount: ethers.utils.formatUnits(amountToDepositT1, 6),
+      signer: temp,
+      network: network,
+      test: true,
+    });
+    console.log("before getUSerTrancheData")
     const { suppliedAssetData } = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: 0,
       network: network,
       test: true,
+      providerRpc: providerRpc
     });
 
     // assert(suppliedAssetData.length == 1, "suppliedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
@@ -458,7 +452,7 @@ describe("Borrow - end-to-end test", () => {
         asset: USDCaddr,
         trancheId: tranche,
         useAsCollateral: true,
-        test: true
+        test: true,
       },
       () => {
         return true;
@@ -466,22 +460,25 @@ describe("Borrow - end-to-end test", () => {
     );
   });
 
-  it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
-    let { totalCollateralETH, availableBorrowsETH } = await getUserTrancheData({
-      user: await temp.getAddress(),
-      tranche: tranche,
-      network: network,
-      test: true,
-    });
-    expect(totalCollateralETH).to.be.above(ethers.utils.parseEther("0"));
-  });
+  // it("6 - should test that the user has a non-zero amount (ETH) in totalCollateral", async () => {
+  //   const userAddress = await temp.getAddress();
+  //   console.log("starting", userAddress)
+  //   const userAccountData = await getUserTrancheData({
+  //     user: userAddress,
+  //     tranche: tranche,
+  //     network: network,
+  //     test: true,
+  //     providerRpc: providerRpc
+  //   });
+  //   expect(userAccountData.totalCollateralETH).to.be.above(ethers.utils.parseEther("0"));
+  // });
 
   it("7 - should test borrowing WETH with borrow() fn", async () => {
     const WETHContract = new ethers.Contract(WETHaddr, IERC20abi, temp);
     let originalBalance = await WETHContract.balanceOf(await temp.getAddress());
 
     await borrow({
-      underlying: WETHaddr,
+      underlying: "WETH",
       trancheId: tranche,
       amount: "0.1",
       signer: temp,
@@ -492,12 +489,13 @@ describe("Borrow - end-to-end test", () => {
     expect(await WETHContract.balanceOf(await temp.getAddress())).to.be.above(
       originalBalance
     );
-
+    console.log("before get user tranche data")
     const userAccountData = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: tranche,
       network: network,
       test: true,
+      providerRpc: providerRpc
     });
 
     expect(userAccountData.totalCollateralETH).to.be.gte(
@@ -511,7 +509,7 @@ describe("Borrow - end-to-end test", () => {
       ethers.utils.parseEther("1")
     );
   });
-//deprecated protocol sdk functions
+  //deprecated protocol sdk functions
   // it("8 - supply some more tokens and check user/tranche data", async () => {
   //   await supply(
   //     {
@@ -523,27 +521,26 @@ describe("Borrow - end-to-end test", () => {
   //       test: true,
   //     }
   //   )
-    
 
-    // const { suppliedAssetData, borrowedAssetData } = await getUserTrancheData({
-    //   user: await temp.getAddress(),
-    //   tranche: tranche,
-    //   network: network,
-    //   test: true,
-    // });
+  // const { suppliedAssetData, borrowedAssetData } = await getUserTrancheData({
+  //   user: await temp.getAddress(),
+  //   tranche: tranche,
+  //   network: network,
+  //   test: true,
+  // });
 
-    // suppliedAssetData.map((assetData) => {
-    //   expect(assetData.amount).to.be.above(0);
-    //   expect(assetData.tranche).to.be.equal(tranche);
-    //   expect(assetData.isCollateral).to.be.equal(true);
-    // });
+  // suppliedAssetData.map((assetData) => {
+  //   expect(assetData.amount).to.be.above(0);
+  //   expect(assetData.tranche).to.be.equal(tranche);
+  //   expect(assetData.isCollateral).to.be.equal(true);
+  // });
 
-    // assert(
-    //   borrowedAssetData.length >= 1,
-    //   "borrowedAssetData does not have correct length. expected=1, got=" +
-    //     suppliedAssetData.length
-    // );
-    // expect(borrowedAssetData[0].amount).to.be.above(0);
+  // assert(
+  //   borrowedAssetData.length >= 1,
+  //   "borrowedAssetData does not have correct length. expected=1, got=" +
+  //     suppliedAssetData.length
+  // );
+  // expect(borrowedAssetData[0].amount).to.be.above(0);
   // });
 
   // it("9 - test get tranche asset data", async () => {

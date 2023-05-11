@@ -39,7 +39,7 @@ contract DistributionManager is IDistributionManager {
       ];
       DistributionTypes.Reward storage reward = incentivizedAsset.rewardData[config[i].reward];
 
-      if (incentivizedAsset.decimals == 0) {
+      if (incentivizedAsset.numRewards == 0) {
         // this incentivized asset has not been introduced yet
         _allIncentivizedAssets.push(config[i].incentivizedAsset);
         incentivizedAsset.decimals = IERC20Detailed(config[i].incentivizedAsset).decimals();
@@ -88,7 +88,7 @@ contract DistributionManager is IDistributionManager {
   }
 
   /**
-   * @dev Updates the user's index and lastUpdateTimestamp for a specific reward
+   * @dev Updates the user's accrued rewards, index and lastUpdateTimestamp for a specific reward
    **/
   function _updateUser(
     DistributionTypes.Reward storage reward,
@@ -99,13 +99,14 @@ contract DistributionManager is IDistributionManager {
     bool updated;
     uint256 accrued;
     uint256 userIndex = reward.users[user].index;
+    uint256 rewardIndex = reward.index;
 
     if (userIndex != reward.index) {
       if (balance != 0) {
-        accrued = _getReward(balance, reward.index, userIndex, decimals);
+        accrued = _getReward(balance, rewardIndex, userIndex, decimals);
         reward.users[user].accrued += accrued;
       }
-      reward.users[user].index = reward.index;
+      reward.users[user].index = rewardIndex;
       updated = true;
     }
 
@@ -142,7 +143,8 @@ contract DistributionManager is IDistributionManager {
       );
 
       if (rewardUpdated || userUpdated) {
-        emit RewardAccrued(asset, rewardAddress, user, newIndex, rewardAccrued);
+        // note the user index will be the same as the reward index in the case rewardUpdated=true or userUpdated=true
+        emit RewardAccrued(asset, rewardAddress, user, newIndex, newIndex, rewardAccrued);
       }
     }
   }

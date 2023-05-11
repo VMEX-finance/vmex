@@ -35,7 +35,7 @@ contract IncentivesController is
     address emissionManager,
     address externalRewardManager,
     address addressesProvider
-  ) DistributionManager(emissionManager) 
+  ) DistributionManager(emissionManager)
     ExternalRewardDistributor(externalRewardManager, addressesProvider) {
     REWARDS_VAULT = rewardsVault;
   }
@@ -59,8 +59,8 @@ contract IncentivesController is
   /**
    * @dev Called by the corresponding asset on any update that affects the rewards distribution
    * @param user The address of the user
-   * @param oldBalance The old balance of the user of the asset in the lending pool
    * @param totalSupply The (old) total supply of the asset in the lending pool
+   * @param oldBalance The old balance of the user of the asset in the lending pool
    * @param newBalance The new balance of the user of the asset in the lending pool
    * @param action Deposit, withdrawal, or transfer
    **/
@@ -85,7 +85,6 @@ contract IncentivesController is
           } else if (newBalance > oldBalance) {
             onTransfer(user, newBalance - oldBalance, false);
           }
-          
       }
     }
   }
@@ -122,6 +121,7 @@ contract IncentivesController is
 
     for (uint256 i = 0; i < assets.length; i++) {
       address asset = assets[i];
+
       for (uint256 j = 0; j < _allRewards.length; j++) {
         DistributionTypes.Reward storage reward = _incentivizedAssets[asset].rewardData[
           _allRewards[j]
@@ -207,6 +207,8 @@ contract IncentivesController is
     address[] memory rewards = _allRewards;
     uint256[] memory amounts = new uint256[](_allRewards.length);
     address user = msg.sender;
+    DistributionTypes.UserAssetState[] memory userState = _getUserState(incentivizedAssets, user);
+    _batchUpdate(user, userState);
 
     for (uint256 i = 0; i < incentivizedAssets.length; i++) {
       address asset = incentivizedAssets[i];

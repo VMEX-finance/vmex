@@ -215,6 +215,7 @@ makeSuite('IncentivesController claimRewards tests', (testEnv) => {
           rewardAsset.address,
           userAddress,
           assetDataAfter.index,
+          assetDataAfter.index,
           expectedAccruedRewards,
         ]);
         // eventChecker(eventsEmitted[1], 'UserIndexUpdated', [

@@ -47,7 +47,7 @@ const MAINNET_ASSET_MAPPINGS = new Map([
 
 describe("Utils - get all asset prices", () => {
     it("1 - should be able to get all asset prices", async () => {
-        const assets = Array.from(MAINNET_ASSET_MAPPINGS.values());
+        const assets = Array.from(MAINNET_ASSET_MAPPINGS.keys());
         const data = await getAssetPrices({
             assets: assets,
             network: 'localhost',

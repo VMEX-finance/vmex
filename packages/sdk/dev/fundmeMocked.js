@@ -21,7 +21,7 @@ const IERC20abi = [
 
 
 describe("Fund accounts", () => {
-  const network = "goerli";
+  const network = process.env.NETWORK;
   console.log("key: ",process.env.ALCHEMY_KEY)
   let provider = new ethers.providers.AlchemyProvider(network, process.env.ALCHEMY_KEY);
   const assets = [

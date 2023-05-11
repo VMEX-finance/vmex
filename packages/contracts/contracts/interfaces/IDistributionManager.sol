@@ -31,6 +31,7 @@ interface IDistributionManager {
     address indexed reward,
     address indexed user,
     uint256 newIndex,
+    uint256 newUserIndex,
     uint256 amount
   );
 
