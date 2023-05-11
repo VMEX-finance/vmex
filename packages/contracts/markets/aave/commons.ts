@@ -379,117 +379,117 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.ropsten]: {},
     [eEthereumNetwork.goerli]: {},
     [eEthereumNetwork.main]: {
-      AAVE:{ 
+      AAVE:{
         feed: '0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      BAT:{ 
+      BAT:{
         feed: '0x0d16d4528239e9ee52fa531af613AcdB23D88c94',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      BUSD:{ 
+      BUSD:{
         feed: '0x614715d2Af89E6EC99A233818275142cE88d1Cfd',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      DAI:{ 
+      DAI:{
         feed: '0x773616E4d11A78F511299002da57A0a94577F1f4',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      ENJ:{ 
+      ENJ:{
         feed: '0x24D9aB51950F3d62E9144fdC2f3135DAA6Ce8D1B',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      KNC:{ 
+      KNC:{
         feed: '0x656c0544eF4C98A6a98491833A89204Abb045d6b',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      LINK:{ 
+      LINK:{
         feed: '0xDC530D9457755926550b59e8ECcdaE7624181557',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      MANA:{ 
+      MANA:{
         feed: '0x82A44D92D6c329826dc557c5E1Be6ebeC5D5FeB9',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      MKR:{ 
+      MKR:{
         feed: '0x24551a8Fb2A7211A25a17B1481f043A8a8adC7f2',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      REN:{ 
+      REN:{
         feed: '0x3147D7203354Dc06D9fd350c7a2437bcA92387a4',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      SNX:{ 
+      SNX:{
         feed: '0x79291A9d692Df95334B1a0B3B4AE6bC606782f8c',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      SUSD:{ 
+      SUSD:{
         feed: '0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      TUSD:{ 
+      TUSD:{
         feed: '0x3886BA987236181D98F2401c507Fb8BeA7871dF2',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      UNI:{ 
+      UNI:{
         feed: '0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      USDC:{ 
+      USDC:{
         feed: '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      USDT:{ 
+      USDT:{
         feed: '0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      WBTC:{ 
+      WBTC:{
         feed: '0xdeb288f737066589598e9214e782fa5a8ed689e8',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      YFI:{ 
+      YFI:{
         feed: '0x7c5d4F8345e66f68099581Db340cd65B078C41f4',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      ZRX:{ 
+      ZRX:{
         feed: '0x2Da4983a622a8498bb1a21FaE9D8F6C664939962',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      Steth:{ 
+      Steth:{
         feed: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      FRAX:{ 
+      FRAX:{
         feed: '0x14d04fff8d21bd62987a5ce9ce543d2f1edf5d3e',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      BAL:{ 
+      BAL:{
         feed: '0xc1438aa3823a6ba0c159cfa8d98df5a994ba120b',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      CRV:{ 
+      CRV:{
         feed: '0x8a12be339b0cd1829b91adc01977caa5e9ac121e',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      CVX:{ 
+      CVX:{
         feed: '0xC9CbF687f43176B302F03f5e58470b77D07c61c6',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      BADGER:{ 
+      BADGER:{
         feed: '0x58921ac140522867bf50b9e009599da0ca4a2379',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      LDO:{ 
+      LDO:{
         feed: '0x4e844125952d32acdf339be976c98e22f6f318db',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      ALCX:{ 
+      ALCX:{
         feed: '0x194a9aaf2e0b67c35915cd01101585a33fe25caa',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
-      Oneinch:{ 
+      Oneinch:{
         feed: '0x72afaecf99c9d9c8215ff44c77b94b99c28741e8',
-        heartbeat: 86400
+        heartbeat: 864000000
       },
     },
     [eEthereumNetwork.tenderly]: {},

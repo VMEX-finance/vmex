@@ -1,4 +1,4 @@
-import {BigNumber} from "ethers";
+import {BigNumber, BigNumberish} from "ethers";
 
 export interface SetAddress {
   addr: string;
@@ -153,4 +153,11 @@ export interface PriceData {
   oracle: string;
   priceETH: BigNumber;
   priceUSD: BigNumber;
+}
+
+export interface RewardConfig {
+  emissionPerSecond: BigNumber;
+  endTimestamp: BigNumber;
+  incentivizedAsset: string;
+  reward: string;
 }

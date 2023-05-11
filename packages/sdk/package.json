@@ -17,12 +17,15 @@
     "ts-node": "^10.9.1"
   },
   "scripts": {
-    "build": "yarn tsc",
-    "test": "yarn build && mocha --timeout 0 --reporter spec",
-    "test:analytics": "yarn build && mocha --timeout 0 --reporter spec --grep Analytics",
-    "test:specific": "yarn build && mocha --timeout 0 --reporter spec --grep ConfigureTranche",
+    "build": "yarn update:deployed-contracts && yarn tsc",
+    "test": "yarn build && NETWORK=localhost mocha --timeout 0 --reporter spec",
+    "test-unit": "yarn build && NETWORK=localhost mocha --timeout 0 --reporter spec --grep $TEST",
+    "test-goerli": "yarn build && NETWORK=goerli mocha --timeout 0 --reporter spec",
+    "test:analytics": "yarn build && NETWORK=localhost mocha --timeout 0 --reporter spec --grep Analytics",
     "fund:accounts": "mocha dev --timeout 0 --reporter spec",
-    "fund:goerli:accounts": "mocha dev --timeout 0 --reporter spec --grep Get_goerli"
+    "fund:vaultOfRewards": "mocha dev --timeout 0 --reporter spec --grep Fund_vault",
+    "fund:goerli:accounts": "mocha dev --timeout 0 --reporter spec --grep Get_goerli",
+    "update:deployed-contracts": "cp ../contracts/deployed-contracts.json ./src.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",

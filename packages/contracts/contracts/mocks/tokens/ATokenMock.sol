@@ -12,6 +12,10 @@ contract ATokenMock is MintableERC20 {
   ILendingPoolAddressesProvider public _addressesProvider;
   uint64 public _tranche;
 
+  // WARNING: _userBalance and _totalSupply used solely for incentives unit tests
+  uint256 internal _userBalance;
+  uint256 internal _totalSupply;
+
   mapping(address => uint256) internal _multiUserBalances;
 
   address public underlying;
@@ -53,7 +57,7 @@ contract ATokenMock is MintableERC20 {
   }
 
   function handleTransferAction(
-    address to, 
+    address to,
     address from,
     uint256 supply,
     uint256 fromBal,
@@ -79,17 +83,41 @@ contract ATokenMock is MintableERC20 {
     uint256 oldBalance = balanceOf(account);
     MintableERC20(underlying).transferFrom(account, address(this), amount);
     _mint(account, amount);
-    handleActionOnAic(account, totalSupply(), oldBalance, balanceOf(account), DistributionTypes.Action.DEPOSIT); 
+    handleActionOnAic(account, totalSupply(), oldBalance, balanceOf(account), DistributionTypes.Action.DEPOSIT);
   }
+
   function withdraw(address account, uint256 amount) public {
     uint256 oldBalance = balanceOf(account);
     MintableERC20(underlying).transfer(account, amount);
     _burn(account, amount);
-    handleActionOnAic(account, totalSupply(), oldBalance, balanceOf(account), DistributionTypes.Action.WITHDRAW); 
+    handleActionOnAic(account, totalSupply(), oldBalance, balanceOf(account), DistributionTypes.Action.WITHDRAW);
   }
-
 
   function setTranche(uint64 t) external{
     _tranche = t;
+  }
+
+  // WARNING: The following functions do not properly follow the atoken deposit mechanism.
+  // They are solely used for convenience for the incentives controller unit tests
+  function setUserBalanceAndSupply(uint256 userBalance, uint256 totalSupply) public {
+    _userBalance = userBalance;
+    _totalSupply = totalSupply;
+  }
+
+  function getScaledUserBalanceAndSupply(address user)
+    external
+    view
+    returns (uint256, uint256)
+  {
+    return (_userBalance, _totalSupply);
+  }
+
+  function scaledTotalSupply() external view returns (uint256) {
+    return _totalSupply;
+  }
+
+  function cleanUserState() external {
+    _userBalance = 0;
+    _totalSupply = 0;
   }
 }
