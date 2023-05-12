@@ -7,7 +7,9 @@ import {
   import { ProtocolErrors } from "../../helpers/types";
   import { makeSuite, TestEnv } from "./helpers/make-suite";
   import { CommonsConfig } from "../../markets/aave/commons";
-  import { getVariableDebtToken } from "../../helpers/contracts-getters";
+  import { getAllMockedTokens, getVariableDebtToken } from "../../helpers/contracts-getters";
+import { MintableERC20, WETH9Mocked } from "../../types";
+import { MockContract } from "ethereum-waffle";
   
   const AAVE_REFERRAL = CommonsConfig.ProtocolGlobalParams.AaveReferral;
   
@@ -119,5 +121,13 @@ import {
        
       expect(Number(ethers.utils.formatUnits(vars.healthFactor,18))).to.be.gte(1)
     });
+
+    // it("deposit on behalf of others to increase gas", async () => {
+    //     const mockTokens: {
+    //         [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
+    //       } = await getAllMockedTokens();
+
+        
+    // });
   });
   

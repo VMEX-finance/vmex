@@ -75,7 +75,9 @@ library DepositWithdrawLogic {
             self.liquidityIndex
         );
 
-        if (isFirstDeposit) {
+        // require the sender to be the same as onBehalfOf in order to turn collateral on
+        // Response to yAudit vulnerability where attacker can deposit dust to victim to increase gas fees of a victim
+        if (isFirstDeposit && vars.onBehalfOf == msg.sender) {
             // if collateral is enabled, by default the user's deposit is marked as collateral
             user.setUsingAsCollateral(self.id, self.configuration.getCollateralEnabled(vars.asset, vars._assetMappings));
         }
