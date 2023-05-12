@@ -134,6 +134,7 @@
     "prettier": "^2.0.5",
     "prettier-plugin-solidity": "^1.0.0-alpha.53",
     "pretty-quick": "^2.0.1",
+    "slot20": "^0.0.3",
     "solidity-coverage": "^0.7.16",
     "temp-hardhat-etherscan": "^2.0.2",
     "tmp-promise": "^3.0.2",
