@@ -398,4 +398,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function getFallbackOracle() external view returns (address) {
         return address(_fallbackOracle);
     }
+
+    //Just used for calling curve remove liquidity. Without this, remove_liquidity cannot find function selector receive()
+    receive() external payable {
+	}
 }

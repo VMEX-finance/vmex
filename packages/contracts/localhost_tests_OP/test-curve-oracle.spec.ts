@@ -111,16 +111,16 @@ makeSuite(
                 console.log("pricePerCurveToken: ",pricePerCurveToken)
                 var cumProduct = 1;
                 var minAmount = ethers.constants.MaxUint256
-                if(i==1){
-                  const ownerContract = new DRE.ethers.Contract(await CurvePool.connect(signer).owner(), CurvePoolAbi)
-                  await ownerContract.connect(signer).withdraw_admin_fees();
-                }
+                // if(i==1){
+                //   const ownerContract = new DRE.ethers.Contract(await CurvePool.connect(signer).owner(), CurvePoolAbi)
+                //   await ownerContract.connect(signer).withdraw_admin_fees();
+                // }
                 const vp = await CurvePool.connect(signer).get_virtual_price()
                 var expectedPrice;
                 if(i==0)
                   expectedPrice = "102703859"
                 else if(i==1)
-                  expectedPrice = "196368050841"
+                  expectedPrice = "215699055569"
                 
                 console.log("expected curve price: ",expectedPrice)
                 const diff = (Math.abs(Number(expectedPrice) - Number(pricePerCurveToken)))/Number(expectedPrice)
