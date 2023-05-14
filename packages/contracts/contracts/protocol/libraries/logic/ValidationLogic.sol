@@ -433,7 +433,6 @@ library ValidationLogic {
             _addressesProvider,
             _assetMappings
         );
-        // uint256 healthFactor = 1;
         require(
             healthFactor >= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
             Errors.VL_TRANSFER_NOT_ALLOWED

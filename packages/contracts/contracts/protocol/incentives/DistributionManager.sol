@@ -237,7 +237,7 @@ contract DistributionManager is IDistributionManager {
    * @return index The index of the reward
    * @return emissionsPerSecond The emissionsPerSecond of the reward
    * @return lastUpdateTimestamp The lastUpdateTimestamp of the reward
-   * @return lastUpdateTimestamp The lastUpdateTimestamp of the reward
+   * @return endTimestamp The endTimestamp of the reward
    **/
   function getRewardsData(
     address incentivizedAsset,

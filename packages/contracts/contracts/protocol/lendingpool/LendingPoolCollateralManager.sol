@@ -333,9 +333,6 @@ contract LendingPoolCollateralManager is
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
 
-            oracleAddress = _addressesProvider.getPriceOracle(
-            );
-
             oracle = IPriceOracleGetter(oracleAddress);
             vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);
         }
