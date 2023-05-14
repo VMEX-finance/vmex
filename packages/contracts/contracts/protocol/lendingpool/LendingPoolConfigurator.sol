@@ -159,7 +159,6 @@ contract LendingPoolConfigurator is
         DataTypes.AssetData memory assetdata,
         ILendingPool cachedPool
     ) internal {
-
         address aTokenProxyAddress = _initTokenWithProxy(
             addressesProvider.getATokenBeacon(),
             abi.encodeWithSelector(
@@ -268,6 +267,7 @@ contract LendingPoolConfigurator is
             require(!borrowingEnabled[i] || assetMappings.getAssetBorrowable(asset[i]), Errors.LPC_NOT_APPROVED_BORROWABLE);
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
+            
 
             currentConfig.setBorrowingEnabled(borrowingEnabled[i]);
 
@@ -317,6 +317,8 @@ contract LendingPoolConfigurator is
     ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == reserveFactor.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
+            //reserve factor can only be changed if no one deposited in it, otherwise tranche admins could "rug pull" the interest earnings in there
+            _checkNoLiquidity(asset[i], trancheId); 
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
                 pool
             ).getConfiguration(asset[i], trancheId);
@@ -424,6 +426,8 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         uint8 rateStrategyAddressId
     ) external onlyTrancheAdmin(trancheId) {
+        //interest rate can only be changed if no one deposited in it, otherwise tranche admins could potentially trick users
+        _checkNoLiquidity(asset, trancheId); 
         address rateStrategyAddress = assetMappings.getInterestRateStrategyAddress(asset, rateStrategyAddressId);
 
         pool.setReserveInterestRateStrategyAddress(
