@@ -21,7 +21,7 @@ makeSuite(
     const daiSize = parseEther("10000");
     const tranche = "0";
     it("Deposit WETH via WethGateway and DAI", async () => {
-      const { users, wethGateway, aWETH, pool } = testEnv;
+      const { users, wethGateway, aWETH, pool, weth } = testEnv;
 
       const user = users[1];
       const depositor = users[0];
@@ -32,11 +32,15 @@ makeSuite(
         .depositETH(pool.address, tranche, depositor.address, "0", {
           value: depositSize,
         });
+      
+      await pool.connect(depositor.signer).setUserUseReserveAsCollateral(weth.address,tranche,true);
 
       // Deposit with native ETH
       await wethGateway
         .connect(user.signer)
         .depositETH(pool.address, tranche, user.address, "0", { value: depositSize });
+      
+      await pool.connect(user.signer).setUserUseReserveAsCollateral(weth.address,tranche,true);
 
       const aTokensBalance = await aWETH.balanceOf(user.address);
 
@@ -138,6 +142,8 @@ makeSuite(
       await wethGateway
         .connect(user.signer)
         .depositETH(pool.address, tranche, user.address, "0", { value: depositSize });
+
+      await pool.connect(user.signer).setUserUseReserveAsCollateral(weth.address,tranche,true);
 
       const aTokensBalance = await aWETH.balanceOf(user.address);
 

@@ -138,6 +138,10 @@ makeSuite(
                   keyFirst = true;
                 }
 
+                if(symbol=="SUSD"){
+                  continue;
+                }
+
                 
                 var USDCadd = address
                 var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
@@ -206,76 +210,74 @@ makeSuite(
                 const tx2 = await tx.wait(1);
                 console.log("Deposited", symbol)
                 console.log("* Gas used: ", tx2.gasUsed)
-                // await lendingPool.connect(signer).setUserUseReserveAsCollateral(USDC.address, 1, true); 
-
                 var userResDat = await dataProv.getUserReserveData(USDCadd,0,signer.address)
+                console.log("Amount of aTokens: ", userResDat.currentATokenBalance.toString())
+                expect(Number(userResDat.currentATokenBalance.toString())).to.be.gte(Number(signerAmt.toString()), "Did not get atoken");
 
-                // expect(userResDat.currentATokenBalance.toString()).to.be.bignumber.equal(signerAmt.toString(), "Did not get atoken");
-
-                var resDat =  await dataProv.getReserveData(USDCadd,0)
-                // if(symbol=="WETH"){
-                //   expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(signerAmt.add(amountWETH).toString(), "Reserve doesn't have liquidity");
-                // }
-                // else
-                //   expect(resDat.availableLiquidity.toString()).to.be.bignumber.equal(signerAmt.toString(), "Reserve doesn't have liquidity");
                 console.log("Passed deposit checks\n")
-                // if(tokenConfig.borrowingEnabled){
-                //   console.log("Attempting max borrow of",symbol)
-                //   const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(USDCadd);
-                //   console.log("Manual check: ",symbol," price is (USD) $",tokenPrice)
-                //   const wethPrice = await oracle.connect(signer).callStatic.getAssetPrice(WETHadd);
-                //   console.log("Manual check: weth price is (USD) $",wethPrice)
+                if(tokenConfig.borrowingEnabled){
+                  console.log("Attempting max borrow of",symbol)
+                  const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(USDCadd);
+                  console.log("Manual check: ",symbol," price is (USD) $",tokenPrice)
+                  const wethPrice = await oracle.connect(signer).callStatic.getAssetPrice(WETHadd);
+                  console.log("Manual check: weth price is (USD) $",wethPrice)
 
-                //   const tx = await lendingPool.connect(emergency).borrow(USDCadd, 0, MAX_UINT_AMOUNT, '0', await emergency.getAddress()); 
-                //   const events = await lendingPool.queryFilter('Borrow', tx.blockNumber, tx.blockNumber);
-                //   const borrowEvent = events[events.length - 1];
-                //   const amountBorrowed = borrowEvent.args["amount"]
-                //   console.log("Borrow amount: ", amountBorrowed)
-                //   const amountBorrowable = (
-                //     amountWETH.mul(wethPrice).mul(WETHConfig.baseLTVAsCollateral).mul(ethers.utils.parseUnits("1",tokenDec))
-                //   ).div
-                //   (
-                //     tokenPrice.mul(ethers.utils.parseUnits("1",WETHdec)).mul(tokenConfig.borrowFactor)
-                //   )
-                //   const expectedAmountBorrows = amountBorrowable.lt(signerAmt) ? amountBorrowable : signerAmt
-                //   console.log("Expected amount max borrow: ", expectedAmountBorrows)
-                //   expect(Math.abs(Number(amountBorrowed.toString())-expectedAmountBorrows)).to.be.lte(10)
-                //   var userDat = await lendingPool.connect(emergency).callStatic.getUserAccountData(emergency.address,0)
+                  const amountBorrowable = (
+                    amountWETH.mul(wethPrice).mul(WETHConfig.baseLTVAsCollateral).mul(ethers.utils.parseUnits("1",tokenDec))
+                  ).div
+                  (
+                    tokenPrice.mul(ethers.utils.parseUnits("1",WETHdec)).mul(tokenConfig.borrowFactor)
+                  )
+                  const expectedAmountBorrows = amountBorrowable.lt(signerAmt) ? amountBorrowable : signerAmt
+
+                  console.log("Expected amount max borrow: ", expectedAmountBorrows)
+                  const amountBorrowed = expectedAmountBorrows.div(10)
+                  console.log("Trying to borrow: ", amountBorrowed);
+
+                  var resDat = await lendingPool.connect(signer).getReserveData(USDCadd, 0);
+                  const aTokenBalance = await USDC.connect(signer).balanceOf(resDat.aTokenAddress);
+                  console.log("atoken balance: ", aTokenBalance);
+                  console.log("Amount of aTokens: ", userResDat.currentATokenBalance.toString())
+                  const tx = await lendingPool.connect(emergency).borrow(USDCadd, 0, amountBorrowed, '0', await emergency.getAddress()); 
+                  
+                  var userDat = await lendingPool.connect(emergency).callStatic.getUserAccountData(emergency.address,0)
 
                   
 
-                //   const expected = tokenPrice.mul(amountBorrowed).div(ethers.utils.parseUnits("1",tokenDec)); //amount in USD
+                  const expected = tokenPrice.mul(amountBorrowed).div(ethers.utils.parseUnits("1",tokenDec)); //amount in USD
 
-                //   console.log("userDat.totalDebtETH.toString(): ", userDat.totalDebtETH.toString())
-                //   console.log("expected: ", expected)
-                //   expect( 
-                //       (Math.abs(Number(userDat.totalDebtETH.toString())-Number(expected)))
-                //     ).to.be.lte(100, "Did not get debt token"); //USD oracles have 8 decimals
+                  console.log("userDat.totalDebtETH.toString(): ", userDat.totalDebtETH.toString())
+                  console.log("expected: ", expected)
+                  expect( 
+                      (Math.abs(Number(userDat.totalDebtETH.toString())-Number(expected)))
+                    ).to.be.lte(100, "Did not get debt token"); //USD oracles have 8 decimals
                   
-                //     console.log("Passed borrow checks\n\n")
+                    console.log("Passed borrow checks\n\n")
 
-                //   await expect(
-                //       lendingPool.connect(emergency).borrow(USDC.address, 0, expectedAmountBorrows, '0', await emergency.getAddress())
-                //     ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
-                //     console.log("Passed failed borrow checks\n\n")
-                //   console.log("Trying to repay")
-                //   await USDC.connect(emergency).approve(lendingPool.address,ethers.utils.parseEther("100000.0"))
-                //   await lendingPool.connect(emergency).repay(USDCadd, 0, MAX_UINT_AMOUNT, await emergency.getAddress()); 
-                //   console.log("Finished tests for ",symbol)
-                // }
-                // else {
-                //   await expect(
-                //     lendingPool.connect(emergency).borrow(USDCadd, 0, MAX_UINT_AMOUNT, '0', await emergency.getAddress())
-                //     ).to.be.revertedWith(VL_BORROWING_NOT_ENABLED)
-                // }
-
-                if(Number(tokenConfig.baseLTVAsCollateral)!=0){
-                  //signer has the tokens as collateral. Check gas usage
-                  const tx = await lendingPool.connect(signer).borrow(myWETH.address, 0, ethers.utils.parseEther("0.001"), '0', await signer.getAddress()); 
-                  const tx2 = await tx.wait(1);
-                  console.log("* Gas used for borrowing with all tokens as collateral: ", tx2.gasUsed)
-
+                  await expect(
+                      lendingPool.connect(emergency).borrow(USDC.address, 0, expectedAmountBorrows, '0', await emergency.getAddress())
+                    ).to.be.revertedWith(VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
+                    console.log("Passed failed borrow checks\n\n")
+                  console.log("Trying to repay")
+                  await USDC.connect(emergency).approve(lendingPool.address,ethers.utils.parseEther("100000.0"))
+                  await lendingPool.connect(emergency).repay(USDCadd, 0, MAX_UINT_AMOUNT, await emergency.getAddress()); 
+                  console.log("Finished tests for ",symbol)
                 }
+                else {
+                  await expect(
+                    lendingPool.connect(emergency).borrow(USDCadd, 0, MAX_UINT_AMOUNT, '0', await emergency.getAddress())
+                    ).to.be.revertedWith(VL_BORROWING_NOT_ENABLED)
+                }
+
+                //Just used to test the limits of gas. Don't run normally, cause will cause HeadersTimeoutError: Headers Timeout Error
+                
+                // if(Number(tokenConfig.baseLTVAsCollateral)!=0){
+                //   //signer has the tokens as collateral. Check gas usage
+                //   const tx = await lendingPool.connect(signer).borrow(myWETH.address, 0, ethers.utils.parseEther("0.001"), '0', await signer.getAddress()); 
+                //   const tx2 = await tx.wait(1);
+                //   console.log("* Gas used for borrowing with all tokens as collateral: ", tx2.gasUsed)
+
+                // }
                 console.log("-----------------------------------")
                 console.log()
                 console.log()

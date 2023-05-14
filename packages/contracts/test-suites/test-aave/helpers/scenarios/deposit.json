@@ -251,6 +251,15 @@
           "expected": "success"
         },
         {
+          "name": "setUseAsCollateral",
+          "args": {
+            "reserve": "DAI",
+            "user": "2",
+            "useAsCollateral": "true"
+          },
+          "expected": "success"
+        },
+        {
           "name": "borrow",
           "args": {
             "reserve": "WETH",
