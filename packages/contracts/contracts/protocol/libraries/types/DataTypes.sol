@@ -72,9 +72,7 @@ library DataTypes {
         uint128 currentLiquidityRate; //deposit APR is defined as liquidityRate / RAY //not used for nonlendable assets
         //the current variable borrow rate. Expressed in ray
         uint128 currentVariableBorrowRate; //not used for nonlendable assets
-
-        //the current stable borrow rate. Expressed in ray
-        uint40 lastUpdateTimestamp; //5
+        uint40 lastUpdateTimestamp; //last updated timestamp for interest rates
         //tokens addresses
         address aTokenAddress;
         address variableDebtTokenAddress; //not used for nonlendable assets
