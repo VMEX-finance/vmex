@@ -161,23 +161,29 @@ contract LendingPoolConfigurator is
     ) internal {
         address aTokenProxyAddress = _initTokenWithProxy(
             addressesProvider.getATokenBeacon(),
-            abi.encodeWithSelector(
-                IInitializableAToken.initialize.selector,
-                cachedPool,
-                address(this), //lendingPoolConfigurator address
-                address(addressesProvider), //
-                input.underlyingAsset,
-                trancheId
+            abi.encodeCall(
+                IInitializableAToken.initialize,
+                (
+                    cachedPool,
+                    IInitializableAToken.InitializeTreasuryVars(
+                        address(this), //lendingPoolConfigurator address
+                        address(addressesProvider), //
+                        input.underlyingAsset,
+                        trancheId
+                    )
+                )
             )
         );
         address variableDebtTokenProxyAddress = _initTokenWithProxy(
             addressesProvider.getVariableDebtTokenBeacon(),
-            abi.encodeWithSelector(
-                IInitializableDebtToken.initialize.selector,
-                cachedPool,
-                input.underlyingAsset,
-                trancheId,
-                addressesProvider
+            abi.encodeCall(
+                IInitializableDebtToken.initialize,
+                (
+                    cachedPool,
+                    input.underlyingAsset,
+                    trancheId,
+                    addressesProvider
+                )
             )
         );
 
