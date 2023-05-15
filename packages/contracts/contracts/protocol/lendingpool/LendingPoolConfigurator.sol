@@ -518,7 +518,8 @@ contract LendingPoolConfigurator is
         uint256 availableLiquidity = IERC20Detailed(asset).balanceOf(
             reserveData.aTokenAddress
         );
-
+        //if underlying in aToken is zero, it could mean that 100% is borrowed. But,
+        //it is not possible for there to be any borrows if the liquidity rate is zero
         require(
             availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
             Errors.LPC_RESERVE_LIQUIDITY_NOT_0
