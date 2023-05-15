@@ -337,7 +337,9 @@ export const deposit = async (
     logger("\n@@@@@@@@@@@@@@@@@@@@@@\n");
 
     expectedUserReserveData.healthFactor = await calculateHF(testEnv, tranche, onBehalfOf);
-
+    if(sender.address!=onBehalfOf) {
+      expectedUserReserveData.usageAsCollateralEnabled = false; 
+    }
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserReserveData);
 
