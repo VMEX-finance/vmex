@@ -267,7 +267,7 @@ contract LendingPoolConfigurator is
             require(!borrowingEnabled[i] || assetMappings.getAssetBorrowable(asset[i]), Errors.LPC_NOT_APPROVED_BORROWABLE);
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
-            
+
 
             currentConfig.setBorrowingEnabled(borrowingEnabled[i]);
 
@@ -278,7 +278,7 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Enables borrowing on a reserve
+     * @dev Sets collateral enabled on a list of reserves
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The tranche id of the reserve
      * @param collateralEnabled 'true' to enable borrowing, 'false' to disable borrowing
@@ -318,7 +318,7 @@ contract LendingPoolConfigurator is
         require(asset.length == reserveFactor.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
             //reserve factor can only be changed if no one deposited in it, otherwise tranche admins could "rug pull" the interest earnings in there
-            _checkNoLiquidity(asset[i], trancheId); 
+            _checkNoLiquidity(asset[i], trancheId);
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
                 pool
             ).getConfiguration(asset[i], trancheId);
@@ -427,7 +427,7 @@ contract LendingPoolConfigurator is
         uint8 rateStrategyAddressId
     ) external onlyTrancheAdmin(trancheId) {
         //interest rate can only be changed if no one deposited in it, otherwise tranche admins could potentially trick users
-        _checkNoLiquidity(asset, trancheId); 
+        _checkNoLiquidity(asset, trancheId);
         address rateStrategyAddress = assetMappings.getInterestRateStrategyAddress(asset, rateStrategyAddressId);
 
         pool.setReserveInterestRateStrategyAddress(

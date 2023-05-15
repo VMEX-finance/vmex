@@ -96,6 +96,7 @@ contract AToken is
             abi.encodePacked(
                 "Vmex interest bearing ",
                 vars.underlyingAsset.getName(),
+                " tranche ",
                 Strings.toString(vars.trancheId)
             )
         );

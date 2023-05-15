@@ -332,7 +332,8 @@ contract LendingPool is
         }
 
         IERC20(asset).safeTransferFrom(msg.sender, reserve.aTokenAddress, paybackAmount);
-
+        // this call is a noop as it currently calls an empty function.
+        // IAToken(reserve.aToken).handleRepayment(msg.sender, paybackAmount);
         emit Repay(asset, trancheId, onBehalfOf, msg.sender, paybackAmount);
 
         return paybackAmount;
@@ -452,6 +453,7 @@ contract LendingPool is
      * @return currentLiquidationThreshold the liquidation threshold of the user
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
+     * @return avgBorrowFactor the weighted average of all debt position borrow factors
      **/
     function getUserAccountData(address user, uint64 trancheId)
         external
@@ -570,11 +572,10 @@ contract LendingPool is
         override
         returns (address[] memory)
     {
-        address[] memory _activeReserves = new address[](
-            trancheParams[trancheId].reservesCount
-        );
+        uint8 reservesCount = trancheParams[trancheId].reservesCount;
+        address[] memory _activeReserves = new address[](reservesCount);
 
-        for (uint256 i = 0; i < trancheParams[trancheId].reservesCount; i++) {
+        for (uint256 i = 0; i < reservesCount; i++) {
             _activeReserves[i] = _reservesList[trancheId][i];
         }
         return _activeReserves;
@@ -645,7 +646,7 @@ contract LendingPool is
                     to
                 ][trancheId].configuration;
                 toConfig.setUsingAsCollateral(
-                    reserve.id, 
+                    reserve.id,
                     reserve.configuration
                         .getCollateralEnabled(asset, _assetMappings)
                 );
@@ -803,6 +804,11 @@ contract LendingPool is
         }
 
         _usersConfig[user][trancheId].configuration.setWhitelist(isWhitelisted);
+
+        if (isWhitelisted) {
+            // remove from blacklist to avoid conflicts
+            _usersConfig[user][trancheId].configuration.setBlacklist(false);
+        }
     }
 
     /**
@@ -818,5 +824,9 @@ contract LendingPool is
         bool isBlacklisted
     ) external override onlyLendingPoolConfigurator {
         _usersConfig[user][trancheId].configuration.setBlacklist(isBlacklisted);
+        if (isBlacklisted) {
+            // remove from whitelist to avoid conflicts
+            _usersConfig[user][trancheId].configuration.setWhitelist(false);
+        }
     }
 }

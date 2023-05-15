@@ -42,6 +42,7 @@ contract DistributionManager is IDistributionManager {
       if (incentivizedAsset.decimals == 0) {
         // this incentivized asset has not been introduced yet
         _allIncentivizedAssets.push(config[i].incentivizedAsset);
+        incentivizedAsset.decimals = IERC20Detailed(config[i].incentivizedAsset).decimals();
       }
       if (reward.lastUpdateTimestamp == 0) {
         // this reward has not been introduced yet
@@ -50,7 +51,6 @@ contract DistributionManager is IDistributionManager {
         _allRewards.push(config[i].reward);
       }
 
-      incentivizedAsset.decimals = IERC20Detailed(config[i].incentivizedAsset).decimals();
       uint256 totalSupply = IAToken(config[i].incentivizedAsset).scaledTotalSupply();
       (uint256 index, ) = _updateReward(reward, totalSupply, incentivizedAsset.decimals);
 

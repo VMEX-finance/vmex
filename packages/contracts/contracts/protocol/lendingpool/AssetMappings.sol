@@ -50,7 +50,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     /**
-     * @dev Validates if the global admin can set asset as not allowed. 
+     * @dev Validates if the global admin can set asset as not allowed.
      * We are being very conservative: there cannot be any outstanding borrows or deposits in the reserve, and it must be set off for borrowing and collateral
      * @param asset The address of the asset you want to disallow
      **/
@@ -62,10 +62,9 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             addressesProvider.getLendingPoolConfigurator()
         ).totalTranches();
 
+        ILendingPool lendingPool = ILendingPool(addressesProvider.getLendingPool());
         for (uint64 tranche = 0; tranche < totalTranches; tranche++) {
-            DataTypes.ReserveData memory reserve = ILendingPool(
-                addressesProvider.getLendingPool()
-            ).getReserveData(asset, tranche);
+            DataTypes.ReserveData memory reserve = lendingPool.getReserveData(asset, tranche);
             //no outstanding borrows allowed
             if (reserve.variableDebtTokenAddress != address(0)) {
                 // if the reserve exists in the tranche
@@ -127,7 +126,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     /**
-     * @dev Updates the vmex reserve factor of a reserve
+     * @dev Sets the borrowing enabled on an asset
      * @param asset The address of the reserve you want to set
      * @param borrowingEnabled True to enable borrowing, false to disable borrowing
      **/
@@ -141,7 +140,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     /**
-     * @dev Validates the collateral params: ltv must be less than 100%, liquidation Bonus must be greater than 100%, 
+     * @dev Validates the collateral params: ltv must be less than 100%, liquidation Bonus must be greater than 100%,
      * liquidation threshold * liquidation bonus must be less than 100% for liquidators to break even, borrow factor must be greater than 100%
      * @param baseLTV The LTV (in decimals adjusted for percentage math decimals)
      * @param liquidationThreshold The liquidation threshold (in decimals adjusted for percentage math decimals)
@@ -349,22 +348,22 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     function getAssetMapping(address asset) view external returns(DataTypes.AssetData memory){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         return assetMappings[asset];
     }
 
     function getAssetBorrowable(address asset) view external returns (bool){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         return assetMappings[asset].borrowingEnabled;
     }
 
     function getAssetCollateralizable(address asset) view external returns (bool){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         return assetMappings[asset].liquidationThreshold != 0;
     }
 
     function getInterestRateStrategyAddress(address asset, uint8 choice) view external returns(address){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         require(interestRateStrategyAddress[asset][choice]!=address(0), Errors.AM_NO_INTEREST_STRATEGY);
         return interestRateStrategyAddress[asset][choice];
     }
