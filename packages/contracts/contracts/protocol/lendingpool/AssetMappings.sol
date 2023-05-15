@@ -12,6 +12,7 @@ import {VersionedInitializable} from "../../dependencies/aave-upgradeability/Ver
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
+import {SafeCast} from "../../dependencies/openzeppelin/contracts/SafeCast.sol";
 
 /**
  * @title AssetMappings contract
@@ -30,6 +31,7 @@ import {Helpers} from "../libraries/helpers/Helpers.sol";
 contract AssetMappings is IAssetMappings, VersionedInitializable{
     using PercentageMath for uint256;
     using Helpers for address;
+    using SafeCast for uint256;
 
     ILendingPoolAddressesProvider internal addressesProvider;
     address public approvedAssetsHead;
@@ -121,7 +123,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         uint256 thisReserveFactor = reserveFactor.convertToPercent();
         validateVMEXReserveFactor(thisReserveFactor);
 
-        assetMappings[asset].VMEXReserveFactor = uint64(thisReserveFactor);
+        assetMappings[asset].VMEXReserveFactor = thisReserveFactor.toUint64();
 
         emit VMEXReserveFactorChanged(asset, thisReserveFactor);
     }
@@ -203,11 +205,11 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             address currentAssetAddress = inputAsset.asset;
             validateAddAssetMapping(inputAsset);
 
-            inputAsset.baseLTV = uint64(uint256(inputAsset.baseLTV).convertToPercent());
-            inputAsset.liquidationThreshold = uint64(uint256(inputAsset.liquidationThreshold).convertToPercent());
-            inputAsset.liquidationBonus = uint64(uint256(inputAsset.liquidationBonus).convertToPercent());
-            inputAsset.borrowFactor = uint64(uint256(inputAsset.borrowFactor).convertToPercent());
-            inputAsset.VMEXReserveFactor = uint64(uint256(inputAsset.VMEXReserveFactor).convertToPercent());
+            inputAsset.baseLTV = uint256(inputAsset.baseLTV).convertToPercent().toUint64();
+            inputAsset.liquidationThreshold = uint256(inputAsset.liquidationThreshold).convertToPercent().toUint64();
+            inputAsset.liquidationBonus = uint256(inputAsset.liquidationBonus).convertToPercent().toUint64();
+            inputAsset.borrowFactor = uint256(inputAsset.borrowFactor).convertToPercent().toUint64();
+            inputAsset.VMEXReserveFactor = uint256(inputAsset.VMEXReserveFactor).convertToPercent().toUint64();
 
             validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus, inputAsset.borrowFactor);
             validateVMEXReserveFactor(inputAsset.VMEXReserveFactor);
@@ -269,10 +271,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         uint64 borrowFactor //2 words, 24 bytes --> 3 words total
     ) external onlyGlobalAdmin {
         require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
-        baseLTV = uint64(uint256(baseLTV).convertToPercent());
-        liquidationThreshold = uint64(uint256(liquidationThreshold).convertToPercent());
-        liquidationBonus = uint64(uint256(liquidationBonus).convertToPercent());
-        borrowFactor = uint64(uint256(borrowFactor).convertToPercent());
+        baseLTV = uint256(baseLTV).convertToPercent().toUint64();
+        liquidationThreshold = uint256(liquidationThreshold).convertToPercent().toUint64();
+        liquidationBonus = uint256(liquidationBonus).convertToPercent().toUint64();
+        borrowFactor = uint256(borrowFactor).convertToPercent().toUint64();
         validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus, borrowFactor);
 
         assetMappings[asset].baseLTV = baseLTV;
