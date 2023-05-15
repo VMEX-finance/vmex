@@ -58,7 +58,7 @@ contract LendingPoolAddressesProviderRegistry is
         onlyOwner
     {
         require(id != 0, Errors.LPAPR_INVALID_ADDRESSES_PROVIDER_ID);
-
+        require(_addressesProviders[provider]==0, Errors.LPAPR_ALREADY_SET);
         _addressesProviders[provider] = id;
         _addToAddressesProvidersList(provider);
         emit AddressesProviderRegistered(provider);
