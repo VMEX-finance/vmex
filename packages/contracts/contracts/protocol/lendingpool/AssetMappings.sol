@@ -117,6 +117,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         address asset,
         uint256 reserveFactor
     ) public onlyGlobalAdmin {
+        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
         uint256 thisReserveFactor = reserveFactor.convertToPercent();
         validateVMEXReserveFactor(thisReserveFactor);
 
@@ -134,6 +135,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         address asset,
         bool borrowingEnabled
     ) external onlyGlobalAdmin {
+        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
         assetMappings[asset].borrowingEnabled = borrowingEnabled;
 
         emit BorrowingEnabledChanged(asset, borrowingEnabled);
