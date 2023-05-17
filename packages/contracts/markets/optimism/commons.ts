@@ -115,16 +115,46 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   ChainlinkAggregator: {
     [eOptimismNetwork.optimism]: {
-      DAI: '0x8dBa75e83DA73cc766A7e5a0ee71F656BAb470d6',
-      SNX: '0x2FCF37343e916eAEd1f1DdaaF84458a359b53877',
-      SUSD: '0x7f99817d87baD03ea21E05112Ca799d715730efe',
-      USDC: '0x16a9FA2FDa030272Ce99B29CF780dFA30361E0f3',
-      USDT: '0xECef79E109e997bCA29c1c0897ec9d7b03647F5E',
-      WBTC: '0x718A5788b89454aAE3A028AE9c111A29Be6c2a6F',
-      WETH: '0x13e3Ee699D1909E989722E753853AE30b17e08c5',
-      wstETH: '0x698B585CbC4407e2D54aa898B2600B53C68958f7',
-      FRAX: '0xc7D132BeCAbE7Dcc4204841F33bae45841e41D9C',
-      OP: '0x0D276FC14719f9292D5C1eA2198673d1f4269246',
+      DAI: {
+        feed: '0x8dBa75e83DA73cc766A7e5a0ee71F656BAb470d6',
+        heartbeat: 86400
+      },
+      SNX: {
+        feed: '0x2FCF37343e916eAEd1f1DdaaF84458a359b53877',
+        heartbeat: 1200
+      },
+      SUSD: {
+        feed: '0x7f99817d87baD03ea21E05112Ca799d715730efe',
+        heartbeat: 86400
+      },
+      USDC:{
+        feed: '0x16a9FA2FDa030272Ce99B29CF780dFA30361E0f3',
+        heartbeat: 86400,
+      },
+      USDT:{
+        feed: '0xECef79E109e997bCA29c1c0897ec9d7b03647F5E',
+        heartbeat: 86400,
+      },
+      WBTC:{
+        feed: '0x718A5788b89454aAE3A028AE9c111A29Be6c2a6F',
+        heartbeat: 1200,
+      },
+      WETH:{
+        feed: '0x13e3Ee699D1909E989722E753853AE30b17e08c5',
+        heartbeat: 1200,
+      },
+      wstETH:{
+        feed: '0x698B585CbC4407e2D54aa898B2600B53C68958f7',
+        heartbeat: 86400,
+      },
+      FRAX:{
+        feed: '0xc7D132BeCAbE7Dcc4204841F33bae45841e41D9C',
+        heartbeat: 86400,
+      },
+      OP:{
+        feed: '0x0D276FC14719f9292D5C1eA2198673d1f4269246',
+        heartbeat: 1200,
+      }
     },
   },
   ReserveAssets: {

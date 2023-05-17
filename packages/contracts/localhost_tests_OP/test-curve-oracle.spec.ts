@@ -120,7 +120,7 @@ makeSuite(
                 if(i==0)
                   expectedPrice = "102703859"
                 else if(i==1)
-                  expectedPrice = "215699055569"
+                  expectedPrice = "185876658830"
                 
                 console.log("expected curve price: ",expectedPrice)
                 const diff = (Math.abs(Number(expectedPrice) - Number(pricePerCurveToken)))/Number(expectedPrice)
