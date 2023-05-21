@@ -415,7 +415,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     /**
      * @dev Sets curve metadata for an array of assets.
      **/
-    function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
+    function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external override onlyGlobalAdmin {
         require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0;i<assets.length;i++){
             curveMetadata[assets[i]] = vars[i];

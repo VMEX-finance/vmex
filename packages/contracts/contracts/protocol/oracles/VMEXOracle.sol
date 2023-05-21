@@ -36,9 +36,14 @@ import {BalancerOracle} from "./BalancerOracle.sol";
 contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     using SafeERC20 for IERC20;
 
+    struct ChainlinkData {
+        IChainlinkPriceFeed feed;
+        uint64 heartbeat;
+    }
+
     ILendingPoolAddressesProvider internal _addressProvider;
     IAssetMappings internal _assetMappings;
-    mapping(address => IChainlinkPriceFeed) private _assetsSources;
+    mapping(address => ChainlinkData) private _assetsSources;
     IPriceOracleGetter private _fallbackOracle;
     mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
 
@@ -48,7 +53,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
     address public constant ETH_NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public WETH;
-    uint256 public constant SECONDS_PER_DAY = 1 days;
     uint256 private constant GRACE_PERIOD_TIME = 1 hours;
 
     modifier onlyGlobalAdmin() {
@@ -96,13 +100,13 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
      **/
     function setAssetSources(
         address[] calldata assets,
-        address[] calldata sources
+        ChainlinkData[] calldata sources
     ) external onlyGlobalAdmin {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         for (uint256 i = 0; i < assets.length; i++) {
-            require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i]).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
-            _assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
-            emit AssetSourceUpdated(assets[i], sources[i]);
+            require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i].feed).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
+            _assetsSources[assets[i]] = sources[i];
+            emit AssetSourceUpdated(assets[i], address(sources[i].feed));
         }
     }
 
@@ -203,7 +207,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
      * @param asset The asset address
      **/
     function getOracleAssetPrice(address asset) internal returns (uint256){
-        IChainlinkPriceFeed source = _assetsSources[asset];
+        IChainlinkPriceFeed source = _assetsSources[asset].feed;
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
         } else {
@@ -215,7 +219,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
                 /*uint80 answeredInRound*/
             ) = IChainlinkPriceFeed(source).latestRoundData();
             IChainlinkAggregator aggregator = IChainlinkAggregator(IChainlinkPriceFeed(source).aggregator());
-            if (price > int256(aggregator.minAnswer()) && price < int256(aggregator.maxAnswer()) && block.timestamp - updatedAt < SECONDS_PER_DAY) {
+            if (price > int256(aggregator.minAnswer()) && 
+                price < int256(aggregator.maxAnswer()) && 
+                block.timestamp - updatedAt < _assetsSources[asset].heartbeat
+            ) {
                 return uint256(price);
             } else {
                 return _fallbackOracle.getAssetPrice(asset);
@@ -390,7 +397,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param asset The address of the asset
     /// @return address The address of the source
     function getSourceOfAsset(address asset) external view returns (address) {
-        return address(_assetsSources[asset]);
+        return address(_assetsSources[asset].feed);
     }
 
     /// @notice Gets the address of the fallback oracle

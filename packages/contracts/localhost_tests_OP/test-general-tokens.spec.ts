@@ -5,11 +5,14 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
-import { eOptimismNetwork, ProtocolErrors } from '../helpers/types';
+import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import {OptimismConfig} from "../markets/optimism"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { toBytes32, setStorageAt } from "../helpers/token-fork";
+import { getPairsTokenAggregator } from "../helpers/contracts-getters";
+
+const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
 makeSuite(
     "General testing of tokens",
     () => {
@@ -33,9 +36,6 @@ makeSuite(
             "function deposit() public payable",
             "function withdraw(uint wad) public"
         ];
-        const oracleAbi = [
-          "function getAssetPrice(address asset) public view returns (uint256)"
-      ]
 
         const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
         const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_OP/abis/velo.json").toString()
@@ -43,6 +43,52 @@ makeSuite(
         // [
         //   "function swapExactETHForTokens(uint amountOutMin, route[] calldata routes, address to, uint deadline) external payable returns (uint[] memory amounts)"
         // ]
+
+        it("set heartbeat higher", async () => {
+          var signer = await contractGetters.getFirstSigner();
+          const addProv = await contractGetters.getLendingPoolAddressesProvider();
+
+          const oracleAdd = await addProv.connect(signer).getPriceOracle();
+          const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
+
+          const network = "optimism" as any
+          const {
+            ProtocolGlobalParams: { UsdAddress },
+            ReserveAssets,
+            ChainlinkAggregator,
+            SequencerUptimeFeed,
+            ProviderId
+          } = OptimismConfig as ICommonConfiguration;
+          const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
+
+          const chainlinkAggregators = await getParamPerNetwork(
+            ChainlinkAggregator,
+            network
+          );
+          let tokensToWatch = {
+            ...reserveAssets,
+            USD: UsdAddress,
+          };
+          
+          if (!chainlinkAggregators) {
+            throw "chainlinkAggregators is undefined. Check configuration at config directory";
+          }
+          const [tokens2, aggregators] = getPairsTokenAggregator(
+            tokensToWatch,
+            chainlinkAggregators,
+            OptimismConfig.OracleQuoteCurrency
+          );
+
+          const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
+          {
+            return {
+              feed: el.feed,
+              heartbeat: 86400
+            }
+          })
+
+          await oracle.connect(signer).setAssetSources(tokens2, ag2);
+        });
 
           it("give WETH to signer", async () => {
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
@@ -99,7 +145,7 @@ makeSuite(
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const addProv = await contractGetters.getLendingPoolAddressesProvider();
             const oracleAdd = await addProv.connect(signer).getPriceOracle();
-            const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi);
+            const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
             const lendingPool = await contractGetters.getLendingPool();
             for(let [symbol, address] of Object.entries(tokens)){
                 console.log("Testing ",symbol)

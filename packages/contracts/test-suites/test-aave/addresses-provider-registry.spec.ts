@@ -80,21 +80,22 @@ makeSuite('AddressesProviderRegistry', (testEnv: TestEnv) => {
     );
   });
 
-  it('Tries to add an already added addressesProvider with a different id. Should overwrite the previous id', async () => {
+  it('Tries to add an already added addressesProvider with a different id. Should not overwrite the previous id', async () => {
     const { users, registry, addressesProvider } = testEnv;
+    const { LPAPR_ALREADY_SET } = ProtocolErrors;
 
-    await registry.registerAddressesProvider(addressesProvider.address, '2');
+    await expect(registry.registerAddressesProvider(addressesProvider.address, '2')).to.be.revertedWith(LPAPR_ALREADY_SET);
 
-    const providers = await registry.getAddressesProvidersList();
+    // const providers = await registry.getAddressesProvidersList();
 
-    const id = await registry.getAddressesProviderIdByAddress(addressesProvider.address);
+    // const id = await registry.getAddressesProviderIdByAddress(addressesProvider.address);
 
-    expect(providers.length).to.be.equal(2, 'Invalid length of the addresses providers list');
+    // expect(providers.length).to.be.equal(2, 'Invalid length of the addresses providers list');
 
-    expect(providers[0].toString()).to.be.equal(
-      addressesProvider.address,
-      ' Invalid addresses provider added to the list'
-    );
-    expect(providers[1].toString()).to.be.equal(ZERO_ADDRESS, ' Invalid addresses');
+    // expect(providers[0].toString()).to.be.equal(
+    //   addressesProvider.address,
+    //   ' Invalid addresses provider added to the list'
+    // );
+    // expect(providers[1].toString()).to.be.equal(ZERO_ADDRESS, ' Invalid addresses');
   });
 });
