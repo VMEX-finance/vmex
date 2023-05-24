@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
