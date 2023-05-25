@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {Errors} from "../helpers/Errors.sol";
 
@@ -16,6 +16,10 @@ library PercentageMath {
     uint256 constant PERCENTAGE_FACTOR = 10**NUM_DECIMALS; //percentage plus 16 decimals
     uint256 constant HALF_PERCENT = PERCENTAGE_FACTOR / 2;
 
+    /**
+     * @dev Converts the original Aave Percentage math values (4 decimal places) to an arbitrary number of decimals determined by NUM_DECIMALS
+     * @param value The value with 4 decimals to convert
+     **/
     function convertToPercent(uint256 value)
         internal
         pure

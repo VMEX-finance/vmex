@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {IIncentivesController} from '../../interfaces/IIncentivesController.sol';
 import {DistributionTypes} from '../../protocol/libraries/types/DistributionTypes.sol';

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {IScaledBalanceToken} from "./IScaledBalanceToken.sol";
 import {IInitializableDebtToken} from "./IInitializableDebtToken.sol";
-import {IAaveIncentivesController} from "./IAaveIncentivesController.sol";
+import {IIncentivesController} from "./IIncentivesController.sol";
 
 /**
  * @title IVariableDebtToken
@@ -66,6 +66,6 @@ interface IVariableDebtToken is IScaledBalanceToken, IInitializableDebtToken {
     function getIncentivesController()
         external
         view
-        returns (IAaveIncentivesController);
+        returns (IIncentivesController);
 
 }

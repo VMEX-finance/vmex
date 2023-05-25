@@ -1,6 +1,7 @@
 ### Setup
 
 Run `yarn install` to install node_modules or update them
+Copy .env template into .env file with the required fields
 
 ### How to deploy on mainnet:
 

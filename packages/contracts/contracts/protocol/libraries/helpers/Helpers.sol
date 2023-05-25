@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../types/DataTypes.sol";
@@ -28,6 +28,10 @@ library Helpers {
         return IERC20(reserve.variableDebtTokenAddress).balanceOf(user);
     }
 
+    /**
+     * @dev Converts a bytes32 variable type to a bytes type
+     * @param data The bytes32 type
+     **/
     function bytes32ToBytes(bytes memory data) internal pure returns (bytes memory result) {
         assembly {
             result := mload(0x40)
@@ -36,6 +40,12 @@ library Helpers {
         }
     }
 
+    /**
+     * @dev Gets a string attribute of a token (in our case, the name and symbol attribute), where it could 
+     * not be implemented, or return bytes32, or return a string
+     * @param token The token
+     * @param functionToQuery The function to query the string of
+     **/
     function getStringAttribute(address token, string memory functionToQuery)
         internal
         view
@@ -57,12 +67,18 @@ library Helpers {
         }
     }
 
-    // since some protocols return a bytes32, others do string, others don't even implement.
+    /**
+     * @dev Helper function to get symbol of erc20 token since some protocols return a bytes32, others do string, others don't even implement.
+     * @param token The token
+     **/
     function getSymbol(address token) internal view returns (string memory) {
         return getStringAttribute(token, "symbol()");
     }
 
-    // since some protocols return a bytes32, others do string, others don't even implement.
+    /**
+     * @dev Helper function to get name of erc20 token since some protocols return a bytes32, others do string, others don't even implement.
+     * @param token The token
+     **/ 
     function getName(address token) internal view returns(string memory) {
         return getStringAttribute(token, "name()");
     }

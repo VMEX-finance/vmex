@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {DistributionTypes} from '../protocol/libraries/types/DistributionTypes.sol';
+import {IExternalRewardsDistributor} from './IExternalRewardsDistributor.sol';
 
-interface IIncentivesController {
+interface IIncentivesController is IExternalRewardsDistributor{
   event RewardsAccrued(address indexed user, uint256 amount);
 
   /**

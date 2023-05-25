@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 //not used yet
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {ICurvePool} from "../../interfaces/ICurvePool.sol";
 

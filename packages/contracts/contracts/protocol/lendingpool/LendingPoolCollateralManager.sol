@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts//SafeMath.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts//IERC20.sol";
@@ -184,6 +184,8 @@ contract LendingPoolCollateralManager is
         if (!receiveAToken) {
             uint256 currentAvailableCollateral = IERC20(vars.collateralAsset)
                 .balanceOf(vars.collateralAToken);
+            currentAvailableCollateral = currentAvailableCollateral.add(IAToken(vars.collateralAToken).getStakedAmount());
+
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
                 return (
                     uint256(
@@ -245,6 +247,7 @@ contract LendingPoolCollateralManager is
                 );
             }
         } else {
+
             collateralReserve.updateState(vars._assetMappings.getVMEXReserveFactor(collateralAsset));
             collateralReserve.updateInterestRates(
                 vars.collateralAsset,

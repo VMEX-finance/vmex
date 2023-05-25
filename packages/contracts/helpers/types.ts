@@ -137,6 +137,8 @@ export enum eContractid {
   IncentivesControllerImpl = "IncentivesControllerImpl",
   IncentivesControllerProxy = "IncentivesControllerProxy",
   ATokenMock = "ATokenMock",
+  VmexToken = "VmexToken",
+  DoubleTransferHelper = "DoubleTransferHelper",
   StakingRewardsMock = "StakingRewardsMock",
 }
 
@@ -371,7 +373,6 @@ export interface iAssetBase<T> {
   moo_velo_FRAXUSDC: T;
   velo_USDTUSDC: T;
   moo_velo_USDTUSDC: T;
-  beethoven_rETHETH: T;
   beethoven_USDCDAI: T;
   beethoven_wstETHETH: T;
 }

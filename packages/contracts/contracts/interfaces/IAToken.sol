@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {IScaledBalanceToken} from "./IScaledBalanceToken.sol";
 import {IInitializableAToken} from "./IInitializableAToken.sol";
-import {IAaveIncentivesController} from "./IAaveIncentivesController.sol";
+import {IIncentivesController} from "./IIncentivesController.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
@@ -121,10 +121,12 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
     function getIncentivesController()
         external
         view
-        returns (IAaveIncentivesController);
+        returns (IIncentivesController);
 
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
     function UNDERLYING_ASSET_ADDRESS() external view returns (address);
+
+    function getStakedAmount() external view returns (uint256);
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {IStakingRewards} from '../interfaces/IStakingRewards.sol';
 import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';

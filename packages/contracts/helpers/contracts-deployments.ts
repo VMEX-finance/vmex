@@ -82,6 +82,9 @@ import {
   SequencerUptimeFeedFactory,
   IncentivesControllerFactory,
   ATokenMockFactory,
+  VmexTokenFactory,
+  ERC20,
+  DoubleTransferHelper,
   StakingRewardsMockFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
@@ -673,39 +676,47 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   }
 
   //-------------------------------------------------------------
+  // Deploy Vmex Token
+
+  const vmexToken = await deployVmexToken();
+
   // Deploy Incentives Controller
   const signers = await getEthersSigners();
   const vaultOfRewards = signers[3];
   const rewardToken = await getMintableERC20(mockTokens.USDC.address);
-  rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+
+  // give the vault reward tokens to distribute
+  await rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"1000000000000000.0"));
+  console.log(`minted USDC ${await rewardToken.balanceOf(await vaultOfRewards.getAddress())}`)
 
   const proxyAdmin = signers[4];
   const { vmexIncentivesControllerProxy } = await testDeployVmexIncentives(
     deployer,
     vaultOfRewards,
     proxyAdmin,
-    [rewardToken]
+    [rewardToken, vmexToken]
   );
 
   const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
   const aAave = await deployATokenMock(vmexIncentivesControllerProxy.address, "aAave");
   const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
   const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
-  
+  const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
+
   // need mocks used for linking external rewards to link to 'real' tokens
   await aDai.setUnderlying(mockTokens["DAI"].address)
   await aBusd.setUnderlying(mockTokens["BUSD"].address)
   await aAave.setUnderlying(mockTokens["AAVE"].address)
   await aUsdt.setUnderlying(mockTokens["USDT"].address)
+  await aWeth.setUnderlying(mockTokens["WETH"].address)
 
   // deploy and fund test staking contracts
   const stakingA = await deployStakingRewardsMock([rewardToken.address, mockTokens["DAI"].address], "yaDai");
   const stakingC = await deployStakingRewardsMock([rewardToken.address, mockTokens["BUSD"].address], "yaBusd");
   const stakingD = await deployStakingRewardsMock([rewardToken.address, mockTokens["AAVE"].address], "yaAave");
   const stakingE = await deployStakingRewardsMock([rewardToken.address, mockTokens["USDT"].address], "yaUsdt");
+  const stakingF = await deployStakingRewardsMock([rewardToken.address, mockTokens["WETH"].address], "yaWeth");
 
-  await rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"500000000000000.0"));
-  console.log(`minted USDC ${await rewardToken.balanceOf(await vaultOfRewards.getAddress())}`)
   await rewardToken.connect(vaultOfRewards).transfer(stakingA.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   console.log(`staking A received USDC ${await rewardToken.balanceOf(stakingA.address)}`)
   await stakingA.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
@@ -716,6 +727,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   await stakingD.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   await rewardToken.connect(vaultOfRewards).transfer(stakingE.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   await stakingE.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await rewardToken.connect(vaultOfRewards).transfer(stakingF.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await stakingF.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
 
   // const ic = await getIncentivesControllerProxy();
   // await ic.batchAddStakingRewards(
@@ -1449,6 +1462,16 @@ export const deployATokenMock = async (
     verify
   );
 
+export const deployVmexToken = async (
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new VmexTokenFactory(await getFirstSigner()).deploy(),
+    eContractid.VmexToken,
+    [],
+    verify
+  );
+
 export const deployStakingRewardsMock = async (
   args: [tEthereumAddress, tEthereumAddress],
   id?: string,
@@ -1467,7 +1490,7 @@ export const testDeployVmexIncentives = async (
   deployer: Signer,
   vaultOfRewards: Signer,
   proxyAdmin: Signer,
-  rewardTokens: MintableERC20[]
+  rewardTokens: ERC20[]
 ) => {
   const emissionManager = await deployer.getAddress();
 
@@ -1493,7 +1516,6 @@ export const testDeployVmexIncentives = async (
     peiEncodedInitialize
   );
 
-  // TODO: approve incentives controller access to all tokens
   for (const rewardToken of rewardTokens) {
     await waitForTx(
       await rewardToken
@@ -1501,7 +1523,6 @@ export const testDeployVmexIncentives = async (
         .approve(vmexIncentivesControllerProxy.address, MAX_UINT_AMOUNT)
     );
 
-  
   }
 
   await insertContractAddressInDb(
@@ -1512,4 +1533,15 @@ export const testDeployVmexIncentives = async (
   return {
     vmexIncentivesControllerProxy,
   };
+};
+
+export const deployDoubleTransferHelper = async (aaveToken: tEthereumAddress, verify?: boolean) => {
+  const id = eContractid.DoubleTransferHelper;
+  const args = [aaveToken];
+  const instance = await deployContract<DoubleTransferHelper>(id, args);
+  await instance.deployTransaction.wait();
+  if (verify) {
+    await verifyContract(id, instance, args);
+  }
+  return instance;
 };

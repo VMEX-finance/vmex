@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
@@ -160,6 +160,7 @@ library ValidationLogic {
         ILendingPoolAddressesProvider _addressesProvider
     ) external returns(uint256){
         ValidateBorrowLocalVars memory vars;
+        // TODO: validate that the borrowed token is not staked for incentives
 
         (
             vars.isActive,
@@ -201,6 +202,7 @@ library ValidationLogic {
 
         if(exvars.amount == type(uint256).max){
             vars.totalAmount = IERC20(exvars.asset).balanceOf(reserve.aTokenAddress);
+            // TODO: account for staked amount if we don't remove max
             exvars.amount = (
                 vars.userCollateralBalanceETH.percentMul(vars.currentLtv) //risk adjusted collateral
                 .sub(vars.userBorrowBalanceETH.percentMul(vars.avgBorrowFactor)) //risk adjusted debt
