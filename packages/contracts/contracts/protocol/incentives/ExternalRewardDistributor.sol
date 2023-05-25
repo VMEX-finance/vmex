@@ -8,6 +8,7 @@ import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDist
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 
 contract ExternalRewardDistributor is IExternalRewardsDistributor {
+  using SafeERC20 for IERC20;
 
   mapping(address => StakingReward) internal stakingData; // incentivized underlying asset => reward info
   mapping(address => address) internal aTokenMap; //  aToken => underlying, authorized callers
@@ -58,6 +59,12 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     }
   }
 
+  /**
+   * @dev Called by the manager to specify that an aToken has an external reward
+   * @param aToken The address of the aToken that stores an underlying that has an external reward
+   * @param staking The address of the staking contract
+   * @param reward The address of the reward token
+   **/
   function addStakingReward(
     address aToken,
     address staking,
@@ -81,7 +88,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
       address[] calldata aTokens,
       address[] calldata stakingContracts,
       address[] calldata rewards
-  ) external {
+  ) external onlyManager {
     require(aTokens.length == stakingContracts.length
         && stakingContracts.length == rewards.length, "Malformed input");
 
@@ -105,7 +112,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
 
-    IERC20(underlying).transferFrom(msg.sender, address(this), amount);
+    IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
     rewardData.staking.stake(amount);
     rewardData.users[user].assetBalance += amount;
   }
@@ -122,7 +129,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     StakingReward storage rewardData = stakingData[underlying];
 
     rewardData.staking.withdraw(amount);
-    IERC20(underlying).transfer(msg.sender, amount);
+    IERC20(underlying).safeTransfer(msg.sender, amount);
     rewardData.users[user].assetBalance -= amount;
   }
 
@@ -152,7 +159,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
     StakingReward storage rewardData = stakingData[underlying];
     require(rewardData.users[msg.sender].rewardBalance >= amount, 'Insufficient balance');
-    rewardData.reward.transfer(msg.sender, amount);
+    rewardData.reward.safeTransfer(msg.sender, amount);
     rewardData.users[msg.sender].rewardBalance -= amount;
     emit StakingRewardClaimed(msg.sender, underlying, address(rewardData.reward), amount);
   }

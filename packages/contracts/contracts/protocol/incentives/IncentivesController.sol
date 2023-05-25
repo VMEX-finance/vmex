@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
@@ -23,6 +24,7 @@ contract IncentivesController is
   ExternalRewardDistributor
 {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   uint256 public constant REVISION = 1;
 
   address public immutable REWARDS_VAULT;
@@ -182,7 +184,7 @@ contract IncentivesController is
       return 0;
     }
 
-    IERC20(reward).transferFrom(REWARDS_VAULT, to, rewardAccrued);
+    IERC20(reward).safeTransferFrom(REWARDS_VAULT, to, rewardAccrued);
     emit RewardClaimed(msg.sender, reward, to, rewardAccrued);
 
     return rewardAccrued;
@@ -216,7 +218,7 @@ contract IncentivesController is
 
     for (uint256 i = 0; i < amounts.length; i++) {
       if (amounts[i] != 0) {
-        IERC20(rewards[i]).transferFrom(REWARDS_VAULT, to, amounts[i]);
+        IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, to, amounts[i]);
         emit RewardClaimed(msg.sender, rewards[i], to, amounts[i]);
       }
     }
