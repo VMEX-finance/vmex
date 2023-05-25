@@ -17,6 +17,7 @@ interface IExternalRewardsDistributor {
     IERC20 reward;
     uint256 cumulativeRewardPerToken;
     uint256 lastUpdateTimestamp;
+    bool rewardEnded;
     mapping(address => UserState) users;
   }
 

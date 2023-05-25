@@ -34,7 +34,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     assert(user != address(0) && underlying != address(0));
     StakingReward storage rewardData = stakingData[underlying];
 
-    if (rewardData.lastUpdateTimestamp < block.timestamp) {
+    if (rewardData.lastUpdateTimestamp < block.timestamp && !rewardData.rewardEnded) {
       uint256 rewardBalance = rewardData.reward.balanceOf(address(this));
       rewardData.staking.getReward();
       uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
@@ -88,6 +88,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     for(uint i = 0; i < aTokens.length; i++) {
         addStakingReward(aTokens[i], stakingContracts[i], rewards[i]);
     }
+  }
+
+  function removeStakingReward(address underlying) external onlyManager {
+    stakingData[underlying].rewardEnded = true;
   }
 
   function onDeposit(
