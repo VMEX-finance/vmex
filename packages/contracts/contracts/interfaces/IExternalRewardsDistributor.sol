@@ -7,9 +7,14 @@ import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
 interface IExternalRewardsDistributor {
 
   struct UserState {
-    uint256 assetBalance;
+    uint256 stakedBalance;
     uint256 rewardBalance;
     uint256 lastUpdateRewardPerToken;
+  }
+
+  struct ATokenData {
+    address underlying;
+    uint256 totalStaked;
   }
 
   struct StakingReward {
@@ -19,12 +24,14 @@ interface IExternalRewardsDistributor {
     uint256 lastUpdateTimestamp;
     bool rewardEnded;
     mapping(address => UserState) users;
+    address[] aTokens;
   }
 
   event RewardConfigured(address indexed aToken, address indexed underlying, address indexed reward, address staking);
   event Harvested(address indexed underlying, uint256 rewardPerToken);
   event UserUpdated(address indexed user, address indexed aToken, address indexed underlying, uint256 rewardBalance);
   event StakingRewardClaimed(address indexed user, address indexed underlying, address indexed reward, uint256 amount);
+  event StakingContractUpdated(address indexed underlying, address indexed oldContract, address indexed newContract);
 
   function batchAddStakingRewards(
       address[] calldata aTokens,

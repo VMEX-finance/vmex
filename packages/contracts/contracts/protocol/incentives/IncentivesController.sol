@@ -72,17 +72,19 @@ contract IncentivesController is
     // note: msg.sender is the incentivized asset (the vToken)
     _updateIncentivizedAsset(msg.sender, user, oldBalance, totalSupply);
 
-    if (aTokenMap[msg.sender] != address(0) && !stakingData[aTokenMap[msg.sender]].rewardEnded) {
+    address underlying = aTokenMap[msg.sender].underlying;
+    if (underlying != address(0) && !stakingData[underlying].rewardEnded) {
       if (action == DistributionTypes.Action.DEPOSIT) {
         onDeposit(user, newBalance - oldBalance);
       } else if (action == DistributionTypes.Action.WITHDRAW) {
         onWithdraw(user, oldBalance - newBalance);
       } else if (action == DistributionTypes.Action.TRANSFER) {
-        if (oldBalance >= newBalance) {
-          onTransfer(user, oldBalance - newBalance, true);
-        } else {
-          onTransfer(user, newBalance - oldBalance, false);
-        }
+          if (oldBalance > newBalance) {
+            onTransfer(user, oldBalance - newBalance, true);
+          } else if (newBalance > oldBalance) {
+            onTransfer(user, newBalance - oldBalance, false);
+          }
+          
       }
     }
   }
@@ -227,6 +229,6 @@ contract IncentivesController is
   }
 
   function totalStaked() external view override returns (uint256) {
-    return _totalStaked();
+    return _totalStaked(msg.sender);
   }
 }

@@ -11,7 +11,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   using SafeERC20 for IERC20;
 
   mapping(address => StakingReward) internal stakingData; // incentivized underlying asset => reward info
-  mapping(address => address) internal aTokenMap; //  aToken => underlying, authorized callers
+  mapping(address => ATokenData) internal aTokenMap; //  aToken => underlying, authorized callers
 
   address public immutable manager;
 
@@ -25,7 +25,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   function stakingExists(address aToken) internal view returns (bool) {
-    return aTokenMap[aToken] != address(0);
+    return aTokenMap[aToken].underlying != address(0);
   }
 
   function harvestAndUpdate(
@@ -49,13 +49,14 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
       rewardData.lastUpdateTimestamp = block.timestamp;
     }
 
-    if (rewardData.users[user].lastUpdateRewardPerToken < rewardData.cumulativeRewardPerToken) {
+    UserState storage userData = rewardData.users[user];
+    if (userData.lastUpdateRewardPerToken < rewardData.cumulativeRewardPerToken) {
       uint256 diff =
-        rewardData.cumulativeRewardPerToken - rewardData.users[user].lastUpdateRewardPerToken;
-      rewardData.users[user].rewardBalance += diff * rewardData.users[user].assetBalance;
-      rewardData.users[user].lastUpdateRewardPerToken = rewardData.cumulativeRewardPerToken;
+        rewardData.cumulativeRewardPerToken - userData.lastUpdateRewardPerToken;
+      userData.rewardBalance += diff * userData.stakedBalance;
+      userData.lastUpdateRewardPerToken = rewardData.cumulativeRewardPerToken;
 
-      emit UserUpdated(user, msg.sender, underlying, rewardData.users[user].rewardBalance);
+      emit UserUpdated(user, msg.sender, underlying, userData.rewardBalance);
     }
   }
 
@@ -70,7 +71,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address staking,
     address reward
   ) public onlyManager {
-    require(aTokenMap[aToken] == address(0), 'Already registered');
+    require(aTokenMap[aToken].underlying == address(0), 'Already registered');
 
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     if (address(stakingData[underlying].reward) == address(0)) {
@@ -79,7 +80,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
         IERC20(underlying).approve(staking, type(uint).max);
         stakingData[underlying].reward = IERC20(reward);
     }
-    aTokenMap[aToken] = underlying;
+    aTokenMap[aToken].underlying = underlying;
+    stakingData[underlying].aTokens.push(aToken);
 
     emit RewardConfigured(aToken, underlying, reward, staking);
   }
@@ -98,7 +100,51 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   function removeStakingReward(address underlying) external onlyManager {
-    stakingData[underlying].rewardEnded = true;
+    StakingReward storage rewardData = stakingData[underlying];
+
+    exitStakingContract(rewardData, underlying);
+
+    for (uint i = 0; i < rewardData.aTokens.length; i++) {
+      address aToken = rewardData.aTokens[i];
+      IERC20(underlying).safeTransfer(aToken, aTokenMap[aToken].totalStaked);
+    }
+
+    rewardData.rewardEnded = true;
+  }
+
+  function updateStakingContract(
+    address underlying,
+    IStakingRewards newStaking
+  ) external onlyManager {
+    StakingReward storage rewardData = stakingData[underlying];
+
+    require(newStaking.stakingToken() == IERC20(underlying) 
+      && newStaking.rewardsToken() == rewardData.reward, "Bad staking contract");
+
+    exitStakingContract(rewardData, underlying);
+
+    // we use ERC20 balance in case the problem with the previous staking contract was severe enough that the deposit was manually rescued and transferred to this contract
+    uint256 ourBalance = IERC20(underlying).balanceOf(address(this));
+    newStaking.stake(ourBalance);
+
+    address oldStaking = address(rewardData.staking);
+    rewardData.staking = newStaking;
+    
+    emit StakingContractUpdated(underlying, oldStaking, address(newStaking));
+  }
+
+  function exitStakingContract(StakingReward storage rewardData, address underlying) internal {
+    uint256 rewardBalance = rewardData.reward.balanceOf(address(this));
+    rewardData.staking.exit();
+    uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
+
+    uint256 totalSupply = rewardData.staking.balanceOf(address(this));
+    if (totalSupply > 0 && received > 0) {
+      uint256 accruedPerToken = received / totalSupply;
+      rewardData.cumulativeRewardPerToken += accruedPerToken;
+      emit Harvested(underlying, accruedPerToken);
+    }
+    rewardData.lastUpdateTimestamp = block.timestamp;
   }
 
   function onDeposit(
@@ -108,13 +154,14 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     if (!stakingExists(msg.sender)) {
       return;
     }
-    address underlying = aTokenMap[msg.sender];
+    address underlying = aTokenMap[msg.sender].underlying;
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
 
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
     rewardData.staking.stake(amount);
-    rewardData.users[user].assetBalance += amount;
+    aTokenMap[msg.sender].totalStaked += amount;
+    rewardData.users[user].stakedBalance += amount;
   }
 
   function onWithdraw(
@@ -124,30 +171,26 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     if (!stakingExists(msg.sender)) {
       return;
     }
-    address underlying = aTokenMap[msg.sender];
+    address underlying = aTokenMap[msg.sender].underlying;
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
 
     rewardData.staking.withdraw(amount);
     IERC20(underlying).safeTransfer(msg.sender, amount);
-    rewardData.users[user].assetBalance -= amount;
+    aTokenMap[msg.sender].totalStaked -= amount;
+    rewardData.users[user].stakedBalance -= amount;
   }
 
-  function onTransfer(
-      address user,
-      uint256 amount,
-      bool sender
-  ) internal {
+  function onTransfer(address user, uint256 amount, bool sender) internal {
     if (!stakingExists(msg.sender)) {
       return;
     }
-    address underlying = aTokenMap[msg.sender];
-    harvestAndUpdate(user, underlying);
+    harvestAndUpdate(user, aTokenMap[msg.sender].underlying);
 
     if (sender) {
-        stakingData[underlying].users[user].assetBalance -= amount;
+      stakingData[aTokenMap[msg.sender].underlying].users[user].stakedBalance -= amount;
     } else {
-        stakingData[underlying].users[user].assetBalance += amount;
+      stakingData[aTokenMap[msg.sender].underlying].users[user].stakedBalance += amount;
     }
   }
 
@@ -180,7 +223,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
   function getDataByAToken(address aToken) external view
   returns (address, address, address, uint256, uint256) {
-      address underlying = aTokenMap[aToken];
+      address underlying = aTokenMap[aToken].underlying;
       return (
           underlying,
           address(stakingData[underlying].staking),
@@ -190,14 +233,14 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
       );
   }
 
-  function _totalStaked() internal view returns (uint256) {
-    if (!stakingExists(msg.sender)) {
+  function _totalStaked(address aToken) internal view returns (uint256) {
+    if (!stakingExists(aToken)) {
       return 0;
     }
-    return stakingData[aTokenMap[msg.sender]].staking.balanceOf(address(this));
+    return aTokenMap[aToken].totalStaked;
   }
 
   function getUserDataByAToken(address user, address aToken) external view returns (UserState memory) {
-    return stakingData[aTokenMap[aToken]].users[user];
+    return stakingData[aTokenMap[aToken].underlying].users[user];
   }
 }
