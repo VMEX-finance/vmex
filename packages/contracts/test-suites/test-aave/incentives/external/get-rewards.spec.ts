@@ -33,7 +33,7 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 			expect(userRewardBal).equal(rewardAmt.div(2));
 			// see note in handle-action.spec.ts regarding dust amounts
 			expect(userData.rewardBalance).gte(rewardAmt.div(2));
-			expect(userData.assetBalance).equal(1000);
+			expect(userData.stakedBalance).equal(1000);
 			
 			const emitted = receipt.events || [];
 
@@ -169,7 +169,7 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 			await aToken2.handleActionOnAic(user.address, 0, 0, 1000, 0)
 
 			const userData = await incentivesController.getUserDataByAToken(user.address, aToken1.address)
-			expect(userData.assetBalance).equal(2000)
+			expect(userData.stakedBalance).equal(2000)
 			
 			increaseTime(50000)
 
@@ -183,8 +183,8 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 
 			expect(userDataNext.rewardBalance).gte(rewardBalNext.sub(rewardBalBefore))
 			expect(userDataAfter.rewardBalance).gte(rewardBalAfter.sub(rewardBalBefore))
-			expect(userDataNext.assetBalance).equal(1500)
-			expect(userDataAfter.assetBalance).equal(500)
+			expect(userDataNext.stakedBalance).equal(1500)
+			expect(userDataAfter.stakedBalance).equal(500)
 
 			const user2 = users[5]
 			await asset.transfer(aToken1.address, 1000)

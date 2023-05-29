@@ -35,7 +35,7 @@ makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 		expect(stakedUnderlyingBal).equal(amount);
 
 		const userData = await incentivesController.getUserDataByAToken(user.address, aToken.address);
-		expect(userData.assetBalance).equal(amount);
+		expect(userData.stakedBalance).equal(amount);
 		expect(userData.rewardBalance).equal(0);
 		expect(userData.lastUpdateRewardPerToken).equal(0);
 	});
@@ -53,7 +53,7 @@ makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 		const reward = rewardTokens[0];
 
 		const senderDataBefore = await incentivesController.getUserDataByAToken(user.address, aToken.address);
-		const senderBalBefore = senderDataBefore.assetBalance
+		const senderBalBefore = senderDataBefore.stakedBalance
 
 		const receipt = await waitForTx(await aToken.multiAction(
 			[user.address, receiver.address],
@@ -65,8 +65,8 @@ makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 		const senderData = await incentivesController.getUserDataByAToken(user.address, aToken.address);
 		const receiverData = await incentivesController.getUserDataByAToken(receiver.address, aToken.address);
 		const rewardData = await incentivesController.getDataByAToken(aToken.address);
-		expect(senderData.assetBalance).equal(senderBalBefore.sub(transferAmt));
-		expect(receiverData.assetBalance).equal(BigNumber.from(transferAmt));
+		expect(senderData.stakedBalance).equal(senderBalBefore.sub(transferAmt));
+		expect(receiverData.stakedBalance).equal(BigNumber.from(transferAmt));
 		expect(senderData.lastUpdateRewardPerToken).gt(0);
 		expect(senderData.lastUpdateRewardPerToken).equal(rewardData[3]);
 		expect(senderData.rewardBalance).equal(senderData.lastUpdateRewardPerToken.mul(senderBalBefore));
@@ -109,7 +109,7 @@ makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 		const reward = rewardTokens[0]
 
 		const userDataBefore = await incentivesController.getUserDataByAToken(user.address, aToken.address)
-		const withdrawAmt = userDataBefore.assetBalance;
+		const withdrawAmt = userDataBefore.stakedBalance;
 		const icStakedBefore = await stake.balanceOf(incentivesController.address)
 		const icRewardBalBefore = await reward.balanceOf(incentivesController.address);
 		const rewardDataBefore = await incentivesController.getDataByAToken(aToken.address);
@@ -122,7 +122,7 @@ makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 		const icRewardBalAfter = await reward.balanceOf(incentivesController.address);
 		expect(aTokenAssetBal).equal(withdrawAmt);
 		expect(icStakedAfter).equal(icStakedBefore.sub(withdrawAmt));
-		expect(userDataAfter.assetBalance).equal(0);
+		expect(userDataAfter.stakedBalance).equal(0);
 		expect(userDataAfter.rewardBalance).gt(userDataBefore.rewardBalance);
 		expect(userDataAfter.lastUpdateRewardPerToken).gt(userDataBefore.lastUpdateRewardPerToken);
 		const harvestAmt = icRewardBalAfter.sub(icRewardBalBefore);
