@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ICurvePool} from "../../interfaces/ICurvePool.sol";
@@ -33,7 +32,7 @@ import {BalancerOracle} from "./BalancerOracle.sol";
 /// - If the returned price by a Chainlink aggregator is <= 0, the call is forwarded to a fallbackOracle
 /// - Owned by the VMEX governance system, allowed to add sources for assets, replace them
 ///   and change the fallbackOracle
-contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
+contract VMEXOracle is Initializable, IPriceOracleGetter {
     using SafeERC20 for IERC20;
 
     struct ChainlinkData {

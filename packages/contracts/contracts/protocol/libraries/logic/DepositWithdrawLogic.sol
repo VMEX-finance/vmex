@@ -52,7 +52,7 @@ library DepositWithdrawLogic {
     ) external returns(uint256){
         if (vars.amount == type(uint256).max) {
             // if amount is type(uint256).max, this indicates the user wants to deposit the maximum possible
-            vars.amount = IAToken(vars.asset).balanceOf(msg.sender);
+            vars.amount = IERC20(vars.asset).balanceOf(msg.sender);
         }
         address aToken = self.aTokenAddress;
 
