@@ -23,9 +23,8 @@ contract LendingPoolAddressesProvider is
     // List of addresses that are not specific to a tranche
     mapping(bytes32 => address) private _addresses;
 
-    // List of addresses that are specific to a tranche:
-    // _addressesTranche[TRANCHE_ADMIN][0] is the admin address for tranche 0
-    mapping(bytes32 => mapping(uint64 => address)) private _addressesTranche;
+    // List of tranche admins:
+    mapping(uint64 => address) private _trancheAdmins;
 
     // Whitelisted addresses that are allowed to create permissionless tranches
     mapping(address => bool) whitelistedAddresses;
@@ -41,7 +40,6 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant VARIABLE_DEBT_BEACON = "VARIABLE_DEBT_BEACON";
     bytes32 private constant LENDING_POOL_CONFIGURATOR =
         "LENDING_POOL_CONFIGURATOR";
-    bytes32 private constant TRANCHE_ADMIN = "TRANCHE_ADMIN";
     bytes32 private constant EMERGENCY_ADMIN = "EMERGENCY_ADMIN";
     bytes32 private constant LENDING_POOL_COLLATERAL_MANAGER =
         "COLLATERAL_MANAGER";
@@ -157,19 +155,6 @@ contract LendingPoolAddressesProvider is
      */
     function getAddress(bytes32 id) public view override returns (address) {
         return _addresses[id];
-    }
-
-    /**
-     * @dev Returns an address in a tranche by id and trancheId
-     * @return The address
-     */
-    function getAddressTranche(bytes32 id, uint64 trancheId)
-        public
-        view
-        override
-        returns (address)
-    {
-        return _addressesTranche[id][trancheId];
     }
 
     /**
@@ -351,7 +336,7 @@ contract LendingPoolAddressesProvider is
         override
         returns (address)
     {
-        return getAddressTranche(TRANCHE_ADMIN, trancheId);
+        return _trancheAdmins[trancheId];
     }
 
     /**
@@ -362,10 +347,10 @@ contract LendingPoolAddressesProvider is
     function setTrancheAdmin(address admin, uint64 trancheId) external override {
         require(
             _msgSender() == owner() ||
-                _msgSender() == getAddressTranche(TRANCHE_ADMIN, trancheId),
+                _msgSender() == _trancheAdmins[trancheId],
             Errors.CALLER_NOT_TRANCHE_ADMIN
         );
-        _addressesTranche[TRANCHE_ADMIN][trancheId] = admin;
+        _trancheAdmins[trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
@@ -380,8 +365,8 @@ contract LendingPoolAddressesProvider is
             _msgSender() == getAddress(LENDING_POOL_CONFIGURATOR),
             Errors.LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR
         );
-        assert(_addressesTranche[TRANCHE_ADMIN][trancheId] == address(0)); //this should never be false
-        _addressesTranche[TRANCHE_ADMIN][trancheId] = admin;
+        assert(_trancheAdmins[trancheId] == address(0)); //this should never be false
+        _trancheAdmins[trancheId] = admin;
         emit ConfigurationAdminUpdated(admin, trancheId);
     }
 
