@@ -396,4 +396,6 @@ interface ILendingPool {
     function setWhitelistEnabled(uint64 trancheId, bool isUsingWhitelist) external;
     function addToWhitelist(uint64 trancheId, address user, bool isWhitelisted) external;
     function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external;
+
+    function getTrancheParams(uint64) external view returns(DataTypes.TrancheParams memory);
 }

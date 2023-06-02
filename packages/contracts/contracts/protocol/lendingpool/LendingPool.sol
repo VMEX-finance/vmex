@@ -617,7 +617,8 @@ contract LendingPool is
             msg.sender == _reserves[asset][trancheId].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
         );
-        checkWhitelistBlacklist(trancheId, to);
+        _checkWhitelistBlacklist(trancheId, from);
+        _checkWhitelistBlacklist(trancheId, to);
 
         ValidationLogic.validateTransfer(
             from,
@@ -829,4 +830,9 @@ contract LendingPool is
             _usersConfig[user][trancheId].configuration.setWhitelist(false);
         }
     }
+
+    function getTrancheParams(uint64 trancheId) external override view returns(DataTypes.TrancheParams memory) {
+        return trancheParams[trancheId];
+    }
+
 }

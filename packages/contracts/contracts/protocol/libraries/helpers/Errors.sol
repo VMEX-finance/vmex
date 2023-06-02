@@ -142,7 +142,7 @@ library Errors {
     string public constant LPAPR_ALREADY_SET = "105";
 
     string public constant LPC_TREASURY_ADDRESS_ZERO = "106"; //assetmappings does not allow setting collateral
-
+    string public constant LPC_WHITELISTING_NOT_ALLOWED = "107"; //setting whitelist enabled is not allowed after initializing reserves
 
     enum CollateralManagerErrors {
         NO_ERROR,

@@ -381,6 +381,9 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         bool isUsingWhitelist
     ) external onlyTrancheAdmin(trancheId) {
+        if(isUsingWhitelist) { //only allow tranche admins to set whitelist enabled if reserves have not yet been initialized
+            require(pool.getTrancheParams(trancheId).reservesCount == 0, Errors.LPC_WHITELISTING_NOT_ALLOWED);
+        }
         pool.setWhitelistEnabled(trancheId, isUsingWhitelist);
         emit UserSetWhitelistEnabled(trancheId, isUsingWhitelist);
     }
