@@ -52,6 +52,8 @@ makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 		const transferAmt = 500;
 		const reward = rewardTokens[0];
 
+		const precision = BigNumber.from(10).pow(16)
+
 		const senderDataBefore = await incentivesController.getUserDataByAToken(user.address, aToken.address);
 		const senderBalBefore = senderDataBefore.stakedBalance
 
@@ -69,13 +71,13 @@ makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
 		expect(receiverData.stakedBalance).equal(BigNumber.from(transferAmt));
 		expect(senderData.lastUpdateRewardPerToken).gt(0);
 		expect(senderData.lastUpdateRewardPerToken).equal(rewardData[3]);
-		expect(senderData.rewardBalance).equal(senderData.lastUpdateRewardPerToken.mul(senderBalBefore));
+		expect(senderData.rewardBalance).equal(senderData.lastUpdateRewardPerToken.mul(senderBalBefore).div(precision));
 		expect(senderData.lastUpdateRewardPerToken).equal(receiverData.lastUpdateRewardPerToken);
 		const contractRewardBal = await reward.balanceOf(incentivesController.address);
 		const contractAssetBal = await asset.balanceOf(incentivesController.address);
 		// using a gte comparison here because of a ~10^-16 discrepancy between the values, due to dividing (to calculate rewardPerToken) and then multiplying (to calculate reward balance). since this multiplication is also used by the contract, real-world dust accumulation can be expected, but as it would require on the order of eg. ten million transactions operating on a million-token staked balance to produce one full reward token of dust, it can be reasonably ignored as long as no operations are logically dependent on the contract having a zero balance.
-		expect(contractRewardBal).gte(senderData.lastUpdateRewardPerToken.mul(senderBalBefore));
-		expect(senderData.rewardBalance).equal(senderData.lastUpdateRewardPerToken.mul(senderBalBefore));
+		expect(contractRewardBal).gte(senderData.lastUpdateRewardPerToken.mul(senderBalBefore).div(precision));
+		expect(senderData.rewardBalance).equal(senderData.lastUpdateRewardPerToken.mul(senderBalBefore).div(precision));
 		expect(contractAssetBal).equal(0);
 
 		const emitted = receipt.events || [];
