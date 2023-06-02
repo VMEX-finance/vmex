@@ -72,6 +72,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address reward
   ) public onlyManager {
     require(aTokenMap[aToken].underlying == address(0), 'Already registered');
+    require(IAToken(aToken).totalSupply() == 0, 'Existing liquidity');
 
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     if (address(stakingData[underlying].reward) == address(0)) {
