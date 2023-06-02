@@ -54,11 +54,12 @@ library DepositWithdrawLogic {
             // if amount is type(uint256).max, this indicates the user wants to deposit the maximum possible
             vars.amount = IAToken(vars.asset).balanceOf(msg.sender);
         }
-        ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
-
         address aToken = self.aTokenAddress;
 
         self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
+
+        ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
+
         self.updateInterestRates(
             vars.asset,
             vars.trancheId,
@@ -117,6 +118,8 @@ library DepositWithdrawLogic {
             vars.amount = userBalance;
         }
 
+        reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
+
         ValidationLogic.validateWithdraw(
             vars.asset,
             vars.trancheId,
@@ -130,7 +133,6 @@ library DepositWithdrawLogic {
             _assetMappings
         );
 
-        reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
         reserve.updateInterestRates(vars.asset, vars.trancheId, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
 
         if (vars.amount == userBalance) {
@@ -161,6 +163,8 @@ library DepositWithdrawLogic {
     ) external returns(uint256){
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
 
+        reserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
+
         vars.amount = ValidationLogic.validateBorrow(
             vars,
             reserve,
@@ -170,8 +174,6 @@ library DepositWithdrawLogic {
             vars._reservesCount,
             _addressesProvider
         );
-
-        reserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
 
         bool isFirstBorrowing = IVariableDebtToken(
             reserve.variableDebtTokenAddress

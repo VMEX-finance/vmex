@@ -302,6 +302,14 @@ contract LendingPool is
             reserve
         );
 
+        uint256 paybackAmount = variableDebt;
+
+        if (amount < paybackAmount) {
+            paybackAmount = amount;
+        }
+
+        reserve.updateState(_assetMappings.getVMEXReserveFactor(asset));
+
         ValidationLogic.validateRepay(
             reserve,
             amount,
@@ -310,14 +318,6 @@ contract LendingPool is
             asset,
             _assetMappings
         );
-
-        uint256 paybackAmount = variableDebt;
-
-        if (amount < paybackAmount) {
-            paybackAmount = amount;
-        }
-
-        reserve.updateState(_assetMappings.getVMEXReserveFactor(asset));
 
         IVariableDebtToken(reserve.variableDebtTokenAddress).burn(
             onBehalfOf,
