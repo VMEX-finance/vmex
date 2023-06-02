@@ -152,9 +152,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address user,
     uint256 amount
   ) internal {
-    if (!stakingExists(msg.sender)) {
-      return;
-    }
     address underlying = aTokenMap[msg.sender].underlying;
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
@@ -169,9 +166,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address user,
     uint256 amount
   ) internal {
-    if (!stakingExists(msg.sender)) {
-      return;
-    }
     address underlying = aTokenMap[msg.sender].underlying;
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
@@ -183,9 +177,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   function onTransfer(address user, uint256 amount, bool sender) internal {
-    if (!stakingExists(msg.sender)) {
-      return;
-    }
     harvestAndUpdate(user, aTokenMap[msg.sender].underlying);
 
     if (sender) {

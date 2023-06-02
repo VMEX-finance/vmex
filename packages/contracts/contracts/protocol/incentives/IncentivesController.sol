@@ -72,8 +72,7 @@ contract IncentivesController is
     // note: msg.sender is the incentivized asset (the vToken)
     _updateIncentivizedAsset(msg.sender, user, oldBalance, totalSupply);
 
-    address underlying = aTokenMap[msg.sender].underlying;
-    if (underlying != address(0) && !stakingData[underlying].rewardEnded) {
+    if (stakingExists(msg.sender)) {
       if (action == DistributionTypes.Action.DEPOSIT) {
         onDeposit(user, newBalance - oldBalance);
       } else if (action == DistributionTypes.Action.WITHDRAW) {
