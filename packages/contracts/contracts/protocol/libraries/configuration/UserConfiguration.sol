@@ -119,7 +119,7 @@ library UserConfiguration {
         pure
         returns (bool)
     {
-        return self.data == 0;
+        return (self.data<<2) == 0;
     }
 
     /**
