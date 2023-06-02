@@ -25,7 +25,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   function stakingExists(address aToken) internal view returns (bool) {
-    return aTokenMap[aToken].underlying != address(0);
+    address underlying = aTokenMap[aToken].underlying;
+    return underlying != address(0) && !stakingData[underlying].rewardEnded;
   }
 
   function harvestAndUpdate(
