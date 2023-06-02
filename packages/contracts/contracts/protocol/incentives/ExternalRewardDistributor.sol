@@ -42,7 +42,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
       uint256 totalSupply = rewardData.staking.balanceOf(address(this));
       if (totalSupply > 0) {
-        uint256 accruedPerToken = received / totalSupply;
+        uint256 accruedPerToken = received * 1e16 / totalSupply;
         rewardData.cumulativeRewardPerToken += accruedPerToken;
         emit Harvested(underlying, accruedPerToken);
       }
@@ -53,7 +53,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     if (userData.lastUpdateRewardPerToken < rewardData.cumulativeRewardPerToken) {
       uint256 diff =
         rewardData.cumulativeRewardPerToken - userData.lastUpdateRewardPerToken;
-      userData.rewardBalance += diff * userData.stakedBalance;
+      userData.rewardBalance += diff * userData.stakedBalance / 1e16;
       userData.lastUpdateRewardPerToken = rewardData.cumulativeRewardPerToken;
 
       emit UserUpdated(user, msg.sender, underlying, userData.rewardBalance);
@@ -140,7 +140,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
     uint256 totalSupply = rewardData.staking.balanceOf(address(this));
     if (totalSupply > 0 && received > 0) {
-      uint256 accruedPerToken = received / totalSupply;
+      uint256 accruedPerToken = received * 1e16 / totalSupply;
       rewardData.cumulativeRewardPerToken += accruedPerToken;
       emit Harvested(underlying, accruedPerToken);
     }
