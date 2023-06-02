@@ -76,6 +76,7 @@ contract LendingPoolAddressesProvider is
      **/
     function setPermissionlessTranches(bool val) external onlyOwner {
         permissionlessTranches = val;
+        emit PermissionlessTranchesEnabled(val);
     }
 
     /**
@@ -85,6 +86,7 @@ contract LendingPoolAddressesProvider is
      **/
     function addWhitelistedAddress(address ad, bool val) external onlyOwner {
         whitelistedAddresses[ad] = val;
+        emit WhitelistedAddressesSet(ad, val);
     }
 
     /**
