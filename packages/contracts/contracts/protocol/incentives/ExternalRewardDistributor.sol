@@ -127,6 +127,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
     // we use ERC20 balance in case the problem with the previous staking contract was severe enough that the deposit was manually rescued and transferred to this contract
     uint256 ourBalance = IERC20(underlying).balanceOf(address(this));
+    IERC20(underlying).approve(address(newStaking), type(uint).max);
     newStaking.stake(ourBalance);
 
     address oldStaking = address(rewardData.staking);
