@@ -141,6 +141,7 @@ library Errors {
     string public constant AM_UNABLE_TO_DISALLOW_ASSET = "104";
     string public constant LPAPR_ALREADY_SET = "105";
 
+    string public constant LPC_TREASURY_ADDRESS_ZERO = "106"; //assetmappings does not allow setting collateral
 
 
     enum CollateralManagerErrors {

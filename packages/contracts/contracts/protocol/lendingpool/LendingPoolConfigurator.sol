@@ -252,6 +252,7 @@ contract LendingPoolConfigurator is
         address newAddress,
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
+        require(newAddress!=address(0), Errors.LPC_TREASURY_ADDRESS_ZERO);
         trancheAdminTreasuryAddresses[trancheId] = newAddress;
         emit UpdatedTreasuryAddress(trancheId, newAddress);
     }
