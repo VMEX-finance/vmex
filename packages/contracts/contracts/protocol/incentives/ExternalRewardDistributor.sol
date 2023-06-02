@@ -237,4 +237,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   function getUserDataByAToken(address user, address aToken) external view returns (UserState memory) {
     return stakingData[aTokenMap[aToken].underlying].users[user];
   }
+
+  function rescueRewardTokens(IERC20 reward, address receiver) external onlyManager {
+    reward.safeTransfer(receiver, reward.balanceOf(address(this)));
+  }
 }
