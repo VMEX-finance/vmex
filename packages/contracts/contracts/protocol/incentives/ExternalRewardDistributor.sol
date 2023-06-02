@@ -137,15 +137,18 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   function exitStakingContract(StakingReward storage rewardData, address underlying) internal {
-    uint256 rewardBalance = rewardData.reward.balanceOf(address(this));
-    rewardData.staking.exit();
-    uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
-
     uint256 totalSupply = rewardData.staking.balanceOf(address(this));
-    if (totalSupply > 0 && received > 0) {
-      uint256 accruedPerToken = received * 1e16 / totalSupply;
-      rewardData.cumulativeRewardPerToken += accruedPerToken;
-      emit Harvested(underlying, accruedPerToken);
+
+    if (totalSupply > 0) {
+      uint256 rewardBalance = rewardData.reward.balanceOf(address(this));
+      rewardData.staking.exit();
+      uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
+
+      if (received > 0) {
+        uint256 accruedPerToken = received * 1e16 / totalSupply;
+        rewardData.cumulativeRewardPerToken += accruedPerToken;
+        emit Harvested(underlying, accruedPerToken);
+      }
     }
     rewardData.lastUpdateTimestamp = block.timestamp;
   }
