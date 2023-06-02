@@ -86,11 +86,6 @@ interface ILendingPoolAddressesProvider {
 
     function setEmergencyAdmin(address admin) external;
 
-    function getAddressTranche(bytes32 id, uint64 trancheId)
-        external
-        view
-        returns (address);
-
     function isWhitelistedAddress(address ad) external view returns (bool);
 
     //********************************************************** */
