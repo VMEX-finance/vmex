@@ -7,7 +7,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {DebtTokenBase} from "./base/DebtTokenBase.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
-import {IAaveIncentivesController} from "../../interfaces/IAaveIncentivesController.sol";
+import {IIncentivesController} from "../../interfaces/IIncentivesController.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
@@ -235,7 +235,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
         external
         view
         override
-        returns (IAaveIncentivesController)
+        returns (IIncentivesController)
     {
         return _getIncentivesController();
     }
@@ -251,9 +251,9 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
         internal
         view
         override
-        returns (IAaveIncentivesController)
+        returns (IIncentivesController)
     {
-        return IAaveIncentivesController(_addressesProvider.getIncentivesController());
+        return IIncentivesController(_addressesProvider.getIncentivesController());
     }
 
     function _getUnderlyingAssetAddress()
