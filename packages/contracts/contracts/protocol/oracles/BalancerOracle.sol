@@ -31,7 +31,7 @@ library BalancerOracle {
 		uint256[] memory prices, 
 		uint8 type_of_pool,
 		bool legacy //if stable, ignore
-	) external returns (uint256 price) {
+	) internal returns (uint256 price) {
 
 		//check for reentrancy on bal and beets
 		IVault vault = IBalancer(bal_pool).getVault(); 
