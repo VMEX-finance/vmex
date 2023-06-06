@@ -10,7 +10,7 @@ import "../../dependencies/balancer/VaultReentrancyLib.sol";
 //has been modified to suit VMEX's structure, updated to solc 0.8
 //has also been updated to balancer v2 pools and structure
 //mathematical formula remains the same
-contract BalancerOracle {
+library BalancerOracle {
 
 	uint256 internal constant uint211 = (2**211) - 1; 
 	
@@ -50,7 +50,7 @@ contract BalancerOracle {
 				prices
 			); 
 		} else {
-			revert();  
+			revert("Balancer pool not supported");  
 		}
 
 
@@ -165,13 +165,16 @@ contract BalancerOracle {
 
 		return (pool, tokens, balances, weights); 
 	}
-	
-	//assumes that prices are scaled properly, esp for stable assets prior to being passed in here
-	function calc_stable_lp_price(address bal_pool, uint256[] memory prices) internal returns (uint256) {
-		uint256 rate = IBalancer(bal_pool).getRate(); 	
-		uint256 min = vMath.min(prices); 
 
-		return rate * min; 
+	function calc_stable_lp_price(
+		address bal_pool, 
+		uint256[] memory prices
+		) internal view returns (uint256) {	
+		uint256 rate = IBalancer(bal_pool).getRate();
 
+		uint256 min = vMath.min(prices);
+
+		return rate * min / 10**IBalancer(bal_pool).decimals();
 	}
+	
 }
