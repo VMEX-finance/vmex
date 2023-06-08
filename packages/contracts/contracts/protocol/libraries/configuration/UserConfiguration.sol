@@ -10,7 +10,7 @@ import {DataTypes} from "../types/DataTypes.sol";
  * @notice Implements the bitmap logic to handle the user configuration
  */
 library UserConfiguration {
-    uint256 internal constant BORROWING_MASK =      0x5555555555555555555555555555555555555555555555555555555555555555; // prettier-ignore
+    uint256 internal constant BORROWING_MASK =      0x1555555555555555555555555555555555555555555555555555555555555555; // prettier-ignore
     uint256 constant WHITELISTED_MASK =             0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
     uint256 constant BLACKLISTED_MASK =             0xBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
 
@@ -119,7 +119,7 @@ library UserConfiguration {
         pure
         returns (bool)
     {
-        return self.data == 0;
+        return (self.data<<2) == 0;
     }
 
     /**

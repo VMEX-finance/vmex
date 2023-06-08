@@ -183,6 +183,7 @@ library ReserveLogic {
         }
         {
             reserve.interestRateStrategyAddress = interestRateStrategyAddress;
+            reserve.lastUpdateTimestamp =  uint40(block.timestamp);
         }
     }
 

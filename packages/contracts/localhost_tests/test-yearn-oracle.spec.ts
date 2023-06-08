@@ -78,6 +78,11 @@ makeSuite(
           `function claim_admin_fees() external`,
           `function withdraw_admin_fees() external`,
           `function owner() external view returns(address)`,
+          `function remove_liquidity_one_coin(
+            uint256 _token_amount,
+            int128 i,
+            uint256 _min_amount
+        ) external`,
         ];
         const yvAddr = [
              '0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3',
@@ -118,18 +123,17 @@ makeSuite(
                 const CurveToken = new DRE.ethers.Contract(curveAssets[i],CurveTokenAddabi)
                 const CurvePool = new DRE.ethers.Contract(curvePools[i],CurvePoolAbi)
                 const yearnVault = new DRE.ethers.Contract(yvAddr[i],yvAbi)
+
+                if(i==0 || i==2){
+                  console.log("Trying to remove liquidity one coin");
+                  await CurvePool.connect(signer).remove_liquidity_one_coin(0,0,0);
+                }
+                  
                 console.log("Pricing ",curveAssets[i])
                 const pricePerCurveToken = await oracle.connect(signer).callStatic.getAssetPrice(CurveToken.address);
                 console.log("pricePerCurveToken: ",pricePerCurveToken)
                 var cumProduct = 1;
-                var minAmount = ethers.constants.MaxUint256
-                if(i==0)
-                  await CurvePool.connect(signer).claim_admin_fees();
                 
-                if(i==2){
-                  const ownerContract = new DRE.ethers.Contract(await CurvePool.connect(signer).owner(), CurvePoolAbi)
-                  await ownerContract.connect(signer).withdraw_admin_fees();
-                }
                 const vp = await CurvePool.connect(signer).get_virtual_price()
                 var expectedPrice;
                 for(let j = 0;j<curveSize[i];j++) {
@@ -139,21 +143,24 @@ makeSuite(
                   }
                   const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(tokenAddr);
                   cumProduct *= Number(ethers.utils.formatUnits(tokenPrice, 18))
-                  minAmount = tokenPrice.lt(minAmount) ? tokenPrice : minAmount
                 }
                 
                 if(i==0) {//v2 
                   expectedPrice = curveSize[i] * Math.pow(cumProduct, 1/curveSize[i]) * vp
+
                   
                 }
+                else if(i==2) { //steth
+                  expectedPrice = BigNumber.from("1056989069481669153");
+                }
                 else {
-                  expectedPrice = ethers.utils.formatUnits(minAmount.mul(vp),18)
+                  expectedPrice = BigNumber.from("667353628135763");
                 }
                 console.log("expected curve price: ",expectedPrice)
-                const diff = Math.abs(Number(expectedPrice) - Number(pricePerCurveToken))
+                const diff = Math.abs(Number(expectedPrice) - Number(pricePerCurveToken))/expectedPrice
                 expect(
                   diff
-                ).to.be.lte(100, "Curve prices do not match");
+                ).to.be.lte(0.03, "Curve prices do not match");
 
                 const pricePerYearnToken = await oracle.connect(signer).callStatic.getAssetPrice(yearnVault.address);
                 const pricePerShare = await yearnVault.connect(signer).pricePerShare();

@@ -434,18 +434,7 @@ export const getTranche1MockedData = (allReservesAddresses: {
 export const getTranche0MockedDataOP = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0: tEthereumAddress[] = [
-    allReservesAddresses["DAI"],
-    allReservesAddresses["USDC"],
-    allReservesAddresses["USDT"],
-    allReservesAddresses["SUSD"],
-    allReservesAddresses["WBTC"],
-    allReservesAddresses["SNX"],
-    allReservesAddresses["WETH"],
-    allReservesAddresses["FRAX"],
-    allReservesAddresses["wstETH"],
-    allReservesAddresses["OP"],
-  ];
+  let assets0: tEthereumAddress[] = Object.values(allReservesAddresses);
 
   let reserveFactors0: string[] = [];
   let canBorrow0: boolean[] = [];

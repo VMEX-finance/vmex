@@ -268,6 +268,7 @@ export enum ProtocolErrors {
   AM_INTEREST_STRATEGY_NOT_CONTRACT = "102", //underlying oracle for curve asset returned 0
   AM_INVALID_CONFIGURATION = "103",
   AM_UNABLE_TO_DISALLOW_ASSET = "104",
+  LPAPR_ALREADY_SET = "105",
   // old
 
   INVALID_FROM_BALANCE_AFTER_TRANSFER = "Invalid from balance after transfer",
@@ -706,6 +707,8 @@ export interface ILendingRate {
   borrowRate: string;
 }
 
+
+
 export interface IBaseConfiguration {
   MarketId: string;
   ATokenNamePrefix: string;
@@ -724,7 +727,7 @@ export interface IBaseConfiguration {
   UniswapV3OracleTargets: iParamsPerNetwork<ITokenTarget>;
   CurveMetadata: iParamsPerNetwork<ICurveMetadata>;
   BeethovenMetadata: iParamsPerNetwork<IBeethovenMetadata>;
-  ChainlinkAggregator: iParamsPerNetwork<ITokenAddress>;
+  ChainlinkAggregator: iParamsPerNetwork<IChainlinkData>;
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
@@ -788,6 +791,15 @@ export interface CurveMetadata {
 
 export interface ICurveMetadata {
   [token: string]: CurveMetadata;
+}
+
+export interface IChainlinkInternal {
+  feed: tEthereumAddress,
+  heartbeat: number
+}
+
+export interface IChainlinkData {
+  [token: string]: IChainlinkInternal;
 }
 
 export interface BeethovenMetadata {

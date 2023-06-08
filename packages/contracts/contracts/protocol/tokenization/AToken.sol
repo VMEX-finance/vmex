@@ -65,14 +65,6 @@ contract AToken is
         _;
     }
 
-    modifier onlyLendingPoolConfigurator() {
-        require(
-            _msgSender() == _lendingPoolConfigurator,
-            Errors.LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR
-        );
-        _;
-    }
-
     function getRevision() internal pure virtual override returns (uint256) {
         return ATOKEN_REVISION;
     }
@@ -104,6 +96,7 @@ contract AToken is
             abi.encodePacked(
                 "Vmex interest bearing ",
                 vars.underlyingAsset.getName(),
+                " tranche ",
                 Strings.toString(vars.trancheId)
             )
         );

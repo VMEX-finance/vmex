@@ -139,9 +139,10 @@ library ValidationLogic {
     ) internal pure {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         if (borrowCap != 0) {
+            uint256 totalAmount = totalDebt + amount;
             unchecked {
                 require(
-                    totalDebt + amount <=
+                    totalAmount <=
                         borrowCap * 10**decimals,
                     Errors.VL_BORROW_CAP_EXCEEDED
                 );
@@ -172,15 +173,12 @@ library ValidationLogic {
 
         require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
 
-        //precheck so in case we aren't trying to borrow max, and already borrowing over the cap, don't need to run calculateUserAccountData
-        if(exvars.amount!=type(uint256).max) {
-            checkAmount(
-                exvars._assetMappings.getBorrowCap(exvars.asset),
-                exvars.amount,
-                IERC20(reserve.variableDebtTokenAddress).totalSupply(),
-                exvars._assetMappings.getDecimals(exvars.asset)
-            );
-        }
+        checkAmount(
+            exvars._assetMappings.getBorrowCap(exvars.asset),
+            exvars.amount,
+            IERC20(reserve.variableDebtTokenAddress).totalSupply(),
+            exvars._assetMappings.getDecimals(exvars.asset)
+        );
 
         (
             vars.userCollateralBalanceETH,
@@ -190,7 +188,7 @@ library ValidationLogic {
             vars.healthFactor,
             vars.avgBorrowFactor
         ) = GenericLogic.calculateUserAccountData(
-            DataTypes.AcctTranche(exvars.user, exvars.trancheId),
+            DataTypes.AcctTranche(exvars.onBehalfOf, exvars.trancheId),
             reservesData,
             userConfig,
             reserves,
@@ -199,26 +197,6 @@ library ValidationLogic {
             exvars._assetMappings
         );
 
-        if(exvars.amount == type(uint256).max){
-            vars.totalAmount = IERC20(exvars.asset).balanceOf(reserve.aTokenAddress);
-            exvars.amount = (
-                vars.userCollateralBalanceETH.percentMul(vars.currentLtv) //risk adjusted collateral
-                .sub(vars.userBorrowBalanceETH.percentMul(vars.avgBorrowFactor)) //risk adjusted debt
-            ) // amount available to use for borrow
-            .mul(10**exvars._assetMappings.getDecimals(exvars.asset))
-            .percentDiv(exvars._assetMappings.getBorrowFactor(exvars.asset)) //adjust for this asset's borrow factor, in ETH
-            .div(exvars.assetPrice); //converted to native token
-
-            if(exvars.amount>vars.totalAmount){
-                exvars.amount=vars.totalAmount;
-            }
-            checkAmount(
-                exvars._assetMappings.getBorrowCap(exvars.asset),
-                exvars.amount,
-                IERC20(reserve.variableDebtTokenAddress).totalSupply(),
-                exvars._assetMappings.getDecimals(exvars.asset)
-            );
-        }
         // amountInETH always has 18 decimals (or if oracle has 8 decimals, this also has 8 decimals), since the assetPrice always has 18 decimals. Scaling by amount/asset decimals.
         uint256 amountInETH = exvars.assetPrice.mul(exvars.amount).div(
                 10**exvars._assetMappings.getDecimals(exvars.asset)
@@ -432,7 +410,6 @@ library ValidationLogic {
             _addressesProvider,
             _assetMappings
         );
-        // uint256 healthFactor = 1;
         require(
             healthFactor >= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
             Errors.VL_TRANSFER_NOT_ALLOWED

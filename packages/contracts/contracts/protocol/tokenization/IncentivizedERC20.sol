@@ -54,7 +54,7 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
     /**
      * @return The decimals of the token
      **/
-    function decimals() public view override returns (uint8) {
+    function decimals() public view override(IERC20, IERC20Detailed) returns (uint8) {
         return _decimals;
     }
 

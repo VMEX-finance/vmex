@@ -52,6 +52,8 @@ import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
 import { DRE, getDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
 import {
   eContractid,
+  IChainlinkData,
+  IChainlinkInternal,
   PoolConfiguration,
   tEthereumAddress,
   TokenContractId,
@@ -309,8 +311,6 @@ export const getAllMockedTokens = async () => {
     Promise<MockTokenMap>
   >(async (acc, tokenSymbol) => {
     const accumulator = await acc;
-    console.log("tokenSymbol.toUpperCase(): ",tokenSymbol.toUpperCase())
-    console.log("DRE.network.name: ",DRE.network.name)
     const address = db
       .get(`${tokenSymbol.toUpperCase()}.${DRE.network.name}`)
       .value().address;
@@ -341,27 +341,40 @@ export const getPairsTokenAggregator = (
   allAssetsAddresses: {
     [tokenSymbol: string]: tEthereumAddress;
   },
-  aggregatorsAddresses: { [tokenSymbol: string]: tEthereumAddress },
+  aggregatorsAddresses: { [tokenSymbol: string]: IChainlinkInternal },
   oracleQuoteCurrency: string
-): [string[], string[]] => {
+): [string[], IChainlinkInternal[]] => {
   const assetsWithoutQuoteCurrency = omit(
     allAssetsAddresses,
     getQuoteCurrencies(oracleQuoteCurrency)
   );
 
-  const pairs = Object.entries(assetsWithoutQuoteCurrency).map(
+  const pairs = Object.entries(assetsWithoutQuoteCurrency).filter(
     ([tokenSymbol, tokenAddress]) => {
       //if (true/*tokenSymbol !== 'WETH' && tokenSymbol !== 'ETH' && tokenSymbol !== 'LpWETH'*/) {
       const aggregatorAddressIndex = Object.keys(
         aggregatorsAddresses
       ).findIndex((value) => value === tokenSymbol);
+      
+      if(aggregatorAddressIndex>=0){
+        return true;
+      } 
+      return false
+    }
+  ).map(
+    ([tokenSymbol, tokenAddress]) => {
+      //if (true/*tokenSymbol !== 'WETH' && tokenSymbol !== 'ETH' && tokenSymbol !== 'LpWETH'*/) {
+      const aggregatorAddressIndex = Object.keys(
+        aggregatorsAddresses
+      ).findIndex((value) => value === tokenSymbol);
+      
       const [, aggregatorAddress] = (
-        Object.entries(aggregatorsAddresses) as [string, tEthereumAddress][]
+        Object.entries(aggregatorsAddresses) as [string, IChainlinkInternal][]
       )[aggregatorAddressIndex];
       return [tokenAddress, aggregatorAddress];
       //}
     }
-  ) as [string, string][];
+  ) as [string, IChainlinkInternal][];
 
   const mappedPairs = pairs.map(([asset]) => asset);
   const mappedAggregators = pairs.map(([, source]) => source);

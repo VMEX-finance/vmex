@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ICurvePool} from "../../interfaces/ICurvePool.sol";
@@ -9,6 +8,7 @@ import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {IChainlinkPriceFeed} from "../../interfaces/IChainlinkPriceFeed.sol";
 import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
+import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Initializable} from "../../dependencies/openzeppelin/upgradeability/Initializable.sol";
 import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
@@ -16,6 +16,7 @@ import {CurveOracle} from "./CurveOracle.sol";
 import {IYearnToken} from "../../interfaces/IYearnToken.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
 import {IVeloPair} from "../../interfaces/IVeloPair.sol";
@@ -23,6 +24,7 @@ import {IBalancer} from "../../interfaces/IBalancer.sol";
 import {IVault} from "../../interfaces/IVault.sol";
 import {VelodromeOracle} from "./VelodromeOracle.sol";
 import {BalancerOracle} from "./BalancerOracle.sol";
+
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
 /// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
@@ -30,21 +32,26 @@ import {BalancerOracle} from "./BalancerOracle.sol";
 /// - If the returned price by a Chainlink aggregator is <= 0, the call is forwarded to a fallbackOracle
 /// - Owned by the VMEX governance system, allowed to add sources for assets, replace them
 ///   and change the fallbackOracle
-contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
+contract VMEXOracle is Initializable, IPriceOracleGetter {
     using SafeERC20 for IERC20;
+
+    struct ChainlinkData {
+        IChainlinkPriceFeed feed;
+        uint64 heartbeat;
+    }
 
     ILendingPoolAddressesProvider internal _addressProvider;
     IAssetMappings internal _assetMappings;
-    mapping(address => IChainlinkPriceFeed) private _assetsSources;
+    mapping(address => ChainlinkData) private _assetsSources;
     IPriceOracleGetter private _fallbackOracle;
     mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
 
     address public BASE_CURRENCY; //removed immutable keyword since
     uint256 public BASE_CURRENCY_UNIT;
+    string public BASE_CURRENCY_STRING;
 
     address public constant ETH_NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public WETH;
-    uint256 public constant SECONDS_PER_DAY = 1 days;
     uint256 private constant GRACE_PERIOD_TIME = 1 hours;
 
     modifier onlyGlobalAdmin() {
@@ -72,14 +79,17 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
      * @dev Sets the base currency that all other assets are priced based on. Can only be set once
      * @param baseCurrency The address of the base currency
      * @param baseCurrencyUnit What price the base currency is. Usually this is just how many decimals the base currency has
+     * @param baseCurrencyString "ETH" or "USD" for purposes of checking correct denomination
      **/
     function setBaseCurrency(
         address baseCurrency,
-        uint256 baseCurrencyUnit
+        uint256 baseCurrencyUnit,
+        string calldata baseCurrencyString
     ) external onlyGlobalAdmin {
         require(BASE_CURRENCY == address(0), Errors.VO_BASE_CURRENCY_SET_ONLY_ONCE);
         BASE_CURRENCY = baseCurrency;
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
+        BASE_CURRENCY_STRING = baseCurrencyString;
     }
 
     /**
@@ -89,12 +99,13 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
      **/
     function setAssetSources(
         address[] calldata assets,
-        address[] calldata sources
+        ChainlinkData[] calldata sources
     ) external onlyGlobalAdmin {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         for (uint256 i = 0; i < assets.length; i++) {
-            _assetsSources[assets[i]] = IChainlinkPriceFeed(sources[i]);
-            emit AssetSourceUpdated(assets[i], sources[i]);
+            require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i].feed).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
+            _assetsSources[assets[i]] = sources[i];
+            emit AssetSourceUpdated(assets[i], address(sources[i].feed));
         }
     }
 
@@ -110,6 +121,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function setWETH(
         address weth
     ) external onlyGlobalAdmin {
+        require(WETH == address(0), Errors.VO_WETH_SET_ONLY_ONCE);
         WETH = weth;
     }
 
@@ -194,7 +206,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
      * @param asset The asset address
      **/
     function getOracleAssetPrice(address asset) internal returns (uint256){
-        IChainlinkPriceFeed source = _assetsSources[asset];
+        IChainlinkPriceFeed source = _assetsSources[asset].feed;
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
         } else {
@@ -206,7 +218,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
                 /*uint80 answeredInRound*/
             ) = IChainlinkPriceFeed(source).latestRoundData();
             IChainlinkAggregator aggregator = IChainlinkAggregator(IChainlinkPriceFeed(source).aggregator());
-            if (price > int256(aggregator.minAnswer()) && price < int256(aggregator.maxAnswer()) && block.timestamp - updatedAt < SECONDS_PER_DAY) {
+            if (price > int256(aggregator.minAnswer()) && 
+                price < int256(aggregator.maxAnswer()) && 
+                block.timestamp - updatedAt < _assetsSources[asset].heartbeat
+            ) {
                 return uint256(price);
             } else {
                 return _fallbackOracle.getAssetPrice(asset);
@@ -307,14 +322,17 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
 
         uint256[] memory prices = new uint256[](tokens.length-i);
 
+        uint256 j = 0;
+
         while(i<tokens.length) {
             address token = address(tokens[i]);
             if(token == ETH_NATIVE){
                 token = WETH;
             }
-            prices[i] = getAssetPrice(token);
-            require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+            prices[j] = getAssetPrice(token);
+            require(prices[j] > 0, Errors.VO_UNDERLYING_FAIL);
             i++;
+            j++;
         }
 
         DataTypes.BeethovenMetadata memory md = _assetMappings.getBeethovenMetadata(asset);
@@ -378,7 +396,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     /// @param asset The address of the asset
     /// @return address The address of the source
     function getSourceOfAsset(address asset) external view returns (address) {
-        return address(_assetsSources[asset]);
+        return address(_assetsSources[asset].feed);
     }
 
     /// @notice Gets the address of the fallback oracle
@@ -386,4 +404,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter, Ownable {
     function getFallbackOracle() external view returns (address) {
         return address(_fallbackOracle);
     }
+
+    //Just used for calling curve remove liquidity. Without this, remove_liquidity cannot find function selector receive()
+    receive() external payable {
+	}
 }

@@ -41,6 +41,10 @@ interface ILendingPoolAddressesProvider {
 
     event IncentivesControllerUpdated(address indexed newAddress);
 
+    event PermissionlessTranchesEnabled(bool enabled);
+
+    event WhitelistedAddressesSet(address indexed user, bool whitelisted);
+
     function getVMEXTreasury() external view returns(address);
 
     function setVMEXTreasury(address add) external;
@@ -85,11 +89,6 @@ interface ILendingPoolAddressesProvider {
         returns (address);
 
     function setEmergencyAdmin(address admin) external;
-
-    function getAddressTranche(bytes32 id, uint64 trancheId)
-        external
-        view
-        returns (address);
 
     function isWhitelistedAddress(address ad) external view returns (bool);
 

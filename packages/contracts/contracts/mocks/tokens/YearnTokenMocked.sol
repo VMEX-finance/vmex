@@ -16,7 +16,7 @@ contract YearnTokenMocked is MintableERC20 {
         string memory symbol,
         uint8 decimals,
         address underlyingToken
-    ) public MintableERC20(name, symbol, decimals) {
+    ) MintableERC20(name, symbol, decimals) {
         token = underlyingToken;
         _pricePerShare = 10**18;
     }

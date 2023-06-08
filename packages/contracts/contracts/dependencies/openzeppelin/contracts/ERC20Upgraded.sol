@@ -84,7 +84,7 @@ contract ERC20Upgraded is Context, IERC20, IERC20Detailed {
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
-    function decimals() public view virtual override returns (uint8) {
+    function decimals() public view virtual override(IERC20, IERC20Detailed) returns (uint8) {
         return 18;
     }
 

@@ -103,7 +103,9 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       await waitForTx(await VMEXOracleProxy.setBaseCurrency(
         await getQuoteCurrency(poolConfig),
-        poolConfig.OracleQuoteUnit));
+        poolConfig.OracleQuoteUnit,
+        poolConfig.OracleQuoteCurrency
+      ));
       await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators));
       await waitForTx(await VMEXOracleProxy.setFallbackOracle(uniswapOracle.address));
       console.log("WETH addr: ",tokensToWatch["WETH"])
@@ -112,7 +114,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       const seqUpFeed = getParamPerNetwork(SequencerUptimeFeed, network);
       //link sequencer uptime oracle for applicable markets
-      if(seqUpFeed && !notFalsyOrZeroAddress(seqUpFeed)) {
+      if(seqUpFeed && notFalsyOrZeroAddress(seqUpFeed)) {
         console.log("setting up sequencer uptime feed for chainid: ", ProviderId)
         await waitForTx(await VMEXOracleProxy.setSequencerUptimeFeed(ProviderId, seqUpFeed));
       }

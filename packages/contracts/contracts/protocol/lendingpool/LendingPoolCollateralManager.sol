@@ -236,7 +236,8 @@ contract LendingPoolCollateralManager is
                     ].configuration;
                 liquidatorConfig.setUsingAsCollateral(
                     collateralReserve.id,
-                    true
+                    collateralReserve.configuration
+                        .getCollateralEnabled(vars.collateralAsset, _assetMappings)
                 );
                 emit ReserveUsedAsCollateralEnabled(
                     vars.collateralAsset,
@@ -331,9 +332,6 @@ contract LendingPoolCollateralManager is
 
             IPriceOracleGetter oracle = IPriceOracleGetter(oracleAddress);
             vars.collateralPrice = oracle.getAssetPrice(collateralAsset);
-
-            oracleAddress = _addressesProvider.getPriceOracle(
-            );
 
             oracle = IPriceOracleGetter(oracleAddress);
             vars.debtAssetPrice = oracle.getAssetPrice(debtAsset);

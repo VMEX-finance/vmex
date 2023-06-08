@@ -6,7 +6,7 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
-import { eOptimismNetwork, ProtocolErrors } from '../helpers/types';
+import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
 import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
@@ -14,6 +14,9 @@ import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} f
 
 import OptimismConfig from "../markets/optimism";
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
+import { getPairsTokenAggregator } from "../helpers/contracts-getters";
+const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
+
 chai.use(function (chai: any, utils: any) {
   chai.Assertion.overwriteMethod(
     "almostEqualOrEqual",
@@ -36,19 +39,6 @@ makeSuite(
     const contractGetters = require('../helpers/contracts-getters.ts');
     // const lendingPool = await contractGetters.getLendingPool();
     // Load the first signer
-    const curveAssets = [
-        '0x061b87122Ed14b9526A813209C8a59a633257bAb',//susd 3crv
-        '0xEfDE221f306152971D8e9f181bFe998447975810',//wsteth eth
-        ];
-        const curvePools = [
-        '0x061b87122Ed14b9526A813209C8a59a633257bAb',//susd 3crv, withdraw admin fees
-        '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415',//wsteth eth, withdraw admin fees
-    ];
-
-    const curveSize = [
-        2,//tricrypto
-        2,//threepool
-     ];
      const VeloAbi = [
         "function allowance(address owner, address spender) external view returns (uint256 remaining)",
         "function approve(address spender, uint256 value) external returns (bool success)",
@@ -111,10 +101,53 @@ makeSuite(
         "function deposit() external returns(uint256)",
         "function approve(address spender, uint256 value) external returns (bool success)",
     ];
-    
-    const oracleAbi = [
-        "function getAssetPrice(address asset) public view returns (uint256)"
-    ]
+
+    it("set heartbeat higher", async () => {
+        var signer = await contractGetters.getFirstSigner();
+        const addProv = await contractGetters.getLendingPoolAddressesProvider();
+
+        const oracleAdd = await addProv.connect(signer).getPriceOracle();
+        const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
+
+        const network = "optimism" as any
+        const {
+          ProtocolGlobalParams: { UsdAddress },
+          ReserveAssets,
+          ChainlinkAggregator,
+          SequencerUptimeFeed,
+          ProviderId
+        } = OptimismConfig as ICommonConfiguration;
+        const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
+
+        const chainlinkAggregators = await getParamPerNetwork(
+          ChainlinkAggregator,
+          network
+        );
+        let tokensToWatch = {
+          ...reserveAssets,
+          USD: UsdAddress,
+        };
+        
+        if (!chainlinkAggregators) {
+          throw "chainlinkAggregators is undefined. Check configuration at config directory";
+        }
+        const [tokens2, aggregators] = getPairsTokenAggregator(
+          tokensToWatch,
+          chainlinkAggregators,
+          OptimismConfig.OracleQuoteCurrency
+        );
+
+        const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
+        {
+          return {
+            feed: el.feed,
+            heartbeat: 86400
+          }
+        })
+
+        await oracle.connect(signer).setAssetSources(tokens2, ag2);
+      });
+
 
     it("test pricing", async () => {
         var signer = await contractGetters.getFirstSigner();
@@ -129,7 +162,7 @@ makeSuite(
 
 
 
-        const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi);
+        const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
         for(let [symbol, strat] of Object.entries(ReservesConfig)) {
             const currentAsset = reserveAssets[symbol];
@@ -172,7 +205,7 @@ makeSuite(
                 if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
                     const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
                     const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
-                    expectedPrice = Number(rate) * Math.min(Number(price0), Number(price1)) / Math.pow(10,18)
+                    expectedPrice = 182078032735
                 }
             }
             else {

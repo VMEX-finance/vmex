@@ -17,8 +17,9 @@ library PercentageMath {
     uint256 constant HALF_PERCENT = PERCENTAGE_FACTOR / 2;
 
     /**
-     * @dev Converts the original Aave Percentage math values (4 decimal places) to an arbitrary number of decimals determined by NUM_DECIMALS
-     * @param value The value with 4 decimals to convert
+     * @dev Converts the original Aave Percentage math values (2 decimals of precision) to
+     * an arbitrary number of decimals determined by NUM_DECIMALS
+     * @param value The value with 2 decimals of precision to convert
      **/
     function convertToPercent(uint256 value)
         internal

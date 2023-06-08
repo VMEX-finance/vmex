@@ -6,6 +6,7 @@ import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IIncentivesController} from '../../interfaces/IIncentivesController.sol';
 import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
 import {DistributionManager} from './DistributionManager.sol';
@@ -21,6 +22,7 @@ contract IncentivesController is
   DistributionManager
 {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   uint256 public constant REVISION = 1;
 
   address public immutable REWARDS_VAULT;
@@ -54,7 +56,7 @@ contract IncentivesController is
    * @param userBalance The (old) balance of the user of the asset in the lending pool
    * @param totalSupply The (old) total supply of the asset in the lending pool
    **/
-  function handleAction(address user, uint256 userBalance, uint256 totalSupply) external override {
+  function handleAction(address user, uint256 totalSupply, uint256 userBalance) external override {
     // note: msg.sender is the incentivized asset (the vToken)
     _updateIncentivizedAsset(msg.sender, user, userBalance, totalSupply);
   }
@@ -156,7 +158,7 @@ contract IncentivesController is
       return 0;
     }
 
-    IERC20(reward).transferFrom(REWARDS_VAULT, to, rewardAccrued);
+    IERC20(reward).safeTransferFrom(REWARDS_VAULT, to, rewardAccrued);
     emit RewardClaimed(msg.sender, reward, to, rewardAccrued);
 
     return rewardAccrued;
@@ -190,7 +192,7 @@ contract IncentivesController is
 
     for (uint256 i = 0; i < amounts.length; i++) {
       if (amounts[i] != 0) {
-        IERC20(rewards[i]).transferFrom(REWARDS_VAULT, to, amounts[i]);
+        IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, to, amounts[i]);
         emit RewardClaimed(msg.sender, rewards[i], to, amounts[i]);
       }
     }

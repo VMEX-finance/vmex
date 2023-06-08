@@ -12,6 +12,7 @@ import {VersionedInitializable} from "../../dependencies/aave-upgradeability/Ver
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
+import {SafeCast} from "../../dependencies/openzeppelin/contracts/SafeCast.sol";
 
 /**
  * @title AssetMappings contract
@@ -30,6 +31,7 @@ import {Helpers} from "../libraries/helpers/Helpers.sol";
 contract AssetMappings is IAssetMappings, VersionedInitializable{
     using PercentageMath for uint256;
     using Helpers for address;
+    using SafeCast for uint256;
 
     ILendingPoolAddressesProvider internal addressesProvider;
     address public approvedAssetsHead;
@@ -50,7 +52,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     /**
-     * @dev Validates if the global admin can set asset as not allowed. 
+     * @dev Validates if the global admin can set asset as not allowed.
      * We are being very conservative: there cannot be any outstanding borrows or deposits in the reserve, and it must be set off for borrowing and collateral
      * @param asset The address of the asset you want to disallow
      **/
@@ -62,10 +64,9 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             addressesProvider.getLendingPoolConfigurator()
         ).totalTranches();
 
+        ILendingPool lendingPool = ILendingPool(addressesProvider.getLendingPool());
         for (uint64 tranche = 0; tranche < totalTranches; tranche++) {
-            DataTypes.ReserveData memory reserve = ILendingPool(
-                addressesProvider.getLendingPool()
-            ).getReserveData(asset, tranche);
+            DataTypes.ReserveData memory reserve = lendingPool.getReserveData(asset, tranche);
             //no outstanding borrows allowed
             if (reserve.variableDebtTokenAddress != address(0)) {
                 // if the reserve exists in the tranche
@@ -118,16 +119,17 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         address asset,
         uint256 reserveFactor
     ) public onlyGlobalAdmin {
+        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
         uint256 thisReserveFactor = reserveFactor.convertToPercent();
         validateVMEXReserveFactor(thisReserveFactor);
 
-        assetMappings[asset].VMEXReserveFactor = uint64(thisReserveFactor);
+        assetMappings[asset].VMEXReserveFactor = thisReserveFactor.toUint64();
 
         emit VMEXReserveFactorChanged(asset, thisReserveFactor);
     }
 
     /**
-     * @dev Updates the vmex reserve factor of a reserve
+     * @dev Sets the borrowing enabled on an asset
      * @param asset The address of the reserve you want to set
      * @param borrowingEnabled True to enable borrowing, false to disable borrowing
      **/
@@ -135,26 +137,25 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         address asset,
         bool borrowingEnabled
     ) external onlyGlobalAdmin {
+        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
         assetMappings[asset].borrowingEnabled = borrowingEnabled;
 
         emit BorrowingEnabledChanged(asset, borrowingEnabled);
     }
 
     /**
-     * @dev Validates the collateral params: ltv must be less than 100%, liquidation Bonus must be greater than 100%, 
+     * @dev Validates the collateral params: ltv must be less than 100%, liquidation Bonus must be greater than 100%,
      * liquidation threshold * liquidation bonus must be less than 100% for liquidators to break even, borrow factor must be greater than 100%
      * @param baseLTV The LTV (in decimals adjusted for percentage math decimals)
      * @param liquidationThreshold The liquidation threshold (in decimals adjusted for percentage math decimals)
      * @param liquidationBonus The liquidation bonus (in decimals adjusted for percentage math decimals)
      * @param borrowFactor The borrow factor (in decimals adjusted for percentage math decimals)
-     * @param borrowingEnabled If borrowing is enabled for a reserve
      **/
     function validateCollateralParams(
         uint64 baseLTV,
         uint64 liquidationThreshold,
         uint64 liquidationBonus,
-        uint64 borrowFactor,
-        bool borrowingEnabled
+        uint64 borrowFactor
     ) internal pure {
         require(baseLTV <= liquidationThreshold, Errors.AM_INVALID_CONFIGURATION);
 
@@ -175,12 +176,10 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
                 Errors.AM_INVALID_CONFIGURATION
             );
         }
-        if(borrowingEnabled){
-            require(
-                uint256(borrowFactor) >= PercentageMath.PERCENTAGE_FACTOR,
-                Errors.AM_INVALID_CONFIGURATION
-            );
-        }
+        require(
+            uint256(borrowFactor) >= PercentageMath.PERCENTAGE_FACTOR,
+            Errors.AM_INVALID_CONFIGURATION
+        );
     }
 
     /**
@@ -206,13 +205,13 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             address currentAssetAddress = inputAsset.asset;
             validateAddAssetMapping(inputAsset);
 
-            inputAsset.baseLTV = uint64(uint256(inputAsset.baseLTV).convertToPercent());
-            inputAsset.liquidationThreshold = uint64(uint256(inputAsset.liquidationThreshold).convertToPercent());
-            inputAsset.liquidationBonus = uint64(uint256(inputAsset.liquidationBonus).convertToPercent());
-            inputAsset.borrowFactor = uint64(uint256(inputAsset.borrowFactor).convertToPercent());
-            inputAsset.VMEXReserveFactor = uint64(uint256(inputAsset.VMEXReserveFactor).convertToPercent());
+            inputAsset.baseLTV = uint256(inputAsset.baseLTV).convertToPercent().toUint64();
+            inputAsset.liquidationThreshold = uint256(inputAsset.liquidationThreshold).convertToPercent().toUint64();
+            inputAsset.liquidationBonus = uint256(inputAsset.liquidationBonus).convertToPercent().toUint64();
+            inputAsset.borrowFactor = uint256(inputAsset.borrowFactor).convertToPercent().toUint64();
+            inputAsset.VMEXReserveFactor = uint256(inputAsset.VMEXReserveFactor).convertToPercent().toUint64();
 
-            validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus, inputAsset.borrowFactor, inputAsset.borrowingEnabled);
+            validateCollateralParams(inputAsset.baseLTV, inputAsset.liquidationThreshold, inputAsset.liquidationBonus, inputAsset.borrowFactor);
             validateVMEXReserveFactor(inputAsset.VMEXReserveFactor);
 
             DataTypes.AssetData storage currentAssetMapping = assetMappings[currentAssetAddress];
@@ -272,11 +271,11 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         uint64 borrowFactor //2 words, 24 bytes --> 3 words total
     ) external onlyGlobalAdmin {
         require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
-        baseLTV = uint64(uint256(baseLTV).convertToPercent());
-        liquidationThreshold = uint64(uint256(liquidationThreshold).convertToPercent());
-        liquidationBonus = uint64(uint256(liquidationBonus).convertToPercent());
-        borrowFactor = uint64(uint256(borrowFactor).convertToPercent());
-        validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus, borrowFactor, assetMappings[asset].borrowingEnabled);
+        baseLTV = uint256(baseLTV).convertToPercent().toUint64();
+        liquidationThreshold = uint256(liquidationThreshold).convertToPercent().toUint64();
+        liquidationBonus = uint256(liquidationBonus).convertToPercent().toUint64();
+        borrowFactor = uint256(borrowFactor).convertToPercent().toUint64();
+        validateCollateralParams(baseLTV, liquidationThreshold, liquidationBonus, borrowFactor);
 
         assetMappings[asset].baseLTV = baseLTV;
         assetMappings[asset].liquidationThreshold = (liquidationThreshold);
@@ -353,22 +352,22 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     function getAssetMapping(address asset) view external returns(DataTypes.AssetData memory){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         return assetMappings[asset];
     }
 
     function getAssetBorrowable(address asset) view external returns (bool){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         return assetMappings[asset].borrowingEnabled;
     }
 
     function getAssetCollateralizable(address asset) view external returns (bool){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         return assetMappings[asset].liquidationThreshold != 0;
     }
 
     function getInterestRateStrategyAddress(address asset, uint8 choice) view external returns(address){
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); 
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         require(interestRateStrategyAddress[asset][choice]!=address(0), Errors.AM_NO_INTEREST_STRATEGY);
         return interestRateStrategyAddress[asset][choice];
     }
@@ -416,7 +415,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     /**
      * @dev Sets curve metadata for an array of assets.
      **/
-    function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external onlyGlobalAdmin {
+    function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external override onlyGlobalAdmin {
         require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0;i<assets.length;i++){
             curveMetadata[assets[i]] = vars[i];

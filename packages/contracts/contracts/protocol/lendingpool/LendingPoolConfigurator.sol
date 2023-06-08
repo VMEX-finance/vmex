@@ -159,26 +159,31 @@ contract LendingPoolConfigurator is
         DataTypes.AssetData memory assetdata,
         ILendingPool cachedPool
     ) internal {
-
         address aTokenProxyAddress = _initTokenWithProxy(
             addressesProvider.getATokenBeacon(),
-            abi.encodeWithSelector(
-                IInitializableAToken.initialize.selector,
-                cachedPool,
-                address(this), //lendingPoolConfigurator address
-                address(addressesProvider), //
-                input.underlyingAsset,
-                trancheId
+            abi.encodeCall(
+                IInitializableAToken.initialize,
+                (
+                    cachedPool,
+                    IInitializableAToken.InitializeTreasuryVars(
+                        address(this), //lendingPoolConfigurator address
+                        address(addressesProvider), //
+                        input.underlyingAsset,
+                        trancheId
+                    )
+                )
             )
         );
         address variableDebtTokenProxyAddress = _initTokenWithProxy(
             addressesProvider.getVariableDebtTokenBeacon(),
-            abi.encodeWithSelector(
-                IInitializableDebtToken.initialize.selector,
-                cachedPool,
-                input.underlyingAsset,
-                trancheId,
-                addressesProvider
+            abi.encodeCall(
+                IInitializableDebtToken.initialize,
+                (
+                    cachedPool,
+                    input.underlyingAsset,
+                    trancheId,
+                    addressesProvider
+                )
             )
         );
 
@@ -247,6 +252,7 @@ contract LendingPoolConfigurator is
         address newAddress,
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
+        require(newAddress!=address(0), Errors.LPC_TREASURY_ADDRESS_ZERO);
         trancheAdminTreasuryAddresses[trancheId] = newAddress;
         emit UpdatedTreasuryAddress(trancheId, newAddress);
     }
@@ -269,6 +275,7 @@ contract LendingPoolConfigurator is
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
 
+
             currentConfig.setBorrowingEnabled(borrowingEnabled[i]);
 
             pool.setConfiguration(asset[i], trancheId, currentConfig.data);
@@ -278,7 +285,7 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Enables borrowing on a reserve
+     * @dev Sets collateral enabled on a list of reserves
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The tranche id of the reserve
      * @param collateralEnabled 'true' to enable borrowing, 'false' to disable borrowing
@@ -317,6 +324,8 @@ contract LendingPoolConfigurator is
     ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == reserveFactor.length, Errors.ARRAY_LENGTH_MISMATCH);
         for(uint i = 0; i<asset.length;i++){
+            //reserve factor can only be changed if no one deposited in it, otherwise tranche admins could "rug pull" the interest earnings in there
+            _checkNoLiquidity(asset[i], trancheId);
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
                 pool
             ).getConfiguration(asset[i], trancheId);
@@ -372,6 +381,9 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         bool isUsingWhitelist
     ) external onlyTrancheAdmin(trancheId) {
+        if(isUsingWhitelist) { //only allow tranche admins to set whitelist enabled if reserves have not yet been initialized
+            require(pool.getTrancheParams(trancheId).reservesCount == 0, Errors.LPC_WHITELISTING_NOT_ALLOWED);
+        }
         pool.setWhitelistEnabled(trancheId, isUsingWhitelist);
         emit UserSetWhitelistEnabled(trancheId, isUsingWhitelist);
     }
@@ -424,6 +436,8 @@ contract LendingPoolConfigurator is
         uint64 trancheId,
         uint8 rateStrategyAddressId
     ) external onlyTrancheAdmin(trancheId) {
+        //interest rate can only be changed if no one deposited in it, otherwise tranche admins could potentially trick users
+        _checkNoLiquidity(asset, trancheId);
         address rateStrategyAddress = assetMappings.getInterestRateStrategyAddress(asset, rateStrategyAddressId);
 
         pool.setReserveInterestRateStrategyAddress(
@@ -514,7 +528,8 @@ contract LendingPoolConfigurator is
         uint256 availableLiquidity = IERC20Detailed(asset).balanceOf(
             reserveData.aTokenAddress
         );
-
+        //if underlying in aToken is zero, it could mean that 100% is borrowed. But,
+        //it is not possible for there to be any borrows if the liquidity rate is zero
         require(
             availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
             Errors.LPC_RESERVE_LIQUIDITY_NOT_0

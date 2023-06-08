@@ -82,4 +82,32 @@ library Helpers {
     function getName(address token) internal view returns(string memory) {
         return getStringAttribute(token, "name()");
     }
+
+    /**
+     * @dev Helper function to compare suffix of str to a target
+     * @param str String with suffix to compare
+     * @param target target string
+     **/ 
+    function compareSuffix(string memory str, string memory target) internal pure returns(bool) {
+        uint strLen = bytes(str).length;
+        uint targetLen = bytes(target).length;
+
+        if (strLen < targetLen) {
+            return false;
+        }
+
+        uint suffixStart = strLen - targetLen;
+
+        bytes memory suffixBytes = new bytes(targetLen);
+
+        for (uint i = 0; i < targetLen; i++) {
+            suffixBytes[i] = bytes(str)[suffixStart + i];
+        }
+
+        string memory suffix = string(suffixBytes);
+
+        bool ret = (keccak256(bytes(suffix)) == keccak256(bytes(target)));
+
+        return ret;
+    }
 }

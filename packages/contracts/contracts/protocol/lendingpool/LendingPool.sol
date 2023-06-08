@@ -107,6 +107,7 @@ contract LendingPool is
     {
         _addressesProvider = provider;
         _assetMappings =  IAssetMappings(_addressesProvider.getAssetMappings());
+        assert(address(_assetMappings)!=address(0));
     }
 
     /**
@@ -301,6 +302,14 @@ contract LendingPool is
             reserve
         );
 
+        uint256 paybackAmount = variableDebt;
+
+        if (amount < paybackAmount) {
+            paybackAmount = amount;
+        }
+
+        reserve.updateState(_assetMappings.getVMEXReserveFactor(asset));
+
         ValidationLogic.validateRepay(
             reserve,
             amount,
@@ -309,14 +318,6 @@ contract LendingPool is
             asset,
             _assetMappings
         );
-
-        uint256 paybackAmount = variableDebt;
-
-        if (amount < paybackAmount) {
-            paybackAmount = amount;
-        }
-
-        reserve.updateState(_assetMappings.getVMEXReserveFactor(asset));
 
         IVariableDebtToken(reserve.variableDebtTokenAddress).burn(
             onBehalfOf,
@@ -331,7 +332,8 @@ contract LendingPool is
         }
 
         IERC20(asset).safeTransferFrom(msg.sender, reserve.aTokenAddress, paybackAmount);
-
+        // this call is a noop as it currently calls an empty function.
+        // IAToken(reserve.aToken).handleRepayment(msg.sender, paybackAmount);
         emit Repay(asset, trancheId, onBehalfOf, msg.sender, paybackAmount);
 
         return paybackAmount;
@@ -451,6 +453,7 @@ contract LendingPool is
      * @return currentLiquidationThreshold the liquidation threshold of the user
      * @return ltv the loan to value of the user
      * @return healthFactor the current health factor of the user
+     * @return avgBorrowFactor the weighted average of all debt position borrow factors
      **/
     function getUserAccountData(address user, uint64 trancheId)
         external
@@ -569,11 +572,10 @@ contract LendingPool is
         override
         returns (address[] memory)
     {
-        address[] memory _activeReserves = new address[](
-            trancheParams[trancheId].reservesCount
-        );
+        uint8 reservesCount = trancheParams[trancheId].reservesCount;
+        address[] memory _activeReserves = new address[](reservesCount);
 
-        for (uint256 i = 0; i < trancheParams[trancheId].reservesCount; i++) {
+        for (uint256 i = 0; i < reservesCount; i++) {
             _activeReserves[i] = _reservesList[trancheId][i];
         }
         return _activeReserves;
@@ -615,7 +617,8 @@ contract LendingPool is
             msg.sender == _reserves[asset][trancheId].aTokenAddress,
             Errors.LP_CALLER_MUST_BE_AN_ATOKEN
         );
-        checkWhitelistBlacklist(trancheId, to);
+        _checkWhitelistBlacklist(trancheId, from);
+        _checkWhitelistBlacklist(trancheId, to);
 
         ValidationLogic.validateTransfer(
             from,
@@ -628,13 +631,14 @@ contract LendingPool is
             _assetMappings
         );
 
-        uint256 reserveId = _reserves[asset][trancheId].id;
+        DataTypes.ReserveData memory reserve = _reserves[asset][trancheId];
+
 
         if (from != to) {
             if (balanceFromBefore.sub(amount) == 0) {
                 DataTypes.UserConfigurationMap
                     storage fromConfig = _usersConfig[from][trancheId].configuration;
-                fromConfig.setUsingAsCollateral(reserveId, false);
+                fromConfig.setUsingAsCollateral(reserve.id, false);
                 emit ReserveUsedAsCollateralDisabled(asset, trancheId, from);
             }
 
@@ -642,7 +646,11 @@ contract LendingPool is
                 DataTypes.UserConfigurationMap storage toConfig = _usersConfig[
                     to
                 ][trancheId].configuration;
-                toConfig.setUsingAsCollateral(reserveId, true);
+                toConfig.setUsingAsCollateral(
+                    reserve.id,
+                    reserve.configuration
+                        .getCollateralEnabled(asset, _assetMappings)
+                );
                 emit ReserveUsedAsCollateralEnabled(asset, trancheId, to);
             }
         }
@@ -797,6 +805,11 @@ contract LendingPool is
         }
 
         _usersConfig[user][trancheId].configuration.setWhitelist(isWhitelisted);
+
+        if (isWhitelisted) {
+            // remove from blacklist to avoid conflicts
+            _usersConfig[user][trancheId].configuration.setBlacklist(false);
+        }
     }
 
     /**
@@ -812,5 +825,14 @@ contract LendingPool is
         bool isBlacklisted
     ) external override onlyLendingPoolConfigurator {
         _usersConfig[user][trancheId].configuration.setBlacklist(isBlacklisted);
+        if (isBlacklisted) {
+            // remove from whitelist to avoid conflicts
+            _usersConfig[user][trancheId].configuration.setWhitelist(false);
+        }
     }
+
+    function getTrancheParams(uint64 trancheId) external override view returns(DataTypes.TrancheParams memory) {
+        return trancheParams[trancheId];
+    }
+
 }

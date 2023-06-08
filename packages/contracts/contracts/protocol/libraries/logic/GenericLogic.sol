@@ -176,7 +176,7 @@ library GenericLogic {
      * @param reserves The list of the available reserves
      * @param addressesProvider The addresses provider address
      * @param assetMappings The addresses provider address
-     * @return The total collateral and total debt of the user in ETH, the avg ltv, liquidation threshold and the HF
+     * @return The total collateral and total debt of the user in ETH, the avg ltv, liquidation threshold, the HF and avg borrow factor
      **/
     function calculateUserAccountData(
         DataTypes.AcctTranche memory actTranche,
@@ -206,6 +206,8 @@ library GenericLogic {
             return (0, 0, 0, 0, type(uint256).max, 0);
         }
 
+        vars.oracle = addressesProvider.getPriceOracle();
+
         for (vars.i = 0; vars.i < reservesCount; vars.i++) {
             // continue if not allowed. Not allowed will only be set if NO Borrows outstanding, so no chance of unaccounted debt
             if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i) || !assetMappings.getAssetAllowed(reserves[vars.i])) {
@@ -216,8 +218,6 @@ library GenericLogic {
             DataTypes.ReserveData storage currentReserve = reservesData[
                 vars.currentReserveAddress
             ][vars.trancheId];
-
-            vars.oracle = addressesProvider.getPriceOracle();
 
             (
                 vars.ltv,

@@ -27,6 +27,10 @@ contract MockAggregator {
         return address(this);
     }
 
+    function description() external view returns(string memory) {
+        return "X / ETH";
+    }
+
     function minAnswer() external view returns(int192) {
         return 10000000000000;
     }

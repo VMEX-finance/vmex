@@ -52,13 +52,14 @@ library DepositWithdrawLogic {
     ) external returns(uint256){
         if (vars.amount == type(uint256).max) {
             // if amount is type(uint256).max, this indicates the user wants to deposit the maximum possible
-            vars.amount = IAToken(vars.asset).balanceOf(msg.sender);
+            vars.amount = IERC20(vars.asset).balanceOf(msg.sender);
         }
-        ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
-
         address aToken = self.aTokenAddress;
 
         self.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
+
+        ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
+
         self.updateInterestRates(
             vars.asset,
             vars.trancheId,
@@ -75,7 +76,9 @@ library DepositWithdrawLogic {
             self.liquidityIndex
         );
 
-        if (isFirstDeposit) {
+        // require the sender to be the same as onBehalfOf in order to turn collateral on
+        // Response to yAudit vulnerability where attacker can deposit dust to victim to increase gas fees of a victim
+        if (isFirstDeposit && vars.onBehalfOf == msg.sender) {
             // if collateral is enabled, by default the user's deposit is marked as collateral
             user.setUsingAsCollateral(self.id, self.configuration.getCollateralEnabled(vars.asset, vars._assetMappings));
         }
@@ -115,6 +118,8 @@ library DepositWithdrawLogic {
             vars.amount = userBalance;
         }
 
+        reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
+
         ValidationLogic.validateWithdraw(
             vars.asset,
             vars.trancheId,
@@ -128,7 +133,6 @@ library DepositWithdrawLogic {
             _assetMappings
         );
 
-        reserve.updateState(_assetMappings.getVMEXReserveFactor(vars.asset));
         reserve.updateInterestRates(vars.asset, vars.trancheId, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
 
         if (vars.amount == userBalance) {
@@ -159,6 +163,8 @@ library DepositWithdrawLogic {
     ) external returns(uint256){
         DataTypes.ReserveData storage reserve = _reserves[vars.asset][vars.trancheId];
 
+        reserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
+
         vars.amount = ValidationLogic.validateBorrow(
             vars,
             reserve,
@@ -168,8 +174,6 @@ library DepositWithdrawLogic {
             vars._reservesCount,
             _addressesProvider
         );
-
-        reserve.updateState(vars._assetMappings.getVMEXReserveFactor(vars.asset));
 
         bool isFirstBorrowing = IVariableDebtToken(
             reserve.variableDebtTokenAddress
