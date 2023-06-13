@@ -53,19 +53,9 @@ makeSuite('ExternalRewardDistributor remove staking', (testEnv) => {
 			);
     });
 
-		// it('Adds another staking reward', async () => {
-		// 	const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens } = testEnv;
+		it('Adds another staking reward token, revert expected', async () => {
+			const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens } = testEnv;
 
-		// 	await incentivesController.addStakingReward(incentivizedTokens[0].address, stakingContracts[0].address, rewardTokens[0].address)
-
-		// 	const aToken = incentivizedTokens[0]
-		// 	const asset = incentUnderlying[0]
-		// 	const staking = stakingContracts[0]
-		// 	const reward = rewardTokens[0]
-		// 	const user = users[0]
-
-		// 	const userData = await incentivesController.getUserDataByAToken(user.address, aToken.address);
-
-		// 	console.log("usrData:",userData);
-		// });
+			await expect(incentivesController.addStakingReward(incentivizedTokens[0].address, stakingContracts[0].address, rewardTokens[1].address)).to.be.revertedWith("Cannot reinitialize reward thats been set")
+		});
 })

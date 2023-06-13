@@ -39,6 +39,10 @@ contract ATokenMock is MintableERC20 {
     return underlying;
   }
 
+  function _underlyingAsset() external view returns (address) {
+    return underlying;
+  }
+
   function handleActionOnAic(
     address user,
     uint256 totalSupply,
