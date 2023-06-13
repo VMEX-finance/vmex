@@ -129,4 +129,6 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
     function UNDERLYING_ASSET_ADDRESS() external view returns (address);
 
     function getStakedAmount() external view returns (uint256);
+
+    function _underlyingAsset() external view returns (address);
 }

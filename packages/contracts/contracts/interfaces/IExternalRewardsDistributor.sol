@@ -12,11 +12,6 @@ interface IExternalRewardsDistributor {
     uint256 lastUpdateRewardPerToken;
   }
 
-  struct ATokenData {
-    address underlying;
-    uint256 totalStaked;
-  }
-
   struct StakingReward {
     IStakingRewards staking;
     IERC20 reward;

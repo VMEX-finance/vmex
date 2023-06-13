@@ -290,7 +290,7 @@ export async function initializeMakeSuite() {
     await getATokenMock({ slug: 'aWeth' }),
   ]
 
-  testEnv.rewardTokens = [testEnv.usdc];
+  testEnv.rewardTokens = [testEnv.usdc, testEnv.dai];
 
   testEnv.stakingContracts = [
     await getStakingRewardsMock({ slug: 'yaDai'}),
