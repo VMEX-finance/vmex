@@ -29,6 +29,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     return underlying != address(0) && !stakingData[underlying].rewardEnded;
   }
 
+  /**
+   * @dev Called internally to harvest the reward token, then update accounting for the amount accrued per token and for the user
+   * @param user The address of the user that is calling the action
+   * @param underlying The address of the underlying token (not atoken)
+   **/
   function harvestAndUpdate(
     address user,
     address underlying
@@ -51,6 +56,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     }
 
     UserState storage userData = rewardData.users[user];
+    assert(userData.lastUpdateRewardPerToken != 0 || userData.stakedBalance == 0); //cannot have case where both lastUpdateRewardPerToken is 0 and stakedBalance is not zero
     if (userData.lastUpdateRewardPerToken < rewardData.cumulativeRewardPerToken) {
       uint256 diff =
         rewardData.cumulativeRewardPerToken - userData.lastUpdateRewardPerToken;
@@ -81,6 +87,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
         stakingData[underlying].staking = IStakingRewards(staking);
         IERC20(underlying).approve(staking, type(uint).max);
         stakingData[underlying].reward = IERC20(reward);
+        stakingData[underlying].rewardEnded = false;
     }
     aTokenMap[aToken].underlying = underlying;
     stakingData[underlying].aTokens.push(aToken);
@@ -101,6 +108,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     }
   }
 
+  /**
+   * @dev Removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
+   * @param underlying The address of the underlying token in which rewards stopped streaming
+   **/
   function removeStakingReward(address underlying) external onlyManager {
     StakingReward storage rewardData = stakingData[underlying];
 
@@ -114,6 +125,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     rewardData.rewardEnded = true;
   }
 
+  /**
+   * @dev Removes all liquidity from the staking contract and stakes in new staking contract
+   * @param underlying The address of the underlying token in which staking contracts must be switched
+   * @param newStaking The new staking contract
+   **/
   function updateStakingContract(
     address underlying,
     IStakingRewards newStaking
@@ -136,6 +152,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     emit StakingContractUpdated(underlying, oldStaking, address(newStaking));
   }
 
+  /**
+   * @dev Exits and removes all liquidity from the staking contract, updates reward accounting
+   * @param rewardData staking data of the underlying token
+   * @param underlying The address of the underlying token in which staking contracts must be exited
+   **/
   function exitStakingContract(StakingReward storage rewardData, address underlying) internal {
     uint256 totalSupply = rewardData.staking.balanceOf(address(this));
 
