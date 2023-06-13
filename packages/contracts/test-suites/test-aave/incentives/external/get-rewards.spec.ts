@@ -45,7 +45,7 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 			]);
     });
 
-		it('Reverts on excess claim', async () => {
+		it('Reverts on excess claim, and checks that new users dont get rewards immediately after depositing', async () => {
 			const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens } = testEnv;
 
 			const aToken = incentivizedTokens[0]
@@ -54,11 +54,17 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 			const staking = stakingContracts[0]
 
 			await asset.transfer(aToken.address, 1000);
+
+
 			await aToken.handleActionOnAic(newUser.address, 1000, 0, 1000, 0);
+
+			let userData = await incentivesController.getUserDataByAToken(newUser.address, aToken.address)
+
+			expect(userData.rewardBalance).equal(0); // make sure that lastUpdateRewardPerToken was set correctly
 
 			increaseTime(20000)
 			
-			const userData = await incentivesController.getUserDataByAToken(newUser.address, aToken.address)
+			userData = await incentivesController.getUserDataByAToken(newUser.address, aToken.address)
 			const earned = await staking.earned(incentivesController.address)
 			await expect(
 				incentivesController.connect(newUser.signer).claimStakingReward(asset.address, userData.rewardBalance.add(earned).add(10000))
