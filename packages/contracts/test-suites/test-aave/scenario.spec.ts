@@ -50,11 +50,12 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
         iAavePoolAssets<IReserveParams>
       >getReservesConfigByPool(AavePools.proto);
 
-      const { incentivesController, aWETH, stakingContracts, rewardTokens, addressesProvider } = testEnv;
+      const { incentivesController, stakingContracts, rewardTokens, addressesProvider, pool, weth } = testEnv; 
       await addressesProvider.setIncentivesController(incentivesController.address);
-      await incentivesController.addStakingReward(aWETH.address, stakingContracts[4].address, rewardTokens[0].address);
+      const weth1dat = await pool.getReserveData(weth.address,1);
+      await incentivesController.addStakingReward(weth1dat.aTokenAddress, stakingContracts[4].address, rewardTokens[0].address);
 
-      console.log("successfully set staking for WETH");
+      console.log("successfully set staking for yvTricrypto");
     });
     after("Reset", () => {
       // Reset BigNumber

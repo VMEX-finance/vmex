@@ -26,7 +26,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
   function stakingExists(address aToken) internal view returns (bool) {
     address underlying = IAToken(aToken)._underlyingAsset();
-    return underlying != address(0) && !stakingData[underlying].rewardEnded;
+    return address(stakingData[underlying].reward) != address(0);
   }
 
   /**
@@ -186,6 +186,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     StakingReward storage rewardData = stakingData[underlying];
 
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
+    IERC20(underlying).approve(address(rewardData.staking), type(uint256).max);
     rewardData.staking.stake(amount);
     aTokenStaking[msg.sender] += amount;
     rewardData.users[user].stakedBalance += amount;

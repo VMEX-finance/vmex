@@ -3,7 +3,7 @@
   "description": "Test cases for the borrow function, variable mode.",
   "stories": [
     {
-      "description": "User 0 deposits 1000 DAI (risk 0) in all three tranches",
+      "description": "User 0 deposits 1000 DAI (risk 0) in tranche 0",
       "actions": [
         {
           "name": "mint",
