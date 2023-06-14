@@ -712,6 +712,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   // deploy and fund test staking contracts
   const stakingA = await deployStakingRewardsMock([rewardToken.address, mockTokens["DAI"].address], "yaDai");
+  const stakingB = await deployStakingRewardsMock([rewardToken.address, mockTokens["DAI"].address], "yaDaiCp");
   const stakingC = await deployStakingRewardsMock([rewardToken.address, mockTokens["BUSD"].address], "yaBusd");
   const stakingD = await deployStakingRewardsMock([rewardToken.address, mockTokens["AAVE"].address], "yaAave");
   const stakingE = await deployStakingRewardsMock([rewardToken.address, mockTokens["USDT"].address], "yaUsdt");
@@ -722,6 +723,10 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   console.log(`staking A received USDC ${await rewardToken.balanceOf(stakingA.address)}`)
   await stakingA.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   console.log('first notifyReward succeeded')
+
+  await rewardToken.connect(vaultOfRewards).transfer(stakingB.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await stakingB.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  
   await rewardToken.connect(vaultOfRewards).transfer(stakingC.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   await stakingC.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   await rewardToken.connect(vaultOfRewards).transfer(stakingD.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));

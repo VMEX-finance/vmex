@@ -298,6 +298,7 @@ export async function initializeMakeSuite() {
     await getStakingRewardsMock({ slug: 'yaAave'}),
     await getStakingRewardsMock({ slug: 'yaUsdt'}),
     await getStakingRewardsMock({ slug: 'yaWeth'}),
+    await getStakingRewardsMock({ slug: 'yaDaiCp'}),
     await getStakingRewardsMock({ slug: 'yayvTricrypto2'}),
   ];
 
