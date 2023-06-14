@@ -5,6 +5,7 @@ import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {IScaledBalanceToken} from "./IScaledBalanceToken.sol";
 import {IInitializableAToken} from "./IInitializableAToken.sol";
 import {IIncentivesController} from "./IIncentivesController.sol";
+import {ILendingPoolAddressesProvider} from "./ILendingPoolAddressesProvider.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
@@ -130,5 +131,5 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
 
     function getStakedAmount() external view returns (uint256);
 
-    function _underlyingAsset() external view returns (address);
+    function _addressesProvider() external view returns (ILendingPoolAddressesProvider);
 }

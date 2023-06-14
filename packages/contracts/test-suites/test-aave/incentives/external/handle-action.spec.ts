@@ -14,6 +14,22 @@ import hre from 'hardhat';
 import { BigNumber, BigNumberish } from 'ethers';
 
 makeSuite('ExternalRewardsDistributor action hooks', (testEnv) => {
+	before('Before', async () => {
+		const { dai, assetMappings, busd, usdt, weth } = testEnv; 
+		await assetMappings.setBorrowingEnabled(dai.address, false);
+		await assetMappings.setBorrowingEnabled(busd.address, false);
+		await assetMappings.setBorrowingEnabled(usdt.address, false);
+		await assetMappings.setBorrowingEnabled(weth.address, false);
+	  });
+	
+	  after('After', async () => {
+		const { dai, assetMappings, busd, usdt, weth } = testEnv; 
+		await assetMappings.setBorrowingEnabled(dai.address, true);
+		await assetMappings.setBorrowingEnabled(busd.address, true);
+		await assetMappings.setBorrowingEnabled(usdt.address, true);
+		await assetMappings.setBorrowingEnabled(weth.address, true);
+	  });
+	
 	it('single deposit is staked', async () => {
 		const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens, dai } = testEnv;
 

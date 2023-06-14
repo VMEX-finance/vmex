@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
+import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
+
 import {IIncentivesController} from '../../interfaces/IIncentivesController.sol';
 import {DistributionTypes} from '../../protocol/libraries/types/DistributionTypes.sol';
 import {MintableERC20} from './MintableERC20.sol';
 
 contract ATokenMock is MintableERC20 {
   IIncentivesController public _aic;
+  ILendingPoolAddressesProvider public _addressesProvider;
   uint256 internal _userBalance;
   uint256 internal _totalSupply;
 
@@ -22,8 +25,9 @@ contract ATokenMock is MintableERC20 {
   event AssetIndexUpdated(address indexed asset, uint256 index);
   event UserIndexUpdated(address indexed user, address indexed asset, uint256 index);
 
-  constructor(IIncentivesController aic) MintableERC20('Atoken Mock', 'aMOCK', 18) {
+  constructor(IIncentivesController aic, ILendingPoolAddressesProvider m) MintableERC20('Atoken Mock', 'aMOCK', 18) {
     _aic = aic;
+    _addressesProvider = m;
   }
 
   function setUnderlying(address token) external {
@@ -36,10 +40,6 @@ contract ATokenMock is MintableERC20 {
   }
 
   function UNDERLYING_ASSET_ADDRESS() external view returns (address) {
-    return underlying;
-  }
-
-  function _underlyingAsset() external view returns (address) {
     return underlying;
   }
 

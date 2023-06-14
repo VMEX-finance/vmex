@@ -22,6 +22,11 @@ interface IExternalRewardsDistributor {
     address[] aTokens;
   }
 
+  struct ATokenData {
+    uint256 totalStaked;
+    bool enabled;
+  }
+
   event RewardConfigured(address indexed aToken, address indexed underlying, address indexed reward, address staking);
   event Harvested(address indexed underlying, uint256 rewardPerToken);
   event UserUpdated(address indexed user, address indexed aToken, address indexed underlying, uint256 rewardBalance);

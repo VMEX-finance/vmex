@@ -697,11 +697,11 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     [rewardToken, vmexToken]
   );
 
-  const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, "aDai");
-  const aAave = await deployATokenMock(vmexIncentivesControllerProxy.address, "aAave");
-  const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, "aBusd");
-  const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, "aUsdt");
-  const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, "aWeth");
+  const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aDai");
+  const aAave = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aAave");
+  const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aBusd");
+  const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aUsdt");
+  const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aWeth");
 
   // need mocks used for linking external rewards to link to 'real' tokens
   await aDai.setUnderlying(mockTokens["DAI"].address)
@@ -1455,11 +1455,12 @@ export const deployIncentivesController = async (
 
 export const deployATokenMock = async (
   aicAddress: tEthereumAddress,
+  addressProvAddress: tEthereumAddress,
   id?: string,
   verify?: boolean
 ) =>
   withSaveAndVerify(
-    await new ATokenMockFactory(await getFirstSigner()).deploy(aicAddress),
+    await new ATokenMockFactory(await getFirstSigner()).deploy(aicAddress, addressProvAddress),
     id || eContractid.ATokenMock,
     [],
     verify

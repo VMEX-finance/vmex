@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IStakingRewards} from '../../interfaces/IStakingRewards.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
+import {IAssetMappings} from '../../interfaces/IAssetMappings.sol';
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 
@@ -11,7 +12,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   using SafeERC20 for IERC20;
 
   mapping(address => StakingReward) internal stakingData; // incentivized underlying asset => reward info
-  mapping(address => uint256) internal aTokenStaking; //  aToken => amount that atoken has staked
+  mapping(address => ATokenData) internal aTokenStaking; //  aToken => amount that atoken has staked
 
   address public immutable manager;
 
@@ -25,8 +26,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   function stakingExists(address aToken) internal view returns (bool) {
-    address underlying = IAToken(aToken)._underlyingAsset();
-    return address(stakingData[underlying].reward) != address(0);
+    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
+    return aTokenStaking[aToken].enabled && !stakingData[underlying].rewardEnded;
   }
 
   /**
@@ -80,10 +81,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address reward
   ) public onlyManager {
     require(IAToken(aToken).totalSupply() == 0, 'Existing liquidity');
+    require(!aTokenStaking[aToken].enabled, 'Cannot reinitialize an underlying that has been set before');
 
-    address underlying = IAToken(aToken)._underlyingAsset();
-
-    require(address(stakingData[underlying].reward) == address(0) || address(stakingData[underlying].reward) == reward, 'Cannot reinitialize reward thats been set');
+    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
+    address assetMappings = IAToken(aToken)._addressesProvider().getAssetMappings();
+    require(!IAssetMappings(assetMappings).getAssetBorrowable(underlying), "Underlying cannot be borrowable for external rewards");
 
     if (address(stakingData[underlying].reward) == address(0)) {
         require(staking != address(0) && reward != address(0), 'No zero address');
@@ -93,6 +95,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
         stakingData[underlying].rewardEnded = false;
     }
     stakingData[underlying].aTokens.push(aToken);
+
+    aTokenStaking[aToken].enabled = true;
 
     emit RewardConfigured(aToken, underlying, reward, staking);
   }
@@ -111,7 +115,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   /**
-   * @dev Removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
+   * @dev Permanently removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
    * @param underlying The address of the underlying token in which rewards stopped streaming
    **/
   function removeStakingReward(address underlying) external onlyManager {
@@ -121,8 +125,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
     for (uint i = 0; i < rewardData.aTokens.length; i++) {
       address aToken = rewardData.aTokens[i];
-      IERC20(underlying).safeTransfer(aToken, aTokenStaking[aToken]);
-      aTokenStaking[aToken] = 0;
+      IERC20(underlying).safeTransfer(aToken, aTokenStaking[aToken].totalStaked);
+
+      aTokenStaking[aToken].totalStaked = 0;
+      //don't set enabled to false, since enabled means that at any point the aToken was set to have external rewards. It needs to stay true so subsequent addStakingRewards revert
     }
 
     rewardData.rewardEnded = true;
@@ -181,14 +187,14 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address user,
     uint256 amount
   ) internal {
-    address underlying = IAToken(msg.sender)._underlyingAsset();
+    address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
 
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
     IERC20(underlying).approve(address(rewardData.staking), type(uint256).max);
     rewardData.staking.stake(amount);
-    aTokenStaking[msg.sender] += amount;
+    aTokenStaking[msg.sender].totalStaked += amount;
     rewardData.users[user].stakedBalance += amount;
   }
 
@@ -196,23 +202,23 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address user,
     uint256 amount
   ) internal {
-    address underlying = IAToken(msg.sender)._underlyingAsset();
+    address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
     harvestAndUpdate(user, underlying);
     StakingReward storage rewardData = stakingData[underlying];
 
     rewardData.staking.withdraw(amount);
     IERC20(underlying).safeTransfer(msg.sender, amount);
-    aTokenStaking[msg.sender] -= amount;
+    aTokenStaking[msg.sender].totalStaked -= amount;
     rewardData.users[user].stakedBalance -= amount;
   }
 
   function onTransfer(address user, uint256 amount, bool sender) internal {
-    harvestAndUpdate(user, IAToken(msg.sender)._underlyingAsset());
+    harvestAndUpdate(user, IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS());
 
     if (sender) {
-      stakingData[IAToken(msg.sender)._underlyingAsset()].users[user].stakedBalance -= amount;
+      stakingData[IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS()].users[user].stakedBalance -= amount;
     } else {
-      stakingData[IAToken(msg.sender)._underlyingAsset()].users[user].stakedBalance += amount;
+      stakingData[IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS()].users[user].stakedBalance += amount;
     }
   }
 
@@ -245,7 +251,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
   function getDataByAToken(address aToken) external view
   returns (address, address, address, uint256, uint256) {
-      address underlying = IAToken(aToken)._underlyingAsset();
+      address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
       return (
           underlying,
           address(stakingData[underlying].staking),
@@ -259,11 +265,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     if (!stakingExists(aToken)) {
       return 0;
     }
-    return aTokenStaking[aToken];
+    return aTokenStaking[aToken].totalStaked;
   }
 
   function getUserDataByAToken(address user, address aToken) external view returns (UserState memory) {
-    StakingReward storage rewardData =  stakingData[IAToken(aToken)._underlyingAsset()];
+    StakingReward storage rewardData =  stakingData[IAToken(aToken).UNDERLYING_ASSET_ADDRESS()];
     UserState memory userData = rewardData.users[user];
     if (rewardData.rewardEnded) userData.stakedBalance = 0;
     return userData;
