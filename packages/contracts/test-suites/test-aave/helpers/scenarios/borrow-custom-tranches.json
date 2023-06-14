@@ -3,7 +3,7 @@
   "description": "Test cases for the borrow function, variable mode.",
   "stories": [
     {
-      "description": "User 0 deposits 1000 DAI (risk 0) in tranche 0",
+      "description": "User 0 deposits 1000 DAI in tranche 1",
       "actions": [
         {
           "name": "mint",
@@ -45,13 +45,13 @@
       ]
     },
     {
-      "description": "user 1 deposits 1 WETH (risk 1) as collateral in tranche 1 and borrows 100 DAI at variable rate. Tries to borrow from tranches 0 and 1 (revert) ",
+      "description": "user 1 deposits 1 yvTricrypto2 (risk 1) as collateral in tranche 1 and borrows 100 DAI at variable rate. Tries to borrow from tranches 0 and 1 (revert) ",
       "actions": [
         {
           "name": "mint",
           "args": {
-            "reserve": "WETH",
-            "amount": "1",
+            "reserve": "YVTRICRYPTO2",
+            "amount": "4",
             "user": "1"
           },
           "expected": "success"
@@ -59,7 +59,7 @@
         {
           "name": "approve",
           "args": {
-            "reserve": "WETH",
+            "reserve": "YVTRICRYPTO2",
             "user": "1"
           },
           "expected": "success"
@@ -67,9 +67,9 @@
         {
           "name": "deposit",
           "args": {
-            "reserve": "WETH",
+            "reserve": "YVTRICRYPTO2",
             "tranche": "1",
-            "amount": "1",
+            "amount": "4",
             "user": "1"
           },
           "expected": "success"

@@ -50,19 +50,32 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
         iAavePoolAssets<IReserveParams>
       >getReservesConfigByPool(AavePools.proto);
 
-      const { incentivesController, stakingContracts, rewardTokens, addressesProvider, pool, weth } = testEnv; 
+      const { incentivesController, stakingContracts, rewardTokens, addressesProvider, assetMappings, yvTricrypto2, ayvTricrypto2 } = testEnv; 
       await addressesProvider.setIncentivesController(incentivesController.address);
-      const weth1dat = await pool.getReserveData(weth.address,1);
-      await incentivesController.addStakingReward(weth1dat.aTokenAddress, stakingContracts[4].address, rewardTokens[0].address);
+      // const tricrypto21dat = await pool.getReserveData(tricrypto2.address,1);
+
+      // need to ensure the following for the tests to pass (Expected behavior)
+      // 1. atoken with the reward (arg0) must not be borrowable (so can't set DAI or WETH)
+      // 2. staking contract (arg1) must have the underlying match the token with the reward (arg0). Ex: if weth is used as the reward token then staking contract must be [4]: await getStakingRewardsMock({ slug: 'yaWeth'})
+      // 3. the token chosen as the rewardToken (arg2) must be given to the staking contract so it has enough funds to distribute. This is done in contracts-deployments.ts, everything uses USDC
+      // 4. Make sure the atoken with the reward is actually used in the scenario tests (ex: if aweth from tranche 0 is used, but the scenarios only use aweth from tranche 1, then this is useless)
+      await incentivesController.addStakingReward(ayvTricrypto2.address, stakingContracts[5].address, rewardTokens[0].address);
 
       console.log("successfully set staking for yvTricrypto");
+
+      // make it use the chainlink aggregator for this tests
+      await assetMappings.setAssetType(yvTricrypto2.address, 0);
     });
-    after("Reset", () => {
+    after("Reset", async () => {
       // Reset BigNumber
       BigNumber.config({
         DECIMAL_PLACES: 20,
         ROUNDING_MODE: BigNumber.ROUND_HALF_UP,
       });
+
+
+      const {  assetMappings, yvTricrypto2 } = testEnv; 
+      await assetMappings.setAssetType(yvTricrypto2.address, 3);
     });
 
     for (const story of scenario.stories) {

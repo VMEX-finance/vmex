@@ -716,6 +716,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const stakingD = await deployStakingRewardsMock([rewardToken.address, mockTokens["AAVE"].address], "yaAave");
   const stakingE = await deployStakingRewardsMock([rewardToken.address, mockTokens["USDT"].address], "yaUsdt");
   const stakingF = await deployStakingRewardsMock([rewardToken.address, mockTokens["WETH"].address], "yaWeth");
+  const stakingG = await deployStakingRewardsMock([rewardToken.address, mockTokens["yvTricrypto2"].address], "yayvTricrypto2");
 
   await rewardToken.connect(vaultOfRewards).transfer(stakingA.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   console.log(`staking A received USDC ${await rewardToken.balanceOf(stakingA.address)}`)
@@ -729,6 +730,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   await stakingE.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   await rewardToken.connect(vaultOfRewards).transfer(stakingF.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
   await stakingF.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await rewardToken.connect(vaultOfRewards).transfer(stakingG.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await stakingG.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
 
   // const ic = await getIncentivesControllerProxy();
   // await ic.batchAddStakingRewards(
