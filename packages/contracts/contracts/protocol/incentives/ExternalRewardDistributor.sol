@@ -177,6 +177,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
       if (received > 0) {
         uint256 accruedPerToken = received * 1e16 / totalSupply;
         rewardData.cumulativeRewardPerToken += accruedPerToken;
+        rewardData.lastUpdateTimestamp = block.timestamp;
         emit Harvested(underlying, accruedPerToken);
       }
     }
@@ -250,7 +251,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   }
 
   function getDataByAToken(address aToken) external view
-  returns (address, address, address, uint256, uint256) {
+  returns (address underlyingContract, address stakingContract, address rewardContract, uint256 cumulativeRewardPerToken, uint256 lastUpdateTimestamp) {
       address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
       return (
           underlying,
