@@ -3,6 +3,8 @@ pragma solidity 0.8.19;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IReserveInterestRateStrategy} from "../../interfaces/IReserveInterestRateStrategy.sol";
+import {IIncentivesController} from "../../interfaces/IIncentivesController.sol";
+import {IAToken} from "../../interfaces/IAToken.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
@@ -108,6 +110,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(
             calvars.aToken
         );
+        availableLiquidity = availableLiquidity.add(IAToken(calvars.aToken).getStakedAmount());
 
         availableLiquidity = availableLiquidity
             .add(calvars.liquidityAdded)

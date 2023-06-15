@@ -184,6 +184,8 @@ contract LendingPoolCollateralManager is
         if (!receiveAToken) {
             uint256 currentAvailableCollateral = IERC20(vars.collateralAsset)
                 .balanceOf(vars.collateralAToken);
+            currentAvailableCollateral = currentAvailableCollateral.add(IAToken(vars.collateralAToken).getStakedAmount());
+
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
                 return (
                     uint256(
@@ -246,6 +248,7 @@ contract LendingPoolCollateralManager is
                 );
             }
         } else {
+
             collateralReserve.updateState(vars._assetMappings.getVMEXReserveFactor(collateralAsset));
             collateralReserve.updateInterestRates(
                 vars.collateralAsset,

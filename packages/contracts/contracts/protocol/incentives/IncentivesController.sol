@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
+import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
@@ -10,6 +11,7 @@ import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol
 import {IIncentivesController} from '../../interfaces/IIncentivesController.sol';
 import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
 import {DistributionManager} from './DistributionManager.sol';
+import {ExternalRewardDistributor} from './ExternalRewardDistributor.sol';
 
 /**
  * @title IncentivesController
@@ -19,7 +21,8 @@ import {DistributionManager} from './DistributionManager.sol';
 contract IncentivesController is
   IIncentivesController,
   VersionedInitializable,
-  DistributionManager
+  DistributionManager,
+  ExternalRewardDistributor
 {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -29,8 +32,10 @@ contract IncentivesController is
 
   constructor(
     address rewardsVault,
-    address emissionManager
-  ) DistributionManager(emissionManager) {
+    address emissionManager,
+    address externalRewardManager
+  ) DistributionManager(emissionManager) 
+    ExternalRewardDistributor(externalRewardManager) {
     REWARDS_VAULT = rewardsVault;
   }
 
@@ -53,12 +58,35 @@ contract IncentivesController is
   /**
    * @dev Called by the corresponding asset on any update that affects the rewards distribution
    * @param user The address of the user
-   * @param userBalance The (old) balance of the user of the asset in the lending pool
+   * @param oldBalance The old balance of the user of the asset in the lending pool
    * @param totalSupply The (old) total supply of the asset in the lending pool
+   * @param newBalance The new balance of the user of the asset in the lending pool
+   * @param action Deposit, withdrawal, or transfer
    **/
-  function handleAction(address user, uint256 totalSupply, uint256 userBalance) external override {
+  function handleAction(
+    address user,
+    uint256 totalSupply,
+    uint256 oldBalance,
+    uint256 newBalance,
+    DistributionTypes.Action action
+  ) external override {
     // note: msg.sender is the incentivized asset (the vToken)
-    _updateIncentivizedAsset(msg.sender, user, userBalance, totalSupply);
+    _updateIncentivizedAsset(msg.sender, user, oldBalance, totalSupply);
+
+    if (stakingExists(msg.sender)) {
+      if (action == DistributionTypes.Action.DEPOSIT) {
+        onDeposit(user, newBalance - oldBalance);
+      } else if (action == DistributionTypes.Action.WITHDRAW) {
+        onWithdraw(user, oldBalance - newBalance);
+      } else if (action == DistributionTypes.Action.TRANSFER) {
+          if (oldBalance > newBalance) {
+            onTransfer(user, oldBalance - newBalance, true);
+          } else if (newBalance > oldBalance) {
+            onTransfer(user, newBalance - oldBalance, false);
+          }
+          
+      }
+    }
   }
 
   function _getUserState(
@@ -198,5 +226,9 @@ contract IncentivesController is
     }
 
     return (rewards, amounts);
+  }
+
+  function totalStaked() external view override returns (uint256) {
+    return _totalStaked(msg.sender);
   }
 }

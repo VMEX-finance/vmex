@@ -194,7 +194,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
     }
 
     /**
-     * @dev Adds a new asset mapping to the linked list, will skip assets
+     * @dev Adds a new asset mapping to the linked list, will revert if there are assets
      *      that were already added
      **/
     function addAssetMapping(
@@ -372,6 +372,7 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
         return interestRateStrategyAddress[asset][choice];
     }
 
+    
     function getAssetType(address asset) view external returns(DataTypes.ReserveAssetType){
         require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing
         return DataTypes.ReserveAssetType(assetMappings[asset].assetType);
@@ -410,6 +411,13 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             numInterestRateStrategyAddress[asset],
             strategy
         );
+    }
+
+    /**
+     * @dev Sets asset type for an asset for oracle choice. May be used if a chainlink aggregator becomes available for a asset
+     **/
+    function setAssetType(address asset, DataTypes.ReserveAssetType assetType) external override onlyGlobalAdmin {
+        assetMappings[asset].assetType = uint8(assetType);
     }
 
     /**
