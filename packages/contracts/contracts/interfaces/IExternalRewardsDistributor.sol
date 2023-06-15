@@ -25,13 +25,16 @@ interface IExternalRewardsDistributor {
     bool enabled;
   }
 
-  event RewardConfigured(address indexed underlying, address indexed reward, address indexed staking, uint256 numStakingContracts);
+  event RewardConfigured(address indexed underlying,  address indexed staking, uint256 numStakingContracts);
   event ATokenRewardStarted(address indexed aToken, uint256 stakingContractIndex, uint256 initialAmount);
   event Harvested(address indexed underlying, uint256 rewardPerToken);
   event UserUpdated(address indexed user, address indexed aToken, address indexed underlying, uint256 rewardBalance);
-  event StakingRewardClaimed(address indexed user, address indexed underlying, address indexed reward, uint256 amount);
+  // event StakingRewardClaimed(address indexed user, address indexed underlying, address indexed reward, uint256 amount);
   event StakingContractUpdated(address indexed underlying, address indexed oldContract, address indexed newContract);
   event StakingRemoved(address indexed aToken);
+  event UserDeposited(address indexed user, address indexed aToken, uint256 amount);
+  event UserWithdraw(address indexed user, address indexed aToken, uint256 amount);
+  event UserTransfer(address indexed user, address indexed aToken, uint256 amount, bool sender);
 
   // function batchAddStakingRewards(
   //     address[] calldata aTokens,
@@ -47,5 +50,5 @@ interface IExternalRewardsDistributor {
   // ) external;
 
   function getDataByAToken(address aToken) external view
-  returns (address, address, address);
+  returns (address, address, uint256, uint256, bool);
 }

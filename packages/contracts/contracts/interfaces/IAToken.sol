@@ -132,5 +132,4 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
     function getStakedAmount() external view returns (uint256);
 
     function _addressesProvider() external view returns (ILendingPoolAddressesProvider);
-    function _tranche() external view returns (uint256);
 }

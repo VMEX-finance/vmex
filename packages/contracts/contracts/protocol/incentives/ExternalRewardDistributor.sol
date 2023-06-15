@@ -36,14 +36,12 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
    * @dev Called by the manager to specify that an underlying has an external reward (once it's added, it cannot be edited)
    * @param underlying The address of the underlying that has an external reward
    * @param staking The address of the staking contract
-   * @param reward The address of the reward token
    **/
   function addStakingReward(
     address underlying,
-    address staking,
-    address reward
+    address staking
   ) public onlyManager {
-    require(staking != address(0) && reward != address(0), 'No zero address');
+    require(staking != address(0), 'No zero address');
     address assetMappings = addressesProvider.getAssetMappings();
     require(!IAssetMappings(assetMappings).getAssetBorrowable(underlying), "Underlying cannot be borrowable for external rewards");
     
@@ -51,11 +49,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     
     dat.staking[dat.numStakingContracts].stakingContract = IStakingRewards(staking);
     IERC20(underlying).approve(staking, type(uint).max);
-    dat.staking[dat.numStakingContracts].rewardContract = IERC20(reward);
 
     dat.numStakingContracts += 1;
 
-    emit RewardConfigured(underlying, reward, staking, dat.numStakingContracts);
+    emit RewardConfigured(underlying, staking, dat.numStakingContracts);
   }
 
   /**
@@ -79,26 +76,28 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     require(!IAssetMappings(assetMappings).getAssetBorrowable(underlying), "Underlying cannot be borrowable for external rewards");
 
     aTokenData.enabled = true;
+    aTokenStaking[aToken].currentStakingContractIndex = stakingContractIndex;
 
     //transfer all aToken's underlying to this contract and stake it
-    uint256 amount = IAToken(aToken).totalSupply();
-    IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
-    stakingData[underlying].staking[stakingContractIndex].stakingContract.stake(amount);
-    aTokenData.totalStaked += amount;
+    uint256 amount = IERC20(underlying).balanceOf(aToken);
+    if(amount!=0){
+      IERC20(underlying).safeTransferFrom(aToken, address(this), amount);
+      stakingData[underlying].staking[stakingContractIndex].stakingContract.stake(amount);
+      aTokenData.totalStaked += amount;
+    }
+    
 
     emit ATokenRewardStarted(aToken, stakingContractIndex, amount);
   }
 
   function batchAddStakingRewards(
       address[] calldata underlyings,
-      address[] calldata stakingContracts,
-      address[] calldata rewards
+      address[] calldata stakingContracts
   ) external onlyManager {
-    require(underlyings.length == stakingContracts.length
-        && stakingContracts.length == rewards.length, "Malformed input");
+    require(underlyings.length == stakingContracts.length, "Malformed input");
 
     for(uint i = 0; i < underlyings.length; i++) {
-        addStakingReward(underlyings[i], stakingContracts[i], rewards[i]);
+        addStakingReward(underlyings[i], stakingContracts[i]);
     }
   }
 
@@ -111,9 +110,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
 
     uint256 amount = aTokenStaking[aToken].metadata[stakingContractIndex].totalStaked;
-    stakingData[underlying].staking[stakingContractIndex].stakingContract.withdraw(amount);
-    IERC20(underlying).safeTransfer(aToken, amount);
-    aTokenStaking[aToken].metadata[stakingContractIndex].totalStaked = 0;
+    if(amount!=0){
+      stakingData[underlying].staking[stakingContractIndex].stakingContract.withdraw(amount);
+      IERC20(underlying).safeTransfer(aToken, amount);
+      aTokenStaking[aToken].metadata[stakingContractIndex].totalStaked = 0;
+    }
     aTokenStaking[aToken].metadata[stakingContractIndex].enabled = false;
 
     //event
@@ -133,6 +134,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
     rewardData.stakingContract.stake(amount);
     aTokenData.totalStaked += amount;
+
+    // event emission necessary for off chain calculation of looping through all active users
+    emit UserDeposited(user, msg.sender, amount);
   }
 
   function onWithdraw(
@@ -148,10 +152,14 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     rewardData.stakingContract.withdraw(amount);
     IERC20(underlying).safeTransfer(msg.sender, amount);
     aTokenData.totalStaked -= amount;
+
+    // event emission necessary for off chain calculation of looping through all active users
+    emit UserWithdraw(user, msg.sender, amount);
   }
 
   function onTransfer(address user, uint256 amount, bool sender) internal {
     //no-op since totalStaked doesn't change, the amounts each person owns is calculated off chain
+    emit UserTransfer(user, msg.sender, amount, sender);
   }
 
   // function _claimStakingReward(
@@ -181,7 +189,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   // }
 
   function getDataByAToken(address aToken) external view
-  returns (address underlyingContract, address stakingContract, address rewardContract) {
+  returns (address underlyingContract, address stakingContract, uint256 currentStakingContractIndex, uint256 totalStaked, bool enabled) {
       
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     uint256 stakingContractIndex = aTokenStaking[aToken].currentStakingContractIndex;
@@ -191,15 +199,15 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
       return (
           underlying,
           address(rewardData.stakingContract),
-          address(rewardData.rewardContract)
+          stakingContractIndex,
+          aTokenData.totalStaked,
+          aTokenData.enabled
       );
   }
 
   function _totalStaked(address aToken) internal view returns (uint256) {
-    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     uint256 stakingContractIndex = aTokenStaking[aToken].currentStakingContractIndex;
 
-    StakingContractMetadata storage rewardData = stakingData[underlying].staking[stakingContractIndex];
     ATokenMetadata storage aTokenData = aTokenStaking[aToken].metadata[stakingContractIndex];
     return aTokenData.totalStaked;
   }
