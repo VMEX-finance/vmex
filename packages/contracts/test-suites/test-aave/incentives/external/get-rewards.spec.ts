@@ -7,6 +7,22 @@ import hre from 'hardhat';
 import { BigNumber, BigNumberish } from 'ethers';
 
 makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
+	before('Before', async () => {
+		const { dai, assetMappings, busd, usdt, weth } = testEnv; 
+		await assetMappings.setBorrowingEnabled(dai.address, false);
+		await assetMappings.setBorrowingEnabled(busd.address, false);
+		await assetMappings.setBorrowingEnabled(usdt.address, false);
+		await assetMappings.setBorrowingEnabled(weth.address, false);
+	  });
+	
+	  after('After', async () => {
+		const { dai, assetMappings, busd, usdt, weth } = testEnv; 
+		await assetMappings.setBorrowingEnabled(dai.address, true);
+		await assetMappings.setBorrowingEnabled(busd.address, true);
+		await assetMappings.setBorrowingEnabled(usdt.address, true);
+		await assetMappings.setBorrowingEnabled(weth.address, true);
+	  });
+	
     it('Single depositor, harvests and claims requested amount', async () => {
       const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens } = testEnv;
 
@@ -45,7 +61,7 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 			]);
     });
 
-		it('Reverts on excess claim', async () => {
+		it('Reverts on excess claim, and checks that new users dont get rewards immediately after depositing', async () => {
 			const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens } = testEnv;
 
 			const aToken = incentivizedTokens[0]
@@ -54,11 +70,17 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 			const staking = stakingContracts[0]
 
 			await asset.transfer(aToken.address, 1000);
+
+
 			await aToken.handleActionOnAic(newUser.address, 1000, 0, 1000, 0);
+
+			let userData = await incentivesController.getUserDataByAToken(newUser.address, aToken.address)
+
+			expect(userData.rewardBalance).equal(0); // make sure that lastUpdateRewardPerToken was set correctly
 
 			increaseTime(20000)
 			
-			const userData = await incentivesController.getUserDataByAToken(newUser.address, aToken.address)
+			userData = await incentivesController.getUserDataByAToken(newUser.address, aToken.address)
 			const earned = await staking.earned(incentivesController.address)
 			await expect(
 				incentivesController.connect(newUser.signer).claimStakingReward(asset.address, userData.rewardBalance.add(earned).add(10000))
@@ -152,23 +174,36 @@ makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 			const asset = incentUnderlying[2]
 			const staking = stakingContracts[2]
 			const reward = rewardTokens[0]
+
+			const user = users[6]
 			
 			await asset.mint(10000)
 			await asset.transfer(aToken1.address, 2000)
 			await asset.transfer(aToken2.address, 2000)
 
-			await incentivesController.batchAddStakingRewards(
-				[aToken1.address, aToken2.address],
-				[staking.address, staking.address],
-				[reward.address, reward.address]
+			await incentivesController.addStakingReward(
+				aToken1.address,
+				staking.address,
+				reward.address
 			)
 
-			const user = users[6]
+			//Test that aToken2 still doesn't have staking rewards set up
+
+			await aToken2.handleActionOnAic(user.address, 0, 0, 1000, 0)
+
+			let userData = await incentivesController.getUserDataByAToken(user.address, aToken1.address)
+			expect(userData.stakedBalance).equal(0)
+
+			await incentivesController.addStakingReward(
+				aToken2.address,
+				staking.address,
+				reward.address
+			)
 
 			await aToken1.handleActionOnAic(user.address, 0, 0, 1000, 0)
 			await aToken2.handleActionOnAic(user.address, 0, 0, 1000, 0)
 
-			const userData = await incentivesController.getUserDataByAToken(user.address, aToken1.address)
+			userData = await incentivesController.getUserDataByAToken(user.address, aToken1.address)
 			expect(userData.stakedBalance).equal(2000)
 			
 			increaseTime(50000)

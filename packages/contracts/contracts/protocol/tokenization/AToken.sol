@@ -54,7 +54,7 @@ contract AToken is
     ILendingPoolAddressesProvider public _addressesProvider;
     ILendingPool public _pool;
     address public _lendingPoolConfigurator;
-    address public _underlyingAsset;
+    address internal _underlyingAsset;
     uint64 public _tranche;
 
     modifier onlyLendingPool() {

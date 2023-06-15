@@ -12,11 +12,6 @@ interface IExternalRewardsDistributor {
     uint256 lastUpdateRewardPerToken;
   }
 
-  struct ATokenData {
-    address underlying;
-    uint256 totalStaked;
-  }
-
   struct StakingReward {
     IStakingRewards staking;
     IERC20 reward;
@@ -25,6 +20,11 @@ interface IExternalRewardsDistributor {
     bool rewardEnded;
     mapping(address => UserState) users;
     address[] aTokens;
+  }
+
+  struct ATokenData {
+    uint256 totalStaked;
+    bool enabled;
   }
 
   event RewardConfigured(address indexed aToken, address indexed underlying, address indexed reward, address staking);

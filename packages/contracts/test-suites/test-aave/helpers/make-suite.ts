@@ -290,7 +290,7 @@ export async function initializeMakeSuite() {
     await getATokenMock({ slug: 'aWeth' }),
   ]
 
-  testEnv.rewardTokens = [testEnv.usdc];
+  testEnv.rewardTokens = [testEnv.usdc, testEnv.dai];
 
   testEnv.stakingContracts = [
     await getStakingRewardsMock({ slug: 'yaDai'}),
@@ -298,6 +298,8 @@ export async function initializeMakeSuite() {
     await getStakingRewardsMock({ slug: 'yaAave'}),
     await getStakingRewardsMock({ slug: 'yaUsdt'}),
     await getStakingRewardsMock({ slug: 'yaWeth'}),
+    await getStakingRewardsMock({ slug: 'yaDaiCp'}),
+    await getStakingRewardsMock({ slug: 'yayvTricrypto2'}),
   ];
 
   testEnv.incentUnderlying = [testEnv.dai, testEnv.busd, testEnv.aave, testEnv.usdt]

@@ -15,14 +15,21 @@ const { expect } = chai;
 
 makeSuite('Vmex incentives controller - integration tests with the lendingpool', (testEnv) => {
   const { INVALID_HF } = ProtocolErrors;
-  const tranche = 0;
+  const tranche = 1;
 
-  before('Before LendingPool liquidation: set config', () => {
+  before('Before LendingPool liquidation: set config', async () => {
+    const { incentivesController, stakingContracts, rewardTokens, addressesProvider, assetMappings, yvTricrypto2, ayvTricrypto2 } = testEnv; 
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
+    // make it use the chainlink aggregator for this tests
+    await assetMappings.setAssetType(yvTricrypto2.address, 0);
+    await assetMappings.configureAssetMapping(yvTricrypto2.address, 8000, 8250, 10500, 1000, 800, 10100);
   });
 
-  after('After LendingPool liquidation: reset config', () => {
+  after('After LendingPool liquidation: reset config', async () => {
     BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
+    const {  assetMappings, yvTricrypto2 } = testEnv; 
+      await assetMappings.setAssetType(yvTricrypto2.address, 3);
+      await assetMappings.configureAssetMapping(yvTricrypto2.address, 2500, 4500, 11500, 10000, 10000, 10100);
   });
 
   it("It's not possible to liquidate on a non-active collateral or a non active principal", async () => {
@@ -46,9 +53,9 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
   });
 
   it('Deposits WETH, borrows DAI', async () => {
-    const { dai, weth, users, pool, oracle, incentivesController, aWETH, stakingContracts, rewardTokens, addressesProvider } = testEnv;
+    const { dai, users, pool, oracle, incentivesController, stakingContracts, rewardTokens, addressesProvider, ayvTricrypto2, yvTricrypto2 } = testEnv;
     await addressesProvider.setIncentivesController(incentivesController.address);
-    await incentivesController.addStakingReward(aWETH.address, stakingContracts[4].address, rewardTokens[0].address);
+    await incentivesController.addStakingReward(ayvTricrypto2.address, stakingContracts[5].address, rewardTokens[0].address);
 
     const depositor = users[0];
     const borrower = users[1];
@@ -65,18 +72,18 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     await pool
       .connect(depositor.signer)
       .deposit(dai.address, tranche, amountDAItoDeposit, depositor.address, '0');
-    //user 2 deposits 1 ETH
-    const amountETHtoDeposit = await convertToCurrencyDecimals(weth.address, '1');
+    //user 2 deposits 4 ETH
+    const amountETHtoDeposit = await convertToCurrencyDecimals(yvTricrypto2.address, '1');
 
     //mints WETH to borrower
-    await weth.connect(borrower.signer).mint(await convertToCurrencyDecimals(weth.address, '1000'));
+    await yvTricrypto2.connect(borrower.signer).mint(await convertToCurrencyDecimals(yvTricrypto2.address, '1000'));
 
     //approve protocol to access the borrower wallet
-    await weth.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await yvTricrypto2.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
     await pool
       .connect(borrower.signer)
-      .deposit(weth.address, tranche, amountETHtoDeposit, borrower.address, '0');
+      .deposit(yvTricrypto2.address, tranche, amountETHtoDeposit, borrower.address, '0');
 
     //user 2 borrows
 
@@ -104,7 +111,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
   });
 
   it('Drop the health factor below 1', async () => {
-    const { dai, weth, users, pool, oracle } = testEnv;
+    const { dai, users, pool, oracle } = testEnv;
     const borrower = users[1];
 
     const daiPrice = await oracle.callStatic.getAssetPrice(dai.address);
@@ -123,7 +130,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
   });
 
   it('Liquidates the borrow', async () => {
-    const { dai, weth, users, pool, oracle, helpersContract } = testEnv;
+    const { dai, yvTricrypto2, users, pool, oracle, helpersContract } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -134,7 +141,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     await dai.connect(liquidator.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
     const daiReserveDataBefore = await helpersContract.getReserveData(dai.address, tranche);
-    const ethReserveDataBefore = await helpersContract.getReserveData(weth.address, tranche);
+    const ethReserveDataBefore = await helpersContract.getReserveData(yvTricrypto2.address, tranche);
 
     const userReserveDataBefore = await getUserData(
       pool,
@@ -150,7 +157,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
 
     const tx = await pool
       .connect(liquidator.signer)
-      .liquidationCall(weth.address, dai.address, tranche, borrower.address, amountToLiquidate, false);
+      .liquidationCall(yvTricrypto2.address, dai.address, tranche, borrower.address, amountToLiquidate, false);
 
     const userReserveDataAfter = await getUserData(
       pool,
@@ -161,13 +168,13 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     );
 
     const daiReserveDataAfter = await helpersContract.getReserveData(dai.address, tranche);
-    const ethReserveDataAfter = await helpersContract.getReserveData(weth.address, tranche);
+    const ethReserveDataAfter = await helpersContract.getReserveData(yvTricrypto2.address, tranche);
 
-    const collateralPrice = await oracle.callStatic.getAssetPrice(weth.address);
+    const collateralPrice = await oracle.callStatic.getAssetPrice(yvTricrypto2.address);
     const principalPrice = await oracle.callStatic.getAssetPrice(dai.address);
 
     const collateralDecimals = (
-      await helpersContract.getReserveConfigurationData(weth.address, tranche)
+      await helpersContract.getReserveConfigurationData(yvTricrypto2.address, tranche)
     ).decimals.toString();
     const principalDecimals = (
       await helpersContract.getReserveConfigurationData(dai.address, tranche)
@@ -231,7 +238,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
   });
 
   it('User 3 deposits 1000 USDC, user 4 1 WETH, user 4 borrows - drops HF, liquidates the borrow', async () => {
-    const { usdc, users, pool, oracle, weth, helpersContract } = testEnv;
+    const { usdc, users, pool, oracle, yvTricrypto2, helpersContract } = testEnv;
 
     const depositor = users[3];
     const borrower = users[4];
@@ -253,17 +260,17 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
       .deposit(usdc.address, tranche, amountUSDCtoDeposit, depositor.address, '0');
 
     //borrower deposits 1 ETH
-    const amountETHtoDeposit = await convertToCurrencyDecimals(weth.address, '1');
+    const amountETHtoDeposit = await convertToCurrencyDecimals(yvTricrypto2.address, '1');
 
     //mints WETH to borrower
-    await weth.connect(borrower.signer).mint(await convertToCurrencyDecimals(weth.address, '1000'));
+    await yvTricrypto2.connect(borrower.signer).mint(await convertToCurrencyDecimals(yvTricrypto2.address, '1000'));
 
     //approve protocol to access the borrower wallet
-    await weth.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await yvTricrypto2.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
     await pool
       .connect(borrower.signer)
-      .deposit(weth.address, tranche, amountETHtoDeposit, borrower.address, '0');
+      .deposit(yvTricrypto2.address, tranche, amountETHtoDeposit, borrower.address, '0');
 
     //borrower borrows
     const userGlobalData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
@@ -304,7 +311,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     );
 
     const usdcReserveDataBefore = await helpersContract.getReserveData(usdc.address, tranche);
-    const ethReserveDataBefore = await helpersContract.getReserveData(weth.address, tranche);
+    const ethReserveDataBefore = await helpersContract.getReserveData(yvTricrypto2.address, tranche);
 
     const amountToLiquidate = DRE.ethers.BigNumber.from(
       userReserveDataBefore.currentVariableDebt.toString()
@@ -314,7 +321,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
 
     await pool
       .connect(liquidator.signer)
-      .liquidationCall(weth.address, usdc.address, tranche, borrower.address, amountToLiquidate, false);
+      .liquidationCall(yvTricrypto2.address, usdc.address, tranche, borrower.address, amountToLiquidate, false);
 
     const userReserveDataAfter = await helpersContract.getUserReserveData(
       usdc.address,
@@ -325,13 +332,13 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     const userGlobalDataAfter = await pool.callStatic.getUserAccountData(borrower.address, tranche);
 
     const usdcReserveDataAfter = await helpersContract.getReserveData(usdc.address, tranche);
-    const ethReserveDataAfter = await helpersContract.getReserveData(weth.address, tranche);
+    const ethReserveDataAfter = await helpersContract.getReserveData(yvTricrypto2.address, tranche);
 
-    const collateralPrice = await oracle.callStatic.getAssetPrice(weth.address);
+    const collateralPrice = await oracle.callStatic.getAssetPrice(yvTricrypto2.address);
     const principalPrice = await oracle.callStatic.getAssetPrice(usdc.address);
 
     const collateralDecimals = (
-      await helpersContract.getReserveConfigurationData(weth.address, tranche)
+      await helpersContract.getReserveConfigurationData(yvTricrypto2.address, tranche)
     ).decimals.toString();
     const principalDecimals = (
       await helpersContract.getReserveConfigurationData(usdc.address, tranche)
