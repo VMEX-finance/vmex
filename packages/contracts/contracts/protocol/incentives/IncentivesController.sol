@@ -33,9 +33,10 @@ contract IncentivesController is
   constructor(
     address rewardsVault,
     address emissionManager,
-    address externalRewardManager
+    address externalRewardManager,
+    address addressesProvider
   ) DistributionManager(emissionManager) 
-    ExternalRewardDistributor(externalRewardManager) {
+    ExternalRewardDistributor(externalRewardManager, addressesProvider) {
     REWARDS_VAULT = rewardsVault;
   }
 
