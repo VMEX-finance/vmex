@@ -177,7 +177,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
       if (received > 0) {
         uint256 accruedPerToken = received * 1e16 / totalSupply;
         rewardData.cumulativeRewardPerToken += accruedPerToken;
-        rewardData.lastUpdateTimestamp = block.timestamp;
         emit Harvested(underlying, accruedPerToken);
       }
     }
@@ -193,7 +192,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     StakingReward storage rewardData = stakingData[underlying];
 
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
-    IERC20(underlying).approve(address(rewardData.staking), type(uint256).max);
     rewardData.staking.stake(amount);
     aTokenStaking[msg.sender].totalStaked += amount;
     rewardData.users[user].stakedBalance += amount;
