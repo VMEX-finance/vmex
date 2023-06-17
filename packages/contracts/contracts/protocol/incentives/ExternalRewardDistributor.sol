@@ -53,7 +53,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     IERC20(underlying).approve(stakingContract, type(uint).max);
 
     //transfer all aToken's underlying to this contract and stake it
-    uint256 amount = IERC20(underlying).balanceOf(aToken);
+    uint256 amount = IERC20(aToken).totalSupply();
     if(amount!=0){
       IERC20(underlying).safeTransferFrom(aToken, address(this), amount);
       IStakingRewards(stakingContract).stake(amount);
