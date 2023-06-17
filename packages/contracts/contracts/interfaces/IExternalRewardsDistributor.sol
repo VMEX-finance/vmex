@@ -5,25 +5,36 @@ import {IStakingRewards} from './IStakingRewards.sol';
 import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
 
 interface IExternalRewardsDistributor {
-  event RewardConfigured(address indexed aToken, address indexed staking, uint256 initialAmount);
-  event StakingRemoved(address indexed aToken);
-  event UserDeposited(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
-  event UserWithdraw(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
-  event UserTransfer(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount, bool sender);
+    /// EVENTS ///
 
-  // function batchAddStakingRewards(
-  //     address[] calldata aTokens,
-  //     address[] calldata stakingContracts,
-  //     address[] calldata rewards
-  // ) external;
+    /// @notice Emitted when the root is updated.
+    /// @param newRoot The new merkle's tree root.
+    event RootUpdated(bytes32 newRoot);
 
-  // function claimStakingReward(address underlying, uint256 amount) external;
+    /// @notice Emitted when MORPHO tokens are withdrawn.
+    /// @param to The address of the recipient.
+    /// @param amount The amount of MORPHO tokens withdrawn.
+    event MorphoWithdrawn(address to, uint256 amount);
 
-  // function batchClaimStakingRewards(
-  //   address[] calldata assets,
-  //   uint256[] calldata amounts
-  // ) external;
+    /// @notice Emitted when an account claims rewards.
+    /// @param account The address of the claimer.
+    /// @param amount The amount of rewards claimed.
+    event RewardsClaimed(address account, uint256 amount);
 
-  function getStakingContract(address aToken) external view
-  returns (address);
+    /// ERRORS ///
+
+    /// @notice Thrown when the proof is invalid or expired.
+    error ProofInvalidOrExpired();
+
+    /// @notice Thrown when the claimer has already claimed the rewards.
+    error AlreadyClaimed();
+
+    event RewardConfigured(address indexed aToken, address indexed staking, uint256 initialAmount);
+    event StakingRemoved(address indexed aToken);
+    event UserDeposited(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
+    event UserWithdraw(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
+    event UserTransfer(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount, bool sender);
+
+    function getStakingContract(address aToken) external view
+    returns (address);
 }

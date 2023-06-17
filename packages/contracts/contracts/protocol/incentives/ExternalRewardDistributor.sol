@@ -9,13 +9,21 @@ import {IAssetMappings} from '../../interfaces/IAssetMappings.sol';
 import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
+/// @title VMEX External Rewards Distributor.
+/// @author Volatile Labs Ltd.
+/// @notice This contract allows Vmex users to claim their rewards. This contract is largely inspired by Euler Distributor's contract: https://github.com/euler-xyz/euler-contracts/blob/master/contracts/mining/EulDistributor.sol.
 contract ExternalRewardDistributor is IExternalRewardsDistributor {
   using SafeERC20 for IERC20;
 
   mapping(address => mapping(uint64 => address)) internal stakingData; // incentivized underlying asset => trancheId => address of staking contract
   address public immutable manager;
   ILendingPoolAddressesProvider public immutable addressesProvider;
+
+  bytes32 public currRoot; // The merkle tree's root of the current rewards distribution.
+  bytes32 public prevRoot; // The merkle tree's root of the previous rewards distribution.
+  mapping(address => mapping(address => uint256)) public claimed; // The rewards already claimed. account -> amount.
 
   constructor(address _manager, address _addressesProvider) {
     manager = _manager;
@@ -128,32 +136,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     emit UserTransfer(user, underlying, trancheId, amount, sender);
   }
 
-  // function _claimStakingReward(
-  //   address underlying,
-  //   uint256 amount
-  // ) internal {
-
-  //   StakingReward storage rewardData = stakingData[underlying];
-  //   require(rewardData.users[msg.sender].rewardBalance >= amount, 'Insufficient balance');
-  //   rewardData.reward.safeTransfer(msg.sender, amount);
-  //   rewardData.users[msg.sender].rewardBalance -= amount;
-  //   emit StakingRewardClaimed(msg.sender, underlying, address(rewardData.reward), amount);
-  // }
-
-  // function claimStakingReward(address underlying, uint256 amount) external {
-  //   _claimStakingReward(underlying, amount);
-  // }
-
-  // function batchClaimStakingRewards(
-  //   address[] calldata assets,
-  //   uint256[] calldata amounts
-  // ) external {
-  //   require(assets.length == amounts.length, 'Malformed input');
-  //   for (uint256 i = 0; i < assets.length; i++) {
-  //     _claimStakingReward(assets[i], amounts[i]);
-  //   }
-  // }
-
   function getStakingContract(address aToken) external view returns (address stakingContract) {
       address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
       uint64 trancheId = IAToken(aToken)._tranche();
@@ -162,5 +144,44 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
   function rescueRewardTokens(IERC20 reward, address receiver) external onlyManager {
     reward.safeTransfer(receiver, reward.balanceOf(address(this)));
+  }
+
+  /// @notice Updates the current merkle tree's root.
+  /// @param _newRoot The new merkle tree's root.
+  function updateRoot(bytes32 _newRoot) external onlyManager {
+      prevRoot = currRoot;
+      currRoot = _newRoot;
+      emit RootUpdated(_newRoot);
+  }
+
+  /// @notice Claims rewards.
+  /// @param _account The address of the claimer.
+  /// @param _rewardToken The address of the reward token.
+  /// @param _claimable The overall claimable amount of token rewards.
+  /// @param _proof The merkle proof that validates this claim.
+  function claim(
+      address _account,
+      address _rewardToken,
+      uint256 _claimable,
+      bytes32[] calldata _proof
+  ) external {
+      bytes32 candidateRoot = MerkleProof.processProof(
+          _proof,
+          keccak256(abi.encodePacked(_account, _rewardToken, _claimable))
+      );
+      if (candidateRoot != currRoot && candidateRoot != prevRoot) revert ProofInvalidOrExpired();
+
+      uint256 alreadyClaimed = claimed[_account][_rewardToken];
+      if (_claimable <= alreadyClaimed) revert AlreadyClaimed();
+
+      uint256 amount;
+      unchecked {
+          amount = _claimable - alreadyClaimed;
+      }
+
+      claimed[_account][_rewardToken] = _claimable;
+
+      IERC20(_rewardToken).safeTransfer(_account, amount);
+      emit RewardsClaimed(_account, amount);
   }
 }
