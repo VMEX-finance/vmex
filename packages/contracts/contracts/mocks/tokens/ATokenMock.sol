@@ -12,6 +12,7 @@ contract ATokenMock is MintableERC20 {
   ILendingPoolAddressesProvider public _addressesProvider;
   uint256 internal _userBalance;
   uint256 internal _totalSupply;
+  uint64 public _tranche;
 
   mapping(address => uint256) internal _multiUserBalances;
 
@@ -96,5 +97,9 @@ contract ATokenMock is MintableERC20 {
   function cleanUserState() external {
     _userBalance = 0;
     _totalSupply = 0;
+  }
+
+  function setTranche(uint64 t) external{
+    _tranche = t;
   }
 }
