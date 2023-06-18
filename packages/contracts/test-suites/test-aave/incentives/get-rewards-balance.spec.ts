@@ -54,7 +54,7 @@ makeSuite('IncentivesController getRewardsBalance tests', (testEnv) => {
           },
         ]);
       }
-      await incentivizedAsset.handleActionOnAic(userAddress, stakedByUser, totalStaked);
+      await incentivizedAsset.handleActionOnAic(userAddress, totalStaked, 0, stakedByUser, 0);
       await advanceBlock((await timeLatest()).plus(100).toNumber());
 
       const lastTxReceipt = await waitForTx(

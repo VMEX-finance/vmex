@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-interface IIncentivesController {
+import {DistributionTypes} from '../protocol/libraries/types/DistributionTypes.sol';
+import {IExternalRewardsDistributor} from './IExternalRewardsDistributor.sol';
+
+interface IIncentivesController is IExternalRewardsDistributor{
   event RewardsAccrued(address indexed user, uint256 amount);
 
   /**
@@ -18,7 +21,7 @@ interface IIncentivesController {
     uint256 amount
   );
 
-  function handleAction(address asset, uint256 totalSupply, uint256 userBalance) external;
+  function handleAction(address user, uint256 totalSupply, uint256 oldBalance, uint256 newBalance, DistributionTypes.Action action) external;
 
   function getPendingRewards(
     address[] calldata assets,

@@ -54,7 +54,7 @@ contract AToken is
     ILendingPoolAddressesProvider public _addressesProvider;
     ILendingPool public _pool;
     address public _lendingPoolConfigurator;
-    address public _underlyingAsset;
+    address internal _underlyingAsset;
     uint64 public _tranche;
 
     modifier onlyLendingPool() {
@@ -63,6 +63,22 @@ contract AToken is
             Errors.CT_CALLER_MUST_BE_LENDING_POOL
         );
         _;
+    }
+
+    modifier onlyLendingPoolConfigurator() {
+        require(
+            _msgSender() == _lendingPoolConfigurator,
+            Errors.LP_CALLER_NOT_LENDING_POOL_CONFIGURATOR
+        );
+        _;
+    }
+
+    function approveIncentivesController() internal {
+        address incentivesController = address(_getIncentivesController());
+        if (incentivesController != address(0) &&
+            IERC20(_underlyingAsset).allowance(address(this), incentivesController) == 0) {
+                IERC20(_underlyingAsset).approve(incentivesController, type(uint).max);
+        }
     }
 
     function getRevision() internal pure virtual override returns (uint256) {
@@ -165,6 +181,8 @@ contract AToken is
         uint256 amount,
         uint256 index
     ) external override onlyLendingPool returns (bool) {
+        approveIncentivesController();
+
         uint256 previousBalance = super.balanceOf(user);
         uint256 amountScaled = amount.rayDiv(index);
         require(amountScaled != 0, Errors.CT_INVALID_MINT_AMOUNT);
@@ -187,6 +205,8 @@ contract AToken is
         override
         onlyLendingPool
     {
+        approveIncentivesController();
+
         if (amount == 0) {
             return;
         }
@@ -214,6 +234,8 @@ contract AToken is
         override
         onlyLendingPool
     {
+        approveIncentivesController();
+
         if (amount == 0) {
             return;
         }
@@ -373,7 +395,7 @@ contract AToken is
 
     /**
      * @dev Transfers the underlying asset to `target`. Used by the LendingPool to transfer
-     * assets in borrow(), withdraw() and flashLoan()
+     * assets in borrow() without burning atokens
      * @param target The recipient of the aTokens
      * @param amount The amount getting transferred
      * @return The amount transferred
@@ -498,5 +520,14 @@ contract AToken is
         uint256 amount
     ) internal override {
         _transfer(from, to, amount, true);
+    }
+
+    function getStakedAmount() external view override returns (uint256) {
+        IIncentivesController ic = _getIncentivesController();
+        if (address(ic) == address(0) || ic.getStakingContract(address(this)) == address(0)) {
+            return 0;
+        }
+
+        return totalSupply();
     }
 }

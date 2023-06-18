@@ -20,6 +20,8 @@ import {
   getATokenMock,
   getIncentivesControllerProxy,
   getVmexToken,
+  getStakingRewardsMock,
+  // getATokensAndRatesHelper,
 } from "../../../helpers/contracts-getters";
 import {
   eEthereumNetwork,
@@ -45,7 +47,7 @@ import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, VmexToken, YearnTokenMocked } from "../../../types";
+import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, StakingRewardsMock, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, VmexToken, YearnTokenMocked } from "../../../types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";
@@ -77,6 +79,8 @@ export interface TestEnv {
   aUsdc: AToken;
   varDebtUsdc: VariableDebtToken;
   aave: MintableERC20;
+  busd: MintableERC20;
+  usdt: MintableERC20;
   aAave: AToken;
   tricrypto2: MintableERC20;
   yvTricrypto2: YearnTokenMocked;
@@ -96,6 +100,9 @@ export interface TestEnv {
   vmexToken: VmexToken;
   incentivizedTokens: ATokenMock[];
   rewardTokens: MintableERC20[];
+  stakingContracts: StakingRewardsMock[];
+  incentUnderlying: MintableERC20[];
+  leafNodes: MerkleLeaf[];
 }
 
 let buidlerevmSnapshotId: string = "0x1";
@@ -119,6 +126,8 @@ const testEnv: TestEnv = {
   aUsdc: {} as  AToken,
   varDebtUsdc: {} as  VariableDebtToken,
   aave: {} as MintableERC20,
+  busd: {} as MintableERC20,
+  usdt: {} as MintableERC20,
   tricrypto2: {} as MintableERC20,
   yvTricrypto2: {} as YearnTokenMocked,
   ayvTricrypto2: {} as AToken,
@@ -135,7 +144,16 @@ const testEnv: TestEnv = {
   vmexToken: {} as VmexToken,
   incentivizedTokens: [] as ATokenMock[],
   rewardTokens: [] as MintableERC20[],
+  stakingContracts: [] as StakingRewardsMock[],
+  incentUnderlying: [] as MintableERC20[],
+  leafNodes: [] as MerkleLeaf[],
 } as TestEnv;
+
+export interface MerkleLeaf {
+  userAddress: tEthereumAddress,
+  rewardToken: tEthereumAddress,
+  amountOwed: Number,
+}
 
 export async function initializeMakeSuite() {
   const [_deployer, ...restSigners] = await getEthersSigners();
@@ -209,11 +227,17 @@ export async function initializeMakeSuite() {
   const daiAddress = reservesTokensT0.find(
     (token) => token.symbol === "DAI"
   )?.tokenAddress;
+  const busdAddress = reservesTokensT0.find(
+    (token) => token.symbol === "BUSD"
+  )?.tokenAddress;
   const usdcAddress = reservesTokensT0.find(
     (token) => token.symbol === "USDC"
   )?.tokenAddress;
   const aaveAddress = reservesTokensT0.find(
     (token) => token.symbol === "AAVE"
+  )?.tokenAddress;
+  const usdtAddress = reservesTokensT0.find(
+    (token) => token.symbol === "USDT"
   )?.tokenAddress;
   const wethAddress = reservesTokensT0.find(
     (token) => token.symbol === "WETH"
@@ -254,6 +278,8 @@ export async function initializeMakeSuite() {
   testEnv.dai = await getMintableERC20(daiAddress);
   testEnv.usdc = await getMintableERC20(usdcAddress);
   testEnv.aave = await getMintableERC20(aaveAddress);
+  testEnv.busd = await getMintableERC20(busdAddress)
+  testEnv.usdt = await getMintableERC20(usdtAddress)
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
   testEnv.yvTricrypto2 = await getYearnTokenMocked(yvTricrypto2Address);
@@ -266,14 +292,33 @@ export async function initializeMakeSuite() {
 
   testEnv.incentivizedTokens = [
     await getATokenMock({ slug: 'aDai' }),
-    await getATokenMock({ slug: 'aWeth' }),
-    await getATokenMock({ slug: 'aUsdc' }),
     await getATokenMock({ slug: 'aBusd' }),
-    await getATokenMock({ slug: 'aUsdt' })
+    await getATokenMock({ slug: 'aAave' }),
+    await getATokenMock({ slug: 'aUsdt' }),
+    await getATokenMock({ slug: 'aWeth' }),
   ]
 
-  testEnv.rewardTokens = [testEnv.usdc];
+  testEnv.rewardTokens = [testEnv.usdc, testEnv.dai];
 
+  testEnv.stakingContracts = [
+    await getStakingRewardsMock({ slug: 'yaDai'}),
+    await getStakingRewardsMock({ slug: 'yaBusd'}),
+    await getStakingRewardsMock({ slug: 'yaAave'}),
+    await getStakingRewardsMock({ slug: 'yaUsdt'}),
+    await getStakingRewardsMock({ slug: 'yaWeth'}),
+    await getStakingRewardsMock({ slug: 'yaDaiCp'}),
+    await getStakingRewardsMock({ slug: 'yayvTricrypto2'}),
+  ];
+
+  testEnv.incentUnderlying = [testEnv.dai, testEnv.busd, testEnv.aave, testEnv.usdt]
+
+  testEnv.leafNodes = testEnv.users.map((user) => {
+    return {
+      userAddress: user.address,
+      rewardToken: testEnv.usdc.address,
+      amountOwed: Number(0)
+    }
+  })
   // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 
   //CURVE TODO: these are not deployed when running mainnet fork in localhost

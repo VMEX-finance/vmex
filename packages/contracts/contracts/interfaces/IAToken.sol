@@ -5,6 +5,7 @@ import {IERC20} from "../dependencies/openzeppelin/contracts/IERC20.sol";
 import {IScaledBalanceToken} from "./IScaledBalanceToken.sol";
 import {IInitializableAToken} from "./IInitializableAToken.sol";
 import {IIncentivesController} from "./IIncentivesController.sol";
+import {ILendingPoolAddressesProvider} from "./ILendingPoolAddressesProvider.sol";
 import {DataTypes} from "../protocol/libraries/types/DataTypes.sol";
 
 interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
@@ -127,4 +128,10 @@ interface IAToken is IERC20, IScaledBalanceToken, IInitializableAToken {
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
     function UNDERLYING_ASSET_ADDRESS() external view returns (address);
+
+    function getStakedAmount() external view returns (uint256);
+
+    function _addressesProvider() external view returns (ILendingPoolAddressesProvider);
+
+    function _tranche() external view returns (uint64);
 }

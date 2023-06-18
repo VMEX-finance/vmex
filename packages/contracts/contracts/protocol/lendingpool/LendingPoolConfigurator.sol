@@ -12,6 +12,7 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
 import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
+import {IAToken} from "../../interfaces/IAToken.sol";
 import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
 import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
@@ -528,8 +529,9 @@ contract LendingPoolConfigurator is
         uint256 availableLiquidity = IERC20Detailed(asset).balanceOf(
             reserveData.aTokenAddress
         );
-        //if underlying in aToken is zero, it could mean that 100% is borrowed. But,
-        //it is not possible for there to be any borrows if the liquidity rate is zero
+
+        availableLiquidity += IAToken(reserveData.aTokenAddress).getStakedAmount();
+
         require(
             availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
             Errors.LPC_RESERVE_LIQUIDITY_NOT_0

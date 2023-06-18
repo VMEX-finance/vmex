@@ -44,7 +44,6 @@ contract LendingPoolAddressesProvider is
     bytes32 private constant LENDING_POOL_COLLATERAL_MANAGER =
         "COLLATERAL_MANAGER";
     bytes32 private constant VMEX_PRICE_ORACLE = "VMEX_PRICE_ORACLE";
-    bytes32 private constant LENDING_RATE_ORACLE = "LENDING_RATE_ORACLE";
 
     bytes32 private constant CURVE_ADDRESS_PROVIDER = "CURVE_ADDRESS_PROVIDER";
     bytes32 private constant ASSET_MAPPINGS = "ASSET_MAPPINGS";

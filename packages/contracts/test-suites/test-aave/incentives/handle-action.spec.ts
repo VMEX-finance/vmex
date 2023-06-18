@@ -105,7 +105,7 @@ makeSuite('AaveIncentivesController handleAction tests', (testEnv) => {
       }
 
       const handleActionReceipt = await waitForTx(
-        await incentivizedTokens[0].handleActionOnAic(userAddress, userBalance, totalSupply)
+        await incentivizedTokens[0].handleActionOnAic(userAddress, totalSupply, userBalance, 0, 0)
       );
       const eventsEmitted = handleActionReceipt.events || [];
       const actionBlockTimestamp = await getBlockTimestamp(handleActionReceipt.blockNumber);

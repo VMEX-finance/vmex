@@ -131,4 +131,6 @@ interface IAssetMappings {
         returns (
             uint256
         );
+
+    function setAssetType(address asset, DataTypes.ReserveAssetType assetType) external;
 }
