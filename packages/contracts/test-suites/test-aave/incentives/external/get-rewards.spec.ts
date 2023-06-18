@@ -3,8 +3,6 @@
 // import { makeSuite, TestEnv } from '../../helpers/make-suite';
 // import { increaseTime, waitForTx } from '../../../../helpers/misc-utils';
 // import { CompareRules, eventChecker } from '../helpers/comparator-engine';
-// import hre from 'hardhat';
-// import { BigNumber, BigNumberish } from 'ethers';
 
 // makeSuite('ExternalRewardDistributor reward claiming', (testEnv) => {
 // 	before('Before', async () => {

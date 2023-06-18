@@ -102,6 +102,7 @@ export interface TestEnv {
   rewardTokens: MintableERC20[];
   stakingContracts: StakingRewardsMock[];
   incentUnderlying: MintableERC20[];
+  leafNodes: MerkleLeaf[];
 }
 
 let buidlerevmSnapshotId: string = "0x1";
@@ -144,8 +145,15 @@ const testEnv: TestEnv = {
   incentivizedTokens: [] as ATokenMock[],
   rewardTokens: [] as MintableERC20[],
   stakingContracts: [] as StakingRewardsMock[],
-  incentUnderlying: [] as MintableERC20[]
+  incentUnderlying: [] as MintableERC20[],
+  leafNodes: [] as MerkleLeaf[],
 } as TestEnv;
+
+export interface MerkleLeaf {
+  userAddress: tEthereumAddress,
+  rewardToken: tEthereumAddress,
+  amountOwed: Number,
+}
 
 export async function initializeMakeSuite() {
   const [_deployer, ...restSigners] = await getEthersSigners();
@@ -304,6 +312,13 @@ export async function initializeMakeSuite() {
 
   testEnv.incentUnderlying = [testEnv.dai, testEnv.busd, testEnv.aave, testEnv.usdt]
 
+  testEnv.leafNodes = testEnv.users.map((user) => {
+    return {
+      userAddress: user.address,
+      rewardToken: testEnv.usdc.address,
+      amountOwed: Number(0)
+    }
+  })
   // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 
   //CURVE TODO: these are not deployed when running mainnet fork in localhost

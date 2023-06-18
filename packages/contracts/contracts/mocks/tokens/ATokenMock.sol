@@ -10,8 +10,6 @@ import {MintableERC20} from './MintableERC20.sol';
 contract ATokenMock is MintableERC20 {
   IIncentivesController public _aic;
   ILendingPoolAddressesProvider public _addressesProvider;
-  uint256 internal _userBalance;
-  uint256 internal _totalSupply;
   uint64 public _tranche;
 
   mapping(address => uint256) internal _multiUserBalances;
@@ -77,27 +75,19 @@ contract ATokenMock is MintableERC20 {
     }
   }
 
-  function setUserBalanceAndSupply(uint256 userBalance, uint256 totalSupply) public {
-    _userBalance = userBalance;
-    _totalSupply = totalSupply;
+  function deposit(address account, uint256 amount) public {
+    uint256 oldBalance = balanceOf(account);
+    MintableERC20(underlying).transferFrom(account, address(this), amount);
+    _mint(account, amount);
+    handleActionOnAic(account, totalSupply(), oldBalance, balanceOf(account), DistributionTypes.Action.DEPOSIT); 
+  }
+  function withdraw(address account, uint256 amount) public {
+    uint256 oldBalance = balanceOf(account);
+    MintableERC20(underlying).transfer(account, amount);
+    _burn(account, amount);
+    handleActionOnAic(account, totalSupply(), oldBalance, balanceOf(account), DistributionTypes.Action.WITHDRAW); 
   }
 
-  function getScaledUserBalanceAndSupply(address user)
-    external
-    view
-    returns (uint256, uint256)
-  {
-    return (_userBalance, _totalSupply);
-  }
-
-  function scaledTotalSupply() external view returns (uint256) {
-    return _totalSupply;
-  }
-
-  function cleanUserState() external {
-    _userBalance = 0;
-    _totalSupply = 0;
-  }
 
   function setTranche(uint64 t) external{
     _tranche = t;

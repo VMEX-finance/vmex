@@ -142,6 +142,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
       return stakingData[underlying][trancheId];
   }
 
+  function harvestReward(address stakingContract) external onlyManager {
+      IStakingRewards(stakingContract).getReward();
+  }
+
   function rescueRewardTokens(IERC20 reward, address receiver) external onlyManager {
     reward.safeTransfer(receiver, reward.balanceOf(address(this)));
   }

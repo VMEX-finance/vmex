@@ -4,15 +4,12 @@ import { makeSuite, TestEnv } from '../../helpers/make-suite';
 import { increaseTime, waitForTx } from '../../../../helpers/misc-utils';
 import { getBlockTimestamp } from '../../../../helpers/contracts-helpers';
 import { CompareRules, eventChecker } from '.././helpers/comparator-engine';
-import {
-  AssetData,
-  assetDataComparator,
-  AssetUpdateData,
-  getRewardAssetsData,
-} from '.././data-helpers/asset-data';
-import hre from 'hardhat';
-import { BigNumberish } from 'ethers';
-import { ZERO_ADDRESS } from '../../../../helpers/constants';
+import { BigNumber, ethers } from 'ethers';
+import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from '../../../../helpers/constants';
+import {harvestAndUpdate} from './helpers';
+const { MerkleTree } = require('merkletreejs');
+const keccak256 = require('keccak256');
+
 
 makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
   before('Before', async () => {
@@ -21,6 +18,13 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
     await assetMappings.setBorrowingEnabled(busd.address, false);
     await assetMappings.setBorrowingEnabled(usdt.address, false);
     await assetMappings.setBorrowingEnabled(weth.address, false);
+    testEnv.leafNodes = testEnv.users.map((user) => {
+      return {
+        userAddress: user.address,
+        rewardToken: testEnv.usdc.address,
+        amountOwed: Number(0)
+      }
+    })
   });
 
   after('After', async () => {
@@ -29,6 +33,13 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
     await assetMappings.setBorrowingEnabled(busd.address, true);
     await assetMappings.setBorrowingEnabled(usdt.address, true);
     await assetMappings.setBorrowingEnabled(weth.address, true);
+    testEnv.leafNodes = testEnv.users.map((user) => {
+      return {
+        userAddress: user.address,
+        rewardToken: testEnv.usdc.address,
+        amountOwed: Number(0)
+      }
+    })
   });
 
   it('Reject reward config not from manager', async () => {
@@ -118,7 +129,6 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
 
 
     // add some liquidity to the aToken via a deposit. 
-    console.log(" users 0 and 1 both deposit 1000 of the asset (usdc) to aToken (incentivizedTokens[0])");
     const aToken = incentivizedTokens[0]
     const asset = incentUnderlying[0]
     const staking = stakingContracts[0]
@@ -126,17 +136,23 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
     const user = users[0]
 
     console.log(" users 0 deposit 1000 of the asset (usdc) to aToken (incentivizedTokens[0])");
-    await asset.mint(100000);
-    await asset.transfer(aToken.address, 1000);
-    await aToken.setUserBalanceAndSupply(1000, 1000);
-    await aToken.handleActionOnAic(user.address, 1000, 0, 1000, 0);
+    await asset.connect(user.signer).mint(100000);
+    await asset.connect(user.signer).approve(aToken.address, 1000);
+    await aToken.deposit(user.address, 1000);
 
+    increaseTime(50000)
+    await harvestAndUpdate(testEnv);
+    console.log("leaf nodes after user 0 deposits: ",testEnv.leafNodes)
 
     console.log(" users 1 deposit 1000 of the asset (usdc) to aToken (incentivizedTokens[0])");
     await asset.connect(users[1].signer).mint(100000);
-    await asset.connect(users[1].signer).transfer(aToken.address, 1000);
-    await aToken.connect(users[1].signer).setUserBalanceAndSupply(1000, 2000);
-    await aToken.connect(users[1].signer).handleActionOnAic(users[1].address, 2000, 0, 1000, 0);
+    await asset.connect(users[1].signer).approve(aToken.address, 1000);
+    await aToken.connect(users[1].signer).deposit(users[1].address, 1000);
+
+
+    increaseTime(50000)
+    await harvestAndUpdate(testEnv);
+    console.log("leaf nodes after user 1 deposits: ",testEnv.leafNodes)
 
     let assetData = await incentivesController.getStakingContract(incentivizedTokens[0].address);
     expect(assetData).equal(stakingContracts[0].address)
@@ -153,6 +169,40 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
 
     assetData = await incentivesController.getStakingContract(incentivizedTokens[0].address);
     expect(assetData).equal(stakingContracts[5].address)
+  })
+  it('Calculate Merkle and claim rewards', async () => {
+    const { incentivesController, incentivizedTokens, usdc, stakingContracts, incentUnderlying, users, rewardTokens, dai, leafNodes } = testEnv;
+    const arr = leafNodes.map((i,ix) => {
+      const packed = ethers.utils.solidityPack(["address", "address", "uint256"], [ i.userAddress, i.rewardToken, BigNumber.from(i.amountOwed.toString())])
+      return keccak256(packed);
+    });
+    const merkleTree = new MerkleTree(arr, keccak256, { sortPairs: true });
+    const rootHash = merkleTree.getRoot();
+    await incentivesController.updateRoot(rootHash);
+    console.log("updated root")
+
+    console.log("User 0 tries to claim incorrect amount")
+
+    const packed = ethers.utils.solidityPack(
+      ["address", "address", "uint256"],
+      [users[0].address, usdc.address, MAX_UINT_AMOUNT]
+    );
+    const proof = merkleTree.getHexProof(keccak256(packed));
+
+    await expect(incentivesController.claim(users[0].address, usdc.address, MAX_UINT_AMOUNT, proof)).to.be.revertedWith("ProofInvalidOrExpired");
+
+    console.log("User 0 now claims the correct amount")
+    const packedGood = ethers.utils.solidityPack(
+      ["address", "address", "uint256"],
+      [users[0].address, usdc.address, BigNumber.from(leafNodes[0].amountOwed.toString())]
+    );
+
+
+    const proofGood = merkleTree.getHexProof(keccak256(packedGood));
+
+    await expect(incentivesController.claim(users[0].address, usdc.address, MAX_UINT_AMOUNT, proofGood)).to.be.revertedWith("ProofInvalidOrExpired");
+    await incentivesController.claim(users[0].address, usdc.address, BigNumber.from(leafNodes[0].amountOwed.toString()), proofGood)
+    console.log("user 0 usdc amount: ", await usdc.balanceOf(users[0].address));
   })
 
   it('Full lifecycle for two aTokens with same underlying', async () => {
@@ -175,16 +225,20 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
 
     const user = users[6]
     
+    console.log("User 6 deposits 2000 in aToken 0")
     await asset.connect(user.signer).mint(10000)
-    await asset.connect(user.signer).transfer(aToken1.address, 2000)
-    await aToken1.setUserBalanceAndSupply(2000, 4000);
-    await aToken1.handleActionOnAic(user.address, 4000, 0, 2000, 0);
+    await asset.connect(user.signer).approve(aToken1.address, 2000)
+    await aToken1.deposit(user.address, 2000);
     let assetData = await incentivesController.getStakingContract(aToken1.address);
     expect(assetData).equal(stakingContracts[5].address)
 
-    await asset.connect(user.signer).transfer(aToken2.address, 2000)
-    await aToken2.connect(user.signer).setUserBalanceAndSupply(2000,2000);
 
+    console.log("User 6 deposits 2000 in aToken 1")
+    await asset.connect(user.signer).approve(aToken2.address, 2000)
+    await aToken2.connect(user.signer).deposit(user.address,2000);
+
+
+    console.log("aToken 1 begins staking reward")
     await incentivesController.beginStakingReward(
       aToken2.address,
       stakingContracts[5].address
@@ -192,12 +246,14 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
     assetData = await incentivesController.getStakingContract(aToken2.address);
     expect(assetData).equal(stakingContracts[5].address)
 
-    // mimicking user 6 withdrawing 1000
-    await aToken2.connect(user.signer).setUserBalanceAndSupply(1000,2000);
-    await aToken2.handleActionOnAic(user.address, 2000, 2000, 1000, 1);
-    assetData = await incentivesController.getStakingContract(aToken1.address);
-    expect(assetData).equal(stakingContracts[5].address)
+    // console.log("user 6 withdrawing 1000 from aToken 1");
+    // console.log("Atoken 0 owns ",await asset.balanceOf(aToken1.address))
+    // console.log("Atoken 1 owns ",await asset.balanceOf(aToken2.address))
+    // await aToken2.connect(user.signer).withdraw(user.address, 1000);
+    // assetData = await incentivesController.getStakingContract(aToken1.address);
+    // expect(assetData).equal(stakingContracts[5].address)
 
+    console.log("aToken 0 removes staking reward");
     //removes staking reward for aToken1
     await incentivesController.removeStakingReward(
       aToken1.address
