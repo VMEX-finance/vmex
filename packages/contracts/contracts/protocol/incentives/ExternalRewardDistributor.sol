@@ -4,20 +4,30 @@ pragma solidity 0.8.19;
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IStakingRewards} from '../../interfaces/IStakingRewards.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
+import {ILendingPool} from '../../interfaces/ILendingPool.sol';
 import {IAssetMappings} from '../../interfaces/IAssetMappings.sol';
+import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
+/// @title VMEX External Rewards Distributor.
+/// @author Volatile Labs Ltd.
+/// @notice This contract allows Vmex users to claim their rewards. This contract is largely inspired by Euler Distributor's contract: https://github.com/euler-xyz/euler-contracts/blob/master/contracts/mining/EulDistributor.sol.
 contract ExternalRewardDistributor is IExternalRewardsDistributor {
   using SafeERC20 for IERC20;
 
-  mapping(address => StakingReward) internal stakingData; // incentivized underlying asset => reward info
-  mapping(address => ATokenData) internal aTokenStaking; //  aToken => amount that atoken has staked
-
+  mapping(address => mapping(uint64 => address)) internal stakingData; // incentivized underlying asset => trancheId => address of staking contract
   address public immutable manager;
+  ILendingPoolAddressesProvider public immutable addressesProvider;
 
-  constructor(address _manager) {
+  bytes32 public currRoot; // The merkle tree's root of the current rewards distribution.
+  bytes32 public prevRoot; // The merkle tree's root of the previous rewards distribution.
+  mapping(address => mapping(address => uint256)) public claimed; // The rewards already claimed. account -> amount.
+
+  constructor(address _manager, address _addressesProvider) {
     manager = _manager;
+    addressesProvider = ILendingPoolAddressesProvider(_addressesProvider);
   }
 
   modifier onlyManager() {
@@ -27,160 +37,68 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
 
   function stakingExists(address aToken) internal view returns (bool) {
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
-    return aTokenStaking[aToken].enabled && !stakingData[underlying].rewardEnded;
+    uint64 trancheId = IAToken(aToken)._tranche();
+    return stakingData[underlying][trancheId] != address(0);
   }
 
   /**
-   * @dev Called internally to harvest the reward token, then update accounting for the amount accrued per token and for the user
-   * @param user The address of the user that is calling the action
-   * @param underlying The address of the underlying token (not atoken)
+   * @dev Called by the tranche admins (with approval from manager) to specify that aToken has an external reward
+   * @param aToken The address of the aToken that has underlying that has an external reward
+   * @param stakingContract The staking contract
    **/
-  function harvestAndUpdate(
-    address user,
-    address underlying
-  ) internal {
-    assert(user != address(0) && underlying != address(0));
-    StakingReward storage rewardData = stakingData[underlying];
-
-    if (rewardData.lastUpdateTimestamp < block.timestamp && !rewardData.rewardEnded) {
-      uint256 rewardBalance = rewardData.reward.balanceOf(address(this));
-      rewardData.staking.getReward();
-      uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
-
-      uint256 totalSupply = rewardData.staking.balanceOf(address(this));
-      if (totalSupply > 0) {
-        uint256 accruedPerToken = received * 1e16 / totalSupply;
-        rewardData.cumulativeRewardPerToken += accruedPerToken;
-        emit Harvested(underlying, accruedPerToken);
-      }
-      rewardData.lastUpdateTimestamp = block.timestamp;
-    }
-
-    UserState storage userData = rewardData.users[user];
-    // cannot have case where both lastUpdateRewardPerToken is 0 and stakedBalance is not zero (unless if cumulativeRewardPerToken was really 0 before)
-    // assert(userData.lastUpdateRewardPerToken != 0 || userData.stakedBalance == 0); 
-    if (userData.lastUpdateRewardPerToken < rewardData.cumulativeRewardPerToken) {
-      uint256 diff =
-        rewardData.cumulativeRewardPerToken - userData.lastUpdateRewardPerToken;
-      userData.rewardBalance += diff * userData.stakedBalance / 1e16;
-      userData.lastUpdateRewardPerToken = rewardData.cumulativeRewardPerToken;
-
-      emit UserUpdated(user, msg.sender, underlying, userData.rewardBalance);
-    }
-  }
-
-  /**
-   * @dev Called by the manager to specify that an aToken has an external reward
-   * @param aToken The address of the aToken that stores an underlying that has an external reward
-   * @param staking The address of the staking contract
-   * @param reward The address of the reward token
-   **/
-  function addStakingReward(
+  function beginStakingReward(
     address aToken,
-    address staking,
-    address reward
-  ) public onlyManager {
-    require(IAToken(aToken).totalSupply() == 0, 'Existing liquidity');
-    require(!aTokenStaking[aToken].enabled, 'Cannot reinitialize an underlying that has been set before');
-
+    address stakingContract
+  ) public onlyManager { //if tranches want to activate they need to talk to us first
+    address assetMappings = addressesProvider.getAssetMappings();
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
-    address assetMappings = IAToken(aToken)._addressesProvider().getAssetMappings();
+    uint64 trancheId = IAToken(aToken)._tranche();
+    
+    require(!stakingExists(aToken), "Cannot add staking reward for a token that already has staking");
     require(!IAssetMappings(assetMappings).getAssetBorrowable(underlying), "Underlying cannot be borrowable for external rewards");
 
-    if (address(stakingData[underlying].reward) == address(0)) {
-        require(staking != address(0) && reward != address(0), 'No zero address');
-        stakingData[underlying].staking = IStakingRewards(staking);
-        IERC20(underlying).approve(staking, type(uint).max);
-        stakingData[underlying].reward = IERC20(reward);
-        stakingData[underlying].rewardEnded = false;
+    stakingData[underlying][trancheId] = stakingContract;
+    IERC20(underlying).approve(stakingContract, type(uint).max);
+
+    //transfer all aToken's underlying to this contract and stake it
+    uint256 amount = IERC20(aToken).totalSupply();
+    if(amount!=0){
+      IERC20(underlying).safeTransferFrom(aToken, address(this), amount);
+      IStakingRewards(stakingContract).stake(amount);
     }
-    stakingData[underlying].aTokens.push(aToken);
+    
 
-    aTokenStaking[aToken].enabled = true;
-
-    emit RewardConfigured(aToken, underlying, reward, staking);
+    emit RewardConfigured(aToken, stakingContract, amount);
   }
 
-  function batchAddStakingRewards(
+  function batchBeginStakingRewards(
       address[] calldata aTokens,
-      address[] calldata stakingContracts,
-      address[] calldata rewards
+      address[] calldata stakingContracts
   ) external onlyManager {
-    require(aTokens.length == stakingContracts.length
-        && stakingContracts.length == rewards.length, "Malformed input");
+    require(aTokens.length == stakingContracts.length, "Malformed input");
 
     for(uint i = 0; i < aTokens.length; i++) {
-        addStakingReward(aTokens[i], stakingContracts[i], rewards[i]);
+        beginStakingReward(aTokens[i], stakingContracts[i]);
     }
   }
 
   /**
-   * @dev Permanently removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
-   * @param underlying The address of the underlying token in which rewards stopped streaming
+   * @dev Removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
+   * @param aToken The address of the aToken that wants to exit the staking contract
    **/
-  function removeStakingReward(address underlying) external onlyManager {
-    StakingReward storage rewardData = stakingData[underlying];
+  function removeStakingReward(address aToken) external onlyManager {
+    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
+    uint64 trancheId = IAToken(aToken)._tranche();
 
-    exitStakingContract(rewardData, underlying);
-
-    for (uint i = 0; i < rewardData.aTokens.length; i++) {
-      address aToken = rewardData.aTokens[i];
-      IERC20(underlying).safeTransfer(aToken, aTokenStaking[aToken].totalStaked);
-
-      aTokenStaking[aToken].totalStaked = 0;
-      //don't set enabled to false, since enabled means that at any point the aToken was set to have external rewards. It needs to stay true so subsequent addStakingRewards revert
+    uint256 amount = IERC20(aToken).totalSupply();
+    if(amount!=0){
+      IStakingRewards(stakingData[underlying][trancheId]).withdraw(amount);
+      IERC20(underlying).safeTransfer(aToken, amount);
     }
+    stakingData[underlying][trancheId] = address(0);
 
-    rewardData.rewardEnded = true;
-  }
-
-  /**
-   * @dev Removes all liquidity from the staking contract and stakes in new staking contract
-   * @param underlying The address of the underlying token in which staking contracts must be switched
-   * @param newStaking The new staking contract
-   **/
-  function updateStakingContract(
-    address underlying,
-    IStakingRewards newStaking
-  ) external onlyManager {
-    StakingReward storage rewardData = stakingData[underlying];
-
-    require(newStaking.stakingToken() == IERC20(underlying) 
-      && newStaking.rewardsToken() == rewardData.reward, "Bad staking contract");
-
-    exitStakingContract(rewardData, underlying);
-
-    // we use ERC20 balance in case the problem with the previous staking contract was severe enough that the deposit was manually rescued and transferred to this contract
-    uint256 ourBalance = IERC20(underlying).balanceOf(address(this));
-    IERC20(underlying).approve(address(newStaking), type(uint).max);
-    newStaking.stake(ourBalance);
-
-    address oldStaking = address(rewardData.staking);
-    rewardData.staking = newStaking;
-    
-    emit StakingContractUpdated(underlying, oldStaking, address(newStaking));
-  }
-
-  /**
-   * @dev Exits and removes all liquidity from the staking contract, updates reward accounting
-   * @param rewardData staking data of the underlying token
-   * @param underlying The address of the underlying token in which staking contracts must be exited
-   **/
-  function exitStakingContract(StakingReward storage rewardData, address underlying) internal {
-    uint256 totalSupply = rewardData.staking.balanceOf(address(this));
-
-    if (totalSupply > 0) {
-      uint256 rewardBalance = rewardData.reward.balanceOf(address(this));
-      rewardData.staking.exit();
-      uint256 received = rewardData.reward.balanceOf(address(this)) - rewardBalance;
-
-      if (received > 0) {
-        uint256 accruedPerToken = received * 1e16 / totalSupply;
-        rewardData.cumulativeRewardPerToken += accruedPerToken;
-        emit Harvested(underlying, accruedPerToken);
-      }
-    }
-    rewardData.lastUpdateTimestamp = block.timestamp;
+    //event
+    emit StakingRemoved(aToken);
   }
 
   function onDeposit(
@@ -188,13 +106,13 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     uint256 amount
   ) internal {
     address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
-    harvestAndUpdate(user, underlying);
-    StakingReward storage rewardData = stakingData[underlying];
+    uint64 trancheId = IAToken(msg.sender)._tranche();
 
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
-    rewardData.staking.stake(amount);
-    aTokenStaking[msg.sender].totalStaked += amount;
-    rewardData.users[user].stakedBalance += amount;
+    IStakingRewards(stakingData[underlying][trancheId]).stake(amount);
+
+    // event emission necessary for off chain calculation of looping through all active users
+    emit UserDeposited(user, underlying, trancheId, amount);
   }
 
   function onWithdraw(
@@ -202,79 +120,72 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     uint256 amount
   ) internal {
     address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
-    harvestAndUpdate(user, underlying);
-    StakingReward storage rewardData = stakingData[underlying];
+    uint64 trancheId = IAToken(msg.sender)._tranche();
 
-    rewardData.staking.withdraw(amount);
+    IStakingRewards(stakingData[underlying][trancheId]).withdraw(amount);
     IERC20(underlying).safeTransfer(msg.sender, amount);
-    aTokenStaking[msg.sender].totalStaked -= amount;
-    rewardData.users[user].stakedBalance -= amount;
+
+    // event emission necessary for off chain calculation of looping through all active users
+    emit UserWithdraw(user, underlying, trancheId, amount);
   }
 
   function onTransfer(address user, uint256 amount, bool sender) internal {
-    harvestAndUpdate(user, IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS());
-
-    if (sender) {
-      stakingData[IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS()].users[user].stakedBalance -= amount;
-    } else {
-      stakingData[IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS()].users[user].stakedBalance += amount;
-    }
+    address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
+    uint64 trancheId = IAToken(msg.sender)._tranche();
+    //no-op since totalStaked doesn't change, the amounts each person owns is calculated off chain
+    emit UserTransfer(user, underlying, trancheId, amount, sender);
   }
 
-  function _claimStakingReward(
-    address underlying,
-    uint256 amount
-  ) internal {
-    harvestAndUpdate(msg.sender, underlying);
-
-    StakingReward storage rewardData = stakingData[underlying];
-    require(rewardData.users[msg.sender].rewardBalance >= amount, 'Insufficient balance');
-    rewardData.reward.safeTransfer(msg.sender, amount);
-    rewardData.users[msg.sender].rewardBalance -= amount;
-    emit StakingRewardClaimed(msg.sender, underlying, address(rewardData.reward), amount);
-  }
-
-  function claimStakingReward(address underlying, uint256 amount) external {
-    _claimStakingReward(underlying, amount);
-  }
-
-  function batchClaimStakingRewards(
-    address[] calldata assets,
-    uint256[] calldata amounts
-  ) external {
-    require(assets.length == amounts.length, 'Malformed input');
-    for (uint256 i = 0; i < assets.length; i++) {
-      _claimStakingReward(assets[i], amounts[i]);
-    }
-  }
-
-  function getDataByAToken(address aToken) external view
-  returns (address underlyingContract, address stakingContract, address rewardContract, uint256 cumulativeRewardPerToken, uint256 lastUpdateTimestamp) {
+  function getStakingContract(address aToken) external view returns (address stakingContract) {
       address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
-      return (
-          underlying,
-          address(stakingData[underlying].staking),
-          address(stakingData[underlying].reward),
-          stakingData[underlying].cumulativeRewardPerToken,
-          stakingData[underlying].lastUpdateTimestamp
-      );
+      uint64 trancheId = IAToken(aToken)._tranche();
+      return stakingData[underlying][trancheId];
   }
 
-  function _totalStaked(address aToken) internal view returns (uint256) {
-    if (!stakingExists(aToken)) {
-      return 0;
-    }
-    return aTokenStaking[aToken].totalStaked;
-  }
-
-  function getUserDataByAToken(address user, address aToken) external view returns (UserState memory) {
-    StakingReward storage rewardData =  stakingData[IAToken(aToken).UNDERLYING_ASSET_ADDRESS()];
-    UserState memory userData = rewardData.users[user];
-    if (rewardData.rewardEnded) userData.stakedBalance = 0;
-    return userData;
+  function harvestReward(address stakingContract) external onlyManager {
+      IStakingRewards(stakingContract).getReward();
   }
 
   function rescueRewardTokens(IERC20 reward, address receiver) external onlyManager {
     reward.safeTransfer(receiver, reward.balanceOf(address(this)));
+  }
+
+  /// @notice Updates the current merkle tree's root.
+  /// @param _newRoot The new merkle tree's root.
+  function updateRoot(bytes32 _newRoot) external onlyManager {
+      prevRoot = currRoot;
+      currRoot = _newRoot;
+      emit RootUpdated(_newRoot);
+  }
+
+  /// @notice Claims rewards.
+  /// @param _account The address of the claimer.
+  /// @param _rewardToken The address of the reward token.
+  /// @param _claimable The overall claimable amount of token rewards.
+  /// @param _proof The merkle proof that validates this claim.
+  function claim(
+      address _account,
+      address _rewardToken,
+      uint256 _claimable,
+      bytes32[] calldata _proof
+  ) external {
+      bytes32 candidateRoot = MerkleProof.processProof(
+          _proof,
+          keccak256(abi.encodePacked(_account, _rewardToken, _claimable))
+      );
+      if (candidateRoot != currRoot && candidateRoot != prevRoot) revert ProofInvalidOrExpired();
+
+      uint256 alreadyClaimed = claimed[_account][_rewardToken];
+      if (_claimable <= alreadyClaimed) revert AlreadyClaimed();
+
+      uint256 amount;
+      unchecked {
+          amount = _claimable - alreadyClaimed;
+      }
+
+      claimed[_account][_rewardToken] = _claimable;
+
+      IERC20(_rewardToken).safeTransfer(_account, amount);
+      emit RewardsClaimed(_account, amount);
   }
 }

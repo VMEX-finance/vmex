@@ -33,9 +33,10 @@ contract IncentivesController is
   constructor(
     address rewardsVault,
     address emissionManager,
-    address externalRewardManager
+    address externalRewardManager,
+    address addressesProvider
   ) DistributionManager(emissionManager) 
-    ExternalRewardDistributor(externalRewardManager) {
+    ExternalRewardDistributor(externalRewardManager, addressesProvider) {
     REWARDS_VAULT = rewardsVault;
   }
 
@@ -226,9 +227,5 @@ contract IncentivesController is
     }
 
     return (rewards, amounts);
-  }
-
-  function totalStaked() external view override returns (uint256) {
-    return _totalStaked(msg.sender);
   }
 }

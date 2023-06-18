@@ -5,49 +5,36 @@ import {IStakingRewards} from './IStakingRewards.sol';
 import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
 
 interface IExternalRewardsDistributor {
+    /// EVENTS ///
 
-  struct UserState {
-    uint256 stakedBalance;
-    uint256 rewardBalance;
-    uint256 lastUpdateRewardPerToken;
-  }
+    /// @notice Emitted when the root is updated.
+    /// @param newRoot The new merkle's tree root.
+    event RootUpdated(bytes32 newRoot);
 
-  struct StakingReward {
-    IStakingRewards staking;
-    IERC20 reward;
-    uint256 cumulativeRewardPerToken;
-    uint256 lastUpdateTimestamp;
-    bool rewardEnded;
-    mapping(address => UserState) users;
-    address[] aTokens;
-  }
+    /// @notice Emitted when MORPHO tokens are withdrawn.
+    /// @param to The address of the recipient.
+    /// @param amount The amount of MORPHO tokens withdrawn.
+    event MorphoWithdrawn(address to, uint256 amount);
 
-  struct ATokenData {
-    uint256 totalStaked;
-    bool enabled;
-  }
+    /// @notice Emitted when an account claims rewards.
+    /// @param account The address of the claimer.
+    /// @param amount The amount of rewards claimed.
+    event RewardsClaimed(address account, uint256 amount);
 
-  event RewardConfigured(address indexed aToken, address indexed underlying, address indexed reward, address staking);
-  event Harvested(address indexed underlying, uint256 rewardPerToken);
-  event UserUpdated(address indexed user, address indexed aToken, address indexed underlying, uint256 rewardBalance);
-  event StakingRewardClaimed(address indexed user, address indexed underlying, address indexed reward, uint256 amount);
-  event StakingContractUpdated(address indexed underlying, address indexed oldContract, address indexed newContract);
+    /// ERRORS ///
 
-  function batchAddStakingRewards(
-      address[] calldata aTokens,
-      address[] calldata stakingContracts,
-      address[] calldata rewards
-  ) external;
+    /// @notice Thrown when the proof is invalid or expired.
+    error ProofInvalidOrExpired();
 
-  function claimStakingReward(address underlying, uint256 amount) external;
+    /// @notice Thrown when the claimer has already claimed the rewards.
+    error AlreadyClaimed();
 
-  function batchClaimStakingRewards(
-    address[] calldata assets,
-    uint256[] calldata amounts
-  ) external;
+    event RewardConfigured(address indexed aToken, address indexed staking, uint256 initialAmount);
+    event StakingRemoved(address indexed aToken);
+    event UserDeposited(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
+    event UserWithdraw(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
+    event UserTransfer(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount, bool sender);
 
-  function getUserDataByAToken(address user, address aToken) external view returns (UserState memory);
-
-  function getDataByAToken(address aToken) external view
-  returns (address, address, address, uint256, uint256);
+    function getStakingContract(address aToken) external view
+    returns (address);
 }

@@ -55,7 +55,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
   it('Deposits WETH, borrows DAI', async () => {
     const { dai, users, pool, oracle, incentivesController, stakingContracts, rewardTokens, addressesProvider, ayvTricrypto2, yvTricrypto2 } = testEnv;
     await addressesProvider.setIncentivesController(incentivesController.address);
-    await incentivesController.addStakingReward(ayvTricrypto2.address, stakingContracts[5].address, rewardTokens[0].address);
+    await incentivesController.beginStakingReward(ayvTricrypto2.address, stakingContracts[6].address);
 
     const depositor = users[0];
     const borrower = users[1];
@@ -81,9 +81,15 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     //approve protocol to access the borrower wallet
     await yvTricrypto2.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
+    console.log("Before deposit, will try depositing: ", amountETHtoDeposit)    
+    console.log("Allowance of staking contract to ", await yvTricrypto2.allowance(ayvTricrypto2.address, incentivesController.address))
+
+    console.log("Allowance of external rewards to access atoken", await yvTricrypto2.allowance(ayvTricrypto2.address, incentivesController.address))
     await pool
       .connect(borrower.signer)
       .deposit(yvTricrypto2.address, tranche, amountETHtoDeposit, borrower.address, '0');
+    
+      console.log("after deposit")
 
     //user 2 borrows
 

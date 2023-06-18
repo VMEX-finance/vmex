@@ -524,10 +524,10 @@ contract AToken is
 
     function getStakedAmount() external view override returns (uint256) {
         IIncentivesController ic = _getIncentivesController();
-        if (address(ic) == address(0)) {
+        if (address(ic) == address(0) || ic.getStakingContract(address(this)) == address(0)) {
             return 0;
         }
 
-        return ic.totalStaked();
+        return totalSupply();
     }
 }

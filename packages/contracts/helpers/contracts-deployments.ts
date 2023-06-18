@@ -1446,7 +1446,7 @@ export const deployAssetMapping = async (verify?: boolean) =>
   );
 
 export const deployIncentivesController = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress],
+  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, tEthereumAddress],
   verify?: boolean
 ) =>
   withSaveAndVerify(
@@ -1508,11 +1508,14 @@ export const testDeployVmexIncentives = async (
   const vmexIncentivesControllerProxy =
     await deployInitializableAdminUpgradeabilityProxy();
 
+  const addressesProvider = await getLendingPoolAddressesProvider();
+
   const vmexIncentivesControllerImplementation =
     await deployIncentivesController([
       vaultOfRewardsAddress,
       emissionManager,
-      emissionManager
+      emissionManager,
+      addressesProvider.address
     ]);
 
   const peiEncodedInitialize =
