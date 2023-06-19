@@ -29,18 +29,6 @@ library Helpers {
     }
 
     /**
-     * @dev Converts a bytes32 variable type to a bytes type
-     * @param data The bytes32 type
-     **/
-    function bytes32ToBytes(bytes memory data) internal pure returns (bytes memory result) {
-        assembly {
-            result := mload(0x40)
-            mstore(result, 0x20)
-            mstore(add(result, 0x20), mload(add(data, 0x20)))
-        }
-    }
-
-    /**
      * @dev Gets a string attribute of a token (in our case, the name and symbol attribute), where it could 
      * not be implemented, or return bytes32, or return a string
      * @param token The token
@@ -56,14 +44,11 @@ library Helpers {
         if (success && result.length > 0) {
             if (result.length == 32) {
                 // If the result is 32 bytes long, assume it's a bytes32 value
-                queryResult = string(abi.encodePacked(bytes32ToBytes(result)));
+                queryResult = string(result);
             } else {
                 // Otherwise, assume it's a string
                 queryResult = abi.decode(result, (string));
             }
-        }
-        else {
-            queryResult = "";
         }
     }
 
