@@ -102,18 +102,18 @@ export const CommonsConfig: ICommonConfiguration = {
   BeethovenMetadata: {
     [eOptimismNetwork.optimism]: {
       beethoven_USDCDAI: {
-        _typeOfPool: "1",
+        _typeOfPool: "2",
         _legacy: false,
         _exists: true
       },
       beethoven_wstETHETH: {
         _typeOfPool: "1",
-        _legacy: false,
+        _legacy: true,
         _exists: true
       },
       beethoven_rETHETH: {
         _typeOfPool: "1",
-        _legacy: false,
+        _legacy: true,
         _exists: true
       },
     },
