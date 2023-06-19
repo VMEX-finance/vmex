@@ -14,6 +14,7 @@ import {
   strategySNX,
   strategyWBTC,
   strategyWETH,
+  strategyRETH,
   strategyCurveV1LPToken,
   strategyBeefyToken,
   strategyVeloToken,
@@ -40,6 +41,7 @@ export const OptimismConfig: IOptimismConfiguration = {
     wstETH: strategywstETH,
     FRAX: strategyFRAX,
     OP: strategyOP,
+    rETH: strategyRETH,
     ThreeCRV: strategyCurveV1LPToken,
     sUSD3CRV: strategyCurveV1LPToken,
     wstETHCRV: strategyCurveV1LPToken,
@@ -65,6 +67,7 @@ export const OptimismConfig: IOptimismConfiguration = {
     moo_velo_USDTUSDC: strategyBeefyToken,
     // beethoven_USDCDAI: strategyBeethovenToken,
     beethoven_wstETHETH: strategyBeethovenToken,
+    beethoven_rETHETH: strategyBeethovenToken,
   },
   ReserveAssets: {
     [eOptimismNetwork.optimism]: {
@@ -78,6 +81,7 @@ export const OptimismConfig: IOptimismConfiguration = {
       wstETH: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
       FRAX: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
       OP: '0x4200000000000000000000000000000000000042',
+      rETH: '0x9Bcef72be871e61ED4fBbc7630889beE758eb81D',
       ThreeCRV: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
       sUSD3CRV: '0x061b87122Ed14b9526A813209C8a59a633257bAb',
       wstETHCRV: '0xEfDE221f306152971D8e9f181bFe998447975810',
@@ -104,6 +108,7 @@ export const OptimismConfig: IOptimismConfiguration = {
       moo_velo_USDTUSDC: '0x0495a700407975b2641Fa61Aef5Ccd0106F525Cc',
       // beethoven_USDCDAI: '0x43da214fab3315aA6c02e0B8f2BfB7Ef2E3C60A5',
       beethoven_wstETHETH: '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2',
+      beethoven_rETHETH: '0x4Fd63966879300caFafBB35D157dC5229278Ed23',
     },
   },
 };

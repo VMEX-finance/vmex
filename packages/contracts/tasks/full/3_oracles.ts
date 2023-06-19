@@ -41,6 +41,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         ReserveAssets,
         ChainlinkAggregator,
         SequencerUptimeFeed,
+        RETHOracle,
         ProviderId
       } = poolConfig as ICommonConfiguration;
       const addressesProvider = await getLendingPoolAddressesProvider();
@@ -110,6 +111,14 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       await waitForTx(await VMEXOracleProxy.setFallbackOracle(uniswapOracle.address));
       console.log("WETH addr: ",tokensToWatch["WETH"])
       await waitForTx(await VMEXOracleProxy.setWETH(tokensToWatch["WETH"]));
+
+
+      const rETHOracle = getParamPerNetwork(RETHOracle, network);
+      if(rETHOracle && notFalsyOrZeroAddress(rETHOracle)) {
+        console.log("setting up rETHOracle");
+        await VMEXOracleProxy.setRETHOracle(rETHOracle);
+      }
+      
       
 
       const seqUpFeed = getParamPerNetwork(SequencerUptimeFeed, network);

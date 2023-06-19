@@ -159,6 +159,10 @@ makeSuite(
                   slot = 1;
                   keyFirst = true;
                 }
+                else if(symbol=="rETH"){
+                  slot = 0;
+                  keyFirst = true;
+                }
                 else if(symbol=="FRAX"){
                   slot = 0;
                   keyFirst = true;

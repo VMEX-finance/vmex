@@ -133,6 +133,21 @@ export const strategywstETH: IReserveParams = {
   reserveFactor: '1500',
 };
 
+export const strategyRETH: IReserveParams = {
+  strategy: rateStrategyVolatileOne,
+  baseLTVAsCollateral: '7000',
+  liquidationThreshold: '8000',
+  liquidationBonus: '11000',
+  borrowingEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  assetType: 7, 
+  supplyCap: '6000',
+  borrowCap: '1000',
+  borrowFactor: '11000', //100% for now
+  reserveFactor: '1500',
+};
+
 export const strategyFRAX: IReserveParams = {
   strategy: rateStrategyStableTwo,
   baseLTVAsCollateral: '0', //0 means cannot be collateral

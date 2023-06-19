@@ -120,6 +120,8 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   moo_velo_USDTUSDC: oneEther.toFixed(),
   beethoven_USDCDAI: oneEther.toFixed(),
   beethoven_wstETHETH: oneEther.toFixed(),
+  rETH: oneEther.toFixed(),
+  beethoven_rETHETH: oneEther.toFixed(),
 };
 
 export const chainlinkAggregatorProxy = {

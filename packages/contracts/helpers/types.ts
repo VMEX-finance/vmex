@@ -376,6 +376,8 @@ export interface iAssetBase<T> {
   moo_velo_USDTUSDC: T;
   beethoven_USDCDAI: T;
   beethoven_wstETHETH: T;
+  rETH: T;
+  beethoven_rETHETH: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -480,6 +482,7 @@ export type iOptimismPoolAssets<T> = Partial<
     | "wstETH"
     | "FRAX"
     | "OP"
+    | "rETH"
     | "ThreeCRV"
     | "sUSD3CRV"
     | "wstETHCRV"
@@ -505,6 +508,7 @@ export type iOptimismPoolAssets<T> = Partial<
     | "moo_velo_USDTUSDC"
     | "beethoven_USDCDAI"
     | "beethoven_wstETHETH"
+    | "beethoven_rETHETH"
   >
 >;
 
@@ -745,6 +749,7 @@ export interface IBaseConfiguration {
   OracleQuoteCurrency: string;
   OracleQuoteUnit: string;
   SequencerUptimeFeed: iParamsPerNetwork<tEthereumAddress>;
+  RETHOracle: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface ICommonConfiguration extends IBaseConfiguration {
