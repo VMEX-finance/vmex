@@ -23,4 +23,4 @@ See [docs.certora.com](http://docs.certora.com) for more information.
 
 # Submissions
 
-No extra steps needed for submission, just make sure to stop making changes once the deadline is reached. Any changes after the deadline will disqualify your submission. Make sure all your rules are passing unless they are catching a real bug, for which you should also add a markdown file with a description of the vulnerability or a link to a submission on Hats github. After the deadline we will review your rules and determine the winners. Good luck! 
+No extra steps needed for submission, just make sure to stop making changes once the deadline is reached. Any changes after the deadline will be disregarded for the reward assessment. Make sure all your rules are passing unless they are catching a real bug, for which you should also add a markdown file with a description of the vulnerability or a link to a submission on Hats github. After the deadline we will review your rules and determine the winners. Good luck! 
