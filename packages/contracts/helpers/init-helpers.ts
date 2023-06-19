@@ -388,6 +388,7 @@ export const getTranche1MockedData = (allReservesAddresses: {
     allReservesAddresses["KNC"],
     allReservesAddresses["WBTC"],
     allReservesAddresses["MANA"],
+    allReservesAddresses["MKR"],
     allReservesAddresses["ZRX"],
     allReservesAddresses["SNX"],
     allReservesAddresses["BUSD"],
