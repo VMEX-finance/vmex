@@ -15,3 +15,5 @@ coverage
 .coverage_contracts
 
 deployed-contracts.json
+
+.certora*
