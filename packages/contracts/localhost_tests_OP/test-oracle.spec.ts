@@ -207,6 +207,13 @@ makeSuite(
                     const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
                     expectedPrice = 182078032735
                 }
+                if(currentAsset == "0x4Fd63966879300caFafBB35D157dC5229278Ed23") {
+                  //rETH pool
+                  expectedPrice = 182977401490 //should be around the same as wstETH
+                }
+            }
+            else if(strat.assetType == 7) { //rETH
+              expectedPrice = 193565765145
             }
             else {
                 continue

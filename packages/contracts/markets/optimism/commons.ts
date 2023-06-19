@@ -111,6 +111,11 @@ export const CommonsConfig: ICommonConfiguration = {
         _legacy: false,
         _exists: true
       },
+      beethoven_rETHETH: {
+        _typeOfPool: "1",
+        _legacy: false,
+        _exists: true
+      },
     },
   },
   ChainlinkAggregator: {
@@ -181,5 +186,8 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   SequencerUptimeFeed: {
     [eOptimismNetwork.optimism]: "0x371EAD81c9102C9BF4874A9075FFFf170F2Ee389"
-  }
+  },
+  RETHOracle: {
+    [eOptimismNetwork.optimism]: "0x1a8F81c256aee9C640e14bB0453ce247ea0DFE6F"
+  },
 };

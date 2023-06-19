@@ -24,6 +24,7 @@ import {IBalancer} from "../../interfaces/IBalancer.sol";
 import {IVault} from "../../interfaces/IVault.sol";
 import {VelodromeOracle} from "./VelodromeOracle.sol";
 import {BalancerOracle} from "./BalancerOracle.sol";
+import {IRocketPriceOracle} from "../../interfaces/IRocketPriceOracle.sol";
 
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
@@ -42,8 +43,9 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
 
     ILendingPoolAddressesProvider internal _addressProvider;
     IAssetMappings internal _assetMappings;
-    mapping(address => ChainlinkData) private _assetsSources;
     IPriceOracleGetter private _fallbackOracle;
+    IRocketPriceOracle public rETHOracle;
+    mapping(address => ChainlinkData) private _assetsSources;
     mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
 
     address public BASE_CURRENCY; //removed immutable keyword since
@@ -125,6 +127,12 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         WETH = weth;
     }
 
+    function setRETHOracle(
+        address _rETHOracle
+    ) external onlyGlobalAdmin {
+        rETHOracle = IRocketPriceOracle(_rETHOracle);
+    }
+
     /**
      * @dev Sets the sequencerUptimeFeed. Callable only by the VMEX governance
      * @param sequencerUptimeFeed The address of the sequencerUptimeFeed
@@ -197,6 +205,9 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         }
         else if(tmp == DataTypes.ReserveAssetType.BEETHOVEN) {
             return getBeethovenPrice(asset);
+        }
+        else if (tmp == DataTypes.ReserveAssetType.RETH) {
+            return getRETHPrice(asset);
         }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
@@ -373,6 +384,19 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         IBeefyVault beefyVault = IBeefyVault(asset);
         uint256 underlyingPrice = getAssetPrice(beefyVault.want());
         uint256 price = beefyVault.getPricePerFullShare()*underlyingPrice / 10**beefyVault.decimals();
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+	}
+
+    /**
+     * @dev Gets an asset price for a rETH token
+     * @param asset The asset address
+     **/
+	function getRETHPrice(address asset) internal returns (uint256) {
+        uint256 underlyingPrice = getAssetPrice(WETH);
+        uint256 price = rETHOracle.rate()*underlyingPrice / 10**18;
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);
         }
