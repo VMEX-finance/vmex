@@ -26,3 +26,7 @@ access=public
 ```
 
 > from the root directory, run `lerna publish --no-private`
+
+### Notes for auditors
+
+The directory for all vmex audit information is under `packages/contracts/audits/vmex/`
