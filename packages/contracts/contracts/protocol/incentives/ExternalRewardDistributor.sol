@@ -38,6 +38,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
   function stakingExists(address aToken) internal view returns (bool) {
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     uint64 trancheId = IAToken(aToken)._tranche();
+    ILendingPool lendingPool = ILendingPool(addressesProvider.getLendingPool());
+
+    if(lendingPool.getReserveData(underlying, trancheId).aTokenAddress != aToken){
+      return false;
+    } 
     return stakingData[underlying][trancheId] != address(0);
   }
 
