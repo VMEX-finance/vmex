@@ -63,7 +63,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor {
     require(!IAssetMappings(assetMappings).getAssetBorrowable(underlying), "Underlying cannot be borrowable for external rewards");
 
     stakingData[underlying][trancheId] = stakingContract;
-    IERC20(underlying).approve(stakingContract, type(uint).max);
+    IERC20(underlying).safeApprove(stakingContract, type(uint).max);
 
     //transfer all aToken's underlying to this contract and stake it
     uint256 amount = IERC20(aToken).totalSupply();
