@@ -485,6 +485,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     await waitForTx(
       await VMEXOracleProxy.connect(admin).setBaseCurrency(
         mockTokens.WETH.address,
+        18,
         oneEther.toString(),
         "ETH"
       )

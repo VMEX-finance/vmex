@@ -104,6 +104,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
 
       await waitForTx(await VMEXOracleProxy.setBaseCurrency(
         await getQuoteCurrency(poolConfig),
+        poolConfig.OracleQuoteDecimals,
         poolConfig.OracleQuoteUnit,
         poolConfig.OracleQuoteCurrency
       ));

@@ -133,6 +133,7 @@ library Errors {
     string public constant VO_BASE_CURRENCY_SET_ONLY_ONCE = "99";
     string public constant VO_WETH_SET_ONLY_ONCE = "105";
     string public constant VO_BAD_DENOMINATION = "106";
+    string public constant VO_BAD_DECIMALS = "107";
 
     string public constant AM_ASSET_ALREADY_IN_MAPPINGS = "100";
     string public constant AM_ASSET_NOT_CONTRACT = "101";
@@ -141,8 +142,8 @@ library Errors {
     string public constant AM_UNABLE_TO_DISALLOW_ASSET = "104";
     string public constant LPAPR_ALREADY_SET = "105";
 
-    string public constant LPC_TREASURY_ADDRESS_ZERO = "106"; //assetmappings does not allow setting collateral
-    string public constant LPC_WHITELISTING_NOT_ALLOWED = "107"; //setting whitelist enabled is not allowed after initializing reserves
+    string public constant LPC_TREASURY_ADDRESS_ZERO = "108"; //assetmappings does not allow setting collateral
+    string public constant LPC_WHITELISTING_NOT_ALLOWED = "109"; //setting whitelist enabled is not allowed after initializing reserves
 
     enum CollateralManagerErrors {
         NO_ERROR,

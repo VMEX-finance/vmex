@@ -17,6 +17,7 @@ export const CommonsConfig: ICommonConfiguration = {
   SymbolPrefix: '',
   ProviderId: 0, // Overriden in index.ts
   OracleQuoteCurrency: 'ETH',
+  OracleQuoteDecimals: 18,
   OracleQuoteUnit: oneEther.toString(),
   ProtocolGlobalParams: {
     TokenDistributorPercentageBase: '10000',
