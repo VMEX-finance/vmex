@@ -747,6 +747,7 @@ export interface IBaseConfiguration {
   VariableDebtTokenImplementation?: iParamsPerNetwork<tEthereumAddress>;
   ReserveAssets: iParamsPerNetwork<SymbolMap<tEthereumAddress>>;
   OracleQuoteCurrency: string;
+  OracleQuoteDecimals: number;
   OracleQuoteUnit: string;
   SequencerUptimeFeed: iParamsPerNetwork<tEthereumAddress>;
   RETHOracle: iParamsPerNetwork<tEthereumAddress>;

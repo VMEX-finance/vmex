@@ -49,6 +49,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
     mapping(uint256 => AggregatorV3Interface) public sequencerUptimeFeeds;
 
     address public BASE_CURRENCY; //removed immutable keyword since
+    uint256 public BASE_CURRENCY_DECIMALS; //amount of decimals that the chainlink aggregator assumes for price feeds with this currency as the base
     uint256 public BASE_CURRENCY_UNIT;
     string public BASE_CURRENCY_STRING;
 
@@ -80,16 +81,19 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
     /**
      * @dev Sets the base currency that all other assets are priced based on. Can only be set once
      * @param baseCurrency The address of the base currency
-     * @param baseCurrencyUnit What price the base currency is. Usually this is just how many decimals the base currency has
+     * @param baseCurrencyDecimals amount of decimals that the chainlink aggregator assumes for price feeds with this currency as the base
+     * @param baseCurrencyUnit What price the base currency is. Usually this is just 10 ** how many decimals the base currency has
      * @param baseCurrencyString "ETH" or "USD" for purposes of checking correct denomination
      **/
     function setBaseCurrency(
         address baseCurrency,
+        uint256 baseCurrencyDecimals,
         uint256 baseCurrencyUnit,
         string calldata baseCurrencyString
     ) external onlyGlobalAdmin {
         require(BASE_CURRENCY == address(0), Errors.VO_BASE_CURRENCY_SET_ONLY_ONCE);
         BASE_CURRENCY = baseCurrency;
+        BASE_CURRENCY_DECIMALS = baseCurrencyDecimals;
         BASE_CURRENCY_UNIT = baseCurrencyUnit;
         BASE_CURRENCY_STRING = baseCurrencyString;
     }
@@ -106,6 +110,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         for (uint256 i = 0; i < assets.length; i++) {
             require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i].feed).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
+            require(IChainlinkPriceFeed(sources[i].feed).decimals() == BASE_CURRENCY_DECIMALS, Errors.VO_BAD_DECIMALS);
             _assetsSources[assets[i]] = sources[i];
             emit AssetSourceUpdated(assets[i], address(sources[i].feed));
         }
