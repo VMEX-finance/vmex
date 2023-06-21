@@ -226,20 +226,23 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
         } else {
-            (
-                /* uint80 roundID */,
+            try IChainlinkPriceFeed(source).latestRoundData() returns (
+                uint80,
                 int256 price,
-                /*uint startedAt*/,
+                uint,
                 uint256 updatedAt,
-                /*uint80 answeredInRound*/
-            ) = IChainlinkPriceFeed(source).latestRoundData();
-            IChainlinkAggregator aggregator = IChainlinkAggregator(IChainlinkPriceFeed(source).aggregator());
-            if (price > int256(aggregator.minAnswer()) && 
-                price < int256(aggregator.maxAnswer()) && 
-                block.timestamp - updatedAt < _assetsSources[asset].heartbeat
+                uint80
             ) {
-                return uint256(price);
-            } else {
+                IChainlinkAggregator aggregator = IChainlinkAggregator(IChainlinkPriceFeed(source).aggregator());
+                if (price > int256(aggregator.minAnswer()) && 
+                    price < int256(aggregator.maxAnswer()) && 
+                    block.timestamp - updatedAt < _assetsSources[asset].heartbeat
+                ) {
+                    return uint256(price);
+                } else {
+                    return _fallbackOracle.getAssetPrice(asset);
+                }
+            } catch {
                 return _fallbackOracle.getAssetPrice(asset);
             }
         }
