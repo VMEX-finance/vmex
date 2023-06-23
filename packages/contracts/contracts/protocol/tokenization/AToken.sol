@@ -77,7 +77,7 @@ contract AToken is
         address incentivesController = address(_getIncentivesController());
         if (incentivesController != address(0) &&
             IERC20(_underlyingAsset).allowance(address(this), incentivesController) == 0) {
-                IERC20(_underlyingAsset).approve(incentivesController, type(uint).max);
+                IERC20(_underlyingAsset).safeIncreaseAllowance(incentivesController, type(uint).max);
         }
     }
 

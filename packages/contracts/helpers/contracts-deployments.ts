@@ -1543,6 +1543,8 @@ export const setupVmexIncentives = async (
     vmexIncentivesControllerProxy.address
   );
 
+  await addressesProvider.setIncentivesController(vmexIncentivesControllerProxy.address);
+
   return vmexIncentivesControllerProxy;
 };
 

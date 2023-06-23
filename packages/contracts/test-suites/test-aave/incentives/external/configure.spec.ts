@@ -7,13 +7,15 @@ import { CompareRules, eventChecker } from '.././helpers/comparator-engine';
 import { BigNumber, ethers } from 'ethers';
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from '../../../../helpers/constants';
 import {harvestAndUpdate} from './helpers';
+import { getAToken } from '../../../../helpers/contracts-getters';
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 
 
 makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
   before('Before', async () => {
-    const { dai, assetMappings, busd, usdt, weth } = testEnv; 
+    const { dai, assetMappings, busd, usdt, weth, addressesProvider, incentivesController } = testEnv; 
+    await addressesProvider.setIncentivesController(incentivesController.address);
     await assetMappings.setBorrowingEnabled(dai.address, false);
     await assetMappings.setBorrowingEnabled(busd.address, false);
     await assetMappings.setBorrowingEnabled(usdt.address, false);
@@ -60,20 +62,18 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   });
 
   it('Configure single asset reward', async () => {
-    const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, dai, usdc, incentivizedTokens } = testEnv;
-    
-    await incentivizedTokens[0].setTranche(0);
+    const { incentivesController, rewardTokens, stakingContracts, dai, usdc, ayvTricrypto2 } = testEnv;
 
-    let assetData = await incentivesController.getStakingContract(incentivizedTokens[0].address);
+    let assetData = await incentivesController.getStakingContract(ayvTricrypto2.address);
     expect(assetData).equal(ZERO_ADDRESS)
 
     await incentivesController.beginStakingReward(
-      incentivizedTokens[0].address, 
-      stakingContracts[0].address
+      ayvTricrypto2.address, 
+      stakingContracts[6].address
     );
 
-    assetData = await incentivesController.getStakingContract(incentivizedTokens[0].address);
-    expect(assetData).equal(stakingContracts[0].address)
+    assetData = await incentivesController.getStakingContract(ayvTricrypto2.address);
+    expect(assetData).equal(stakingContracts[6].address)
   })
 
   it('Configure batch assets, fail on inconsistent parameter lengths', async () => {
@@ -114,31 +114,31 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   });  
 
   it('Configure asset reward with multiple staking contracts and with liquidity', async () => {
-    const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, dai, users, incentivizedTokens } = testEnv;
+    const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, dai, users, ayvTricrypto2, yvTricrypto2, pool } = testEnv;
     
 
     await expect(incentivesController.beginStakingReward(
-      incentivizedTokens[0].address, 
+      ayvTricrypto2.address, 
       stakingContracts[5].address
     )).to.be.revertedWith("Cannot add staking reward for a token that already has staking");
 
     await expect(incentivesController.beginStakingReward(
-      incentivizedTokens[0].address, 
+      ayvTricrypto2.address, 
       stakingContracts[0].address
     )).to.be.revertedWith("Cannot add staking reward for a token that already has staking");
 
 
     // add some liquidity to the aToken via a deposit. 
-    const aToken = incentivizedTokens[0]
-    const asset = incentUnderlying[0]
-    const staking = stakingContracts[0]
+    const aToken = ayvTricrypto2
+    const asset = yvTricrypto2
+    const staking = stakingContracts[6]
     const reward = rewardTokens[0]
     const user = users[0]
 
     console.log(" users 0 deposit 1000 of the asset (usdc) to aToken (incentivizedTokens[0])");
     await asset.connect(user.signer).mint(100000);
-    await asset.connect(user.signer).approve(aToken.address, 1000);
-    await aToken.deposit(user.address, 1000);
+    await asset.connect(user.signer).approve(pool.address, 100000);
+    await pool.connect(user.signer).deposit(asset.address, 1, 1000, user.address, 0);
 
     increaseTime(50000)
     await harvestAndUpdate(testEnv);
@@ -146,29 +146,35 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
 
     console.log(" users 1 deposit 1000 of the asset (usdc) to aToken (incentivizedTokens[0])");
     await asset.connect(users[1].signer).mint(100000);
-    await asset.connect(users[1].signer).approve(aToken.address, 1000);
-    await aToken.connect(users[1].signer).deposit(users[1].address, 1000);
+    await asset.connect(users[1].signer).approve(pool.address, 100000);
+    await pool.connect(users[1].signer).deposit(asset.address, 1, 1000, users[1].address, 0);
 
 
     increaseTime(50000)
     await harvestAndUpdate(testEnv);
     console.log("leaf nodes after user 1 deposits: ",testEnv.leafNodes)
 
-    let assetData = await incentivesController.getStakingContract(incentivizedTokens[0].address);
-    expect(assetData).equal(stakingContracts[0].address)
+    let assetData = await incentivesController.getStakingContract(aToken.address);
+    expect(assetData).equal(stakingContracts[6].address)
 
-    console.log("remove the current staking reward and change it to reward 5")
+    console.log("remove the current staking reward ")
+    console.log("aToken).totalSupply()", await aToken.totalSupply())
+    console.log("staking.balanceOf(aToken.address)", await staking.balanceOf(incentivesController.address))
     await incentivesController.removeStakingReward(
-      incentivizedTokens[0].address
+      aToken.address
     );
 
+    assetData = await incentivesController.getStakingContract(aToken.address);
+    expect(assetData).equal(ZERO_ADDRESS)
+
+    console.log("change it to reward 6")
     await incentivesController.beginStakingReward(
-      incentivizedTokens[0].address, 
-      stakingContracts[5].address
+      aToken.address, 
+      stakingContracts[6].address
     );
 
-    assetData = await incentivesController.getStakingContract(incentivizedTokens[0].address);
-    expect(assetData).equal(stakingContracts[5].address)
+    assetData = await incentivesController.getStakingContract(aToken.address);
+    expect(assetData).equal(stakingContracts[6].address)
   })
   it('Calculate Merkle and claim rewards', async () => {
     const { incentivesController, incentivizedTokens, usdc, stakingContracts, incentUnderlying, users, rewardTokens, dai, leafNodes } = testEnv;
@@ -190,6 +196,7 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
     const proof = merkleTree.getHexProof(keccak256(packed));
 
     await expect(incentivesController.claim(users[0].address, usdc.address, MAX_UINT_AMOUNT, proof)).to.be.revertedWith("ProofInvalidOrExpired");
+    await expect(incentivesController.claim(users[0].address, usdc.address, 0, proof)).to.be.revertedWith("ProofInvalidOrExpired");
 
     console.log("User 0 now claims the correct amount")
     const packedGood = ethers.utils.solidityPack(
@@ -206,63 +213,100 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   })
 
   it('Full lifecycle for two aTokens with same underlying', async () => {
-    const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens, dai } = testEnv;
-
-    const aToken1 = incentivizedTokens[0]
-    const aToken2 = incentivizedTokens[1]
-
-    //removes staking reward for aToken2
-    await incentivesController.removeStakingReward(
-      aToken2.address
-    );
-
-    await aToken2.setUnderlying(await aToken1.UNDERLYING_ASSET_ADDRESS())
-    await aToken2.setTranche(1);
+    const { incentivesController, incentivizedTokens, stakingContracts, incentUnderlying, users, rewardTokens, pool, dai } = testEnv;
+    
+    const aToken1 = (await pool.getReserveData(dai.address, 0)).aTokenAddress
+    const aToken2 = (await pool.getReserveData(dai.address, 1)).aTokenAddress
 
     const asset = incentUnderlying[0]
-    const staking = stakingContracts[5]
-    const reward = rewardTokens[0]
 
     const user = users[6]
     
     console.log("User 6 deposits 2000 in aToken 0")
     await asset.connect(user.signer).mint(10000)
-    await asset.connect(user.signer).approve(aToken1.address, 2000)
-    await aToken1.deposit(user.address, 2000);
-    let assetData = await incentivesController.getStakingContract(aToken1.address);
-    expect(assetData).equal(stakingContracts[5].address)
+    await asset.connect(user.signer).approve(pool.address, 4000)
+    await pool.connect(user.signer).deposit(dai.address, 0, 2000, user.address, 0);
+    let assetData = await incentivesController.getStakingContract(aToken1);
+    expect(assetData).equal(ZERO_ADDRESS)
 
 
     console.log("User 6 deposits 2000 in aToken 1")
-    await asset.connect(user.signer).approve(aToken2.address, 2000)
-    await aToken2.connect(user.signer).deposit(user.address,2000);
+    await pool.connect(user.signer).deposit(dai.address, 1, 2000, user.address, 0);
 
 
-    console.log("aToken 1 begins staking reward")
+    console.log("aToken 2 begins staking reward with staking contract")
     await incentivesController.beginStakingReward(
-      aToken2.address,
-      stakingContracts[5].address
+      aToken2,
+      stakingContracts[0].address
     )
-    assetData = await incentivesController.getStakingContract(aToken2.address);
-    expect(assetData).equal(stakingContracts[5].address)
 
-    // console.log("user 6 withdrawing 1000 from aToken 1");
-    // console.log("Atoken 0 owns ",await asset.balanceOf(aToken1.address))
-    // console.log("Atoken 1 owns ",await asset.balanceOf(aToken2.address))
-    // await aToken2.connect(user.signer).withdraw(user.address, 1000);
-    // assetData = await incentivesController.getStakingContract(aToken1.address);
-    // expect(assetData).equal(stakingContracts[5].address)
+    console.log("aToken 1 begins staking reward with staking contract")
+    await incentivesController.beginStakingReward(
+      aToken1,
+      stakingContracts[0].address
+    )
+    assetData = await incentivesController.getStakingContract(aToken2);
+    expect(assetData).equal(stakingContracts[0].address)
 
-    console.log("aToken 0 removes staking reward");
-    //removes staking reward for aToken1
-    await incentivesController.removeStakingReward(
-      aToken1.address
-    );
-    assetData = await incentivesController.getStakingContract(aToken1.address);
-    const amtAToken = await asset.balanceOf(aToken1.address)
-    expect(assetData).equal(ZERO_ADDRESS)
+    assetData = await incentivesController.getStakingContract(aToken1);
+    expect(assetData).equal(stakingContracts[0].address)
 
-    assetData = await incentivesController.getStakingContract(aToken2.address);
-    expect(assetData).equal(stakingContracts[5].address)
+    increaseTime(50000)
+    await harvestAndUpdate(testEnv);
   })
+  it('Calculate Merkle and claim rewards again', async () => {
+    const { incentivesController, incentivizedTokens, usdc, stakingContracts, incentUnderlying, users, rewardTokens, dai, leafNodes } = testEnv;
+    const arr = leafNodes.map((i,ix) => {
+      const packed = ethers.utils.solidityPack(["address", "address", "uint256"], [ i.userAddress, i.rewardToken, BigNumber.from(i.amountOwed.toString())])
+      return keccak256(packed);
+    });
+    const merkleTree = new MerkleTree(arr, keccak256, { sortPairs: true });
+    const rootHash = merkleTree.getRoot();
+    await incentivesController.updateRoot(rootHash);
+    console.log("updated root")
+
+    console.log("User 0 tries to claim incorrect amount")
+
+    const packed = ethers.utils.solidityPack(
+      ["address", "address", "uint256"],
+      [users[0].address, usdc.address, MAX_UINT_AMOUNT]
+    );
+    const proof = merkleTree.getHexProof(keccak256(packed));
+
+    await expect(incentivesController.claim(users[0].address, usdc.address, MAX_UINT_AMOUNT, proof)).to.be.revertedWith("ProofInvalidOrExpired");
+    await expect(incentivesController.claim(users[0].address, usdc.address, 0, proof)).to.be.revertedWith("ProofInvalidOrExpired");
+
+    console.log("User 0 now claims the correct amount")
+    const packedGood = ethers.utils.solidityPack(
+      ["address", "address", "uint256"],
+      [users[0].address, usdc.address, BigNumber.from(leafNodes[0].amountOwed.toString())]
+    );
+
+
+    const proofGood = merkleTree.getHexProof(keccak256(packedGood));
+
+    await expect(incentivesController.claim(users[0].address, usdc.address, MAX_UINT_AMOUNT, proofGood)).to.be.revertedWith("ProofInvalidOrExpired");
+    await incentivesController.claim(users[0].address, usdc.address, BigNumber.from(leafNodes[0].amountOwed.toString()), proofGood)
+    console.log("user 0 usdc amount: ", await usdc.balanceOf(users[0].address));
+
+    console.log("User 6 now claims the correct amount")
+    const packedGood6 = ethers.utils.solidityPack(
+      ["address", "address", "uint256"],
+      [users[6].address, usdc.address, BigNumber.from(leafNodes[6].amountOwed.toString())]
+    );
+
+
+    const proofGood6 = merkleTree.getHexProof(keccak256(packedGood6));
+
+    await expect(incentivesController.claim(users[6].address, usdc.address, MAX_UINT_AMOUNT, proofGood6)).to.be.revertedWith("ProofInvalidOrExpired");
+    await incentivesController.claim(users[6].address, usdc.address, BigNumber.from(leafNodes[6].amountOwed.toString()), proofGood6)
+    console.log("user 6 usdc amount: ", await usdc.balanceOf(users[6].address));
+  })
+  // it('Try to attack by using external aToken contract', async () => {
+  //   const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, dai, usdc, incentivizedTokens } = testEnv;
+    
+  //   await incentivizedTokens[0].setTranche(0); //try to mimic dai in tranche 0
+
+  //   await incentivesController.handleAction()
+  // })
 });

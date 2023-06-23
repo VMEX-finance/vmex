@@ -31,9 +31,9 @@ interface IExternalRewardsDistributor {
 
     event RewardConfigured(address indexed aToken, address indexed staking, uint256 initialAmount);
     event StakingRemoved(address indexed aToken);
-    event UserDeposited(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
-    event UserWithdraw(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount);
-    event UserTransfer(address indexed user, address indexed underlying, uint64 indexed trancheId, uint256 amount, bool sender);
+    event UserDeposited(address indexed user, address indexed aToken, uint256 amount);
+    event UserWithdraw(address indexed user, address indexed aToken, uint256 amount);
+    event UserTransfer(address indexed user, address indexed aToken, uint256 amount, bool sender);
 
     function getStakingContract(address aToken) external view
     returns (address);
