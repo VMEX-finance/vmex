@@ -1545,9 +1545,7 @@ export const setupVmexIncentives = async (
 
   await addressesProvider.setIncentivesController(vmexIncentivesControllerProxy.address);
 
-  return {
-    vmexIncentivesControllerProxy,
-  };
+  return vmexIncentivesControllerProxy;
 };
 
 export const deployDoubleTransferHelper = async (aaveToken: tEthereumAddress, verify?: boolean) => {
