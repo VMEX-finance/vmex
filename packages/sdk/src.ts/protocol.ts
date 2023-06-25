@@ -14,7 +14,7 @@ import {
   convertToCurrencyDecimals,
 } from "./utils";
 import { getTotalTranches } from "./analytics";
-import { RewardConfig, SetAddress } from "./interfaces";
+import { RewardConfig, SetAddress, UserRewards } from "./interfaces";
 import { MAX_UINT_AMOUNT } from "./constants";
 
 export async function borrow(
@@ -739,7 +739,7 @@ export async function configureExistingTranche(
 
 export async function claimIncentives(
   params: {
-    aTokens: BigNumberish[];
+    incentivizedATokens: BigNumberish[];
     signer: ethers.Signer;
     to: BigNumberish;
     network: string;
@@ -756,7 +756,7 @@ export async function claimIncentives(
   });
 
   const tx = await incentivesController.claimAllRewards(
-    params.aTokens,
+    params.incentivizedATokens,
     params.to
   );
 
@@ -786,8 +786,6 @@ export async function setIncentives(
     providerRpc: params.providerRpc,
   });
 
-  console.log("dis view func", await incentivesController.getAccruedRewards(await params.signer.getAddress(), params.rewardConfigs[0].reward))
-
   const tx = await incentivesController.configureRewards(
     params.rewardConfigs
   );
@@ -812,4 +810,37 @@ export async function setIncentives(
     });
   }
   return tx;
+}
+
+export async function getUserIncentives(
+  params: {
+    user: string;
+    incentivizedATokens: string[];
+    network: string;
+    test?: boolean;
+    providerRpc?: string;
+  },
+  callback?: () => Promise<any>
+): Promise<UserRewards> {
+  let incentivesController = await getIncentivesController({
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  const tx = await incentivesController.getPendingRewards(
+    params.incentivizedATokens,
+    params.user
+  );
+
+  if (callback) {
+    await callback().catch((error) => {
+      console.error("CALLBACK_ERROR: \n", error);
+    });
+  }
+
+  return {
+    rewardTokens: tx[0],
+    rewardAmounts: tx[1]
+  };
 }

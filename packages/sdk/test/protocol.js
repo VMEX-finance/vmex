@@ -7,6 +7,7 @@ const {
   setIncentives,
   supply,
   claimIncentives,
+  getUserIncentives,
 } = require("../dist/protocol.js");
 
 const {
@@ -64,7 +65,7 @@ describe("Protocol - incentives controller setting and claiming", () => {
     await setIncentives({
       rewardConfigs: [
         {
-          emissionPerSecond: ethers.utils.parseUnits("1", 6),   // 1 dollar per second
+          emissionPerSecond: ethers.utils.parseUnits("1", 6), // 1 dollar per second
           endTimestamp: BigNumber.from(emissionsEnd),
           incentivizedAsset: incentivizedAToken,
           reward: rewardAddress,
@@ -119,27 +120,6 @@ describe("Protocol - incentives controller setting and claiming", () => {
     });
 
     tx.wait();
-  const lendingPool = await getLendingPool({
-      signer: temp,
-      network: network,
-      test: true,
-      providerRpc: providerRpc,
-    });
-    const incentivizedAToken = (
-      await lendingPool.getReserveData(incentivizedAsset, incentivizedTranche)
-    ).aTokenAddress;
-let incentivesController = await getIncentivesController({
-      signer: temp,
-      network: network,
-      test: true,
-      providerRpc: providerRpc,
-    });
-    const pendingRewardsBefore = await incentivesController.getPendingRewards(
-      [incentivizedAToken],
-      await temp.getAddress()
-    );
-
-    console.log("user pending rewards before", pendingRewardsBefore[1][0].toNumber());
   });
   it("4 - user claims incentives", async () => {
     const rewardTokenContract = new ethers.Contract(
@@ -168,28 +148,34 @@ let incentivesController = await getIncentivesController({
 
     // get starting rewards for the user and the vault
     const startingRewards = await rewardTokenContract.balanceOf(
-        await temp.getAddress()
+      await temp.getAddress()
     );
     const startingVault = await rewardTokenContract.balanceOf(
-        await owner.getAddress()
+      await owner.getAddress()
     );
 
-    console.log("user starting reward token:", startingRewards.toNumber())
-    console.log("vault starting reward token:", startingVault.toNumber())
+    console.log("user starting reward token:", startingRewards.toNumber());
+    console.log("vault starting reward token:", startingVault.toNumber());
 
     // increaseTime(provider, 500);
 
     const aTokens = [incentivizedAToken];
-    const pendingRewardsBefore = await incentivesController.getPendingRewards(
-      aTokens,
-      await temp.getAddress()
-    );
+    const pendingRewardsBefore = await getUserIncentives({
+      incentivizedATokens: aTokens,
+      user: await temp.getAddress(),
+      network: network,
+      test: true,
+      providerRpc: providerRpc,
+    });
 
-    console.log("user pending rewards before", pendingRewardsBefore[1][0].toNumber());
+    console.log(
+      "user pending rewards before",
+      pendingRewardsBefore.rewardAmounts[0].toNumber()
+    );
     console.log("user all pending rewards before", pendingRewardsBefore);
 
     const tx = await claimIncentives({
-      aTokens: aTokens,
+      incentivizedATokens: aTokens,
       signer: temp,
       to: await temp.getAddress(),
       network: network,
@@ -199,23 +185,28 @@ let incentivesController = await getIncentivesController({
 
     tx.wait();
 
-    const pendingRewardsAfter = await incentivesController.getPendingRewards(
-      aTokens,
-      await temp.getAddress()
-    );
-    console.log("user pending rewards after", pendingRewardsAfter[1][0]);
+    const pendingRewardsAfter = await getUserIncentives({
+      incentivizedATokens: aTokens,
+      user: await temp.getAddress(),
+      network: network,
+      test: true,
+      providerRpc: providerRpc,
+    });
+    console.log("user pending rewards after", pendingRewardsAfter.rewardAmounts[0]);
 
     const endingRewards = await rewardTokenContract
       .connect(temp)
       .balanceOf(await temp.getAddress());
     const endingVault = await rewardTokenContract.balanceOf(
-        await owner.getAddress()
+      await owner.getAddress()
     );
 
-    expect(pendingRewardsBefore[0][0]).to.be.eq(rewardAddress);
+    expect(pendingRewardsBefore.rewardTokens[0]).to.be.eq(rewardAddress);
 
-    expect(pendingRewardsAfter[1][0]).to.be.eq(BigNumber.from(0));
-    expect(endingRewards).to.be.eq(startingRewards.add(pendingRewardsBefore[1][0]));
-    expect(endingVault).to.be.eq(startingVault.sub(pendingRewardsBefore[1][0]));
+    expect(pendingRewardsAfter.rewardAmounts[0]).to.be.eq(BigNumber.from(0));
+    expect(endingRewards).to.be.eq(
+      startingRewards.add(pendingRewardsBefore.rewardAmounts[0])
+    );
+    expect(endingVault).to.be.eq(startingVault.sub(pendingRewardsBefore.rewardAmounts[0]));
   });
 });
