@@ -748,6 +748,10 @@ export async function claimIncentives(
   },
   callback?: () => Promise<any>
 ) {
+  if (!params.incentivizedATokens || !params.signer || !params.to || !params.network) {
+    return;
+  }
+
   let incentivesController = await getIncentivesController({
     signer: params.signer,
     network: params.network,
