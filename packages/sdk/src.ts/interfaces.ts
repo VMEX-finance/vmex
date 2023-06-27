@@ -161,3 +161,8 @@ export interface RewardConfig {
   incentivizedAsset: string;
   reward: string;
 }
+
+export interface UserRewards {
+  rewardTokens: string[];
+  rewardAmounts: BigNumber[];
+}
