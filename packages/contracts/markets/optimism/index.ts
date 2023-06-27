@@ -19,6 +19,8 @@ import {
   strategyBeefyToken,
   strategyVeloToken,
   strategyBeethovenToken,
+  strategyStableYearn,
+  strategyYearnToken,
 } from './reservesConfigs';
 
 // ----------------
@@ -68,6 +70,10 @@ export const OptimismConfig: IOptimismConfiguration = {
     // beethoven_USDCDAI: strategyBeethovenToken,
     beethoven_wstETHETH: strategyBeethovenToken,
     beethoven_rETHETH: strategyBeethovenToken,
+    yvUSDC: strategyStableYearn,
+    yvUSDT: strategyStableYearn,
+    yvDAI: strategyStableYearn,
+    yvWETH: strategyYearnToken,
   },
   ReserveAssets: {
     [eOptimismNetwork.optimism]: {
@@ -109,6 +115,10 @@ export const OptimismConfig: IOptimismConfiguration = {
       // beethoven_USDCDAI: '0x43da214fab3315aA6c02e0B8f2BfB7Ef2E3C60A5',
       beethoven_wstETHETH: '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2',
       beethoven_rETHETH: '0x4Fd63966879300caFafBB35D157dC5229278Ed23',
+      yvUSDC: '0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2',
+      yvUSDT: '0xFaee21D0f0Af88EE72BB6d68E54a90E6EC2616de',
+      yvDAI: '0x65343F414FFD6c97b0f6add33d16F6845Ac22BAc',
+      yvWETH: '0x5B977577Eb8a480f63e11FC615D6753adB8652Ae',
     },
   },
 };

@@ -441,6 +441,10 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         beethoven_wstETHETH: ZERO_ADDRESS,
         rETH: ZERO_ADDRESS,
         beethoven_rETHETH: ZERO_ADDRESS,
+        yvUSDC: ZERO_ADDRESS,
+        yvUSDT: ZERO_ADDRESS,
+        yvDAI: ZERO_ADDRESS,
+        yvWETH: ZERO_ADDRESS,
       },
       fallbackOracle
     );
@@ -1543,7 +1547,10 @@ export const setupVmexIncentives = async (
     vmexIncentivesControllerProxy.address
   );
 
+  console.log("Setting incentives controller in addresses provider")
+
   await addressesProvider.setIncentivesController(vmexIncentivesControllerProxy.address);
+  console.log("Set to ", await addressesProvider.getIncentivesController())
 
   return vmexIncentivesControllerProxy;
 };
