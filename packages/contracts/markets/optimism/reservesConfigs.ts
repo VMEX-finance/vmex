@@ -211,9 +211,9 @@ export const strategyCurveV2LPToken: IReserveParams = {
 
 export const strategyYearnToken: IReserveParams = {
   strategy: rateStrategyCurve,
-  baseLTVAsCollateral: '2500', //change
-  liquidationThreshold: '4500',//change
-  liquidationBonus: '11500', //change
+  baseLTVAsCollateral: '5000', //change
+  liquidationThreshold: '5500',//change
+  liquidationBonus: '10800', //change
   borrowingEnabled: false,
   reserveDecimals: '18', //this is the important information
   aTokenImpl: eContractid.AToken,
@@ -223,6 +223,22 @@ export const strategyYearnToken: IReserveParams = {
   borrowFactor: '10100', //100% for now
   reserveFactor: '2000',
 };
+
+export const strategyStableYearn: IReserveParams = {
+  strategy: rateStrategyCurve,
+  baseLTVAsCollateral: '7500', //change
+  liquidationThreshold: '8000',//change
+  liquidationBonus: '10200', //change
+  borrowingEnabled: false,
+  reserveDecimals: '18', //this is the important information
+  aTokenImpl: eContractid.AToken,
+  assetType: 3, //3 is enum for yearn
+  supplyCap: '1000000',
+  borrowCap: '0',
+  borrowFactor: '10100', //100% for now
+  reserveFactor: '2000',
+};
+
 
 export const strategyVeloToken: IReserveParams = {
   strategy: rateStrategyCurve,

@@ -81,6 +81,7 @@
     "ci:clean": "rm -rf ./artifacts ./cache ./types",
     "print-contracts:main": "npm run hardhat:main -- print-contracts",
     "localhost:deployIncentivesController": "hardhat --network localhost deploy-IncentivesController",
+    "localhost:optimism:deployIncentivesController": "hardhat --network optimism_localhost deploy-IncentivesController",
     "main:deployIncentivesController": "hardhat --network main deploy-IncentivesController",
     "mainnet:verify": "npm run hardhat:main verify:general -- --all --pool Aave",
     "matic:mumbai:verify": "npm run hardhat:mumbai verify:general -- --all --pool Matic",

@@ -31,7 +31,7 @@ task(`deploy-${CONTRACT_NAME}`, `Deploy and initialize ${CONTRACT_NAME}`)
         verify
     );
 
-    await addressesProvider.setIncentivesController(vmexIncentivesProxy.address);
+    // await addressesProvider.setIncentivesController(vmexIncentivesProxy.address);
 
     console.log(`Finished deployment, ${CONTRACT_NAME}.address`, vmexIncentivesProxy.address);
   });

@@ -2,7 +2,7 @@
 const chai = require("chai");
 const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
-import { DRE } from "../helpers/misc-utils";
+import { DRE, increaseTime } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
 import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
@@ -37,6 +37,11 @@ makeSuite(
             "function withdraw(uint wad) public"
         ];
 
+        const Stakingabi = [
+          "function balanceOf(address owner) external view returns (uint256 balance)",
+          "function earned(address owner) external view returns (uint256 balance)",
+      ];
+
         const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
         const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_OP/abis/velo.json").toString()
         const amountWETH = ethers.utils.parseEther("1.0");
@@ -44,51 +49,7 @@ makeSuite(
         //   "function swapExactETHForTokens(uint amountOutMin, route[] calldata routes, address to, uint deadline) external payable returns (uint[] memory amounts)"
         // ]
 
-        it("set heartbeat higher", async () => {
-          var signer = await contractGetters.getFirstSigner();
-          const addProv = await contractGetters.getLendingPoolAddressesProvider();
-
-          const oracleAdd = await addProv.connect(signer).getPriceOracle();
-          const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
-
-          const network = "optimism" as any
-          const {
-            ProtocolGlobalParams: { UsdAddress },
-            ReserveAssets,
-            ChainlinkAggregator,
-            SequencerUptimeFeed,
-            ProviderId
-          } = OptimismConfig as ICommonConfiguration;
-          const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
-
-          const chainlinkAggregators = await getParamPerNetwork(
-            ChainlinkAggregator,
-            network
-          );
-          let tokensToWatch = {
-            ...reserveAssets,
-            USD: UsdAddress,
-          };
-          
-          if (!chainlinkAggregators) {
-            throw "chainlinkAggregators is undefined. Check configuration at config directory";
-          }
-          const [tokens2, aggregators] = getPairsTokenAggregator(
-            tokensToWatch,
-            chainlinkAggregators,
-            OptimismConfig.OracleQuoteCurrency
-          );
-
-          const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
-          {
-            return {
-              feed: el.feed,
-              heartbeat: 86400
-            }
-          })
-
-          await oracle.connect(signer).setAssetSources(tokens2, ag2);
-        });
+        
 
           it("give WETH to signer", async () => {
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
@@ -131,6 +92,30 @@ makeSuite(
             ).to.be.bignumber.equal(amountWETH, "Did not deposit WETH");
           });
 
+          it("set up staking", async () => {
+            const addressesProvider = await contractGetters.getLendingPoolAddressesProvider();
+            const incentivesController = await contractGetters.getIncentivesControllerProxy();
+            var signer = await contractGetters.getFirstSigner();
+            const lendingPool = await contractGetters.getLendingPool();
+            console.log("Current incentives controller", await addressesProvider.getIncentivesController());
+            await addressesProvider.setIncentivesController(incentivesController.address);
+            console.log("New incentives controller", await addressesProvider.getIncentivesController());
+            const yvUSDCDat = await lendingPool.getReserveData("0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2", 0);
+
+            await incentivesController.beginStakingReward(yvUSDCDat.aTokenAddress, "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b");
+
+            const yvUSDTDat = await lendingPool.getReserveData("0xFaee21D0f0Af88EE72BB6d68E54a90E6EC2616de", 0);
+
+            await incentivesController.beginStakingReward(yvUSDTDat.aTokenAddress, "0xf66932f225ca48856b7f97b6f060f4c0d244af8e");
+
+            const yvDAIDat = await lendingPool.getReserveData("0x65343F414FFD6c97b0f6add33d16F6845Ac22BAc", 0);
+
+            await incentivesController.beginStakingReward(yvDAIDat.aTokenAddress, "0xf8126ef025651e1b313a6893fcf4034f4f4bd2aa");
+
+            const yvWETHDat = await lendingPool.getReserveData("0x5B977577Eb8a480f63e11FC615D6753adB8652Ae", 0);
+
+            await incentivesController.beginStakingReward(yvWETHDat.aTokenAddress, "0xe35fec3895dcecc7d2a91e8ae4ff3c0d43ebffe0");
+          });
           
           it("Testing general tokens deposit and borrow", async () => {
             const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
@@ -187,6 +172,11 @@ makeSuite(
                   slot = 4;
                   keyFirst = true;
                 }
+                else if(symbol.substring(0,2)=="yv"){
+                  slot = 7;
+                  keyFirst = false;
+                }
+
 
                 if(symbol=="SUSD"){
                   continue;
@@ -335,6 +325,23 @@ makeSuite(
             }
           });
 
+          it("wait and harvest rewards", async () => {
+            var signer = await contractGetters.getFirstSigner();
+            const incentivesController = await contractGetters.getIncentivesControllerProxy();
+            const lendingPool = await contractGetters.getLendingPool();
+            var USDCadd = "0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2"
+            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var yvUSDC = new ethers.Contract(USDCadd,USDCABI)
+            const yvUSDCDat = await lendingPool.getReserveData("0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2", 0);
+            increaseTime(50000)
+            console.log("How much yvUSDC is held in aToken: ", await yvUSDC.connect(signer).balanceOf(yvUSDCDat.aTokenAddress))
+            console.log("How much yvUSDC is held in incentives controller: ", await yvUSDC.connect(signer).balanceOf(incentivesController.address))
+            const stakingContract = new ethers.Contract("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b", Stakingabi);
+            const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
+            const earned = await stakingContract.connect(signer).earned(incentivesController.address)
+            expect(amtStaked).equal(ethers.utils.parseUnits("10.0", 6))
+            expect(earned).gt(0)
+          });
     }
 )
 

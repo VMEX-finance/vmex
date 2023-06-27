@@ -118,15 +118,15 @@ makeSuite(
                 const vp = await CurvePool.connect(signer).get_virtual_price()
                 var expectedPrice;
                 if(i==0)
-                  expectedPrice = "102703859"
+                  expectedPrice = "101621674"
                 else if(i==1)
-                  expectedPrice = "185876658830"
+                  expectedPrice = "190587957699"
                 
                 console.log("expected curve price: ",expectedPrice)
                 const diff = (Math.abs(Number(expectedPrice) - Number(pricePerCurveToken)))/Number(expectedPrice)
                 expect(
                   diff
-                ).to.be.lte(0.02, "Curve prices do not match");
+                ).to.be.lte(0.01, "Curve prices do not match");
             }
 
             

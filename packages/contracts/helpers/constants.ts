@@ -122,6 +122,10 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   beethoven_wstETHETH: oneEther.toFixed(),
   rETH: oneEther.toFixed(),
   beethoven_rETHETH: oneEther.toFixed(),
+  yvUSDC: oneEther.multipliedBy("0.00367714136416").toFixed(),
+  yvDAI: oneEther.multipliedBy("0.00367714136416").toFixed(),
+  yvUSDT: oneEther.multipliedBy("0.00367714136416").toFixed(),
+  yvWETH: oneEther.toFixed(),
 };
 
 export const chainlinkAggregatorProxy = {
