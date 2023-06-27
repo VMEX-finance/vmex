@@ -378,6 +378,10 @@ export interface iAssetBase<T> {
   beethoven_wstETHETH: T;
   rETH: T;
   beethoven_rETHETH: T;
+  yvUSDC: T;
+  yvUSDT: T;
+  yvDAI: T;
+  yvWETH: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -509,6 +513,10 @@ export type iOptimismPoolAssets<T> = Partial<
     | "beethoven_USDCDAI"
     | "beethoven_wstETHETH"
     | "beethoven_rETHETH"
+    | "yvUSDC"
+    | "yvUSDT"
+    | "yvDAI"
+    | "yvWETH"
   >
 >;
 

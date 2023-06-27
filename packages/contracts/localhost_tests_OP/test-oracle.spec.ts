@@ -101,6 +101,16 @@ makeSuite(
         "function deposit() external returns(uint256)",
         "function approve(address spender, uint256 value) external returns (bool success)",
     ];
+    const yvAbi = [
+      "function totalAssets() external view returns(uint256)", 
+      "function totalSupply() external view returns(uint256)", 
+      "function pricePerShare() external view returns(uint256)",
+      "function token() external view returns(address)",
+      "function decimals() external view returns(uint256)",
+      "function balanceOf(address owner) external view returns (uint256 balance)",
+      "function deposit() external returns(uint256)",
+      "function approve(address spender, uint256 value) external returns (bool success)",
+  ];
 
     it("set heartbeat higher", async () => {
         var signer = await contractGetters.getFirstSigner();
@@ -174,6 +184,13 @@ makeSuite(
             if(strat.assetType==0 || strat.assetType == 1 || strat.assetType == 2) {
                 continue;
             }
+            else if(strat.assetType==3) { //yearn
+              const yVault = new DRE.ethers.Contract(currentAsset, yvAbi)
+              const pricePerUnderlying = await oracle.connect(signer).callStatic.getAssetPrice(yVault.connect(signer).token());
+              const pricePerShare = await yVault.connect(signer).pricePerShare();
+              //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
+              expectedPrice = Number(pricePerUnderlying) * Number(pricePerShare.toString()) / Math.pow(10,Number(await yVault.connect(signer).decimals())); 
+          }
             else if(strat.assetType==4) { //beefy
                 const beefyVault = new DRE.ethers.Contract(currentAsset, beefyAbi)
                 const pricePerUnderlying = await oracle.connect(signer).callStatic.getAssetPrice(beefyVault.connect(signer).want());
@@ -205,15 +222,15 @@ makeSuite(
                 if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
                     const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
                     const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
-                    expectedPrice = 182078032735
+                    expectedPrice = 186547806378
                 }
                 if(currentAsset == "0x4Fd63966879300caFafBB35D157dC5229278Ed23") {
                   //rETH pool
-                  expectedPrice = 182977401490 //should be around the same as wstETH
+                  expectedPrice = 187333948368 //should be around the same as wstETH
                 }
             }
             else if(strat.assetType == 7) { //rETH
-              expectedPrice = 193565765145
+              expectedPrice = 198793382309
             }
             else {
                 continue
