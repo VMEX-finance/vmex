@@ -8,26 +8,29 @@ import {ILendingPool} from '../../interfaces/ILendingPool.sol';
 import {IAssetMappings} from '../../interfaces/IAssetMappings.sol';
 import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /// @title VMEX External Rewards Distributor.
 /// @author Volatile Labs Ltd.
 /// @notice This contract allows Vmex users to claim their rewards. This contract is largely inspired by Euler Distributor's contract: https://github.com/euler-xyz/euler-contracts/blob/master/contracts/mining/EulDistributor.sol.
-contract ExternalRewardDistributor is IExternalRewardsDistributor {
+contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable {
   using SafeERC20 for IERC20;
 
   mapping(address => address) internal stakingData; // incentivized aToken => address of staking contract
-  address public immutable manager;
-  ILendingPoolAddressesProvider public immutable addressesProvider;
+  address public manager;
+  ILendingPoolAddressesProvider public addressesProvider;
 
   bytes32 public currRoot; // The merkle tree's root of the current rewards distribution.
   bytes32 public prevRoot; // The merkle tree's root of the previous rewards distribution.
   mapping(address => mapping(address => uint256)) public claimed; // The rewards already claimed. account -> amount.
 
-  constructor(address _manager, address _addressesProvider) {
-    manager = _manager;
+  uint256[40] __gap_ExternalRewardDistributor;
+
+  function __ExternalRewardDistributor_init(address _addressesProvider) internal onlyInitializing {
     addressesProvider = ILendingPoolAddressesProvider(_addressesProvider);
+    manager = addressesProvider.getGlobalAdmin();
   }
 
   modifier onlyManager() {

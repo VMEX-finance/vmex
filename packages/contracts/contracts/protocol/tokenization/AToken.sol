@@ -9,7 +9,7 @@ import {IAToken} from "../../interfaces/IAToken.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
-import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {IIncentivesController} from "../../interfaces/IIncentivesController.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
@@ -25,7 +25,7 @@ import "../../dependencies/openzeppelin/contracts/utils/Strings.sol";
  * @author Aave and VMEX
  */
 contract AToken is
-    VersionedInitializable,
+    Initializable,
     IncentivizedERC20("ATOKEN_IMPL", "ATOKEN_IMPL", 0),
     IAToken
 {
@@ -45,8 +45,6 @@ contract AToken is
         keccak256(
             "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
         );
-
-    uint256 public constant ATOKEN_REVISION = 0x1;
 
     /// @dev owner => next valid nonce to submit with permit()
     mapping(address => uint256) public _nonces;
@@ -79,10 +77,6 @@ contract AToken is
             IERC20(_underlyingAsset).allowance(address(this), incentivesController) == 0) {
                 IERC20(_underlyingAsset).safeIncreaseAllowance(incentivesController, type(uint).max);
         }
-    }
-
-    function getRevision() internal pure virtual override returns (uint256) {
-        return ATOKEN_REVISION;
     }
 
     function DOMAIN_SEPARATOR() public view returns (bytes32) {
@@ -134,7 +128,7 @@ contract AToken is
         _underlyingAsset = vars.underlyingAsset;
         _tranche = vars.trancheId;
 
-        emit Initialized(
+        emit InitializedAToken(
             vars.underlyingAsset,
             vars.trancheId,
             address(pool),

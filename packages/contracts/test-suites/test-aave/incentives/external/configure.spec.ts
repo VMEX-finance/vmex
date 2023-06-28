@@ -15,7 +15,7 @@ const keccak256 = require('keccak256');
 makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
   before('Before', async () => {
     const { dai, assetMappings, busd, usdt, weth, addressesProvider, incentivesController } = testEnv; 
-    await addressesProvider.setIncentivesController(incentivesController.address);
+    // await addressesProvider.setIncentivesController(incentivesController.address);
     await assetMappings.setBorrowingEnabled(dai.address, false);
     await assetMappings.setBorrowingEnabled(busd.address, false);
     await assetMappings.setBorrowingEnabled(usdt.address, false);

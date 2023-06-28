@@ -11,11 +11,6 @@ interface IExternalRewardsDistributor {
     /// @param newRoot The new merkle's tree root.
     event RootUpdated(bytes32 newRoot);
 
-    /// @notice Emitted when MORPHO tokens are withdrawn.
-    /// @param to The address of the recipient.
-    /// @param amount The amount of MORPHO tokens withdrawn.
-    event MorphoWithdrawn(address to, uint256 amount);
-
     /// @notice Emitted when an account claims rewards.
     /// @param account The address of the claimer.
     /// @param amount The amount of rewards claimed.

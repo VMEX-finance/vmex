@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
@@ -23,7 +23,7 @@ import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol"
  * @dev Implements the configuration methods for the VMEX protocol
  **/
 contract LendingPoolConfigurator is
-    VersionedInitializable,
+    Initializable,
     ILendingPoolConfigurator
 {
     using SafeMath for uint256;
@@ -80,12 +80,6 @@ contract LendingPoolConfigurator is
             Errors.LPC_NOT_WHITELISTED_TRANCHE_CREATION
         );
         _;
-    }
-
-    uint256 internal constant CONFIGURATOR_REVISION = 0x1;
-
-    function getRevision() internal pure override returns (uint256) {
-        return CONFIGURATOR_REVISION;
     }
 
     function initialize(address provider) public initializer {

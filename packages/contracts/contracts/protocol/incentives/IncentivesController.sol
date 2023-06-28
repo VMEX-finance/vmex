@@ -9,9 +9,11 @@ import {IAToken} from '../../interfaces/IAToken.sol';
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IIncentivesController} from '../../interfaces/IIncentivesController.sol';
-import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {DistributionManager} from './DistributionManager.sol';
 import {ExternalRewardDistributor} from './ExternalRewardDistributor.sol';
+import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 /**
  * @title IncentivesController
@@ -20,40 +22,38 @@ import {ExternalRewardDistributor} from './ExternalRewardDistributor.sol';
  **/
 contract IncentivesController is
   IIncentivesController,
-  VersionedInitializable,
+  Initializable,
   DistributionManager,
   ExternalRewardDistributor
 {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
-  uint256 public constant REVISION = 1;
 
-  address public immutable REWARDS_VAULT;
+  address public REWARDS_VAULT;
 
-  constructor(
-    address rewardsVault,
-    address emissionManager,
-    address externalRewardManager,
-    address addressesProvider
-  ) DistributionManager(emissionManager)
-    ExternalRewardDistributor(externalRewardManager, addressesProvider) {
-    REWARDS_VAULT = rewardsVault;
+  modifier onlyGlobalAdmin() {
+      _onlyGlobalAdmin();
+      _;
   }
 
+  function _onlyGlobalAdmin() internal view {
+      require(
+          addressesProvider.getGlobalAdmin() == msg.sender,
+          Errors.CALLER_NOT_GLOBAL_ADMIN
+      );
+  }
+
+
   /**
-   * @dev Called by the proxy contract. Not used at the moment, but for the future
+   * @dev Called by the proxy contract
    **/
-  function initialize() external initializer {
-    // to unlock possibility to stake on behalf of the user
-    // REWARD_TOKEN.approve(address(PSM), type(uint256).max);
+  function initialize(address _addressesProvider) public initializer {
+    ExternalRewardDistributor.__ExternalRewardDistributor_init(_addressesProvider);
+    DistributionManager.__DistributionManager_init(ILendingPoolAddressesProvider(_addressesProvider).getGlobalAdmin());
   }
 
-  /**
-   * @dev Returns the revision of the implementation contract
-   * @return uint256, current revision version
-   */
-  function getRevision() internal pure override returns (uint256) {
-    return REVISION;
+  function setRewardsVault(address rewardsVault) external onlyGlobalAdmin {
+    REWARDS_VAULT = rewardsVault;
   }
 
   /**

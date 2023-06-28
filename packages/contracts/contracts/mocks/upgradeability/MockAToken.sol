@@ -5,10 +5,6 @@ import {AToken} from "../../protocol/tokenization/AToken.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 
 contract MockAToken is AToken {
-    function getRevision() internal pure override returns (uint256) {
-        return 0x2;
-    }
-
     function newFunction() external pure returns (uint256) {
         return 2;
     }

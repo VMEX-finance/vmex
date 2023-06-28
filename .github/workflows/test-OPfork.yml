@@ -1,0 +1,78 @@
+name: Test VMEX OPfork
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+# Add the 'if' condition to disable the workflow. This workflow doesn't work cause the alchemy endpoint gets too many requests
+if: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18.15.0"
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Set up environment variable
+        run: echo "OP_ALCHEMY_KEY=${{ secrets.OP_ALCHEMY_KEY }}" >> $GITHUB_ENV
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Clean
+        run: yarn contracts ci:clean
+
+      - name: Compile
+        run: yarn contracts compile
+
+      - name: Set up tmux
+        run: |
+          sudo apt-get install -y tmux
+          tmux new-session -d -s mysession
+
+      - name: Split terminal and run Hardhat node
+        run: |
+          tmux send-keys -t mysession.0 "OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:node:fork:optimism" Enter
+          sleep 30
+
+      - name: Print hardhat node
+        run: |
+          tmux capture-pane -t mysession.0 -p
+
+      - name: Split terminal, deploy contracts, and run tests
+        run: |
+          tmux split-window -h -t mysession
+          tmux send-keys -t mysession.1 "OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:deploy:fork:optimism && OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:OPfork:unit-tests" Enter
+
+      - name: Wait for tests to complete
+        run: |
+          sleep 360
+
+      - name: Interrupt both sessions
+        run: |
+          tmux send-keys -t mysession.0 C-c
+          tmux send-keys -t mysession.1 C-c
+
+      - name: Print hardhat node
+        run: |
+          tmux capture-pane -t mysession.0 -p
+
+      - name: Print test results
+        run: |
+          tmux capture-pane -t mysession.1 -p

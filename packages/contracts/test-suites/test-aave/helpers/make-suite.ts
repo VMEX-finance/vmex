@@ -286,8 +286,9 @@ export async function initializeMakeSuite() {
   testEnv.ayvTricrypto2 = await getAToken(ayvAddress);
   testEnv.aUsdc = await getAToken(aUsdcAddress);
   testEnv.varDebtUsdc = await getVariableDebtToken(varDebtUsdcAddress);
-
+  console.log("Before incentives controller set in make suite")
   testEnv.incentivesController = await getIncentivesControllerProxy();
+  console.log("After incentives controller set in make suite as ", testEnv.incentivesController.address)
   testEnv.vmexToken = await getVmexToken();
 
   testEnv.incentivizedTokens = [

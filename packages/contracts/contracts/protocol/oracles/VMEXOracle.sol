@@ -9,7 +9,7 @@ import {IChainlinkPriceFeed} from "../../interfaces/IChainlinkPriceFeed.sol";
 import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {Initializable} from "../../dependencies/openzeppelin/upgradeability/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {CurveOracle} from "./CurveOracle.sol";
