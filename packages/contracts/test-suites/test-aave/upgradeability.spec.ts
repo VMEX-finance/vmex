@@ -9,6 +9,7 @@ import {
   getAToken,
   getEmergencyAdminT0,
   getMockAToken,
+  getMockIncentivesControllerImpl,
   getMockStableDebtToken,
   getMockVariableDebtToken,
   getStableDebtToken,
@@ -17,11 +18,14 @@ import {
 import {
   deployMockAToken,
   deployMockVariableDebtToken,
+  deployMockIncentivesController,
 } from '../../helpers/contracts-deployments';
 import { BigNumberish, ethers } from 'ethers';
+import BigNumber from 'bignumber.js';
 
 makeSuite('Upgradeability', (testEnv: TestEnv) => {
   const { CALLER_NOT_GLOBAL_ADMIN } = ProtocolErrors;
+  const stakingAbi = require("../../artifacts/contracts/mocks/StakingRewardsMock.sol/StakingRewardsMock.json")
   let newATokenAddress: string;
   // let newStableTokenAddress: string;
   let newVariableTokenAddress: string;
@@ -29,7 +33,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
   const tranche = 0;
 
   before('deploying instances', async () => {
-    const { dai, pool, configurator, addressesProvider } = testEnv;
+    const { dai, pool, configurator, addressesProvider, assetMappings, yvTricrypto2, incentivesController } = testEnv;
     const aTokenInstance = await deployMockAToken([
       pool.address,
       configurator.address,
@@ -38,23 +42,16 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       tranche.toString(),
     ]);
 
-    // const stableDebtTokenInstance = await deployMockStableDebtToken([
-    //   pool.address,
-    //   dai.address,
-    //   ZERO_ADDRESS,
-    //   'Aave stable debt bearing DAI updated',
-    //   'stableDebtDAI'
-    // ]);
-
     const variableDebtTokenInstance = await deployMockVariableDebtToken([
       pool.address,
       dai.address,
       addressesProvider.address,
     ]);
 
+    const incentivesInstance = await deployMockIncentivesController();
+
     newATokenAddress = aTokenInstance.address;
     newVariableTokenAddress = variableDebtTokenInstance.address;
-    // newStableTokenAddress = stableDebtTokenInstance.address;
   });
 
   it('Tries to update the DAI Atoken implementation with a different address than the lendingPoolManager', async () => {
@@ -64,7 +61,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
-  it('Upgrades the DAI Atoken implementation ', async () => {
+  it('Upgrades the DAI Atoken beacon implementation ', async () => {
     const { dai, aTokenBeacon, helpersContract } = testEnv;
 
     await aTokenBeacon.upgradeTo(newATokenAddress);
@@ -98,7 +95,7 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
-  it('Upgrades the DAI variable debt token implementation ', async () => {
+  it('Upgrades the DAI variable debt token beacon implementation ', async () => {
     const {dai, varDebtBeacon, pool, helpersContract} = testEnv;
 
     await varDebtBeacon.upgradeTo(newVariableTokenAddress);
@@ -117,10 +114,11 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
       dai.address, 1
     );
 
-    const debtToken1 = await getMockAToken(variableDebtTokenAddress1);
+    const debtToken1 = await getMockVariableDebtToken(variableDebtTokenAddress1);
 
     expect((await debtToken1.newFunction()).toString()).to.be.eq('2', 'Invalid newf for other variable debt tokens');
   });
+
 
   //'Test that protocol still works after upgrades'
 

@@ -86,6 +86,7 @@ import {
   ERC20,
   DoubleTransferHelper,
   StakingRewardsMockFactory,
+  MockIncentivesControllerFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -1468,6 +1469,16 @@ export const deployIncentivesController = async (
     verify
   );
 
+
+export const deployMockIncentivesController = async (
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new MockIncentivesControllerFactory(await getFirstSigner()).deploy(),
+    eContractid.MockIncentivesControllerImpl,
+    [],
+    verify
+  );
 export const deployATokenMock = async (
   aicAddress: tEthereumAddress,
   addressProvAddress: tEthereumAddress,

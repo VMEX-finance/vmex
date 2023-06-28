@@ -11,12 +11,7 @@ makeSuite('AaveIncentivesController constructor tests', (testEnv: TestEnv) => {
     const peiEmissionManager = RANDOM_ADDRESSES[1];
     const rewardsVault = RANDOM_ADDRESSES[4];
 
-    const aaveIncentivesController = await deployIncentivesController([
-      rewardsVault,
-      peiEmissionManager,
-      peiEmissionManager,
-      addressesProvider.address
-    ]);
+    const aaveIncentivesController = await deployIncentivesController();
     await expect(await aaveIncentivesController.REWARDS_VAULT()).to.be.equal(rewardsVault);
     await expect((await aaveIncentivesController.EMISSION_MANAGER()).toString()).to.be.equal(
       peiEmissionManager

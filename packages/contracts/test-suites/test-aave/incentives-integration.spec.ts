@@ -8,6 +8,7 @@ import { ProtocolErrors } from '../../helpers/types';
 import { getUserData } from './helpers/utils/helpers';
 
 import { parseEther } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 
 const chai = require('chai');
 
@@ -15,6 +16,7 @@ const { expect } = chai;
 
 makeSuite('Vmex incentives controller - integration tests with the lendingpool', (testEnv) => {
   const { INVALID_HF } = ProtocolErrors;
+  const stakingAbi = require("../../artifacts/contracts/mocks/StakingRewardsMock.sol/StakingRewardsMock.json")
   const tranche = 1;
 
   before('Before LendingPool liquidation: set config', async () => {
@@ -52,10 +54,11 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     await configurator.activateReserve(dai.address, tranche);
   });
 
-  it('Deposits WETH, borrows DAI', async () => {
+  it('Deposits yvTricrypto, borrows DAI', async () => {
     const { dai, users, pool, oracle, incentivesController, stakingContracts, rewardTokens, addressesProvider, ayvTricrypto2, yvTricrypto2 } = testEnv;
     // Setting the incentives controller again with the proxy address will cause hardhat to revert: Error: Transaction reverted and Hardhat couldn't infer the reason
     // await addressesProvider.setIncentivesController(incentivesController.address);
+    const staking = new ethers.Contract(stakingContracts[6].address,stakingAbi.abi)
     console.log("try beginning staking reward");
     await incentivesController.beginStakingReward(ayvTricrypto2.address, stakingContracts[6].address);
     console.log("after staking rewards begin");
@@ -91,7 +94,8 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     await pool
       .connect(borrower.signer)
       .deposit(yvTricrypto2.address, tranche, amountETHtoDeposit, borrower.address, '0');
-    
+      
+      expect(await staking.connect(borrower.signer).balanceOf(incentivesController.address)).equal(amountETHtoDeposit);
       console.log("after deposit")
 
     //user 2 borrows
@@ -110,13 +114,6 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     await pool
       .connect(borrower.signer)
       .borrow(dai.address, tranche, amountDAIToBorrow, '0', borrower.address);
-
-    const userGlobalDataAfter = await pool.callStatic.getUserAccountData(borrower.address, tranche);
-
-    // expect(userGlobalDataAfter.currentLiquidationThreshold.toString()).to.be.bignumber.equal(
-    //   '8250',
-    //   INVALID_HF
-    // );
   });
 
   it('Drop the health factor below 1', async () => {

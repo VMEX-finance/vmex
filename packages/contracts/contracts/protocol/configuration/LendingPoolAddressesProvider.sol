@@ -439,7 +439,7 @@ contract LendingPoolAddressesProvider is
             _addresses[id] = address(proxy);
             emit ProxyCreated(id, address(proxy));
         } else {
-            proxy.upgradeToAndCall(newAddress, ""); // no more re-initialization of proxies
+            proxy.upgradeTo(newAddress); // no more re-initialization of proxies
         }
     }
 
