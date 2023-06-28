@@ -439,7 +439,7 @@ contract LendingPoolAddressesProvider is
             _addresses[id] = address(proxy);
             emit ProxyCreated(id, address(proxy));
         } else {
-            proxy.upgradeToAndCall(newAddress, params);
+            proxy.upgradeToAndCall(newAddress, ""); // no more re-initialization of proxies
         }
     }
 
@@ -470,7 +470,7 @@ contract LendingPoolAddressesProvider is
     }
 
     function setIncentivesController(address incentives) external override onlyOwner{
-        _addresses[INCENTIVES_CONTROLLER] = incentives;
+        _updateImpl(INCENTIVES_CONTROLLER, incentives);
         emit IncentivesControllerUpdated(incentives);
     }
 }

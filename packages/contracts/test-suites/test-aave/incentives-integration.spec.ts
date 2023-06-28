@@ -54,8 +54,11 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
 
   it('Deposits WETH, borrows DAI', async () => {
     const { dai, users, pool, oracle, incentivesController, stakingContracts, rewardTokens, addressesProvider, ayvTricrypto2, yvTricrypto2 } = testEnv;
-    await addressesProvider.setIncentivesController(incentivesController.address);
+    // Setting the incentives controller again with the proxy address will cause hardhat to revert: Error: Transaction reverted and Hardhat couldn't infer the reason
+    // await addressesProvider.setIncentivesController(incentivesController.address);
+    console.log("try beginning staking reward");
     await incentivesController.beginStakingReward(ayvTricrypto2.address, stakingContracts[6].address);
+    console.log("after staking rewards begin");
 
     const depositor = users[0];
     const borrower = users[1];

@@ -51,7 +51,7 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
       >getReservesConfigByPool(AavePools.proto);
 
       const { incentivesController, stakingContracts, rewardTokens, addressesProvider, assetMappings, yvTricrypto2, ayvTricrypto2 } = testEnv; 
-      await addressesProvider.setIncentivesController(incentivesController.address);
+      // await addressesProvider.setIncentivesController(incentivesController.address);
       // const tricrypto21dat = await pool.getReserveData(tricrypto2.address,1);
 
       // need to ensure the following for the tests to pass (Expected behavior)

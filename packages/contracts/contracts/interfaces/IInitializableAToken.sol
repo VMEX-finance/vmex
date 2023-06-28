@@ -18,7 +18,7 @@ interface IInitializableAToken {
      * @param aTokenName the name of the aToken
      * @param aTokenSymbol the symbol of the aToken
      **/
-    event Initialized(
+    event InitializedAToken(
         address indexed underlyingAsset,
         uint64 indexed trancheId,
         address indexed pool,

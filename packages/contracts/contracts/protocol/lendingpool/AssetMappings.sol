@@ -8,7 +8,7 @@ import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
-import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
@@ -28,7 +28,7 @@ import {SafeCast} from "../../dependencies/openzeppelin/contracts/SafeCast.sol";
  *   # Add curve metadata for pricing curve assets
  * @author VMEX
  **/
-contract AssetMappings is IAssetMappings, VersionedInitializable{
+contract AssetMappings is IAssetMappings, Initializable{
     using PercentageMath for uint256;
     using Helpers for address;
     using SafeCast for uint256;
@@ -85,10 +85,6 @@ contract AssetMappings is IAssetMappings, VersionedInitializable{
             }
         }
 
-    }
-
-    function getRevision() internal pure override returns (uint256) {
-        return 0x1;
     }
 
     function initialize(ILendingPoolAddressesProvider provider)

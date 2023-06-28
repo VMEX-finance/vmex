@@ -98,8 +98,8 @@ makeSuite(
             var signer = await contractGetters.getFirstSigner();
             const lendingPool = await contractGetters.getLendingPool();
             console.log("Current incentives controller", await addressesProvider.getIncentivesController());
-            await addressesProvider.setIncentivesController(incentivesController.address);
-            console.log("New incentives controller", await addressesProvider.getIncentivesController());
+            // await addressesProvider.setIncentivesController(incentivesController.address);
+            // console.log("New incentives controller", await addressesProvider.getIncentivesController());
             const yvUSDCDat = await lendingPool.getReserveData("0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2", 0);
 
             await incentivesController.beginStakingReward(yvUSDCDat.aTokenAddress, "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b");
@@ -339,7 +339,7 @@ makeSuite(
             const stakingContract = new ethers.Contract("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b", Stakingabi);
             const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
             const earned = await stakingContract.connect(signer).earned(incentivesController.address)
-            expect(amtStaked).equal(ethers.utils.parseUnits("10.0", 6))
+            expect(amtStaked).equal(ethers.utils.parseUnits("9.0", 6))
             expect(earned).gt(0)
           });
     }

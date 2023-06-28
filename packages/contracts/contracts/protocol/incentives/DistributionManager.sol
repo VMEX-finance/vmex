@@ -6,13 +6,14 @@ import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title DistributionManager
  * @notice Accounting contract to manage multiple staking distributions
  * @author Aave and VMEX
  **/
-contract DistributionManager is IDistributionManager {
+contract DistributionManager is IDistributionManager, Initializable {
   using SafeMath for uint256;
 
   //atoken address to distribution data
@@ -21,9 +22,11 @@ contract DistributionManager is IDistributionManager {
   address[] internal _allIncentivizedAssets;
   address[] internal _allRewards;
 
-  address public immutable EMISSION_MANAGER;
+  address public EMISSION_MANAGER;
 
-  constructor(address emissionManager) {
+  uint256[40] __gap_DistributionManager;
+
+  function __DistributionManager_init(address emissionManager) public onlyInitializing {
     EMISSION_MANAGER = emissionManager;
   }
 
