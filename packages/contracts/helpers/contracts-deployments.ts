@@ -86,6 +86,7 @@ import {
   ERC20,
   DoubleTransferHelper,
   StakingRewardsMockFactory,
+  MockIncentivesControllerFactory,
 } from "../types";
 import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
@@ -698,14 +699,11 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   const proxyAdmin = signers[4];
   const vmexIncentivesControllerProxy = await setupVmexIncentives(
-    await deployer.getAddress(),
-    await vaultOfRewards.getAddress(),
-    await proxyAdmin.getAddress()
+    await vaultOfRewards.getAddress()
   );
 
   const rewardTokens = [rewardToken, vmexToken];
   for (const token of rewardTokens) {
-    console.log("approving token", token)
     await waitForTx(
       await token
         .connect(vaultOfRewards)
@@ -1462,18 +1460,25 @@ export const deployAssetMapping = async (verify?: boolean) =>
   );
 
 export const deployIncentivesController = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, tEthereumAddress],
   verify?: boolean
 ) =>
   withSaveAndVerify(
-    await new IncentivesControllerFactory(await getFirstSigner()).deploy(
-      ...args
-    ),
+    await new IncentivesControllerFactory(await getFirstSigner()).deploy(),
     eContractid.IncentivesControllerImpl,
     [],
     verify
   );
 
+
+export const deployMockIncentivesController = async (
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new MockIncentivesControllerFactory(await getFirstSigner()).deploy(),
+    eContractid.MockIncentivesControllerImpl,
+    [],
+    verify
+  );
 export const deployATokenMock = async (
   aicAddress: tEthereumAddress,
   addressProvAddress: tEthereumAddress,
@@ -1512,45 +1517,26 @@ export const deployStakingRewardsMock = async (
   );
 
 export const setupVmexIncentives = async (
-  emissionManager: tEthereumAddress,
   vaultOfRewards: tEthereumAddress,
-  proxyAdmin: tEthereumAddress,
   verify?: boolean
 ) => {
-  const vmexIncentivesControllerProxy =
-    await deployInitializableAdminUpgradeabilityProxy(verify);
-
   const addressesProvider = await getLendingPoolAddressesProvider();
 
   const vmexIncentivesControllerImplementation =
-    await deployIncentivesController([
-      vaultOfRewards,
-      emissionManager,
-      emissionManager,
-      addressesProvider.address
-    ]);
+    await deployIncentivesController();
 
-  const peiEncodedInitialize =
-    vmexIncentivesControllerImplementation.interface.encodeFunctionData(
-      "initialize"
-    );
-  await vmexIncentivesControllerProxy["initialize(address,address,bytes)"](
-    vmexIncentivesControllerImplementation.address,
-    proxyAdmin,
-    peiEncodedInitialize
-  );
+  await addressesProvider.setIncentivesController(vmexIncentivesControllerImplementation.address);
 
-  console.log("Finished initializing proxy with admin", proxyAdmin)
+  const vmexIncentivesControllerProxy = await getIncentivesControllerProxy(await addressesProvider.getIncentivesController());
 
   await insertContractAddressInDb(
     eContractid.IncentivesControllerProxy,
     vmexIncentivesControllerProxy.address
   );
 
-  console.log("Setting incentives controller in addresses provider")
+  console.log("Done set incentives controller in addresses provider")
 
-  await addressesProvider.setIncentivesController(vmexIncentivesControllerProxy.address);
-  console.log("Set to ", await addressesProvider.getIncentivesController())
+  await vmexIncentivesControllerProxy.setRewardsVault(vaultOfRewards);
 
   return vmexIncentivesControllerProxy;
 };

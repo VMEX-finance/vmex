@@ -21,8 +21,6 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
     using WadRayMath for uint256;
     using Helpers for address;
 
-    uint256 public constant DEBT_TOKEN_REVISION = 0x1;
-
     ILendingPool public _pool;
     address public _underlyingAsset;
     uint64 public _tranche;
@@ -66,7 +64,7 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
         _tranche = trancheId;
         _addressesProvider = addressesProvider;
 
-        emit Initialized(
+        emit InitializedDebtToken(
             underlyingAsset,
             trancheId,
             address(pool),
@@ -75,14 +73,6 @@ contract VariableDebtToken is DebtTokenBase, IVariableDebtToken {
             debtTokenName,
             debtTokenSymbol
         );
-    }
-
-    /**
-     * @dev Gets the revision of the variable debt token implementation
-     * @return The debt token implementation revision
-     **/
-    function getRevision() internal pure virtual override returns (uint256) {
-        return DEBT_TOKEN_REVISION;
     }
 
     /**

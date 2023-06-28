@@ -3,24 +3,24 @@ pragma solidity 0.8.19;
 
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
+import {DistributionTypes} from '../../protocol/libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IIncentivesController} from '../../interfaces/IIncentivesController.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {DistributionManager} from './DistributionManager.sol';
-import {ExternalRewardDistributor} from './ExternalRewardDistributor.sol';
+import {DistributionManager} from './MockDistributionManager.sol';
+import {ExternalRewardDistributor} from './MockExternalRewardDistributor.sol';
 import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
-import {Errors} from "../libraries/helpers/Errors.sol";
+import {Errors} from "../../protocol/libraries/helpers/Errors.sol";
 
 /**
  * @title IncentivesController
  * @notice Distributor contract for rewards to the VMEX protocol
  * @author Aave and VMEX
  **/
-contract IncentivesController is
+contract MockIncentivesController is
   IIncentivesController,
   Initializable,
   DistributionManager,
@@ -30,6 +30,8 @@ contract IncentivesController is
   using SafeERC20 for IERC20;
 
   address public REWARDS_VAULT;
+
+  uint256 public upgradedIC;
 
   modifier onlyGlobalAdmin() {
       _onlyGlobalAdmin();
@@ -229,5 +231,9 @@ contract IncentivesController is
     }
 
     return (rewards, amounts);
+  }
+
+  function setUpgradedIC(uint256 newVal) external {
+    upgradedIC = newVal;
   }
 }

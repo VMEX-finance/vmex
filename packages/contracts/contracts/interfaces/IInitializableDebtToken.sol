@@ -20,7 +20,7 @@ interface IInitializableDebtToken {
      * @param debtTokenName the name of the debt token
      * @param debtTokenSymbol the symbol of the debt token
      **/
-    event Initialized(
+    event InitializedDebtToken(
         address indexed underlyingAsset,
         uint64 indexed trancheId,
         address indexed pool,

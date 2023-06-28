@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
+import {DistributionTypes} from '../../protocol/libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
@@ -24,7 +24,8 @@ contract DistributionManager is IDistributionManager, Initializable {
 
   address public EMISSION_MANAGER;
 
-  uint256[40] __gap_DistributionManager;
+  uint256 public upgradedDM;
+  uint256[39] __gap_DistributionManager;
 
   function __DistributionManager_init(address emissionManager) public onlyInitializing {
     EMISSION_MANAGER = emissionManager;
@@ -271,5 +272,9 @@ contract DistributionManager is IDistributionManager, Initializable {
     }
 
     return total;
+  }
+
+  function setUpgradedDM(uint256 newVal) external {
+    upgradedDM = newVal;
   }
 }

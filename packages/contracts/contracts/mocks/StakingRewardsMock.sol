@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {IStakingRewards} from '../interfaces/IStakingRewards.sol';
+import {IYearnStakingRewards} from '../interfaces/IYearnStakingRewards.sol';
 import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
 import {SafeERC20} from '../dependencies/openzeppelin/contracts/SafeERC20.sol';
 import {SafeMath} from '../dependencies/openzeppelin/contracts/SafeERC20.sol';
 
-contract StakingRewardsMock is IStakingRewards {
+contract StakingRewardsMock is IYearnStakingRewards {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 

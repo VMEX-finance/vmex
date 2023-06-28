@@ -7,7 +7,7 @@ import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {ILendingPoolCollateralManager} from "../../interfaces/ILendingPoolCollateralManager.sol";
-import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
@@ -32,7 +32,7 @@ import {IAssetMappings} from "../../interfaces/IAssetMappings.sol";
  **/
 contract LendingPoolCollateralManager is
     ILendingPoolCollateralManager,
-    VersionedInitializable,
+    Initializable,
     LendingPoolStorage
 {
     using SafeERC20 for IERC20;
@@ -67,15 +67,6 @@ contract LendingPoolCollateralManager is
         address debtAsset;
         address collateralAsset;
         address collateralAToken;
-    }
-
-    /**
-     * @dev As this contract extends the VersionedInitializable contract to match the state
-     * of the LendingPool contract, the getRevision() function is needed, but the value is not
-     * important, as the initialize() function will never be called here
-     */
-    function getRevision() internal pure override returns (uint256) {
-        return 0;
     }
 
     /**

@@ -46,7 +46,8 @@ import {
   IncentivesControllerFactory,
   ATokenMockFactory,
   VmexTokenFactory,
-  StakingRewardsMockFactory
+  StakingRewardsMockFactory,
+  MockIncentivesControllerFactory,
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -709,6 +710,21 @@ export const getIncentivesControllerImpl = async (
         await getDb()
           .get(
             `${eContractid.IncentivesControllerImpl}.${DRE.network.name}`
+          )
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getMockIncentivesControllerImpl = async (
+  address?: tEthereumAddress
+) =>
+  await MockIncentivesControllerFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(
+            `${eContractid.MockIncentivesControllerImpl}.${DRE.network.name}`
           )
           .value()
       ).address,

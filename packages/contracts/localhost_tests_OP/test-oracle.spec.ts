@@ -32,7 +32,7 @@ chai.use(function (chai: any, utils: any) {
 
 
 makeSuite(
-    "velodrome oracle test ",
+    "general oracle test ",
     () => {
     const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
     const fs = require('fs');
@@ -176,6 +176,8 @@ makeSuite(
 
         for(let [symbol, strat] of Object.entries(ReservesConfig)) {
             const currentAsset = reserveAssets[symbol];
+            console.log("currentAsset: ", currentAsset)
+            if(!currentAsset) continue;
             console.log("Pricing ",symbol)
             const price = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
             console.log("Price: ", price)
