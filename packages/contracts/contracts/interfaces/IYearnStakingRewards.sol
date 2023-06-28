@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
 
-interface IStakingRewards {
+interface IYearnStakingRewards {
   // Views
 
   function balanceOf(address account) external view returns (uint256);

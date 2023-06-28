@@ -51,7 +51,7 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
       >getReservesConfigByPool(AavePools.proto);
 
       const { incentivesController, stakingContracts, rewardTokens, addressesProvider, assetMappings, yvTricrypto2, ayvTricrypto2 } = testEnv; 
-      await addressesProvider.setIncentivesController(incentivesController.address);
+      // await addressesProvider.setIncentivesController(incentivesController.address);
       // const tricrypto21dat = await pool.getReserveData(tricrypto2.address,1);
 
       // need to ensure the following for the tests to pass (Expected behavior)
@@ -64,7 +64,7 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
       console.log("successfully set staking for yvTricrypto");
 
       // make it use the chainlink aggregator for this tests
-      await assetMappings.setAssetType(yvTricrypto2.address, 0);
+      // await assetMappings.setAssetType(yvTricrypto2.address, 0);
     });
     after("Reset", async () => {
       // Reset BigNumber
@@ -75,7 +75,7 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
 
 
       const {  assetMappings, yvTricrypto2 } = testEnv; 
-      await assetMappings.setAssetType(yvTricrypto2.address, 3);
+      // await assetMappings.setAssetType(yvTricrypto2.address, 3);
     });
 
     for (const story of scenario.stories) {

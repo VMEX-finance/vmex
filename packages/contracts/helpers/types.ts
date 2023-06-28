@@ -140,6 +140,7 @@ export enum eContractid {
   VmexToken = "VmexToken",
   DoubleTransferHelper = "DoubleTransferHelper",
   StakingRewardsMock = "StakingRewardsMock",
+  MockIncentivesControllerImpl = "MockIncentivesControllerImpl",
 }
 
 /*

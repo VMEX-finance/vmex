@@ -91,14 +91,14 @@ makeSuite('LendingPoolAddressesProvider', (testEnv: TestEnv) => {
     if (!proxiedAddressSetReceipt.events || proxiedAddressSetReceipt.events?.length < 1) {
       throw new Error('INVALID_EVENT_EMMITED');
     }
-
-    expect(proxiedAddressSetReceipt.events[0].event).to.be.equal('ProxyCreated');
-    expect(proxiedAddressSetReceipt.events[1].event).to.be.equal('AddressSet');
-    expect(proxiedAddressSetReceipt.events[1].args?.id).to.be.equal(proxiedAddressId);
-    expect(proxiedAddressSetReceipt.events[1].args?.newAddress).to.be.equal(
+    console.log("events: ",proxiedAddressSetReceipt.events)
+    expect(proxiedAddressSetReceipt.events[1].event).to.be.equal('ProxyCreated');
+    expect(proxiedAddressSetReceipt.events[2].event).to.be.equal('AddressSet');
+    expect(proxiedAddressSetReceipt.events[2].args?.id).to.be.equal(proxiedAddressId);
+    expect(proxiedAddressSetReceipt.events[2].args?.newAddress).to.be.equal(
       mockLendingPool.address
     );
-    expect(proxiedAddressSetReceipt.events[1].args?.hasProxy).to.be.equal(true);
+    expect(proxiedAddressSetReceipt.events[2].args?.hasProxy).to.be.equal(true);
   });
 
   it('Tests adding a non proxied address with `setAddress()`', async () => {

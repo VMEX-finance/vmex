@@ -15,8 +15,9 @@ const keccak256 = require('keccak256');
 makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
   before('Before', async () => {
     const { dai, assetMappings, busd, usdt, weth, addressesProvider, incentivesController } = testEnv; 
-    await addressesProvider.setIncentivesController(incentivesController.address);
+    // await addressesProvider.setIncentivesController(incentivesController.address);
     await assetMappings.setBorrowingEnabled(dai.address, false);
+    await assetMappings.setAssetType(dai.address, 3); //change to yearn so it can mock staking
     await assetMappings.setBorrowingEnabled(busd.address, false);
     await assetMappings.setBorrowingEnabled(usdt.address, false);
     await assetMappings.setBorrowingEnabled(weth.address, false);
@@ -32,6 +33,7 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   after('After', async () => {
     const { dai, assetMappings, busd, usdt, weth } = testEnv; 
     await assetMappings.setBorrowingEnabled(dai.address, true);
+    await assetMappings.setAssetType(dai.address, 0);
     await assetMappings.setBorrowingEnabled(busd.address, true);
     await assetMappings.setBorrowingEnabled(usdt.address, true);
     await assetMappings.setBorrowingEnabled(weth.address, true);

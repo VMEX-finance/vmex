@@ -11,7 +11,7 @@ import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
-import {VersionedInitializable} from "../../dependencies/aave-upgradeability/VersionedInitializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
@@ -40,7 +40,7 @@ import {DepositWithdrawLogic} from "../libraries/logic/DepositWithdrawLogic.sol"
  * @author Aave and VMEX
  **/
 contract LendingPool is
-    VersionedInitializable,
+    Initializable,
     ILendingPool,
     LendingPoolStorage
 {
@@ -51,8 +51,6 @@ contract LendingPool is
     using UserConfiguration for DataTypes.UserConfigurationMap;
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using DepositWithdrawLogic for DataTypes.ReserveData;
-
-    uint256 public constant LENDINGPOOL_REVISION = 0x1;
 
     modifier whenTrancheNotPausedAndExists(uint64 trancheId) {
         _whenTrancheNotPausedAndExists(trancheId);
@@ -88,10 +86,6 @@ contract LendingPool is
         if(onBehalfOf != msg.sender){
             _checkWhitelistBlacklist(trancheId, onBehalfOf);
         }
-    }
-
-    function getRevision() internal pure override returns (uint256) {
-        return LENDINGPOOL_REVISION;
     }
 
     /**

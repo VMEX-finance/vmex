@@ -55,14 +55,15 @@ task(
 
       const addressesProvider = await getLendingPoolAddressesProvider();
 
-      const incentivesController = await getParamPerNetwork(
-        IncentivesController,
-        network
-      );
+      // const incentivesController = await getParamPerNetwork(
+      //   IncentivesController,
+      //   network
+      // );
 
-      if(incentivesController){
-        await addressesProvider.setIncentivesController(incentivesController);
-      }
+      // if(incentivesController && notFalsyOrZeroAddress(incentivesController)){
+      //   console.log("trying to set incentives controller (needs to be the implementation contract)")
+      //   await addressesProvider.setIncentivesController(incentivesController);
+      // }
 
       // const oracle = await addressesProvider.getPriceOracle();
 

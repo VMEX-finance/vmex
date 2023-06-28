@@ -2,15 +2,16 @@
 const chai = require("chai");
 const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
-import { DRE, increaseTime } from "../helpers/misc-utils";
+import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
 import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
-import { MAX_UINT_AMOUNT } from "../helpers/constants";
+import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
 import {OptimismConfig} from "../markets/optimism"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { toBytes32, setStorageAt } from "../helpers/token-fork";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
+import { eventChecker } from "../test-suites/test-aave/incentives/helpers/comparator-engine";
 
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
 makeSuite(
@@ -19,6 +20,7 @@ makeSuite(
         const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW, VL_BORROWING_NOT_ENABLED } = ProtocolErrors;
         const fs = require('fs');
         const contractGetters = require('../helpers/contracts-getters.ts');
+        const OPadd = "0x4200000000000000000000000000000000000042"
         // const lendingPool = await contractGetters.getLendingPool();
         // Load the first signer
         
@@ -41,6 +43,11 @@ makeSuite(
           "function balanceOf(address owner) external view returns (uint256 balance)",
           "function earned(address owner) external view returns (uint256 balance)",
       ];
+
+      const StakingVeloabi = [
+        "function balanceOf(address owner) external view returns (uint256 balance)",
+        "function earned(address token, address account) external view returns (uint256 balance)",
+    ];
 
         const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
         const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_OP/abis/velo.json").toString()
@@ -91,31 +98,6 @@ makeSuite(
               resDat.availableLiquidity.toString()
             ).to.be.bignumber.equal(amountWETH, "Did not deposit WETH");
           });
-
-          it("set up staking", async () => {
-            const addressesProvider = await contractGetters.getLendingPoolAddressesProvider();
-            const incentivesController = await contractGetters.getIncentivesControllerProxy();
-            var signer = await contractGetters.getFirstSigner();
-            const lendingPool = await contractGetters.getLendingPool();
-            console.log("Current incentives controller", await addressesProvider.getIncentivesController());
-            await addressesProvider.setIncentivesController(incentivesController.address);
-            console.log("New incentives controller", await addressesProvider.getIncentivesController());
-            const yvUSDCDat = await lendingPool.getReserveData("0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2", 0);
-
-            await incentivesController.beginStakingReward(yvUSDCDat.aTokenAddress, "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b");
-
-            const yvUSDTDat = await lendingPool.getReserveData("0xFaee21D0f0Af88EE72BB6d68E54a90E6EC2616de", 0);
-
-            await incentivesController.beginStakingReward(yvUSDTDat.aTokenAddress, "0xf66932f225ca48856b7f97b6f060f4c0d244af8e");
-
-            const yvDAIDat = await lendingPool.getReserveData("0x65343F414FFD6c97b0f6add33d16F6845Ac22BAc", 0);
-
-            await incentivesController.beginStakingReward(yvDAIDat.aTokenAddress, "0xf8126ef025651e1b313a6893fcf4034f4f4bd2aa");
-
-            const yvWETHDat = await lendingPool.getReserveData("0x5B977577Eb8a480f63e11FC615D6753adB8652Ae", 0);
-
-            await incentivesController.beginStakingReward(yvWETHDat.aTokenAddress, "0xe35fec3895dcecc7d2a91e8ae4ff3c0d43ebffe0");
-          });
           
           it("Testing general tokens deposit and borrow", async () => {
             const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
@@ -136,6 +118,16 @@ makeSuite(
                 console.log("Testing ",symbol)
                 let slot = -1;
                 let keyFirst = true;
+
+                if(symbol.substring(0,2)=="yv"){
+                  slot = 7;
+                  keyFirst = false;
+                }
+                else if(symbol.substring(0,4)=="velo"){
+                  slot = 4;
+                  keyFirst = true;
+                }
+                // else continue
                 if(symbol=="WBTC"){
                   slot = 0;
                   keyFirst = true;
@@ -167,14 +159,6 @@ makeSuite(
                 else if(symbol.substring(0,3)=="moo" || symbol.substring(0,4)=="beet" ){
                   slot = 0;
                   keyFirst = true;
-                }
-                else if(symbol.substring(0,4)=="velo"){
-                  slot = 4;
-                  keyFirst = true;
-                }
-                else if(symbol.substring(0,2)=="yv"){
-                  slot = 7;
-                  keyFirst = false;
                 }
 
 
@@ -325,7 +309,7 @@ makeSuite(
             }
           });
 
-          it("wait and harvest rewards", async () => {
+          it("wait and harvest yearn rewards", async () => {
             var signer = await contractGetters.getFirstSigner();
             const incentivesController = await contractGetters.getIncentivesControllerProxy();
             const lendingPool = await contractGetters.getLendingPool();
@@ -339,8 +323,102 @@ makeSuite(
             const stakingContract = new ethers.Contract("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b", Stakingabi);
             const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
             const earned = await stakingContract.connect(signer).earned(incentivesController.address)
-            expect(amtStaked).equal(ethers.utils.parseUnits("10.0", 6))
+            console.log("earned: ",earned)
+            expect(amtStaked).equal(ethers.utils.parseUnits("9.0", 6))
             expect(earned).gt(0)
+
+            const OP = new ethers.Contract("0x7D2382b1f8Af621229d33464340541Db362B4907", WETHabi)
+            const balanceBefore = await OP.connect(signer).balanceOf(incentivesController.address);
+            const receipt = await waitForTx(
+              await incentivesController.harvestReward("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b", 3, ["0x7D2382b1f8Af621229d33464340541Db362B4907"])
+            );
+
+            const balanceAfter = await OP.connect(signer).balanceOf(incentivesController.address);
+            const reward = Number(balanceAfter) - Number(balanceBefore);
+            console.log("true rewards earned: ", reward);
+            console.log("earned: ", await stakingContract.connect(signer).earned(incentivesController.address));
+            const emitted = receipt.events || [];
+
+            eventChecker(emitted[2], 'HarvestedReward', [
+              "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b",
+                ["0x7D2382b1f8Af621229d33464340541Db362B4907"],
+                [reward]
+            ]);
+          });
+
+
+          it("wait and harvest velodrome rewards", async () => {
+            var signer = await contractGetters.getFirstSigner();
+            const incentivesController = await contractGetters.getIncentivesControllerProxy();
+            const veloAdd = "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05"
+            
+            const stakingContract = new ethers.Contract("0x131Ae347E654248671Afc885F0767cB605C065d7", StakingVeloabi); //staking for velo_wstETHWETH
+            const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
+            const earned = await stakingContract.connect(signer).earned(veloAdd, incentivesController.address)
+            console.log("earned: ",earned)
+            expect(amtStaked).equal(ethers.utils.parseUnits("9.0", 18))
+            expect(earned).gt(0)
+
+            const VELO = new ethers.Contract(veloAdd, WETHabi)
+            const balanceBefore = await VELO.connect(signer).balanceOf(incentivesController.address);
+            const receipt = await waitForTx(
+              await incentivesController.harvestReward("0x131Ae347E654248671Afc885F0767cB605C065d7", 5, [veloAdd])
+            );
+
+            const balanceAfter = await VELO.connect(signer).balanceOf(incentivesController.address);
+            const reward = balanceAfter.sub(balanceBefore);
+            console.log("true rewards earned: ", reward);
+            const emitted = receipt.events || [];
+
+            eventChecker(emitted[2], 'HarvestedReward', [
+              "0x131Ae347E654248671Afc885F0767cB605C065d7",
+                [veloAdd],
+                [reward]
+            ]);
+          });
+
+
+          it("Testing withdraw everything", async () => {
+            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
+            const config = OptimismConfig.ReservesConfig
+            const WETHConfig = config["WETH"]
+            if(!tokens || !WETHConfig){
+              return
+            }
+            var dataProv = await contractGetters.getAaveProtocolDataProvider()
+            var signer = await contractGetters.getFirstSigner();
+            const emergency = (await DRE.ethers.getSigners())[1]
+            const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
+            const addProv = await contractGetters.getLendingPoolAddressesProvider();
+            const oracleAdd = await addProv.connect(signer).getPriceOracle();
+            const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
+            const lendingPool = await contractGetters.getLendingPool();
+            for(let [symbol, address] of Object.entries(tokens)){
+                console.log("Testing ",symbol)
+                
+                var USDCadd = address
+                var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+                var USDC = new ethers.Contract(USDCadd,USDCABI)
+                
+                var userResDat = await dataProv.getUserReserveData(USDCadd,0,signer.address)
+                if(userResDat.currentATokenBalance.toString()=="0") {
+                  continue;
+                }
+
+                /************************************************************************************/
+                /****************** deposit BAL to pool and then borrow WETH  **********************/ 
+                /************************************************************************************/
+                const tx = await lendingPool.connect(signer).withdraw(USDCadd, 0, MAX_UINT_AMOUNT, signer.address); 
+                var signerAmt = await USDC.connect(signer).balanceOf(signer.address)
+
+                expect(
+                    signerAmt.toString()
+                ).to.not.be.bignumber.equal(0, "Did not get back", symbol);
+
+                console.log("Passed withdraw checks\n")
+                
+                console.log("-----------------------------------")
+            }
           });
     }
 )
