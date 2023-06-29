@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {IStakingRewards} from '../../interfaces/IStakingRewards.sol';
+import {IYearnStakingRewards} from '../../interfaces/IYearnStakingRewards.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {ILendingPool} from '../../interfaces/ILendingPool.sol';
 import {IAssetMappings} from '../../interfaces/IAssetMappings.sol';
@@ -67,7 +67,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     uint256 amount = IERC20(aToken).totalSupply();
     if(amount!=0){
       IERC20(underlying).safeTransferFrom(aToken, address(this), amount);
-      IStakingRewards(stakingContract).stake(amount);
+      IYearnStakingRewards(stakingContract).stake(amount);
     }
     
 
@@ -94,7 +94,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
 
     uint256 amount = IERC20(aToken).totalSupply();
     if(amount!=0){
-      IStakingRewards(stakingData[aToken]).withdraw(amount);
+      IYearnStakingRewards(stakingData[aToken]).withdraw(amount);
       IERC20(underlying).safeTransfer(aToken, amount);
     }
     stakingData[aToken] = address(0);
@@ -110,7 +110,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
 
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
-    IStakingRewards(stakingData[msg.sender]).stake(amount);
+    IYearnStakingRewards(stakingData[msg.sender]).stake(amount);
 
     // event emission necessary for off chain calculation of looping through all active users
     emit UserDeposited(user, msg.sender, amount);
@@ -122,7 +122,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   ) internal {
     address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
 
-    IStakingRewards(stakingData[msg.sender]).withdraw(amount);
+    IYearnStakingRewards(stakingData[msg.sender]).withdraw(amount);
     IERC20(underlying).safeTransfer(msg.sender, amount);
 
     // event emission necessary for off chain calculation of looping through all active users
@@ -139,7 +139,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   }
 
   function harvestReward(address stakingContract) external onlyManager {
-      IStakingRewards(stakingContract).getReward();
+      IYearnStakingRewards(stakingContract).getReward();
   }
 
   function rescueRewardTokens(IERC20 reward, address receiver) external onlyManager {

@@ -13,7 +13,7 @@
     "hardhat": "hardhat",
     "build": "tsc",
     "start:dev": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node:fork:main\"  \"yarn vmex:deploy:fork:main\"",
-    "start:dev:optimism": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node:fork:optimism\"  \"yarn vmex:deploy:fork:optimism\"",
+    "start:dev:optimism": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node:fork:optimism\"  \"yarn vmex:deploy:fork:optimism && yarn localhost:optimism:deployIncentivesController\"",
     "scripts:priceFeed": "hardhat run scripts/test-priceFeed.ts",
     "scripts:getSlots": "hardhat run scripts/get_slot_info.ts",
     "scripts:userBalance": "hardhat run scripts/test-userBalance.ts",
@@ -92,7 +92,8 @@
     "print-config:fork:mainnet": "FORK=main hardhat print-config:fork",
     "external:deploy-assets-main": "npm run compile && hardhat --network main external:deploy-new-asset --symbol ${SYMBOL} --verify",
     "prepublishOnly": "npm run compile",
-    "get-uniswap-data": "hardhat get-uniswap-data --network localhost"
+    "get-uniswap-data": "hardhat get-uniswap-data --network localhost",
+    "get-velo-gauge": "hardhat get-velo-gauge --network optimism_localhost"
   },
   "devDependencies": {
     "@eth-optimism/plugins": "^1.0.0-alpha.3",

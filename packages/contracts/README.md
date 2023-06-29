@@ -17,9 +17,11 @@ you can use metamask to execute contract calls on the frontend
 
 run `yarn console:localhost:fork` to start console that can interact with the above forked mainnet on the localhost network
 
+**Remeber to run** `yarn localhost:deployIncentivesController` to deploy the incentives controller which is required for tests
+
 Run `yarn vmex:mainnetfork:unit-tests` to test all localhost tests
 
-### How to deploy on OP:
+### How to deploy on OP fork:
 
 run `yarn vmex:node:fork:optimism` in one terminal (starts up localhost network) as a fork
 
@@ -38,6 +40,7 @@ Or, to avoid having to redeploy on a hardhat network every test (if debugging te
 
 1. `yarn vmex:node`
 2. `yarn vmex:dev:deploy`
+   _Note that this doesn't require calling separate script to deploy incentives controller since in step 2 it is already deployed_
 
 Then you can keep running `yarn vmex:dev:test` without having to redeploy the test contracts
 
