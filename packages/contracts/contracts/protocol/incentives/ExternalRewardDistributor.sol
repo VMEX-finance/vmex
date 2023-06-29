@@ -2,7 +2,8 @@
 pragma solidity 0.8.19;
 
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {IStakingRewards} from '../../interfaces/IStakingRewards.sol';
+import {IYearnStakingRewards} from '../../interfaces/IYearnStakingRewards.sol';
+import {IVelodromeStakingRewards} from '../../interfaces/IVelodromeStakingRewards.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
 import {ILendingPool} from '../../interfaces/ILendingPool.sol';
 import {IAssetMappings} from '../../interfaces/IAssetMappings.sol';
@@ -10,6 +11,7 @@ import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddres
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
+import {DataTypes} from '../libraries/types/DataTypes.sol';
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /// @title VMEX External Rewards Distributor.
@@ -42,6 +44,40 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     return stakingData[aToken] != address(0);
   }
 
+  function stake(address aToken, uint256 amount) internal {
+    address assetMappings = addressesProvider.getAssetMappings();
+    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
+    DataTypes.ReserveAssetType assetType = IAssetMappings(assetMappings).getAssetType(underlying);
+    address stakingContract = stakingData[aToken];
+
+    if(assetType == DataTypes.ReserveAssetType.VELODROME) {
+      IVelodromeStakingRewards(stakingContract).deposit(amount, 0);
+    }
+    else if(assetType == DataTypes.ReserveAssetType.YEARN) {
+      IYearnStakingRewards(stakingContract).stake(amount);
+    }
+    else {
+      revert("Asset type has no valid staking");
+    }
+  }
+
+  function unstake(address aToken, uint256 amount) internal {
+    address assetMappings = addressesProvider.getAssetMappings();
+    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
+    DataTypes.ReserveAssetType assetType = IAssetMappings(assetMappings).getAssetType(underlying);
+    address stakingContract = stakingData[aToken];
+
+    if(assetType == DataTypes.ReserveAssetType.VELODROME) {
+      IVelodromeStakingRewards(stakingContract).withdraw(amount);
+    }
+    else if(assetType == DataTypes.ReserveAssetType.YEARN) {
+      IYearnStakingRewards(stakingContract).withdraw(amount);
+    }
+    else {
+      revert("Asset type has no valid staking");
+    }
+  }
+
   /**
    * @dev Called by the tranche admins (with approval from manager) to specify that aToken has an external reward
    * @param aToken The address of the aToken that has underlying that has an external reward
@@ -66,7 +102,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     uint256 amount = IERC20(aToken).totalSupply();
     if(amount!=0){
       IERC20(underlying).safeTransferFrom(aToken, address(this), amount);
-      IStakingRewards(stakingContract).stake(amount);
+      stake(aToken, amount);
     }
     
 
@@ -93,7 +129,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
 
     uint256 amount = IERC20(aToken).totalSupply();
     if(amount!=0){
-      IStakingRewards(stakingData[aToken]).withdraw(amount);
+      unstake(aToken, amount);
       IERC20(underlying).safeTransfer(aToken, amount);
     }
     stakingData[aToken] = address(0);
@@ -109,7 +145,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
 
     IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount);
-    IStakingRewards(stakingData[msg.sender]).stake(amount);
+    stake(msg.sender, amount);
 
     // event emission necessary for off chain calculation of looping through all active users
     emit UserDeposited(user, msg.sender, amount);
@@ -121,7 +157,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   ) internal {
     address underlying = IAToken(msg.sender).UNDERLYING_ASSET_ADDRESS();
 
-    IStakingRewards(stakingData[msg.sender]).withdraw(amount);
+    unstake(msg.sender, amount);
     IERC20(underlying).safeTransfer(msg.sender, amount);
 
     // event emission necessary for off chain calculation of looping through all active users
@@ -137,8 +173,41 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
       return stakingData[aToken];
   }
 
-  function harvestReward(address stakingContract) external onlyManager {
-      IStakingRewards(stakingContract).getReward();
+  /**
+     * @dev harvests rewards in a specific staking contract, and emits an event for subgraph to track rewards claiming to distribute to users
+     * anyone can call this function to harvest
+     * @param stakingContract The contract that staked the tokens and collected rewards
+     * @param assetType The type of the asset (determines the abi of the staking contract)
+     * @param rewardTokens List of reward tokens to claim. For yearn, use the yv Vault that was originally staked in the stakingContract
+     **/
+  function harvestReward(address stakingContract, DataTypes.ReserveAssetType assetType, address[] memory rewardTokens) external {
+
+      uint256[] memory earned = new uint256[](rewardTokens.length);
+      if(assetType == DataTypes.ReserveAssetType.VELODROME) {
+        uint256[] memory balanceBefore = new uint256[](rewardTokens.length);
+        for(uint256 i = 0;i<rewardTokens.length;++i) {
+          balanceBefore[i] = IERC20(rewardTokens[i]).balanceOf(address(this));
+        }
+        
+        IVelodromeStakingRewards(stakingContract).getReward(address(this), rewardTokens);
+
+        for(uint256 i = 0;i<rewardTokens.length;++i) {
+          earned[i] = IERC20(rewardTokens[i]).balanceOf(address(this)) - balanceBefore[i];
+        }
+
+        emit HarvestedReward(stakingContract, rewardTokens, earned);
+      }
+      else if(assetType == DataTypes.ReserveAssetType.YEARN) {
+        for(uint i = 0;i<rewardTokens.length;++i) {
+          uint256 balanceBefore = IERC20(rewardTokens[i]).balanceOf(address(this));
+          IYearnStakingRewards(stakingContract).getReward();
+          earned[i] = IERC20(rewardTokens[i]).balanceOf(address(this)) - balanceBefore;
+        }
+        emit HarvestedReward(stakingContract, rewardTokens, earned);
+      }
+      else {
+        revert("Asset type has no valid staking");
+      }
   }
 
   function rescueRewardTokens(IERC20 reward, address receiver) external onlyManager {

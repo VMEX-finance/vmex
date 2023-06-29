@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {IStakingRewards} from './IStakingRewards.sol';
+import {IYearnStakingRewards} from './IYearnStakingRewards.sol';
 import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
 
 interface IExternalRewardsDistributor {
@@ -29,6 +29,8 @@ interface IExternalRewardsDistributor {
     event UserDeposited(address indexed user, address indexed aToken, uint256 amount);
     event UserWithdraw(address indexed user, address indexed aToken, uint256 amount);
     event UserTransfer(address indexed user, address indexed aToken, uint256 amount, bool sender);
+
+    event HarvestedReward(address indexed stakingContract, address[] rewardTokens, uint256[] earned);
 
     function getStakingContract(address aToken) external view
     returns (address);
