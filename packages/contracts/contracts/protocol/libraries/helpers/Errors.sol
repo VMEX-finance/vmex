@@ -131,19 +131,21 @@ library Errors {
     string public constant VO_SEQUENCER_DOWN = "97";
     string public constant VO_SEQUENCER_GRACE_PERIOD_NOT_OVER = "98";
     string public constant VO_BASE_CURRENCY_SET_ONLY_ONCE = "99";
-    string public constant VO_WETH_SET_ONLY_ONCE = "105";
-    string public constant VO_BAD_DENOMINATION = "106";
-    string public constant VO_BAD_DECIMALS = "107";
 
     string public constant AM_ASSET_ALREADY_IN_MAPPINGS = "100";
     string public constant AM_ASSET_NOT_CONTRACT = "101";
     string public constant AM_INTEREST_STRATEGY_NOT_CONTRACT = "102";
     string public constant AM_INVALID_CONFIGURATION = "103";
     string public constant AM_UNABLE_TO_DISALLOW_ASSET = "104";
-    string public constant LPAPR_ALREADY_SET = "105";
 
-    string public constant LPC_TREASURY_ADDRESS_ZERO = "108"; //assetmappings does not allow setting collateral
-    string public constant LPC_WHITELISTING_NOT_ALLOWED = "109"; //setting whitelist enabled is not allowed after initializing reserves
+    string public constant VO_WETH_SET_ONLY_ONCE = "105";
+    string public constant VO_BAD_DENOMINATION = "106";
+    string public constant VO_BAD_DECIMALS = "107";
+    
+    string public constant LPAPR_ALREADY_SET = "108";
+
+    string public constant LPC_TREASURY_ADDRESS_ZERO = "109"; //assetmappings does not allow setting collateral
+    string public constant LPC_WHITELISTING_NOT_ALLOWED = "110"; //setting whitelist enabled is not allowed after initializing reserves
 
     enum CollateralManagerErrors {
         NO_ERROR,

@@ -6,9 +6,6 @@ on:
       - master
   pull_request:
 
-# Add the 'if' condition to disable the workflow. This workflow doesn't work cause the alchemy endpoint gets too many requests
-if: false
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -41,38 +38,27 @@ jobs:
       - name: Compile
         run: yarn contracts compile
 
-      - name: Set up tmux
+      - name: Run Hardhat node in the background
         run: |
-          sudo apt-get install -y tmux
-          tmux new-session -d -s mysession
+          nohup sh -c "OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:node:fork:optimism > nohup.out 2>&1 &"
 
-      - name: Split terminal and run Hardhat node
-        run: |
-          tmux send-keys -t mysession.0 "OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:node:fork:optimism" Enter
-          sleep 30
+      - name: Wait for the Hardhat node to start
+        run: sleep 30
 
-      - name: Print hardhat node
+      - name: Run deployment
         run: |
-          tmux capture-pane -t mysession.0 -p
+          OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:deploy:fork:optimism
 
-      - name: Split terminal, deploy contracts, and run tests
+      - name: Run deployment of ext rewards
         run: |
-          tmux split-window -h -t mysession
-          tmux send-keys -t mysession.1 "OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:deploy:fork:optimism && OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:OPfork:unit-tests" Enter
+          OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts localhost:optimism:deployIncentivesController
 
-      - name: Wait for tests to complete
+      - name: Run tests
         run: |
-          sleep 360
+          OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:OPfork:unit-tests
 
-      - name: Interrupt both sessions
+      - name: Bring Hardhat node to foreground and print logs
         run: |
-          tmux send-keys -t mysession.0 C-c
-          tmux send-keys -t mysession.1 C-c
-
-      - name: Print hardhat node
-        run: |
-          tmux capture-pane -t mysession.0 -p
-
-      - name: Print test results
-        run: |
-          tmux capture-pane -t mysession.1 -p
+          kill $(pgrep node) || true
+          sleep 5
+          cat nohup.out

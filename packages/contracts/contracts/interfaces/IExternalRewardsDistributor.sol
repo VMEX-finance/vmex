@@ -16,14 +16,6 @@ interface IExternalRewardsDistributor {
     /// @param amount The amount of rewards claimed.
     event RewardsClaimed(address account, uint256 amount);
 
-    /// ERRORS ///
-
-    /// @notice Thrown when the proof is invalid or expired.
-    error ProofInvalidOrExpired();
-
-    /// @notice Thrown when the claimer has already claimed the rewards.
-    error AlreadyClaimed();
-
     event RewardConfigured(address indexed aToken, address indexed staking, uint256 initialAmount);
     event StakingRemoved(address indexed aToken);
     event UserDeposited(address indexed user, address indexed aToken, uint256 amount);

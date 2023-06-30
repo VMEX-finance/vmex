@@ -237,10 +237,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
           _proof,
           keccak256(abi.encodePacked(_account, _rewardToken, _claimable))
       );
-      if (candidateRoot != currRoot && candidateRoot != prevRoot) revert ProofInvalidOrExpired();
+      if (candidateRoot != currRoot && candidateRoot != prevRoot) revert("ProofInvalidOrExpired");
 
       uint256 alreadyClaimed = claimed[_account][_rewardToken];
-      if (_claimable <= alreadyClaimed) revert AlreadyClaimed();
+      if (_claimable <= alreadyClaimed) revert("AlreadyClaimed");
 
       uint256 amount;
       unchecked {

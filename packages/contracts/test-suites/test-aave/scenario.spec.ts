@@ -64,7 +64,7 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
       console.log("successfully set staking for yvTricrypto");
 
       // make it use the chainlink aggregator for this tests
-      await assetMappings.setAssetType(yvTricrypto2.address, 0);
+      // await assetMappings.setAssetType(yvTricrypto2.address, 0);
     });
     after("Reset", async () => {
       // Reset BigNumber
@@ -75,7 +75,7 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
 
 
       const {  assetMappings, yvTricrypto2 } = testEnv; 
-      await assetMappings.setAssetType(yvTricrypto2.address, 3);
+      // await assetMappings.setAssetType(yvTricrypto2.address, 3);
     });
 
     for (const story of scenario.stories) {
