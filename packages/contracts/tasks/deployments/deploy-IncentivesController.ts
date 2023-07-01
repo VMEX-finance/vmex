@@ -64,9 +64,9 @@ task(`deploy-${CONTRACT_NAME}`, `Deploy and initialize ${CONTRACT_NAME}`)
 
     await incentivesController.beginStakingReward(velo_wstETHWETH.aTokenAddress, "0x131Ae347E654248671Afc885F0767cB605C065d7");
 
-    const velo_USDCsUSD = await lendingPool.getReserveData("0xd16232ad60188B68076a235c65d692090caba155", 0);
+    // const velo_USDCsUSD = await lendingPool.getReserveData("0xd16232ad60188B68076a235c65d692090caba155", 0);
 
-    await incentivesController.beginStakingReward(velo_USDCsUSD.aTokenAddress, "0xb03f52D2DB3e758DD49982Defd6AeEFEa9454e80");
+    // await incentivesController.beginStakingReward(velo_USDCsUSD.aTokenAddress, "0xb03f52D2DB3e758DD49982Defd6AeEFEa9454e80");
 
     const velo_ETHUSDC = await lendingPool.getReserveData("0x79c912FEF520be002c2B6e57EC4324e260f38E50", 0);
 
@@ -84,15 +84,15 @@ task(`deploy-${CONTRACT_NAME}`, `Deploy and initialize ${CONTRACT_NAME}`)
 
     await incentivesController.beginStakingReward(velo_OPUSDC.aTokenAddress, "0x0299d40E99F2a5a1390261f5A71d13C3932E214C");
 
-    const velo_DAIUSDC = await lendingPool.getReserveData("0x4F7ebc19844259386DBdDB7b2eB759eeFc6F8353", 0);
+    // const velo_DAIUSDC = await lendingPool.getReserveData("0x4F7ebc19844259386DBdDB7b2eB759eeFc6F8353", 0);
 
-    await incentivesController.beginStakingReward(velo_DAIUSDC.aTokenAddress, "0xc4fF55A961bC04b880e60219CCBBDD139c6451A4");
+    // await incentivesController.beginStakingReward(velo_DAIUSDC.aTokenAddress, "0xc4fF55A961bC04b880e60219CCBBDD139c6451A4");
 
-    const velo_FRAXUSDC = await lendingPool.getReserveData("0xAdF902b11e4ad36B227B84d856B229258b0b0465", 0);
+    // const velo_FRAXUSDC = await lendingPool.getReserveData("0xAdF902b11e4ad36B227B84d856B229258b0b0465", 0);
 
-    await incentivesController.beginStakingReward(velo_FRAXUSDC.aTokenAddress, "0x14d60F07924e3a7226DDD368409243eDF87e6205");
+    // await incentivesController.beginStakingReward(velo_FRAXUSDC.aTokenAddress, "0x14d60F07924e3a7226DDD368409243eDF87e6205");
 
-    const velo_USDTUSDC = await lendingPool.getReserveData("0xe08d427724d8a2673FE0bE3A81b7db17BE835B36", 0);
+    // const velo_USDTUSDC = await lendingPool.getReserveData("0xe08d427724d8a2673FE0bE3A81b7db17BE835B36", 0);
 
-    await incentivesController.beginStakingReward(velo_USDTUSDC.aTokenAddress, "0x654F9e476865CE72EF2FB73861C03804AA5208D1");
+    // await incentivesController.beginStakingReward(velo_USDTUSDC.aTokenAddress, "0x654F9e476865CE72EF2FB73861C03804AA5208D1");
   });
