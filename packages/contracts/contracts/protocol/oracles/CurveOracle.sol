@@ -10,98 +10,52 @@ import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
 
 //used for all curveV1 amd V2 tokens, no need to redeploy
 library CurveOracle {
-	function try_remove_liquidity_3(address curve_pool) internal returns(bool){
-    	uint[3] memory amounts = [uint(0), uint(0), uint(0)];
-		try ICurvePool(curve_pool).remove_liquidity(0, amounts) returns(uint256[3] memory) {
-			return true;
-		} catch {
-			try ICurvePool2(curve_pool).remove_liquidity(0, amounts) {
-				return true;
-			} catch {
-				return false;
-			}
-		}
-	}
-	function try_remove_liquidity_2(address curve_pool) internal returns(bool){
-    	uint[2] memory amounts = [uint(0), uint(0)];
-		try ICurvePool(curve_pool).remove_liquidity(0, amounts) returns(uint256[2] memory) {
-			return true;
-		} catch {
-			try ICurvePool2(curve_pool).remove_liquidity(0, amounts) {
-				return true;
-			} catch {
-				return false;
-			}
-		}
-	}
-
-	function try_remove_liquidity_one_coin(address curve_pool) internal returns(bool){
-		try ICurvePool(curve_pool).remove_liquidity_one_coin(0,1,0) {
-			return true;
-		} catch {
-			try ICurvePool2(curve_pool).remove_liquidity_one_coin(0,1,0) returns(uint256){
-				return true;
-			} catch {
-
-				return false;
-			}
-		}
-	}
-
-	// function try_admin_fees(address curve_pool) internal returns(bool){
-	// 	try ICurvePool(curve_pool).claim_admin_fees() {
-	// 		return true;
-    //     } catch {
-	// 		try ICurvePool(curve_pool).withdraw_admin_fees() {
-	// 			return true;
-	// 		} catch {
-	// 			return false;
-	// 		}
-    //     }
-	// }
-
 	/**
      * @dev Helper to prevent read-only re-entrancy attacks with virtual price. Only needed if the underlying has ETH.
      * @param curve_pool The curve pool address (not the token address!)
      **/
-	function check_reentrancy(address curve_pool, uint256 num_tokens) internal {
+	function check_reentrancy(address curve_pool, ICurvePool.CurveReentrancyType reentrancyType) internal {
 		//makerdao uses remove_liquidity to trigger reentrancy lock
-		// if(try_admin_fees(curve_pool)){
-		// 	return;
-		// }
-		// address owner = ICurvePool(curve_pool).owner();
-		// if(Address.isContract(owner)) {
-		// 	if(try_admin_fees(owner)){
-		// 		return;
-		// 	}
-		// }
-		if(try_remove_liquidity_one_coin(curve_pool)){
+		if(reentrancyType == ICurvePool.CurveReentrancyType.NO_CHECK){
 			return;
 		}
-		if(num_tokens==2 && try_remove_liquidity_2(curve_pool)){
-			return;
+		else if(reentrancyType == ICurvePool.CurveReentrancyType.REMOVE_LIQUIDITY_ONE_COIN){
+			ICurvePool(curve_pool).remove_liquidity_one_coin(0,1,0);
 		}
-		if(num_tokens==3 && try_remove_liquidity_3(curve_pool)){
-			return;
+		else if(reentrancyType == ICurvePool.CurveReentrancyType.REMOVE_LIQUIDITY_ONE_COIN_RETURNS){
+			ICurvePool2(curve_pool).remove_liquidity_one_coin(0,1,0);
 		}
-		uint[3] memory amounts = [uint(0), uint(0), uint(0)];
-		ICurvePool2(curve_pool).remove_liquidity(0, amounts);
-		revert(Errors.VO_REENTRANCY_GUARD_FAIL);
+		else if(reentrancyType == ICurvePool.CurveReentrancyType.REMOVE_LIQUIDITY_2){
+			uint[2] memory amounts = [uint(0), uint(0)];
+			ICurvePool2(curve_pool).remove_liquidity(0, amounts);
+		}
+		else if(reentrancyType == ICurvePool.CurveReentrancyType.REMOVE_LIQUIDITY_2_RETURNS){
+			uint[2] memory amounts = [uint(0), uint(0)];
+			ICurvePool(curve_pool).remove_liquidity(0, amounts);
+		}
+		else if(reentrancyType == ICurvePool.CurveReentrancyType.REMOVE_LIQUIDITY_3){
+			uint[3] memory amounts = [uint(0), uint(0), uint(0)];
+			ICurvePool2(curve_pool).remove_liquidity(0, amounts);
+		}
+		else if(reentrancyType == ICurvePool.CurveReentrancyType.REMOVE_LIQUIDITY_3_RETURNS){
+			uint[3] memory amounts = [uint(0), uint(0), uint(0)];
+			ICurvePool(curve_pool).remove_liquidity(0, amounts);
+		}
+		else {
+			revert(Errors.VO_REENTRANCY_GUARD_FAIL);
+		}
 	}
 	
 	/**
      * @dev Calculates the value of a curve v1 lp token
      * @param curve_pool The curve pool address (not the token address!)
      * @param prices The price of the underlying assets in the curve pool
-     * @param checkReentrancy Whether reentrancy check is needed
+     * @param reentrancyType Whhat type of reentrancy check is needed
      **/
-	function get_price_v1(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {
+	function get_price_v1(address curve_pool, uint256[] memory prices, ICurvePool.CurveReentrancyType reentrancyType) internal returns(uint256) {
 	//prevent read-only reentrancy -- possibly a better way than this
 		assert(prices.length > 1);
-		
-		if(checkReentrancy){
-			check_reentrancy(curve_pool, prices.length);
-		}
+		check_reentrancy(curve_pool, reentrancyType);
 		uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price();
 
 		uint256 minPrice = vMath.min(prices);
@@ -130,12 +84,10 @@ library CurveOracle {
      * @dev Calculates the value of a curve v2 lp token (not pegged)
      * @param curve_pool The curve pool address (not the token address!)
      * @param prices The price of the underlying assets in the curve pool
-     * @param checkReentrancy Whether reentrancy check is needed
+     * @param reentrancyType What type of reentrancy check is needed
      **/
-	function get_price_v2(address curve_pool, uint256[] memory prices, bool checkReentrancy) internal returns(uint256) {
-		if(checkReentrancy){
-			check_reentrancy(curve_pool, prices.length);
-		}
+	function get_price_v2(address curve_pool, uint256[] memory prices, ICurvePool.CurveReentrancyType reentrancyType) internal returns(uint256) {
+		check_reentrancy(curve_pool, reentrancyType);
         uint256 virtual_price = ICurvePool(curve_pool).get_virtual_price();
 
 		uint256 lp_price = calculate_v2_token_price(
