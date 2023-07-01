@@ -344,27 +344,27 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: {},
     [eEthereumNetwork.main]: {
       Tricrypto2: {
-        _checkReentrancy: true,
+        _reentrancyType: 1,
         _poolSize: '3',
         _curvePool: '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46'
       },
       ThreePool: {
-        _checkReentrancy: false,
+        _reentrancyType: 0,
         _poolSize: '3',
         _curvePool: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7'
       },
       StethEth: {
-        _checkReentrancy: true,
+        _reentrancyType: 4,
         _poolSize: '2',
         _curvePool: '0xDC24316b9AE028F1497c275EB9192a3Ea0f67022'
       },
       FraxUSDC: {
-        _checkReentrancy: false,
+        _reentrancyType: 0,
         _poolSize: '2',
         _curvePool: '0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2'
       },
       Frax3Crv: {
-        _checkReentrancy: false,
+        _reentrancyType: 0,
         _poolSize: '2',
         _curvePool: '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B'
       },

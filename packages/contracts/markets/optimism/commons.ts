@@ -84,17 +84,17 @@ export const CommonsConfig: ICommonConfiguration = {
   CurveMetadata: {
     [eOptimismNetwork.optimism]: {
       ThreeCRV: {
-        _checkReentrancy: false,
+        _reentrancyType: 0, //0 means no check needed
         _poolSize: '3',
         _curvePool: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
       },
       sUSD3CRV: {
-        _checkReentrancy: false,
+        _reentrancyType: 0,
         _poolSize: '2',
         _curvePool: '0x061b87122Ed14b9526A813209C8a59a633257bAb'
       },
       wstETHCRV: {
-        _checkReentrancy: true,
+        _reentrancyType: 4, //REMOVE_LIQUIDITY_2_RETURNS
         _poolSize: '2',
         _curvePool: '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415'
       },

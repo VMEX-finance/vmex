@@ -270,7 +270,9 @@ export enum ProtocolErrors {
   AM_INTEREST_STRATEGY_NOT_CONTRACT = "102", //underlying oracle for curve asset returned 0
   AM_INVALID_CONFIGURATION = "103",
   AM_UNABLE_TO_DISALLOW_ASSET = "104",
-  LPAPR_ALREADY_SET = "105",
+
+  
+  LPAPR_ALREADY_SET = "108",
   // old
 
   INVALID_FROM_BALANCE_AFTER_TRANSFER = "Invalid from balance after transfer",
@@ -800,7 +802,7 @@ export interface ITokenTarget {
 }
 
 export interface CurveMetadata {
-  _checkReentrancy: boolean;
+  _reentrancyType: BigNumberish;
   _poolSize: string;
   _curvePool: tEthereumAddress;
 }

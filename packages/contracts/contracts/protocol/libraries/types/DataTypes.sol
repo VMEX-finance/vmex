@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ILendingPool} from "../../../interfaces/ILendingPool.sol";
+import {ICurvePool} from "../../../interfaces/ICurvePool.sol";
 
 library DataTypes {
     struct TrancheParams {
@@ -13,7 +14,7 @@ library DataTypes {
     }
 
     struct CurveMetadata {
-        bool _checkReentrancy;
+        ICurvePool.CurveReentrancyType _reentrancyType;
         uint8 _poolSize;
         address _curvePool;
     }
