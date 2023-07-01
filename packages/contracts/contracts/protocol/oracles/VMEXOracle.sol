@@ -274,10 +274,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         }
 
         if(assetType==DataTypes.ReserveAssetType.CURVE){
-            price = CurveOracle.get_price_v1(c._curvePool, prices, c._checkReentrancy);
+            price = CurveOracle.get_price_v1(c._curvePool, prices, c._reentrancyType);
         }
         else if(assetType==DataTypes.ReserveAssetType.CURVEV2){
-            price = CurveOracle.get_price_v2(c._curvePool, prices, c._checkReentrancy);
+            price = CurveOracle.get_price_v2(c._curvePool, prices, c._reentrancyType);
         }
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);

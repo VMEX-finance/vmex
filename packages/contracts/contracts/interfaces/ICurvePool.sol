@@ -3,6 +3,18 @@ pragma solidity 0.8.19;
 
 
 interface ICurvePool {
+    enum CurveReentrancyType {
+        NO_CHECK, //0
+        REMOVE_LIQUIDITY_ONE_COIN, //1
+        REMOVE_LIQUIDITY_ONE_COIN_RETURNS, //2
+        REMOVE_LIQUIDITY_2, //3
+        REMOVE_LIQUIDITY_2_RETURNS, //4
+        REMOVE_LIQUIDITY_3, //5
+        REMOVE_LIQUIDITY_3_RETURNS //6
+        // CLAIM_ADMIN_FEES,
+        // WITHDRAW_ADMIN_FEES
+    }
+
 	function get_virtual_price() external view returns (uint256 out);
 
     function add_liquidity(
