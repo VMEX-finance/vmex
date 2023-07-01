@@ -102,6 +102,13 @@ makeSuite(
 
             const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi);
 
+            const mappings = await contractGetters.getAssetMappings();
+            await mappings.setCurveMetadata([curveAssets[1]],[{
+              _reentrancyType: 4, 
+              _poolSize: '2',
+              _curvePool: '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415'
+            }])
+
             for(let i =0;i<curveAssets.length;i++){
                 const CurveToken = new DRE.ethers.Contract(curveAssets[i],CurveTokenAddabi)
                 const CurvePool = new DRE.ethers.Contract(curvePools[i],CurvePoolAbi)
