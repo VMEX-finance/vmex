@@ -21,6 +21,7 @@ export enum eEthereumNetwork {
   kovan = "kovan",
   ropsten = "ropsten",
   goerli = "goerli",
+  sepolia = "sepolia",
   main = "main",
   coverage = "coverage",
   hardhat = "hardhat",
@@ -271,7 +272,7 @@ export enum ProtocolErrors {
   AM_INVALID_CONFIGURATION = "103",
   AM_UNABLE_TO_DISALLOW_ASSET = "104",
 
-  
+
   LPAPR_ALREADY_SET = "108",
   TRANCHE_ADMIN_NOT_VERIFIED = "112",
 
@@ -613,8 +614,10 @@ export interface IReserveParams
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   supplyCap: string;
-  borrowCap: string;
-
+  borrowCap?: string | BigNumberish;
+  hasStrategy?: boolean;
+  usingGovernanceSetInterestRate?: boolean;
+  governanceSetInterestRate?: string;
 }
 
 export interface IInterestRateStrategyParams {
@@ -643,7 +646,7 @@ export interface IReserveCollateralParams {
   liquidationThreshold: string;
   liquidationBonus: string;
   assetType: BigNumberish;
-  borrowFactor: string;
+  borrowFactor?: string | BigNumberish;
 }
 export interface IMarketRates {
   borrowRate: string;
@@ -666,7 +669,8 @@ export interface iEthereumParamsPerNetwork<T> {
   [eEthereumNetwork.buidlerevm]: T;
   [eEthereumNetwork.kovan]: T;
   [eEthereumNetwork.ropsten]: T;
-  [eEthereumNetwork.goerli]: T;
+  [eEthereumNetwork.goerli]?: T;
+  [eEthereumNetwork.sepolia]?: T;
   [eEthereumNetwork.main]: T;
   [eEthereumNetwork.hardhat]: T;
   [eEthereumNetwork.tenderly]: T;
@@ -739,6 +743,7 @@ export interface IBaseConfiguration {
   MarketId: string;
   ATokenNamePrefix: string;
   VariableDebtTokenNamePrefix: string;
+  StableDebtTokenNamePrefix?: string;
   SymbolPrefix: string;
   ProviderId: number;
   ProtocolGlobalParams: IProtocolGlobalConfig;
@@ -759,7 +764,7 @@ export interface IBaseConfiguration {
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   EmergencyAdminIndex: number;
-  VMEXTreasury: iParamsPerNetwork<tEthereumAddress | undefined>;
+  VMEXTreasury?: iParamsPerNetwork<tEthereumAddress | undefined>;
   ATokenDomainSeparator: iParamsPerNetwork<string>;
   WETH: iParamsPerNetwork<tEthereumAddress>;
   WrappedNativeToken: iParamsPerNetwork<tEthereumAddress>;
@@ -769,15 +774,18 @@ export interface IBaseConfiguration {
   VariableDebtTokenImplementation?: iParamsPerNetwork<tEthereumAddress>;
   ReserveAssets: iParamsPerNetwork<SymbolMap<tEthereumAddress>>;
   OracleQuoteCurrency: string;
-  OracleQuoteDecimals: number;
+  OracleQuoteDecimals?: number;
   OracleQuoteUnit: string;
-  SequencerUptimeFeed: iParamsPerNetwork<tEthereumAddress>;
-  RETHOracle: iParamsPerNetwork<tEthereumAddress>;
+  SequencerUptimeFeed?: iParamsPerNetwork<tEthereumAddress>;
+  RETHOracle?: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface ICommonConfiguration extends IBaseConfiguration {
   ReservesConfig: iMultiPoolsAssets<IReserveParams>;
   Mocks: IMocksConfig;
+  LendingRateOracleRatesCommon?: any;
+  LendingRateOracle?: any;
+  AaveOracle?: any
 }
 
 export interface IAaveConfiguration extends ICommonConfiguration {
@@ -828,7 +836,7 @@ export interface IChainlinkInternal {
 }
 
 export interface IChainlinkData {
-  [token: string]: IChainlinkInternal;
+  [token: string]: IChainlinkInternal | string;
 }
 
 export interface BeethovenMetadata {

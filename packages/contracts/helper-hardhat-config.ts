@@ -13,6 +13,7 @@ require('dotenv').config();
 
 const INFURA_KEY = process.env.INFURA_KEY || '';
 const ALCHEMY_KEY = process.env.ALCHEMY_KEY || '';
+const SEPOLIA_ALCHEMY_KEY = process.env.SEPOLIA_ALCHEMY_KEY || '';
 const OP_ALCHEMY_KEY = process.env.OP_ALCHEMY_KEY || '';
 const TENDERLY_FORK_ID = process.env.TENDERLY_FORK_ID || '';
 const FORK = process.env.FORK || '';
@@ -38,7 +39,10 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
 export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eEthereumNetwork.goerli]: ALCHEMY_KEY
     ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_KEY}`
-    : `https://kovan.infura.io/v3/${INFURA_KEY}`,
+    : `https://goerli.infura.io/v3/${INFURA_KEY}`,
+  [eEthereumNetwork.sepolia]: SEPOLIA_ALCHEMY_KEY
+    ? `https://eth-sepolia.g.alchemy.com/v2/${SEPOLIA_ALCHEMY_KEY}`
+    : `https://sepolia.infura.io/v3/${INFURA_KEY}`,
   [eEthereumNetwork.kovan]: ALCHEMY_KEY
     ? `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://kovan.infura.io/v3/${INFURA_KEY}`,
@@ -60,7 +64,7 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eXDaiNetwork.xdai]: 'https://rpc.xdaichain.com/',
   [eAvalancheNetwork.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
   [eAvalancheNetwork.fuji]: 'https://api.avax-test.network/ext/bc/C/rpc',
-  [eOptimismNetwork.optimism]: 
+  [eOptimismNetwork.optimism]:
     //`https://mainnet.optimism.io`,
     `https://opt-mainnet.g.alchemy.com/v2/${OP_ALCHEMY_KEY}`,
 };
@@ -68,6 +72,7 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eEthereumNetwork.kovan]: 3 * GWEI,
   [eEthereumNetwork.goerli]: 3 * GWEI,
+  [eEthereumNetwork.sepolia]: 3 * GWEI,
   [eEthereumNetwork.ropsten]: 65 * GWEI,
   [eEthereumNetwork.main]: 8000000000,
   [eEthereumNetwork.coverage]: 65 * GWEI,

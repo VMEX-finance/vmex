@@ -1,6 +1,16 @@
 import { ethers, BigNumber } from "ethers";
 import _ from "lodash";
-import { deployments, findTokenAddresses, flipAndLowerCase, MAINNET_ASSET_MAPPINGS, REVERSE_MAINNET_ASSET_MAPPINGS } from "./constants";
+import {
+  deployments,
+  GOERLI_CUSTOM_ASSET_MAPPINGS,
+  MAINNET_ASSET_MAPPINGS,
+  OPTIMISM_ASSET_MAPPINGS,
+  REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS,
+  REVERSE_MAINNET_ASSET_MAPPINGS,
+  REVERSE_OPTIMISM_ASSET_MAPPINGS,
+  REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS,
+  SEPOLIA_CUSTOM_ASSET_MAPPINGS,
+} from "./constants";
 import {
   getLendingPoolConfiguratorProxy,
   getIErc20Detailed,
@@ -11,7 +21,6 @@ import { decodeConstructorBytecode } from "./decode-bytecode";
 import { PriceData } from "./interfaces";
 import { CacheContainer } from "node-ts-cache";
 import { MemoryStorage } from "node-ts-cache-storage-memory";
-import { tokenToString } from "typescript";
 
 export const cache = new CacheContainer(new MemoryStorage());
 
@@ -20,45 +29,95 @@ function isMainnetFork(network: string): boolean {
 }
 
 // import { LendingPoolConfiguratorFactory } from "@vmexfinance/contracts/dist";
-export function convertAddressToSymbol(asset: string, network?: string){
-  const networkMapping = findTokenAddresses([...MAINNET_ASSET_MAPPINGS.keys()], network || "goerli")
+export function convertAddressToSymbol(asset: string, network: string) {
+  if (!asset) {
+    throw new Error("convertAddressToSymbol missing asset");
+  }
+  asset = asset.toLowerCase();
 
-  const reverseMapping = flipAndLowerCase(networkMapping);
-  return network &&
-    !isMainnetFork(network) ? reverseMapping.get(asset.toLowerCase())
-    : REVERSE_MAINNET_ASSET_MAPPINGS.get(asset.toLowerCase())
+  switch (network) {
+    // goerli, optimism_goerli, sepolia will use our custom deployments
+    case "goerli":
+      return REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS.get(asset);
+    case "sepolia":
+      return REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS.get(asset);
+
+    // forks and networks will use real addresses
+    case "localhost":
+    case "main":
+      return REVERSE_MAINNET_ASSET_MAPPINGS.get(asset);
+    case "optimism_localhost":
+    case "optimism":
+      return REVERSE_OPTIMISM_ASSET_MAPPINGS.get(asset);
+  }
+
+  throw Error(`Asset=${asset} not found on network ${network}`);
 }
 
-export function convertAddressListToSymbol(assets: string[], network?: string){
-  return assets.map((el)=>convertAddressToSymbol(el,network));
+export function convertAddressListToSymbol(assets: string[], network: string) {
+  return assets.map((el) => convertAddressToSymbol(el, network));
 }
 
-export function convertSymbolToAddress(asset: string, network?: string){
+export function convertSymbolToAddress(asset: string, network: string) {
+  if (!asset) {
+    throw new Error("Convert symbol to address missing asset");
+  }
   asset = asset.toUpperCase();
-  return network &&
-    !isMainnetFork(network) ? deployments[asset][network].address
-    : MAINNET_ASSET_MAPPINGS.get(asset)
+
+  switch (network) {
+    // goerli, optimism_goerli, sepolia will use our custom deployments
+    case "goerli":
+    case "sepolia":
+      return deployments[asset][network].address;
+
+    // forks and networks will use real addresses
+    case "localhost":
+    case "main":
+      return MAINNET_ASSET_MAPPINGS.get(asset);
+    case "optimism_localhost":
+    case "optimism":
+      return OPTIMISM_ASSET_MAPPINGS.get(asset);
+  }
+
+  throw Error(`Asset=${asset} not found on network ${network}`);
 }
 
-export function getContractAddress(contractName: string, network: string){
+export function getAllAssetSymbols(network: string): string[] {
+  switch (network) {
+    // goerli, optimism_goerli, sepolia will use our custom depl
+    case "goerli":
+      return Array.from(GOERLI_CUSTOM_ASSET_MAPPINGS.keys());
+    case "sepolia":
+      return Array.from(SEPOLIA_CUSTOM_ASSET_MAPPINGS.keys());
+    // forks and networks will use real addresses
+    case "localhost":
+    case "main":
+      return Array.from(MAINNET_ASSET_MAPPINGS.keys());
+    case "optimism_localhost":
+    case "optimism":
+      return Array.from(OPTIMISM_ASSET_MAPPINGS.keys());
+  }
+  throw Error(`network=${network} not found`);
+}
+
+export function getContractAddress(contractName: string, network: string) {
   return deployments[contractName][network].address;
 }
 
-export function convertListSymbolToAddress(assets: string[], network?: string){
-  return assets.map(
-    (el)=> convertSymbolToAddress(el,network)
-  )
+export function convertListSymbolToAddress(assets: string[], network: string) {
+  return assets.map((el) => convertSymbolToAddress(el, network));
 }
-export async function getAssetPrices(
-  params?: {
-    assets: string[];
-    network?: string;
-    test?: boolean;
-    providerRpc?: string;
-  }
-): Promise<Map<string, PriceData>> {
+
+async function getAssetPricesContractCall(params?: {
+  assets: string[];
+  network: string;
+  test?: boolean;
+  providerRpc?: string;
+}): Promise<Map<string, PriceData>> {
   const cacheKey = "asset-prices";
-  const cachedTotalMarkets = await cache.getItem<Map<string, PriceData>>(cacheKey);
+  const cachedTotalMarkets = await cache.getItem<Map<string, PriceData>>(
+    cacheKey
+  );
   if (cachedTotalMarkets) {
     return cachedTotalMarkets;
   }
@@ -68,14 +127,16 @@ export async function getAssetPrices(
     bytecode,
   } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/asset/GetAllAssetPrices.sol/GetAllAssetPrices.json");
   let _addressProvider =
-    deployments.LendingPoolAddressesProvider[params.network || "main"]
-      .address;
+    deployments.LendingPoolAddressesProvider[params.network || "main"].address;
 
-  const assets = convertListSymbolToAddress(params.assets, params.network).filter((el) => el !== undefined);
+  const assets = convertListSymbolToAddress(
+    params.assets,
+    params.network
+  ).filter((el) => el !== undefined);
 
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
-    assets
+    assets,
   ]);
 
   let assetPrices: Map<string, PriceData> = new Map();
@@ -87,6 +148,26 @@ export async function getAssetPrices(
   await cache.setItem(cacheKey, assetPrices, { ttl: 60 });
 
   return assetPrices;
+}
+export async function getAssetPrices(params?: {
+  assets: string[];
+  network: string;
+  test?: boolean;
+  providerRpc?: string;
+}): Promise<Map<string, PriceData>> {
+  switch(params.network) {
+    // subgraph asset prices not work for these network
+    case "goerli":
+    case "sepolia":
+    case "localhost":
+    case "optimism_localhost":
+      return getAssetPricesContractCall(params);
+
+    case "optimism":
+    case "main":
+      // TODO: get asset prices from subgraph
+      return;
+  }
 }
 
 /**
@@ -122,33 +203,31 @@ export const convertToCurrencyDecimals = async (
   tokenAddress: string,
   amount: string,
   test?: boolean,
-  providerRpc?: string,
+  providerRpc?: string
 ) => {
   const token = await getIErc20Detailed(tokenAddress, providerRpc, test);
-  console.log("token to convert to decimals", await token.name())
   let decimals = (await token.decimals()).toString();
 
   return ethers.utils.parseUnits(amount, decimals);
 };
 
-
-export async function mintTokens(
-  params: {
-    token: string;
-    signer: ethers.Signer;
-    network: string;
-    test?: boolean;
-    providerRpc?: string;
-  },
-) {
+export async function mintTokens(params: {
+  token: string;
+  signer: ethers.Signer;
+  network: string;
+  test?: boolean;
+  providerRpc?: string;
+}) {
   const token = await getMintableERC20({
     tokenSymbol: params.token,
     signer: params.signer,
     network: params.network,
     test: params.test,
-    providerRpc: params.providerRpc
-  })
-  return await token.mint(ethers.utils.parseUnits("1000000.0",await token.decimals()));
+    providerRpc: params.providerRpc,
+  });
+  return await token.mint(
+    ethers.utils.parseUnits("1000000.0", await token.decimals())
+  );
 }
 
 export const chunk = <T>(arr: Array<T>, chunkSize: number): Array<Array<T>> => {
@@ -162,6 +241,10 @@ export const chunk = <T>(arr: Array<T>, chunkSize: number): Array<Array<T>> => {
 };
 
 export const increaseTime = async (provider, secondsToIncrease: number) => {
-  await provider.send('evm_increaseTime', [secondsToIncrease]);
-  await provider.send('evm_mine', []);
+  await provider.send("evm_increaseTime", [secondsToIncrease]);
+  await provider.send("evm_mine", []);
+};
+
+export const isLocalhost = (network) => {
+  return network == "localhost" || network == "optimism_localhost";
 };

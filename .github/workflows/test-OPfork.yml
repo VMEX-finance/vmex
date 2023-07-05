@@ -51,10 +51,6 @@ jobs:
         run: |
           OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:deploy:fork:optimism
 
-      - name: Run deployment of ext rewards
-        run: |
-          OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts localhost:optimism:deployIncentivesController
-
       - name: Run tests
         run: |
           OP_ALCHEMY_KEY=${OP_ALCHEMY_KEY} yarn contracts vmex:OPfork:unit-tests

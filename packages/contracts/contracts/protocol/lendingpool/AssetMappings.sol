@@ -196,6 +196,7 @@ contract AssetMappings is IAssetMappings, Initializable{
                 inputAsset.liquidationThreshold,
                 inputAsset.liquidationBonus,
                 inputAsset.borrowFactor,
+                inputAsset.defaultInterestRateStrategyAddress,
                 inputAsset.borrowingEnabled,
                 inputAsset.VMEXReserveFactor
             );
@@ -310,7 +311,7 @@ contract AssetMappings is IAssetMappings, Initializable{
     function getInterestRateStrategyAddress(address asset, uint64 trancheId) view external override returns(address){
         require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         ILendingPool pool = ILendingPool(addressesProvider.getLendingPool());
-        return pool.getTrancheParams(trancheId).verified ? 
+        return pool.getTrancheParams(trancheId).verified ?
             pool.getReserveData(asset, trancheId).interestRateStrategyAddress :
             assetMappings[asset].defaultInterestRateStrategyAddress;
     }
@@ -319,7 +320,7 @@ contract AssetMappings is IAssetMappings, Initializable{
         require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED);
         return assetMappings[asset].defaultInterestRateStrategyAddress;
     }
-    
+
     function getAssetType(address asset) view external returns(DataTypes.ReserveAssetType){
         require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing
         return DataTypes.ReserveAssetType(assetMappings[asset].assetType);
@@ -427,7 +428,7 @@ contract AssetMappings is IAssetMappings, Initializable{
                 assetMappings[asset].borrowFactor
             );
         }
-        
+
     }
 
     /**
@@ -443,7 +444,7 @@ contract AssetMappings is IAssetMappings, Initializable{
             uint64
         )
     {
-        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing        
+        require(assetMappings[asset].isAllowed, Errors.AM_ASSET_NOT_ALLOWED); //not existing
         return (
             assetMappings[asset].baseLTV,
             assetMappings[asset].liquidationThreshold,

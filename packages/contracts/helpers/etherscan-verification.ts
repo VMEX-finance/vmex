@@ -20,6 +20,7 @@ export const SUPPORTED_ETHERSCAN_NETWORKS = [
   "kovan",
   "matic",
   "mumbai",
+  "sepolia",
 ];
 
 function delay(ms: number) {

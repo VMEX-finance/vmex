@@ -7,7 +7,7 @@ import IAToken from "@vmexfinance/contracts/artifacts/contracts/interfaces/IATok
 import ILendingPool from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
 import ILendingPoolConfigurator from "@vmexfinance/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
 import ILendingPoolAddressesProvider from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
-import IIncentivesController from "@vmexfinance/contracts/artifacts/contracts/interfaces/IIncentivesController.sol/IIncentivesController.json";
+import IncentivesController from "@vmexfinance/contracts/artifacts/contracts/protocol/incentives/IncentivesController.sol/IncentivesController.json";
 import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
 import MintableERC20 from "@vmexfinance/contracts/artifacts/contracts/mocks/tokens/MintableERC20.sol/MintableERC20.json";
 
@@ -154,10 +154,10 @@ export async function getIncentivesController(params?: {
   providerRpc?: string;
 }) {
   let incentivesController = new ethers.Contract(
-    deployments.IncentivesControllerImpl[
+    deployments.IncentivesControllerProxy[
       `${params.network || "mainnet"}`
     ].address,
-    IIncentivesController.abi,
+    IncentivesController.abi,
     getProvider(params.providerRpc, params.test)
   );
   if (params.signer) return incentivesController.connect(params.signer);

@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import BN = require('bn.js');
 import low from 'lowdb';
 import FileSync from 'lowdb/adapters/FileSync';
 import { WAD } from './constants';
@@ -14,7 +13,7 @@ import { usingTenderly } from './tenderly-utils';
 
 export const toWad = (value: string | number) => new BigNumber(value).times(WAD).toFixed();
 
-export const bnToBigNumber = (amount: BN): BigNumber => new BigNumber(<any>amount);
+export const bnToBigNumber = (amount: any): BigNumber => new BigNumber(<any>amount);
 export const stringToBigNumber = (amount: string): BigNumber => new BigNumber(amount);
 
 export const getDb = () => low(new FileSync('./deployed-contracts.json'));
@@ -48,7 +47,7 @@ export const increaseTime = async (secondsToIncrease: number) => {
   await DRE.ethers.provider.send('evm_mine', []);
 };
 
-export const setAutomine = async (setting: bool) => {
+export const setAutomine = async (setting: boolean) => {
   await DRE.ethers.provider.send('evm_setAutomine', [setting]);
 }
 
@@ -138,7 +137,7 @@ export const impersonateAddress = async (address: tEthereumAddress): Promise<Sig
 };
 
 export const omit = <T, U extends keyof T>(obj: T, keys: U[]): Omit<T, U> =>
-  (Object.keys(obj) as U[]).reduce(
+  (Object.keys(obj as any) as U[]).reduce(
     (acc, curr) => (keys.includes(curr) ? acc : { ...acc, [curr]: obj[curr] }),
     {} as Omit<T, U>
   );

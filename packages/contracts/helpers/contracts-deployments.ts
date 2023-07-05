@@ -78,8 +78,6 @@ import {
   BaseUniswapOracleFactory,
   YearnTokenMockedFactory,
   WETH9Mocked,
-  ATokenBeaconFactory,
-  VariableDebtTokenBeaconFactory,
   UpgradeableBeacon,
   UpgradeableBeaconFactory,
   SequencerUptimeFeedFactory,
@@ -90,8 +88,8 @@ import {
   DoubleTransferHelper,
   StakingRewardsMockFactory,
   MockIncentivesControllerFactory,
+  MintableDelegationERC20,
 } from "../types";
-import { CrvLpStrategyLibraryAddresses } from "../types/CrvLpStrategyFactory";
 import {
   withSaveAndVerify,
   registerContractInJsonDb,
@@ -107,11 +105,9 @@ import {
   convertToCurrencyDecimals,
   // getContractAddressWithJsonFallback,
 } from "./contracts-helpers";
-import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
 import { readArtifact as buidlerReadArtifact } from "@nomiclabs/buidler/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendingPoolLibraryAddresses } from "../types/LendingPoolFactory";
-import { LendingPoolConfiguratorLibraryAddresses } from "../types/LendingPoolConfiguratorFactory";
 import { eNetwork } from "./types";
 import AaveConfig from "../markets/aave";
 import {
@@ -139,20 +135,13 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   let mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
   };
-  if (network == "localhost" || network == "hardhat") {
-    console.log("deploying mock tokens");
-    mockTokens = {
-      ...(await deployAllMockTokens()),
-    };
-  }
 
-  mockTokens = await getAllMockedTokens();
-  if (!notFalsyOrZeroAddress(mockTokens["USDC"].address)) {
-    console.log("deploying mock tokens");
-    mockTokens = {
-      ...(await deployAllMockTokens()),
-    };
-  }
+  console.log("deploying mock tokens");
+  mockTokens = {
+    ...(await deployAllMockTokens()),
+  };
+  // use this script if the mock tokens are already deployed on the network
+  // mockTokens = await getAllMockedTokens();
 
   console.log("mockTokens[USDC]: ", mockTokens["USDC"].address);
   let addressesProvider;
@@ -1105,8 +1094,13 @@ export const deployDefaultReserveInterestRateStrategy = async (
     verify
   );
 
+/**
+ * @param args [pool address, underlying asset address, trancheId, address provider address]
+ * @param verify
+ * @returns
+ */
 export const deployVariableDebtToken = async (
-  args: [tEthereumAddress, tEthereumAddress, tEthereumAddress, string, string],
+  args: [tEthereumAddress, tEthereumAddress, number, tEthereumAddress],
   verify: boolean
 ) => {
   const instance = await withSaveAndVerify(
@@ -1119,12 +1113,8 @@ export const deployVariableDebtToken = async (
   await instance.initialize(
     args[0],
     args[1],
-    0, //set tranche to zero for now
     args[2],
-    "18",
     args[3],
-    args[4],
-    "0x10"
   );
 
   return instance;
@@ -1138,47 +1128,48 @@ export const deployGenericVariableDebtToken = async (verify?: boolean) =>
     verify
   );
 
-export const deployGenericAToken = async (
-  [
-    poolAddress,
-    underlyingAssetAddress,
-    treasuryAddress,
-    incentivesController,
-    name,
-    symbol,
-  ]: [
-    tEthereumAddress,
-    tEthereumAddress,
-    tEthereumAddress,
-    tEthereumAddress,
-    string,
-    string
-  ],
-  verify: boolean
-) => {
-  const instance = await withSaveAndVerify(
-    await new ATokenFactory(await getFirstSigner()).deploy(),
-    eContractid.AToken,
-    [],
-    verify
-  );
+// export const deployGenericAToken = async (
+//   [
+//     poolAddress,
+//     underlyingAssetAddress,
+//     treasuryAddress,
+//     incentivesController,
+//     name,
+//     symbol,
+//   ]: [
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     tEthereumAddress,
+//     string,
+//     string
+//   ],
+//   verify: boolean
+// ) => {
+//   const instance = await withSaveAndVerify(
+//     await new ATokenFactory(await getFirstSigner()).deploy(),
+//     eContractid.AToken,
+//     [],
+//     verify
+//   );
 
-  await instance.initialize(
-    poolAddress,
-    {
-      treasury: treasuryAddress,
-      underlyingAsset: underlyingAssetAddress,
-      tranche: 0,
-    }, //set tranche to zero for now
-    incentivesController,
-    "18",
-    name,
-    symbol,
-    "0x10"
-  );
+//   await instance.initialize(
+//     poolAddress,
+//     {
+//       lendingPoolConfigurator:
+//       treasury: treasuryAddress,
+//       underlyingAsset: underlyingAssetAddress,
+//       tranche: 0,
+//     }, //set tranche to zero for now
+//     incentivesController,
+//     "18",
+//     name,
+//     symbol,
+//     "0x10"
+//   );
 
-  return instance;
-};
+//   return instance;
+// };
 
 export const deployGenericATokenImpl = async (verify: boolean) =>
   withSaveAndVerify(
