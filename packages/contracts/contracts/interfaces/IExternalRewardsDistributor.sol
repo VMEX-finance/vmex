@@ -9,12 +9,12 @@ interface IExternalRewardsDistributor {
 
     /// @notice Emitted when the root is updated.
     /// @param newRoot The new merkle's tree root.
-    event RootUpdated(bytes32 newRoot);
+    event RootUpdated(bytes32 indexed newRoot);
 
     /// @notice Emitted when an account claims rewards.
     /// @param account The address of the claimer.
     /// @param amount The amount of rewards claimed.
-    event RewardsClaimed(address account, uint256 amount);
+    event RewardsClaimed(address indexed account, uint256 amount);
 
     event RewardConfigured(address indexed aToken, address indexed staking, uint256 initialAmount);
     event StakingRemoved(address indexed aToken);

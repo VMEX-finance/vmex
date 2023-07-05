@@ -117,11 +117,10 @@ export async function withdraw(
     asset: string;
     to?: string;
     trancheId: number;
+    amount: number | ethers.BigNumberish;
     signer: ethers.Signer;
-    interestRateMode: number;
     referralCode?: number;
     network: string;
-    amount: number | ethers.BigNumberish;
     isMax?: boolean;
     test?: boolean;
     providerRpc?: string;
@@ -847,4 +846,66 @@ export async function getUserIncentives(
     rewardTokens: tx[0],
     rewardAmounts: tx[1]
   };
+}
+
+export async function setExternalIncentives(
+  params: {
+    incentivizedATokens: string[];
+    stakingContracts: string[];
+    signer: ethers.Signer;
+    network: string;
+    test?: boolean;
+    providerRpc?: string;
+  },
+  callback?: () => Promise<any>
+) {
+  let incentivesController = await getIncentivesController({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  const tx = await incentivesController.batchBeginStakingRewards(
+    params.incentivizedATokens,
+    params.stakingContracts
+  );
+
+  if (callback) {
+    await callback().catch((error) => {
+      console.error("CALLBACK_ERROR: \n", error);
+    });
+  }
+
+  return tx
+}
+
+export async function removeExternalIncentives(
+  params: {
+    incentivizedAToken: string;
+    signer: ethers.Signer;
+    network: string;
+    test?: boolean;
+    providerRpc?: string;
+  },
+  callback?: () => Promise<any>
+) {
+  let incentivesController = await getIncentivesController({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  const tx = await incentivesController.removeStakingReward(
+    params.incentivizedAToken
+  );
+
+  if (callback) {
+    await callback().catch((error) => {
+      console.error("CALLBACK_ERROR: \n", error);
+    });
+  }
+
+  return tx
 }
