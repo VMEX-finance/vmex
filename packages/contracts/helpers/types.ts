@@ -21,6 +21,7 @@ export enum eEthereumNetwork {
   kovan = "kovan",
   ropsten = "ropsten",
   goerli = "goerli",
+  sepolia = "sepolia",
   main = "main",
   coverage = "coverage",
   hardhat = "hardhat",
@@ -271,7 +272,7 @@ export enum ProtocolErrors {
   AM_INVALID_CONFIGURATION = "103",
   AM_UNABLE_TO_DISALLOW_ASSET = "104",
 
-  
+
   LPAPR_ALREADY_SET = "108",
   TRANCHE_ADMIN_NOT_VERIFIED = "112",
 
@@ -663,6 +664,7 @@ export interface iEthereumParamsPerNetwork<T> {
   [eEthereumNetwork.kovan]: T;
   [eEthereumNetwork.ropsten]: T;
   [eEthereumNetwork.goerli]: T;
+  [eEthereumNetwork.sepolia]: T;
   [eEthereumNetwork.main]: T;
   [eEthereumNetwork.hardhat]: T;
   [eEthereumNetwork.tenderly]: T;
