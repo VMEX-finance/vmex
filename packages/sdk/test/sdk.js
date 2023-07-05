@@ -29,9 +29,12 @@ const {
   getTotalTranches,
   getUserWalletData,
 } = require("../dist/analytics.js");
-const { getAssetPrices, mintTokens, convertSymbolToAddress } = require("../dist/utils.js");
-const { RateMode } = require("../dist/interfaces.js");
-const { MAINNET_ASSET_MAPPINGS } = require("../dist/constants.js");
+const {
+  getAssetPrices,
+  mintTokens,
+  convertSymbolToAddress,
+  isLocalhost,
+} = require("../dist/utils.js");
 
 const IERC20abi = [
   "function allowance(address owner, address spender) external view returns (uint256 remaining)",
@@ -54,11 +57,11 @@ const UNISWAP_ROUTER_ABI = [
 
 const network = process.env.NETWORK;
 
-const WETHaddr = convertSymbolToAddress("WETH", network)
+const WETHaddr = convertSymbolToAddress("WETH", network);
 const USDCaddr = convertSymbolToAddress("USDC", network);
 
 let providerRpc, provider, temp, owner;
-if (network == "localhost") {
+if (isLocalhost(network)) {
   providerRpc = "http://127.0.0.1:8545";
   provider = new ethers.providers.JsonRpcProvider(providerRpc);
   temp = provider.getSigner(2);
@@ -85,7 +88,7 @@ describe("Analytics", () => {
       test: true,
     });
 
-    console.log(dat)
+    console.log(dat);
   });
 
   // it("1 - test get tranche data", async () => {
@@ -106,9 +109,8 @@ describe("Analytics", () => {
       test: true,
     });
 
-    console.log(JSON.stringify(dat))
+    console.log(JSON.stringify(dat));
   });
-
 });
 
 describe("Test Supply", () => {
@@ -173,12 +175,13 @@ describe("CreateNewTranche", () => {
 
 describe("ConfigureTranche", () => {
   it("configure existing tranche, removing whitelister", async () => {
-    const createdTranche = await getTotalTranches({
-      network: network,
-      test: true,
-      providerRpc: providerRpc
-    }) - 1;
-    console.log("created tranche is", createdTranche)
+    const createdTranche =
+      (await getTotalTranches({
+        network: network,
+        test: true,
+        providerRpc: providerRpc,
+      })) - 1;
+    console.log("created tranche is", createdTranche);
 
     await configureExistingTranche({
       trancheId: createdTranche,
@@ -194,11 +197,12 @@ describe("ConfigureTranche", () => {
     });
   });
   it("check that whitelister is not able to interact anymore", async () => {
-    const createdTranche = await getTotalTranches({
-      network: network,
-      test: true,
-      providerRpc: providerRpc
-    }) - 1;
+    const createdTranche =
+      (await getTotalTranches({
+        network: network,
+        test: true,
+        providerRpc: providerRpc,
+      })) - 1;
 
     await expect(
       supply(
@@ -219,11 +223,12 @@ describe("ConfigureTranche", () => {
     ).to.be.revertedWith("91");
   });
   it("configure existing tranche, removing whitelist in general", async () => {
-    const createdTranche = await getTotalTranches({
-      network: network,
-      test: true,
-      providerRpc: providerRpc
-    }) - 1;
+    const createdTranche =
+      (await getTotalTranches({
+        network: network,
+        test: true,
+        providerRpc: providerRpc,
+      })) - 1;
 
     await configureExistingTranche({
       trancheId: createdTranche,
@@ -234,11 +239,12 @@ describe("ConfigureTranche", () => {
     });
   });
   it("now temp can interact with tranche", async () => {
-    const createdTranche = await getTotalTranches({
-      network: network,
-      test: true,
-      providerRpc: providerRpc
-    }) - 1;
+    const createdTranche =
+      (await getTotalTranches({
+        network: network,
+        test: true,
+        providerRpc: providerRpc,
+      })) - 1;
 
     await supply(
       {
@@ -414,7 +420,7 @@ describe("Borrow - end-to-end test", () => {
       network: network,
       test: true,
     });
-    console.log("after supply 1")
+    console.log("after supply 1");
     await supply({
       underlying: "USDC",
       trancheId: 1,
@@ -423,13 +429,13 @@ describe("Borrow - end-to-end test", () => {
       network: network,
       test: true,
     });
-    console.log("before getUSerTrancheData")
+    console.log("before getUSerTrancheData");
     const { suppliedAssetData } = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: 0,
       network: network,
       test: true,
-      providerRpc: providerRpc
+      providerRpc: providerRpc,
     });
 
     // assert(suppliedAssetData.length == 1, "suppliedAssetData does not have correct length. expected=1, got=" + suppliedAssetData.length);
@@ -489,13 +495,13 @@ describe("Borrow - end-to-end test", () => {
     expect(await WETHContract.balanceOf(await temp.getAddress())).to.be.above(
       originalBalance
     );
-    console.log("before get user tranche data")
+    console.log("before get user tranche data");
     const userAccountData = await getUserTrancheData({
       user: await temp.getAddress(),
       tranche: tranche,
       network: network,
       test: true,
-      providerRpc: providerRpc
+      providerRpc: providerRpc,
     });
 
     expect(userAccountData.totalCollateralETH).to.be.gte(

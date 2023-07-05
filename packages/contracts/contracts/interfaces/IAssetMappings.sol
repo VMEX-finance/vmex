@@ -15,6 +15,7 @@ interface IAssetMappings {
         uint256 liquidationThreshold,
         uint256 liquidationBonus,
         uint256 borrowFactor,
+        address defaultInterestRateStrategyAddress,
         bool borrowingEnabled,
         uint256 VMEXReserveFactor
     );
@@ -31,7 +32,7 @@ interface IAssetMappings {
 
     event AddedInterestRateStrategyAddress(
         address indexed asset,
-        address indexed strategyAddress
+        address indexed defaultInterestRateStrategyAddress
     );
 
     event VMEXReserveFactorChanged(address indexed asset, uint256 factor);

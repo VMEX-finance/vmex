@@ -11,13 +11,14 @@
     "sourceMap": true,
     "outDir": "dist",
     "declaration": true,
+    "skipLibCheck": true,
     "types": [
       // "node"
     ]
   },
   "include": [
     "artifacts",
-    "types"
+    "markets"
   ],
   // "exclude": [
   //   "**/test-suites/**/*",
@@ -25,5 +26,5 @@
   //   "**/modules",
   //   "**/tasks"
   // ],
-  
+
 }

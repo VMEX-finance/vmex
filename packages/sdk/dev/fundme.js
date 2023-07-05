@@ -1,5 +1,5 @@
 // import { BigNumber, utils } from "ethers";
-
+// NOTE: This fundme file is hardcoded to work for mainnet forks only
 const { ethers, BigNumber } = require("ethers");
 const chai = require("chai");
 const { expect, assert } = require("chai");

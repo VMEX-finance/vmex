@@ -92,6 +92,7 @@ export const AaveConfig: IAaveConfiguration = {
     [eEthereumNetwork.buidlerevm]: {},
     [eEthereumNetwork.hardhat]: {},
     [eEthereumNetwork.coverage]: {},
+    [eEthereumNetwork.sepolia]: {},   // TODO: add sepolia assets
     [eEthereumNetwork.goerli]: {
       AAVE: '0x5010abCF8A1fbE56c096DCE9Bb2D29d63e141361',
       BAT: '0x6206Ae429677EE65bF5Ea172730ccEB61BD91CE7',

@@ -34,7 +34,7 @@ import 'solidity-coverage';
 import { fork } from 'child_process';
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true';
-const DEFAULT_BLOCK_GAS_LIMIT = 30000000; 
+const DEFAULT_BLOCK_GAS_LIMIT = 30000000;
 const DEFAULT_GAS_MUL = 5;
 const HARDFORK = 'merge';
 const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || '';
@@ -117,6 +117,7 @@ const buidlerConfig: HardhatUserConfig = {
     kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, 42),
     ropsten: getCommonNetworkConfig(eEthereumNetwork.ropsten, 3),
     goerli: getCommonNetworkConfig(eEthereumNetwork.goerli, 5),
+    sepolia: getCommonNetworkConfig(eEthereumNetwork.sepolia, 11155111),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
     tenderly: getCommonNetworkConfig(eEthereumNetwork.tenderly, 1),
     matic: getCommonNetworkConfig(ePolygonNetwork.matic, 137),

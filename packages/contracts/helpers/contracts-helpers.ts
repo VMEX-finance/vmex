@@ -22,7 +22,7 @@ import {
   eOptimismNetwork,
   iOptimismParamsPerNetwork,
 } from "./types";
-import { MintableERC20 } from "../types/MintableERC20";
+import { MintableERC20 } from "../types";
 import { Artifact } from "hardhat/types";
 import { Artifact as BuidlerArtifact } from "@nomiclabs/buidler/types";
 import { verifyEtherscanContract } from "./etherscan-verification";
@@ -96,7 +96,7 @@ export const getEthersSigners = async (): Promise<Signer[]> => {
     const [, ...users] = ethersSigners;
     return [await getDefenderRelaySigner(), ...users];
   }
-  cache = ethersSigners;
+  (cache as any) = ethersSigners;
   return ethersSigners;
 };
 
@@ -466,7 +466,7 @@ export const verifyContract = async (
 export const getContractAddressWithJsonFallback = async (
   id: string,
   pool: ConfigNames
-): Promise<tEthereumAddress> => {
+): Promise<tEthereumAddress | undefined> => {
   const poolConfig = loadPoolConfig(pool);
   const network = <eNetwork>DRE.network.name;
   const db = getDb();

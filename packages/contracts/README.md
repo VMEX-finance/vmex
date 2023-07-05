@@ -21,6 +21,16 @@ run `yarn console:localhost:fork` to start console that can interact with the ab
 
 Run `yarn vmex:mainnetfork:unit-tests` to test all localhost tests
 
+### How to deploy on Sepolia:
+
+Setup
+- Make sure your .env file has the SEPOLIA_ALCHEMY_KEY and MNEMONIC set
+- Fill up your wallet 0 with ~0.5 ETH, wallet 3 with ~0.05 ETH, and wallet 7 with ~0.05 ETH
+
+run `yarn vmex:sepolia:deploy`
+
+OPTIONAL: If the mock tokens are already deployed, use `getAllMockedTokens` instead of `deployAllMockTokens` inside the `buildTestEnv` function in the `contract-deployments.ts` file
+
 ### How to deploy on OP fork:
 
 run `yarn vmex:node:fork:optimism` in one terminal (starts up localhost network) as a fork

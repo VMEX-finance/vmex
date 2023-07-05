@@ -7,6 +7,9 @@ ALCHEMY_KEY= ""
 # alchemy key for optimism mainnet
 OP_ALCHEMY_KEY= ""
 
+# alchemy key for sepolia rpc
+SEPOLIA_ALCHEMY_KEY= ""
+
 # Optional Etherscan key, for automatize the verification of the contracts at Etherscan
 ETHERSCAN_KEY=""
 

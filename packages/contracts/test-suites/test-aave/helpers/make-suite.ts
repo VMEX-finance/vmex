@@ -1,5 +1,13 @@
 import { evmRevert, evmSnapshot, DRE } from "../../../helpers/misc-utils";
 import { Signer } from "ethers";
+import { solidity } from "ethereum-waffle";
+import chai from "chai";
+// @ts-ignore
+import bignumberChai from "chai-bignumber";
+import { almostEqual } from "./almost-equal";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { usingTenderly } from "../../../helpers/tenderly-utils";
+
 import {
   getLendingPool,
   getLendingPoolAddressesProvider,
@@ -28,30 +36,31 @@ import {
   eNetwork,
   tEthereumAddress,
 } from "../../../helpers/types";
+import { getEthersSigners } from "../../../helpers/contracts-helpers";
+import { getParamPerNetwork } from "../../../helpers/contracts-helpers";
+
 import { LendingPool } from "../../../types/LendingPool";
 import { AaveProtocolDataProvider } from "../../../types/AaveProtocolDataProvider";
 import { MintableERC20 } from "../../../types/MintableERC20";
 import { AToken } from "../../../types/AToken";
 import { LendingPoolConfigurator } from "../../../types/LendingPoolConfigurator";
-
-import chai from "chai";
-// @ts-ignore
-import bignumberChai from "chai-bignumber";
-import { almostEqual } from "./almost-equal";
 import { PriceOracle } from "../../../types/PriceOracle";
 import { LendingPoolAddressesProvider } from "../../../types/LendingPoolAddressesProvider";
 import { LendingPoolAddressesProviderRegistry } from "../../../types/LendingPoolAddressesProviderRegistry";
-import { getEthersSigners } from "../../../helpers/contracts-helpers";
-import { getParamPerNetwork } from "../../../helpers/contracts-helpers";
 import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
-import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, StakingRewardsMock, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, VmexToken, YearnTokenMocked } from "../../../types";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { usingTenderly } from "../../../helpers/tenderly-utils";
-import { isHardhatTestingStrategies } from "../../../helpers/configuration";
-import { deployMintableERC20 } from "../../../helpers/contracts-deployments";
+import {
+  AssetMappings,
+  UpgradeableBeacon,
+  ATokenMock,
+  IncentivesController,
+  StakingRewardsMock,
+  VariableDebtToken,
+  VMEXOracle,
+  VmexToken,
+  YearnTokenMocked,
+} from "../../../types";
 
 chai.use(bignumberChai());
 chai.use(almostEqual());
@@ -85,15 +94,11 @@ export interface TestEnv {
   tricrypto2: MintableERC20;
   yvTricrypto2: YearnTokenMocked;
   ayvTricrypto2: AToken;
-  tricrypto2Strategy: CrvLpStrategy;
   addressesProvider: LendingPoolAddressesProvider;
-  uniswapLiquiditySwapAdapter: UniswapLiquiditySwapAdapter;
-  uniswapRepayAdapter: UniswapRepayAdapter;
   registry: LendingPoolAddressesProviderRegistry;
   wethGateway: WETHGateway;
-  paraswapLiquiditySwapAdapter: ParaSwapLiquiditySwapAdapter;
-  aTokenBeacon: ATokenBeacon;
-  varDebtBeacon: VariableDebtTokenBeacon;
+  aTokenBeacon: UpgradeableBeacon;
+  varDebtBeacon: UpgradeableBeacon;
 
   // items for the incentives controller
   incentivesController: IncentivesController;
@@ -123,22 +128,19 @@ const testEnv: TestEnv = {
   dai: {} as MintableERC20,
   aDai: {} as AToken,
   usdc: {} as MintableERC20,
-  aUsdc: {} as  AToken,
-  varDebtUsdc: {} as  VariableDebtToken,
+  aUsdc: {} as AToken,
+  varDebtUsdc: {} as VariableDebtToken,
   aave: {} as MintableERC20,
   busd: {} as MintableERC20,
   usdt: {} as MintableERC20,
   tricrypto2: {} as MintableERC20,
   yvTricrypto2: {} as YearnTokenMocked,
   ayvTricrypto2: {} as AToken,
-  tricrypto2Strategy: {} as CrvLpStrategy,
   addressesProvider: {} as LendingPoolAddressesProvider,
-  uniswapLiquiditySwapAdapter: {} as UniswapLiquiditySwapAdapter,
-  uniswapRepayAdapter: {} as UniswapRepayAdapter,
   registry: {} as LendingPoolAddressesProviderRegistry,
   wethGateway: {} as WETHGateway,
-  aTokenBeacon: {} as ATokenBeacon,
-  varDebtBeacon: {} as VariableDebtTokenBeacon,
+  aTokenBeacon: {} as UpgradeableBeacon,
+  varDebtBeacon: {} as UpgradeableBeacon,
 
   incentivesController: {} as IncentivesController,
   vmexToken: {} as VmexToken,
@@ -150,9 +152,9 @@ const testEnv: TestEnv = {
 } as TestEnv;
 
 export interface MerkleLeaf {
-  userAddress: tEthereumAddress,
-  rewardToken: tEthereumAddress,
-  amountOwed: Number,
+  userAddress: tEthereumAddress;
+  rewardToken: tEthereumAddress;
+  amountOwed: Number;
 }
 
 export async function initializeMakeSuite() {
@@ -194,9 +196,12 @@ export async function initializeMakeSuite() {
 
   testEnv.helpersContract = await getAaveProtocolDataProvider();
 
-  testEnv.aTokenBeacon = await getATokenBeacon(await testEnv.addressesProvider.getATokenBeacon());
-  testEnv.varDebtBeacon = await getVariableDebtTokenBeacon(await testEnv.addressesProvider.getVariableDebtTokenBeacon());
-
+  testEnv.aTokenBeacon = await getATokenBeacon(
+    await testEnv.addressesProvider.getATokenBeacon()
+  );
+  testEnv.varDebtBeacon = await getVariableDebtTokenBeacon(
+    await testEnv.addressesProvider.getVariableDebtTokenBeacon()
+  );
 
   const allTokensT0 = await testEnv.helpersContract.getAllATokens("0");
   const aDaiAddress = allTokensT0.find(
@@ -247,14 +252,22 @@ export async function initializeMakeSuite() {
   )?.tokenAddress;
 
   if (!aDaiAddress || !aWEthAddress || !ayvAddress || !aUsdcAddress) {
-    console.log("cannot find all atokens")
+    console.log("cannot find all atokens");
     process.exit(1);
   }
-  if (!daiAddress || !usdcAddress || !aaveAddress || !wethAddress || !yvTricrypto2Address) {
-    console.log("cannot find all tokens")
+  if (
+    !daiAddress ||
+    !usdcAddress ||
+    !aaveAddress ||
+    !wethAddress ||
+    !yvTricrypto2Address
+  ) {
+    console.log("cannot find all tokens");
     process.exit(1);
   }
-  const varDebtUsdcAddress = await (await testEnv.pool.getReserveData(usdcAddress, "0")).variableDebtTokenAddress;
+  const varDebtUsdcAddress = await (
+    await testEnv.pool.getReserveData(usdcAddress, "0")
+  ).variableDebtTokenAddress;
 
   // const reservesTokensT1 = await testEnv.helpersContract.getAllReservesTokens(
   //   "1"
@@ -278,48 +291,56 @@ export async function initializeMakeSuite() {
   testEnv.dai = await getMintableERC20(daiAddress);
   testEnv.usdc = await getMintableERC20(usdcAddress);
   testEnv.aave = await getMintableERC20(aaveAddress);
-  testEnv.busd = await getMintableERC20(busdAddress)
-  testEnv.usdt = await getMintableERC20(usdtAddress)
+  testEnv.busd = await getMintableERC20(busdAddress);
+  testEnv.usdt = await getMintableERC20(usdtAddress);
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
   testEnv.yvTricrypto2 = await getYearnTokenMocked(yvTricrypto2Address);
   testEnv.ayvTricrypto2 = await getAToken(ayvAddress);
   testEnv.aUsdc = await getAToken(aUsdcAddress);
   testEnv.varDebtUsdc = await getVariableDebtToken(varDebtUsdcAddress);
-  console.log("Before incentives controller set in make suite")
+  console.log("Before incentives controller set in make suite");
   testEnv.incentivesController = await getIncentivesControllerProxy();
-  console.log("After incentives controller set in make suite as ", testEnv.incentivesController.address)
+  console.log(
+    "After incentives controller set in make suite as ",
+    testEnv.incentivesController.address
+  );
   testEnv.vmexToken = await getVmexToken();
 
   testEnv.incentivizedTokens = [
-    await getATokenMock({ slug: 'aDai' }),
-    await getATokenMock({ slug: 'aBusd' }),
-    await getATokenMock({ slug: 'aAave' }),
-    await getATokenMock({ slug: 'aUsdt' }),
-    await getATokenMock({ slug: 'aWeth' }),
-  ]
+    await getATokenMock({ slug: "aDai" }),
+    await getATokenMock({ slug: "aBusd" }),
+    await getATokenMock({ slug: "aAave" }),
+    await getATokenMock({ slug: "aUsdt" }),
+    await getATokenMock({ slug: "aWeth" }),
+  ];
 
   testEnv.rewardTokens = [testEnv.usdc, testEnv.dai];
 
   testEnv.stakingContracts = [
-    await getStakingRewardsMock({ slug: 'yaDai'}),
-    await getStakingRewardsMock({ slug: 'yaBusd'}),
-    await getStakingRewardsMock({ slug: 'yaAave'}),
-    await getStakingRewardsMock({ slug: 'yaUsdt'}),
-    await getStakingRewardsMock({ slug: 'yaWeth'}),
-    await getStakingRewardsMock({ slug: 'yaDaiCp'}),
-    await getStakingRewardsMock({ slug: 'yayvTricrypto2'}),
+    await getStakingRewardsMock({ slug: "yaDai" }),
+    await getStakingRewardsMock({ slug: "yaBusd" }),
+    await getStakingRewardsMock({ slug: "yaAave" }),
+    await getStakingRewardsMock({ slug: "yaUsdt" }),
+    await getStakingRewardsMock({ slug: "yaWeth" }),
+    await getStakingRewardsMock({ slug: "yaDaiCp" }),
+    await getStakingRewardsMock({ slug: "yayvTricrypto2" }),
   ];
 
-  testEnv.incentUnderlying = [testEnv.dai, testEnv.busd, testEnv.aave, testEnv.usdt]
+  testEnv.incentUnderlying = [
+    testEnv.dai,
+    testEnv.busd,
+    testEnv.aave,
+    testEnv.usdt,
+  ];
 
   testEnv.leafNodes = testEnv.users.map((user) => {
     return {
       userAddress: user.address,
       rewardToken: testEnv.usdc.address,
-      amountOwed: Number(0)
-    }
-  })
+      amountOwed: Number(0),
+    };
+  });
   // testEnv.tricrypto2 = await getMintableERC20(tricrypto2Address);
 
   //CURVE TODO: these are not deployed when running mainnet fork in localhost
