@@ -51,9 +51,8 @@ WRONG RESERVE ASSET SETUP:
       [
         poolAddress,
         reserveAssetAddress,
-        ZERO_ADDRESS, // Incentives Controller
-        `Aave variable debt bearing ${symbol}`,
-        `variableDebt${symbol}`,
+        0,
+        addressProvider.address
       ],
       verify
     );

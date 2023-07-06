@@ -1,3 +1,6 @@
+import AaveConfig from "@vmexfinance/contracts/markets/aave"
+import OptimismConfig from "@vmexfinance/contracts/markets/optimism"
+
 export const MAX_UINT_AMOUNT =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
@@ -103,103 +106,36 @@ export const TOKEN_PRICE_CONTRACTS = {
   ],
 };
 
-export const MAINNET_ASSET_MAPPINGS = new Map<string, string>([
-  ["AAVE", "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9"],
-  ["BAT", "0x0d8775f648430679a709e98d2b0cb6250d2887ef"],
-  ["BUSD", "0x4Fabb145d64652a948d72533023f6E7A623C7C53"],
-  ["DAI", "0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-  ["ENJ", "0xF629cBd94d3791C9250152BD8dfBDF380E2a3B9c"],
-  ["KNC", "0xdd974D5C2e2928deA5F71b9825b8b646686BD200"],
-  ["LINK", "0x514910771AF9Ca656af840dff83E8264EcF986CA"],
-  ["MANA", "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942"],
-  ["MKR", "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"],
-  ["REN", "0x408e41876cCCDC0F92210600ef50372656052a38"],
-  ["SNX", "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"],
-  ["SUSD", "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51"],
-  ["TUSD", "0x0000000000085d4780B73119b644AE5ecd22b376"],
-  ["UNI", "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"],
-  ["USDC", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-  ["USDT", "0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-  ["WBTC", "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
-  ["WETH", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
-  ["YFI", "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"],
-  ["ZRX", "0xE41d2489571d322189246DaFA5ebDe1F4699F498"],
-  ["TRICRYPTO2", "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff"],
-  ["THREEPOOL", "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"],
-  ["STETHETH", "0x06325440D014e39736583c165C2963BA99fAf14E"],
-  ["STETH", "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"],
-  ["FRAXUSDC", "0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC"],
-  ["FRAX3CRV", "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B"],
-  ["FRAX", "0x853d955aCEf822Db058eb8505911ED77F175b99e"],
-  ["BAL", "0xba100000625a3754423978a60c9317c58a424e3D"],
-  ["CRV", "0xD533a949740bb3306d119CC777fa900bA034cd52"],
-  ["CVX", "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B"],
-  ["BADGER", "0x3472A5A71965499acd81997a54BBA8D852C6E53d"],
-  ["LDO", "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32"],
-  ["ALCX", "0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF"],
-  ["1INCH", "0x111111111117dC0aa78b770fA6A738034120C302"],
-  ["YVTRICRYPTO2", "0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3"],
-  ["YVTHREEPOOL", "0x84E13785B5a27879921D6F685f041421C7F482dA"],
-  ["YVSTETHETH", "0x5B8C556B8b2a78696F0B9B830B3d67623122E270"],
-  ["YVFRAXUSDC", "0x1A5ebfF0E881Aec34837845e4D0EB430a1B4b737"],
-  ["YVFRAX3CRV", "0xb37094c1B5614Bd6EcE40AFb295C26F4377069d3"],
-]);
+const formatNetworkMappings = (
+  marketAssets: Map<string, string>,
+): [Map<string, string>, Map<string, string>] => {
+
+  return [
+    new Map(
+      Array.from(marketAssets, (entry) => [
+        entry[0].toUpperCase(),
+        entry[1],
+      ])
+    ),
+    new Map(
+      Array.from(marketAssets, (entry) => [
+        entry[1].toLowerCase(),
+        entry[0],
+      ])
+    ),
+  ];
+};
+
+export const [MAINNET_ASSET_MAPPINGS, REVERSE_MAINNET_ASSET_MAPPINGS] =
+  formatNetworkMappings(AaveConfig.ReserveAssets['main']);
+
+export const [OPTIMISM_ASSET_MAPPINGS, REVERSE_OPTIMISM_ASSET_MAPPINGS] =
+  formatNetworkMappings(OptimismConfig.ReserveAssets['optimism']);
 
 export const flipAndLowerCase = (
   data: Map<string, string>
 ): Map<string, string> =>
   new Map(Array.from(data, (entry) => [entry[1].toLowerCase(), entry[0]]));
-
-export const REVERSE_MAINNET_ASSET_MAPPINGS = flipAndLowerCase(
-  MAINNET_ASSET_MAPPINGS
-);
-
-export const OPTIMISM_ASSET_MAPPINGS = new Map<string, string>([
-  ["DAI", "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"],
-  ["SNX", "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4"],
-  ["SUSD", "0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9"],
-  ["USDC", "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"],
-  ["USDT", "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"],
-  ["WBTC", "0x68f180fcCe6836688e9084f035309E29Bf0A2095"],
-  ["WETH", "0x4200000000000000000000000000000000000006"],
-  ["WSTETH", "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb"],
-  ["FRAX", "0x2E3D870790dC77A83DD1d18184Acc7439A53f475"],
-  ["OP", "0x4200000000000000000000000000000000000042"],
-  ["RETH", "0x9Bcef72be871e61ED4fBbc7630889beE758eb81D"],
-  ["THREECRV", "0x1337BedC9D22ecbe766dF105c9623922A27963EC"],
-  ["SUSD3CRV", "0x061b87122Ed14b9526A813209C8a59a633257bAb"],
-  ["WSTETHCRV", "0xEfDE221f306152971D8e9f181bFe998447975810"],
-  ["MOOCURVEFSUSD", "0x107Dbf9c9C0EF2Df114159e5C7DC2baf7C444cFF"],
-  ["MOOCURVEWSTETH", "0x0892a178c363b4739e5Ac89E9155B9c30214C0c0"],
-  ["VELO_WSTETHWETH", "0xBf205335De602ac38244F112d712ab04CB59A498"],
-  ["MOO_VELO_WSTETHWETH", "0xcAdC68d5834898D54929E694eD19e833e0117694"],
-  ["VELO_USDCSUSD", "0xd16232ad60188B68076a235c65d692090caba155"],
-  ["MOO_VELO_USDCSUSD", "0x2232455bf4622002c1416153EE59fd32B239863B"],
-  ["VELO_ETHUSDC", "0x79c912FEF520be002c2B6e57EC4324e260f38E50"],
-  ["MOO_VELO_ETHUSDC", "0xB708038C1b4cF9f91CcB918DAD1B9fD757ADa5C1"],
-  ["VELO_OPETH", "0xcdd41009E74bD1AE4F7B2EeCF892e4bC718b9302"],
-  ["MOO_VELO_OPETH", "0xC9737c178d327b410068a1d0ae2D30ef8e428754"],
-  ["VELO_ETHSNX", "0xffb6c35960b23989037c8c391facebc8a17de970"],
-  ["MOO_VELO_ETHSNX", "0x40324434a0b53dd1ED167Ba30dcB6B4bd7a9536d"],
-  ["VELO_OPUSDC", "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd"],
-  ["MOO_VELO_OPUSDC", "0x613f54c8836FD2C09B910869AC9d4de5e49Db1d8"],
-  ["VELO_DAIUSDC", "0x4F7ebc19844259386DBdDB7b2eB759eeFc6F8353"],
-  ["MOO_VELO_DAIUSDC", "0x43F6De3D9fB0D5EED93d7E7E14A8A526B98f8A58"],
-  ["VELO_FRAXUSDC", "0xAdF902b11e4ad36B227B84d856B229258b0b0465"],
-  ["MOO_VELO_FRAXUSDC", "0x587c3e2e17c59b09B120fc2D27E0eAd6edD2C71D"],
-  ["VELO_USDTUSDC", "0xe08d427724d8a2673FE0bE3A81b7db17BE835B36"],
-  ["MOO_VELO_USDTUSDC", "0x0495a700407975b2641Fa61Aef5Ccd0106F525Cc"],
-  ["BEETHOVEN_WSTETHETH", "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2"],
-  ["BEETHOVEN_RETHETH", "0x4Fd63966879300caFafBB35D157dC5229278Ed23"],
-  ["YVUSDC", "0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2"],
-  ["YVUSDT", "0xFaee21D0f0Af88EE72BB6d68E54a90E6EC2616de"],
-  ["YVDAI", "0x65343F414FFD6c97b0f6add33d16F6845Ac22BAc"],
-  ["YVWETH", "0x5B977577Eb8a480f63e11FC615D6753adB8652Ae"],
-]);
-
-export const REVERSE_OPTIMISM_ASSET_MAPPINGS = flipAndLowerCase(
-  OPTIMISM_ASSET_MAPPINGS
-);
 
 type Token<T> = {
   [k in keyof T]?: {
@@ -207,6 +143,37 @@ type Token<T> = {
     decimals: string;
   };
 };
+
+export const findCustomTokenAddresses = (
+  symbols: string[],
+  network: "goerli" | "sepolia"
+): Map<string, string> => {
+  const addressesMap = new Map();
+  symbols.forEach((symbol) => {
+    if (!deployments[symbol] || !deployments[symbol][network]) return;
+    addressesMap.set(symbol, deployments[symbol][network].address);
+  });
+  return addressesMap;
+};
+
+// NOTE: we deploy common tokens on testnets
+// Symbol => Address mapping of custom deployed tokens
+export const GOERLI_CUSTOM_ASSET_MAPPINGS = findCustomTokenAddresses(
+  [...MAINNET_ASSET_MAPPINGS.keys()],
+  "goerli"
+);
+export const REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS = flipAndLowerCase(
+  GOERLI_CUSTOM_ASSET_MAPPINGS
+);
+console.log("goerli reverse mappings", REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS);
+export const SEPOLIA_CUSTOM_ASSET_MAPPINGS = findCustomTokenAddresses(
+  [...MAINNET_ASSET_MAPPINGS.keys()],
+  "sepolia"
+);
+export const REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS = flipAndLowerCase(
+  SEPOLIA_CUSTOM_ASSET_MAPPINGS
+);
+
 
 //note that this is mainnet
 export const TOKEN: Token<typeof TOKEN_PRICE> = {
@@ -293,35 +260,4 @@ export const TOKEN: Token<typeof TOKEN_PRICE> = {
 };
 
 import Deployments from "./deployed-contracts.json";
-import { convertSymbolToAddress } from "./utils";
 export const deployments = Deployments;
-
-export const findCustomTokenAddresses = (
-  symbols: string[],
-  network: "goerli" | "sepolia"
-): Map<string, string> => {
-  const addressesMap = new Map();
-  symbols.forEach((symbol) => {
-    if (!deployments[symbol] || !deployments[symbol][network]) return;
-    addressesMap.set(symbol, deployments[symbol][network].address);
-  });
-  return addressesMap;
-};
-
-// NOTE: we deploy common tokens on testnets
-// Symbol => Address mapping of custom deployed tokens
-export const GOERLI_CUSTOM_ASSET_MAPPINGS = findCustomTokenAddresses(
-  [...MAINNET_ASSET_MAPPINGS.keys()],
-  "goerli"
-);
-export const REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS = flipAndLowerCase(
-  GOERLI_CUSTOM_ASSET_MAPPINGS
-);
-console.log("goerli reverse mappings", REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS)
-export const SEPOLIA_CUSTOM_ASSET_MAPPINGS = findCustomTokenAddresses(
-  [...MAINNET_ASSET_MAPPINGS.keys()],
-  "sepolia"
-);
-export const REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS = flipAndLowerCase(
-  SEPOLIA_CUSTOM_ASSET_MAPPINGS
-);

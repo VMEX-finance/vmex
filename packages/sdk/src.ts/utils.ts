@@ -2,12 +2,14 @@ import { ethers, BigNumber } from "ethers";
 import _ from "lodash";
 import {
   deployments,
+  GOERLI_CUSTOM_ASSET_MAPPINGS,
   MAINNET_ASSET_MAPPINGS,
   OPTIMISM_ASSET_MAPPINGS,
   REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS,
   REVERSE_MAINNET_ASSET_MAPPINGS,
   REVERSE_OPTIMISM_ASSET_MAPPINGS,
   REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS,
+  SEPOLIA_CUSTOM_ASSET_MAPPINGS,
 } from "./constants";
 import {
   getLendingPoolConfiguratorProxy,
@@ -85,6 +87,28 @@ export function convertSymbolToAddress(asset: string, network?: string) {
   throw Error(`Asset=${asset} not found on network ${network}`);
 }
 
+export function getAllAssetSymbols(network?: string): string[] {
+  if (!network) {
+    // assume mainnet if network not given
+    return Array.from(MAINNET_ASSET_MAPPINGS.keys());
+  }
+  switch (network) {
+    // goerli, optimism_goerli, sepolia will use our custom depl
+    case "goerli":
+      return Array.from(GOERLI_CUSTOM_ASSET_MAPPINGS.keys());
+    case "sepolia":
+      return Array.from(SEPOLIA_CUSTOM_ASSET_MAPPINGS.keys());
+    // forks and networks will use real addresses
+    case "localhost":
+    case "main":
+      return Array.from(MAINNET_ASSET_MAPPINGS.keys());
+    case "optimism_localhost":
+    case "optimism":
+      return Array.from(OPTIMISM_ASSET_MAPPINGS.keys());
+  }
+  throw Error(`network=${network} not found`);
+}
+
 export function getContractAddress(contractName: string, network: string) {
   return deployments[contractName][network].address;
 }
@@ -92,7 +116,8 @@ export function getContractAddress(contractName: string, network: string) {
 export function convertListSymbolToAddress(assets: string[], network?: string) {
   return assets.map((el) => convertSymbolToAddress(el, network));
 }
-export async function getAssetPrices(params?: {
+
+async function getAssetPricesContractCall(params?: {
   assets: string[];
   network?: string;
   test?: boolean;
@@ -132,6 +157,26 @@ export async function getAssetPrices(params?: {
   await cache.setItem(cacheKey, assetPrices, { ttl: 60 });
 
   return assetPrices;
+}
+export async function getAssetPrices(params?: {
+  assets: string[];
+  network?: string;
+  test?: boolean;
+  providerRpc?: string;
+}): Promise<Map<string, PriceData>> {
+  switch(params.network) {
+    // subgraph asset prices not work for these network
+    case "goerli":
+    case "sepolia":
+    case "localhost":
+    case "optimism_localhost":
+      return getAssetPricesContractCall(params);
+
+    case "optimism":
+    case "main":
+      // TODO: get asset prices from subgraph
+      return;
+  }
 }
 
 /**
