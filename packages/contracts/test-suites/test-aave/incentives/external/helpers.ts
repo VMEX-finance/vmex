@@ -23,7 +23,7 @@ export async function harvestAndUpdate(testEnv: TestEnv) {
 
             const stakingContract = new ethers.Contract(stakingAddress, stakingAbi.abi);
             const amtBefore = await usdc.balanceOf(incentivesController.address);
-            await incentivesController.harvestReward(stakingAddress, 3, [usdc.address]);
+            await incentivesController.harvestReward(stakingAddress, [usdc.address]);
             const amtAfter = await usdc.balanceOf(incentivesController.address);
             const earned = Number(amtAfter) - Number(amtBefore);
             // console.log("Amount earned: ", earned);
