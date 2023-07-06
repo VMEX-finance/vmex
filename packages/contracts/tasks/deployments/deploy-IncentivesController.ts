@@ -42,6 +42,35 @@ task(`deploy-${CONTRACT_NAME}`, `Deploy and initialize ${CONTRACT_NAME}`)
     console.log("Current incentives controller", await addressesProvider.getIncentivesController());
     // await addressesProvider.setIncentivesController(incentivesController.address);
     // console.log("New incentives controller", await addressesProvider.getIncentivesController());
+
+    await incentivesController.setStakingType(
+      [
+        "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b",
+        "0xf66932f225ca48856b7f97b6f060f4c0d244af8e",
+        "0xf8126ef025651e1b313a6893fcf4034f4f4bd2aa",
+        "0xe35fec3895dcecc7d2a91e8ae4ff3c0d43ebffe0",
+        //velo
+        "0x131Ae347E654248671Afc885F0767cB605C065d7",
+        "0xE2CEc8aB811B648bA7B1691Ce08d5E800Dd0a60a",
+        "0x2f733b00127449fcF8B5a195bC51Abb73B7F7A75",
+        "0x1C5472efDF8CE67259D6f44ef548c68703797fA2",
+        "0x0299d40E99F2a5a1390261f5A71d13C3932E214C"
+      ], 
+      [
+        1,
+        1,
+        1,
+        1,
+
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    );
+
+
     const yvUSDCDat = await lendingPool.getReserveData("0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2", 0);
 
     await incentivesController.beginStakingReward(yvUSDCDat.aTokenAddress, "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b");

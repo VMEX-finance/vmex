@@ -33,18 +33,6 @@ contract MockIncentivesController is
 
   uint256 public upgradedIC;
 
-  modifier onlyGlobalAdmin() {
-      _onlyGlobalAdmin();
-      _;
-  }
-
-  function _onlyGlobalAdmin() internal view {
-      require(
-          addressesProvider.getGlobalAdmin() == msg.sender,
-          Errors.CALLER_NOT_GLOBAL_ADMIN
-      );
-  }
-
 
   /**
    * @dev Called by the proxy contract

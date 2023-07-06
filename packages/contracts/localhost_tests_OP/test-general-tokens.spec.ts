@@ -330,7 +330,7 @@ makeSuite(
             const OP = new ethers.Contract("0x7D2382b1f8Af621229d33464340541Db362B4907", WETHabi)
             const balanceBefore = await OP.connect(signer).balanceOf(incentivesController.address);
             const receipt = await waitForTx(
-              await incentivesController.harvestReward("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b", 3, ["0x7D2382b1f8Af621229d33464340541Db362B4907"])
+              await incentivesController.harvestReward("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b", ["0x7D2382b1f8Af621229d33464340541Db362B4907"])
             );
 
             const balanceAfter = await OP.connect(signer).balanceOf(incentivesController.address);
@@ -340,9 +340,7 @@ makeSuite(
             const emitted = receipt.events || [];
 
             eventChecker(emitted[2], 'HarvestedReward', [
-              "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b",
-                ["0x7D2382b1f8Af621229d33464340541Db362B4907"],
-                [reward]
+              "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b"
             ]);
           });
 
@@ -362,7 +360,7 @@ makeSuite(
             const VELO = new ethers.Contract(veloAdd, WETHabi)
             const balanceBefore = await VELO.connect(signer).balanceOf(incentivesController.address);
             const receipt = await waitForTx(
-              await incentivesController.harvestReward("0x131Ae347E654248671Afc885F0767cB605C065d7", 5, [veloAdd])
+              await incentivesController.harvestReward("0x131Ae347E654248671Afc885F0767cB605C065d7", [veloAdd])
             );
 
             const balanceAfter = await VELO.connect(signer).balanceOf(incentivesController.address);
@@ -371,9 +369,7 @@ makeSuite(
             const emitted = receipt.events || [];
 
             eventChecker(emitted[2], 'HarvestedReward', [
-              "0x131Ae347E654248671Afc885F0767cB605C065d7",
-                [veloAdd],
-                [reward]
+              "0x131Ae347E654248671Afc885F0767cB605C065d7"
             ]);
           });
 

@@ -8,11 +8,13 @@ import { BigNumber, ethers } from 'ethers';
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from '../../../../helpers/constants';
 import {harvestAndUpdate} from './helpers';
 import { getAToken } from '../../../../helpers/contracts-getters';
+import { ProtocolErrors } from '../../../../helpers/types';
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 
 
 makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
+  const {CALLER_NOT_GLOBAL_ADMIN} = ProtocolErrors;
   before('Before', async () => {
     const { dai, assetMappings, busd, usdt, weth, addressesProvider, incentivesController } = testEnv; 
     // await addressesProvider.setIncentivesController(incentivesController.address);
@@ -49,10 +51,15 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   it('Reject reward config not from manager', async () => {
     const { incentivesController, users, rewardTokens, incentivizedTokens, stakingContracts, incentUnderlying } = testEnv;
     await expect(
+      incentivesController.connect(users[2].signer).setStakingType(
+          [stakingContracts[0].address],
+          [1]
+    )).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
+    await expect(
       incentivesController.connect(users[2].signer).beginStakingReward(
         incentivizedTokens[0].address, 
           stakingContracts[0].address
-    )).to.be.revertedWith('Only manager');
+    )).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
 
     
 
@@ -60,7 +67,7 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
         incentivesController.connect(users[2].signer).batchBeginStakingRewards(
           incentivizedTokens.slice(0, 2).map(t => t.address),
             stakingContracts.slice(0, 2).map(t => t.address)
-      )).to.be.revertedWith('Only manager');
+      )).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
   });
 
   it('Configure single asset reward', async () => {
@@ -68,7 +75,10 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
 
     let assetData = await incentivesController.getStakingContract(ayvTricrypto2.address);
     expect(assetData).equal(ZERO_ADDRESS)
-
+    await incentivesController.setStakingType(
+      [stakingContracts[6].address],
+      [1]
+    );
     await incentivesController.beginStakingReward(
       ayvTricrypto2.address, 
       stakingContracts[6].address
@@ -81,6 +91,10 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   it('Configure batch assets, fail on inconsistent parameter lengths', async () => {
     const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, usdc, busd, aave, incentivizedTokens } = testEnv;
     await incentivizedTokens[1].setTranche(0); //technically they are already 0?
+    await incentivesController.setStakingType(
+      stakingContracts.slice(1, 3).map(t => t.address),
+      [1,1]
+    );
     await expect(
         incentivesController.batchBeginStakingRewards(
           incentivizedTokens.slice(0, 1).map(t => t.address),
@@ -118,7 +132,10 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   it('Configure asset reward with multiple staking contracts and with liquidity', async () => {
     const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, dai, users, ayvTricrypto2, yvTricrypto2, pool } = testEnv;
     
-
+    await incentivesController.setStakingType(
+      [stakingContracts[5].address, stakingContracts[0].address],
+      [1, 1]
+    );
     await expect(incentivesController.beginStakingReward(
       ayvTricrypto2.address, 
       stakingContracts[5].address
