@@ -60,6 +60,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     // await addressesProvider.setIncentivesController(incentivesController.address);
     const staking = new ethers.Contract(stakingContracts[6].address,stakingAbi.abi)
     console.log("try beginning staking reward");
+    await incentivesController.setStakingType([stakingContracts[6].address],[1]);
     await incentivesController.beginStakingReward(ayvTricrypto2.address, stakingContracts[6].address);
     console.log("after staking rewards begin");
 

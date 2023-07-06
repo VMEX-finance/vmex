@@ -23,7 +23,7 @@ import {
 import { BigNumberish, ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
-makeSuite('Upgradeability', (testEnv: TestEnv) => {
+makeSuite('Upgradeability Incentives', (testEnv: TestEnv) => {
   const { CALLER_NOT_GLOBAL_ADMIN } = ProtocolErrors;
   const stakingAbi = require("../../artifacts/contracts/mocks/StakingRewardsMock.sol/StakingRewardsMock.json")
   let newIncentivesControllerAddress: string;
@@ -37,8 +37,6 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     const incentivesInstance = await deployMockIncentivesController();
     newIncentivesControllerAddress = incentivesInstance.address;
     // newStableTokenAddress = stableDebtTokenInstance.address;
-
-    console.log("beginning manager: ", await incentivesController.manager());
 
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
     // make it use the chainlink aggregator for this tests
@@ -92,8 +90,8 @@ makeSuite('Upgradeability', (testEnv: TestEnv) => {
     // const newIncentivesController = await getMockIncentivesControllerImpl(incentivesController.address);
     const staking = new ethers.Contract(stakingContracts[6].address,stakingAbi.abi)
     // await addressesProvider.setIncentivesController(incentivesController.address);
-    console.log("try beginning staking reward with manager ", await incentivesController.manager());
 
+    await incentivesController.setStakingType([stakingContracts[6].address],[1]);
     await incentivesController.beginStakingReward(ayvTricrypto2.address, stakingContracts[6].address);
     console.log("after staking rewards begin");
 
