@@ -11,7 +11,7 @@ import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddres
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
-import {DataTypes} from '../libraries/types/DataTypes.sol';
+import {Errors} from "../libraries/helpers/Errors.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /// @title VMEX External Rewards Distributor.
@@ -21,62 +21,145 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   using SafeERC20 for IERC20;
 
   mapping(address => address) internal stakingData; // incentivized aToken => address of staking contract
-  address public manager;
+  mapping(address => StakingType) internal stakingTypes; // staking contract => type of staking contract
   ILendingPoolAddressesProvider public addressesProvider;
 
   bytes32 public currRoot; // The merkle tree's root of the current rewards distribution.
-  bytes32 public prevRoot; // The merkle tree's root of the previous rewards distribution.
   mapping(address => mapping(address => uint256)) public claimed; // The rewards already claimed. account -> amount.
 
   uint256[40] __gap_ExternalRewardDistributor;
 
+  modifier onlyGlobalAdmin() {
+      _onlyGlobalAdmin();
+      _;
+  }
+
+  function _onlyGlobalAdmin() internal view {
+      require(
+          addressesProvider.getGlobalAdmin() == msg.sender,
+          Errors.CALLER_NOT_GLOBAL_ADMIN
+      );
+  }
+
   function __ExternalRewardDistributor_init(address _addressesProvider) internal onlyInitializing {
     addressesProvider = ILendingPoolAddressesProvider(_addressesProvider);
-    manager = addressesProvider.getGlobalAdmin();
   }
 
-  modifier onlyManager() {
-    require(msg.sender == manager, 'Only manager');
-    _;
+  /******** External functions ********/
+
+  function batchBeginStakingRewards(
+      address[] calldata aTokens,
+      address[] calldata stakingContracts
+  ) external onlyGlobalAdmin {
+    require(aTokens.length == stakingContracts.length, "Malformed input");
+
+    for(uint i = 0; i < aTokens.length; i++) {
+        beginStakingReward(aTokens[i], stakingContracts[i]);
+    }
   }
 
-  function stakingExists(address aToken) internal view returns (bool) {
-    return stakingData[aToken] != address(0);
+  /**
+   * @dev Called by the global admins to approve and set the type of the staking contract
+   * @param _stakingTypes The type of the staking contract
+   * @param _stakingContracts The staking contract
+   **/
+  function setStakingType(
+    address[] calldata _stakingContracts,
+    StakingType[] calldata _stakingTypes
+  ) public onlyGlobalAdmin { //if tranches want to activate they need to talk to us first
+    require(_stakingContracts.length == _stakingTypes.length, "length mismatch");
+    for(uint i = 0; i < _stakingContracts.length; i++) {
+        stakingTypes[_stakingContracts[i]] = _stakingTypes[i];
+    }
   }
 
-  function stake(address aToken, uint256 amount) internal {
-    address assetMappings = addressesProvider.getAssetMappings();
+  /**
+   * @dev Removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
+   * @param aToken The address of the aToken that wants to exit the staking contract
+   **/
+  function removeStakingReward(address aToken) external onlyGlobalAdmin {
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
-    DataTypes.ReserveAssetType assetType = IAssetMappings(assetMappings).getAssetType(underlying);
-    address stakingContract = stakingData[aToken];
 
-    if(assetType == DataTypes.ReserveAssetType.VELODROME) {
-      IVelodromeStakingRewards(stakingContract).deposit(amount, 0);
+    uint256 amount = IERC20(aToken).totalSupply();
+    if(amount!=0){
+      unstake(aToken, amount);
+      IERC20(underlying).safeTransfer(aToken, amount);
     }
-    else if(assetType == DataTypes.ReserveAssetType.YEARN) {
-      IYearnStakingRewards(stakingContract).stake(amount);
-    }
-    else {
-      revert("Asset type has no valid staking");
-    }
+    stakingData[aToken] = address(0);
+
+    //event
+    emit StakingRemoved(aToken);
   }
 
-  function unstake(address aToken, uint256 amount) internal {
-    address assetMappings = addressesProvider.getAssetMappings();
-    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
-    DataTypes.ReserveAssetType assetType = IAssetMappings(assetMappings).getAssetType(underlying);
-    address stakingContract = stakingData[aToken];
-
-    if(assetType == DataTypes.ReserveAssetType.VELODROME) {
-      IVelodromeStakingRewards(stakingContract).withdraw(amount);
-    }
-    else if(assetType == DataTypes.ReserveAssetType.YEARN) {
-      IYearnStakingRewards(stakingContract).withdraw(amount);
-    }
-    else {
-      revert("Asset type has no valid staking");
-    }
+  /**
+     * @dev harvests rewards in a specific staking contract, and emits an event for subgraph to track rewards claiming to distribute to users
+     * anyone can call this function to harvest
+     * @param stakingContract The contract that staked the tokens and collected rewards
+     * @param rewardTokens List of reward tokens to claim. For yearn, use the yv Vault that was originally staked in the stakingContract
+     **/
+  function harvestReward(address stakingContract, address[] memory rewardTokens) external {
+      if(stakingTypes[stakingContract] == StakingType.VELODROME_V1) {
+        IVelodromeStakingRewards(stakingContract).getReward(address(this), rewardTokens);
+        emit HarvestedReward(stakingContract);
+      }
+      else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
+        for(uint i = 0;i<rewardTokens.length;++i) {
+          IYearnStakingRewards(stakingContract).getReward();
+        }
+        emit HarvestedReward(stakingContract);
+      }
+      else {
+        revert("Invalid staking contract");
+      }
   }
+
+  function rescueRewardTokens(IERC20 reward, address receiver) external onlyGlobalAdmin {
+    reward.safeTransfer(receiver, reward.balanceOf(address(this)));
+  }
+
+  /// @notice Updates the current merkle tree's root.
+  /// @param _newRoot The new merkle tree's root.
+  function updateRoot(bytes32 _newRoot) external onlyGlobalAdmin {
+      currRoot = _newRoot;
+      emit RootUpdated(_newRoot);
+  }
+
+  /// @notice Claims rewards.
+  /// @param _account The address of the claimer.
+  /// @param _rewardToken The address of the reward token.
+  /// @param _claimable The overall claimable amount of token rewards.
+  /// @param _proof The merkle proof that validates this claim.
+  function claim(
+      address _account,
+      address _rewardToken,
+      uint256 _claimable,
+      bytes32[] calldata _proof
+  ) external {
+      bytes32 candidateRoot = MerkleProof.processProof(
+          _proof,
+          keccak256(abi.encodePacked(_account, _rewardToken, _claimable))
+      );
+      if (candidateRoot != currRoot) revert("ProofInvalidOrExpired");
+
+      uint256 alreadyClaimed = claimed[_account][_rewardToken];
+      if (_claimable <= alreadyClaimed) revert("AlreadyClaimed");
+
+      uint256 amount;
+      unchecked {
+          amount = _claimable - alreadyClaimed;
+      }
+
+      claimed[_account][_rewardToken] = _claimable;
+
+      IERC20(_rewardToken).safeTransfer(_account, amount);
+      emit RewardsClaimed(_account, amount);
+  }
+
+  function getStakingContract(address aToken) external view returns (address stakingContract) {
+      return stakingData[aToken];
+  }
+
+  /******** Public functions ********/
 
   /**
    * @dev Called by the tranche admins (with approval from manager) to specify that aToken has an external reward
@@ -86,10 +169,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function beginStakingReward(
     address aToken,
     address stakingContract
-  ) public onlyManager { //if tranches want to activate they need to talk to us first
+  ) public onlyGlobalAdmin { //if tranches want to activate they need to talk to us first
     address assetMappings = addressesProvider.getAssetMappings();
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     
+    require(stakingTypes[stakingContract] != StakingType.NOT_SET, "staking contract is not approved");
     require(!stakingExists(aToken), "Cannot add staking reward for a token that already has staking");
     require(!IAssetMappings(assetMappings).getAssetBorrowable(underlying), "Underlying cannot be borrowable for external rewards");
 
@@ -109,33 +193,38 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     emit RewardConfigured(aToken, stakingContract, amount);
   }
 
-  function batchBeginStakingRewards(
-      address[] calldata aTokens,
-      address[] calldata stakingContracts
-  ) external onlyManager {
-    require(aTokens.length == stakingContracts.length, "Malformed input");
+  /******** Internal functions ********/
 
-    for(uint i = 0; i < aTokens.length; i++) {
-        beginStakingReward(aTokens[i], stakingContracts[i]);
+  function stakingExists(address aToken) internal view returns (bool) {
+    return stakingData[aToken] != address(0);
+  }
+
+  function stake(address aToken, uint256 amount) internal {
+    address stakingContract = stakingData[aToken];
+
+    if(stakingTypes[stakingContract] == StakingType.VELODROME_V1) {
+      IVelodromeStakingRewards(stakingContract).deposit(amount, 0);
+    }
+    else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
+      IYearnStakingRewards(stakingContract).stake(amount);
+    }
+    else {
+      revert("Asset type has no valid staking");
     }
   }
 
-  /**
-   * @dev Removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
-   * @param aToken The address of the aToken that wants to exit the staking contract
-   **/
-  function removeStakingReward(address aToken) external onlyManager {
-    address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
+  function unstake(address aToken, uint256 amount) internal {
+    address stakingContract = stakingData[aToken];
 
-    uint256 amount = IERC20(aToken).totalSupply();
-    if(amount!=0){
-      unstake(aToken, amount);
-      IERC20(underlying).safeTransfer(aToken, amount);
+    if(stakingTypes[stakingContract] == StakingType.VELODROME_V1) {
+      IVelodromeStakingRewards(stakingContract).withdraw(amount);
     }
-    stakingData[aToken] = address(0);
-
-    //event
-    emit StakingRemoved(aToken);
+    else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
+      IYearnStakingRewards(stakingContract).withdraw(amount);
+    }
+    else {
+      revert("Asset type has no valid staking");
+    }
   }
 
   function onDeposit(
@@ -169,87 +258,4 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     emit UserTransfer(user, msg.sender, amount, sender);
   }
 
-  function getStakingContract(address aToken) external view returns (address stakingContract) {
-      return stakingData[aToken];
-  }
-
-  /**
-     * @dev harvests rewards in a specific staking contract, and emits an event for subgraph to track rewards claiming to distribute to users
-     * anyone can call this function to harvest
-     * @param stakingContract The contract that staked the tokens and collected rewards
-     * @param assetType The type of the asset (determines the abi of the staking contract)
-     * @param rewardTokens List of reward tokens to claim. For yearn, use the yv Vault that was originally staked in the stakingContract
-     **/
-  function harvestReward(address stakingContract, DataTypes.ReserveAssetType assetType, address[] memory rewardTokens) external {
-
-      uint256[] memory earned = new uint256[](rewardTokens.length);
-      if(assetType == DataTypes.ReserveAssetType.VELODROME) {
-        uint256[] memory balanceBefore = new uint256[](rewardTokens.length);
-        for(uint256 i = 0;i<rewardTokens.length;++i) {
-          balanceBefore[i] = IERC20(rewardTokens[i]).balanceOf(address(this));
-        }
-        
-        IVelodromeStakingRewards(stakingContract).getReward(address(this), rewardTokens);
-
-        for(uint256 i = 0;i<rewardTokens.length;++i) {
-          earned[i] = IERC20(rewardTokens[i]).balanceOf(address(this)) - balanceBefore[i];
-        }
-
-        emit HarvestedReward(stakingContract, rewardTokens, earned);
-      }
-      else if(assetType == DataTypes.ReserveAssetType.YEARN) {
-        for(uint i = 0;i<rewardTokens.length;++i) {
-          uint256 balanceBefore = IERC20(rewardTokens[i]).balanceOf(address(this));
-          IYearnStakingRewards(stakingContract).getReward();
-          earned[i] = IERC20(rewardTokens[i]).balanceOf(address(this)) - balanceBefore;
-        }
-        emit HarvestedReward(stakingContract, rewardTokens, earned);
-      }
-      else {
-        revert("Asset type has no valid staking");
-      }
-  }
-
-  function rescueRewardTokens(IERC20 reward, address receiver) external onlyManager {
-    reward.safeTransfer(receiver, reward.balanceOf(address(this)));
-  }
-
-  /// @notice Updates the current merkle tree's root.
-  /// @param _newRoot The new merkle tree's root.
-  function updateRoot(bytes32 _newRoot) external onlyManager {
-      prevRoot = currRoot;
-      currRoot = _newRoot;
-      emit RootUpdated(_newRoot);
-  }
-
-  /// @notice Claims rewards.
-  /// @param _account The address of the claimer.
-  /// @param _rewardToken The address of the reward token.
-  /// @param _claimable The overall claimable amount of token rewards.
-  /// @param _proof The merkle proof that validates this claim.
-  function claim(
-      address _account,
-      address _rewardToken,
-      uint256 _claimable,
-      bytes32[] calldata _proof
-  ) external {
-      bytes32 candidateRoot = MerkleProof.processProof(
-          _proof,
-          keccak256(abi.encodePacked(_account, _rewardToken, _claimable))
-      );
-      if (candidateRoot != currRoot && candidateRoot != prevRoot) revert("ProofInvalidOrExpired");
-
-      uint256 alreadyClaimed = claimed[_account][_rewardToken];
-      if (_claimable <= alreadyClaimed) revert("AlreadyClaimed");
-
-      uint256 amount;
-      unchecked {
-          amount = _claimable - alreadyClaimed;
-      }
-
-      claimed[_account][_rewardToken] = _claimable;
-
-      IERC20(_rewardToken).safeTransfer(_account, amount);
-      emit RewardsClaimed(_account, amount);
-  }
 }

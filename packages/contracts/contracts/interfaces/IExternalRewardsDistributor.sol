@@ -22,7 +22,13 @@ interface IExternalRewardsDistributor {
     event UserWithdraw(address indexed user, address indexed aToken, uint256 amount);
     event UserTransfer(address indexed user, address indexed aToken, uint256 amount, bool sender);
 
-    event HarvestedReward(address indexed stakingContract, address[] rewardTokens, uint256[] earned);
+    event HarvestedReward(address indexed stakingContract);
+
+    enum StakingType {
+        NOT_SET, // unset value of 0 can be used to delineate which staking contracts have been set
+        YEARN_OP,
+        VELODROME_V1
+    }
 
     function getStakingContract(address aToken) external view
     returns (address);

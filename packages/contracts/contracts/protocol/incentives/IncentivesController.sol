@@ -31,19 +31,6 @@ contract IncentivesController is
 
   address public REWARDS_VAULT;
 
-  modifier onlyGlobalAdmin() {
-      _onlyGlobalAdmin();
-      _;
-  }
-
-  function _onlyGlobalAdmin() internal view {
-      require(
-          addressesProvider.getGlobalAdmin() == msg.sender,
-          Errors.CALLER_NOT_GLOBAL_ADMIN
-      );
-  }
-
-
   /**
    * @dev Called by the proxy contract
    **/

@@ -59,6 +59,8 @@ fs.readdirSync(scenarioFolder).forEach((file) => {
       // 2. staking contract (arg1) must have the underlying match the token with the reward (arg0). Ex: if weth is used as the reward token then staking contract must be [4]: await getStakingRewardsMock({ slug: 'yaWeth'})
       // 3. the token chosen as the rewardToken (arg2) must be given to the staking contract so it has enough funds to distribute. This is done in contracts-deployments.ts, everything uses USDC
       // 4. Make sure the atoken with the reward is actually used in the scenario tests (ex: if aweth from tranche 0 is used, but the scenarios only use aweth from tranche 1, then this is useless)
+      
+      await incentivesController.setStakingType([stakingContracts[6].address],[1]);
       await incentivesController.beginStakingReward(ayvTricrypto2.address, stakingContracts[6].address);
 
       console.log("successfully set staking for yvTricrypto");
