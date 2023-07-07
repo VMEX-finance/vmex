@@ -1,7 +1,7 @@
 import { formatEther } from 'ethers/lib/utils';
 import { task } from 'hardhat/config';
 import { ConfigNames, loadPoolConfig } from '../../helpers/configuration';
-import { deployLendingPoolAddressesProviderRegistry } from '../../helpers/contracts-deployments';
+import { deployAaveLibraries, deployLendingPoolAddressesProviderRegistry } from '../../helpers/contracts-deployments';
 import { getFirstSigner } from '../../helpers/contracts-getters';
 import { getParamPerNetwork } from '../../helpers/contracts-helpers';
 import { notFalsyOrZeroAddress } from '../../helpers/misc-utils';
@@ -30,4 +30,6 @@ task('full:deploy-address-provider-registry', 'Deploy address provider registry'
       const contract = await deployLendingPoolAddressesProviderRegistry(verify);
       console.log('Deployed Registry Address:', contract.address);
     }
+    console.log("NEW: deploy aave libraries first so all contracts can use it")
+    await deployAaveLibraries();
   });

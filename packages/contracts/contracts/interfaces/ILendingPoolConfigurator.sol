@@ -3,15 +3,32 @@ pragma solidity 0.8.19;
 
 interface ILendingPoolConfigurator {
     struct InitReserveInput {
-        //choose asset, the other properties come with asset
-        //below is 31 bytes, fits in one word
         address underlyingAsset; //20 bytes
         uint64 reserveFactor; //28 bytes
-        uint8 interestRateChoice; //0 for default, others are undefined until set, 29 bytes
         bool canBorrow; //30 bytes
         bool canBeCollateral; //even if we allow an asset to be collateral, pool admin can choose to force the asset to not be used as collateral in their tranche, 31 bytes
     }
-    
+
+    struct ConfigureCollateralParams {
+        uint64 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
+        uint64 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
+        uint64 liquidationBonus; // 64 bits
+        uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
+    }
+
+    struct ConfigureCollateralParamsInput {
+        address underlyingAsset; 
+        ConfigureCollateralParams collateralParams;
+    }
+
+    event VerifiedAdminConfiguredCollateral(
+        address indexed asset,
+        uint64 indexed trancheId,
+        uint256 baseLTV,
+        uint256 liquidationThreshold,
+        uint256 liquidationBonus,
+        uint256 borrowFactor
+    );
     /**
      * @dev Emitted when a reserve factor is updated
      * @param asset The address of the underlying asset of the reserve
@@ -49,7 +66,6 @@ interface ILendingPoolConfigurator {
      * @param trancheId The trancheId of the reserve
      * @param aToken The address of the associated aToken contract
      * @param variableDebtToken The address of the associated variable rate debt token
-     * @param interestRateStrategyAddress The address of the interest rate strategy for the reserve
      * @param borrowingEnabled Whether or not borrowing is enabled on the reserve
      * @param collateralEnabled Whether or not usage as collateral is enabled on the reserve
      * @param reserveFactor The reserve factor of the reserve
@@ -59,7 +75,6 @@ interface ILendingPoolConfigurator {
         uint64 indexed trancheId,
         address indexed aToken,
         address variableDebtToken,
-        address interestRateStrategyAddress,
         bool borrowingEnabled,
         bool collateralEnabled,
         uint256 reserveFactor

@@ -164,7 +164,7 @@ contract AaveProtocolDataProvider {
             ret.liquidationBonus,
             ret.decimals,
             ret.borrowFactor
-        ) = a.getParams(asset);
+        ) = a.getParams(asset, trancheId);
         ret.supplyCap = a.getSupplyCap(asset);
         ret.borrowCap = a.getBorrowCap(asset);
 

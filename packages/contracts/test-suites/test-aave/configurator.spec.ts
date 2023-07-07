@@ -34,7 +34,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Reverts trying to set an invalid reserve factor that's greater than what's set in assetmappings", async () => {
     const { configurator, weth } = testEnv;
 
-    const invalidReserveFactor = "5000";
+    const invalidReserveFactor = "500000000000000000";
 
     await expect(
       configurator.setReserveFactor([weth.address], 0, [invalidReserveFactor])
@@ -316,7 +316,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
   it("Deactivates the ETH0 reserve as collateral in asset mappings", async () => {
     const { assetMappings, helpersContract, weth } = testEnv;
 
-    await assetMappings.configureAssetMapping(weth.address, 0, 0, 0, 0, 0, 10000);
+    await assetMappings.configureAssetMapping(weth.address, 0, 0, 0, 0, 0, "1000000000000000000");
 
     const ret1 = await helpersContract.getReserveConfigurationData(weth.address, 0);
 
@@ -385,7 +385,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
 
   it("Changes the reserve factor of WETH0", async () => {
     const { configurator, helpersContract, weth } = testEnv;
-    await configurator.setReserveFactor([weth.address], 0, ["1000"]);
+    await configurator.setReserveFactor([weth.address], 0, ["100000000000000000"]);
     const {
       decimals,
       ltv,
@@ -413,7 +413,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     await expect(
       configurator
         .connect(users[2].signer)
-        .setReserveFactor([weth.address], 0, ["2000"]),
+        .setReserveFactor([weth.address], 0, ["200000000000000000"]),
       CALLER_NOT_TRANCHE_ADMIN
     ).to.be.revertedWith(CALLER_NOT_TRANCHE_ADMIN);
   });

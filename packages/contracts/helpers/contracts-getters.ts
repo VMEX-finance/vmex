@@ -48,6 +48,8 @@ import {
   VmexTokenFactory,
   StakingRewardsMockFactory,
   MockIncentivesControllerFactory,
+  ValidationLogicFactory,
+  DepositWithdrawLogicFactory,
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
@@ -83,6 +85,34 @@ export const getLendingPoolAddressesProvider = async (
           .get(
             `${eContractid.LendingPoolAddressesProvider}.${DRE.network.name}`
           )
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+};
+
+export const getValidationLogic = async (
+  address?: tEthereumAddress
+) => {
+  return await ValidationLogicFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.ValidationLogic}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+};
+
+export const getDepositWithdrawLogic = async (
+  address?: tEthereumAddress
+) => {
+  return await DepositWithdrawLogicFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.DepositWithdrawLogic}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()

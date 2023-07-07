@@ -128,6 +128,8 @@ contract AToken is
         _underlyingAsset = vars.underlyingAsset;
         _tranche = vars.trancheId;
 
+        approveIncentivesController();
+
         emit InitializedAToken(
             vars.underlyingAsset,
             vars.trancheId,
@@ -175,8 +177,6 @@ contract AToken is
         uint256 amount,
         uint256 index
     ) external override onlyLendingPool returns (bool) {
-        approveIncentivesController();
-
         uint256 previousBalance = super.balanceOf(user);
         uint256 amountScaled = amount.rayDiv(index);
         require(amountScaled != 0, Errors.CT_INVALID_MINT_AMOUNT);
@@ -199,8 +199,6 @@ contract AToken is
         override
         onlyLendingPool
     {
-        approveIncentivesController();
-
         if (amount == 0) {
             return;
         }
@@ -228,8 +226,6 @@ contract AToken is
         override
         onlyLendingPool
     {
-        approveIncentivesController();
-
         if (amount == 0) {
             return;
         }

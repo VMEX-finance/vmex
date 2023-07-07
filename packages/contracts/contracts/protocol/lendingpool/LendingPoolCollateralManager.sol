@@ -159,7 +159,8 @@ contract LendingPoolCollateralManager is
             vars.collateralAsset,
             vars.debtAsset,
             vars.actualDebtToLiquidate,
-            vars.userCollateralBalance
+            vars.userCollateralBalance,
+            trancheId
         );
 
         // If debtAmountNeeded < actualDebtToLiquidate, there isn't enough
@@ -206,11 +207,11 @@ contract LendingPoolCollateralManager is
             }
         }
         debtReserve.updateInterestRates(
+            _assetMappings,
             vars.debtAsset,
             trancheId,
             vars.actualDebtToLiquidate,
-            0,
-            vars._assetMappings.getVMEXReserveFactor(vars.debtAsset)
+            0
         );
 
         if (receiveAToken) {
@@ -242,11 +243,11 @@ contract LendingPoolCollateralManager is
 
             collateralReserve.updateState(vars._assetMappings.getVMEXReserveFactor(collateralAsset));
             collateralReserve.updateInterestRates(
+                _assetMappings,
                 vars.collateralAsset,
                 trancheId,
                 0,
-                vars.maxCollateralToLiquidate,
-                vars._assetMappings.getVMEXReserveFactor(vars.collateralAsset)
+                vars.maxCollateralToLiquidate
             );
             // Burn the equivalent amount of aToken, sending the underlying to the liquidator
             IAToken(vars.collateralAToken).burn(
@@ -315,7 +316,8 @@ contract LendingPoolCollateralManager is
         address collateralAsset,
         address debtAsset,
         uint256 debtToCover,
-        uint256 userCollateralBalance
+        uint256 userCollateralBalance,
+        uint64 trancheId
     ) internal returns (uint256, uint256) {
         uint256 collateralAmount = 0;
         uint256 debtAmountNeeded = 0;
@@ -336,7 +338,7 @@ contract LendingPoolCollateralManager is
             vars.liquidationBonus,
             vars.collateralDecimals,
 
-        ) = _assetMappings.getParams(collateralAsset);
+        ) = _assetMappings.getParams(collateralAsset, trancheId);
         vars.debtAssetDecimals = _assetMappings.getDecimals(debtAsset);
 
         // This is the maximum possible amount of the selected collateral that can be liquidated, given the

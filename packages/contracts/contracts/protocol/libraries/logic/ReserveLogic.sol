@@ -5,6 +5,7 @@ import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.so
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
+import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
 import {IVariableDebtToken} from "../../../interfaces/IVariableDebtToken.sol";
 import {IReserveInterestRateStrategy} from "../../../interfaces/IReserveInterestRateStrategy.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
@@ -168,23 +169,17 @@ library ReserveLogic {
     function init(
         DataTypes.ReserveData storage reserve,
         address aTokenAddress,
-        address variableDebtTokenAddress,
-        address interestRateStrategyAddress
+        address variableDebtTokenAddress
     ) external {
         require(
             reserve.aTokenAddress == address(0),
             Errors.RL_RESERVE_ALREADY_INITIALIZED
         );
-        {
-            reserve.liquidityIndex = uint128(WadRayMath.ray());
-            reserve.variableBorrowIndex = uint128(WadRayMath.ray());
-            reserve.aTokenAddress = aTokenAddress;
-            reserve.variableDebtTokenAddress = variableDebtTokenAddress;
-        }
-        {
-            reserve.interestRateStrategyAddress = interestRateStrategyAddress;
-            reserve.lastUpdateTimestamp =  uint40(block.timestamp);
-        }
+        reserve.liquidityIndex = uint128(WadRayMath.ray());
+        reserve.variableBorrowIndex = uint128(WadRayMath.ray());
+        reserve.aTokenAddress = aTokenAddress;
+        reserve.variableDebtTokenAddress = variableDebtTokenAddress;
+        reserve.lastUpdateTimestamp =  uint40(block.timestamp);
     }
 
     struct UpdateInterestRatesLocalVars {
@@ -199,17 +194,18 @@ library ReserveLogic {
      * @param reserve The address of the reserve to be updated
      * @param liquidityAdded The amount of liquidity added to the protocol (deposit or repay) in the previous action
      * @param liquidityTaken The amount of liquidity taken from the protocol (redeem or borrow)
-     * @param vmexReserveFactor The vmex reserve factor
      **/
     function updateInterestRates(
         DataTypes.ReserveData storage reserve,
+        IAssetMappings assetMappings,
         address reserveAddress,
         uint64 trancheId,
         uint256 liquidityAdded,
-        uint256 liquidityTaken,
-        uint256 vmexReserveFactor
+        uint256 liquidityTaken
     ) internal {
         UpdateInterestRatesLocalVars memory vars;
+
+        uint256 vmexReserveFactor = assetMappings.getVMEXReserveFactor(reserveAddress);
 
         //calculates the total variable debt locally using the scaled total supply instead
         //of totalSupply(), as it's noticeably cheaper. Also, the index has been
@@ -232,7 +228,7 @@ library ReserveLogic {
             vars.newLiquidityRate,
             vars.newVariableRate
         ) = IReserveInterestRateStrategy(
-            reserve.interestRateStrategyAddress
+            assetMappings.getInterestRateStrategyAddress(reserveAddress, trancheId)
         ).calculateInterestRates(calvars);
 
         require(

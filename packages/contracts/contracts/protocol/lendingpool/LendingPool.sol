@@ -319,7 +319,13 @@ contract LendingPool is
             reserve.variableBorrowIndex
         );
 
-        reserve.updateInterestRates(asset, trancheId, paybackAmount, 0, _assetMappings.getVMEXReserveFactor(asset));
+        reserve.updateInterestRates(
+            _assetMappings, 
+            asset, 
+            trancheId, 
+            paybackAmount, 
+            0
+        );
 
         if (variableDebt.sub(paybackAmount) == 0) {
             _usersConfig[onBehalfOf][trancheId].configuration.setBorrowing(reserve.id, false);
@@ -656,14 +662,12 @@ contract LendingPool is
      * - Only callable by the LendingPoolConfigurator contract
      * @param underlyingAsset The address of the underlying asset (like USDC)
      * @param trancheId The tranche id
-     * @param interestRateStrategyAddress The address of the interest rate strategy
      * @param aTokenAddress The address of the aToken that will be assigned to the reserve
      * @param variableDebtAddress The address of the VariableDebtToken that will be assigned to the reserve
      **/
     function initReserve(
         address underlyingAsset,
         uint64 trancheId,
-        address interestRateStrategyAddress,
         address aTokenAddress,
         address variableDebtAddress
     ) external override onlyLendingPoolConfigurator {
@@ -673,8 +677,7 @@ contract LendingPool is
         );
         _reserves[underlyingAsset][trancheId].init(
             aTokenAddress,
-            variableDebtAddress,
-            interestRateStrategyAddress
+            variableDebtAddress
         );
 
         _addReserveToList(underlyingAsset, trancheId);
@@ -709,6 +712,30 @@ contract LendingPool is
         uint256 configuration
     ) external override onlyLendingPoolConfigurator {
         _reserves[asset][trancheId].configuration.data = configuration;
+    }
+
+    /**
+     * @dev Sets the configuration bitmap of the reserve as a whole
+     * - Only callable by the LendingPoolConfigurator contract
+     * @param asset The address of the underlying asset of the reserve
+     * @param trancheId The tranche id of the reserve
+     * @param ltv The new ltv
+     * @param liquidationThreshold The new liquidationThreshold
+     * @param liquidationBonus The new liquidationBonus
+     * @param borrowFactor The new borrowFactor
+     **/
+    function setCollateralParams(
+        address asset,
+        uint64 trancheId,
+        uint64 ltv,
+        uint64 liquidationThreshold,
+        uint64 liquidationBonus,
+        uint64 borrowFactor
+    ) external override onlyLendingPoolConfigurator {
+        _reserves[asset][trancheId].baseLTV = ltv;
+        _reserves[asset][trancheId].liquidationThreshold = liquidationThreshold;
+        _reserves[asset][trancheId].liquidationBonus = liquidationBonus;
+        _reserves[asset][trancheId].borrowFactor = borrowFactor;
     }
 
     /**
@@ -747,6 +774,11 @@ contract LendingPool is
         }
     }
 
+    function reserveAdded(address asset, uint64 trancheId) public view override returns(bool) {
+        return _reserves[asset][trancheId].id != 0 ||
+            _reservesList[trancheId][0] == asset;
+    }
+
     function _addReserveToList(address asset, uint64 trancheId) internal {
         uint256 reservesCount = trancheParams[trancheId].reservesCount;
 
@@ -757,8 +789,7 @@ contract LendingPool is
 
         // all reserves start at zero, so if it is not zero then it was already added OR
         // the first asset that was added will have id = 0, so we need to make sure that that asset wasn't already added
-        bool reserveAlreadyAdded = _reserves[asset][trancheId].id != 0 ||
-            _reservesList[trancheId][0] == asset;
+        bool reserveAlreadyAdded = reserveAdded(asset, trancheId);
 
         if (!reserveAlreadyAdded) {
             _reserves[asset][trancheId].id = uint8(reservesCount);
@@ -827,6 +858,17 @@ contract LendingPool is
 
     function getTrancheParams(uint64 trancheId) external override view returns(DataTypes.TrancheParams memory) {
         return trancheParams[trancheId];
+    }
+
+
+    /**
+     * @dev sets if a tranche admin is verified. For now, it can only be callable by configurator, which is bounded by global admin, but eventually should be callable by configurator if admin stakes sufficient VMEX
+     * @param verified Whether an admin is verified
+     * @param trancheId The id of the tranche
+     **/
+    function setTrancheAdminVerified(uint64 trancheId, bool verified) external override onlyLendingPoolConfigurator {
+        trancheParams[trancheId].verified = verified;
+        emit ConfigurationAdminVerifiedUpdated(trancheId, verified);
     }
 
 }

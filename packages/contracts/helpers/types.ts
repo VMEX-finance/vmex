@@ -160,7 +160,7 @@ export enum ProtocolErrors {
   CALLER_NOT_TRANCHE_ADMIN = "33", // 'The caller must be the tranche admin'
   CALLER_NOT_GLOBAL_ADMIN = "0", // 'The caller must be the global admin'
   BORROW_ALLOWANCE_NOT_ENOUGH = "59", // User borrows on behalf, but allowance are too small
-  INVALID_TRANCHE = "100", // 'The caller must be the global admin'
+  INVALID_TRANCHE = "111", // 'The caller must be the global admin'
   ARRAY_LENGTH_MISMATCH = "85",
   //contract specific errors
   VL_INVALID_AMOUNT = "1", // 'Amount must be greater than 0'
@@ -273,6 +273,10 @@ export enum ProtocolErrors {
 
   
   LPAPR_ALREADY_SET = "108",
+  TRANCHE_ADMIN_NOT_VERIFIED = "112",
+
+  ALREADY_VERIFIED = "113",
+  LPC_CALLER_NOT_EMERGENCY_ADMIN_OR_VERIFIED_TRANCHE = "114",
   // old
 
   INVALID_FROM_BALANCE_AFTER_TRANSFER = "Invalid from balance after transfer",
@@ -684,9 +688,9 @@ export interface iOptimismParamsPerNetwork<T> {
 
 export interface iParamsPerPool<T> {
   [AavePools.proto]: T;
-  [AavePools.matic]: T;
-  [AavePools.amm]: T;
-  [AavePools.avalanche]: T;
+  // [AavePools.matic]: T;
+  // [AavePools.amm]: T;
+  // [AavePools.avalanche]: T;
 }
 
 export interface iBasicDistributionParams {

@@ -66,7 +66,7 @@ library QueryAssetHelpers {
             assetData.liquidationBonus,
             assetData.decimals,
             //borrowFactor (not used yet)
-        ) = a.getParams(asset);
+        ) = a.getParams(asset, tranche);
         assetData.canBeCollateral = reserve.configuration.getCollateralEnabled(asset, a);//assetData.liquidationThreshold != 0;
         assetData.canBeBorrowed = reserve.configuration.getBorrowingEnabled(asset, a);
         assetData.oracle = ILendingPoolAddressesProvider(providerAddr).getPriceOracle();

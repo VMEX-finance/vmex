@@ -31,8 +31,7 @@ interface IAssetMappings {
 
     event AddedInterestRateStrategyAddress(
         address indexed asset,
-        uint256 index,
-        address strategyAddress
+        address indexed strategyAddress
     );
 
     event VMEXReserveFactorChanged(address indexed asset, uint256 factor);
@@ -96,7 +95,9 @@ interface IAssetMappings {
 
     function getAssetCollateralizable(address asset) view external returns (bool);
 
-    function getInterestRateStrategyAddress(address asset, uint8 choice) view external returns(address);
+    function getInterestRateStrategyAddress(address asset, uint64 trancheId) view external returns(address);
+
+    function getDefaultInterestRateStrategyAddress(address asset) view external returns(address);
 
     function getAssetType(address asset) view external returns(DataTypes.ReserveAssetType);
 
@@ -108,7 +109,7 @@ interface IAssetMappings {
 
     function getAssetAllowed(address asset) view external returns(bool);
 
-    function addInterestRateStrategyAddress(address asset, address strategy) external;
+    function setInterestRateStrategyAddress(address asset, address strategy) external;
 
     function setCurveMetadata(address[] calldata asset, DataTypes.CurveMetadata[] calldata vars) external;
 
@@ -117,7 +118,7 @@ interface IAssetMappings {
     function getBeethovenMetadata(address asset) external view returns (DataTypes.BeethovenMetadata memory);
 
 
-    function getParams(address asset)
+    function getParams(address asset, uint64 trancheId)
         external view
         returns (
             uint256 baseLTV,
@@ -125,6 +126,15 @@ interface IAssetMappings {
             uint256 liquidationBonus,
             uint256 underlyingAssetDecimals,
             uint256 borrowFactor
+        );
+
+    function getDefaultCollateralParams(address asset)
+        external view
+        returns (
+            uint64 baseLTV,
+            uint64 liquidationThreshold,
+            uint64 liquidationBonus,
+            uint64 borrowFactor
         );
 
     function getDecimals(address asset) external view

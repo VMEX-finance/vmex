@@ -19,6 +19,7 @@ import {
   loadPoolConfig,
 } from "./configuration";
 import {
+  getValidationLogic,
   getAaveProtocolDataProvider,
   getAllMockedTokens,
   getAssetMappings,
@@ -39,6 +40,8 @@ import {
   getWETHGateway,
   getMintableERC20,
   getIncentivesControllerProxy,
+  getReserveLogic,
+  getDepositWithdrawLogic,
 } from "./contracts-getters";
 import {
   AssetMappingsFactory,
@@ -131,6 +134,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const network = DRE.network.name;
   const aaveAdmin = await deployer.getAddress();
   var config = loadPoolConfig(ConfigNames.Aave);
+
+  await deployAaveLibraries(); //deploy once and for all
   let mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
   };
@@ -581,6 +586,13 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     await waitForTx(await addressesProvider.setPermissionlessTranches(true));
   }
 
+  // Deploy Incentives Controller before init reserve, so atokens can approve it upon initialization
+  const signers = await getEthersSigners();
+  const vaultOfRewards = signers[3];
+  const vmexIncentivesControllerProxy = await setupVmexIncentives(
+    await vaultOfRewards.getAddress()
+  );
+
   //-------------------------------------------------------------
   //deploy tranche 0
   // config = await loadCustomAavePoolConfig("0");
@@ -689,19 +701,11 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
   const vmexToken = await deployVmexToken();
 
-  // Deploy Incentives Controller
-  const signers = await getEthersSigners();
-  const vaultOfRewards = signers[3];
   const rewardToken = await getMintableERC20(mockTokens.USDC.address);
 
   // give the vault reward tokens to distribute
   await rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"1000000000000000.0"));
   console.log(`minted USDC ${await rewardToken.balanceOf(await vaultOfRewards.getAddress())}`)
-
-  const proxyAdmin = signers[4];
-  const vmexIncentivesControllerProxy = await setupVmexIncentives(
-    await vaultOfRewards.getAddress()
-  );
 
   const rewardTokens = [rewardToken, vmexToken];
   for (const token of rewardTokens) {
@@ -797,6 +801,9 @@ export const deployLendingPoolAddressesProviderRegistry = async (
 
 export const deployLendingPoolConfigurator = async (verify?: boolean) => {
   const lendingPoolConfiguratorImpl = await new LendingPoolConfiguratorFactory(
+    {
+      ["__$de8c0cf1a7d7c36c802af9a64fb9d86036$__"]: (await getValidationLogic()).address
+    },
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
@@ -909,7 +916,7 @@ export const deployDepositWithdrawLogic = async (
 
 export const deployAaveLibraries = async (
   verify?: boolean
-): Promise<LendingPoolLibraryAddresses> => {
+) => {
   const reserveLogic = await deployReserveLogicLibrary(verify);
   const genericLogic = await deployGenericLogic(reserveLogic, verify);
   const validationLogic = await deployValidationLogic(
@@ -936,17 +943,25 @@ export const deployAaveLibraries = async (
   // libPath example: contracts/libraries/logic/GenericLogic.sol
   // libName example: GenericLogic
   // f1f6c0540507d7a73571ad55dbacf4a67d
-  return {
-    ["__$de8c0cf1a7d7c36c802af9a64fb9d86036$__"]: validationLogic.address,
-    ["__$22cd43a9dda9ce44e9b92ba393b88fb9ac$__"]: reserveLogic.address,
-    ["__$f1f6c0540507d7a73571ad55dbacf4a67d$__"]: depositWithdrawLogic.address,
-  };
+  // return {
+  //   ["__$de8c0cf1a7d7c36c802af9a64fb9d86036$__"]: validationLogic.address,
+  //   ["__$22cd43a9dda9ce44e9b92ba393b88fb9ac$__"]: reserveLogic.address,
+  //   ["__$f1f6c0540507d7a73571ad55dbacf4a67d$__"]: depositWithdrawLogic.address,
+  // };
 };
 
 export const deployLendingPool = async (verify?: boolean) => {
-  const libraries = await deployAaveLibraries(verify);
+  // const libraries = await deployAaveLibraries(verify);
+  const validationLogic = await getValidationLogic();
+  const reserveLogic = await getReserveLogic();
+  const depositWithdrawLogic = await getDepositWithdrawLogic();
+
   const lendingPoolImpl = await new LendingPoolFactory(
-    libraries,
+    {
+      ["__$de8c0cf1a7d7c36c802af9a64fb9d86036$__"]: validationLogic.address,
+      ["__$22cd43a9dda9ce44e9b92ba393b88fb9ac$__"]: reserveLogic.address,
+      ["__$f1f6c0540507d7a73571ad55dbacf4a67d$__"]: depositWithdrawLogic.address,
+    },
     await getFirstSigner()
   ).deploy();
   await insertContractAddressInDb(
@@ -1454,7 +1469,9 @@ export const deployRateStrategy = async (
 };
 export const deployAssetMapping = async (verify?: boolean) =>
   withSaveAndVerify(
-    await new AssetMappingsFactory(await getFirstSigner()).deploy(),
+    await new AssetMappingsFactory({
+      ["__$de8c0cf1a7d7c36c802af9a64fb9d86036$__"]: (await getValidationLogic()).address
+    },await getFirstSigner()).deploy(),
     eContractid.AssetMappings,
     [],
     verify
