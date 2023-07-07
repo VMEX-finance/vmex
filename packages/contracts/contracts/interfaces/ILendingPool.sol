@@ -161,6 +161,12 @@ interface ILendingPool {
         uint256 variableBorrowIndex
     );
 
+
+    event ConfigurationAdminVerifiedUpdated(
+        uint64 indexed trancheId,
+        bool indexed verified
+    );
+
     /**
      * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying aTokens.
      * - E.g. User deposits 100 USDC and gets in return 100 aUSDC
@@ -297,7 +303,6 @@ interface ILendingPool {
     function initReserve(
         address underlyingAsset,
         uint64 trancheId,
-        address interestRateStrategyAddress,
         address aTokenAddress,
         address variableDebtAddress
     ) external;
@@ -398,4 +403,17 @@ interface ILendingPool {
     function addToBlacklist(uint64 trancheId, address user, bool isBlacklisted) external;
 
     function getTrancheParams(uint64) external view returns(DataTypes.TrancheParams memory);
+
+    function setCollateralParams(
+        address asset,
+        uint64 trancheId,
+        uint64 ltv,
+        uint64 liquidationThreshold,
+        uint64 liquidationBonus,
+        uint64 borrowFactor
+    ) external;
+    function reserveAdded(address asset, uint64 trancheId) external view returns(bool);
+
+    function setTrancheAdminVerified(uint64 trancheId, bool verified) external;
+
 }

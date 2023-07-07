@@ -8,6 +8,7 @@ import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddres
 import {ILendingPool} from "../../interfaces/ILendingPool.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ILendingPoolConfigurator} from "../../interfaces/ILendingPoolConfigurator.sol";
@@ -16,6 +17,10 @@ import {IAToken} from "../../interfaces/IAToken.sol";
 import {IInitializableAToken} from "../../interfaces/IInitializableAToken.sol";
 import {IInitializableDebtToken} from "../../interfaces/IInitializableDebtToken.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
+import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
+import {SafeCast} from "../../dependencies/openzeppelin/contracts/SafeCast.sol";
+
 
 /**
  * @title LendingPoolConfigurator contract
@@ -29,6 +34,7 @@ contract LendingPoolConfigurator is
     using SafeMath for uint256;
     using PercentageMath for uint256;
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
+    using SafeCast for uint256;
 
     ILendingPoolAddressesProvider internal addressesProvider;
     IAssetMappings internal assetMappings;
@@ -40,38 +46,29 @@ contract LendingPoolConfigurator is
      **/
     mapping(uint64 => address) override public trancheAdminTreasuryAddresses;
 
-    modifier onlyEmergencyAdmin {
-        require(
-            addressesProvider.getEmergencyAdmin() == msg.sender ||
-            addressesProvider.getGlobalAdmin() == msg.sender,
-            Errors.LPC_CALLER_NOT_EMERGENCY_ADMIN
-        );
+    modifier onlyEmergencyAdmin() {
+        Helpers.onlyEmergencyAdmin(addressesProvider, msg.sender);
+        _;
+    }
+
+    modifier onlyEmergencyTrancheAdmin(uint64 trancheId) {
+        Helpers.onlyEmergencyTrancheAdmin(addressesProvider, trancheId, msg.sender);
         _;
     }
 
     modifier onlyGlobalAdmin() {
-        _onlyGlobalAdmin();
+        Helpers.onlyGlobalAdmin(addressesProvider, msg.sender);
         _;
     }
 
-    function _onlyGlobalAdmin() internal view {
-        require(
-            addressesProvider.getGlobalAdmin() == msg.sender,
-            Errors.CALLER_NOT_GLOBAL_ADMIN
-        );
+    modifier onlyVerifiedTrancheAdmin(uint64 trancheId) {
+        Helpers.onlyVerifiedTrancheAdmin(addressesProvider, trancheId, msg.sender);
+        _;
     }
 
     modifier onlyTrancheAdmin(uint64 trancheId) {
-        _onlyTrancheAdmin(trancheId);
+        Helpers.onlyTrancheAdmin(addressesProvider, trancheId, msg.sender);
         _;
-    }
-
-    function _onlyTrancheAdmin(uint64 trancheId) internal view {
-        require(
-            addressesProvider.getTrancheAdmin(trancheId) == msg.sender ||
-                addressesProvider.getGlobalAdmin() == msg.sender,
-            Errors.CALLER_NOT_TRANCHE_ADMIN
-        );
     }
 
     modifier whitelistedAddress() {
@@ -111,6 +108,58 @@ contract LendingPoolConfigurator is
     }
 
 
+    /**
+     * @dev Verifies tranche for more privileges
+     * @param trancheId the tranche that is verified
+     **/
+    function verifyTranche(
+        uint64 trancheId
+    ) external onlyGlobalAdmin {
+        require(trancheId<totalTranches, Errors.INVALID_TRANCHE);
+        require(!pool.getTrancheParams(trancheId).verified, Errors.ALREADY_VERIFIED);
+        // TODO: enforce possible staking of VMEX
+
+        // loop through all reserves in this tranche, and set the local values of LTV, threshold, bonus, and borrow factor
+        address[] memory reserves = pool.getReservesList(trancheId);
+        uint cachedLength = reserves.length;
+        for(uint i = 0;i<cachedLength; ++i) { //initialize with initial global asset params
+            (
+                uint64 ltv,
+                uint64 liquidationThreshold,
+                uint64 liquidationBonus,
+                uint64 borrowFactor
+            ) = assetMappings.getDefaultCollateralParams(reserves[i]); //it doesn't matter what the tranche and user address is since it will get params from global params
+            pool.setCollateralParams(
+                reserves[i], 
+                trancheId, 
+                ltv, 
+                liquidationThreshold, 
+                liquidationBonus, 
+                borrowFactor
+            );
+
+            _setReserveInterestRateStrategyAddress(
+                reserves[i], 
+                trancheId, 
+                assetMappings.getDefaultInterestRateStrategyAddress(reserves[i])
+            );
+        }
+
+        pool.setTrancheAdminVerified(trancheId, true);
+    }
+
+
+    /**
+     * @dev Unverifies tranche to revoke privileges, unstake, and return to global parameters
+     * @param trancheId the tranche that is verified
+     **/
+    function unverifyTranche(
+        uint64 trancheId
+    ) external onlyVerifiedTrancheAdmin(trancheId) {
+        require(trancheId<totalTranches, Errors.INVALID_TRANCHE);
+        // TODO: enforce unstaking of VMEX
+        pool.setTrancheAdminVerified(trancheId, false);
+    }
     /* ******************************************************************************** */
     /* This next section contains functions only accessible to Tranche Admins and above */
     /* ******************************************************************************** */
@@ -139,11 +188,65 @@ contract LendingPoolConfigurator is
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
         for (uint256 i = 0; i < input.length; i++) {
+            address asset = input[i].underlyingAsset;
+            if(pool.reserveAdded(asset, trancheId)) {
+                continue;
+            }
             _initReserve(
                 input[i],
                 trancheId,
-                assetMappings.getAssetMapping(input[i].underlyingAsset),
+                assetMappings.getAssetMapping(asset),
                 cachedPool
+            );
+
+            if(pool.getTrancheParams(trancheId).verified) { //perform extra initialization
+                (
+                    uint256 baseLTV,
+                    uint256 liquidationThreshold,
+                    uint256 liquidationBonus,
+                    uint256 borrowFactor
+                ) = assetMappings.getDefaultCollateralParams(asset);
+                _configureCollateralParams(
+                    input[i].underlyingAsset,
+                    trancheId,
+                    ConfigureCollateralParams(
+                        baseLTV.toUint64(),
+                        liquidationThreshold.toUint64(),
+                        liquidationBonus.toUint64(),
+                        borrowFactor.toUint64()
+                    )
+                );
+                _setReserveInterestRateStrategyAddress(
+                    asset, 
+                    trancheId, 
+                    assetMappings.getDefaultInterestRateStrategyAddress(asset)
+                );
+            }
+        }
+    }
+
+    /**
+     * @dev Initializes reserves in batch. Can be called directly by those who created tranches
+     * and want to add new reserves to their tranche
+     * @param input The specifications of the reserves to initialize
+     * @param trancheId The trancheId that the msg.sender should be the admin of
+     **/
+    function batchConfigureCollateralParams(
+        ConfigureCollateralParamsInput[] calldata input,
+        uint64 trancheId
+    ) external onlyVerifiedTrancheAdmin(trancheId) {
+        for (uint256 i = 0; i < input.length; i++) {
+            ConfigureCollateralParams memory params = input[i].collateralParams;
+            ValidationLogic.validateCollateralParams(
+                params.baseLTV, 
+                params.liquidationThreshold,
+                params.liquidationBonus,
+                params.borrowFactor
+            );
+            _configureCollateralParams(
+                input[i].underlyingAsset,
+                trancheId,
+                params
             );
         }
     }
@@ -186,7 +289,6 @@ contract LendingPoolConfigurator is
         cachedPool.initReserve(
             input.underlyingAsset,
             trancheId,
-            assetMappings.getInterestRateStrategyAddress(input.underlyingAsset,input.interestRateChoice),
             aTokenProxyAddress,
             variableDebtTokenProxyAddress
         );
@@ -213,9 +315,7 @@ contract LendingPoolConfigurator is
             currentConfig.setBorrowingEnabled(false);
         }
 
-        uint256 percentReserveFactor = uint256(input.reserveFactor).convertToPercent();
-
-        currentConfig.setReserveFactor(percentReserveFactor, input.underlyingAsset, assetMappings);
+        currentConfig.setReserveFactor(uint256(input.reserveFactor), input.underlyingAsset, assetMappings);
 
         currentConfig.setActive(true);
         currentConfig.setFrozen(false);
@@ -231,12 +331,42 @@ contract LendingPoolConfigurator is
             trancheId,
             aTokenProxyAddress,
             variableDebtTokenProxyAddress,
-            assetMappings.getInterestRateStrategyAddress(input.underlyingAsset,input.interestRateChoice),
             currentConfig.getBorrowingEnabled(input.underlyingAsset, assetMappings),
             currentConfig.getCollateralEnabled(input.underlyingAsset, assetMappings),
             currentConfig.getReserveFactor()
         );
     }
+
+    /**
+     * @dev Updates the treasury address of the atoken
+     * @param underlyingAsset The underlying asset
+     * @param trancheId The tranche id
+     * @param params The collateral parameters such as ltv, threshold, with 4 decimals (so need to convert)
+     **/
+    function _configureCollateralParams(
+        address underlyingAsset,
+        uint64 trancheId,
+        ConfigureCollateralParams memory params
+    ) internal {
+        pool.setCollateralParams(
+            underlyingAsset, 
+            trancheId, 
+            params.baseLTV, 
+            params.liquidationThreshold, 
+            params.liquidationBonus, 
+            params.borrowFactor
+        );
+        emit VerifiedAdminConfiguredCollateral(
+            underlyingAsset, 
+            trancheId, 
+            params.baseLTV, 
+            params.liquidationThreshold, 
+            params.liquidationBonus, 
+            params.borrowFactor
+        );
+    }
+
+    
 
     /**
      * @dev Updates the treasury address of the atoken
@@ -325,7 +455,7 @@ contract LendingPoolConfigurator is
                 pool
             ).getConfiguration(asset[i], trancheId);
 
-            uint256 thisReserveFactor = reserveFactor[i].convertToPercent();
+            uint256 thisReserveFactor = reserveFactor[i];
             currentConfig.setReserveFactor(thisReserveFactor, asset[i], assetMappings);
 
             ILendingPool(pool).setConfiguration(
@@ -424,17 +554,25 @@ contract LendingPoolConfigurator is
      * @dev Sets the interest rate strategy of a reserve
      * @param asset The address of the underlying asset of the reserve
      * @param trancheId The tranche id to set strategy on
-     * @param rateStrategyAddressId The new address of the interest strategy contract
+     * @param rateStrategyAddress The new address of the interest strategy contract
      **/
     function setReserveInterestRateStrategyAddress(
         address asset,
         uint64 trancheId,
-        uint8 rateStrategyAddressId
-    ) external onlyTrancheAdmin(trancheId) {
+        address rateStrategyAddress
+    ) external onlyVerifiedTrancheAdmin(trancheId) {
         //interest rate can only be changed if no one deposited in it, otherwise tranche admins could potentially trick users
+        require(Address.isContract(rateStrategyAddress), Errors.LP_NOT_CONTRACT);
         _checkNoLiquidity(asset, trancheId);
-        address rateStrategyAddress = assetMappings.getInterestRateStrategyAddress(asset, rateStrategyAddressId);
 
+        _setReserveInterestRateStrategyAddress(asset,trancheId,rateStrategyAddress);
+    }
+
+    function _setReserveInterestRateStrategyAddress(
+        address asset,
+        uint64 trancheId,
+        address rateStrategyAddress
+    ) internal {
         pool.setReserveInterestRateStrategyAddress(
             asset,
             trancheId,
@@ -493,7 +631,7 @@ contract LendingPoolConfigurator is
      **/
     function setTranchePause(bool val, uint64 trancheId)
         external
-        onlyEmergencyAdmin
+        onlyEmergencyTrancheAdmin(trancheId)
     {
         pool.setPause(val, trancheId);
     }

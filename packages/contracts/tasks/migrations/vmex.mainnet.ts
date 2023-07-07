@@ -60,6 +60,9 @@ task("vmex:mainnet", "Deploy development enviroment")
     console.log("5. Deploy WETH Gateway");
     await DRE.run("full-deploy-weth-gateway", { pool: POOL_NAME });
 
+    console.log('5.5 Deploy Incentives controller');
+    await DRE.run('full-deploy-IncentivesController', { pool: POOL_NAME });
+
     console.log("6. Initialize lending pool");
     await DRE.run("full:initialize-lending-pool", { pool: POOL_NAME });
 
@@ -72,6 +75,9 @@ task("vmex:mainnet", "Deploy development enviroment")
     await DRE.run("full:initialize-lending-pool-tranches-1", {
       pool: POOL_NAME,
     });
+
+    console.log('7. Begin staking for tranche 0');
+    await DRE.run('full-beginStaking', { pool: POOL_NAME });
 
     if (verify) {
       printContracts();

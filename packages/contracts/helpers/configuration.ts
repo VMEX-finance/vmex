@@ -12,10 +12,7 @@ import {
   getParamPerPool,
 } from "./contracts-helpers";
 import AaveConfig from "../markets/aave";
-import MaticConfig from "../markets/matic";
-import AvalancheConfig from "../markets/avalanche";
 import OptimismConfig from "../markets/optimism";
-import AmmConfig from "../markets/amm";
 
 import { CommonsConfig } from "../markets/aave/commons";
 import { DRE, filterMapBy } from "./misc-utils";
@@ -37,12 +34,12 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
   switch (configName) {
     case ConfigNames.Aave:
       return AaveConfig;
-    case ConfigNames.Matic:
-      return MaticConfig;
-    case ConfigNames.Amm:
-      return AmmConfig;
-    case ConfigNames.Avalanche:
-      return AvalancheConfig;
+    // case ConfigNames.Matic:
+    //   return MaticConfig;
+    // case ConfigNames.Amm:
+    //   return AmmConfig;
+    // case ConfigNames.Avalanche:
+    //   return AvalancheConfig;
     case ConfigNames.Optimism:
       return OptimismConfig;
     case ConfigNames.Commons:
@@ -68,15 +65,15 @@ export const getReservesConfigByPool = (
       [AavePools.proto]: {
         ...AaveConfig.ReservesConfig,
       },
-      [AavePools.amm]: {
-        ...AmmConfig.ReservesConfig,
-      },
-      [AavePools.matic]: {
-        ...MaticConfig.ReservesConfig,
-      },
-      [AavePools.avalanche]: {
-        ...AvalancheConfig.ReservesConfig,
-      },
+      // [AavePools.amm]: {
+      //   ...AmmConfig.ReservesConfig,
+      // },
+      // [AavePools.matic]: {
+      //   ...MaticConfig.ReservesConfig,
+      // },
+      // [AavePools.avalanche]: {
+      //   ...AvalancheConfig.ReservesConfig,
+      // },
     },
     pool
   );

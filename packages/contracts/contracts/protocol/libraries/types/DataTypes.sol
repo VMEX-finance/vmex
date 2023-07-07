@@ -11,6 +11,7 @@ library DataTypes {
         uint8 reservesCount;
         bool paused;
         bool isUsingWhitelist;
+        bool verified;
     }
 
     struct CurveMetadata {
@@ -40,8 +41,7 @@ library DataTypes {
         bool exists;    //true if the asset was added to the linked list, false otherwise
         uint8 assetType; //to choose what oracle to use
         uint64 VMEXReserveFactor; //64 bits. is sufficient (percentages can all be stored in 64 bits)
-        //mapping(uint8=>address) interestRateStrategyAddress;//user must choose from this set list (index 0 is default)
-        //the only difference between the different strategies is the value of the slopes and optimal utilization
+        address defaultInterestRateStrategyAddress;
         //pointer to the next asset that is approved. This allows us to avoid using a list
         address nextApprovedAsset;
     }
@@ -80,7 +80,13 @@ library DataTypes {
         address variableDebtTokenAddress; //not used for nonlendable assets
         //the id of the reserve. Represents the position in the list of the active reserves
         uint8 id;
+
+        // these are only set if tranche becomes verified
         address interestRateStrategyAddress;
+        uint64 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits
+        uint64 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits
+        uint64 liquidationBonus; // 64 bits
+        uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits
     }
 
     // uint8 constant NUM_TRANCHES = 3;

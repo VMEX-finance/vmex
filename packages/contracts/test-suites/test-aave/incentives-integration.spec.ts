@@ -9,6 +9,7 @@ import { getUserData } from './helpers/utils/helpers';
 
 import { parseEther } from 'ethers/lib/utils';
 import { ethers } from 'ethers';
+import { getTrancheAdminT1 } from '../../helpers/contracts-getters';
 
 const chai = require('chai');
 
@@ -20,18 +21,33 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
   const tranche = 1;
 
   before('Before LendingPool liquidation: set config', async () => {
-    const { incentivesController, stakingContracts, rewardTokens, addressesProvider, assetMappings, yvTricrypto2, ayvTricrypto2 } = testEnv; 
+    const { incentivesController, stakingContracts, rewardTokens, addressesProvider, assetMappings, yvTricrypto2, ayvTricrypto2, configurator } = testEnv; 
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
     // make it use the chainlink aggregator for this tests
     // await assetMappings.setAssetType(yvTricrypto2.address, 0);
-    await assetMappings.configureAssetMapping(yvTricrypto2.address, 8000, 8250, 10500, 1000, 800, 10100);
+    // await assetMappings.configureAssetMapping(yvTricrypto2.address, 8000, 8250, 10500, 1000, 800, 10100);
+    await configurator.verifyTranche(1); //verifying tranche to set custom params
+    await configurator.connect(await getTrancheAdminT1("hardhat")).batchConfigureCollateralParams([
+      {
+        underlyingAsset: yvTricrypto2.address,
+        collateralParams: {
+          baseLTV: "800000000000000000",
+          liquidationThreshold: "825000000000000000",
+          liquidationBonus: "1050000000000000000",
+          borrowFactor: "1010000000000000000"
+        }
+      }
+    ],
+    1
+    )
   });
 
   after('After LendingPool liquidation: reset config', async () => {
     BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
-    const {  assetMappings, yvTricrypto2 } = testEnv; 
+    const {  assetMappings, yvTricrypto2, configurator } = testEnv; 
       // await assetMappings.setAssetType(yvTricrypto2.address, 3);
-      await assetMappings.configureAssetMapping(yvTricrypto2.address, 2500, 4500, 11500, 10000, 10000, 10100);
+      // await assetMappings.configureAssetMapping(yvTricrypto2.address, 2500, 4500, 11500, 10000, 10000, 10100);
+      await configurator.unverifyTranche(1);
   });
 
   it("It's not possible to liquidate on a non-active collateral or a non active principal", async () => {
@@ -325,6 +341,13 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     )
       .div(2)
       .toString();
+
+      const borrowerData = await pool.callStatic.getUserAccountData(borrower.address, tranche);
+
+      expect(borrowerData.healthFactor.toString()).to.be.bignumber.lt(
+        oneEther.toFixed(0),
+        INVALID_HF
+      );
 
     await pool
       .connect(liquidator.signer)

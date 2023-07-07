@@ -14,7 +14,7 @@ const keccak256 = require('keccak256');
 
 
 makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
-  const {CALLER_NOT_GLOBAL_ADMIN} = ProtocolErrors;
+  const {CALLER_NOT_GLOBAL_ADMIN, TRANCHE_ADMIN_NOT_VERIFIED} = ProtocolErrors;
   before('Before', async () => {
     const { dai, assetMappings, busd, usdt, weth, addressesProvider, incentivesController } = testEnv; 
     // await addressesProvider.setIncentivesController(incentivesController.address);
@@ -59,7 +59,7 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
       incentivesController.connect(users[2].signer).beginStakingReward(
         incentivizedTokens[0].address, 
           stakingContracts[0].address
-    )).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
+    )).to.be.revertedWith(TRANCHE_ADMIN_NOT_VERIFIED);
 
     
 
@@ -67,7 +67,7 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
         incentivesController.connect(users[2].signer).batchBeginStakingRewards(
           incentivizedTokens.slice(0, 2).map(t => t.address),
             stakingContracts.slice(0, 2).map(t => t.address)
-      )).to.be.revertedWith(CALLER_NOT_GLOBAL_ADMIN);
+      )).to.be.revertedWith(TRANCHE_ADMIN_NOT_VERIFIED);
   });
 
   it('Configure single asset reward', async () => {

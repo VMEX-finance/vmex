@@ -61,11 +61,11 @@ library DepositWithdrawLogic {
         ValidationLogic.validateDeposit(vars.asset, self, vars.amount, vars._assetMappings);
 
         self.updateInterestRates(
+            vars._assetMappings,
             vars.asset,
             vars.trancheId,
             vars.amount,
-            0,
-            vars._assetMappings.getVMEXReserveFactor(vars.asset)
+            0
         );
 
         IERC20(vars.asset).safeTransferFrom(msg.sender, aToken, vars.amount);
@@ -133,7 +133,7 @@ library DepositWithdrawLogic {
             _assetMappings
         );
 
-        reserve.updateInterestRates(vars.asset, vars.trancheId, 0, vars.amount, _assetMappings.getVMEXReserveFactor(vars.asset));
+        reserve.updateInterestRates(_assetMappings, vars.asset, vars.trancheId, 0, vars.amount);
 
         if (vars.amount == userBalance) {
             user.setUsingAsCollateral(reserve.id, false);
@@ -189,11 +189,11 @@ library DepositWithdrawLogic {
         }
 
         reserve.updateInterestRates(
+            vars._assetMappings,
             vars.asset,
             vars.trancheId,
             0,
-            vars.releaseUnderlying ? vars.amount : 0,
-            vars._assetMappings.getVMEXReserveFactor(vars.asset)
+            vars.releaseUnderlying ? vars.amount : 0
         );
 
         if (vars.releaseUnderlying) {

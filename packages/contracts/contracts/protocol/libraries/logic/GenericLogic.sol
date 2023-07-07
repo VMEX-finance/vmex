@@ -79,7 +79,7 @@ library GenericLogic {
 
         BalanceDecreaseAllowedLocalVars memory vars;
 
-        (, vars.liquidationThreshold, , vars.decimals, ) = params.assetMappings.getParams(params.asset);
+        (, vars.liquidationThreshold, , vars.decimals, ) = params.assetMappings.getParams(params.asset, params.trancheId);
 
         (
             vars.totalCollateralInETH,
@@ -225,7 +225,7 @@ library GenericLogic {
                 ,
                 vars.decimals,
                 vars.borrowFactor
-            ) = assetMappings.getParams(vars.currentReserveAddress);
+            ) = assetMappings.getParams(vars.currentReserveAddress, vars.trancheId);
 
             vars.tokenUnit = 10**vars.decimals;
             vars.reserveUnitPrice = IPriceOracleGetter(vars.oracle)

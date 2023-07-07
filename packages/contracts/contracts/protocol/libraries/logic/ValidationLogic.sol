@@ -416,4 +416,44 @@ library ValidationLogic {
             Errors.VL_TRANSFER_NOT_ALLOWED
         );
     }
+
+
+    /**
+     * @dev Validates the collateral params: ltv must be less than 100%, liquidation Bonus must be greater than 100%,
+     * liquidation threshold * liquidation bonus must be less than 100% for liquidators to break even, borrow factor must be greater than 100%
+     * @param baseLTV The LTV (in decimals adjusted for percentage math decimals)
+     * @param liquidationThreshold The liquidation threshold (in decimals adjusted for percentage math decimals)
+     * @param liquidationBonus The liquidation bonus (in decimals adjusted for percentage math decimals)
+     * @param borrowFactor The borrow factor (in decimals adjusted for percentage math decimals)
+     **/
+    function validateCollateralParams(
+        uint64 baseLTV,
+        uint64 liquidationThreshold,
+        uint64 liquidationBonus,
+        uint64 borrowFactor
+    ) external pure {
+        require(baseLTV <= liquidationThreshold, Errors.AM_INVALID_CONFIGURATION);
+
+        if (liquidationThreshold != 0) {
+            //liquidation bonus must be bigger than 100.00%, otherwise the liquidator would receive less
+            //collateral than needed to cover the debt
+            require(
+                uint256(liquidationBonus) > PercentageMath.PERCENTAGE_FACTOR,
+                Errors.AM_INVALID_CONFIGURATION
+            );
+
+            //if threshold * bonus is less than PERCENTAGE_FACTOR, it's guaranteed that at the moment
+            //a loan is taken there is enough collateral available to cover the liquidation bonus
+
+            require(
+                uint256(liquidationThreshold).percentMul(uint256(liquidationBonus)) <=
+                    PercentageMath.PERCENTAGE_FACTOR,
+                Errors.AM_INVALID_CONFIGURATION
+            );
+        }
+        require(
+            uint256(borrowFactor) >= PercentageMath.PERCENTAGE_FACTOR,
+            Errors.AM_INVALID_CONFIGURATION
+        );
+    }
 }

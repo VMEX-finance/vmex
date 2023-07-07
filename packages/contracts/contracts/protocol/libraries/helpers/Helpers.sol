@@ -3,11 +3,19 @@ pragma solidity 0.8.19;
 
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {DataTypes} from "../types/DataTypes.sol";
+import {Errors} from "./Errors.sol";
+import {PercentageMath} from "../math/PercentageMath.sol";
+import {SafeCast} from "../../../dependencies/openzeppelin/contracts/SafeCast.sol";
+import {ILendingPoolAddressesProvider} from "../../../interfaces/ILendingPoolAddressesProvider.sol";
+import {ILendingPool} from "../../../interfaces/ILendingPool.sol";
+
 /**
  * @title Helpers library
  * @author Aave and VMEX
  */
 library Helpers {
+    using PercentageMath for uint256;
+    using SafeCast for uint256;
     /**
      * @dev Fetches the user current variable debt balance
      * @param user The user address
@@ -94,5 +102,60 @@ library Helpers {
         bool ret = (keccak256(bytes(suffix)) == keccak256(bytes(target)));
 
         return ret;
+    }
+
+    function onlyEmergencyAdmin(ILendingPoolAddressesProvider addressesProvider, address user) internal view {
+        require(
+            _isEmergencyAdmin(addressesProvider, user) ||
+            _isGlobalAdmin(addressesProvider, user),
+            Errors.LPC_CALLER_NOT_EMERGENCY_ADMIN
+        );
+    }
+
+    function onlyEmergencyTrancheAdmin(ILendingPoolAddressesProvider addressesProvider, uint64 trancheId, address user) internal view {
+        ILendingPool pool = ILendingPool(addressesProvider.getLendingPool());
+        require(
+            _isEmergencyAdmin(addressesProvider, user) ||
+            (_isTrancheAdmin(addressesProvider,trancheId, user) && pool.getTrancheParams(trancheId).verified) || //allow verified tranche admins to pause tranches
+            _isGlobalAdmin(addressesProvider, user),
+            Errors.LPC_CALLER_NOT_EMERGENCY_ADMIN_OR_VERIFIED_TRANCHE
+        );
+    }
+
+    function onlyGlobalAdmin(ILendingPoolAddressesProvider addressesProvider, address user) internal view {
+        require(
+            _isGlobalAdmin(addressesProvider, user),
+            Errors.CALLER_NOT_GLOBAL_ADMIN
+        );
+    }
+
+    function onlyTrancheAdmin(ILendingPoolAddressesProvider addressesProvider, uint64 trancheId, address user) internal view {
+        require(
+            _isTrancheAdmin(addressesProvider,trancheId, user) ||
+                _isGlobalAdmin(addressesProvider, user),
+            Errors.CALLER_NOT_TRANCHE_ADMIN
+        );
+    }
+
+
+    function onlyVerifiedTrancheAdmin(ILendingPoolAddressesProvider addressesProvider, uint64 trancheId, address user) internal view {
+        ILendingPool pool = ILendingPool(addressesProvider.getLendingPool());
+        require(
+            (_isTrancheAdmin(addressesProvider,trancheId, user) && pool.getTrancheParams(trancheId).verified) ||
+                _isGlobalAdmin(addressesProvider, user),
+            Errors.TRANCHE_ADMIN_NOT_VERIFIED
+        );
+    }
+
+    function _isGlobalAdmin(ILendingPoolAddressesProvider addressesProvider, address user) internal view returns(bool){
+        return addressesProvider.getGlobalAdmin() == user;
+    }
+
+    function _isTrancheAdmin(ILendingPoolAddressesProvider addressesProvider, uint64 trancheId, address user) internal view returns(bool) {
+        return addressesProvider.getTrancheAdmin(trancheId) == user;
+    }
+
+    function _isEmergencyAdmin(ILendingPoolAddressesProvider addressesProvider, address user) internal view returns(bool) {
+        return addressesProvider.getEmergencyAdmin() == user;
     }
 }

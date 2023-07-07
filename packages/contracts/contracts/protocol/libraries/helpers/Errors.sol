@@ -26,7 +26,6 @@ library Errors {
     string public constant CALLER_NOT_TRANCHE_ADMIN = "33"; // 'The caller must be the tranche admin'
     string public constant CALLER_NOT_GLOBAL_ADMIN = "0"; // 'The caller must be the global admin'
     string public constant BORROW_ALLOWANCE_NOT_ENOUGH = "59"; // User borrows on behalf, but allowance are too small
-    string public constant INVALID_TRANCHE = "100"; // 'The caller must be the global admin'
     string public constant ARRAY_LENGTH_MISMATCH = "85";
 
     //contract specific errors
@@ -146,6 +145,14 @@ library Errors {
 
     string public constant LPC_TREASURY_ADDRESS_ZERO = "109"; //assetmappings does not allow setting collateral
     string public constant LPC_WHITELISTING_NOT_ALLOWED = "110"; //setting whitelist enabled is not allowed after initializing reserves
+
+    string public constant INVALID_TRANCHE = "111"; // 'The tranche doesn't exist
+
+    string public constant TRANCHE_ADMIN_NOT_VERIFIED = "112"; // 'The caller must be verified tranche admin
+
+    string public constant ALREADY_VERIFIED = "113";
+
+    string public constant LPC_CALLER_NOT_EMERGENCY_ADMIN_OR_VERIFIED_TRANCHE = "114";
 
     enum CollateralManagerErrors {
         NO_ERROR,

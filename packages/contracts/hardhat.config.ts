@@ -142,6 +142,8 @@ const buidlerConfig: HardhatUserConfig = {
     },
     localhost: {
       hardfork: 'merge',
+      blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
+      gas: DEFAULT_BLOCK_GAS_LIMIT,
       url: "http://0.0.0.0:8545",
       chainId: 31337,
       saveDeployments: true,

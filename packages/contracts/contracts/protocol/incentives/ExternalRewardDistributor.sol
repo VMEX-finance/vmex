@@ -12,6 +12,7 @@ import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDist
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {Helpers} from "../libraries/helpers/Helpers.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /// @title VMEX External Rewards Distributor.
@@ -30,15 +31,13 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   uint256[40] __gap_ExternalRewardDistributor;
 
   modifier onlyGlobalAdmin() {
-      _onlyGlobalAdmin();
+      Helpers.onlyGlobalAdmin(addressesProvider, msg.sender);
       _;
   }
 
-  function _onlyGlobalAdmin() internal view {
-      require(
-          addressesProvider.getGlobalAdmin() == msg.sender,
-          Errors.CALLER_NOT_GLOBAL_ADMIN
-      );
+  modifier onlyVerifiedTrancheAdmin(uint64 trancheId) {
+      Helpers.onlyVerifiedTrancheAdmin(addressesProvider, trancheId, msg.sender);
+      _;
   }
 
   function __ExternalRewardDistributor_init(address _addressesProvider) internal onlyInitializing {
@@ -50,11 +49,12 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function batchBeginStakingRewards(
       address[] calldata aTokens,
       address[] calldata stakingContracts
-  ) external onlyGlobalAdmin {
+  ) external {
     require(aTokens.length == stakingContracts.length, "Malformed input");
 
     for(uint i = 0; i < aTokens.length; i++) {
-        beginStakingReward(aTokens[i], stakingContracts[i]);
+      //essentially enforces onlyVerifiedTrancheAdmin for every list input
+      beginStakingReward(aTokens[i], stakingContracts[i]); //this one has modifier
     }
   }
 
@@ -77,7 +77,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
    * @dev Removes all liquidity from the staking contract and sends back to the atoken. Subsequent calls to handleAction doesn't call onDeposit, etc
    * @param aToken The address of the aToken that wants to exit the staking contract
    **/
-  function removeStakingReward(address aToken) external onlyGlobalAdmin {
+  function removeStakingReward(address aToken) external onlyVerifiedTrancheAdmin(IAToken(aToken)._tranche()) {
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
 
     uint256 amount = IERC20(aToken).totalSupply();
@@ -166,7 +166,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function beginStakingReward(
     address aToken,
     address stakingContract
-  ) public onlyGlobalAdmin { //if tranches want to activate they need to talk to us first
+  ) public onlyVerifiedTrancheAdmin(IAToken(aToken)._tranche()) { 
     address assetMappings = addressesProvider.getAssetMappings();
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
     

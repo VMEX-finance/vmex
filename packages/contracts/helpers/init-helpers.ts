@@ -101,6 +101,10 @@ export const initAssetData = async (
 
   const reserves = Object.entries(reservesParams);
 
+  // Deploy init reserves per tranche
+  // tranche CONFIGURATION
+  const assetMappings = await getAssetMappings();
+
   for (let [symbol, params] of reserves) {
     if (!tokenAddresses[symbol]) {
       console.log(
@@ -152,7 +156,7 @@ export const initAssetData = async (
     // Prepare input parameters
     reserveSymbols.push(symbol);
     underlying.push(tokenAddresses[symbol]);
-    initInputParams.push({
+    const input = {
       asset: tokenAddresses[symbol],
       defaultInterestRateStrategyAddress: strategyAddresses[strategy.name],
       assetType: assetType,
@@ -164,12 +168,11 @@ export const initAssetData = async (
       borrowFactor: borrowFactor,
       borrowingEnabled: borrowingEnabled,
       VMEXReserveFactor: reserveFactor,
-    });
+    }
+    // console.log(`- AssetData initialization testing `, symbol);
+    // await assetMappings.connect(admin).addAssetMapping([input])
+    initInputParams.push(input);
   }
-
-  // Deploy init reserves per tranche
-  // tranche CONFIGURATION
-  const assetMappings = await getAssetMappings();
 
   console.log(`- AssetData initialization`);
   const tx3 = await waitForTx(
@@ -242,22 +245,21 @@ export const initReservesByHelper = async (
   trancheId: BigNumberish
 ) => {
   // Initialize variables for future reserves initialization
-
   let initInputParams: {
     underlyingAsset: string;
-    interestRateChoice: string; //1,000,000
     reserveFactor: string;
     canBorrow: boolean;
     canBeCollateral: boolean;
   }[] = [];
   for (let i = 0; i < assetAddresses.length; i++) {
-    initInputParams.push({
-      underlyingAsset: assetAddresses[i],
-      interestRateChoice: "0",
-      reserveFactor: reserveFactors[i],
-      canBorrow: canBorrow[i],
-      canBeCollateral: canBeCollateral[i],
-    });
+    initInputParams.push(
+      {
+        underlyingAsset: assetAddresses[i],
+        reserveFactor: reserveFactors[i],
+        canBorrow: canBorrow[i],
+        canBeCollateral: canBeCollateral[i],
+      }
+    );
   }
 
   // Deploy init reserves per tranche
@@ -365,7 +367,7 @@ export const getTranche0MockedData = (allReservesAddresses: {
   let canBorrow0: boolean[] = [];
   let canBeCollateral0: boolean[] = [];
   for (let i = 0; i < assets0.length; i++) {
-    reserveFactors0.push("1000");
+    reserveFactors0.push("100000000000000000");
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }
@@ -424,7 +426,7 @@ export const getTranche1MockedData = (allReservesAddresses: {
   let canBorrow0: boolean[] = [];
   let canBeCollateral0: boolean[] = [];
   for (let i = 0; i < assets0.length; i++) {
-    reserveFactors0.push("1000");
+    reserveFactors0.push("100000000000000000");
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }
@@ -441,7 +443,7 @@ export const getTranche0MockedDataOP = (allReservesAddresses: {
   let canBorrow0: boolean[] = [];
   let canBeCollateral0: boolean[] = [];
   for (let i = 0; i < assets0.length; i++) {
-    reserveFactors0.push("1000");
+    reserveFactors0.push("100000000000000000");
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }

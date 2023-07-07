@@ -41,14 +41,14 @@ makeSuite('Upgradeability Incentives', (testEnv: TestEnv) => {
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
     // make it use the chainlink aggregator for this tests
     await assetMappings.setAssetType(yvTricrypto2.address, 0);
-    await assetMappings.configureAssetMapping(yvTricrypto2.address, 8000, 8250, 10500, 1000, 800, 10100);
+    await assetMappings.configureAssetMapping(yvTricrypto2.address, "800000000000000000", "825000000000000000", "1050000000000000000", "1000", 8000, "1010000000000000000");
   });
 
   after('After upgradeability: reset config', async () => {
     BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
     const {  assetMappings, yvTricrypto2 } = testEnv; 
       await assetMappings.setAssetType(yvTricrypto2.address, 3);
-      await assetMappings.configureAssetMapping(yvTricrypto2.address, 2500, 4500, 11500, 10000, 10000, 10100);
+      await assetMappings.configureAssetMapping(yvTricrypto2.address, "250000000000000000", "450000000000000000", "1150000000000000000", 1000, 1000, "1010000000000000000");
   });
 
   it('Tries to update the incentives controller implementation with a different address than the lendingPoolManager', async () => {
