@@ -359,6 +359,7 @@ export interface iAssetBase<T> {
   OP: T;
   mooCurveFsUSD: T;
   mooCurveWSTETH: T;
+  velo_rETHWETH: T;
   velo_wstETHWETH: T;
   moo_velo_wstETHWETH: T;
   velo_USDCsUSD: T;
@@ -495,6 +496,7 @@ export type iOptimismPoolAssets<T> = Partial<
     | "wstETHCRV"
     | "mooCurveFsUSD"
     | "mooCurveWSTETH"
+    | "velo_rETHWETH"
     | "velo_wstETHWETH"
     | "moo_velo_wstETHWETH"
     | "velo_USDCsUSD"
