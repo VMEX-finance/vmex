@@ -100,6 +100,7 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   yvFrax3Crv: oneEther.toFixed(), //this should not be used, just placed here to compile
   mooCurveFsUSD: oneEther.toFixed(), //this should not be used, just placed here to compile
   mooCurveWSTETH: oneEther.toFixed(), //this should not be used, just placed here to compile
+  velo_rETHWETH: oneEther.toFixed(),
   velo_wstETHWETH: oneEther.toFixed(),
   moo_velo_wstETHWETH: oneEther.toFixed(),
   velo_USDCsUSD: oneEther.toFixed(),

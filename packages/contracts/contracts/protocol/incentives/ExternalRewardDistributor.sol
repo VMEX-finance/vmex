@@ -95,17 +95,14 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
      * @dev harvests rewards in a specific staking contract, and emits an event for subgraph to track rewards claiming to distribute to users
      * anyone can call this function to harvest
      * @param stakingContract The contract that staked the tokens and collected rewards
-     * @param rewardTokens List of reward tokens to claim. For yearn, use the yv Vault that was originally staked in the stakingContract
      **/
-  function harvestReward(address stakingContract, address[] memory rewardTokens) external {
-      if(stakingTypes[stakingContract] == StakingType.VELODROME_V1) {
-        IVelodromeStakingRewards(stakingContract).getReward(address(this), rewardTokens);
+  function harvestReward(address stakingContract) external {
+      if(stakingTypes[stakingContract] == StakingType.VELODROME_V2) {
+        IVelodromeStakingRewards(stakingContract).getReward(address(this));
         emit HarvestedReward(stakingContract);
       }
       else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
-        for(uint i = 0;i<rewardTokens.length;++i) {
-          IYearnStakingRewards(stakingContract).getReward();
-        }
+        IYearnStakingRewards(stakingContract).getReward();
         emit HarvestedReward(stakingContract);
       }
       else {
@@ -202,8 +199,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function stake(address aToken, uint256 amount) internal {
     address stakingContract = stakingData[aToken];
 
-    if(stakingTypes[stakingContract] == StakingType.VELODROME_V1) {
-      IVelodromeStakingRewards(stakingContract).deposit(amount, 0);
+    if(stakingTypes[stakingContract] == StakingType.VELODROME_V2) {
+      IVelodromeStakingRewards(stakingContract).deposit(amount);
     }
     else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
       IYearnStakingRewards(stakingContract).stake(amount);
@@ -216,7 +213,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function unstake(address aToken, uint256 amount) internal {
     address stakingContract = stakingData[aToken];
 
-    if(stakingTypes[stakingContract] == StakingType.VELODROME_V1) {
+    if(stakingTypes[stakingContract] == StakingType.VELODROME_V2) {
       IVelodromeStakingRewards(stakingContract).withdraw(amount);
     }
     else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
