@@ -1,5 +1,6 @@
 import { BigNumberish, Contract, Signer } from "ethers";
-import { DRE, notFalsyOrZeroAddress, waitForTx } from "./misc-utils";
+import { DRE as dre, notFalsyOrZeroAddress, waitForTx } from "./misc-utils";
+const DRE = dre as any;
 import {
   tEthereumAddress,
   eContractid,
@@ -88,6 +89,7 @@ import {
   DoubleTransferHelper,
   StakingRewardsMockFactory,
   MockIncentivesControllerFactory,
+  MintableDelegationERC20,
 } from "../types";
 import {
   withSaveAndVerify,
@@ -104,7 +106,6 @@ import {
   convertToCurrencyDecimals,
   // getContractAddressWithJsonFallback,
 } from "./contracts-helpers";
-import { MintableDelegationERC20 } from "../types/MintableDelegationERC20";
 import { readArtifact as buidlerReadArtifact } from "@nomiclabs/buidler/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendingPoolLibraryAddresses } from "../types/LendingPoolFactory";

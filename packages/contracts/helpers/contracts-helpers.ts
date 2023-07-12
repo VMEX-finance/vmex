@@ -2,7 +2,7 @@ import { Contract, Signer, utils, ethers, BigNumberish } from "ethers";
 import { signTypedData_v4 } from "eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import BigNumber from "bignumber.js";
-import { getDb, DRE, waitForTx, notFalsyOrZeroAddress } from "./misc-utils";
+import { getDb, DRE as dre, waitForTx, notFalsyOrZeroAddress } from "./misc-utils";
 import {
   tEthereumAddress,
   eContractid,
@@ -22,7 +22,7 @@ import {
   eOptimismNetwork,
   iOptimismParamsPerNetwork,
 } from "./types";
-import { MintableERC20 } from "../types/MintableERC20";
+import { MintableERC20 } from "../types";
 import { Artifact } from "hardhat/types";
 import { Artifact as BuidlerArtifact } from "@nomiclabs/buidler/types";
 import { verifyEtherscanContract } from "./etherscan-verification";
@@ -32,6 +32,7 @@ import { usingPolygon, verifyAtPolygon } from "./polygon-utils";
 import { ConfigNames, loadPoolConfig } from "./configuration";
 import { ZERO_ADDRESS } from "./constants";
 import { getDefenderRelaySigner, usingDefender } from "./defender-utils";
+const DRE = dre as any;
 
 export type MockTokenMap = { [symbol: string]: MintableERC20 };
 
@@ -96,7 +97,7 @@ export const getEthersSigners = async (): Promise<Signer[]> => {
     const [, ...users] = ethersSigners;
     return [await getDefenderRelaySigner(), ...users];
   }
-  cache = ethersSigners;
+  (cache as any) = ethersSigners;
   return ethersSigners;
 };
 
@@ -466,7 +467,7 @@ export const verifyContract = async (
 export const getContractAddressWithJsonFallback = async (
   id: string,
   pool: ConfigNames
-): Promise<tEthereumAddress> => {
+): Promise<tEthereumAddress | undefined> => {
   const poolConfig = loadPoolConfig(pool);
   const network = <eNetwork>DRE.network.name;
   const db = getDb();

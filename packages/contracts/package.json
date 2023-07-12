@@ -6,7 +6,7 @@
   "files": [
     "contracts",
     "artifacts",
-    "types"
+    "dist"
   ],
   "scripts": {
     "run-env": "npm i && tail -f /dev/null",

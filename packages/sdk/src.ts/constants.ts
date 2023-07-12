@@ -1,5 +1,5 @@
-import AaveConfig from "@vmexfinance/contracts/markets/aave"
-import OptimismConfig from "@vmexfinance/contracts/markets/optimism"
+import AaveConfig from "@vmexfinance/contracts/dist/markets/aave"
+import OptimismConfig from "@vmexfinance/contracts/dist/markets/optimism"
 
 export const MAX_UINT_AMOUNT =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";

@@ -28,26 +28,26 @@ import {
   eNetwork,
   tEthereumAddress,
 } from "../../../helpers/types";
-import { LendingPool } from "../../../types/LendingPool";
-import { AaveProtocolDataProvider } from "../../../types/AaveProtocolDataProvider";
-import { MintableERC20 } from "../../../types/MintableERC20";
-import { AToken } from "../../../types/AToken";
-import { LendingPoolConfigurator } from "../../../types/LendingPoolConfigurator";
+import { LendingPool } from "../../../src.ts/types/LendingPool";
+import { AaveProtocolDataProvider } from "../../../src.ts/types/AaveProtocolDataProvider";
+import { MintableERC20 } from "../../../src.ts/types/MintableERC20";
+import { AToken } from "../../../src.ts/types/AToken";
+import { LendingPoolConfigurator } from "../../../src.ts/types/LendingPoolConfigurator";
 
 import chai from "chai";
 // @ts-ignore
 import bignumberChai from "chai-bignumber";
 import { almostEqual } from "./almost-equal";
-import { PriceOracle } from "../../../types/PriceOracle";
-import { LendingPoolAddressesProvider } from "../../../types/LendingPoolAddressesProvider";
-import { LendingPoolAddressesProviderRegistry } from "../../../types/LendingPoolAddressesProviderRegistry";
+import { PriceOracle } from "../../../src.ts/types/PriceOracle";
+import { LendingPoolAddressesProvider } from "../../../src.ts/types/LendingPoolAddressesProvider";
+import { LendingPoolAddressesProviderRegistry } from "../../../src.ts/types/LendingPoolAddressesProviderRegistry";
 import { getEthersSigners } from "../../../helpers/contracts-helpers";
 import { getParamPerNetwork } from "../../../helpers/contracts-helpers";
-import { WETH9Mocked } from "../../../types/WETH9Mocked";
-import { WETHGateway } from "../../../types/WETHGateway";
+import { WETH9Mocked } from "../../../src.ts/types/WETH9Mocked";
+import { WETHGateway } from "../../../src.ts/types/WETHGateway";
 import { solidity } from "ethereum-waffle";
 import { AaveConfig } from "../../../markets/aave";
-import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, StakingRewardsMock, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, VmexToken, YearnTokenMocked } from "../../../types";
+import { AssetMappings, ATokenBeacon, ATokenMock, IncentivesController, StakingRewardsMock, VariableDebtToken, VariableDebtTokenBeacon, VMEXOracle, VmexToken, YearnTokenMocked } from "../../../src.ts/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { usingTenderly } from "../../../helpers/tenderly-utils";
 import { isHardhatTestingStrategies } from "../../../helpers/configuration";

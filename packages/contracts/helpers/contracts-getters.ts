@@ -2,7 +2,6 @@ import {
   AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
   ATokenFactory,
-  // ATokensAndRatesHelperFactory,
   VMEXOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   GenericLogicFactory,
@@ -24,7 +23,6 @@ import {
   PriceOracleFactory,
   ReserveLogicFactory,
   SelfdestructTransferFactory,
-  StableAndVariableTokensHelperFactory,
   StableDebtTokenFactory,
   UniswapLiquiditySwapAdapterFactory,
   UniswapRepayAdapterFactory,
@@ -40,8 +38,6 @@ import {
   UserConfigurationFactory,
   BaseUniswapOracleFactory,
   YearnTokenMockedFactory,
-  ATokenBeaconFactory,
-  VariableDebtTokenBeaconFactory,
   UpgradeableBeaconFactory,
   IncentivesControllerFactory,
   ATokenMockFactory,
@@ -50,13 +46,12 @@ import {
   MockIncentivesControllerFactory,
   ValidationLogicFactory,
   DepositWithdrawLogicFactory,
+  IERC20DetailedFactory
 } from "../types";
-import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
 import { DRE, getDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
 import {
   eContractid,
-  IChainlinkData,
   IChainlinkInternal,
   PoolConfiguration,
   tEthereumAddress,
@@ -387,10 +382,10 @@ export const getPairsTokenAggregator = (
       const aggregatorAddressIndex = Object.keys(
         aggregatorsAddresses
       ).findIndex((value) => value === tokenSymbol);
-      
+
       if(aggregatorAddressIndex>=0){
         return true;
-      } 
+      }
       return false
     }
   ).map(
@@ -399,7 +394,7 @@ export const getPairsTokenAggregator = (
       const aggregatorAddressIndex = Object.keys(
         aggregatorsAddresses
       ).findIndex((value) => value === tokenSymbol);
-      
+
       const [, aggregatorAddress] = (
         Object.entries(aggregatorsAddresses) as [string, IChainlinkInternal][]
       )[aggregatorAddressIndex];

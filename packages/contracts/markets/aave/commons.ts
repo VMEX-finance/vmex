@@ -45,7 +45,6 @@ export const CommonsConfig: ICommonConfiguration = {
   PoolAdmin: {
     [eEthereumNetwork.coverage]: undefined,
     [eEthereumNetwork.buidlerevm]: undefined,
-    [eEthereumNetwork.coverage]: undefined,
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.kovan]: undefined,
     [eEthereumNetwork.ropsten]: undefined,
@@ -594,7 +593,6 @@ export const CommonsConfig: ICommonConfiguration = {
   BeethovenMetadata: {
     [eEthereumNetwork.coverage]: {},
     [eEthereumNetwork.buidlerevm]: {},
-    [eEthereumNetwork.coverage]: {},
     [eEthereumNetwork.hardhat]: {},
     [eEthereumNetwork.kovan]: {},
     [eEthereumNetwork.ropsten]: {},

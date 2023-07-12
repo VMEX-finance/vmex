@@ -1,34 +1,25 @@
 import {
-  eContractid,
   eNetwork,
   iMultiPoolsAssets,
   IReserveParams,
   tEthereumAddress,
-  ITrancheInitParams,
-  iParamsPerNetwork,
   ICurveMetadata,
   IBeethovenMetadata,
   CurveMetadata,
   BeethovenMetadata,
 } from "./types";
-import { AaveProtocolDataProvider } from "../types/AaveProtocolDataProvider";
 import { chunk, getDb, waitForTx } from "./misc-utils";
 import {
   getAToken,
-  // getATokensAndRatesHelper,
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
   getAssetMappings,
 } from "./contracts-getters";
 import {
-  getContractAddressWithJsonFallback,
   rawInsertContractAddressInDb,
 } from "./contracts-helpers";
 import { BigNumberish } from "ethers";
-import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
-import BigNumber from "bignumber.js";
-import { oneRay, ZERO_ADDRESS } from "./constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 export const getATokenExtraParams = async (
