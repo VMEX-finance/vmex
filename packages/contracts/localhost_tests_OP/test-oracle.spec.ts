@@ -200,7 +200,7 @@ makeSuite(
                 //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
                 expectedPrice = Number(pricePerUnderlying) * Number(pricePerShare.toString()) / Math.pow(10,18); 
             }
-            else if(strat.assetType==5) {
+            else if(strat.assetType==5) { //velodrome
                 const vel = new DRE.ethers.Contract(currentAsset, VeloAbi)
 
                 const met = await vel.connect(signer).metadata();
@@ -224,15 +224,15 @@ makeSuite(
                 if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
                     const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
                     const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
-                    expectedPrice = 186547806378
+                    expectedPrice = 192217940204
                 }
                 if(currentAsset == "0x4Fd63966879300caFafBB35D157dC5229278Ed23") {
                   //rETH pool
-                  expectedPrice = 187333948368 //should be around the same as wstETH
+                  expectedPrice = 193007753857 //should be around the same as wstETH
                 }
             }
             else if(strat.assetType == 7) { //rETH
-              expectedPrice = 198793382309
+              expectedPrice = 204888312020
             }
             else {
                 continue

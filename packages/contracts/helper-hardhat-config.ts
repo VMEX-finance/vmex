@@ -60,7 +60,9 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eXDaiNetwork.xdai]: 'https://rpc.xdaichain.com/',
   [eAvalancheNetwork.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
   [eAvalancheNetwork.fuji]: 'https://api.avax-test.network/ext/bc/C/rpc',
-  [eOptimismNetwork.optimism]: `https://opt-mainnet.g.alchemy.com/v2/${OP_ALCHEMY_KEY}`,
+  [eOptimismNetwork.optimism]: 
+    //`https://mainnet.optimism.io`,
+    `https://opt-mainnet.g.alchemy.com/v2/${OP_ALCHEMY_KEY}`,
 };
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
@@ -92,5 +94,5 @@ export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eXDaiNetwork.xdai]: undefined,
   [eAvalancheNetwork.avalanche]: undefined,
   [eAvalancheNetwork.fuji]: undefined,
-  [eOptimismNetwork.optimism]: 106101677,
+  [eOptimismNetwork.optimism]: 106361131,
 };

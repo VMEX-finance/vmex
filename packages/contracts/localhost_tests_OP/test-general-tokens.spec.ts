@@ -46,7 +46,7 @@ makeSuite(
 
       const StakingVeloabi = [
         "function balanceOf(address owner) external view returns (uint256 balance)",
-        "function earned(address token, address account) external view returns (uint256 balance)",
+        "function earned(address account) external view returns (uint256 balance)",
     ];
 
         const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
@@ -124,7 +124,7 @@ makeSuite(
                   keyFirst = false;
                 }
                 else if(symbol.substring(0,4)=="velo"){
-                  slot = 4;
+                  slot = 0;
                   keyFirst = true;
                 }
                 // else continue
@@ -330,7 +330,7 @@ makeSuite(
             const OP = new ethers.Contract("0x7D2382b1f8Af621229d33464340541Db362B4907", WETHabi)
             const balanceBefore = await OP.connect(signer).balanceOf(incentivesController.address);
             const receipt = await waitForTx(
-              await incentivesController.harvestReward("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b", ["0x7D2382b1f8Af621229d33464340541Db362B4907"])
+              await incentivesController.harvestReward("0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b")
             );
 
             const balanceAfter = await OP.connect(signer).balanceOf(incentivesController.address);
@@ -348,11 +348,11 @@ makeSuite(
           it("wait and harvest velodrome rewards", async () => {
             var signer = await contractGetters.getFirstSigner();
             const incentivesController = await contractGetters.getIncentivesControllerProxy();
-            const veloAdd = "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05"
+            const veloAdd = "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db"
             
-            const stakingContract = new ethers.Contract("0x131Ae347E654248671Afc885F0767cB605C065d7", StakingVeloabi); //staking for velo_wstETHWETH
+            const stakingContract = new ethers.Contract("0xd0E434831a765839051DA9C0B9B99C6b0Fb87201", StakingVeloabi); //staking for velo_wstETHWETH
             const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
-            const earned = await stakingContract.connect(signer).earned(veloAdd, incentivesController.address)
+            const earned = await stakingContract.connect(signer).earned(incentivesController.address)
             console.log("earned: ",earned)
             expect(amtStaked).equal(ethers.utils.parseUnits("9.0", 18))
             expect(earned).gt(0)
@@ -360,7 +360,7 @@ makeSuite(
             const VELO = new ethers.Contract(veloAdd, WETHabi)
             const balanceBefore = await VELO.connect(signer).balanceOf(incentivesController.address);
             const receipt = await waitForTx(
-              await incentivesController.harvestReward("0x131Ae347E654248671Afc885F0767cB605C065d7", [veloAdd])
+              await incentivesController.harvestReward("0xd0E434831a765839051DA9C0B9B99C6b0Fb87201")
             );
 
             const balanceAfter = await VELO.connect(signer).balanceOf(incentivesController.address);
@@ -369,7 +369,7 @@ makeSuite(
             const emitted = receipt.events || [];
 
             eventChecker(emitted[2], 'HarvestedReward', [
-              "0x131Ae347E654248671Afc885F0767cB605C065d7"
+              "0xd0E434831a765839051DA9C0B9B99C6b0Fb87201"
             ]);
           });
 

@@ -25,7 +25,7 @@ task('get-velo-gauge', 'Gets uniswap data')
       const sugar = new ethers.Contract("0x8b70c5e53235abbd1415957f7110fbfe5d0529d4",sugar_abi);
       const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-      const dat = await sugar.connect(provider).byAddress("0xAdF902b11e4ad36B227B84d856B229258b0b0465", ZERO_ADDRESS)
+      const dat = await sugar.connect(provider).byAddress("0x0df083de449F75691fc5A36477a6f3284C269108", ZERO_ADDRESS)
       console.log(dat)
     }
     catch(err){

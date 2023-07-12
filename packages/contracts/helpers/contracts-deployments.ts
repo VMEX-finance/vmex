@@ -420,6 +420,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         OP: ZERO_ADDRESS,
         mooCurveFsUSD: ZERO_ADDRESS,
         mooCurveWSTETH: ZERO_ADDRESS,
+        velo_rETHWETH: ZERO_ADDRESS,
         velo_wstETHWETH: ZERO_ADDRESS,
         moo_velo_wstETHWETH: ZERO_ADDRESS,
         velo_USDCsUSD: ZERO_ADDRESS,

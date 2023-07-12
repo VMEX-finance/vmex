@@ -50,11 +50,12 @@ task(`deploy-${CONTRACT_NAME}`, `Deploy and initialize ${CONTRACT_NAME}`)
         "0xf8126ef025651e1b313a6893fcf4034f4f4bd2aa",
         "0xe35fec3895dcecc7d2a91e8ae4ff3c0d43ebffe0",
         //velo
-        "0x131Ae347E654248671Afc885F0767cB605C065d7",
-        "0xE2CEc8aB811B648bA7B1691Ce08d5E800Dd0a60a",
-        "0x2f733b00127449fcF8B5a195bC51Abb73B7F7A75",
-        "0x1C5472efDF8CE67259D6f44ef548c68703797fA2",
-        "0x0299d40E99F2a5a1390261f5A71d13C3932E214C"
+        "0xd0E434831a765839051DA9C0B9B99C6b0Fb87201",
+        "0x9f82A8b19804141161C582CfEa1b84853340A246",
+        "0xe7630c9560c59ccbf5eed8f33dd0cca2e67a3981",
+        "0xcc53cd0a8ec812d46f0e2c7cc5aadd869b6f0292",
+        "0x613137e8f8083d262055a34a73dc19a652833106",
+        "0x36691b39ec8fa915204ba1e1a4a3596994515639"
       ], 
       [
         1,
@@ -66,11 +67,12 @@ task(`deploy-${CONTRACT_NAME}`, `Deploy and initialize ${CONTRACT_NAME}`)
         2,
         2,
         2,
+        2,
         2
       ]
     );
 
-
+    console.log("finished setting staking type")
     const yvUSDCDat = await lendingPool.getReserveData("0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2", 0);
 
     await incentivesController.beginStakingReward(yvUSDCDat.aTokenAddress, "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b");
@@ -87,32 +89,45 @@ task(`deploy-${CONTRACT_NAME}`, `Deploy and initialize ${CONTRACT_NAME}`)
 
     await incentivesController.beginStakingReward(yvWETHDat.aTokenAddress, "0xe35fec3895dcecc7d2a91e8ae4ff3c0d43ebffe0");
 
+    console.log("finished setting yearn")
     //velo
+    const velo_rETHWETH = await lendingPool.getReserveData("0x7e0F65FAB1524dA9E2E5711D160541cf1199912E", 0);
 
-    const velo_wstETHWETH = await lendingPool.getReserveData("0xBf205335De602ac38244F112d712ab04CB59A498", 0);
+    //gauge not alive?
+    await incentivesController.beginStakingReward(velo_rETHWETH.aTokenAddress, "0xd0E434831a765839051DA9C0B9B99C6b0Fb87201");
 
-    await incentivesController.beginStakingReward(velo_wstETHWETH.aTokenAddress, "0x131Ae347E654248671Afc885F0767cB605C065d7");
+    console.log("finished setting reth weth")
+    const velo_wstETHWETH = await lendingPool.getReserveData("0x6dA98Bde0068d10DDD11b468b197eA97D96F96Bc", 0);
 
+    //gauge looks like it's not alive
+    await incentivesController.beginStakingReward(velo_wstETHWETH.aTokenAddress, "0x9f82A8b19804141161C582CfEa1b84853340A246");
+
+    console.log("finished setting wsteth weth")
     // const velo_USDCsUSD = await lendingPool.getReserveData("0xd16232ad60188B68076a235c65d692090caba155", 0);
 
     // await incentivesController.beginStakingReward(velo_USDCsUSD.aTokenAddress, "0xb03f52D2DB3e758DD49982Defd6AeEFEa9454e80");
 
-    const velo_ETHUSDC = await lendingPool.getReserveData("0x79c912FEF520be002c2B6e57EC4324e260f38E50", 0);
+    const velo_ETHUSDC = await lendingPool.getReserveData("0x0493Bf8b6DBB159Ce2Db2E0E8403E753Abd1235b", 0);
 
-    await incentivesController.beginStakingReward(velo_ETHUSDC.aTokenAddress, "0xE2CEc8aB811B648bA7B1691Ce08d5E800Dd0a60a");
+    //gauge dead
+    await incentivesController.beginStakingReward(velo_ETHUSDC.aTokenAddress, "0xe7630c9560c59ccbf5eed8f33dd0cca2e67a3981");
 
-    const velo_OPETH = await lendingPool.getReserveData("0xcdd41009E74bD1AE4F7B2EeCF892e4bC718b9302", 0);
+    console.log("finished setting usdc weth")
+    const velo_OPETH = await lendingPool.getReserveData("0xd25711EdfBf747efCE181442Cc1D8F5F8fc8a0D3", 0);
 
-    await incentivesController.beginStakingReward(velo_OPETH.aTokenAddress, "0x2f733b00127449fcF8B5a195bC51Abb73B7F7A75");
+    //gauge dead
+    await incentivesController.beginStakingReward(velo_OPETH.aTokenAddress, "0xcc53cd0a8ec812d46f0e2c7cc5aadd869b6f0292");
 
-    const velo_ETHSNX = await lendingPool.getReserveData("0xffb6c35960b23989037c8c391facebc8a17de970", 0);
+    console.log("finished setting op weth")
+    // const velo_ETHSNX = await lendingPool.getReserveData("0x1Bf31A0932A0035c532A7b1DCB94ffe0b35aed14", 0);
 
-    await incentivesController.beginStakingReward(velo_ETHSNX.aTokenAddress, "0x1C5472efDF8CE67259D6f44ef548c68703797fA2");
+    // await incentivesController.beginStakingReward(velo_ETHSNX.aTokenAddress, "0x613137e8f8083d262055a34a73dc19a652833106");
 
-    const velo_OPUSDC = await lendingPool.getReserveData("0x47029bc8f5CBe3b464004E87eF9c9419a48018cd", 0);
+    const velo_OPUSDC = await lendingPool.getReserveData("0x0df083de449F75691fc5A36477a6f3284C269108", 0);
 
-    await incentivesController.beginStakingReward(velo_OPUSDC.aTokenAddress, "0x0299d40E99F2a5a1390261f5A71d13C3932E214C");
+    await incentivesController.beginStakingReward(velo_OPUSDC.aTokenAddress, "0x36691b39ec8fa915204ba1e1a4a3596994515639");
 
+    console.log("finished setting op usdc")
     // const velo_DAIUSDC = await lendingPool.getReserveData("0x4F7ebc19844259386DBdDB7b2eB759eeFc6F8353", 0);
 
     // await incentivesController.beginStakingReward(velo_DAIUSDC.aTokenAddress, "0xc4fF55A961bC04b880e60219CCBBDD139c6451A4");
