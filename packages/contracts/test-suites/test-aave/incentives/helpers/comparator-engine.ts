@@ -85,8 +85,8 @@ export function eventChecker(event: Event, name: string, args: any[] = []): void
   expect(event.event).to.be.equal(name, `Incorrect event emitted`);
   expect(event.args?.length || 0 / 2).to.be.equal(args.length, `${name} signature are wrong`);
   args.forEach((arg, index) => {
-    expect(event.args && event.args[index].toString()).to.be.equal(
-      arg.toString(),
+    expect(event.args && event.args[index].toString().toLowerCase()).to.be.equal(
+      arg.toString().toLowerCase(),
       `${name} has incorrect value on position ${index}`
     );
   });

@@ -102,20 +102,20 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   BeethovenMetadata: {
     [eOptimismNetwork.optimism]: {
-      beethoven_USDCDAI: {
-        _typeOfPool: "2",
-        _legacy: false,
-        _exists: true
-      },
+      // beethoven_USDCDAI: {
+      //   _typeOfPool: "2",
+      //   _legacy: false,
+      //   _exists: true,
+      // },
       beethoven_wstETHETH: {
         _typeOfPool: "1",
         _legacy: true,
-        _exists: true
+        _exists: true,
       },
       beethoven_rETHETH: {
         _typeOfPool: "1",
         _legacy: true,
-        _exists: true
+        _exists: true,
       },
     },
   },
@@ -191,4 +191,52 @@ export const CommonsConfig: ICommonConfiguration = {
   RETHOracle: {
     [eOptimismNetwork.optimism]: "0x1a8F81c256aee9C640e14bB0453ce247ea0DFE6F"
   },
+  ExternalStakingContracts: {
+    [eOptimismNetwork.optimism]: {
+      yvUSDC: {
+        address: "0xB2c04C55979B6CA7EB10e666933DE5ED84E6876b",
+        type: 1,
+      },
+      yvUSDT: {
+        address: "0xf66932f225ca48856b7f97b6f060f4c0d244af8e",
+        type: 1,
+      },
+      yvDAI: {
+        address: "0xf8126ef025651e1b313a6893fcf4034f4f4bd2aa",
+        type: 1,
+      },
+      yvWETH: {
+        address: "0xe35fec3895dcecc7d2a91e8ae4ff3c0d43ebffe0",
+        type: 1,
+      },
+      velo_rETHWETH: {
+        address: "0xd0E434831a765839051DA9C0B9B99C6b0Fb87201",
+        type: 2,
+      },
+      velo_wstETHWETH: {
+        address: "0x9f82A8b19804141161C582CfEa1b84853340A246",
+        type: 2,
+      },
+      velo_ETHUSDC: {
+        address: "0xe7630c9560c59ccbf5eed8f33dd0cca2e67a3981",
+        type: 2,
+      },
+      velo_OPETH: {
+        address: "0xcc53cd0a8ec812d46f0e2c7cc5aadd869b6f0292",
+        type: 2,
+      },
+      velo_OPUSDC: {
+        address: "0x36691b39ec8fa915204ba1e1a4a3596994515639",
+        type: 2,
+      },
+      beethoven_rETHETH: {
+        address: "0x61ac9315a1Ae71633E95Fb35601B59180eC8d61d",
+        type: 3,
+      },
+      beethoven_wstETHETH: {
+        address: "0xe110b862E4D076596707892c0C5163BC183eb161",
+        type: 3,
+      },
+    },
+  }
 };
