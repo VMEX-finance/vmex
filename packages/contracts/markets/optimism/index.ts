@@ -21,6 +21,7 @@ import {
   strategyBeethovenToken,
   strategyStableYearn,
   strategyYearnToken,
+  strategyLUSD
 } from './reservesConfigs';
 
 // ----------------
@@ -75,6 +76,8 @@ export const OptimismConfig: IOptimismConfiguration = {
     yvUSDT: strategyStableYearn,
     yvDAI: strategyStableYearn,
     yvWETH: strategyYearnToken,
+    LUSD: strategyLUSD,
+    velo_LUSDWETH: strategyVeloToken
   },
   ReserveAssets: {
     [eOptimismNetwork.optimism]: {
@@ -120,6 +123,8 @@ export const OptimismConfig: IOptimismConfiguration = {
       yvUSDT: '0xFaee21D0f0Af88EE72BB6d68E54a90E6EC2616de',
       yvDAI: '0x65343F414FFD6c97b0f6add33d16F6845Ac22BAc',
       yvWETH: '0x5B977577Eb8a480f63e11FC615D6753adB8652Ae',
+      LUSD: '0xc40f949f8a4e094d1b49a23ea9241d289b7b2819',
+      velo_LUSDWETH: '0x6387765fFA609aB9A1dA1B16C455548Bfed7CbEA',
     },
   },
 };

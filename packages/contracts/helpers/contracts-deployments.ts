@@ -452,6 +452,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         yvUSDT: ZERO_ADDRESS,
         yvDAI: ZERO_ADDRESS,
         yvWETH: ZERO_ADDRESS,
+        LUSD: ZERO_ADDRESS,
+        velo_LUSDWETH: ZERO_ADDRESS,
       },
       fallbackOracle
     );

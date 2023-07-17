@@ -127,6 +127,8 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   yvDAI: oneEther.multipliedBy("0.00367714136416").toFixed(),
   yvUSDT: oneEther.multipliedBy("0.00367714136416").toFixed(),
   yvWETH: oneEther.toFixed(),
+  LUSD: oneEther.multipliedBy("0.00367714136416").toFixed(),
+  velo_LUSDWETH: oneEther.toFixed(),
 };
 
 export const chainlinkAggregatorProxy = {

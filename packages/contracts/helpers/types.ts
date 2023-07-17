@@ -390,6 +390,8 @@ export interface iAssetBase<T> {
   yvUSDT: T;
   yvDAI: T;
   yvWETH: T;
+  LUSD: T;
+  velo_LUSDWETH: T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -526,6 +528,8 @@ export type iOptimismPoolAssets<T> = Partial<
     | "yvUSDT"
     | "yvDAI"
     | "yvWETH"
+    | "LUSD"
+    | "velo_LUSDWETH"
   >
 >;
 
