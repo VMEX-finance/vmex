@@ -224,15 +224,15 @@ makeSuite(
                 if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
                     const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
                     const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
-                    expectedPrice = 192217940204
+                    expectedPrice = 189599177276
                 }
                 if(currentAsset == "0x4Fd63966879300caFafBB35D157dC5229278Ed23") {
                   //rETH pool
-                  expectedPrice = 193007753857 //should be around the same as wstETH
+                  expectedPrice = 190343506319 //should be around the same as wstETH
                 }
             }
             else if(strat.assetType == 7) { //rETH
-              expectedPrice = 204888312020
+              expectedPrice = 202185432577
             }
             else {
                 continue

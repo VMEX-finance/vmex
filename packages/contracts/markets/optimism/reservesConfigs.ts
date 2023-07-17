@@ -28,6 +28,21 @@ export const strategyDAI: IReserveParams = {
   reserveFactor: '100000000000000000',
 };
 
+export const strategyLUSD: IReserveParams = {
+  strategy: rateStrategyStableOne,
+  baseLTVAsCollateral: '750000000000000000',
+  liquidationThreshold: '800000000000000000',
+  liquidationBonus: '1050000000000000000',
+  borrowingEnabled: true,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  assetType: 0,
+  supplyCap: '0',
+  borrowCap: '0',
+  borrowFactor: '1050000000000000000', //105%
+  reserveFactor: '100000000000000000',
+};
+
 export const strategySUSD: IReserveParams = {
   strategy: rateStrategyStableOne,
   baseLTVAsCollateral: '500000000000000000',

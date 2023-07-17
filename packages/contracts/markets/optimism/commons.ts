@@ -160,6 +160,10 @@ export const CommonsConfig: ICommonConfiguration = {
       OP:{
         feed: '0x0D276FC14719f9292D5C1eA2198673d1f4269246',
         heartbeat: 1200,
+      },
+      LUSD:{
+        feed: '0x9dfc79Aaeb5bb0f96C6e9402671981CdFc424052',
+        heartbeat: 86400,
       }
     },
   },
@@ -227,6 +231,10 @@ export const CommonsConfig: ICommonConfiguration = {
       },
       velo_OPUSDC: {
         address: "0x36691b39ec8fa915204ba1e1a4a3596994515639",
+        type: 2,
+      },
+      velo_LUSDWETH: {
+        address: "0x121de0e978d117590588cb37533ef121c8826a8a",
         type: 2,
       },
       beethoven_rETHETH: {
