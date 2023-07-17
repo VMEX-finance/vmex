@@ -27,7 +27,8 @@ interface IExternalRewardsDistributor {
     enum StakingType {
         NOT_SET, // unset value of 0 can be used to delineate which staking contracts have been set
         YEARN_OP,
-        VELODROME_V2
+        VELODROME_V2,
+        AURA
     }
 
     function getStakingContract(address aToken) external view

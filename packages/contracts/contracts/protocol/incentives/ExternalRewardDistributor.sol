@@ -9,6 +9,8 @@ import {ILendingPool} from '../../interfaces/ILendingPool.sol';
 import {IAssetMappings} from '../../interfaces/IAssetMappings.sol';
 import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
+import {IAuraBooster} from '../../interfaces/IAuraBooster.sol';
+import {IAuraRewardPool} from '../../interfaces/IAuraRewardPool.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -99,15 +101,17 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function harvestReward(address stakingContract) external {
       if(stakingTypes[stakingContract] == StakingType.VELODROME_V2) {
         IVelodromeStakingRewards(stakingContract).getReward(address(this));
-        emit HarvestedReward(stakingContract);
       }
       else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
         IYearnStakingRewards(stakingContract).getReward();
-        emit HarvestedReward(stakingContract);
+      }
+      else if(stakingTypes[stakingContract] == StakingType.AURA) {
+        require(IAuraRewardPool(stakingContract).getReward(address(this), true), "aura getReward failed");
       }
       else {
         revert("Invalid staking contract");
       }
+      emit HarvestedReward(stakingContract);
   }
 
   function rescueRewardTokens(IERC20 reward, address receiver) external onlyGlobalAdmin {
@@ -161,7 +165,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   /**
    * @dev Called by the tranche admins (with approval from manager) to specify that aToken has an external reward
    * @param aToken The address of the aToken that has underlying that has an external reward
-   * @param stakingContract The staking contract
+   * @param stakingContract The staking contract. Note Aura staking contracts will be the rewards contract address (also known as the crvRewards contract)
    **/
   function beginStakingReward(
     address aToken,
@@ -205,6 +209,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
       IYearnStakingRewards(stakingContract).stake(amount);
     }
+    else if(stakingTypes[stakingContract] == StakingType.AURA) {
+      //approve operator contract or staker contract?
+      // IAuraBooster(IAuraRewardPool(stakingContract).operator()).deposit(IAuraRewardPool(stakingContract).pid(), amount, true);
+      require(IAuraRewardPool(stakingContract).deposit(amount, address(this)) == amount, "aura staking failed");
+    }
     else {
       revert("Asset type has no valid staking");
     }
@@ -218,6 +227,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     }
     else if(stakingTypes[stakingContract] == StakingType.YEARN_OP) {
       IYearnStakingRewards(stakingContract).withdraw(amount);
+    }
+    else if(stakingTypes[stakingContract] == StakingType.AURA) {
+      require(IAuraRewardPool(stakingContract).withdrawAndUnwrap(amount, true), "aura unstaking failed");
     }
     else {
       revert("Asset type has no valid staking");
