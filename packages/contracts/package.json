@@ -1,6 +1,6 @@
 {
   "name": "@vmexfinance/contracts",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "VMEX V1 smart contracts",
   "private": false,
   "files": [
@@ -111,9 +111,9 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.2",
+    "bignumber.js": "9.0.0",
     "hardhat": "^2.13.0",
-    "mocha": "^10.2.0",
-    "bignumber.js": "9.0.0"
+    "mocha": "^10.2.0"
   },
   "devDependencies": {
     "@eth-optimism/plugins": "^1.0.0-alpha.3",
