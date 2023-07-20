@@ -181,5 +181,5 @@
       "pre-commit": "pretty-quick --staged --pattern 'contracts/**/*.sol' --pattern 'helpers/**/*.ts'  --pattern 'test-suites/test-aave/**/*.ts' --pattern 'tasks/**/*.ts'"
     }
   },
-  "gitHead": "f9a5ba5f13088c9e857b0094e7133bcde2931862"
+  "gitHead": "f6cc6e0820639f52a049ee13b1ed60e2529c04e2"
 }

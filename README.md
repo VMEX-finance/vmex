@@ -17,7 +17,7 @@
 #### Publishing to NPM
 
 > create a `.npmrc` file in the root directory
-> go to npmjs and create both an account then generate a token
+> go to npmjs, make sure you're in the VMEX Finance org, and generate a token
 > inside of the `.npmrc`, past this inside, replacing '{AUTH_TOKEN}' with your respective token:
 
 ```
