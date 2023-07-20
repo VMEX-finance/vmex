@@ -758,7 +758,7 @@ export interface IBaseConfiguration {
   UniswapV3OracleTargets: iParamsPerNetwork<ITokenTarget>;
   CurveMetadata: iParamsPerNetwork<ICurveMetadata>;
   BeethovenMetadata: iParamsPerNetwork<IBeethovenMetadata>;
-  ExternalStakingContracts: iParamsPerNetwork<IExternalRewardsAddress>;
+  ExternalStakingContracts?: iParamsPerNetwork<IExternalRewardsAddress>;
   ChainlinkAggregator: iParamsPerNetwork<IChainlinkData>;
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
