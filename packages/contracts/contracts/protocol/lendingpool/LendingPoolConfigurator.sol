@@ -122,7 +122,7 @@ contract LendingPoolConfigurator is
         // loop through all reserves in this tranche, and set the local values of LTV, threshold, bonus, and borrow factor
         address[] memory reserves = pool.getReservesList(trancheId);
         uint cachedLength = reserves.length;
-        for(uint i = 0;i<cachedLength; ++i) { //initialize with initial global asset params
+        for(uint256 i;i<cachedLength;) { //initialize with initial global asset params
             (
                 uint64 ltv,
                 uint64 liquidationThreshold,
@@ -143,6 +143,8 @@ contract LendingPoolConfigurator is
                 trancheId, 
                 assetMappings.getDefaultInterestRateStrategyAddress(reserves[i])
             );
+
+            unchecked { ++i; }
         }
 
         pool.setTrancheAdminVerified(trancheId, true);
@@ -187,7 +189,8 @@ contract LendingPoolConfigurator is
         uint64 trancheId
     ) external onlyTrancheAdmin(trancheId) {
         ILendingPool cachedPool = pool;
-        for (uint256 i = 0; i < input.length; i++) {
+        uint256 length = input.length;
+        for (uint256 i; i < length;) {
             address asset = input[i].underlyingAsset;
             if(pool.reserveAdded(asset, trancheId)) {
                 continue;
@@ -222,6 +225,8 @@ contract LendingPoolConfigurator is
                     assetMappings.getDefaultInterestRateStrategyAddress(asset)
                 );
             }
+
+            unchecked { ++i; }
         }
     }
 
@@ -235,7 +240,8 @@ contract LendingPoolConfigurator is
         ConfigureCollateralParamsInput[] calldata input,
         uint64 trancheId
     ) external onlyVerifiedTrancheAdmin(trancheId) {
-        for (uint256 i = 0; i < input.length; i++) {
+        uint256 length = input.length;
+        for (uint256 i; i < length;) {
             ConfigureCollateralParams memory params = input[i].collateralParams;
             ValidationLogic.validateCollateralParams(
                 params.baseLTV, 
@@ -248,6 +254,8 @@ contract LendingPoolConfigurator is
                 trancheId,
                 params
             );
+
+            unchecked { ++i; }
         }
     }
 
@@ -395,7 +403,7 @@ contract LendingPoolConfigurator is
         bool[] calldata borrowingEnabled
     ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == borrowingEnabled.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0; i<asset.length;i++){
+        for(uint256 i; i<asset.length;i++){
             require(!borrowingEnabled[i] || assetMappings.getAssetBorrowable(asset[i]), Errors.LPC_NOT_APPROVED_BORROWABLE);
             DataTypes.ReserveConfigurationMap memory currentConfig = pool
                 .getConfiguration(asset[i], trancheId);
@@ -421,7 +429,7 @@ contract LendingPoolConfigurator is
         bool[] calldata collateralEnabled
     ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == collateralEnabled.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0; i<asset.length;i++){
+        for(uint256 i; i<asset.length;i++){
             if(!collateralEnabled[i]){
                 _checkNoLiquidity(asset[i], trancheId);
             }
@@ -448,7 +456,7 @@ contract LendingPoolConfigurator is
         uint256[] calldata reserveFactor
     ) external onlyTrancheAdmin(trancheId) {
         require(asset.length == reserveFactor.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0; i<asset.length;i++){
+        for(uint256 i; i<asset.length;i++){
             //reserve factor can only be changed if no one deposited in it, otherwise tranche admins could "rug pull" the interest earnings in there
             _checkNoLiquidity(asset[i], trancheId);
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
@@ -480,7 +488,7 @@ contract LendingPoolConfigurator is
         onlyTrancheAdmin(trancheId)
     {
         require(asset.length == isFrozen.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0; i<asset.length;i++){
+        for(uint256 i; i<asset.length;i++){
             DataTypes.ReserveConfigurationMap memory currentConfig = ILendingPool(
                 pool
             ).getConfiguration(asset[i], trancheId);
@@ -525,7 +533,7 @@ contract LendingPoolConfigurator is
         bool[] calldata isWhitelisted
     ) external onlyTrancheAdmin(trancheId) {
         require(user.length == isWhitelisted.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0;i<user.length;i++) {
+        for(uint256 i;i<user.length;i++) {
             pool.addToWhitelist(trancheId, user[i], isWhitelisted[i]);
             emit UserChangedWhitelist(trancheId, user[i], isWhitelisted[i]);
         }
@@ -544,7 +552,7 @@ contract LendingPoolConfigurator is
         bool[] calldata isBlacklisted
     ) external onlyTrancheAdmin(trancheId) {
         require(user.length == isBlacklisted.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0;i<user.length;i++) {
+        for(uint256 i;i<user.length;i++) {
             pool.addToBlacklist(trancheId, user[i], isBlacklisted[i]);
             emit UserChangedBlacklist(trancheId, user[i], isBlacklisted[i]);
         }

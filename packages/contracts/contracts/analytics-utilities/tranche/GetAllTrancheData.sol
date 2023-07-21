@@ -14,7 +14,7 @@ contract GetAllTrancheData {
 
         uint64 totalTranches = LendingPoolConfigurator(configurator).totalTranches();
         QueryTrancheHelpers.TrancheData[] memory allTrancheData = new QueryTrancheHelpers.TrancheData[](totalTranches);
-        for(uint64 i = 0; i < totalTranches; i++) {
+        for(uint64 i = 0; i < totalTranches; ++i) {
             allTrancheData[i] = QueryTrancheHelpers.getSingleTrancheData(i, addressesProvider);
         }
         bytes memory returnData = abi.encode(allTrancheData);

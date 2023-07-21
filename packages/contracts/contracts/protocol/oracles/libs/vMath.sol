@@ -9,11 +9,14 @@ library vMath {
     uint256 internal constant WAD = 1e18; // The scalar of ETH and most ERC20s.
 	
 	function min(uint256[] memory array) internal pure returns(uint256) {
-		uint256 _min = array[0]; 
-		for (uint8 i = 1; i < array.length; i++) {
+		uint256 _min = array[0];
+		uint256 length = array.length;
+		for (uint256 i = 1; i < length;) {
 			if (_min > array[i]) {
 				_min = array[i]; 
-			}	
+			}
+
+			unchecked { ++i; }
 		}
 		return _min; 
 	}
@@ -21,19 +24,24 @@ library vMath {
 	function weightedAvg(uint256[] memory prices, uint256[] memory balances, uint8[] memory decimals) internal pure returns(uint256) {
 		uint256 cumSum = 0;
 		uint256 cumBalances = 0;
-
-		for(uint i = 0;i<prices.length;i++) {
+		uint256 length = prices.length;
+		for(uint256 i; i<length;) {
 			cumSum += prices[i]*balances[i]/10**decimals[i]; //18 decimals
 			cumBalances += balances[i]*1e18/10**decimals[i]; //18 decimals
+
+			unchecked { ++i; }
 		}
 
 		return cumSum * 1e18 / cumBalances; //18 decimals
 	}
 
 	function product(uint256[] memory nums) internal pure returns(uint256) {
-		uint256 _product = nums[0]; 
-		for (uint256 i = 1; i < nums.length; i++) {
+		uint256 _product = nums[0];
+		uint256 length = nums.length;
+		for (uint256 i = 1; i < length;) {
 			_product *= nums[i]; 
+
+			unchecked { ++i; }
 		}
 		return _product; 
 	}

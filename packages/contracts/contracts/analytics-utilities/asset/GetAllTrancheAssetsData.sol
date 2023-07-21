@@ -16,9 +16,11 @@ contract GetAllTrancheAssetsData {
 
         address[] memory assets = ILendingPool(lendingPool).getReservesList(tranche);
         QueryAssetHelpers.AssetData[] memory allAssetsData = new QueryAssetHelpers.AssetData[](assets.length);
-        for (uint64 i = 0; i < assets.length; i++) {
+        for (uint64 i = 0; i < assets.length;) {
             allAssetsData[i] = QueryAssetHelpers.getAssetData(
                 assets[i], tranche, providerAddr);
+
+            unchecked { ++i; }
         }
 
 	    bytes memory returnData = abi.encode(allAssetsData);

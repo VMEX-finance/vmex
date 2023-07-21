@@ -40,7 +40,7 @@ contract AaveProtocolDataProvider {
         ILendingPool pool = ILendingPool(ADDRESSES_PROVIDER.getLendingPool());
         address[] memory reserves = pool.getReservesList(trancheId);
         TokenData[] memory reservesTokens = new TokenData[](reserves.length);
-        for (uint256 i = 0; i < reserves.length; i++) {
+        for (uint256 i; i < reserves.length; ++i) {
             if (reserves[i] == MKR) {
                 reservesTokens[i] = TokenData({
                     symbol: "MKR",
@@ -71,7 +71,7 @@ contract AaveProtocolDataProvider {
         ILendingPool pool = ILendingPool(ADDRESSES_PROVIDER.getLendingPool());
         address[] memory reserves = pool.getReservesList(trancheId);
         TokenData[] memory aTokens = new TokenData[](reserves.length);
-        for (uint256 i = 0; i < reserves.length; i++) {
+        for (uint256 i; i < reserves.length; ++i) {
             // uint64 trancheId = uint8(i % DataTypes.NUM_TRANCHES);
             DataTypes.ReserveData memory reserveData = pool.getReserveData(
                 reserves[i],

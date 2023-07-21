@@ -87,7 +87,7 @@ contract MockIncentivesController is
       assets.length
     );
 
-    for (uint256 i = 0; i < assets.length; i++) {
+    for (uint256 i; i < assets.length; ++i) {
       userState[i].asset = assets[i];
       (userState[i].userBalance, userState[i].totalSupply) = IAToken(assets[i])
         .getScaledUserBalanceAndSupply(user);
@@ -109,10 +109,10 @@ contract MockIncentivesController is
     uint256[] memory amounts = new uint256[](_allRewards.length);
     DistributionTypes.UserAssetState[] memory balanceData = _getUserState(assets, user);
 
-    for (uint256 i = 0; i < assets.length; i++) {
+    for (uint256 i; i < assets.length; ++i) {
       address asset = assets[i];
 
-      for (uint256 j = 0; j < _allRewards.length; j++) {
+      for (uint256 j; j < _allRewards.length; ++j) {
         DistributionTypes.Reward storage reward = _incentivizedAssets[asset].rewardData[
           _allRewards[j]
         ];
@@ -154,7 +154,7 @@ contract MockIncentivesController is
     _batchUpdate(user, userState);
 
     uint256 rewardAccrued;
-    for (uint256 i = 0; i < incentivizedAssets.length; i++) {
+    for (uint256 i; i < incentivizedAssets.length; ++i) {
       address asset = incentivizedAssets[i];
 
       if (_incentivizedAssets[asset].rewardData[reward].users[user].accrued == 0) {
@@ -200,9 +200,9 @@ contract MockIncentivesController is
     DistributionTypes.UserAssetState[] memory userState = _getUserState(incentivizedAssets, user);
     _batchUpdate(user, userState);
 
-    for (uint256 i = 0; i < incentivizedAssets.length; i++) {
+    for (uint256 i; i < incentivizedAssets.length; ++i) {
       address asset = incentivizedAssets[i];
-      for (uint256 j = 0; j < _allRewards.length; j++) {
+      for (uint256 j; j < _allRewards.length; ++j) {
         uint256 amount = _incentivizedAssets[asset].rewardData[rewards[j]].users[user].accrued;
         if (amount != 0) {
           amounts[j] += amount;
@@ -211,7 +211,7 @@ contract MockIncentivesController is
       }
     }
 
-    for (uint256 i = 0; i < amounts.length; i++) {
+    for (uint256 i; i < amounts.length; ++i) {
       if (amounts[i] != 0) {
         IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, to, amounts[i]);
         emit RewardClaimed(msg.sender, rewards[i], to, amounts[i]);
