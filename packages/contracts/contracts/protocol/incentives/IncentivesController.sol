@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
 import {IDistributionManager} from '../../interfaces/IDistributionManager.sol';
 import {IAToken} from '../../interfaces/IAToken.sol';
@@ -26,7 +25,6 @@ contract IncentivesController is
   DistributionManager,
   ExternalRewardDistributor
 {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
   address public REWARDS_VAULT;

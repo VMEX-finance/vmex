@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {IAToken} from "../../../interfaces/IAToken.sol";
@@ -20,7 +19,6 @@ import {DataTypes} from "../types/DataTypes.sol";
  * @notice Implements the logic to update the reserves state
  */
 library ReserveLogic {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using PercentageMath for uint256;
     using SafeERC20 for IERC20;
@@ -150,7 +148,7 @@ library ReserveLogic {
             totalLiquidity.wadToRay()
         );
 
-        uint256 result = amountToLiquidityRatio.add(WadRayMath.ray());
+        uint256 result = amountToLiquidityRatio + WadRayMath.ray();
 
         result = result.rayMul(reserve.liquidityIndex);
         require(
@@ -302,9 +300,7 @@ library ReserveLogic {
 
         //debt accrued is the sum of the current debt minus the sum of the debt at the last update
         //note that repay did not have to occur for this to be higher.
-        vars.totalDebtAccrued = vars
-            .currentVariableDebt
-            .sub(vars.previousVariableDebt);
+        vars.totalDebtAccrued = vars.currentVariableDebt - vars.previousVariableDebt;
 
         vars.amountToMint = vars
             .totalDebtAccrued
@@ -319,9 +315,7 @@ library ReserveLogic {
 
         vars.amountToMintVMEX = vars
             .totalDebtAccrued
-            .percentMul(
-                PercentageMath.PERCENTAGE_FACTOR.sub(vars.reserveFactor)
-            )
+            .percentMul(PercentageMath.PERCENTAGE_FACTOR - vars.reserveFactor)
             .percentMul(
                 vars.globalVMEXReserveFactor //for global VMEX reserve
             );

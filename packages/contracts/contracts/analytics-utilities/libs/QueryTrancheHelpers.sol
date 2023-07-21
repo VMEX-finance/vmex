@@ -4,7 +4,6 @@ import { LendingPoolConfigurator } from "../../protocol/lendingpool/LendingPoolC
 import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
 import { WadRayMath } from "../../protocol/libraries/math/WadRayMath.sol";
-import { SafeMath } from "../../protocol/libraries/math/MathUtils.sol";
 import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { LendingPool } from "../../protocol/lendingpool/LendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
@@ -19,7 +18,6 @@ library QueryTrancheHelpers {
 
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using WadRayMath for uint256;
-    using SafeMath for uint256;
 
     struct TrancheData {
         uint64 id;
@@ -86,6 +84,6 @@ library QueryTrancheHelpers {
         availableLiquidity = tvl;
         utilization = totalBorrowed == 0
                 ? 0
-                : totalBorrowed.rayDiv(availableLiquidity.add(totalBorrowed));
+                : totalBorrowed.rayDiv(availableLiquidity + totalBorrowed);
     }
 }

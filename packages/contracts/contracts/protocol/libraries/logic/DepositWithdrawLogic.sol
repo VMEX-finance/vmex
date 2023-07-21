@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
@@ -22,7 +21,6 @@ import {IAssetMappings} from "../../../interfaces/IAssetMappings.sol";
  * @notice Implements functions to deposit and withdraw
  */
 library DepositWithdrawLogic {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using PercentageMath for uint256;
     using SafeERC20 for IERC20;

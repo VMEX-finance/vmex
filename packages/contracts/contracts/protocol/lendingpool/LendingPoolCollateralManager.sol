@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {SafeMath} from "../../dependencies/openzeppelin/contracts//SafeMath.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts//IERC20.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../interfaces/IVariableDebtToken.sol";
@@ -36,7 +35,6 @@ contract LendingPoolCollateralManager is
     LendingPoolStorage
 {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using PercentageMath for uint256;
     using ReserveLogic for *;
@@ -176,7 +174,7 @@ contract LendingPoolCollateralManager is
         if (!receiveAToken) {
             uint256 currentAvailableCollateral = IERC20(vars.collateralAsset)
                 .balanceOf(vars.collateralAToken);
-            currentAvailableCollateral = currentAvailableCollateral.add(IAToken(vars.collateralAToken).getStakedAmount());
+            currentAvailableCollateral = currentAvailableCollateral + IAToken(vars.collateralAToken).getStakedAmount();
 
             if (currentAvailableCollateral < vars.maxCollateralToLiquidate) {
                 return (
@@ -343,20 +341,14 @@ contract LendingPoolCollateralManager is
 
         // This is the maximum possible amount of the selected collateral that can be liquidated, given the
         // max amount of liquidatable debt
-        vars.maxAmountCollateralToLiquidate = vars
-            .debtAssetPrice
-            .mul(debtToCover)
-            .mul(10**vars.collateralDecimals)
+        vars.maxAmountCollateralToLiquidate = vars.debtAssetPrice * debtToCover * 10**vars.collateralDecimals
             .percentMul(vars.liquidationBonus)
-            .div(vars.collateralPrice.mul(10**vars.debtAssetDecimals));
+            / (vars.collateralPrice * 10**vars.debtAssetDecimals);
 
         if (vars.maxAmountCollateralToLiquidate > userCollateralBalance) {
             collateralAmount = userCollateralBalance;
-            debtAmountNeeded = vars
-                .collateralPrice
-                .mul(collateralAmount)
-                .mul(10**vars.debtAssetDecimals)
-                .div(vars.debtAssetPrice.mul(10**vars.collateralDecimals))
+            debtAmountNeeded = vars.collateralPrice * collateralAmount * 10**vars.debtAssetDecimals
+                / (vars.debtAssetPrice * 10**vars.collateralDecimals)
                 .percentDiv(vars.liquidationBonus);
         } else {
             collateralAmount = vars.maxAmountCollateralToLiquidate;

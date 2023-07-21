@@ -6,7 +6,6 @@ import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {
     IERC20Detailed
 } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {
     IIncentivesController
 } from "../../interfaces/IIncentivesController.sol";
@@ -18,8 +17,6 @@ import {DistributionTypes} from '../libraries/types/DistributionTypes.sol';
  * @author Aave, inspired by the Openzeppelin ERC20 implementation
  **/
 abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
-    using SafeMath for uint256;
-
     mapping(address => uint256) internal _balances;
 
     mapping(address => mapping(address => uint256)) private _allowances;
@@ -153,10 +150,7 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
         _approve(
             sender,
             _msgSender(),
-            _allowances[sender][_msgSender()].sub(
-                amount,
-                "ERC20: transfer amount exceeds allowance"
-            )
+            _allowances[sender][_msgSender()] - amount
         );
         emit Transfer(sender, recipient, amount);
         return true;
@@ -176,7 +170,7 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
         _approve(
             _msgSender(),
             spender,
-            _allowances[_msgSender()][spender].add(addedValue)
+            _allowances[_msgSender()][spender] + addedValue
         );
         return true;
     }
@@ -195,10 +189,7 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
         _approve(
             _msgSender(),
             spender,
-            _allowances[_msgSender()][spender].sub(
-                subtractedValue,
-                "ERC20: decreased allowance below zero"
-            )
+            _allowances[_msgSender()][spender] - subtractedValue
         );
         return true;
     }
@@ -214,12 +205,9 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
         _beforeTokenTransfer(sender, recipient, amount);
 
         uint256 oldSenderBalance = _balances[sender];
-        _balances[sender] = oldSenderBalance.sub(
-            amount,
-            "ERC20: transfer amount exceeds balance"
-        );
+        _balances[sender] = oldSenderBalance - amount;
         uint256 oldRecipientBalance = _balances[recipient];
-        _balances[recipient] = _balances[recipient].add(amount);
+        _balances[recipient] = _balances[recipient] + amount;
 
         if (address(_getIncentivesController()) != address(0)) {
             uint256 currentTotalSupply = _totalSupply;
@@ -248,10 +236,10 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
         _beforeTokenTransfer(address(0), account, amount);
 
         uint256 oldTotalSupply = _totalSupply;
-        _totalSupply = oldTotalSupply.add(amount);
+        _totalSupply = oldTotalSupply + amount;
 
         uint256 oldAccountBalance = _balances[account];
-        _balances[account] = oldAccountBalance.add(amount);
+        _balances[account] = oldAccountBalance + amount;
 
         if (address(_getIncentivesController()) != address(0)) {
             _getIncentivesController().handleAction(
@@ -270,13 +258,10 @@ abstract contract IncentivizedERC20 is Context, IERC20, IERC20Detailed {
         _beforeTokenTransfer(account, address(0), amount);
 
         uint256 oldTotalSupply = _totalSupply;
-        _totalSupply = oldTotalSupply.sub(amount);
+        _totalSupply = oldTotalSupply - amount;
 
         uint256 oldAccountBalance = _balances[account];
-        _balances[account] = oldAccountBalance.sub(
-            amount,
-            "ERC20: burn amount exceeds balance"
-        );
+        _balances[account] = oldAccountBalance - amount;
 
         if (address(_getIncentivesController()) != address(0)) {
             _getIncentivesController().handleAction(

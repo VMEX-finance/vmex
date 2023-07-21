@@ -3,7 +3,6 @@ pragma solidity 0.8.19;
 import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
 import { WadRayMath } from "../../protocol/libraries/math/WadRayMath.sol";
-import { SafeMath } from "../../protocol/libraries/math/MathUtils.sol";
 import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
@@ -17,7 +16,6 @@ library QueryAssetHelpers {
 
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using WadRayMath for uint256;
-    using SafeMath for uint256;
 
     struct AssetData {
         uint64 tranche;
@@ -78,7 +76,7 @@ library QueryAssetHelpers {
 
         assetData.utilization = assetData.totalBorrowed == 0
             ? 0
-            : assetData.totalBorrowed.rayDiv(assetData.totalReserves.add(assetData.totalBorrowed));
+            : assetData.totalBorrowed.rayDiv(assetData.totalReserves + assetData.totalBorrowed);
 
         assetData.adminFee = reserve.configuration.getReserveFactor();
         assetData.platformFee = a.getVMEXReserveFactor(asset);

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IReserveInterestRateStrategy} from "../../interfaces/IReserveInterestRateStrategy.sol";
 import {IIncentivesController} from "../../interfaces/IIncentivesController.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
@@ -23,7 +22,6 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
  **/
 contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     using WadRayMath for uint256;
-    using SafeMath for uint256;
     using PercentageMath for uint256;
 
     /**
@@ -59,7 +57,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         uint256 __variableRateSlope2
     ) {
         OPTIMAL_UTILIZATION_RATE = optimalUtilizationRate;
-        EXCESS_UTILIZATION_RATE = WadRayMath.ray().sub(optimalUtilizationRate);
+        EXCESS_UTILIZATION_RATE = WadRayMath.ray() - optimalUtilizationRate;
         addressesProvider = provider;
         _baseVariableBorrowRate = __baseVariableBorrowRate;
         _variableRateSlope1 = __variableRateSlope1;
@@ -85,9 +83,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         returns (uint256)
     {
         return
-            _baseVariableBorrowRate.add(_variableRateSlope1).add(
-                _variableRateSlope2
-            );
+            _baseVariableBorrowRate + _variableRateSlope1 +  _variableRateSlope2;
     }
 
     /**
@@ -110,11 +106,9 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         uint256 availableLiquidity = IERC20(calvars.reserve).balanceOf(
             calvars.aToken
         );
-        availableLiquidity = availableLiquidity.add(IAToken(calvars.aToken).getStakedAmount());
+        availableLiquidity = availableLiquidity + IAToken(calvars.aToken).getStakedAmount();
 
-        availableLiquidity = availableLiquidity
-            .add(calvars.liquidityAdded)
-            .sub(calvars.liquidityTaken);
+        availableLiquidity = availableLiquidity + calvars.liquidityAdded - calvars.liquidityTaken;
 
         CalcInterestRatesLocalVars memory vars;
         vars.totalDebt = calvars.totalVariableDebt;
@@ -122,33 +116,28 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
         vars.currentLiquidityRate = 0;
         vars.utilizationRate = vars.totalDebt == 0
             ? 0
-            : vars.totalDebt.rayDiv(availableLiquidity.add(vars.totalDebt));
+            : vars.totalDebt.rayDiv(availableLiquidity + vars.totalDebt);
 
 
         if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
-            uint256 excessUtilizationRateRatio = vars
-                .utilizationRate
-                .sub(OPTIMAL_UTILIZATION_RATE)
+            uint256 excessUtilizationRateRatio = (vars.utilizationRate - OPTIMAL_UTILIZATION_RATE)
                 .rayDiv(EXCESS_UTILIZATION_RATE);
 
-            vars.currentVariableBorrowRate = _baseVariableBorrowRate
-                .add(_variableRateSlope1)
-                .add(_variableRateSlope2.rayMul(excessUtilizationRateRatio));
+            vars.currentVariableBorrowRate = _baseVariableBorrowRate + _variableRateSlope1 +
+                _variableRateSlope2.rayMul(excessUtilizationRateRatio);
         } else {
-            vars.currentVariableBorrowRate = _baseVariableBorrowRate.add(
+            vars.currentVariableBorrowRate = _baseVariableBorrowRate + 
                 vars.utilizationRate.rayMul(_variableRateSlope1).rayDiv(
                     OPTIMAL_UTILIZATION_RATE
-                )
-            );
+                );
         }
 
         vars.currentLiquidityRate = vars.currentVariableBorrowRate
             .rayMul(vars.utilizationRate) // % return per asset borrowed * amount borrowed = total expected return in pool
-            .percentMul(PercentageMath.PERCENTAGE_FACTOR.sub(calvars.reserveFactor)) //this is percentage of pool being borrowed.
+            .percentMul(PercentageMath.PERCENTAGE_FACTOR - calvars.reserveFactor) //this is percentage of pool being borrowed.
                 .percentMul(
-                    PercentageMath.PERCENTAGE_FACTOR.sub(
-                        calvars.globalVMEXReserveFactor
-                    ) //global VMEX treasury interest rate
+                    PercentageMath.PERCENTAGE_FACTOR - calvars.globalVMEXReserveFactor
+                     //global VMEX treasury interest rate
                 );
 
         //borrow interest rate * (1-reserve factor) *(1- global VMEX reserve factor) = deposit interest rate
