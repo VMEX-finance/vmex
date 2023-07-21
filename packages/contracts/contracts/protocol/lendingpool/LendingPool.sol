@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {Address} from "../../dependencies/openzeppelin/contracts/Address.sol";
@@ -44,7 +43,6 @@ contract LendingPool is
     ILendingPool,
     LendingPoolStorage
 {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using SafeERC20 for IERC20;
     using ReserveLogic for DataTypes.ReserveData;
@@ -327,7 +325,7 @@ contract LendingPool is
             0
         );
 
-        if (variableDebt.sub(paybackAmount) == 0) {
+        if (variableDebt - paybackAmount == 0) {
             _usersConfig[onBehalfOf][trancheId].configuration.setBorrowing(reserve.id, false);
         }
 
@@ -635,7 +633,7 @@ contract LendingPool is
 
 
         if (from != to) {
-            if (balanceFromBefore.sub(amount) == 0) {
+            if (balanceFromBefore - amount == 0) {
                 DataTypes.UserConfigurationMap
                     storage fromConfig = _usersConfig[from][trancheId].configuration;
                 fromConfig.setUsingAsCollateral(reserve.id, false);

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {SafeMath} from "../../../dependencies/openzeppelin/contracts/SafeMath.sol";
 import {IERC20} from "../../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
@@ -23,7 +22,6 @@ import {IAToken} from "../../../interfaces/IAToken.sol";
  */
 library ValidationLogic {
     using ReserveLogic for DataTypes.ReserveData;
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using PercentageMath for uint256;
     using SafeERC20 for IERC20;
@@ -199,9 +197,7 @@ library ValidationLogic {
         );
 
         // amountInETH always has 18 decimals (or if oracle has 8 decimals, this also has 8 decimals), since the assetPrice always has 18 decimals. Scaling by amount/asset decimals.
-        uint256 amountInETH = exvars.assetPrice.mul(exvars.amount).div(
-                10**exvars._assetMappings.getDecimals(exvars.asset)
-            );
+        uint256 amountInETH = exvars.assetPrice * exvars.amount / 10**exvars._assetMappings.getDecimals(exvars.asset);
 
         //(uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
@@ -218,10 +214,10 @@ library ValidationLogic {
 
         //add the current already borrowed amount to the amount requested to calculate the total collateral needed.
         //risk adjusted debt
-        vars.amountOfCollateralNeededETH = vars
+        vars.amountOfCollateralNeededETH = (vars
             .userBorrowBalanceETH
             .percentMul(vars.avgBorrowFactor)
-            .add(amountInETH.percentMul(exvars._assetMappings.getBorrowFactor(exvars.asset))) //this amount that we are borrowing also has a borrow factor that increases the actual debt
+            + amountInETH.percentMul(exvars._assetMappings.getBorrowFactor(exvars.asset))) //this amount that we are borrowing also has a borrow factor that increases the actual debt
             .percentDiv(vars.currentLtv); //LTV is calculated in percentage
 
         require(
