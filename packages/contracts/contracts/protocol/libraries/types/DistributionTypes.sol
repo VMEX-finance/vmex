@@ -29,7 +29,7 @@ library DistributionTypes {
    **/
   struct IncentivizedAsset {
     mapping(address => Reward) rewardData;
-    mapping(uint128 => address) rewardList;
+    mapping(uint256 => address) rewardList;
     uint128 numRewards;
     uint8 decimals;
   }

@@ -17,7 +17,7 @@ contract GetUserSummaryData {
             ILendingPoolAddressesProvider(providerAddr).getLendingPoolConfigurator()
         ).totalTranches();
 
-        for (uint64 i = 0; i < totalTranches; i++) {
+        for (uint64 i = 0; i < totalTranches; ++i) {
             QueryUserHelpers.UserTrancheData memory userTrancheData =
                 QueryUserHelpers.getUserTrancheData(user, i, providerAddr);
             userSummaryData.totalCollateralETH += userTrancheData.totalCollateralETH;

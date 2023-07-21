@@ -70,7 +70,7 @@ library QueryTrancheHelpers {
             ILendingPoolAddressesProvider(addressesProvider).getLendingPool()
         ).getReservesList(tranche);
 
-        for (uint8 i = 0; i < assets.length; i++) {
+        for (uint8 i = 0; i < assets.length;) {
 
             QueryAssetHelpers.AssetData memory assetData =
                 QueryAssetHelpers.getAssetData(assets[i], tranche, addressesProvider);
@@ -79,6 +79,8 @@ library QueryTrancheHelpers {
 
             totalSupplied += assetData.totalSupplied;
             totalBorrowed += assetData.totalBorrowed;
+
+            unchecked { ++i; }
         }
 
         availableLiquidity = tvl;

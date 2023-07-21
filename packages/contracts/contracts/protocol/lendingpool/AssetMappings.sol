@@ -151,7 +151,8 @@ contract AssetMappings is IAssetMappings, Initializable{
     function addAssetMapping(
         AddAssetMappingInput[] memory input
     ) external onlyGlobalAdmin {
-        for(uint256 i = 0; i<input.length; i++) {
+        uint256 length = input.length;
+        for(uint256 i; i<length;) {
             AddAssetMappingInput memory inputAsset = input[i];
             address currentAssetAddress = inputAsset.asset;
             validateAddAssetMapping(inputAsset);
@@ -200,6 +201,8 @@ contract AssetMappings is IAssetMappings, Initializable{
                 inputAsset.borrowingEnabled,
                 inputAsset.VMEXReserveFactor
             );
+
+            unchecked { ++i; }
         }
     }
 
@@ -281,7 +284,7 @@ contract AssetMappings is IAssetMappings, Initializable{
         uint256 numTokens = getNumApprovedTokens();
         address tmp = approvedAssetsHead;
         tokens = new address[](numTokens);
-        uint256 i = 0;
+        uint256 i;
 
         while(tmp != address(0)) {
             if(assetMappings[tmp].isAllowed) {
@@ -369,7 +372,7 @@ contract AssetMappings is IAssetMappings, Initializable{
      **/
     function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external override onlyGlobalAdmin {
         require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0;i<assets.length;i++){
+        for(uint256 i;i<assets.length;i++){
             curveMetadata[assets[i]] = vars[i];
         }
     }
@@ -383,7 +386,7 @@ contract AssetMappings is IAssetMappings, Initializable{
      **/
     function setBeethovenMetadata(address[] calldata assets, DataTypes.BeethovenMetadata[] calldata vars) external onlyGlobalAdmin {
         require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint i = 0;i<assets.length;i++){
+        for(uint256 i;i<assets.length;i++){
             beethovenMetadata[assets[i]] = vars[i];
         }
     }

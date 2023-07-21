@@ -124,7 +124,7 @@ library QueryUserHelpers {
 
         vars.userConfig = lendingPool.getUserConfiguration(user, tranche);
 
-        for (uint8 i = 0; i < vars.allAssets.length; i++) {
+        for (uint8 i = 0; i < vars.allAssets.length; ++i) {
             vars.reserve = lendingPool.getReserveData(vars.allAssets[i], tranche);
 
             vars.currentATokenBalance = IERC20(vars.reserve.aTokenAddress).balanceOf(user);
@@ -182,10 +182,10 @@ library QueryUserHelpers {
         // return correctly sized arrays
         s = new SuppliedAssetData[](vars.s_idx);
         b = new BorrowedAssetData[](vars.b_idx);
-        for (uint8 i = 0; i < vars.s_idx; i++) {
+        for (uint8 i = 0; i < vars.s_idx; ++i) {
             s[i] = vars.tempSuppliedAssetData[i];
         }
-        for (uint8 i = 0; i < vars.b_idx; i++) {
+        for (uint8 i = 0; i < vars.b_idx; ++i) {
             b[i] = vars.tempBorrowedAssetData[i];
         }
     }
@@ -211,7 +211,7 @@ library QueryUserHelpers {
 
 
 
-        for (uint8 i = 0; i < approvedTokens.length; i++) {
+        for (uint8 i = 0; i < approvedTokens.length; ++i) {
             address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
                 .getPriceOracle();
 
@@ -240,8 +240,8 @@ library QueryUserHelpers {
         SuppliedAssetData[] memory returnArr =
             new SuppliedAssetData[](arr1.length + arr2.length);
 
-        uint i = 0;
-        for (; i < arr1.length; i++) {
+        uint256 i;
+        for (; i < arr1.length; ++i) {
             returnArr[i] = arr1[i];
         }
 
@@ -260,8 +260,8 @@ library QueryUserHelpers {
         BorrowedAssetData[] memory returnArr =
             new BorrowedAssetData[](arr1.length + arr2.length);
 
-        uint i = 0;
-        for (; i < arr1.length; i++) {
+        uint256 i;
+        for (; i < arr1.length; ++i) {
             returnArr[i] = arr1[i];
         }
 

@@ -38,10 +38,12 @@ contract LendingPoolAddressesProviderRegistry is
 
         address[] memory activeProviders = new address[](maxLength);
 
-        for (uint256 i = 0; i < maxLength; i++) {
+        for (uint256 i; i < maxLength;) {
             if (_addressesProviders[addressesProvidersList[i]] > 0) {
                 activeProviders[i] = addressesProvidersList[i];
             }
+
+            unchecked { ++i; }
         }
 
         return activeProviders;
@@ -97,10 +99,12 @@ contract LendingPoolAddressesProviderRegistry is
     function _addToAddressesProvidersList(address provider) internal {
         uint256 providersCount = _addressesProvidersList.length;
 
-        for (uint256 i = 0; i < providersCount; i++) {
+        for (uint256 i; i < providersCount;) {
             if (_addressesProvidersList[i] == provider) {
                 return;
             }
+
+            unchecked { ++i; }
         }
 
         _addressesProvidersList.push(provider);

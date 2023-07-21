@@ -55,7 +55,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   ) external onlyGlobalAdmin {
     require(aTokens.length == stakingContracts.length, "Malformed input");
 
-    for(uint i = 0; i < aTokens.length; i++) {
+    for(uint256 i; i < aTokens.length; ++i) {
         beginStakingReward(aTokens[i], stakingContracts[i]);
     }
   }
@@ -70,7 +70,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     StakingType[] calldata _stakingTypes
   ) public onlyGlobalAdmin { //if tranches want to activate they need to talk to us first
     require(_stakingContracts.length == _stakingTypes.length, "length mismatch");
-    for(uint i = 0; i < _stakingContracts.length; i++) {
+    for(uint256 i; i < _stakingContracts.length; ++i) {
         stakingTypes[_stakingContracts[i]] = _stakingTypes[i];
     }
   }

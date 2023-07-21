@@ -108,7 +108,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         ChainlinkData[] calldata sources
     ) external onlyGlobalAdmin {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for (uint256 i = 0; i < assets.length; i++) {
+        uint256 assetsLength = assets.length;
+        for (uint256 i; i < assetsLength; ++i) {
             require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i].feed).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
             require(IChainlinkPriceFeed(sources[i].feed).decimals() == BASE_CURRENCY_DECIMALS, Errors.VO_BAD_DECIMALS);
             _assetsSources[assets[i]] = sources[i];
@@ -262,15 +263,19 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
             return _fallbackOracle.getAssetPrice(asset);
         }
 
-        uint256[] memory prices = new uint256[](c._poolSize);
+        uint256 poolSize = c._poolSize;
 
-        for (uint256 i = 0; i < c._poolSize; i++) {
+        uint256[] memory prices = new uint256[](poolSize);
+
+        for (uint256 i; i < poolSize;) {
             address underlying = ICurvePool(c._curvePool).coins(i);
             if(underlying == ETH_NATIVE){
                 underlying = WETH;
             }
             prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
             require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+
+            unchecked { ++i; }
         }
 
         if(assetType==DataTypes.ReserveAssetType.CURVE){
@@ -337,7 +342,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
             ,
         ) = vault.getPoolTokens(poolId);
 
-        uint256 i = 0;
+        uint256 i;
 
         if(address(tokens[0]) == asset) { //boosted tokens first token is itself
             i = 1;
@@ -345,7 +350,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
 
         uint256[] memory prices = new uint256[](tokens.length-i);
 
-        uint256 j = 0;
+        uint256 j;
 
         while(i<tokens.length) {
             address token = address(tokens[i]);
@@ -422,8 +427,10 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         returns (uint256[] memory)
     {
         uint256[] memory prices = new uint256[](assets.length);
-        for (uint256 i = 0; i < assets.length; i++) {
+        for (uint256 i; i < assets.length;) {
             prices[i] = getAssetPrice(assets[i]);
+
+            unchecked { ++i; }
         }
         return prices;
     }

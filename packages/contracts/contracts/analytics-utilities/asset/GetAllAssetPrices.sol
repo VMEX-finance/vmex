@@ -19,7 +19,7 @@ contract GetAllAssetPrices {
     {
         AssetPrice[] memory allAssetPrices = new AssetPrice[](assets.length);
 
-        for (uint64 i = 0; i < assets.length; i++) {
+        for (uint64 i = 0; i < assets.length;) {
             allAssetPrices[i].oracle = ILendingPoolAddressesProvider(providerAddr)
                 .getPriceOracle();
             allAssetPrices[i].priceETH = IPriceOracleGetter(allAssetPrices[i].oracle).getAssetPrice(assets[i]);
@@ -29,6 +29,7 @@ contract GetAllAssetPrices {
                 assets[i],
                 1,
                 0);
+        unchecked { ++i; }
         }
 
 	    bytes memory returnData = abi.encode(allAssetPrices);

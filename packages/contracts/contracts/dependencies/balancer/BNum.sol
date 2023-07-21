@@ -117,7 +117,7 @@ library BNum {
     //         = (product(a - i - 1, i=1-->k) * x^k) / (k!)
     // each iteration, multiply previous term by (a-(k-1)) * x / k
     // continue until term is less than precision
-    for (uint i = 1; term >= precision; i++) {
+    for (uint i = 1; term >= precision; ++i) {
       uint bigK = i * BConst.BONE;
       (uint c, bool cneg) = bsubSign(a, bsub(bigK, BConst.BONE));
       term = bmul(term, bmul(c, x));

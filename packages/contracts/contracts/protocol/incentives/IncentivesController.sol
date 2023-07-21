@@ -84,10 +84,13 @@ contract IncentivesController is
       assets.length
     );
 
-    for (uint256 i = 0; i < assets.length; i++) {
+    uint256 length = assets.length;
+    for (uint256 i; i < length;) {
       userState[i].asset = assets[i];
       (userState[i].userBalance, userState[i].totalSupply) = IAToken(assets[i])
         .getScaledUserBalanceAndSupply(user);
+
+      unchecked { ++i; }
     }
 
     return userState;
@@ -103,13 +106,15 @@ contract IncentivesController is
     address user
   ) external view override returns (address[] memory, uint256[] memory) {
     address[] memory rewards = _allRewards;
-    uint256[] memory amounts = new uint256[](_allRewards.length);
+    uint256 rewardsLength = rewards.length;
+    uint256[] memory amounts = new uint256[](rewardsLength);
     DistributionTypes.UserAssetState[] memory balanceData = _getUserState(assets, user);
 
-    for (uint256 i = 0; i < assets.length; i++) {
+    // cant cache because of the stack too deep
+    for (uint256 i; i < assets.length;) {
       address asset = assets[i];
 
-      for (uint256 j = 0; j < _allRewards.length; j++) {
+      for (uint256 j; j < rewardsLength;) {
         DistributionTypes.Reward storage reward = _incentivizedAssets[asset].rewardData[
           _allRewards[j]
         ];
@@ -121,7 +126,9 @@ contract IncentivesController is
             reward.users[user].index,
             _incentivizedAssets[asset].decimals
           );
+          unchecked { ++j; }
       }
+      unchecked { ++i; }
     }
 
     return (rewards, amounts);
@@ -151,7 +158,8 @@ contract IncentivesController is
     _batchUpdate(user, userState);
 
     uint256 rewardAccrued;
-    for (uint256 i = 0; i < incentivizedAssets.length; i++) {
+    uint256 length = incentivizedAssets.length;
+    for (uint256 i; i < length;) {
       address asset = incentivizedAssets[i];
 
       if (_incentivizedAssets[asset].rewardData[reward].users[user].accrued == 0) {
@@ -168,6 +176,8 @@ contract IncentivesController is
         _incentivizedAssets[asset].rewardData[reward].users[user].accrued = remainder;
         break;
       }
+
+      unchecked { ++i; }
     }
 
     if (rewardAccrued == 0) {
@@ -192,27 +202,36 @@ contract IncentivesController is
     address to
   ) external override returns (address[] memory, uint256[] memory) {
     address[] memory rewards = _allRewards;
-    uint256[] memory amounts = new uint256[](_allRewards.length);
+    uint256 rewardsLength = _allRewards.length;
+    uint256[] memory amounts = new uint256[](rewardsLength);
     address user = msg.sender;
     DistributionTypes.UserAssetState[] memory userState = _getUserState(incentivizedAssets, user);
     _batchUpdate(user, userState);
 
-    for (uint256 i = 0; i < incentivizedAssets.length; i++) {
+    uint256 assetsLength = incentivizedAssets.length; 
+    for (uint256 i; i < assetsLength;) {
       address asset = incentivizedAssets[i];
-      for (uint256 j = 0; j < _allRewards.length; j++) {
+      for (uint256 j; j < rewardsLength;) {
         uint256 amount = _incentivizedAssets[asset].rewardData[rewards[j]].users[user].accrued;
         if (amount != 0) {
           amounts[j] += amount;
           _incentivizedAssets[asset].rewardData[rewards[j]].users[user].accrued = 0;
         }
+
+        unchecked { ++j; }
       }
+
+      unchecked { ++i; }
     }
 
-    for (uint256 i = 0; i < amounts.length; i++) {
+    uint256 amountsLength = amounts.length;
+    for (uint256 i; i < amountsLength;) {
       if (amounts[i] != 0) {
         IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, to, amounts[i]);
         emit RewardClaimed(msg.sender, rewards[i], to, amounts[i]);
       }
+
+      unchecked { ++i; }
     }
 
     return (rewards, amounts);

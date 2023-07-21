@@ -59,11 +59,11 @@ contract LendingPoolCollateralManager is
         uint256 debtAmountNeeded;
         uint256 healthFactor;
         uint256 liquidatorPreviousATokenBalance;
-        bool isCollateralEnabled;
-        DataTypes.InterestRateMode borrowRateMode;
         uint256 errorCode;
         string errorMsg;
         IAssetMappings _assetMappings;
+        bool isCollateralEnabled;
+        DataTypes.InterestRateMode borrowRateMode;
         address debtAsset;
         address collateralAsset;
         address collateralAToken;
