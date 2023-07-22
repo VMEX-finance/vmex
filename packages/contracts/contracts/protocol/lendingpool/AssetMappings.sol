@@ -149,7 +149,7 @@ contract AssetMappings is IAssetMappings, Initializable{
      *      that were already added
      **/
     function addAssetMapping(
-        AddAssetMappingInput[] memory input
+        AddAssetMappingInput[] calldata input
     ) external onlyGlobalAdmin {
         uint256 length = input.length;
         for(uint256 i; i<length;) {

@@ -149,7 +149,7 @@ library ValidationLogic {
     }
 
     function validateBorrow(
-        DataTypes.ExecuteBorrowParams memory exvars,
+        DataTypes.ExecuteBorrowParams calldata exvars,
         DataTypes.ReserveData storage reserve,
         mapping(address => mapping(uint64 => DataTypes.ReserveData))
             storage reservesData,

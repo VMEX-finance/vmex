@@ -75,7 +75,7 @@ contract IncentivesController is
   }
 
   function _getUserState(
-    address[] memory assets,
+    address[] calldata assets,
     address user
   ) internal view returns (DistributionTypes.UserAssetState[] memory) {
     DistributionTypes.UserAssetState[] memory userState = new DistributionTypes.UserAssetState[](

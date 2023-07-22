@@ -92,7 +92,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
      * @return The liquidity rate and the variable borrow rate
      **/
     function calculateInterestRates(
-        DataTypes.calculateInterestRatesVars memory calvars
+        DataTypes.calculateInterestRatesVars calldata calvars
     )
         external
         view
