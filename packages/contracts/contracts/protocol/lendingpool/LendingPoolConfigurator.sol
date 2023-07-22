@@ -670,10 +670,8 @@ contract LendingPoolConfigurator is
 
         availableLiquidity += IAToken(reserveData.aTokenAddress).getStakedAmount();
 
-        require(
-            availableLiquidity == 0 && reserveData.currentLiquidityRate == 0,
-            Errors.LPC_RESERVE_LIQUIDITY_NOT_0
-        );
+        require(availableLiquidity == 0, Errors.LPC_RESERVE_LIQUIDITY_NOT_0);
+        require(reserveData.currentLiquidityRate == 0, Errors.LPC_RESERVE_LIQUIDITY_NOT_0);
     }
 
     /**

@@ -255,13 +255,13 @@ library GenericLogic {
             }
         }
 
-        vars.avgLtv = vars.totalCollateralInETH > 0
+        vars.avgLtv = vars.totalCollateralInETH != 0
             ? vars.avgLtv / vars.totalCollateralInETH
             : 0; //weighted average of all ltv's across all supplied assets
-        vars.avgLiquidationThreshold = vars.totalCollateralInETH > 0
+        vars.avgLiquidationThreshold = vars.totalCollateralInETH != 0
             ? vars.avgLiquidationThreshold / vars.totalCollateralInETH
             : 0;
-        vars.avgBorrowFactor = vars.totalDebtInETH > 0
+        vars.avgBorrowFactor = vars.totalDebtInETH != 0
             ? vars.avgBorrowFactor / vars.totalDebtInETH
             : 0;
 

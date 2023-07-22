@@ -273,7 +273,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
                 underlying = WETH;
             }
             prices[i] = getAssetPrice(underlying); //handles case where underlying is curve too.
-            require(prices[i] > 0, Errors.VO_UNDERLYING_FAIL);
+            require(prices[i] != 0, Errors.VO_UNDERLYING_FAIL);
 
             unchecked { ++i; }
         }
@@ -305,16 +305,14 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         if(token0 == ETH_NATIVE){
             token0 = WETH;
         }
-
-        prices[0] = getAssetPrice(token0); 
-        require(prices[0] > 0, Errors.VO_UNDERLYING_FAIL);
+        prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
+        require(prices[0] != 0, Errors.VO_UNDERLYING_FAIL);
 
         if(token1 == ETH_NATIVE){
             token1 = WETH;
         }
-
-        prices[1] = getAssetPrice(token1);  
-        require(prices[1] > 0, Errors.VO_UNDERLYING_FAIL);
+        prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
+        require(prices[1] != 0, Errors.VO_UNDERLYING_FAIL);
 
         price = VelodromeOracle.get_lp_price(asset, prices, BASE_CURRENCY_DECIMALS, stable); //has 18 decimals
 
@@ -358,7 +356,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
                 token = WETH;
             }
             prices[j] = getAssetPrice(token);
-            require(prices[j] > 0, Errors.VO_UNDERLYING_FAIL);
+            require(prices[j] != 0, Errors.VO_UNDERLYING_FAIL);
             i++;
             j++;
         }
