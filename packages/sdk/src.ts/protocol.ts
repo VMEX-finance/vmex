@@ -31,18 +31,16 @@ export async function borrow(
   },
   callback?: () => Promise<any>
 ) {
-  params.underlying = convertSymbolToAddress(params.underlying,params.network);
+  params.underlying = convertSymbolToAddress(params.underlying, params.network);
   let tx, amount;
-  if(params.isMax) {
-    amount = MAX_UINT_AMOUNT;
-  } else{
-    amount = await convertToCurrencyDecimals(
-      params.underlying,
-      params.amount.toString(),
-      params.test,
-      params.providerRpc
-    );
-  }
+
+  amount = await convertToCurrencyDecimals(
+    params.underlying,
+    params.amount.toString(),
+    params.test,
+    params.providerRpc
+  );
+
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
@@ -91,7 +89,7 @@ export async function markReserveAsCollateral(
   },
   callback?: () => Promise<any>
 ) {
-  params.asset = convertSymbolToAddress(params.asset,params.network);
+  params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
   const client = await params.signer.getAddress();
   const lendingPool = await getLendingPool({
@@ -127,7 +125,7 @@ export async function withdraw(
   },
   callback?: () => Promise<any>
 ) {
-  params.asset = convertSymbolToAddress(params.asset,params.network);
+  params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.asset,
@@ -183,8 +181,8 @@ export async function repay(
   },
   callback?: () => Promise<any>
 ) {
-  params.asset = convertSymbolToAddress(params.asset,params.network);
-  console.log("Repay: ",params);
+  params.asset = convertSymbolToAddress(params.asset, params.network);
+  console.log("Repay: ", params);
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.asset,
@@ -253,13 +251,13 @@ export async function supply(
   },
   callback?: () => Promise<any>
 ) {
-  params.underlying = convertSymbolToAddress(params.underlying,params.network);
+  params.underlying = convertSymbolToAddress(params.underlying, params.network);
   let tx;
   let client = await params.signer.getAddress();
   let amount;
-  if(params.isMax) {
+  if (params.isMax) {
     amount = MAX_UINT_AMOUNT;
-  } else{
+  } else {
     amount = await convertToCurrencyDecimals(
       params.underlying,
       params.amount,
@@ -310,11 +308,12 @@ export async function supply(
       );
     }
   } catch (error) {
-    console.log("Lending Pool Failed with ", error)
+    console.log("Lending Pool Failed with ", error);
     throw new Error(error);
   }
 
   if (params.collateral === false) {
+    await tx.wait();
     await lendingPool.setUserUseReserveAsCollateral(
       params.underlying,
       params.trancheId,
@@ -340,7 +339,7 @@ export async function lendingPoolPause(
   },
   callback?: () => Promise<any>
 ) {
-  console.log(params)
+  console.log(params);
   const addressProvider = await getLendingPoolAddressesProvider({
     network: params.network,
     signer: params.approvedSigner,
@@ -456,11 +455,12 @@ export async function initNewReserves(
         mytranche
       );
 
-      console.log(`  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`);
+      console.log(
+        `  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`
+      );
       console.log("    * gasUsed", (await tx3.wait(1)).gasUsed.toString());
       tx = tx3;
     }
-
   } catch (error) {
     throw new Error("Configurator Failed durining init reserve with " + error);
   }
@@ -490,8 +490,10 @@ export async function initTranche(
   },
   callback?: () => Promise<any>
 ) {
-
-  params.assetAddresses = convertListSymbolToAddress(params.assetAddresses,params.network);
+  params.assetAddresses = convertListSymbolToAddress(
+    params.assetAddresses,
+    params.network
+  );
   // assert(params.assetAddresses.length == params.reserveFactors.length, "array lengths not equal");
   // assert(params.assetAddresses.length == params.canBorrow.length, "array lengths not equal");
   // assert(params.assetAddresses.length == params.canBeCollateral.length, "array lengths not equal");
@@ -500,7 +502,7 @@ export async function initTranche(
     await getTotalTranches({
       network: params.network,
       test: params.test,
-      providerRpc: params.providerRpc
+      providerRpc: params.providerRpc,
     })
   ).toString();
 
@@ -517,7 +519,7 @@ export async function initTranche(
       await params.admin.getAddress()
     );
 
-    await tx.wait();  // wait 1 network confirmation
+    await tx.wait(); // wait 1 network confirmation
   } catch (error) {
     throw new Error("Configurator Failed with " + error);
   }
@@ -528,9 +530,11 @@ export async function initTranche(
       mytranche
     );
 
-    await tx.wait();  // wait 1 network confirmation
+    await tx.wait(); // wait 1 network confirmation
   } catch (error) {
-    throw new Error("Configurator Failed updating treasury address with " + error);
+    throw new Error(
+      "Configurator Failed updating treasury address with " + error
+    );
   }
 
   if (params.whitelisted.length != 0) {
@@ -566,8 +570,9 @@ export async function initTranche(
   return initNewReserves(
     {
       trancheId: mytranche,
-      ...params
-    }, callback
+      ...params,
+    },
+    callback
   );
 }
 
@@ -591,7 +596,7 @@ export async function configureExistingTranche(
   callback?: () => Promise<any>
 ) {
   //configure existing
-  console.log(params)
+  console.log(params);
   let tx;
   const mytranche = params.trancheId;
   let configurator = await getLendingPoolConfiguratorProxy({
@@ -600,9 +605,9 @@ export async function configureExistingTranche(
     test: params.test,
     providerRpc: params.providerRpc,
   });
-  if(params.newName){
+  if (params.newName) {
     try {
-    console.log("Setting new name");
+      console.log("Setting new name");
       const tx4 = await configurator.changeTrancheName(
         mytranche,
         params.newName
@@ -614,12 +619,12 @@ export async function configureExistingTranche(
       );
     }
   }
-  if(params.newTreasuryAddress){
+  if (params.newTreasuryAddress) {
     try {
-    console.log("Setting new treasury address");
+      console.log("Setting new treasury address");
       const tx4 = await configurator.updateTreasuryAddress(
         params.newTreasuryAddress,
-        mytranche,
+        mytranche
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -628,9 +633,9 @@ export async function configureExistingTranche(
       );
     }
   }
-  if(params.isTrancheWhitelisted !== undefined){
+  if (params.isTrancheWhitelisted !== undefined) {
     try {
-    console.log("Setting isTrancheWhitelisted");
+      console.log("Setting isTrancheWhitelisted");
       const tx4 = await configurator.setTrancheWhitelistEnabled(
         mytranche,
         params.isTrancheWhitelisted
@@ -647,8 +652,8 @@ export async function configureExistingTranche(
       console.log("Setting whitelist");
       const tx4 = await configurator.setTrancheWhitelist(
         mytranche,
-        params.whitelisted.map((el:SetAddress) => el.addr),
-        params.whitelisted.map((el:SetAddress) => el.newValue)
+        params.whitelisted.map((el: SetAddress) => el.addr),
+        params.whitelisted.map((el: SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -662,8 +667,8 @@ export async function configureExistingTranche(
       console.log("Setting blacklisted");
       const tx4 = await configurator.setTrancheBlacklist(
         mytranche,
-        params.blacklisted.map((el:SetAddress) => el.addr),
-        params.blacklisted.map((el:SetAddress) => el.newValue)
+        params.blacklisted.map((el: SetAddress) => el.addr),
+        params.blacklisted.map((el: SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -676,11 +681,19 @@ export async function configureExistingTranche(
   // The below el.addr refers to the token that needs to be set. When calling sdk, you pass in the token symbol like "USDC", so here we need to convert that
   if (params.reserveFactors && params.reserveFactors.length != 0) {
     try {
-      console.log("Setting reserveFactors: ",params.reserveFactors.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)), params.reserveFactors.map((el:SetAddress) => el.newValue));
+      console.log(
+        "Setting reserveFactors: ",
+        params.reserveFactors.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
+        params.reserveFactors.map((el: SetAddress) => el.newValue)
+      );
       const tx4 = await configurator.setReserveFactor(
-        params.reserveFactors.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        params.reserveFactors.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
         mytranche,
-        params.reserveFactors.map((el:SetAddress) => el.newValue)
+        params.reserveFactors.map((el: SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -693,9 +706,11 @@ export async function configureExistingTranche(
     try {
       console.log("Setting canBorrow");
       const tx4 = await configurator.setBorrowingOnReserve(
-        params.canBorrow.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        params.canBorrow.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
         mytranche,
-        params.canBorrow.map((el:SetAddress) => el.newValue)
+        params.canBorrow.map((el: SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -708,9 +723,11 @@ export async function configureExistingTranche(
     try {
       console.log("Setting canBeCollateral");
       const tx4 = await configurator.setCollateralEnabledOnReserve(
-        params.canBeCollateral.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        params.canBeCollateral.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
         mytranche,
-        params.canBeCollateral.map((el:SetAddress) => el.newValue)
+        params.canBeCollateral.map((el: SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -723,9 +740,11 @@ export async function configureExistingTranche(
     try {
       console.log("Setting frozen");
       const tx4 = await configurator.setFreezeReserve(
-        params.isFrozen.map((el:SetAddress) => convertSymbolToAddress(el.addr,params.network)),
+        params.isFrozen.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
         mytranche,
-        params.isFrozen.map((el:SetAddress) => el.newValue)
+        params.isFrozen.map((el: SetAddress) => el.newValue)
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -747,7 +766,12 @@ export async function claimIncentives(
   },
   callback?: () => Promise<any>
 ) {
-  if (!params.incentivizedATokens || !params.signer || !params.to || !params.network) {
+  if (
+    !params.incentivizedATokens ||
+    !params.signer ||
+    !params.to ||
+    !params.network
+  ) {
     return;
   }
 
@@ -789,14 +813,14 @@ export async function setIncentives(
     providerRpc: params.providerRpc,
   });
 
-  const tx = await incentivesController.configureRewards(
-    params.rewardConfigs
-  );
+  const tx = await incentivesController.configureRewards(params.rewardConfigs);
 
   const rewardsVault = await incentivesController.REWARDS_VAULT();
-  if (rewardsVault != await params.signer.getAddress()) {
-    console.error("INVARIANT FAILED: rewards vault is not the same as the emissions manager")
-    return
+  if (rewardsVault != (await params.signer.getAddress())) {
+    console.error(
+      "INVARIANT FAILED: rewards vault is not the same as the emissions manager"
+    );
+    return;
   }
 
   params.rewardConfigs.map((config) => {
@@ -804,8 +828,8 @@ export async function setIncentives(
       params.signer,
       config.reward.toString(),
       incentivesController.address
-    )
-  })
+    );
+  });
 
   if (callback) {
     await callback().catch((error) => {
@@ -844,7 +868,7 @@ export async function getUserIncentives(
 
   return {
     rewardTokens: tx[0],
-    rewardAmounts: tx[1]
+    rewardAmounts: tx[1],
   };
 }
 
@@ -877,7 +901,7 @@ export async function setExternalIncentives(
     });
   }
 
-  return tx
+  return tx;
 }
 
 export async function removeExternalIncentives(
@@ -907,5 +931,5 @@ export async function removeExternalIncentives(
     });
   }
 
-  return tx
+  return tx;
 }
