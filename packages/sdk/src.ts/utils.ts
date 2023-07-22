@@ -225,9 +225,19 @@ export async function mintTokens(params: {
     test: params.test,
     providerRpc: params.providerRpc,
   });
-  return await token.mint(
-    ethers.utils.parseUnits("1000000.0", await token.decimals())
-  );
+
+  let tx;
+
+  try {
+    tx = await token.mint(
+      ethers.utils.parseUnits("1000000.0", await token.decimals())
+    );
+  } catch (error) {
+    console.error("DEV: mint tokens failed with", error)
+    throw new Error(error);
+  }
+
+  return tx;
 }
 
 export const chunk = <T>(arr: Array<T>, chunkSize: number): Array<Array<T>> => {
