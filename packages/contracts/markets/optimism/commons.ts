@@ -237,6 +237,22 @@ export const CommonsConfig: ICommonConfiguration = {
         address: "0x121de0e978d117590588cb37533ef121c8826a8a",
         type: 2,
       },
+      velo_USDCsUSD: {
+        address: "0x55a272304456355242f6690863b5c8d5c512ff71",
+        type: 2,
+      },
+      velo_DAIUSDC: {
+        address: "0x6998089f6bdd9c74c7d8d01b99d7e379ccccb02d",
+        type: 2,
+      },
+      velo_FRAXUSDC: {
+        address: "0x53f31a40570dab360a16f8a7f913dbe84f5d1c5c",
+        type: 2,
+      },
+      velo_USDTUSDC: {
+        address: "0xa2f27d183a4e409c734367712f9344328f8ec98d",
+        type: 2,
+      },
       beethoven_rETHETH: {
         address: "0x61ac9315a1Ae71633E95Fb35601B59180eC8d61d",
         type: 3,

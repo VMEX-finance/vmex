@@ -292,27 +292,31 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
     function getVeloPrice(
         address asset
     ) internal returns (uint256 price) {
-        //assuming we only support velodrome pairs (exactly two assets)
         uint256[] memory prices = new uint256[](2);
 
         (address token0, address token1) = IVeloPair(asset).tokens();
+		(, , , , bool stable, , ) = IVeloPair(asset).metadata();  
 
         if(token0 == ETH_NATIVE){
             token0 = WETH;
         }
-        prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
+
+        prices[0] = getAssetPrice(token0); 
         require(prices[0] > 0, Errors.VO_UNDERLYING_FAIL);
 
         if(token1 == ETH_NATIVE){
             token1 = WETH;
         }
-        prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
+
+        prices[1] = getAssetPrice(token1);  
         require(prices[1] > 0, Errors.VO_UNDERLYING_FAIL);
 
-        price = VelodromeOracle.get_lp_price(asset, prices);
+        price = VelodromeOracle.get_lp_price(asset, prices, BASE_CURRENCY_DECIMALS, stable); //has 18 decimals
+
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);
         }
+
         return price;
     }
 

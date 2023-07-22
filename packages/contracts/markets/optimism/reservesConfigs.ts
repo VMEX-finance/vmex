@@ -270,6 +270,22 @@ export const strategyVeloToken: IReserveParams = {
   reserveFactor: '200000000000000000',
 };
 
+
+export const strategyVeloStableToken: IReserveParams = {
+  strategy: rateStrategyCurve,
+  baseLTVAsCollateral: '700000000000000000', //change
+  liquidationThreshold: '750000000000000000',//change
+  liquidationBonus: '1050000000000000000', //change
+  borrowingEnabled: false,
+  reserveDecimals: '18', //this is the important information
+  aTokenImpl: eContractid.AToken,
+  assetType: 5, //5 is enum for velo
+  supplyCap: '10000',
+  borrowCap: '10000',
+  borrowFactor: '1010000000000000000', //100% for now
+  reserveFactor: '200000000000000000',
+};
+
 export const strategyBeefyToken: IReserveParams = {
   strategy: rateStrategyCurve,
   baseLTVAsCollateral: '250000000000000000', //change
