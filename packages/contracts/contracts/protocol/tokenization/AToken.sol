@@ -96,7 +96,7 @@ contract AToken is
      */
     function initialize(
         ILendingPool pool,
-        InitializeTreasuryVars memory vars
+        InitializeTreasuryVars calldata vars
     ) external override initializer {
         uint8 aTokenDecimals = IERC20Detailed(vars.underlyingAsset).decimals();
 
