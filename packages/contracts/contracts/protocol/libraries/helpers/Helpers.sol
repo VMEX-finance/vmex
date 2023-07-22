@@ -49,7 +49,7 @@ library Helpers {
     {
         bytes memory payload = abi.encodeWithSignature(functionToQuery);
         (bool success, bytes memory result) = token.staticcall(payload);
-        if (success && result.length > 0) {
+        if (success && result.length != 0) {
             if (result.length == 32) {
                 // If the result is 32 bytes long, assume it's a bytes32 value
                 queryResult = string(result);

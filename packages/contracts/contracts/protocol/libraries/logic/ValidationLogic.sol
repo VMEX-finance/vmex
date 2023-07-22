@@ -202,7 +202,7 @@ library ValidationLogic {
         //(uint256(14), uint256(14), uint256(14), uint256(14), uint256(14));
 
         require(
-            vars.userCollateralBalanceETH > 0,
+            vars.userCollateralBalanceETH != 0,
             Errors.VL_COLLATERAL_BALANCE_IS_0
         );
 
@@ -245,9 +245,9 @@ library ValidationLogic {
 
         require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
 
-        require(amountSent > 0, Errors.VL_INVALID_AMOUNT);
+        require(amountSent != 0, Errors.VL_INVALID_AMOUNT);
 
-        require(variableDebt > 0, Errors.VL_NO_DEBT_OF_SELECTED_TYPE);
+        require(variableDebt != 0, Errors.VL_NO_DEBT_OF_SELECTED_TYPE);
 
         require(
             amountSent != type(uint256).max || msg.sender == onBehalfOf,
@@ -284,7 +284,7 @@ library ValidationLogic {
         );
 
         require(
-            underlyingBalance > 0,
+            underlyingBalance != 0,
             Errors.VL_UNDERLYING_BALANCE_NOT_GREATER_THAN_0
         );
 

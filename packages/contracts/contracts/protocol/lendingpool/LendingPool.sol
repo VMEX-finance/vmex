@@ -55,7 +55,8 @@ contract LendingPool is
         _;
     }
     function _whenTrancheNotPausedAndExists(uint64 trancheId) internal view {
-        require(!trancheParams[trancheId].paused && !_everythingPaused, Errors.LP_IS_PAUSED);
+        require(!trancheParams[trancheId].paused, Errors.LP_IS_PAUSED);
+        require(!_everythingPaused, Errors.LP_IS_PAUSED);
         uint64 totalTranches = ILendingPoolConfigurator(_addressesProvider.getLendingPoolConfigurator()).totalTranches();
         require(trancheId<totalTranches, Errors.INVALID_TRANCHE);
     }

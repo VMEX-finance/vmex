@@ -39,7 +39,7 @@ contract LendingPoolAddressesProviderRegistry is
         address[] memory activeProviders = new address[](maxLength);
 
         for (uint256 i; i < maxLength;) {
-            if (_addressesProviders[addressesProvidersList[i]] > 0) {
+            if (_addressesProviders[addressesProvidersList[i]] != 0) {
                 activeProviders[i] = addressesProvidersList[i];
             }
 
@@ -76,7 +76,7 @@ contract LendingPoolAddressesProviderRegistry is
         onlyOwner
     {
         require(
-            _addressesProviders[provider] > 0,
+            _addressesProviders[provider] != 0,
             Errors.LPAPR_PROVIDER_NOT_REGISTERED
         );
         _addressesProviders[provider] = 0;
