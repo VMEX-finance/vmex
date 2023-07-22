@@ -185,7 +185,7 @@ contract DistributionManager is IDistributionManager, Initializable {
     uint256 userIndex,
     uint8 decimals
   ) internal pure returns (uint256) {
-    return principalUserBalance * rewardIndex * userIndex / (10 ** decimals);
+    return principalUserBalance * (rewardIndex - userIndex) / 10 ** decimals;
   }
 
   /**
