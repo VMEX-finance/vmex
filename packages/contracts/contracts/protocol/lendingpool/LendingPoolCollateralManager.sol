@@ -341,14 +341,14 @@ contract LendingPoolCollateralManager is
 
         // This is the maximum possible amount of the selected collateral that can be liquidated, given the
         // max amount of liquidatable debt
-        vars.maxAmountCollateralToLiquidate = vars.debtAssetPrice * debtToCover * 10**vars.collateralDecimals
+        vars.maxAmountCollateralToLiquidate = (vars.debtAssetPrice * debtToCover * 10**vars.collateralDecimals)
             .percentMul(vars.liquidationBonus)
             / (vars.collateralPrice * 10**vars.debtAssetDecimals);
 
         if (vars.maxAmountCollateralToLiquidate > userCollateralBalance) {
             collateralAmount = userCollateralBalance;
-            debtAmountNeeded = vars.collateralPrice * collateralAmount * 10**vars.debtAssetDecimals
-                / (vars.debtAssetPrice * 10**vars.collateralDecimals)
+            debtAmountNeeded = (vars.collateralPrice * collateralAmount * 10**vars.debtAssetDecimals
+                / (vars.debtAssetPrice * 10**vars.collateralDecimals))
                 .percentDiv(vars.liquidationBonus);
         } else {
             collateralAmount = vars.maxAmountCollateralToLiquidate;

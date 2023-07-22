@@ -214,9 +214,7 @@ library ValidationLogic {
 
         //add the current already borrowed amount to the amount requested to calculate the total collateral needed.
         //risk adjusted debt
-        vars.amountOfCollateralNeededETH = (vars
-            .userBorrowBalanceETH
-            .percentMul(vars.avgBorrowFactor)
+        vars.amountOfCollateralNeededETH = (vars.userBorrowBalanceETH.percentMul(vars.avgBorrowFactor)
             + amountInETH.percentMul(exvars._assetMappings.getBorrowFactor(exvars.asset))) //this amount that we are borrowing also has a borrow factor that increases the actual debt
             .percentDiv(vars.currentLtv); //LTV is calculated in percentage
 
