@@ -1,4 +1,3 @@
-
 import { ethers } from "ethers";
 const chai = require("chai");
 const { expect } = chai;
@@ -42,8 +41,7 @@ makeSuite(
      const VeloAbi = [
         "function allowance(address owner, address spender) external view returns (uint256 remaining)",
         "function approve(address spender, uint256 value) external returns (bool success)",
-        "function balanceOf(address owner) external view returns (uint256 balance)",
-        "function decimals() external view returns (uint8 decimalPlaces)",
+        "function balanceOf(address owner) external view returns (uint256 balance)", "function decimals() external view returns (uint8 decimalPlaces)",
         "function name() external view returns (string memory tokenName)",
         "function symbol() external view returns (string memory tokenSymbol)",
         "function totalSupply() external view returns (uint256 totalTokensIssued)",
@@ -113,139 +111,154 @@ makeSuite(
   ];
 
     it("set heartbeat higher", async () => {
-        var signer = await contractGetters.getFirstSigner();
-        const addProv = await contractGetters.getLendingPoolAddressesProvider();
+       var signer = await contractGetters.getFirstSigner();
+       const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
-        const oracleAdd = await addProv.connect(signer).getPriceOracle();
-        const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
+       const oracleAdd = await addProv.connect(signer).getPriceOracle();
+       const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
-        const network = "optimism" as any
-        const {
-          ProtocolGlobalParams: { UsdAddress },
-          ReserveAssets,
-          ChainlinkAggregator,
-          SequencerUptimeFeed,
-          ProviderId
-        } = OptimismConfig as ICommonConfiguration;
-        const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
+       const network = "optimism" as any
+       const {
+         ProtocolGlobalParams: { UsdAddress },
+         ReserveAssets,
+         ChainlinkAggregator,
+         SequencerUptimeFeed,
+         ProviderId
+       } = OptimismConfig as ICommonConfiguration;
+       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
-        const chainlinkAggregators = await getParamPerNetwork(
-          ChainlinkAggregator,
-          network
-        );
-        let tokensToWatch = {
-          ...reserveAssets,
-          USD: UsdAddress,
-        };
-        
-        if (!chainlinkAggregators) {
-          throw "chainlinkAggregators is undefined. Check configuration at config directory";
-        }
-        const [tokens2, aggregators] = getPairsTokenAggregator(
-          tokensToWatch,
-          chainlinkAggregators,
-          OptimismConfig.OracleQuoteCurrency
-        );
+       const chainlinkAggregators = await getParamPerNetwork(
+         ChainlinkAggregator,
+         network
+       );
+       let tokensToWatch = {
+         ...reserveAssets,
+         USD: UsdAddress,
+       };
+       
+       if (!chainlinkAggregators) {
+         throw "chainlinkAggregators is undefined. Check configuration at config directory";
+       }
+       const [tokens2, aggregators] = getPairsTokenAggregator(
+         tokensToWatch,
+         chainlinkAggregators,
+         OptimismConfig.OracleQuoteCurrency
+       );
 
-        const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
-        {
-          return {
-            feed: el.feed,
-            heartbeat: 86400
-          }
-        })
+       const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
+       {
+         return {
+           feed: el.feed,
+           heartbeat: 86400
+         }
+       })
 
-        await oracle.connect(signer).setAssetSources(tokens2, ag2);
-      });
+       await oracle.connect(signer).setAssetSources(tokens2, ag2);
+     });
 
 
     it("test pricing", async () => {
-        var signer = await contractGetters.getFirstSigner();
-        const {ReserveAssets, ReservesConfig} = OptimismConfig
-        const reserveAssets = await getParamPerNetwork(ReserveAssets, eOptimismNetwork.optimism);
-        if(!reserveAssets){
-            throw "reserveAssets not defined"
-        }
-        const addProv = await contractGetters.getLendingPoolAddressesProvider();
+       var signer = await contractGetters.getFirstSigner();
+       const {ReserveAssets, ReservesConfig} = OptimismConfig
+       const reserveAssets = await getParamPerNetwork(ReserveAssets, eOptimismNetwork.optimism);
+       if(!reserveAssets){
+           throw "reserveAssets not defined"
+       }
+       const addProv = await contractGetters.getLendingPoolAddressesProvider();
 
-        const oracleAdd = await addProv.connect(signer).getPriceOracle();
+       const oracleAdd = await addProv.connect(signer).getPriceOracle();
 
 
+       const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
-        const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
+       for(let [symbol, strat] of Object.entries(ReservesConfig)) {
+           const currentAsset = reserveAssets[symbol];
+           console.log("currentAsset: ", currentAsset)
+           if(!currentAsset) continue;
+           console.log("Pricing ",symbol)
+           const price = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
+           console.log("Price: ", price)
+           let expectedPrice;
+           // skip curve tokens too cause we test that separately
 
-        for(let [symbol, strat] of Object.entries(ReservesConfig)) {
-            const currentAsset = reserveAssets[symbol];
-            console.log("currentAsset: ", currentAsset)
-            if(!currentAsset) continue;
-            console.log("Pricing ",symbol)
-            const price = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
-            console.log("Price: ", price)
-            let expectedPrice;
-            // skip curve tokens too cause we test that separately
-            if(strat.assetType==0 || strat.assetType == 1 || strat.assetType == 2) {
-                continue;
-            }
-            else if(strat.assetType==3) { //yearn
-              const yVault = new DRE.ethers.Contract(currentAsset, yvAbi)
-              const pricePerUnderlying = await oracle.connect(signer).callStatic.getAssetPrice(yVault.connect(signer).token());
-              const pricePerShare = await yVault.connect(signer).pricePerShare();
-              //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
-              expectedPrice = Number(pricePerUnderlying) * Number(pricePerShare.toString()) / Math.pow(10,Number(await yVault.connect(signer).decimals())); 
-          }
-            else if(strat.assetType==4) { //beefy
-                const beefyVault = new DRE.ethers.Contract(currentAsset, beefyAbi)
-                const pricePerUnderlying = await oracle.connect(signer).callStatic.getAssetPrice(beefyVault.connect(signer).want());
-                const pricePerShare = await beefyVault.connect(signer).getPricePerFullShare();
-                //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
-                expectedPrice = Number(pricePerUnderlying) * Number(pricePerShare.toString()) / Math.pow(10,18); 
-            }
-            else if(strat.assetType==5) { //velodrome
-                const vel = new DRE.ethers.Contract(currentAsset, VeloAbi)
+           if(strat.assetType==0 || strat.assetType == 1 || strat.assetType == 2) {
+               continue;
+           }
+           else if(strat.assetType==3) { //yearn
+             const yVault = new DRE.ethers.Contract(currentAsset, yvAbi)
+             const pricePerUnderlying = await oracle.connect(signer).callStatic.getAssetPrice(yVault.connect(signer).token());
+             const pricePerShare = await yVault.connect(signer).pricePerShare();
+             //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
+             expectedPrice = Number(pricePerUnderlying) * Number(pricePerShare.toString()) / Math.pow(10,Number(await yVault.connect(signer).decimals())); 
+         }
+           else if(strat.assetType==4) { //beefy
+               const beefyVault = new DRE.ethers.Contract(currentAsset, beefyAbi)
+               const pricePerUnderlying = await oracle.connect(signer).callStatic.getAssetPrice(beefyVault.connect(signer).want());
+               const pricePerShare = await beefyVault.connect(signer).getPricePerFullShare();
+               //decimals will be the decimals in chainlink aggregator (8 for USD, 18 for ETH)
+               expectedPrice = Number(pricePerUnderlying) * Number(pricePerShare.toString()) / Math.pow(10,18); 
+           }
+           else if(strat.assetType==5) { //velodrome
+               const vel = new DRE.ethers.Contract(currentAsset, VeloAbi)
 
-                const met = await vel.connect(signer).metadata();
-                const dec = await vel.connect(signer).decimals();
-                const totalSupply = await vel.connect(signer).totalSupply();
-                // console.log("metadata: ", met);
+               const met = await vel.connect(signer).metadata();
+               const dec = await vel.connect(signer).decimals();
+               const totalSupply = await vel.connect(signer).totalSupply();
+               // console.log("metadata: ", met);
+              const price0 = await oracle.connect(signer).callStatic.getAssetPrice(met.t0)
+              const price1 = await oracle.connect(signer).callStatic.getAssetPrice(met.t1)
+               if(met.st==false) {
+                console.log("volatile")
                 const factor1 = Math.pow(10,Number(dec))/ Number(met.dec0) 
                 const factor2 = Math.pow(10,Number(dec)) / Number(met.dec1)
                 const a = Math.sqrt(Number(met.r0) * Number(met.r1) * factor1 * factor2);
                 console.log("a: ",a)
-                const price0 = await oracle.connect(signer).callStatic.getAssetPrice(met.t0)
-                const price1 = await oracle.connect(signer).callStatic.getAssetPrice(met.t1)
                 const b = Math.sqrt(Number(price0) * Number(price1) )
                 console.log("b: ",b)
                 console.log("totalSupply: ", totalSupply)
                 expectedPrice = 2 * a * b / Number(totalSupply);
-            }
-            else if(strat.assetType == 6) { //beethoven
-                const beet = new DRE.ethers.Contract(currentAsset, BeethovenAbi);
-                const rate = await beet.connect(signer).getRate()
-                if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
-                    const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
-                    const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
-                    expectedPrice = 189599177276
-                }
-                if(currentAsset == "0x4Fd63966879300caFafBB35D157dC5229278Ed23") {
-                  //rETH pool
-                  expectedPrice = 190343506319 //should be around the same as wstETH
-                }
-            }
-            else if(strat.assetType == 7) { //rETH
-              expectedPrice = 202185432577
-            }
-            else {
-                continue
-            }
-            console.log("Expected price: ", expectedPrice)
-            const diff = Math.abs(expectedPrice-Number(price));
-            const percentDiff = diff/expectedPrice
-            console.log("percentDiff: ",percentDiff)
-            expect(percentDiff).to.be.lte(1/1e8) // 8 most significant digits are accurate
-            console.log("_____________________")
-        }
+               }
+               else { //stable
+                console.log("stable")
+                  let r0 = Number(met[2]) * 1e18 / Number(met[0]); 
+                  let r1 = Number(met[3]) * 1e18 / Number(met[1]); 
+                  let p0 = price0; 
+                  let p1 = price1; 
+                  
+                  let k = ((r0 ** 3) * r1) + ((r1 ** 3) * r0); 
+                  let fair = (k * (p0 ** 3) * (p1 ** 3)) / ((p0 ** 2) + (p1 ** 2));
+                  expectedPrice = 2 * Math.pow(fair, 1/4) / totalSupply; 
+                  // console.log("exepected price", price / 1e18); 
+               }
+           }
+           else if(strat.assetType == 6) { //beethoven
+               const beet = new DRE.ethers.Contract(currentAsset, BeethovenAbi);
+               const rate = await beet.connect(signer).getRate()
+               if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
+                   const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
+                   const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
+                   expectedPrice = 189599177276
+               }
+               if(currentAsset == "0x4Fd63966879300caFafBB35D157dC5229278Ed23") {
+                 //rETH pool
+                 expectedPrice = 190343506319 //should be around the same as wstETH
+               }
+           }
+           else if(strat.assetType == 7) { //rETH
+             expectedPrice = 202185432577
+           }
+           else {
+               continue
+           }
+           console.log("Expected price: ", expectedPrice)
+           const diff = Math.abs(expectedPrice-Number(price));
+           const percentDiff = diff/expectedPrice
+           console.log("percentDiff: ",percentDiff)
+           expect(percentDiff).to.be.lte(1/1e8) // 8 most significant digits are accurate
+           console.log("_____________________")
+       }
+
     });
-  
     }
 )
 

@@ -113,11 +113,11 @@ library BalancerOracle {
 		uint256 pxB,
 		bool legacy
 		) internal returns (uint) {
-				(IBalancer pool, 
-				IERC20[] memory tokens,
-				uint256[] memory balances,
-				uint256[] memory weights) = 
-					get_balancer_variables(bal_pool); 	
+			(IBalancer pool, 
+			IERC20[] memory tokens,
+			uint256[] memory balances,
+			uint256[] memory weights) = 
+			get_balancer_variables(bal_pool); 	
 
     		require(balances.length == 2, 'num tokens must be 2');
 
