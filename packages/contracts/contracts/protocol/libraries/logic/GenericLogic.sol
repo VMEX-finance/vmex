@@ -202,7 +202,7 @@ library GenericLogic {
 
         vars.oracle = addressesProvider.getPriceOracle();
 
-        for (vars.i = 0; vars.i < reservesCount; vars.i++) {
+        for (; vars.i < reservesCount; ++vars.i) {
             // continue if not allowed. Not allowed will only be set if NO Borrows outstanding, so no chance of unaccounted debt
             if (!userConfig.isUsingAsCollateralOrBorrowing(vars.i) || !assetMappings.getAssetAllowed(reserves[vars.i])) {
                 continue;

@@ -104,7 +104,7 @@ contract DistributionManager is IDistributionManager, Initializable {
     uint256 userIndex = reward.users[user].index;
     uint256 rewardIndex = reward.index;
 
-    if (userIndex != reward.index) {
+    if (userIndex != rewardIndex) {
       if (balance != 0) {
         accrued = _getReward(balance, rewardIndex, userIndex, decimals);
         reward.users[user].accrued += accrued;
@@ -133,16 +133,18 @@ contract DistributionManager is IDistributionManager, Initializable {
 
       DistributionTypes.Reward storage reward = incentivizedAsset.rewardData[rewardAddress];
 
+      uint8 decimals = incentivizedAsset.decimals;
+
       (uint256 newIndex, bool rewardUpdated) = _updateReward(
         reward,
         assetSupply,
-        incentivizedAsset.decimals
+        decimals
       );
       (uint256 rewardAccrued, bool userUpdated) = _updateUser(
         reward,
         user,
         userBalance,
-        incentivizedAsset.decimals
+        decimals
       );
 
       if (rewardUpdated || userUpdated) {

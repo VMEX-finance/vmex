@@ -60,7 +60,7 @@ contract AssetMappings is IAssetMappings, Initializable{
         ).totalTranches();
 
         ILendingPool lendingPool = ILendingPool(addressesProvider.getLendingPool());
-        for (uint64 tranche = 0; tranche < totalTranches; tranche++) {
+        for (uint64 tranche; tranche < totalTranches; tranche++) {
             DataTypes.ReserveData memory reserve = lendingPool.getReserveData(asset, tranche);
             //no outstanding borrows allowed
             if (reserve.variableDebtTokenAddress != address(0)) {
@@ -87,8 +87,6 @@ contract AssetMappings is IAssetMappings, Initializable{
         initializer
     {
         addressesProvider = ILendingPoolAddressesProvider(provider);
-        approvedAssetsHead = address(0);
-        approvedAssetsTail = address(0);
     }
 
     /**
@@ -258,7 +256,7 @@ contract AssetMappings is IAssetMappings, Initializable{
      * @dev Gets the number of allowed assets in the linked list
      **/
     function getNumApprovedTokens() view public returns (uint256) {
-        uint256 numTokens = 0;
+        uint256 numTokens;
         address tmp = approvedAssetsHead;
 
         while(tmp != address(0)) {

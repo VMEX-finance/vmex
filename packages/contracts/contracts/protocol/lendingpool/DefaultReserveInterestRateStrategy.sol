@@ -112,8 +112,8 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
 
         CalcInterestRatesLocalVars memory vars;
         vars.totalDebt = calvars.totalVariableDebt;
-        vars.currentVariableBorrowRate = 0;
-        vars.currentLiquidityRate = 0;
+        vars.currentVariableBorrowRate;
+        vars.currentLiquidityRate;
         vars.utilizationRate = vars.totalDebt == 0
             ? 0
             : vars.totalDebt.rayDiv(availableLiquidity + vars.totalDebt);
