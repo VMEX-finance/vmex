@@ -191,6 +191,7 @@ contract LendingPoolConfigurator is
         for (uint256 i; i < length;) {
             address asset = input[i].underlyingAsset;
             if(pool.reserveAdded(asset, trancheId)) {
+                unchecked { ++i; }
                 continue;
             }
             _initReserve(

@@ -161,6 +161,7 @@ contract IncentivesController is
       address asset = incentivizedAssets[i];
 
       if (_incentivizedAssets[asset].rewardData[reward].users[user].accrued == 0) {
+        unchecked { ++i; }
         continue;
       }
 
