@@ -171,6 +171,7 @@ contract DistributionManager is IDistributionManager, Initializable {
         userAssets[i].userBalance,
         userAssets[i].totalSupply
       );
+      unchecked { ++i; }
     }
   }
 
