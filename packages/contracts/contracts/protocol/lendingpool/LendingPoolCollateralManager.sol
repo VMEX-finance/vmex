@@ -306,9 +306,9 @@ contract LendingPoolCollateralManager is
      * @param debtAsset The address of the underlying borrowed asset to be repaid with the liquidation
      * @param debtToCover The debt amount of borrowed `asset` the liquidator wants to cover
      * @param userCollateralBalance The collateral balance for the specific `collateralAsset` of the user being liquidated
-     * @return collateralAmount: The maximum amount that is possible to liquidate given all the liquidation constraints
+     * @return collateralAmount The maximum amount that is possible to liquidate given all the liquidation constraints
      *                           (user balance, close factor)
-     * @return debtAmountNeeded: The amount to repay with the liquidation
+     * @return debtAmountNeeded The amount to repay with the liquidation
      **/
     function _calculateAvailableCollateralToLiquidate(
         address collateralAsset,
@@ -316,10 +316,7 @@ contract LendingPoolCollateralManager is
         uint256 debtToCover,
         uint256 userCollateralBalance,
         uint64 trancheId
-    ) internal returns (uint256, uint256) {
-        uint256 collateralAmount;
-        uint256 debtAmountNeeded;
-
+    ) internal returns (uint256 collateralAmount, uint256 debtAmountNeeded) {
         AvailableCollateralToLiquidateLocalVars memory vars;
         {
             address oracleAddress = _addressesProvider.getPriceOracle();
