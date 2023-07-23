@@ -60,7 +60,7 @@ contract AssetMappings is IAssetMappings, Initializable{
         ).totalTranches();
 
         ILendingPool lendingPool = ILendingPool(addressesProvider.getLendingPool());
-        for (uint64 tranche; tranche < totalTranches; tranche++) {
+        for (uint64 tranche; tranche < totalTranches;) {
             DataTypes.ReserveData memory reserve = lendingPool.getReserveData(asset, tranche);
             //no outstanding borrows allowed
             if (reserve.variableDebtTokenAddress != address(0)) {
@@ -78,6 +78,7 @@ contract AssetMappings is IAssetMappings, Initializable{
                     Errors.AM_UNABLE_TO_DISALLOW_ASSET
                 );
             }
+            unchecked { ++tranche; }
         }
 
     }
