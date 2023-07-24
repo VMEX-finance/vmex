@@ -30,6 +30,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   bytes32 public currRoot; // The merkle tree's root of the current rewards distribution.
   mapping(address => mapping(address => uint256)) public claimed; // The rewards already claimed. account -> amount.
 
+  address public rewardAdmin;
+
   uint256[40] __gap_ExternalRewardDistributor;
 
   modifier onlyGlobalAdmin() {
@@ -42,11 +44,22 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
       _;
   }
 
+  modifier onlyRewardAdmin() {
+    require(msg.sender == rewardAdmin, "Only reward admin");
+    _;
+  }
+
   function __ExternalRewardDistributor_init(address _addressesProvider) internal onlyInitializing {
     addressesProvider = ILendingPoolAddressesProvider(_addressesProvider);
   }
 
   /******** External functions ********/
+
+  function setRewardAdmin(address newRewardAdmin) external onlyGlobalAdmin {
+    rewardAdmin = newRewardAdmin;
+
+    emit RewardAdminChanged(newRewardAdmin);
+  }
 
   function batchBeginStakingRewards(
       address[] calldata aTokens,
@@ -125,7 +138,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
 
   /// @notice Updates the current merkle tree's root.
   /// @param _newRoot The new merkle tree's root.
-  function updateRoot(bytes32 _newRoot) external onlyGlobalAdmin {
+  function updateRoot(bytes32 _newRoot) external onlyRewardAdmin {
       currRoot = _newRoot;
       emit RootUpdated(_newRoot);
   }
