@@ -24,6 +24,8 @@ interface IExternalRewardsDistributor {
 
     event HarvestedReward(address indexed stakingContract);
 
+    event RewardAdminChanged(address rewardAdmin);
+
     enum StakingType {
         NOT_SET, // unset value of 0 can be used to delineate which staking contracts have been set
         YEARN_OP,

@@ -195,6 +195,12 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
     assetData = await incentivesController.getStakingContract(aToken.address);
     expect(assetData).equal(stakingContracts[6].address)
   })
+
+  it('setRewardAdmin', async () => {
+    const { incentivesController, deployer } = testEnv;
+    await incentivesController.setRewardAdmin(deployer.address)
+  })
+
   it('Calculate Merkle and claim rewards', async () => {
     const { incentivesController, incentivizedTokens, usdc, stakingContracts, incentUnderlying, users, rewardTokens, dai, leafNodes } = testEnv;
     const arr = leafNodes.map((i,ix) => {
