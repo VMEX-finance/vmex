@@ -78,7 +78,8 @@ export const OptimismConfig: IOptimismConfiguration = {
     yvDAI: strategyStableYearn,
     yvWETH: strategyYearnToken,
     LUSD: strategyLUSD,
-    velo_LUSDWETH: strategyVeloToken
+    velo_LUSDWETH: strategyVeloToken,
+    velo_LUSDUSDC: strategyVeloStableToken,
   },
   ReserveAssets: {
     [eOptimismNetwork.optimism]: {
@@ -113,7 +114,7 @@ export const OptimismConfig: IOptimismConfiguration = {
       // moo_velo_OPUSDC: '0x613f54c8836FD2C09B910869AC9d4de5e49Db1d8',
       velo_DAIUSDC: '0x19715771E30c93915A5bbDa134d782b81A820076',
       // moo_velo_DAIUSDC: '0x43F6De3D9fB0D5EED93d7E7E14A8A526B98f8A58',
-      velo_FRAXUSDC: '0x8542DD4744edEa38b8a9306268b08F4D26d38581',
+      // velo_FRAXUSDC: '0x8542DD4744edEa38b8a9306268b08F4D26d38581',
       // moo_velo_FRAXUSDC: '0x587c3e2e17c59b09B120fc2D27E0eAd6edD2C71D',
       velo_USDTUSDC: '0x2B47C794c3789f499D8A54Ec12f949EeCCE8bA16',
       // moo_velo_USDTUSDC: '0x0495a700407975b2641Fa61Aef5Ccd0106F525Cc',
@@ -126,6 +127,7 @@ export const OptimismConfig: IOptimismConfiguration = {
       yvWETH: '0x5B977577Eb8a480f63e11FC615D6753adB8652Ae',
       LUSD: '0xc40f949f8a4e094d1b49a23ea9241d289b7b2819',
       velo_LUSDWETH: '0x6387765fFA609aB9A1dA1B16C455548Bfed7CbEA',
+      velo_LUSDUSDC: "0xf04458f7B21265b80FC340dE7Ee598e24485c5bB"
     },
   },
 };

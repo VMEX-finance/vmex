@@ -443,6 +443,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
         yvWETH: ZERO_ADDRESS,
         LUSD: ZERO_ADDRESS,
         velo_LUSDWETH: ZERO_ADDRESS,
+        velo_LUSDUSDC: ZERO_ADDRESS,
       },
       fallbackOracle
     );
