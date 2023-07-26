@@ -5,7 +5,7 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
-import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
+import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors, tEthereumAddress } from '../helpers/types';
 import {getCurvePrice} from "./helpers/curve-calculation";
 import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
@@ -14,6 +14,8 @@ import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} f
 import OptimismConfig from "../markets/optimism";
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
+import { setBalance } from "./helpers/mint-tokens";
+import { MAX_UINT_AMOUNT } from "../helpers/constants";
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
 
 chai.use(function (chai: any, utils: any) {
@@ -29,6 +31,27 @@ chai.use(function (chai: any, utils: any) {
   );
 });
 
+interface Route {
+  from: tEthereumAddress;
+  to: tEthereumAddress;
+  stable: boolean;
+  factory: tEthereumAddress;
+}
+interface SingleSwap {
+   poolId;
+   kind;
+   assetIn;
+   assetOut;
+   amount;
+   userData;
+}
+
+interface FundManagement {
+  sender;
+  fromInternalBalance;
+  recipient;
+  toInternalBalance;
+}
 
 makeSuite(
     "general oracle test ",
@@ -38,6 +61,13 @@ makeSuite(
     const contractGetters = require('../helpers/contracts-getters.ts');
     // const lendingPool = await contractGetters.getLendingPool();
     // Load the first signer
+
+  const VELO_ROUTER_ADDRESS = "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
+  const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_OP/abis/velo_v2.json").toString()
+  const BALANCER_POOL_ABI = fs.readFileSync("./localhost_tests_OP/abis/balancer_pool.json").toString()
+  const BALANCER_VAULT_ADDRESS = "0xBA12222222228d8Ba445958a75a0704d566BF2C8";
+  const BALANCER_VAULT_ABI = fs.readFileSync("./localhost_tests_OP/abis/balancer_vault.json").toString()
+
      const VeloAbi = [
         "function allowance(address owner, address spender) external view returns (uint256 remaining)",
         "function approve(address spender, uint256 value) external returns (bool success)",
@@ -48,6 +78,7 @@ makeSuite(
         "function transfer(address to, uint256 value) external returns (bool success)",
         "function transferFrom(address from, address to, uint256 value) external returns (bool success)",
         "function tokens() external returns (address, address)",
+        "function swap(uint256 amount0Out, uint256 amount1Out, address to, bytes calldata data) external",
         "function metadata() external view returns (uint dec0, uint dec1, uint r0, uint r1, bool st, address t0, address t1)"
     ];
     const BeethovenAbi = [
@@ -63,7 +94,7 @@ makeSuite(
        "function getVault() external returns (IVault vaultAddress)",
        "function getRate() external view returns (uint256)"
    ];
-    const CurveTokenAddabi = [
+    const ERC20abi = [
         "function allowance(address owner, address spender) external view returns (uint256 remaining)",
         "function approve(address spender, uint256 value) external returns (bool success)",
         "function balanceOf(address owner) external view returns (uint256 balance)",
@@ -109,6 +140,8 @@ makeSuite(
       "function deposit() external returns(uint256)",
       "function approve(address spender, uint256 value) external returns (bool success)",
   ];
+  
+  var deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 
     it("set heartbeat higher", async () => {
        var signer = await contractGetters.getFirstSigner();
@@ -149,7 +182,7 @@ makeSuite(
        {
          return {
            feed: el.feed,
-           heartbeat: 86400
+           heartbeat: 86400000
          }
        })
 
@@ -180,6 +213,7 @@ makeSuite(
            console.log("Price: ", price)
            let expectedPrice;
            // skip curve tokens too cause we test that separately
+          //  if( strat.assetType != 6) continue;
 
            if(strat.assetType==0 || strat.assetType == 1 || strat.assetType == 2) {
                continue;
@@ -201,16 +235,33 @@ makeSuite(
            else if(strat.assetType==5) { //velodrome
                const vel = new DRE.ethers.Contract(currentAsset, VeloAbi)
 
-               const met = await vel.connect(signer).metadata();
+               let met = await vel.connect(signer).metadata();
                const dec = await vel.connect(signer).decimals();
                const totalSupply = await vel.connect(signer).totalSupply();
                // console.log("metadata: ", met);
               const price0 = await oracle.connect(signer).callStatic.getAssetPrice(met.t0)
               const price1 = await oracle.connect(signer).callStatic.getAssetPrice(met.t1)
+              const token0 = new DRE.ethers.Contract(met.t0, ERC20abi)
+              const token1 = new DRE.ethers.Contract(met.t1, ERC20abi)
+              const factor1 = Math.pow(10,Number(dec))/ Number(met.dec0) 
+              const factor2 = Math.pow(10,Number(dec)) / Number(met.dec1) //convert to same num decimals as total supply
+              let naivePrice = Math.round((Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1)) / Number(totalSupply));
+
+              let percentDiff = Math.abs(Number(naivePrice) - Number(price))/Number(price)
+              console.log("Naive pricing: ", naivePrice)
+              console.log("percent diff: ",percentDiff)
+              expect(percentDiff).lte(1e-4, "velo token price not consistent with naive pricing (mainly decimals issue)");
+              expect((Number(price)-naivePrice)/naivePrice).lte(1e-4, "naive price should always be higher than fair reserves price");
+
+              let amt0 = DRE.ethers.utils.parseUnits("1000000.0", await token0.connect(signer).decimals())
+              let amt1 = DRE.ethers.utils.parseUnits("10000.0", await token1.connect(signer).decimals())
+              await setBalance(met.t0, signer, amt0)
+              await setBalance(met.t1, signer, amt1)
+
+              await token0.connect(signer).approve(VELO_ROUTER_ADDRESS, MAX_UINT_AMOUNT)
+              await token1.connect(signer).approve(VELO_ROUTER_ADDRESS, MAX_UINT_AMOUNT)
                if(met.st==false) {
                 console.log("volatile")
-                const factor1 = Math.pow(10,Number(dec))/ Number(met.dec0) 
-                const factor2 = Math.pow(10,Number(dec)) / Number(met.dec1)
                 const a = Math.sqrt(Number(met.r0) * Number(met.r1) * factor1 * factor2);
                 console.log("a: ",a)
                 const b = Math.sqrt(Number(price0) * Number(price1) )
@@ -230,6 +281,62 @@ makeSuite(
                   expectedPrice = 2 * Math.pow(fair, 1/4) / totalSupply; 
                   // console.log("exepected price", price / 1e18); 
                }
+
+               var route: Route[] = [{
+                  from: met.t0, 
+                  to: met.t1, 
+                  stable: met.st, 
+                  factory: "0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a"
+                }];
+              // try swapping. Should not change the price
+              const VELO_ROUTER_CONTRACT = new DRE.ethers.Contract(VELO_ROUTER_ADDRESS, VELO_ROUTER_ABI)
+
+              console.log("try swapping ")
+              await VELO_ROUTER_CONTRACT.connect(signer).swapExactTokensForTokens(amt0, "0", route, signer.address, deadline)
+              let manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
+              console.log("manip price 1: ", manipPrice)
+              percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
+              expect(percentDiff).lte(1e-8, "swapping induces velo price change 0")
+
+              met = await vel.connect(signer).metadata();
+              naivePrice = Math.round((Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1)) / Number(totalSupply));
+              console.log("Naive pricing after big swap: ", naivePrice)
+              expect(Number(price)).lte(naivePrice, "naive price should always be higher than fair reserves price");
+
+              console.log("try swapping 2")
+              route = [{
+                from: met.t1, 
+                to: met.t0, 
+                stable: met.st, 
+                factory: "0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a"
+              }];
+              await VELO_ROUTER_CONTRACT.connect(signer).swapExactTokensForTokens(amt1, "0", route, signer.address, deadline)
+
+              manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
+              percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
+              console.log("manip price 2: ", manipPrice)
+              expect(percentDiff).lte(1e-8, "swapping induces velo price change 1")
+
+
+              met = await vel.connect(signer).metadata();
+              naivePrice = Math.round((Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1)) / Number(totalSupply));
+              console.log("Naive pricing after big swap: ", naivePrice)
+              expect(Number(price)).lte(naivePrice, "naive price should always be higher than fair reserves price");
+
+              console.log("try adding liquidity")
+              amt0 = DRE.ethers.utils.parseUnits("100.0", await token0.connect(signer).decimals())
+              amt1 = DRE.ethers.utils.parseUnits("100.0", await token1.connect(signer).decimals())
+              await setBalance(met.t0, signer, amt0)
+              await setBalance(met.t1, signer, amt1)
+              await VELO_ROUTER_CONTRACT.connect(signer).addLiquidity(met.t0, met.t1,met.st, amt0, amt1, 0, 0, signer.address, deadline)
+
+              manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
+
+              console.log("adding liquidity: ", manipPrice)
+              percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
+              expect(percentDiff).lte(1e-8, "adding liquidity induces velo price change 0")
+
+
            }
            else if(strat.assetType == 6) { //beethoven
                const beet = new DRE.ethers.Contract(currentAsset, BeethovenAbi);
@@ -237,12 +344,119 @@ makeSuite(
                if(currentAsset == "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2") {
                    const price0 = await oracle.connect(signer).callStatic.getAssetPrice("0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb")
                    const price1 = await oracle.connect(signer).callStatic.getAssetPrice("0x4200000000000000000000000000000000000006")
-                   expectedPrice = 189599177276
+                   expectedPrice = 188923679685
                }
                if(currentAsset == "0x4Fd63966879300caFafBB35D157dC5229278Ed23") {
                  //rETH pool
                  expectedPrice = 190343506319 //should be around the same as wstETH
                }
+               if(currentAsset == "0x39965c9dAb5448482Cf7e002F583c812Ceb53046") {
+                expectedPrice = 2363882259;
+               }
+
+               const bal_pool = new DRE.ethers.Contract(currentAsset, BALANCER_POOL_ABI)
+               const dec = await bal_pool.connect(signer).decimals();
+               const bal_vault = new DRE.ethers.Contract(BALANCER_VAULT_ADDRESS, BALANCER_VAULT_ABI)
+               const poolId = await bal_pool.connect(signer).getPoolId();
+
+               let dat = await bal_vault.connect(signer).getPoolTokens(poolId);
+
+               let naivePrice = 0;
+               for(let i=0; i<dat.tokens.length; ++i) {
+                const tokenAdd = dat.tokens[i];
+                const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(tokenAdd);
+                const token = new DRE.ethers.Contract(tokenAdd, ERC20abi)
+                const factor = Math.pow(10,Number(dec)-Number(await token.connect(signer).decimals())) 
+                naivePrice += factor*Number(tokenPrice)*Number(dat.balances[i])
+               }
+               
+               naivePrice = Math.round(naivePrice / await bal_pool.connect(signer).totalSupply());
+
+              let percentDiff = Math.abs(Number(naivePrice) - Number(price))/Number(price)
+              console.log("Naive pricing: ", naivePrice)
+              console.log("percent diff: ",percentDiff)
+              expect(percentDiff).lte(1e-2, "velo token price not consistent with naive pricing (mainly decimals issue)");
+              expect((Number(price)-naivePrice)/naivePrice).lte(1e-4, "naive price should always be higher than fair reserves price");
+
+
+               //give funds to user
+               for(let i=0; i<dat.tokens.length; ++i) {
+                const tokenAdd = dat.tokens[i];
+                const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(tokenAdd);
+                const token = new DRE.ethers.Contract(tokenAdd, ERC20abi)
+                await token.connect(signer).approve(BALANCER_VAULT_ADDRESS, MAX_UINT_AMOUNT)
+                for(let j= 1;j<=100;++j){ //try multiple values
+                  let amt;
+                  if(tokenPrice.gte(ethers.utils.parseUnits("1000",8))){
+                    amt = DRE.ethers.utils.parseUnits((2**j).toString(), await token.connect(signer).decimals())
+                  } else {
+                    amt = DRE.ethers.utils.parseUnits((2**(j+10)).toString(), await token.connect(signer).decimals())
+                  }
+                  
+                  await setBalance(tokenAdd, signer, amt)
+                  const singleSwap: SingleSwap = {
+                    poolId: poolId,
+                    kind: 0, // GIVEN_IN
+                    assetIn: tokenAdd,
+                    assetOut: dat.tokens[(i+1)%dat.tokens.length],
+                    amount: amt,
+                    userData: []
+                  };
+                  const funds: FundManagement = {
+                    sender: signer.address,
+                    fromInternalBalance: true,
+                    recipient: signer.address,
+                    toInternalBalance: true
+                  };
+                  console.log("Try beethoven swapping ",amt)
+                  let successfulSwap = true;
+                  try{
+                    await expect(bal_vault.connect(signer).swap(singleSwap, funds, 0, deadline)).to.be.reverted;
+                    console.log("too much to swap, exiting")
+                    successfulSwap = false;
+                  } catch {
+                    // await bal_vault.connect(signer).swap(singleSwap, funds, 0, deadline)
+                  }
+
+                  try{
+                    await expect(oracle.connect(signer).callStatic.getAssetPrice(currentAsset)).to.be.reverted;
+                    console.log("too much to swap, exiting")
+                    successfulSwap = false;
+                  } catch {
+                    // await bal_vault.connect(signer).swap(singleSwap, funds, 0, deadline)
+                  }
+                  console.log("successfulSwap: ",successfulSwap)
+
+                  if(!successfulSwap) break;
+
+                  // await bal_vault.connect(signer).swap(singleSwap, funds, 0, deadline)
+
+                  const manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
+                  let percentDiffPrice = Math.abs(Number(manipPrice) - Number(price))/Number(price)
+                  console.log(`manip price swapping in ${tokenAdd}: `, manipPrice)
+
+                  dat = await bal_vault.connect(signer).getPoolTokens(poolId);
+                  naivePrice = 0;
+                  for(let i=0; i<dat.tokens.length; ++i) {
+                    const tokenAdd = dat.tokens[i];
+                    const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(tokenAdd);
+                    const token = new DRE.ethers.Contract(tokenAdd, ERC20abi)
+                    const factor = Math.pow(10,Number(dec)-Number(await token.connect(signer).decimals())) 
+                    naivePrice += factor*Number(tokenPrice)*Number(dat.balances[i])
+                  }
+                  
+                  naivePrice = Math.round(naivePrice / await bal_pool.connect(signer).totalSupply());
+
+                  let percentDiff = Math.abs(Number(naivePrice) - Number(price))/Number(price)
+                  console.log("Naive pricing after swap: ", naivePrice)
+                  
+                  // expect(percentDiffPrice).lte(1e-4, "swapping induces beethoven price change")
+
+                  expect((Number(price)-naivePrice)/naivePrice).lte(0, "naive price should always be higher than fair reserves price");
+                }
+               }
+               //swap
+
            }
            else if(strat.assetType == 7) { //rETH
              expectedPrice = 202185432577

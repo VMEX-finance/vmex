@@ -24,7 +24,7 @@ interface IVault {
 
 	enum UserBalanceOpKind { DEPOSIT_INTERNAL, WITHDRAW_INTERNAL, TRANSFER_INTERNAL, TRANSFER_EXTERNAL }
 
-	function getPoolTokens(bytes32 poolId) external returns (IERC20[] memory tokens, uint256[] memory balances, uint256 lastChangeBlock);
+	function getPoolTokens(bytes32 poolId) external view returns (IERC20[] memory tokens, uint256[] memory balances, uint256 lastChangeBlock);
     function manageUserBalance(UserBalanceOp[] memory ops) external payable;
 
 }

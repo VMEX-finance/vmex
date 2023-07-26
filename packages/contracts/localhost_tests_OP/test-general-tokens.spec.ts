@@ -9,9 +9,9 @@ import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErr
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
 import {OptimismConfig} from "../markets/optimism"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
-import { toBytes32, setStorageAt } from "../helpers/token-fork";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
 import { eventChecker } from "../test-suites/test-aave/incentives/helpers/comparator-engine";
+import {setBalance} from "./helpers/mint-tokens";
 
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
 makeSuite(
@@ -49,8 +49,6 @@ makeSuite(
         "function earned(address account) external view returns (uint256 balance)",
     ];
 
-        const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
-        const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_OP/abis/velo.json").toString()
         const amountWETH = ethers.utils.parseEther("1.0");
         // [
         //   "function swapExactETHForTokens(uint amountOutMin, route[] calldata routes, address to, uint deadline) external payable returns (uint[] memory amounts)"
@@ -116,56 +114,10 @@ makeSuite(
             const lendingPool = await contractGetters.getLendingPool();
             for(let [symbol, address] of Object.entries(tokens)){
                 console.log("Testing ",symbol)
-                let slot = -1;
-                let keyFirst = true;
 
-                if(symbol.substring(0,3)=="moo" || symbol.substring(0,4)=="beet" ){
-                  slot = 0;
-                  keyFirst = true;
-                }
-
-                if(symbol.substring(0,2)=="yv"){
-                  slot = 7;
-                  keyFirst = false;
-                }
-                else if(symbol.substring(0,4)=="velo"){
-                  slot = 0;
-                  keyFirst = true;
-                }
-                // else continue
-                if(symbol=="WBTC"){
-                  slot = 0;
-                  keyFirst = true;
-                }
-                else if(symbol=="wstETH"){
-                  slot = 1;
-                  keyFirst = true;
-                }
-                else if(symbol=="rETH"){
-                  slot = 0;
-                  keyFirst = true;
-                }
-                else if(symbol=="FRAX"){
-                  slot = 0;
-                  keyFirst = true;
-                }
-                else if(symbol=="ThreeCRV"){
-                  slot = 26;
-                  keyFirst = false;
-                }
-                else if(symbol=="sUSD3CRV"){
-                  slot = 17;
-                  keyFirst = false;
-                }
-                else if(symbol=="wstETHCRV"){
-                  slot = 7;
-                  keyFirst = false;
-                }
-
-
-                if(symbol=="SUSD"){
-                  continue;
-                }
+                // if(symbol=="SUSD"){
+                //   continue;
+                // }
 
                 
                 var USDCadd = address
@@ -175,41 +127,11 @@ makeSuite(
                 const WETHdec = await myWETH.connect(signer).decimals();
                 const tokenConfig = config[symbol]
 
-                if(slot!=-1){
-                  let index;
-                  console.log("Attempt setting storage")
-                  if(keyFirst){
-                    index = ethers.utils.solidityKeccak256(
-                      ["uint256", "uint256"],
-                      [signer.address, slot] // key, slot
-                    );
-                  } else {
-                    index = ethers.utils.solidityKeccak256(
-                      ["uint256", "uint256"],
-                      [slot, signer.address] // slot, key
-                    );
-                  }
 
-
-
-                  // Manipulate local balance (needs to be bytes32 string)
-                  await setStorageAt(
-                    USDCadd,
-                    index.toString(),
-                    toBytes32(ethers.utils.parseUnits("10.0", tokenDec)).toString()
-                  );
-                  console.log("done setting storage")
-                }
-                else if(symbol!="WETH") {
-                  const VELO_ROUTER_CONTRACT = new ethers.Contract(VELO_ROUTER_ADDRESS, VELO_ROUTER_ABI)
-
-                  var path = [WETHadd, USDCadd, true];
-                  // await myWETH.connect(signer).approve(VELO_ROUTER_ADDRESS,ethers.utils.parseEther("100000.0"))
-                  var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-                  var options = {value: ethers.utils.parseEther("1000.0")}
-                  
-                  await VELO_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseUnits("0.0", tokenDec), [path], signer.address, deadline,options)
-                }
+                // if(symbol!="WETH") {
+                  // await mintToken(symbol, signer, USDCadd, tokenDec);
+                  await setBalance(address, signer, ethers.utils.parseUnits("10.0", tokenDec))
+                // }
                 var signerOrigAmt = await USDC.connect(signer).balanceOf(signer.address)
                 //give some to emergency so they can repay debt
                 await USDC.connect(signer).approve(emergency.address,ethers.utils.parseEther("100000.0"))
