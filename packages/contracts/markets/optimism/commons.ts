@@ -112,6 +112,11 @@ export const CommonsConfig: ICommonConfiguration = {
         _legacy: true,
         _exists: true,
       },
+      beethoven_WETHOPUSDC: {
+        _typeOfPool: "0",
+        _legacy: true,
+        _exists: true,
+      },
       beethoven_rETHETH: {
         _typeOfPool: "1",
         _legacy: true,

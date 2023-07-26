@@ -4,7 +4,7 @@ import deployments from "../deployed-contracts.json"
 const { ethers, artifacts } = hre;
 
 (async() => {
-	const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545"); 
+	const provider = new s.JsonRpcProvider("http://127.0.0.1:8545"); 
 	const [signer] = await ethers.getSigners();
 	const _provider = deployments.LendingPoolAddressesProvider.localhost.address;	
 	const _aaveDataProvider = deployments.AaveProtocolDataProvider.localhost.address;

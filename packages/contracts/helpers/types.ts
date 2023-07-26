@@ -385,6 +385,7 @@ export interface iAssetBase<T> {
   moo_velo_USDTUSDC: T;
   beethoven_USDCDAI: T;
   beethoven_wstETHETH: T;
+  beethoven_WETHOPUSDC: T;
   rETH: T;
   beethoven_rETHETH: T;
   yvUSDC: T;
@@ -525,6 +526,7 @@ export type iOptimismPoolAssets<T> = Partial<
     | "moo_velo_USDTUSDC"
     | "beethoven_USDCDAI"
     | "beethoven_wstETHETH"
+    | "beethoven_WETHOPUSDC"
     | "beethoven_rETHETH"
     | "yvUSDC"
     | "yvUSDT"
