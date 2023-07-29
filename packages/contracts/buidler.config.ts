@@ -13,14 +13,12 @@ usePlugin('@nomiclabs/buidler-ethers');
 usePlugin('buidler-typechain');
 usePlugin('solidity-coverage');
 usePlugin('@nomiclabs/buidler-waffle');
-usePlugin('@nomiclabs/buidler-etherscan');
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true';
 const DEFAULT_BLOCK_GAS_LIMIT = 12450000;
 const DEFAULT_GAS_PRICE = 10;
 const HARDFORK = 'istanbul';
 const INFURA_KEY = process.env.INFURA_KEY || '';
-const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || '';
 const MNEMONIC_PATH = "m/44'/60'/0'/0";
 const MNEMONIC = process.env.MNEMONIC || '';
 
@@ -56,9 +54,6 @@ const buidlerConfig: any = {
   typechain: {
     outDir: 'types',
     target: 'ethers-v4',
-  },
-  etherscan: {
-    apiKey: ETHERSCAN_KEY,
   },
   defaultNetwork: 'buidlerevm',
   mocha: {

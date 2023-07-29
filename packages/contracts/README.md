@@ -59,6 +59,21 @@ Then you can keep running `yarn vmex:dev:test` without having to redeploy the te
 Run `yarn get-uniswap-data`
 Copy the ouput in the terminal to markets/aave/commons.ts
 
+# Contract verification
+
+Common errors and fixes:
+
+```
+ENOENT: no such file or directory ...
+```
+
+Fix:
+```
+npx hardhat clean
+yarn compile
+# rerun scripts
+```
+
 # Hardhat Accounts
 
 Account #0: 0xc783df8a850f42e7F7e57013759C285caa701eB6 (1000000 ETH)
