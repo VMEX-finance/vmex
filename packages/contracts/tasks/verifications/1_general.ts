@@ -2,7 +2,6 @@ import { task } from 'hardhat/config';
 import {
   loadPoolConfig,
   ConfigNames,
-  getTreasuryAddress,
   getWrappedNativeTokenAddress,
 } from '../../helpers/configuration';
 import { ZERO_ADDRESS } from '../../helpers/constants';
@@ -42,7 +41,6 @@ task('verify:general', 'Verify contracts at Etherscan')
       LendingPool,
       WethGateway,
     } = poolConfig as ICommonConfiguration;
-    const treasuryAddress = await getTreasuryAddress(poolConfig);
 
     const registryAddress = getParamPerNetwork(ProviderRegistry, network);
     const addressesProvider = await getLendingPoolAddressesProvider();
@@ -82,9 +80,6 @@ task('verify:general', 'Verify contracts at Etherscan')
         ? await getLendingPoolCollateralManagerImpl(lendingPoolCollateralManagerImplAddress)
         : await getLendingPoolCollateralManagerImpl();
 
-      const dataProvider = await getAaveProtocolDataProvider();
-      const walletProvider = await getWalletProvider();
-
       const wethGatewayAddress = getParamPerNetwork(WethGateway, network);
       const wethGateway = notFalsyOrZeroAddress(wethGatewayAddress)
         ? await getWETHGateway(wethGatewayAddress)
@@ -117,16 +112,6 @@ task('verify:general', 'Verify contracts at Etherscan')
         lendingPoolCollateralManagerImpl,
         []
       );
-
-      // Test helpers
-      console.log('\n- Verifying  Aave  Provider Helpers...\n');
-      await verifyContract(eContractid.AaveProtocolDataProvider, dataProvider, [
-        addressesProvider.address,
-      ]);
-
-      // Wallet balance provider
-      console.log('\n- Verifying  Wallet Balance Provider...\n');
-      await verifyContract(eContractid.WalletBalanceProvider, walletProvider, []);
 
       // WETHGateway
       console.log('\n- Verifying  WETHGateway...\n');
