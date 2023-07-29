@@ -323,6 +323,7 @@ contract LendingPoolAddressesProvider is
      **/
     function setGlobalAdmin(address admin) external override onlyOwner {
         _addresses[GLOBAL_ADMIN] = admin;
+        emit GlobalAdminUpdated(admin);
     }
 
     /**
@@ -351,7 +352,7 @@ contract LendingPoolAddressesProvider is
             Errors.CALLER_NOT_TRANCHE_ADMIN
         );
         _trancheAdmins[trancheId] = admin;
-        emit ConfigurationAdminUpdated(admin, trancheId);
+        emit TrancheAdminUpdated(admin, trancheId);
     }
 
     /**
@@ -367,7 +368,7 @@ contract LendingPoolAddressesProvider is
         );
         assert(_trancheAdmins[trancheId] == address(0)); //this should never be false
         _trancheAdmins[trancheId] = admin;
-        emit ConfigurationAdminUpdated(admin, trancheId);
+        emit TrancheAdminUpdated(admin, trancheId);
     }
 
     /**
