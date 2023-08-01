@@ -6,5 +6,5 @@ export const toBytes32 = (bn) => {
 
 export const setStorageAt = async (address, index, value) => {
     await ethers.provider.send("hardhat_setStorageAt", [address, index, value]);
-    await ethers.provider.send("evm_mine", []); // Just mines to the next block
+    // await ethers.provider.send("evm_mine", []); // Just mines to the next block
 };
