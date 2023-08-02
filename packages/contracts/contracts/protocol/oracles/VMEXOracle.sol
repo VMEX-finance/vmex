@@ -335,7 +335,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         uint256 price = BalancerOracle.get_lp_price(
             address(this),
             asset,
-            BASE_CURRENCY_DECIMALS,
             md._typeOfPool,
             md._legacy
         );

@@ -112,16 +112,16 @@ export const CommonsConfig: ICommonConfiguration = {
         _legacy: true,
         _exists: true,
       },
-      beethoven_WETHOPUSDC: {
-        _typeOfPool: "0",
-        _legacy: true,
-        _exists: true,
-      },
-      beethoven_rETHETH: {
-        _typeOfPool: "1",
-        _legacy: true,
-        _exists: true,
-      },
+      // beethoven_WETHOPUSDC: {
+      //   _typeOfPool: "0",
+      //   _legacy: true,
+      //   _exists: true,
+      // },
+      // beethoven_rETHETH: {
+      //   _typeOfPool: "1",
+      //   _legacy: true,
+      //   _exists: true,
+      // },
     },
   },
   ChainlinkAggregator: {
@@ -218,10 +218,10 @@ export const CommonsConfig: ICommonConfiguration = {
         address: "0xe35fec3895dcecc7d2a91e8ae4ff3c0d43ebffe0",
         type: 1,
       },
-      velo_rETHWETH: {
-        address: "0xd0E434831a765839051DA9C0B9B99C6b0Fb87201",
-        type: 2,
-      },
+      // velo_rETHWETH: {
+      //   address: "0xd0E434831a765839051DA9C0B9B99C6b0Fb87201",
+      //   type: 2,
+      // },
       velo_wstETHWETH: {
         address: "0x9f82A8b19804141161C582CfEa1b84853340A246",
         type: 2,
@@ -262,10 +262,10 @@ export const CommonsConfig: ICommonConfiguration = {
         address: "0xa2f27d183a4e409c734367712f9344328f8ec98d",
         type: 2,
       },
-      beethoven_rETHETH: {
-        address: "0x61ac9315a1Ae71633E95Fb35601B59180eC8d61d",
-        type: 3,
-      },
+      // beethoven_rETHETH: {
+      //   address: "0x61ac9315a1Ae71633E95Fb35601B59180eC8d61d",
+      //   type: 3,
+      // },
       beethoven_wstETHETH: {
         address: "0xe110b862E4D076596707892c0C5163BC183eb161",
         type: 3,
