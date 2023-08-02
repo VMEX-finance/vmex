@@ -213,6 +213,7 @@ makeSuite(
            console.log("Price: ", price)
            let expectedPrice;
            // skip curve tokens too cause we test that separately
+          //  if(symbol!="velo_USDTUSDC") continue;
            if( strat.assetType != 5) continue;
 
            if(strat.assetType==0 || strat.assetType == 1 || strat.assetType == 2) {
@@ -241,6 +242,9 @@ makeSuite(
                // console.log("metadata: ", met);
               const price0 = await oracle.connect(signer).callStatic.getAssetPrice(met.t0)
               const price1 = await oracle.connect(signer).callStatic.getAssetPrice(met.t1)
+              console.log("price0: ",price0)
+              console.log("price1: ",price1)
+
               const token0 = new DRE.ethers.Contract(met.t0, ERC20abi)
               const token1 = new DRE.ethers.Contract(met.t1, ERC20abi)
               const factor1 = Math.pow(10,Number(dec))/ Number(met.dec0) 
@@ -259,27 +263,44 @@ makeSuite(
 
               await token0.connect(signer).approve(VELO_ROUTER_ADDRESS, MAX_UINT_AMOUNT)
               await token1.connect(signer).approve(VELO_ROUTER_ADDRESS, MAX_UINT_AMOUNT)
-               if(met.st==false) {
-                console.log("volatile")
-                const a = Math.sqrt(Number(met.r0) * Number(met.r1) * factor1 * factor2);
-                console.log("a: ",a)
-                const b = Math.sqrt(Number(price0) * Number(price1) )
-                console.log("b: ",b)
+              const checkExpectedPrice = async(met): Promise<[Number,Number]> =>{
+                console.log('metadata: ', met)
+                const totalSupply = await vel.connect(signer).totalSupply();
                 console.log("totalSupply: ", totalSupply)
-                expectedPrice = 2 * a * b / Number(totalSupply);
-               }
-               else { //stable
-                console.log("stable")
-                  let r0 = Number(met[2]) * 1e18 / Number(met[0]); 
-                  let r1 = Number(met[3]) * 1e18 / Number(met[1]); 
-                  let p0 = price0; 
-                  let p1 = price1; 
-                  
-                  let k = ((r0 ** 3) * r1) + ((r1 ** 3) * r0); 
-                  let fair = (k * (p0 ** 3) * (p1 ** 3)) / ((p0 ** 2) + (p1 ** 2));
-                  expectedPrice = 2 * Math.pow(fair, 1/4) / totalSupply; 
-                  // console.log("exepected price", price / 1e18); 
-               }
+                let expectedPriceLocal = 0;
+                let k = 0;
+                if(met.st==false) {
+                  console.log("volatile")
+                  const a = Math.sqrt(Number(met.r0) * Number(met.r1) * factor1 * factor2);
+                  // console.log("a: ",a)
+                  const b = Math.sqrt(Number(price0) * Number(price1) )
+                  // console.log("b: ",b)
+                  // console.log("totalSupply: ", totalSupply)
+                  k = a * b 
+                  expectedPriceLocal = 2 * a * b / Number(totalSupply);
+                 }
+                 else { //stable
+                  console.log("stable")
+                    let r0 = Number(met[2]) * 1e18 / Number(met[0]); 
+                    let r1 = Number(met[3]) * 1e18 / Number(met[1]); 
+                    let p0 = price0; 
+                    let p1 = price1; 
+                    
+                    k = ((r0 ** 3) * r1) + ((r1 ** 3) * r0); 
+                    let fair = (k * (p0 ** 3) * (p1 ** 3)) / ((p0 ** 2) + (p1 ** 2));
+                    expectedPriceLocal = 2 * Math.pow(fair, 1/4) / totalSupply; 
+                    // console.log("exepected price", price / 1e18); 
+                 }
+                 console.log("Expected price: ", expectedPriceLocal)
+                  // const diff = Math.abs(expectedPriceLocal-Number(price));
+                  // const percentDiff = diff/expectedPriceLocal
+                  // console.log("percentDiff math: ",percentDiff)
+                  // expect(percentDiff).to.be.lte(1e-5) // 8 most significant digits are accurate
+                 return [expectedPriceLocal, k]
+              }
+              let beginningK;
+              [expectedPrice, beginningK] = await checkExpectedPrice(met)
+               
 
                var route: Route[] = [{
                   from: met.t0, 
@@ -291,10 +312,15 @@ makeSuite(
               const VELO_ROUTER_CONTRACT = new DRE.ethers.Contract(VELO_ROUTER_ADDRESS, VELO_ROUTER_ABI)
 
               console.log("try swapping ", met.t0)
+
+              console.log("_________******____________")
               for(let j= 1;j<= 10;++j){ //try multiple values
                 let amtSwap = (1000*5**j)
                 if(price0.lt(ethers.utils.parseUnits("1000", 8))){
                   amtSwap *=1000
+                }
+                if(amtSwap*Number(price0)/1e8 > 1e9) { //if we are swapping less than a billion of value
+                  break
                 }
                 const amt0 = DRE.ethers.utils.parseUnits((amtSwap).toString(), await token0.connect(signer).decimals())
                 console.log("amount to swap: ", amtSwap)
@@ -307,15 +333,25 @@ makeSuite(
                 } catch {
 
                 }
+
+                met = await vel.connect(signer).metadata();
+                let currentMathPrice, newK;
+                [currentMathPrice, newK] = await checkExpectedPrice(met);
+                const diffK = Math.abs(Number(newK) - Number(beginningK))/Number(beginningK)
+                console.log("percent diff in K: ", diffK)
+
                 const manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
                 percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
-                console.log("manip price 1: ", manipPrice, "percent diff: ", percentDiff)
-                expect(percentDiff).lte(5e-3, "swapping induces velo price change 0")
-              
-                met = await vel.connect(signer).metadata();
+                console.log("manip price 1: ", manipPrice)
+                console.log("percent diff: ", percentDiff)
+                const diffPrice = Math.abs(Number(currentMathPrice) - Number(manipPrice))/Number(manipPrice)
+                expect(diffPrice).lte(1e-6, "Make sure rounding on chain isn't too bad during huge swaps")
+                expect(percentDiff).lte(1e-4, "swapping induces velo price change 0")
                 naivePrice = Math.round((Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1)) / Number(totalSupply));
                 console.log("Naive pricing after big swap: ", naivePrice)
                 expect(Number(price)).lte(naivePrice, "naive price should always be higher than fair reserves price");
+
+                console.log("_____________________")
               }
               console.log("try swapping ", met.t1)
               route = [{
@@ -326,10 +362,15 @@ makeSuite(
               }];
 
 
+              console.log("_________******____________")
               for(let j= 1;j<=10;++j){ //try multiple values
                 let amtSwap = (1000*5**j)
                 if(price1.lt(ethers.utils.parseUnits("1000", 8))){
                   amtSwap *=1000
+                }
+
+                if(amtSwap*Number(price1)/1e8 > 1e9) { //if we are swapping less than a billion of value
+                  break
                 }
                 let amt1 = DRE.ethers.utils.parseUnits(amtSwap.toString(), await token1.connect(signer).decimals())
                 await setBalance(met.t1, signer, amt1)
@@ -342,16 +383,26 @@ makeSuite(
                 } catch {
 
                 }
+
+                met = await vel.connect(signer).metadata();
+                let currentMathPrice, newK;
+                [currentMathPrice, newK] = await checkExpectedPrice(met);
+
+                const diffK = Math.abs(Number(newK) - Number(beginningK))/Number(beginningK)
+                console.log("percent diff in K: ", diffK)
+
                 const manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
                 percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
                 console.log("manip price 2: ", manipPrice, "percent diff: ", percentDiff)
-                expect(percentDiff).lte(1e-2, "swapping induces velo price change 1 greater than 1%")
-
-
-                met = await vel.connect(signer).metadata();
+                // expect(percentDiff).lte(1e-2, "swapping induces velo price change 1 greater than 1%")
+                const diffPrice = Math.abs(Number(currentMathPrice) - Number(manipPrice))/Number(manipPrice)
+                expect(diffPrice).lte(1e-6, "Make sure rounding on chain isn't too bad during huge swaps")
+                expect(percentDiff).lte(1e-4, "swapping induces velo price change 0")
                 naivePrice = Math.round((Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1)) / Number(totalSupply));
                 console.log("Naive pricing after big swap: ", naivePrice)
                 expect(Number(price)).lte(naivePrice, "naive price should always be higher than fair reserves price");
+
+           console.log("_____________________")
               }
 
               console.log("try adding liquidity")
@@ -508,6 +559,8 @@ makeSuite(
            const percentDiff = diff/expectedPrice
            console.log("percentDiff: ",percentDiff)
            expect(percentDiff).to.be.lte(1/1e8) // 8 most significant digits are accurate
+           console.log("_____________________")
+           console.log("*********************")
            console.log("_____________________")
        }
 
