@@ -214,7 +214,7 @@ makeSuite(
            let expectedPrice;
            // skip curve tokens too cause we test that separately
           //  if(symbol!="velo_USDTUSDC") continue;
-           if( strat.assetType != 5) continue;
+          //  if( strat.assetType != 5) continue;
 
            if(strat.assetType==0 || strat.assetType == 1 || strat.assetType == 2) {
                continue;
