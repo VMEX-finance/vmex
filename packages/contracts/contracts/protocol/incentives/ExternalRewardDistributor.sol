@@ -24,7 +24,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   using SafeERC20 for IERC20;
 
   mapping(address => address) internal stakingData; // incentivized aToken => address of staking contract
-  mapping(address => StakingType) internal stakingTypes; // staking contract => type of staking contract
+  mapping(address => StakingType) public stakingTypes; // staking contract => type of staking contract
   ILendingPoolAddressesProvider public addressesProvider;
 
   bytes32 public currRoot; // The merkle tree's root of the current rewards distribution.
