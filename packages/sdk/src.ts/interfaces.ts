@@ -166,3 +166,14 @@ export interface UserRewards {
   rewardTokens: string[];
   rewardAmounts: BigNumber[];
 }
+
+export interface ConfigureCollateralParams {
+  baseLTV: BigNumberish;
+  liquidationThreshold: BigNumberish;
+  liquidationBonus: BigNumberish;
+  borrowFactor: BigNumberish;
+}
+export interface ConfigureCollateralParamsInput {
+  underlyingAsset: string;
+  collateralParams: ConfigureCollateralParams;
+}
