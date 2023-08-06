@@ -182,7 +182,6 @@ export async function repay(
   callback?: () => Promise<any>
 ) {
   params.asset = convertSymbolToAddress(params.asset, params.network);
-  console.log("Repay: ", params);
   let tx;
   let amount = await convertToCurrencyDecimals(
     params.asset,
