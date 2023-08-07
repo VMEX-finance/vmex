@@ -44,11 +44,11 @@ export const CommonsConfig: ICommonConfiguration = {
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
-    [eOptimismNetwork.optimism]: undefined,
+    [eOptimismNetwork.optimism]: "0x599e1DE505CfD6f10F64DD7268D856831f61627a", //multisig address
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
-    [eOptimismNetwork.optimism]: undefined,
+    [eOptimismNetwork.optimism]: "0x839d8c6BDB283B72F7bfbb2efa32eD40855dF95c", //filip's address
   },
   EmergencyAdminIndex: 1,
   ProviderRegistry: {

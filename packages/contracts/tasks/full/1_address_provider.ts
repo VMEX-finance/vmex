@@ -7,6 +7,8 @@ import {
   getGenesisPoolAdmin,
   getEmergencyAdmin,
   getVMEXTreasury,
+  getGenesisPoolAdminIndex,
+  getEmergencyAdminIndex,
 } from "../../helpers/configuration";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { eNetwork } from "../../helpers/types";
@@ -54,37 +56,62 @@ task(
         await getVMEXTreasury(poolConfig)
       )
     );
-    await waitForTx(
-      await addressesProvider.setGlobalAdmin(
-        await getGenesisPoolAdmin(poolConfig) // TODO: after multisig set up, set as multisig
-      )
-    );
-    await waitForTx(
-      await addressesProvider.setEmergencyAdmin(
-        await getGenesisPoolAdmin(poolConfig) // TODO: set as someone's address who's responsible
-      )
-    );
-    await waitForTx(
-      await addressesProvider.addWhitelistedAddress(
-        await getGenesisPoolAdmin(poolConfig), // TODO: add partner protocols and trusted early adopters
-        true
-      )
-    );
-    await waitForTx(
-      await addressesProvider.addWhitelistedAddress(
-        await getEmergencyAdmin(poolConfig),
-        true
-      )
-    );
 
-    //dev: enable anyone to create tranche
-    //TODO: remove.
-    if(network!="optimism") {
+    if(network.toString() == "optimism_localhost" || network.toString() == "localhost"){
+      await waitForTx(
+        await addressesProvider.setGlobalAdmin(
+          await getGenesisPoolAdminIndex(poolConfig) 
+        )
+      );
+      await waitForTx(
+        await addressesProvider.setEmergencyAdmin(
+          await getGenesisPoolAdminIndex(poolConfig) 
+        )
+      );
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(
+          await getGenesisPoolAdminIndex(poolConfig), 
+          true
+        )
+      );
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(
+          await getEmergencyAdminIndex(poolConfig),
+          true
+        )
+      );
       await waitForTx(
         await addressesProvider.setPermissionlessTranches(
           true
         )
       );
+    }
+    else { // real optimism or mainnet deployment
+      await waitForTx(
+        await addressesProvider.setGlobalAdmin(
+          await getGenesisPoolAdmin(poolConfig) 
+        )
+      );
+      await waitForTx(
+        await addressesProvider.setEmergencyAdmin(
+          await getEmergencyAdmin(poolConfig) 
+        )
+      );
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(
+          await getGenesisPoolAdmin(poolConfig), 
+          true
+        )
+      );
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(
+          await getEmergencyAdmin(poolConfig),
+          true
+        )
+      );
+
+      // TODO: add partner protocols and trusted early adopters, but can also add it later
+
     }
     
     //await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
