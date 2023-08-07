@@ -128,17 +128,17 @@ contract LendingPoolConfigurator is
                 uint64 borrowFactor
             ) = assetMappings.getDefaultCollateralParams(reserves[i]); //it doesn't matter what the tranche and user address is since it will get params from global params
             pool.setCollateralParams(
-                reserves[i], 
-                trancheId, 
-                ltv, 
-                liquidationThreshold, 
-                liquidationBonus, 
+                reserves[i],
+                trancheId,
+                ltv,
+                liquidationThreshold,
+                liquidationBonus,
                 borrowFactor
             );
 
             _setReserveInterestRateStrategyAddress(
-                reserves[i], 
-                trancheId, 
+                reserves[i],
+                trancheId,
                 assetMappings.getDefaultInterestRateStrategyAddress(reserves[i])
             );
 
@@ -219,8 +219,8 @@ contract LendingPoolConfigurator is
                     )
                 );
                 _setReserveInterestRateStrategyAddress(
-                    asset, 
-                    trancheId, 
+                    asset,
+                    trancheId,
                     assetMappings.getDefaultInterestRateStrategyAddress(asset)
                 );
             }
@@ -241,9 +241,13 @@ contract LendingPoolConfigurator is
     ) external onlyVerifiedTrancheAdmin(trancheId) {
         uint256 length = input.length;
         for (uint256 i; i < length;) {
+            require(
+                assetMappings.getAssetMapping(input[i].underlyingAsset).isAllowed,
+                Errors.AM_ASSET_DOESNT_EXIST
+            ); // require that the asset is allowed in the protocol
             ConfigureCollateralParams memory params = input[i].collateralParams;
             ValidationLogic.validateCollateralParams(
-                params.baseLTV, 
+                params.baseLTV,
                 params.liquidationThreshold,
                 params.liquidationBonus,
                 params.borrowFactor
@@ -356,24 +360,24 @@ contract LendingPoolConfigurator is
         ConfigureCollateralParams memory params
     ) internal {
         pool.setCollateralParams(
-            underlyingAsset, 
-            trancheId, 
-            params.baseLTV, 
-            params.liquidationThreshold, 
-            params.liquidationBonus, 
+            underlyingAsset,
+            trancheId,
+            params.baseLTV,
+            params.liquidationThreshold,
+            params.liquidationBonus,
             params.borrowFactor
         );
         emit VerifiedAdminConfiguredCollateral(
-            underlyingAsset, 
-            trancheId, 
-            params.baseLTV, 
-            params.liquidationThreshold, 
-            params.liquidationBonus, 
+            underlyingAsset,
+            trancheId,
+            params.baseLTV,
+            params.liquidationThreshold,
+            params.liquidationBonus,
             params.borrowFactor
         );
     }
 
-    
+
 
     /**
      * @dev Updates the treasury address of the atoken
