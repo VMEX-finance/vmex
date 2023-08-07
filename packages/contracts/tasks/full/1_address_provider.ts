@@ -25,6 +25,7 @@ task(
   .addFlag("skipRegistry")
   .setAction(async ({ verify, pool, skipRegistry }, DRE) => {
     await DRE.run("set-DRE");
+    const network = <eNetwork>DRE.network.name;
     const poolConfig = loadPoolConfig(pool);
     const { MarketId } = poolConfig;
     console.log("trying to deploy addr provider")
@@ -55,17 +56,17 @@ task(
     );
     await waitForTx(
       await addressesProvider.setGlobalAdmin(
-        await getGenesisPoolAdmin(poolConfig)
+        await getGenesisPoolAdmin(poolConfig) // TODO: after multisig set up, set as multisig
       )
     );
     await waitForTx(
       await addressesProvider.setEmergencyAdmin(
-        await getGenesisPoolAdmin(poolConfig)
+        await getGenesisPoolAdmin(poolConfig) // TODO: set as someone's address who's responsible
       )
     );
     await waitForTx(
       await addressesProvider.addWhitelistedAddress(
-        await getGenesisPoolAdmin(poolConfig),
+        await getGenesisPoolAdmin(poolConfig), // TODO: add partner protocols and trusted early adopters
         true
       )
     );
@@ -77,11 +78,15 @@ task(
     );
 
     //dev: enable anyone to create tranche
-    await waitForTx(
-      await addressesProvider.setPermissionlessTranches(
-        true
-      )
-    );
+    //TODO: remove.
+    if(network!="optimism") {
+      await waitForTx(
+        await addressesProvider.setPermissionlessTranches(
+          true
+        )
+      );
+    }
+    
     //await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
 
     console.log("Pool Admin", await addressesProvider.getGlobalAdmin());
