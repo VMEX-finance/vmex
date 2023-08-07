@@ -90,6 +90,13 @@ const getAddressFromConfig = async (
   if (targetAddress) {
     return targetAddress;
   }
+  return getAddressFromConfigIndex(targetIndex);
+}
+
+
+const getAddressFromConfigIndex = async (
+  targetIndex: number
+): Promise<tEthereumAddress> => {
   const addressList = await getEthersSignersAddresses();
   return addressList[targetIndex];
 }
@@ -104,6 +111,18 @@ export const getEmergencyAdmin = async (
   config: IBaseConfiguration
 ): Promise<tEthereumAddress> => {
   return getAddressFromConfig(config.EmergencyAdmin, config.EmergencyAdminIndex);
+};
+
+export const getGenesisPoolAdminIndex = async (
+  config: IBaseConfiguration
+): Promise<tEthereumAddress> => {
+  return getAddressFromConfigIndex(config.PoolAdminIndex);
+};
+
+export const getEmergencyAdminIndex = async (
+  config: IBaseConfiguration
+): Promise<tEthereumAddress> => {
+  return getAddressFromConfigIndex(config.EmergencyAdminIndex);
 };
 
 export const getVMEXTreasury = async (
