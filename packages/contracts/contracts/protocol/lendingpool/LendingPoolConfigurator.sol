@@ -241,10 +241,7 @@ contract LendingPoolConfigurator is
     ) external onlyVerifiedTrancheAdmin(trancheId) {
         uint256 length = input.length;
         for (uint256 i; i < length;) {
-            require(
-                assetMappings.getAssetMapping(input[i].underlyingAsset).isAllowed,
-                Errors.AM_ASSET_DOESNT_EXIST
-            ); // require that the asset is allowed in the protocol
+            require(assetMappings.getAssetAllowed(input[i].underlyingAsset), Errors.AM_ASSET_NOT_ALLOWED);
             ConfigureCollateralParams memory params = input[i].collateralParams;
             ValidationLogic.validateCollateralParams(
                 params.baseLTV,
