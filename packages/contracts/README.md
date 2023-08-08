@@ -57,7 +57,7 @@ Then you can keep running `yarn vmex:dev:test` without having to redeploy the te
 ### Check and update uniswapv3 pool addresses with most volume
 
 Run `yarn get-uniswap-data`
-Copy the ouput in the terminal to markets/aave/commons.ts
+Copy the output in the terminal to markets/aave/commons.ts
 
 # Contract verification
 
