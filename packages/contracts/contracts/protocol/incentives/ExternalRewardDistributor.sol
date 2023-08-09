@@ -100,6 +100,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function removeStakingReward(address aToken) external onlyVerifiedTrancheAdmin(IAToken(aToken)._tranche()) {
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
 
+    require(ILendingPool(addressesProvider.getLendingPool()).getReserveData(underlying, IAToken(aToken)._tranche()).aTokenAddress == aToken, "Incorrect aToken");
+
     uint256 amount = IERC20(aToken).totalSupply();
     if(amount!=0){
       unstake(aToken, amount);
@@ -191,7 +193,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   ) public onlyVerifiedTrancheAdmin(IAToken(aToken)._tranche()) { 
     address assetMappings = addressesProvider.getAssetMappings();
     address underlying = IAToken(aToken).UNDERLYING_ASSET_ADDRESS();
-    
+
+    require(ILendingPool(addressesProvider.getLendingPool()).getReserveData(underlying, IAToken(aToken)._tranche()).aTokenAddress == aToken, "Incorrect aToken");
     require(stakingTypes[stakingContract] != StakingType.NOT_SET, "staking contract is not approved");
     require(!stakingExists(aToken), "Cannot add staking reward for a token that already has staking");
     require(!IAssetMappings(assetMappings).getAssetBorrowable(underlying), "Underlying cannot be borrowable for external rewards");
