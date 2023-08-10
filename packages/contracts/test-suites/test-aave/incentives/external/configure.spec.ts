@@ -16,12 +16,12 @@ const keccak256 = require('keccak256');
 makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => {
   const {CALLER_NOT_GLOBAL_ADMIN, TRANCHE_ADMIN_NOT_VERIFIED} = ProtocolErrors;
   before('Before', async () => {
-    const { dai, assetMappings, busd, usdt, weth, addressesProvider, incentivesController } = testEnv; 
+    const { dai, assetMappings, busd, usdc, weth, addressesProvider, incentivesController } = testEnv; 
     // await addressesProvider.setIncentivesController(incentivesController.address);
     await assetMappings.setBorrowingEnabled(dai.address, false);
     await assetMappings.setAssetType(dai.address, 3); //change to yearn so it can mock staking
     await assetMappings.setBorrowingEnabled(busd.address, false);
-    await assetMappings.setBorrowingEnabled(usdt.address, false);
+    await assetMappings.setBorrowingEnabled(usdc.address, false);
     await assetMappings.setBorrowingEnabled(weth.address, false);
     testEnv.leafNodes = testEnv.users.map((user) => {
       return {
@@ -33,11 +33,11 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   });
 
   after('After', async () => {
-    const { dai, assetMappings, busd, usdt, weth } = testEnv; 
+    const { dai, assetMappings, busd, usdc, weth } = testEnv; 
     await assetMappings.setBorrowingEnabled(dai.address, true);
     await assetMappings.setAssetType(dai.address, 0);
     await assetMappings.setBorrowingEnabled(busd.address, true);
-    await assetMappings.setBorrowingEnabled(usdt.address, true);
+    await assetMappings.setBorrowingEnabled(usdc.address, true);
     await assetMappings.setBorrowingEnabled(weth.address, true);
     testEnv.leafNodes = testEnv.users.map((user) => {
       return {
@@ -89,7 +89,7 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
   })
 
   it('Configure batch assets, fail on inconsistent parameter lengths', async () => {
-    const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, usdc, busd, aave, incentivizedTokens } = testEnv;
+    const { incentivesController, rewardTokens, incentUnderlying, stakingContracts, usdc, busd, aave, incentivizedTokens, aUsdc, aDai } = testEnv;
     await incentivizedTokens[1].setTranche(0); //technically they are already 0?
     await incentivesController.setStakingType(
       stakingContracts.slice(1, 3).map(t => t.address),
@@ -102,12 +102,12 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
       )).to.be.revertedWith('Malformed input');
     const receipt = await waitForTx(
         await incentivesController.batchBeginStakingRewards(
-          incentivizedTokens.slice(1, 3).map(t => t.address),
+          [aUsdc.address, aDai.address],
             stakingContracts.slice(1, 3).map(t => t.address)
     ));
 
-    const assetBData = await incentivesController.getStakingContract(incentivizedTokens[1].address)
-    const assetCData = await incentivesController.getStakingContract(incentivizedTokens[2].address)
+    const assetBData = await incentivesController.getStakingContract(aUsdc.address)
+    const assetCData = await incentivesController.getStakingContract(aDai.address)
 
     expect(assetBData).equal(stakingContracts[1].address)
     expect(assetCData).equal(stakingContracts[2].address)
@@ -117,16 +117,19 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
     expect(emitted.length).equal(4)
 
     eventChecker(emitted[1], 'RewardConfigured', [
-      incentivizedTokens[1].address,
+      aUsdc.address,
         stakingContracts[1].address,
         0
     ]);
 
     eventChecker(emitted[3], 'RewardConfigured', [
-      incentivizedTokens[2].address,
+      aDai.address,
         stakingContracts[2].address,
         0
     ]);
+
+    await incentivesController.removeStakingReward(aDai.address);
+    await incentivesController.removeStakingReward(aUsdc.address);
   });  
 
   it('Configure asset reward with multiple staking contracts and with liquidity', async () => {
