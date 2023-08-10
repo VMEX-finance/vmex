@@ -174,6 +174,23 @@ makeSuite('Verified tranche admins tests', (testEnv) => {
     expect(dai1.liquidationThreshold).equal(ethers.utils.parseUnits("8250",14))
     expect(dai1.liquidationBonus).equal(ethers.utils.parseUnits("10500",14))
     expect(dai1.borrowFactor).equal(ethers.utils.parseUnits("10100",14))
+
+    //teste that we can't set collateral params for an asset not in the asset mappings
+    await expect(configurator.connect(users[2].signer).batchConfigureCollateralParams([
+      {
+        underlyingAsset: "0x06824df38D1D77eADEB6baFCB03904E27429Ab74", 
+        collateralParams: {
+          baseLTV: "800000000000000000",
+          liquidationThreshold: "825000000000000000",
+          liquidationBonus: "1050000000000000000",
+          borrowFactor: "1010000000000000000"
+        }
+      }
+    ],
+    0
+    )).to.be.revertedWith(AM_ASSET_NOT_ALLOWED)
+
+
   });
 
   it('change interest rate strategy address', async () => {

@@ -89,6 +89,7 @@ import {
   StakingRewardsMockFactory,
   MockIncentivesControllerFactory,
   MintableDelegationERC20,
+  FakeATokenFactory,
 } from "../types";
 import {
   withSaveAndVerify,
@@ -1492,6 +1493,21 @@ export const deployMockIncentivesController = async (
     [],
     verify
   );
+
+
+export const deployFakeAToken = async (
+  underlying,
+  trancheId,
+  stakedAmount,
+  verify?: boolean
+) =>
+  withSaveAndVerify(
+    await new FakeATokenFactory(await getFirstSigner()).deploy(underlying, trancheId, stakedAmount),
+    eContractid.FakeAToken,
+    [],
+    verify
+  );
+
 export const deployATokenMock = async (
   aicAddress: tEthereumAddress,
   addressProvAddress: tEthereumAddress,
