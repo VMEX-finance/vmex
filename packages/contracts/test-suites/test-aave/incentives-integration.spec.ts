@@ -9,7 +9,8 @@ import { getUserData } from './helpers/utils/helpers';
 
 import { parseEther } from 'ethers/lib/utils';
 import { ethers } from 'ethers';
-import { getTrancheAdminT1 } from '../../helpers/contracts-getters';
+import { getATokenMock, getMockAToken, getTrancheAdminT1 } from '../../helpers/contracts-getters';
+import { deployFakeAToken } from '../../helpers/contracts-deployments';
 
 const chai = require('chai');
 
@@ -77,6 +78,11 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
     const staking = new ethers.Contract(stakingContracts[6].address,stakingAbi.abi)
     console.log("try beginning staking reward");
     await incentivesController.setStakingType([stakingContracts[6].address],[1]);
+
+    const mockAToken = await deployFakeAToken(dai.address,0,1000);
+
+    await expect(incentivesController.beginStakingReward(mockAToken.address, stakingContracts[6].address)).to.be.revertedWith("Incorrect aToken");
+    await expect(incentivesController.removeStakingReward(mockAToken.address)).to.be.revertedWith("Incorrect aToken");
     await incentivesController.beginStakingReward(ayvTricrypto2.address, stakingContracts[6].address);
     console.log("after staking rewards begin");
 
