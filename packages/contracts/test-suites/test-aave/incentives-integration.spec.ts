@@ -21,13 +21,36 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
   const stakingAbi = require("../../artifacts/contracts/mocks/StakingRewardsMock.sol/StakingRewardsMock.json")
   const tranche = 1;
 
-  before('Before LendingPool liquidation: set config', async () => {
+  it('Before LendingPool liquidation: set config', async () => {
     const { incentivesController, stakingContracts, rewardTokens, addressesProvider, assetMappings, yvTricrypto2, ayvTricrypto2, configurator } = testEnv; 
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
     // make it use the chainlink aggregator for this tests
     // await assetMappings.setAssetType(yvTricrypto2.address, 0);
-    // await assetMappings.configureAssetMapping(yvTricrypto2.address, 8000, 8250, 10500, 1000, 800, 10100);
-    await configurator.verifyTranche(1); //verifying tranche to set custom params
+
+    // await assetMappings.configureAssetMapping(
+    //   yvTricrypto2.address,
+    //   "800000000000000000", 
+    //   "825000000000000000", 
+    //   "1050000000000000000", 
+    //   1000, 
+    //   800, 
+    //   "1010000000000000000"
+    // );
+
+
+      // await assetMappings.configureAssetMapping(
+      //   yvTricrypto2.address, 
+      //   "250000000000000000", 
+      //   "450000000000000000", 
+      //   "1150000000000000000", 
+      //   10000, 
+      //   10000, 
+      //   "1010000000000000000"
+      // );
+    const assetData = await assetMappings.getAssetMapping(yvTricrypto2.address);
+    console.log("yvtricrypto dat: ", assetData)
+
+    await configurator.verifyTranche(tranche); //verifying tranche to set custom params
     await configurator.connect(await getTrancheAdminT1("hardhat")).batchConfigureCollateralParams([
       {
         underlyingAsset: yvTricrypto2.address,
@@ -39,16 +62,8 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
         }
       }
     ],
-    1
+    tranche
     )
-  });
-
-  after('After LendingPool liquidation: reset config', async () => {
-    BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
-    const {  assetMappings, yvTricrypto2, configurator } = testEnv; 
-      // await assetMappings.setAssetType(yvTricrypto2.address, 3);
-      // await assetMappings.configureAssetMapping(yvTricrypto2.address, 2500, 4500, 11500, 10000, 10000, 10100);
-      await configurator.unverifyTranche(1);
   });
 
   it("It's not possible to liquidate on a non-active collateral or a non active principal", async () => {
@@ -73,8 +88,7 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
 
   it('Deposits yvTricrypto, borrows DAI', async () => {
     const { dai, users, pool, oracle, incentivesController, stakingContracts, rewardTokens, addressesProvider, ayvTricrypto2, yvTricrypto2 } = testEnv;
-    // Setting the incentives controller again with the proxy address will cause hardhat to revert: Error: Transaction reverted and Hardhat couldn't infer the reason
-    // await addressesProvider.setIncentivesController(incentivesController.address);
+
     const staking = new ethers.Contract(stakingContracts[6].address,stakingAbi.abi)
     console.log("try beginning staking reward");
     await incentivesController.setStakingType([stakingContracts[6].address],[1]);
@@ -540,5 +554,22 @@ makeSuite('Vmex incentives controller - integration tests with the lendingpool',
         .toFixed(0),
       'Invalid collateral available liquidity'
     );
+  });
+
+  it('After LendingPool liquidation: reset config', async () => {
+    BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
+    const {  assetMappings, yvTricrypto2, configurator } = testEnv; 
+      // await assetMappings.setAssetType(yvTricrypto2.address, 3);
+
+      // await assetMappings.configureAssetMapping(
+      //   yvTricrypto2.address, 
+      //   "250000000000000000", 
+      //   "450000000000000000", 
+      //   "1150000000000000000", 
+      //   10000, 
+      //   10000, 
+      //   "1010000000000000000"
+      // );
+      await configurator.unverifyTranche(tranche);
   });
 });
