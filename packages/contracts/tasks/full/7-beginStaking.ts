@@ -54,8 +54,8 @@ task(`full-beginStaking`, `setup staking and begin staking for tranche 0`)
 
     for(let [symbol, externalRewardsData] of Object.entries(stakingContracts)) {
       console.log("attempting setting rewards for", symbol)
-      const yvUSDCDat = await lendingPool.getReserveData(tokens[symbol], 0);
+      const token = await lendingPool.getReserveData(tokens[symbol], 0);
 
-      await incentivesController.beginStakingReward(yvUSDCDat.aTokenAddress, externalRewardsData.address);
+      await incentivesController.beginStakingReward(token.aTokenAddress, externalRewardsData.address);
     }
   });

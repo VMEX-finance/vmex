@@ -11,6 +11,7 @@ import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddres
 import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDistributor.sol';
 import {IAuraBooster} from '../../interfaces/IAuraBooster.sol';
 import {IAuraRewardPool} from '../../interfaces/IAuraRewardPool.sol';
+import {ICurveRewardGauge} from '../../interfaces/ICurveRewardGauge.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -128,6 +129,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
       else if(stakingTypes[stakingContract] == StakingType.AURA) {
         require(IAuraRewardPool(stakingContract).getReward(address(this), true), "aura getReward failed");
       }
+      else if(stakingTypes[stakingContract] == StakingType.CURVE) {
+        ICurveRewardGauge(stakingContract).claim_rewards();
+      }
       else {
         revert("Invalid staking contract");
       }
@@ -235,6 +239,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
       // IAuraBooster(IAuraRewardPool(stakingContract).operator()).deposit(IAuraRewardPool(stakingContract).pid(), amount, true);
       require(IAuraRewardPool(stakingContract).deposit(amount, address(this)) == amount, "aura staking failed");
     }
+    else if(stakingTypes[stakingContract] == StakingType.CURVE) {
+      ICurveRewardGauge(stakingContract).deposit(amount);
+    }
     else {
       revert("Asset type has no valid staking");
     }
@@ -251,6 +258,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     }
     else if(stakingTypes[stakingContract] == StakingType.AURA) {
       require(IAuraRewardPool(stakingContract).withdrawAndUnwrap(amount, true), "aura unstaking failed");
+    }
+    else if(stakingTypes[stakingContract] == StakingType.CURVE) {
+      ICurveRewardGauge(stakingContract).withdraw(amount);
     }
     else {
       revert("Asset type has no valid staking");
