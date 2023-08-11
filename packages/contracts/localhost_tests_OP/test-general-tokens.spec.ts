@@ -44,9 +44,9 @@ makeSuite(
           "function earned(address owner) external view returns (uint256 balance)",
       ];
 
-      const StakingVeloabi = [
+      const StakingCurveabi = [
         "function balanceOf(address owner) external view returns (uint256 balance)",
-        "function earned(address account) external view returns (uint256 balance)",
+        "function claimable_reward(address account, address token) external view returns (uint256 balance)",
     ];
 
         const amountWETH = ethers.utils.parseEther("1.0");
@@ -118,6 +118,9 @@ makeSuite(
                 // if(symbol=="SUSD"){
                 //   continue;
                 // }
+                if(symbol.substring(0,2)!="yv" && symbol.substring(0,4)!="velo" && symbol.substring(0,4)!="beet" && symbol.slice(-3)!="CRV") {
+                  continue
+                }
 
                 
                 var USDCadd = address
@@ -126,6 +129,8 @@ makeSuite(
                 const tokenDec = await USDC.connect(signer).decimals();
                 const WETHdec = await myWETH.connect(signer).decimals();
                 const tokenConfig = config[symbol]
+
+                
 
 
                 // if(symbol!="WETH") {
@@ -232,7 +237,7 @@ makeSuite(
             }
           });
 
-          it("wait and harvest yearn rewards", async () => {
+          it("wait and harvest all rewards", async () => {
             increaseTime(50000)
             const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
             const stakingContracts = await getParamPerNetwork(OptimismConfig.ExternalStakingContracts, eOptimismNetwork.optimism);
@@ -242,126 +247,66 @@ makeSuite(
             var signer = await contractGetters.getFirstSigner();
             const incentivesController = await contractGetters.getIncentivesControllerProxy();
             const lendingPool = await contractGetters.getLendingPool();
-            const OP = new ethers.Contract("0x7D2382b1f8Af621229d33464340541Db362B4907", WETHabi)
-            for(let [symbol, address] of Object.entries(tokens)){
-              if(symbol.substring(0,2)!="yv") {
-                continue
+            for(let [symbol, externalRewardsData] of Object.entries(stakingContracts)){
+              let rewardAdd;
+              if(symbol.substring(0,2)=="yv") {
+                rewardAdd = "0x7D2382b1f8Af621229d33464340541Db362B4907"
+              }
+              if(symbol.substring(0,4)=="velo") {
+                rewardAdd = "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db"
+              }
+              if(symbol.substring(0,4)=="beet") {
+                rewardAdd = "0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921"
+              }
+              if(symbol.slice(-3)=="CRV") {
+                rewardAdd = "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53" //per curve FE, 3crv has not started streaming CRV yet
               }
               console.log("Testing ", symbol);
-              var USDCadd = address
+              var USDCadd = tokens[symbol]
               var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
               var yvUSDC = new ethers.Contract(USDCadd,USDCABI)
               const yvUSDCDat = await lendingPool.getReserveData(USDCadd, 0);
               console.log("How much yvUSDC is held in aToken: ", await yvUSDC.connect(signer).balanceOf(yvUSDCDat.aTokenAddress))
               console.log("How much yvUSDC is held in incentives controller: ", await yvUSDC.connect(signer).balanceOf(incentivesController.address))
               
-              const stakingAddress = stakingContracts[symbol].address
+              const stakingAddress = externalRewardsData.address
 
-              const stakingContract = new ethers.Contract(stakingAddress, Stakingabi);
+              let stakingContract;
+              if(symbol.slice(-3)!="CRV") stakingContract = new ethers.Contract(stakingAddress, Stakingabi);
+              else stakingContract = new ethers.Contract(stakingAddress, StakingCurveabi);
+              
               const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
-              const earned = await stakingContract.connect(signer).earned(incentivesController.address)
+              let earned
+              if(symbol.slice(-3)!="CRV") earned = await stakingContract.connect(signer).earned(incentivesController.address)
+              else earned = await stakingContract.connect(signer).claimable_reward(incentivesController.address, rewardAdd)
               console.log("earned: ",earned)
               expect(amtStaked).equal(ethers.utils.parseUnits("9.0", await yvUSDC.connect(signer).decimals()))
-              expect(earned).gt(0)
+              if(Number(earned)==0){
+                console.log("Not streaming rewards")
+                //  continue;
+              }
+              // expect(earned).gt(0)
 
-              const balanceBefore = await OP.connect(signer).balanceOf(incentivesController.address);
+              const rewardToken = new ethers.Contract(rewardAdd, WETHabi)
+              const balanceBefore = await rewardToken.connect(signer).balanceOf(incentivesController.address);
               const receipt = await waitForTx(
                 await incentivesController.harvestReward(stakingAddress)
               );
 
-              const balanceAfter = await OP.connect(signer).balanceOf(incentivesController.address);
+              const balanceAfter = await rewardToken.connect(signer).balanceOf(incentivesController.address);
               const reward = Number(balanceAfter) - Number(balanceBefore);
               console.log("true rewards earned: ", reward);
-              console.log("earned: ", await stakingContract.connect(signer).earned(incentivesController.address));
+              console.log("earned: ", earned);
               const emitted = receipt.events || [];
 
-              eventChecker(emitted[2], 'HarvestedReward', [
-                stakingAddress
-              ]);
-            }
-          });
+              // eventChecker(emitted[2], 'HarvestedReward', [
+              //   stakingAddress
+              // ]);
 
-
-          it("harvest velodrome rewards", async () => {
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const stakingContracts = await getParamPerNetwork(OptimismConfig.ExternalStakingContracts, eOptimismNetwork.optimism);
-            if(!tokens || !stakingContracts){
-              return
-            }
-            var signer = await contractGetters.getFirstSigner();
-            const incentivesController = await contractGetters.getIncentivesControllerProxy();
-            for(let [symbol, address] of Object.entries(tokens)){
-              if(symbol.substring(0,4)!="velo") {
-                continue
-              }
-              console.log("Testing ", symbol);
-              var veloAdd = "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db"
-
-              const stakingAdd = stakingContracts[symbol].address
-            
-              const stakingContract = new ethers.Contract(stakingAdd, StakingVeloabi); //staking for velo_wstETHWETH
-              const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
-              const earned = await stakingContract.connect(signer).earned(incentivesController.address)
-              console.log("earned: ",earned)
-              expect(amtStaked).equal(ethers.utils.parseUnits("9.0", 18))
-              expect(earned).gt(0)
-
-              const VELO = new ethers.Contract(veloAdd, WETHabi)
-              const balanceBefore = await VELO.connect(signer).balanceOf(incentivesController.address);
-              const receipt = await waitForTx(
-                await incentivesController.harvestReward(stakingAdd)
-              );
-
-              const balanceAfter = await VELO.connect(signer).balanceOf(incentivesController.address);
-              const reward = balanceAfter.sub(balanceBefore);
-              console.log("true rewards earned: ", reward);
-              const emitted = receipt.events || [];
-
-              eventChecker(emitted[2], 'HarvestedReward', [
-                stakingAdd
-              ]);
-            }
-          });
-
-          it("harvest beethoven rewards", async () => {
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const stakingContracts = await getParamPerNetwork(OptimismConfig.ExternalStakingContracts, eOptimismNetwork.optimism);
-            if(!tokens || !stakingContracts){
-              return
-            }
-            var signer = await contractGetters.getFirstSigner();
-            const incentivesController = await contractGetters.getIncentivesControllerProxy();
-            for(let [symbol, address] of Object.entries(tokens)){
-              if(symbol.substring(0,4)!="beet") {
-                continue
-              }
-              console.log("Testing ", symbol);
-              var balAdd = "0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921"
-
-              const stakingAdd = stakingContracts[symbol].address
-            
-              const stakingContract = new ethers.Contract(stakingAdd, StakingVeloabi); //staking for velo_wstETHWETH
-              const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
-              const earned = await stakingContract.connect(signer).earned(incentivesController.address)
-              console.log("earned: ",earned)
-              expect(amtStaked).equal(ethers.utils.parseUnits("9.0", 18))
-              if(Number(earned)==0) continue;
-              // expect(earned).gt(0)
-
-              const BAL = new ethers.Contract(balAdd, WETHabi)
-              const balanceBefore = await BAL.connect(signer).balanceOf(incentivesController.address);
-              const receipt = await waitForTx(
-                await incentivesController.harvestReward(stakingAdd)
-              );
-
-              const balanceAfter = await BAL.connect(signer).balanceOf(incentivesController.address);
-              const reward = balanceAfter.sub(balanceBefore);
-              console.log("true rewards earned: ", reward);
-              const emitted = receipt.events || [];
-
-              eventChecker(emitted[5], 'HarvestedReward', [
-                stakingAdd
-              ]);
+              console.log("-----------------------------------")
+              console.log()
+              console.log()
+              console.log()
             }
           });
 

@@ -270,6 +270,18 @@ export const CommonsConfig: ICommonConfiguration = {
         address: "0xe110b862E4D076596707892c0C5163BC183eb161",
         type: 3,
       },
+      ThreeCRV: {
+        address: "0x7f90122BF0700F9E7e1F688fe926940E8839F353",
+        type: 4,
+      },
+      sUSD3CRV: {
+        address: "0xc5aE4B5F86332e70f3205a8151Ee9eD9F71e0797",
+        type: 4,
+      },
+      wstETHCRV: {
+        address: "0xD53cCBfED6577d8dc82987e766e75E3cb73a8563",
+        type: 4,
+      },
     },
   }
 };

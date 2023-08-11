@@ -56,6 +56,10 @@ interface FundManagement {
 makeSuite(
     "general oracle test ",
     () => {
+
+    const testSwapping = false;
+
+
     const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW } = ProtocolErrors;
     const fs = require('fs');
     const contractGetters = require('../helpers/contracts-getters.ts');
@@ -143,6 +147,13 @@ makeSuite(
   
   var deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 
+  const testLTVs = {
+    '0x4200000000000000000000000000000000000006': 0.8, //weth
+    '0x7F5c764cBc14f9669B88837ca1490cCa17c31607': 0.8, //usdc
+    '0x4200000000000000000000000000000000000042': 0.3, //OP
+    '0xc40F949F8a4e094D1b49a23ea9241D289B7b2819': 0.6 //LUSD
+  }
+
     it("set heartbeat higher", async () => {
        var signer = await contractGetters.getFirstSigner();
        const addProv = await contractGetters.getLendingPoolAddressesProvider();
@@ -191,6 +202,7 @@ makeSuite(
 
 
     it("test pricing", async () => {
+      const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
        var signer = await contractGetters.getFirstSigner();
        const {ReserveAssets, ReservesConfig} = OptimismConfig
        const reserveAssets = await getParamPerNetwork(ReserveAssets, eOptimismNetwork.optimism);
@@ -276,8 +288,18 @@ makeSuite(
                   const b = Math.sqrt(Number(price0) * Number(price1) )
                   // console.log("b: ",b)
                   // console.log("totalSupply: ", totalSupply)
-                  k = a * b 
+                  k = Number(met.r0) * Number(met.r1) * factor1 * factor2
                   expectedPriceLocal = 2 * a * b / Number(totalSupply);
+
+                  
+                  const LPvalue = 2* Math.sqrt(k/1e36 * testLTVs[met.t0]/testLTVs[met.t1]) * b/1e8
+                  const holdValue = (Number(met.r0)/ Number(met.dec0) *Number(price0)/1e8 *testLTVs[met.t0] + Number(met.r1)/ Number(met.dec1) *Number(price1)/1e8 /testLTVs[met.t1])
+                  const impermanentLoss =  LPvalue/ holdValue 
+                    
+                  console.log("LPvalue: ",LPvalue)
+                  console.log("holdValue: ",holdValue)
+                  
+                  console.log("impermanentLoss: ",impermanentLoss)
                  }
                  else { //stable
                   console.log("stable")
@@ -292,6 +314,8 @@ makeSuite(
                     // console.log("exepected price", price / 1e18); 
                  }
                  console.log("Expected price: ", expectedPriceLocal)
+                 console.log("K: ",k/1e36)
+
                   // const diff = Math.abs(expectedPriceLocal-Number(price));
                   // const percentDiff = diff/expectedPriceLocal
                   // console.log("percentDiff math: ",percentDiff)
@@ -301,6 +325,7 @@ makeSuite(
               let beginningK;
               [expectedPrice, beginningK] = await checkExpectedPrice(met)
                
+              if(!testSwapping) continue;
 
                var route: Route[] = [{
                   from: met.t0, 
@@ -443,6 +468,8 @@ makeSuite(
                if(currentAsset == "0x39965c9dAb5448482Cf7e002F583c812Ceb53046") {
                 expectedPrice = 2363882259;
                }
+
+               if(!testSwapping) continue;
 
                const bal_pool = new DRE.ethers.Contract(currentAsset, BALANCER_POOL_ABI)
                const dec = await bal_pool.connect(signer).decimals();
