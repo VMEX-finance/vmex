@@ -18,7 +18,7 @@ import {
 import {
   rawInsertContractAddressInDb,
 } from "./contracts-helpers";
-import { BigNumberish } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import { deployRateStrategy } from "./contracts-deployments";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -108,6 +108,7 @@ export const initAssetData = async (
       assetType,
       supplyCap, //1,000,000
       borrowCap,
+      reserveDecimals,
       baseLTVAsCollateral,
       borrowFactor,
       liquidationBonus,
@@ -151,8 +152,8 @@ export const initAssetData = async (
       asset: tokenAddresses[symbol],
       defaultInterestRateStrategyAddress: strategyAddresses[strategy.name],
       assetType: assetType,
-      supplyCap: supplyCap, //1,000,000
-      borrowCap: borrowCap, //1,000,000
+      supplyCap: ethers.utils.parseUnits(supplyCap, reserveDecimals), 
+      borrowCap: ethers.utils.parseUnits(borrowCap, reserveDecimals), 
       baseLTV: baseLTVAsCollateral,
       liquidationThreshold: liquidationThreshold,
       liquidationBonus: liquidationBonus,
@@ -160,8 +161,6 @@ export const initAssetData = async (
       borrowingEnabled: borrowingEnabled,
       VMEXReserveFactor: reserveFactor,
     }
-    // console.log(`- AssetData initialization testing `, symbol);
-    // await assetMappings.connect(admin).addAssetMapping([input])
     initInputParams.push(input);
   }
 

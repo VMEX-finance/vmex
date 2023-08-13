@@ -187,8 +187,8 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       asset: newERC20.address,
       defaultInterestRateStrategyAddress: newERC20.address,
       assetType: 0,
-      supplyCap: 1000, //1,000,000
-      borrowCap: 1000, //1,000,000
+      supplyCap: ethers.utils.parseUnits("1000",18), //1,000,000
+      borrowCap: ethers.utils.parseUnits("1000",18), //1,000,000
       baseLTV: "100000000000000000",
       liquidationThreshold: "200000000000000000",
       liquidationBonus: "1000100000000000000",
@@ -231,8 +231,8 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       asset: newERC20.address,
       defaultInterestRateStrategyAddress: newERC20.address,
       assetType: 0,
-      supplyCap: 1000, //1,000,000
-      borrowCap: 1000, //1,000,000
+      supplyCap: ethers.utils.parseUnits("1000",18), //1,000,000
+      borrowCap: ethers.utils.parseUnits("1000",18), //1,000,000
       baseLTV: "200000000000000000",
       liquidationThreshold: "100000000000000000",
       liquidationBonus: "1000100000000000000",
@@ -270,8 +270,8 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       asset: notContract,
       defaultInterestRateStrategyAddress: newERC20.address,
       assetType: 0,
-      supplyCap: 1000, //1,000,000
-      borrowCap: 1000, //1,000,000
+      supplyCap: ethers.utils.parseUnits("1000",18), //1,000,000
+      borrowCap: ethers.utils.parseUnits("1000",18), //1,000,000
       baseLTV: "200000000000000000",
       liquidationThreshold: "100000000000000000",
       liquidationBonus: "1000100000000000000",
@@ -309,8 +309,8 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       asset: newERC20.address,
       defaultInterestRateStrategyAddress: notContract,
       assetType: 0,
-      supplyCap: 1000, //1,000,000
-      borrowCap: 1000, //1,000,000
+      supplyCap: ethers.utils.parseUnits("1000",18), //1,000,000
+      borrowCap: ethers.utils.parseUnits("1000",18), //1,000,000
       baseLTV: "200000000000000000",
       liquidationThreshold: "100000000000000000",
       liquidationBonus: "1000100000000000000",

@@ -618,7 +618,7 @@ export interface IReserveParams
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
   supplyCap: string;
-  borrowCap?: string | BigNumberish;
+  borrowCap: string;
   hasStrategy?: boolean;
   usingGovernanceSetInterestRate?: boolean;
   governanceSetInterestRate?: string;
@@ -630,8 +630,6 @@ export interface IInterestRateStrategyParams {
   baseVariableBorrowRate: string;
   variableRateSlope1: string;
   variableRateSlope2: string;
-  stableRateSlope1: string;
-  stableRateSlope2: string;
 }
 
 export interface IReserveBorrowParams {

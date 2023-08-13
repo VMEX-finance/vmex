@@ -53,7 +53,7 @@ library ValidationLogic {
         require(
             supplyCap == 0 ||
                 (IAToken(reserve.aTokenAddress).totalSupply() + amount) <=
-                supplyCap * (10**_assetMappings.getDecimals(asset)),
+                supplyCap,
             Errors.VL_SUPPLY_CAP_EXCEEDED
         );
     }
@@ -132,8 +132,7 @@ library ValidationLogic {
     function checkAmount(
         uint256 borrowCap,
         uint256 amount,
-        uint256 totalDebt,
-        uint256 decimals
+        uint256 totalDebt
     ) internal pure {
         require(amount != 0, Errors.VL_INVALID_AMOUNT);
         if (borrowCap != 0) {
@@ -141,7 +140,7 @@ library ValidationLogic {
             unchecked {
                 require(
                     totalAmount <=
-                        borrowCap * 10**decimals,
+                        borrowCap,
                     Errors.VL_BORROW_CAP_EXCEEDED
                 );
             }
@@ -175,8 +174,7 @@ library ValidationLogic {
         checkAmount(
             exvars._assetMappings.getBorrowCap(exvars.asset),
             exvars.amount,
-            IERC20(reserve.variableDebtTokenAddress).totalSupply(),
-            exvars._assetMappings.getDecimals(exvars.asset)
+            IERC20(reserve.variableDebtTokenAddress).totalSupply()
         );
 
         (

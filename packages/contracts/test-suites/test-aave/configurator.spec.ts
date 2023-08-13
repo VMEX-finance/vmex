@@ -362,8 +362,8 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
       strategyWETH.baseLTVAsCollateral,
       strategyWETH.liquidationThreshold,
       strategyWETH.liquidationBonus,
-      strategyWETH.supplyCap,
-      strategyWETH.borrowCap,
+      ethers.utils.parseUnits(strategyWETH.supplyCap, strategyWETH.reserveDecimals),
+      ethers.utils.parseUnits(strategyWETH.borrowCap, strategyWETH.reserveDecimals),
       strategyWETH.borrowFactor,
     );
 
@@ -376,8 +376,8 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     // expect(ethers.utils.formatUnits(ret.ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
     // expect(ethers.utils.formatUnits(ret.liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(ret.liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
-    expect(ret.supplyCap).to.be.equal(strategyWETH.supplyCap);
-    expect(ret.borrowCap).to.be.equal(strategyWETH.borrowCap);
+    expect(ret.supplyCap).to.be.equal(ethers.utils.parseEther(strategyWETH.supplyCap));
+    expect(ret.borrowCap).to.be.equal(ethers.utils.parseEther(strategyWETH.borrowCap));
     // expect(ethers.utils.formatUnits(ret.borrowFactor,factor)).to.be.equal(strategyWETH.borrowFactor);
     // expect(stableBorrowRateEnabled).to.be.equal(true);
     // expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
