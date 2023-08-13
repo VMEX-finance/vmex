@@ -146,6 +146,7 @@ contract AssetMappings is IAssetMappings, Initializable{
     /**
      * @dev Adds a new asset mapping to the linked list, will revert if there are assets
      *      that were already added
+     * Note: supply and borrow caps should include the decimals (ex: 1 USDC should be input as 1 * 10^6)
      **/
     function addAssetMapping(
         AddAssetMappingInput[] calldata input
@@ -208,6 +209,8 @@ contract AssetMappings is IAssetMappings, Initializable{
     /**
      * @dev Configures an existing asset mapping's risk parameters
      * @param asset Address of asset token you want to set. Note that the percentage values use 18 decimals
+     * Note: supply and borrow caps should include the decimals (ex: 1 USDC should be input as 1 * 10^6)
+
      **/
     function configureAssetMapping(
         address asset,//20

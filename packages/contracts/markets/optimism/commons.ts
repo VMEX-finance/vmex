@@ -117,11 +117,11 @@ export const CommonsConfig: ICommonConfiguration = {
       //   _legacy: true,
       //   _exists: true,
       // },
-      // beethoven_rETHETH: {
-      //   _typeOfPool: "1",
-      //   _legacy: true,
-      //   _exists: true,
-      // },
+      beethoven_rETHETH: {
+        _typeOfPool: "1",
+        _legacy: true,
+        _exists: true,
+      },
     },
   },
   ChainlinkAggregator: {
@@ -230,14 +230,14 @@ export const CommonsConfig: ICommonConfiguration = {
         address: "0xe7630c9560c59ccbf5eed8f33dd0cca2e67a3981",
         type: 2,
       },
-      velo_OPETH: {
-        address: "0xcc53cd0a8ec812d46f0e2c7cc5aadd869b6f0292",
-        type: 2,
-      },
-      velo_OPUSDC: {
-        address: "0x36691b39ec8fa915204ba1e1a4a3596994515639",
-        type: 2,
-      },
+      // velo_OPETH: {
+      //   address: "0xcc53cd0a8ec812d46f0e2c7cc5aadd869b6f0292",
+      //   type: 2,
+      // },
+      // velo_OPUSDC: {
+      //   address: "0x36691b39ec8fa915204ba1e1a4a3596994515639",
+      //   type: 2,
+      // },
       velo_LUSDWETH: {
         address: "0x121de0e978d117590588cb37533ef121c8826a8a",
         type: 2,
@@ -258,14 +258,14 @@ export const CommonsConfig: ICommonConfiguration = {
       //   address: "0x53f31a40570dab360a16f8a7f913dbe84f5d1c5c",
       //   type: 2,
       // },
-      velo_USDTUSDC: {
-        address: "0xa2f27d183a4e409c734367712f9344328f8ec98d",
-        type: 2,
-      },
-      // beethoven_rETHETH: {
-      //   address: "0x61ac9315a1Ae71633E95Fb35601B59180eC8d61d",
-      //   type: 3,
+      // velo_USDTUSDC: {
+      //   address: "0xa2f27d183a4e409c734367712f9344328f8ec98d",
+      //   type: 2,
       // },
+      beethoven_rETHETH: {
+        address: "0x61ac9315a1Ae71633E95Fb35601B59180eC8d61d",
+        type: 3,
+      },
       beethoven_wstETHETH: {
         address: "0xe110b862E4D076596707892c0C5163BC183eb161",
         type: 3,

@@ -17,7 +17,7 @@ const chai = require('chai');
 const { expect } = chai;
 
 makeSuite('Verified tranche admins tests', (testEnv) => {
-  const { AM_ASSET_DOESNT_EXIST, INVALID_TRANCHE, ALREADY_VERIFIED, TRANCHE_ADMIN_NOT_VERIFIED, CALLER_NOT_GLOBAL_ADMIN, CALLER_NOT_TRANCHE_ADMIN, LPC_CALLER_NOT_EMERGENCY_ADMIN_OR_VERIFIED_TRANCHE } = ProtocolErrors;
+  const { AM_ASSET_NOT_ALLOWED, INVALID_TRANCHE, ALREADY_VERIFIED, TRANCHE_ADMIN_NOT_VERIFIED, CALLER_NOT_GLOBAL_ADMIN, CALLER_NOT_TRANCHE_ADMIN, LPC_CALLER_NOT_EMERGENCY_ADMIN_OR_VERIFIED_TRANCHE } = ProtocolErrors;
 
   it('Verify tranche 0', async () => {
     const { pool, yvTricrypto2, ayvTricrypto2, configurator, addressesProvider, users } = testEnv;
@@ -47,7 +47,7 @@ makeSuite('Verified tranche admins tests', (testEnv) => {
         }
       ],
       0
-    )).revertedWith(AM_ASSET_DOESNT_EXIST)
+    )).revertedWith(AM_ASSET_NOT_ALLOWED)
 
   });
   it('Test changing collateral params', async () => {
