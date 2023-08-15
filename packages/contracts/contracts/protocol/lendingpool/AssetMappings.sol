@@ -46,6 +46,13 @@ contract AssetMappings is IAssetMappings, Initializable{
         _;
     }
 
+    function initialize(ILendingPoolAddressesProvider provider)
+        public
+        initializer
+    {
+        addressesProvider = ILendingPoolAddressesProvider(provider);
+    }
+
     /**
      * @dev Validates if the global admin can set asset as not allowed.
      * We are being very conservative: there cannot be any outstanding borrows or deposits in the reserve, and it must be set off for borrowing and collateral
@@ -83,55 +90,6 @@ contract AssetMappings is IAssetMappings, Initializable{
 
     }
 
-    function initialize(ILendingPoolAddressesProvider provider)
-        public
-        initializer
-    {
-        addressesProvider = ILendingPoolAddressesProvider(provider);
-    }
-
-    /**
-     * @dev Gets the vmex reserve factor of a reserve
-     * @param asset The address of the reserve you want to get
-     **/
-    function getVMEXReserveFactor(
-        address asset
-    ) external view returns(uint256) {
-        return assetMappings[asset].VMEXReserveFactor;
-    }
-
-    /**
-     * @dev Updates the vmex reserve factor of a reserve
-     * @param asset The address of the reserve you want to set
-     * @param reserveFactor The new reserve factor of the reserve. Passed in with 18 decimals.
-     **/
-    function setVMEXReserveFactor(
-        address asset,
-        uint256 reserveFactor
-    ) public onlyGlobalAdmin {
-        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
-        validateVMEXReserveFactor(reserveFactor);
-
-        assetMappings[asset].VMEXReserveFactor = reserveFactor.toUint64();
-
-        emit VMEXReserveFactorChanged(asset, reserveFactor);
-    }
-
-    /**
-     * @dev Sets the borrowing enabled on an asset
-     * @param asset The address of the reserve you want to set
-     * @param borrowingEnabled True to enable borrowing, false to disable borrowing
-     **/
-    function setBorrowingEnabled(
-        address asset,
-        bool borrowingEnabled
-    ) external onlyGlobalAdmin {
-        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
-        assetMappings[asset].borrowingEnabled = borrowingEnabled;
-
-        emit BorrowingEnabledChanged(asset, borrowingEnabled);
-    }
-
     /**
      * @dev validates if asset is able to be added to the asset mappings
      * @param inputAsset contains all input info for an asset
@@ -144,8 +102,31 @@ contract AssetMappings is IAssetMappings, Initializable{
     }
 
     /**
+     * @dev validates the vmex reserve factor
+     **/
+    function validateVMEXReserveFactor(uint256 vmexReserveFactor) internal pure {
+        require(
+                vmexReserveFactor < PercentageMath.PERCENTAGE_FACTOR,
+                Errors.RC_INVALID_RESERVE_FACTOR
+            );
+    }
+
+    /**
      * @dev Adds a new asset mapping to the linked list, will revert if there are assets
      *      that were already added
+     * @param input contains the following input info for an asset
+        address asset:
+        address defaultInterestRateStrategyAddress;
+        uint128 supplyCap; //can get up to 10^38. Good enough. Includes the decimals
+        uint128 borrowCap; //can get up to 10^38. Good enough. Includes the decimals
+        uint64 baseLTV; // % of value of collateral that can be used to borrow. "Collateral factor." 64 bits. Includes the decimals
+        uint64 liquidationThreshold; //if this is zero, then disabled as collateral. 64 bits. Includes the decimals
+        uint64 liquidationBonus; // 64 bits. Includes the decimals
+        uint64 borrowFactor; // borrowFactor * baseLTV * value = truly how much you can borrow of an asset. 64 bits. Includes the decimals
+
+        bool borrowingEnabled; //whether or not borrowing should be enabled globally
+        uint8 assetType; //to choose what oracle to use
+        uint64 VMEXReserveFactor; //global admin fee
      * Note: supply and borrow caps should include the decimals (ex: 1 USDC should be input as 1 * 10^6)
      **/
     function addAssetMapping(
@@ -208,9 +189,14 @@ contract AssetMappings is IAssetMappings, Initializable{
 
     /**
      * @dev Configures an existing asset mapping's risk parameters
-     * @param asset Address of asset token you want to set. Note that the percentage values use 18 decimals
+     * @param asset Address of asset token you want to set. 
+     * @param baseLTV Percent LTV. Note that the percentage values must have 18 decimals in the input
+     * @param liquidationThreshold Percent liquidation threhsold. Note that the percentage values must have 18 decimals in the input
+     * @param liquidationBonus Percent bonus (>100%). Note that the percentage values must have 18 decimals in the input
+     * @param supplyCap max supply of an asset in a tranche. Include decimals in the input
+     * @param borrowCap max borrow of an asset in a tranche. Include decimals in the input
+     * @param borrowFactor Percent borrow factor. Note that the percentage values must have 18 decimals in the input
      * Note: supply and borrow caps should include the decimals (ex: 1 USDC should be input as 1 * 10^6)
-
      **/
     function configureAssetMapping(
         address asset,//20
@@ -234,27 +220,11 @@ contract AssetMappings is IAssetMappings, Initializable{
 
         emit ConfiguredAssetMapping(asset, baseLTV, liquidationThreshold, liquidationBonus, supplyCap, borrowCap, borrowFactor);
     }
-
-    /**
-     * @dev Set a existing asset to be allowed
-     * @param asset Address of the asset
-     * @param isAllowed true if allowed, false otherwise
+     /**
+     --------------------------------------------------------------------------------------------
+     * @dev Getter functions
      **/
-    function setAssetAllowed(address asset, bool isAllowed) external onlyGlobalAdmin{
-        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
-        if (!isAllowed) {
-            validateAssetAllowed(asset);
-        }
-        assetMappings[asset].isAllowed = isAllowed;
-    }
 
-    /**
-     * @dev Gets whether or not the asset is inside the mappings linked list, including disabled assets
-     * @param asset Address of asset token you want to check
-     **/
-    function isAssetInMappings(address asset) view public returns (bool) {
-        return assetMappings[asset].exists;
-    }
 
     /**
      * @dev Gets the number of allowed assets in the linked list
@@ -296,6 +266,24 @@ contract AssetMappings is IAssetMappings, Initializable{
 
             tmp = assetMappings[tmp].nextApprovedAsset;
         }
+    }
+
+    /**
+     * @dev Gets whether or not the asset is inside the mappings linked list, including disabled assets
+     * @param asset Address of asset token you want to check
+     **/
+    function isAssetInMappings(address asset) view public returns (bool) {
+        return assetMappings[asset].exists;
+    }
+
+    /**
+     * @dev Gets the vmex reserve factor of a reserve
+     * @param asset The address of the reserve you want to get
+     **/
+    function getVMEXReserveFactor(
+        address asset
+    ) external view returns(uint256) {
+        return assetMappings[asset].VMEXReserveFactor;
     }
 
     function getAssetMapping(address asset) view external returns(DataTypes.AssetData memory){
@@ -350,47 +338,9 @@ contract AssetMappings is IAssetMappings, Initializable{
         return assetMappings[asset].isAllowed;
     }
 
-    /**
-     * @dev Adds an interest rate strategy to the end of the array.
-     **/
-    function setInterestRateStrategyAddress(address asset, address strategy) external onlyGlobalAdmin {
-        require(Address.isContract(strategy), Errors.AM_INTEREST_STRATEGY_NOT_CONTRACT);
-        assetMappings[asset].defaultInterestRateStrategyAddress = strategy;
-        emit AddedInterestRateStrategyAddress(
-            asset,
-            strategy
-        );
-    }
-
-    /**
-     * @dev Sets asset type for an asset for oracle choice. May be used if a chainlink aggregator becomes available for a asset
-     **/
-    function setAssetType(address asset, DataTypes.ReserveAssetType assetType) external override onlyGlobalAdmin {
-        assetMappings[asset].assetType = uint8(assetType);
-    }
-
-    /**
-     * @dev Sets curve metadata for an array of assets.
-     **/
-    function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external override onlyGlobalAdmin {
-        require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint256 i;i<assets.length;i++){
-            curveMetadata[assets[i]] = vars[i];
-        }
-    }
 
     function getCurveMetadata(address asset) external view override returns (DataTypes.CurveMetadata memory) {
         return curveMetadata[asset];
-    }
-
-    /**
-     * @dev Sets beethoven metadata for an array of assets.
-     **/
-    function setBeethovenMetadata(address[] calldata assets, DataTypes.BeethovenMetadata[] calldata vars) external onlyGlobalAdmin {
-        require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
-        for(uint256 i;i<assets.length;i++){
-            beethovenMetadata[assets[i]] = vars[i];
-        }
     }
 
     function getBeethovenMetadata(address asset) external view override returns (DataTypes.BeethovenMetadata memory) {
@@ -466,13 +416,92 @@ contract AssetMappings is IAssetMappings, Initializable{
         return IERC20Detailed(asset).decimals();
     }
 
-    /**
-     * @dev validates the vmex reserve factor
+     /**
+     --------------------------------------------------------------------------------------------
+     * @dev Setter functions
      **/
-    function validateVMEXReserveFactor(uint256 vmexReserveFactor) internal pure {
-        require(
-                vmexReserveFactor < PercentageMath.PERCENTAGE_FACTOR,
-                Errors.RC_INVALID_RESERVE_FACTOR
-            );
+
+    /**
+     * @dev Set a existing asset to be allowed
+     * @param asset Address of the asset
+     * @param isAllowed true if allowed, false otherwise
+     **/
+    function setAssetAllowed(address asset, bool isAllowed) external onlyGlobalAdmin{
+        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
+        if (!isAllowed) {
+            validateAssetAllowed(asset);
+        }
+        assetMappings[asset].isAllowed = isAllowed;
+    }
+
+    /**
+     * @dev Sets the borrowing enabled on an asset
+     * @param asset The address of the reserve you want to set
+     * @param borrowingEnabled True to enable borrowing, false to disable borrowing
+     **/
+    function setBorrowingEnabled(
+        address asset,
+        bool borrowingEnabled
+    ) external onlyGlobalAdmin {
+        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
+        assetMappings[asset].borrowingEnabled = borrowingEnabled;
+
+        emit BorrowingEnabledChanged(asset, borrowingEnabled);
+    }
+
+    /**
+     * @dev Updates the vmex reserve factor of a reserve
+     * @param asset The address of the reserve you want to set
+     * @param reserveFactor The new reserve factor of the reserve. Passed in with 18 decimals.
+     **/
+    function setVMEXReserveFactor(
+        address asset,
+        uint256 reserveFactor
+    ) public onlyGlobalAdmin {
+        require(isAssetInMappings(asset), Errors.AM_ASSET_DOESNT_EXIST);
+        validateVMEXReserveFactor(reserveFactor);
+
+        assetMappings[asset].VMEXReserveFactor = reserveFactor.toUint64();
+
+        emit VMEXReserveFactorChanged(asset, reserveFactor);
+    }
+
+    /**
+     * @dev Adds an interest rate strategy to the end of the array.
+     **/
+    function setInterestRateStrategyAddress(address asset, address strategy) external onlyGlobalAdmin {
+        require(Address.isContract(strategy), Errors.AM_INTEREST_STRATEGY_NOT_CONTRACT);
+        assetMappings[asset].defaultInterestRateStrategyAddress = strategy;
+        emit AddedInterestRateStrategyAddress(
+            asset,
+            strategy
+        );
+    }
+
+    /**
+     * @dev Sets asset type for an asset for oracle choice. May be used if a chainlink aggregator becomes available for a asset
+     **/
+    function setAssetType(address asset, DataTypes.ReserveAssetType assetType) external override onlyGlobalAdmin {
+        assetMappings[asset].assetType = uint8(assetType);
+    }
+
+    /**
+     * @dev Sets curve metadata for an array of assets.
+     **/
+    function setCurveMetadata(address[] calldata assets, DataTypes.CurveMetadata[] calldata vars) external override onlyGlobalAdmin {
+        require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
+        for(uint256 i;i<assets.length;i++){
+            curveMetadata[assets[i]] = vars[i];
+        }
+    }
+
+    /**
+     * @dev Sets beethoven metadata for an array of assets.
+     **/
+    function setBeethovenMetadata(address[] calldata assets, DataTypes.BeethovenMetadata[] calldata vars) external onlyGlobalAdmin {
+        require(assets.length == vars.length, Errors.ARRAY_LENGTH_MISMATCH);
+        for(uint256 i;i<assets.length;i++){
+            beethovenMetadata[assets[i]] = vars[i];
+        }
     }
 }

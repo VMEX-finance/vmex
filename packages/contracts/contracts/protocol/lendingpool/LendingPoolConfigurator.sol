@@ -107,7 +107,16 @@ contract LendingPoolConfigurator is
 
 
     /**
-     * @dev Verifies tranche for more privileges
+     * @dev Verifies tranche for more privileges. Uses locally set values for the following parameters (instead of globally set)
+      - LTV
+      - liquidation threshold
+      - liquidation bonus
+      - borrow factor
+      - interest rate strategy
+      Verified tranche admins can also set their own staking rewards for their tranche
+      Global admin must verify you to become verified
+
+      Need to initialize the collateral params and the interest rate strategy address in this function so it's not zero
      * @param trancheId the tranche that is verified
      **/
     function verifyTranche(
@@ -150,7 +159,8 @@ contract LendingPoolConfigurator is
 
 
     /**
-     * @dev Unverifies tranche to revoke privileges, unstake, and return to global parameters
+     * @dev Unverifies tranche to revoke privileges, unstake, and return to global parameters. 
+     Either the verified tranche admin himself or the global admin can call this
      * @param trancheId the tranche that is verified
      **/
     function unverifyTranche(
@@ -230,9 +240,9 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Initializes reserves in batch. Can be called directly by those who created tranches
-     * and want to add new reserves to their tranche
+     * @dev configures the collateral params of a set of reserves. Can only be called by verified tranche admins
      * @param input The specifications of the reserves to initialize
+     * Note: Percentages must be entered with 18 decimals (ex: 60% should be entered as 600000000000000000)
      * @param trancheId The trancheId that the msg.sender should be the admin of
      **/
     function batchConfigureCollateralParams(
@@ -259,6 +269,11 @@ contract LendingPoolConfigurator is
         }
     }
 
+    /**
+     * @dev Inits aToken and varDebtToken proxy, initializes reserveData in pool, 
+     sets collateral and borrow enabled locally (only sets if globally the asset is allowed as collateral or borrowable),
+     sets reserve factor, sets active to true and frozen to false
+     **/
     function _initReserve(
         InitReserveInput calldata input,
         uint64 trancheId,
@@ -346,7 +361,7 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Updates the treasury address of the atoken
+     * @dev Updates the collateral risk params of a reserve for a verified tranche
      * @param underlyingAsset The underlying asset
      * @param trancheId The tranche id
      * @param params The collateral parameters such as ltv, threshold, with 4 decimals (so need to convert)

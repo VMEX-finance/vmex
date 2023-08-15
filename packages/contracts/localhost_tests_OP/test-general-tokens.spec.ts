@@ -333,7 +333,10 @@ makeSuite(
                 var USDCadd = address
                 var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
                 var USDC = new ethers.Contract(USDCadd,USDCABI)
-                
+                const dat = await lendingPool.getReserveData(USDCadd, 0)
+                if(dat.aTokenAddress==ZERO_ADDRESS){
+                  continue
+                }
                 var userResDat = await dataProv.getUserReserveData(USDCadd,0,signer.address)
                 if(userResDat.currentATokenBalance.toString()=="0") {
                   continue;

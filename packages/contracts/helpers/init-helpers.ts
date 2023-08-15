@@ -427,13 +427,65 @@ export const getTranche1MockedData = (allReservesAddresses: {
 export const getTranche0MockedDataOP = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0: tEthereumAddress[] = Object.values(allReservesAddresses);
+  let assets0: tEthereumAddress[] = [
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDT"],
+    allReservesAddresses["WETH"],
+    allReservesAddresses["wstETH"],
+
+    allReservesAddresses["ThreeCRV"],
+    allReservesAddresses["sUSD3CRV"],
+    allReservesAddresses["wstETHCRV"],
+    allReservesAddresses["mooCurveWSTETH"],
+    allReservesAddresses["velo_wstETHWETH"],
+    allReservesAddresses["velo_USDCsUSD"],
+    allReservesAddresses["velo_ETHUSDC"],
+    allReservesAddresses["velo_DAIUSDC"],
+    allReservesAddresses["velo_LUSDWETH"],
+    allReservesAddresses["velo_LUSDUSDC"],
+    allReservesAddresses["beethoven_wstETHETH"],
+    allReservesAddresses["beethoven_rETHETH"],
+    allReservesAddresses["yvUSDC"],
+    allReservesAddresses["yvUSDT"],
+    allReservesAddresses["yvDAI"],
+    allReservesAddresses["yvWETH"],
+  ];
 
   let reserveFactors0: string[] = [];
   let canBorrow0: boolean[] = [];
   let canBeCollateral0: boolean[] = [];
   for (let i = 0; i < assets0.length; i++) {
-    reserveFactors0.push("100000000000000000");
+    reserveFactors0.push("0");
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
+  }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
+
+
+export const getTranche1MockedDataOP = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
+    allReservesAddresses["DAI"],
+    allReservesAddresses["SUSD"],
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDT"],
+    allReservesAddresses["WBTC"],
+    allReservesAddresses["WETH"],
+    allReservesAddresses["wstETH"],
+    allReservesAddresses["FRAX"],
+    allReservesAddresses["OP"],
+    allReservesAddresses["rETH"],
+    allReservesAddresses["LUSD"],
+  ];
+
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("0");
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }
