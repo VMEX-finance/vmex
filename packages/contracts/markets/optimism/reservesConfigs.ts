@@ -128,7 +128,7 @@ export const strategyWBTC: IReserveParams = {
   assetType: 0,
   supplyCap: '1200',
   borrowCap: '250',
-  borrowFactor: '1200000000000000000', //100% for now
+  borrowFactor: '1200000000000000000', //120% for now
   reserveFactor: '150000000000000000',
 };
 
@@ -152,7 +152,7 @@ export const strategyRETH: IReserveParams = {
   baseLTVAsCollateral: '670000000000000000',
   liquidationThreshold: '740000000000000000',
   liquidationBonus: '1075000000000000000',
-  borrowingEnabled: false,
+  borrowingEnabled: true,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 7, 

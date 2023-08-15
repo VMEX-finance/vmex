@@ -21,6 +21,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 /// @title VMEX External Rewards Distributor.
 /// @author Volatile Labs Ltd.
 /// @notice This contract allows Vmex users to claim their rewards. This contract is largely inspired by Euler Distributor's contract: https://github.com/euler-xyz/euler-contracts/blob/master/contracts/mining/EulDistributor.sol.
+/// Note: msg.sender will always be the aToken who sent the call to IncentivesController
 contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable {
   using SafeERC20 for IERC20;
 
@@ -56,12 +57,21 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
 
   /******** External functions ********/
 
+  /**
+    * @dev sets new reward admin to control updating the merkle root regularly (not a multisig)
+    * @param newRewardAdmin new reward admin address
+    **/
   function setRewardAdmin(address newRewardAdmin) external onlyGlobalAdmin {
     rewardAdmin = newRewardAdmin;
 
     emit RewardAdminChanged(newRewardAdmin);
   }
 
+  /**
+    * @dev begins staking reward for a list of tokens
+    * @param aTokens atoken address for the reserve that wants to start staking 
+    * @param stakingContracts the corresponding address of the staking contract that is staking the underlying of the aToken
+    **/
   function batchBeginStakingRewards(
       address[] calldata aTokens,
       address[] calldata stakingContracts
@@ -84,7 +94,7 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function setStakingType(
     address[] calldata _stakingContracts,
     StakingType[] calldata _stakingTypes
-  ) public onlyGlobalAdmin { //if tranches want to activate they need to talk to us first
+  ) public onlyGlobalAdmin { 
     uint256 length = _stakingContracts.length;
     require(length == _stakingTypes.length, "length mismatch");
     for(uint256 i; i < length;) {
@@ -138,6 +148,12 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
       emit HarvestedReward(stakingContract);
   }
 
+  /**
+   * @dev allows transfer of reward tokens in case they are lost in the IncentivesController contract
+   Note that rugging the protocol is protected since the IncentivesController contract should not store any underlying. It only stores reward tokens
+   * @param reward The address of the reward token needing rescuing
+   * @param receiver The address of the receiver of the reward
+   **/
   function rescueRewardTokens(IERC20 reward, address receiver) external onlyGlobalAdmin {
     reward.safeTransfer(receiver, reward.balanceOf(address(this)));
   }
@@ -221,10 +237,20 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
 
   /******** Internal functions ********/
 
+  /**
+   * @dev Determines if staking exists for an aToken by seeing if stakingData has been set (in beginStakingReward)
+   * @param aToken The address of the aToken that has underlying that has an external reward
+   **/
   function stakingExists(address aToken) internal view returns (bool) {
     return stakingData[aToken] != address(0);
   }
 
+  /**
+   * @dev stakes the amount of underlying into the staking contract 
+   (the underlying should have been transferred to the IncentivesController earlier in the tx)
+   * @param aToken The address of the aToken that has underlying that has an external reward
+   * @param amount The amount to stake
+   **/
   function stake(address aToken, uint256 amount) internal {
     address stakingContract = stakingData[aToken];
 
@@ -247,6 +273,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     }
   }
 
+  /**
+   * @dev unstakes the amount of underlying out of the staking contract 
+   * @param aToken The address of the aToken that has underlying that has an external reward
+   * @param amount The amount to unstake
+   **/
   function unstake(address aToken, uint256 amount) internal {
     address stakingContract = stakingData[aToken];
 
@@ -267,6 +298,12 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     }
   }
 
+  /**
+   * @dev hook on lendingpool deposit (aToken mint) to transfer underlying tokens to this address, then stake it
+   * @param user The user who deposited
+   * @param amount The amount he deposited
+   Note: msg.sender will always be the aToken who sent the call to IncentivesController
+   **/
   function onDeposit(
     address user,
     uint256 amount
@@ -280,6 +317,11 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     emit UserDeposited(user, msg.sender, amount);
   }
 
+  /**
+   * @dev hook on lendingpool withdraw (aToken burn) to unstake, and transfer it back to the user
+   * @param user The user who withdrew
+   * @param amount The amount he withdrew
+   **/
   function onWithdraw(
     address user,
     uint256 amount
@@ -293,6 +335,13 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     emit UserWithdraw(user, msg.sender, amount);
   }
 
+  /**
+   * @dev hook on lendingpool transfer (aToken transfer). 
+   Note no staking or unstaking needs to be done, since the same amount is in the staking, but the off chain indexer needs to know that the user balances have shifted
+   * @param user The user who is receiving or sending the transfer
+   * @param amount The amount he deposited
+   * @param sender True if the user is the sender, false if the user is the receiver
+   **/
   function onTransfer(address user, uint256 amount, bool sender) internal {
     //no-op since totalStaked doesn't change, the amounts each person owns is calculated off chain
     emit UserTransfer(user, msg.sender, amount, sender);

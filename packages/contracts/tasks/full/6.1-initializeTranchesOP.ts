@@ -11,6 +11,7 @@ import {
   claimTrancheId,
   initReservesByHelper,
   getTranche0MockedDataOP,
+  getTranche1MockedDataOP,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -79,11 +80,40 @@ task(
         0
       );
 
+      
+
       // Unpause market during deployment
       await waitForTx(
         await lendingPoolConfiguratorProxy
           .connect(admin)
           .setTranchePause(false, 0)
+      );
+
+      await claimTrancheId("Vmex tranche 1", admin);
+
+      // Pause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 1)
+      );
+
+      let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1MockedDataOP(reserveAssets);
+      await initReservesByHelper(
+        assets1,
+        reserveFactors1,
+        canBorrow1,
+        canBeCollateral1,
+        admin,
+        treasuryAddress,
+        1
+      );
+
+      
+
+      // Unpause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(admin)
+          .setTranchePause(false, 1)
       );
     } catch (err) {
       console.error(err);

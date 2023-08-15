@@ -25,7 +25,7 @@ library BalancerOracle {
 	/// @param bal_pool the underlying balancer pool
 	/// @param prices the underlying prices, must be scaled to 1e18
 	/// @param type_of_pool the type of pool to calculate the price of
-		//weighted == 0
+		//weighted == 0 (not supported yet)
 		//metastable/composable == 1 
 		//metastable == pools of the same wrapped assets (eth/weth, eth/rweth, etc) (any amount supported)
 		//composable == stablecoin pools (any amount supported)
@@ -58,7 +58,7 @@ library BalancerOracle {
 			
 	}
 	
-	// https://github.com/Midas-Protocol/contracts/blob/352be0e9ba2795e14d05a5fa4661cb2569655141/contracts/oracles/default/BalancerLpStablePoolPriceOracle.sol
+	// inspired from https://github.com/Midas-Protocol/contracts/blob/352be0e9ba2795e14d05a5fa4661cb2569655141/contracts/oracles/default/BalancerLpStablePoolPriceOracle.sol
 	function calc_stable_lp_price(
 		address vmexOracle,
 		address bal_pool, 
