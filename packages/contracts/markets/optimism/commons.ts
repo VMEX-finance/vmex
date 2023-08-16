@@ -186,10 +186,10 @@ export const CommonsConfig: ICommonConfiguration = {
     [eOptimismNetwork.optimism]: '',
   },
   WETH: {
-    [eOptimismNetwork.optimism]: '',
+    [eOptimismNetwork.optimism]: '0x4200000000000000000000000000000000000006',
   },
   WrappedNativeToken: {
-    [eOptimismNetwork.optimism]: '',
+    [eOptimismNetwork.optimism]: '0x4200000000000000000000000000000000000006',
   },
   ReserveFactorTreasuryAddress: {
     [eOptimismNetwork.optimism]: '0xEFd23344F89F7215417DC6F9E9627aBFfE69d2EE',
