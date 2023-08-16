@@ -70,6 +70,34 @@ makeSuite('ExternalRewardsDistributor configure rewards', (testEnv: TestEnv) => 
       )).to.be.revertedWith(TRANCHE_ADMIN_NOT_VERIFIED);
   });
 
+  it('Change distribution manager emissions manager', async () => {
+    const { incentivesController, deployer, users, rewardTokens, incentivizedTokens, stakingContracts, incentUnderlying } = testEnv;
+    await expect(
+      incentivesController.connect(users[2].signer).changeDistributionManager(
+        users[2].address
+    )).to.be.revertedWith('ONLY_EMISSION_MANAGER');
+
+    await incentivesController.connect(deployer.signer).changeDistributionManager(
+        users[2].address
+    )
+    const manager = await incentivesController.EMISSION_MANAGER();
+
+    expect(manager).equal(users[2].address, "emissions manager not properly set")
+
+    await expect(
+      incentivesController.connect(deployer.signer).changeDistributionManager(
+        deployer.address
+    )).to.be.revertedWith('ONLY_EMISSION_MANAGER');
+
+    await incentivesController.connect(users[2].signer).changeDistributionManager(
+      deployer.address
+    )
+
+    const manager1 = await incentivesController.EMISSION_MANAGER();
+
+    expect(manager1).equal(deployer.address, "emissions manager not properly set 2")
+  });
+
   it('Configure single asset reward', async () => {
     const { incentivesController, rewardTokens, stakingContracts, dai, usdc, ayvTricrypto2 } = testEnv;
 
