@@ -19,23 +19,23 @@ task('sidechain:mainnet', 'Deploy market at sidechain')
 
     console.log('Migration started\n');
 
-    console.log('0. Deploy address provider registry');
-    await DRE.run('full:deploy-address-provider-registry', { pool: POOL_NAME });
+    // console.log('0. Deploy address provider registry');
+    // await DRE.run('full:deploy-address-provider-registry', { pool: POOL_NAME });
 
-    console.log('1. Deploy address provider');
-    await DRE.run('full:deploy-address-provider', { pool: POOL_NAME, skipRegistry });
+    // console.log('1. Deploy address provider');
+    // await DRE.run('full:deploy-address-provider', { pool: POOL_NAME, skipRegistry });
 
-    console.log("1.5. Deploy asset mappings");
-    await DRE.run("full:deploy-asset-mappings", { pool: POOL_NAME });
+    // console.log("1.5. Deploy asset mappings");
+    // await DRE.run("full:deploy-asset-mappings", { pool: POOL_NAME });
 
-    console.log('2. Deploy lending pool');
-    await DRE.run('full:deploy-lending-pool', { pool: POOL_NAME });
+    // console.log('2. Deploy lending pool');
+    // await DRE.run('full:deploy-lending-pool', { pool: POOL_NAME });
 
-    console.log('3. Deploy oracles');
-    await DRE.run('full:deploy-oracles', { pool: POOL_NAME });
+    // console.log('3. Deploy oracles');
+    // await DRE.run('full:deploy-oracles', { pool: POOL_NAME });
 
-    console.log('4. Deploy Data Provider');
-    await DRE.run('full:data-provider', { pool: POOL_NAME });
+    // console.log('4. Deploy Data Provider');
+    // await DRE.run('full:data-provider', { pool: POOL_NAME });
     console.log('5. Deploy WETH Gateway');
     await DRE.run('full-deploy-weth-gateway', { pool: POOL_NAME });
 

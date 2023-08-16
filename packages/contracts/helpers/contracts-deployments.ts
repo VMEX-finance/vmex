@@ -1552,7 +1552,7 @@ export const setupVmexIncentives = async (
   const addressesProvider = await getLendingPoolAddressesProvider();
 
   const vmexIncentivesControllerImplementation =
-    await deployIncentivesController();
+    await deployIncentivesController(verify);
 
   await addressesProvider.setIncentivesController(vmexIncentivesControllerImplementation.address);
 

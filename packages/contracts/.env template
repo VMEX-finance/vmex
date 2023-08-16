@@ -10,7 +10,7 @@ OP_ALCHEMY_KEY= ""
 # alchemy key for sepolia rpc
 SEPOLIA_ALCHEMY_KEY= ""
 
-# Optional Etherscan key, for automatize the verification of the contracts at Etherscan
+# Optional Etherscan key, for automatize the verification of the contracts at Etherscan. Replace with optimism etherscan key if on OP
 ETHERSCAN_KEY=""
 
 # Optional, if you plan to use Tenderly scripts

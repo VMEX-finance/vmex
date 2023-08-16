@@ -43,15 +43,11 @@ task(
       const network = <eNetwork>DRE.network.name;
       const poolConfig = loadPoolConfig(pool);//await loadCustomAavePoolConfig("0"); //this is only for mainnet
       const {
-        ReserveAssets,
-        ReservesConfig,
         LendingPoolCollateralManager,
         WethGateway,
-        IncentivesController,
       } = poolConfig as ICommonConfiguration;
 
 
-      const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
       const addressesProvider = await getLendingPoolAddressesProvider();
 
@@ -67,9 +63,9 @@ task(
 
       // const oracle = await addressesProvider.getPriceOracle();
 
-      if (!reserveAssets) {
-        throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
-      }
+      // if (!reserveAssets) {
+      //   throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
+      // }
 
       let collateralManagerAddress = await getParamPerNetwork(
         LendingPoolCollateralManager,

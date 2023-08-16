@@ -29,7 +29,12 @@ task(
     await DRE.run("set-DRE");
     const network = <eNetwork>DRE.network.name;
     const poolConfig = loadPoolConfig(pool);
-    const { MarketId } = poolConfig;
+    const { MarketId, LendingPoolAddressesProvider } = poolConfig;
+    const addressesProvider = getParamPerNetwork(LendingPoolAddressesProvider, network);
+
+    if (notFalsyOrZeroAddress(addressesProvider)) {
+      console.log('Already deployed Addresses Provider Address at', addressesProvider);
+    } else {
     console.log("trying to deploy addr provider")
     // 1. Deploy address provider and set genesis manager
     const addressesProvider = await deployLendingPoolAddressesProvider(
@@ -105,6 +110,12 @@ task(
       );
       await waitForTx(
         await addressesProvider.addWhitelistedAddress(
+          "0x599e1DE505CfD6f10F64DD7268D856831f61627a", //team multisig
+          true
+        )
+      );
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(
           await getEmergencyAdmin(poolConfig),
           true
         )
@@ -123,5 +134,6 @@ task(
       " and ",
       await getEmergencyAdmin(poolConfig)
     );
+    }
     // console.log('Emergency Admin', await addressesProvider.getEmergencyAdmin());
   });

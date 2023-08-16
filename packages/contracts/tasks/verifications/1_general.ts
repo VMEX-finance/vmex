@@ -47,11 +47,13 @@ task('verify:general', 'Verify contracts at Etherscan')
     const addressesProviderRegistry = notFalsyOrZeroAddress(registryAddress)
       ? await getLendingPoolAddressesProviderRegistry(registryAddress)
       : await getLendingPoolAddressesProviderRegistry();
+      const vmexoracle = await addressesProvider.getPriceOracle();
     const lendingPoolAddress = await addressesProvider.getLendingPool();
     const lendingPoolConfiguratorAddress = await addressesProvider.getLendingPoolConfigurator(); //getLendingPoolConfiguratorProxy();
     const lendingPoolCollateralManagerAddress =
       await addressesProvider.getLendingPoolCollateralManager();
 
+    const vmexoracleProxy = await getProxy(vmexoracle);
     const lendingPoolProxy = await getProxy(lendingPoolAddress);
     const lendingPoolConfiguratorProxy = await getProxy(lendingPoolConfiguratorAddress);
     const lendingPoolCollateralManagerProxy = await getProxy(lendingPoolCollateralManagerAddress);
@@ -138,6 +140,23 @@ task('verify:general', 'Verify contracts at Etherscan')
     await verifyContract(
       eContractid.InitializableAdminUpgradeabilityProxy,
       lendingPoolCollateralManagerProxy,
+      []
+    );
+
+
+    // Proxy vmex oracle
+    console.log('\n- Verifying  vmex oracle Proxy...\n');
+    await verifyContract(
+      eContractid.VMEXOracle,
+      vmexoracleProxy,
+      []
+    );
+
+    // Proxy vmex oracle
+    console.log('\n- Verifying  vmex oracle Proxy...\n');
+    await verifyContract(
+      eContractid.VMEXOracle,
+      vmexoracleProxy,
       []
     );
 
