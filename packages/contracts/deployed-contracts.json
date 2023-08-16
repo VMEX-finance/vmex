@@ -61,6 +61,10 @@
     "localhost": {
       "address": "0x500D1d6A4c7D8Ae28240b47c8FCde034D827fD5e",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
+    },
+    "optimism": {
+      "address": "0x73068eD1ddc474Da2880a30a48E2Ac3Ada7d154D",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     }
   },
   "WETH": {
@@ -1970,6 +1974,9 @@
     },
     "optimism_localhost": {
       "address": "0x78dC73Dab92F57DA506F3538A68A2f163dB8c3A0"
+    },
+    "optimism": {
+      "address": "0x18437Fa16Aa60e0Def18938F254615d77115d46d"
     }
   },
   "LendingPoolCollateralManager": {
@@ -1982,6 +1989,10 @@
     "optimism_localhost": {
       "address": "0x78dC73Dab92F57DA506F3538A68A2f163dB8c3A0",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
+    },
+    "optimism": {
+      "address": "0x18437Fa16Aa60e0Def18938F254615d77115d46d",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     }
   },
   "WETHGateway": {
@@ -1996,6 +2007,10 @@
     "optimism_localhost": {
       "address": "0xA40A2298B02a8597321580fdAD8518A6d6601b6C",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
+    },
+    "optimism": {
+      "address": "0x2989eF42C1A13a4F2061316867ca34e958BF2160",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     }
   },
   "InitializableAdminUpgradeabilityProxy": {
@@ -2024,6 +2039,10 @@
     "optimism_localhost": {
       "address": "0x26d1E94963C8b382Ad66320826399E4B30347404",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
+    },
+    "optimism": {
+      "address": "0xC35022b1ADEEC8F5B7AC8CE05e55BBc6AD01856e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     }
   },
   "IncentivesControllerProxy": {
@@ -2035,6 +2054,9 @@
     },
     "optimism_localhost": {
       "address": "0x9560aEA60844DA99618F7EA8DEb8130AAE057768"
+    },
+    "optimism": {
+      "address": "0x8E2a4c71906640B058051c00783160bE306c38fE"
     }
   },
   "aDai": {

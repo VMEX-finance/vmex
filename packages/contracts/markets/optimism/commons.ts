@@ -63,8 +63,8 @@ export const CommonsConfig: ICommonConfiguration = {
   AssetMappings: {
     [eOptimismNetwork.optimism]: "0x48CB441A85d6EA9798C72c4a1829658D786F3027",
   },
-  LendingPoolCollateralManager: {
-    [eOptimismNetwork.optimism]: '',
+  LendingPoolCollateralManager: { //this is the impl
+    [eOptimismNetwork.optimism]: '0x18437Fa16Aa60e0Def18938F254615d77115d46d',
   },
   LendingPoolConfigurator: { //this is the impl
     [eOptimismNetwork.optimism]: '0x907F93AD19265B75C576673F2EeC55dF88572d1F',
