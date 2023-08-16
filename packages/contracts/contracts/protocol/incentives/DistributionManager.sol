@@ -27,6 +27,11 @@ contract DistributionManager is IDistributionManager, Initializable {
     EMISSION_MANAGER = emissionManager;
   }
 
+  function changeDistributionManager(address newManager) external {
+    require(msg.sender == EMISSION_MANAGER, 'ONLY_EMISSION_MANAGER');
+    EMISSION_MANAGER = newManager;
+  }
+
   /**
    * @dev Configures the distribution of rewards for a list of assets
    * @param config The list of configurations to apply
