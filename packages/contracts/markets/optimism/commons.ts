@@ -44,7 +44,7 @@ export const CommonsConfig: ICommonConfiguration = {
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
-    [eOptimismNetwork.optimism]: "0x599e1DE505CfD6f10F64DD7268D856831f61627a", //multisig address
+    [eOptimismNetwork.optimism]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", //multisig address: 0x599e1DE505CfD6f10F64DD7268D856831f61627a
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
@@ -52,19 +52,25 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   ProviderRegistry: {
-    [eOptimismNetwork.optimism]: undefined,
+    [eOptimismNetwork.optimism]: "0xEB125b3386322886769f43B7744327B9983A24Da",
   },
   ProviderRegistryOwner: {
-    [eOptimismNetwork.optimism]: undefined,
+    [eOptimismNetwork.optimism]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B",
+  },
+  LendingPoolAddressesProvider: {
+    [eOptimismNetwork.optimism]: "0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0",
+  },
+  AssetMappings: {
+    [eOptimismNetwork.optimism]: "0x48CB441A85d6EA9798C72c4a1829658D786F3027",
   },
   LendingPoolCollateralManager: {
     [eOptimismNetwork.optimism]: '',
   },
-  LendingPoolConfigurator: {
-    [eOptimismNetwork.optimism]: '',
+  LendingPoolConfigurator: { //this is the impl
+    [eOptimismNetwork.optimism]: '0x907F93AD19265B75C576673F2EeC55dF88572d1F',
   },
-  LendingPool: {
-    [eOptimismNetwork.optimism]: '',
+  LendingPool: { //this is the impl
+    [eOptimismNetwork.optimism]: '0xc5A42E1c1c8640c77fFc8Fac88248AB6937fdabA',
   },
   WethGateway: {
     [eOptimismNetwork.optimism]: '',
@@ -73,7 +79,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eOptimismNetwork.optimism]: '',
   },
   FallbackOracle: {
-    [eOptimismNetwork.optimism]: '',
+    [eOptimismNetwork.optimism]: '0xdC33956bFdD227b38CCaa1647a1511e0efc18C60',
   },
   UniswapV3OracleAddresses: {
     [eOptimismNetwork.optimism]: {},
@@ -193,6 +199,9 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   VMEXTreasury: {
     [eOptimismNetwork.optimism]: "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
+  },
+  VMEXRewardsVault: {
+    [eOptimismNetwork.optimism]: "0x856a5c389F77a6dFed7542635AB93D8Da23B6103",
   },
   SequencerUptimeFeed: {
     [eOptimismNetwork.optimism]: "0x371EAD81c9102C9BF4874A9075FFFf170F2Ee389"

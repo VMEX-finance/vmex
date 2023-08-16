@@ -648,7 +648,7 @@ export interface IReserveCollateralParams {
   liquidationThreshold: string;
   liquidationBonus: string;
   assetType: BigNumberish;
-  borrowFactor?: string | BigNumberish;
+  borrowFactor: string | BigNumberish;
 }
 export interface IMarketRates {
   borrowRate: string;
@@ -780,6 +780,9 @@ export interface IBaseConfiguration {
   OracleQuoteUnit: string;
   SequencerUptimeFeed?: iParamsPerNetwork<tEthereumAddress>;
   RETHOracle?: iParamsPerNetwork<tEthereumAddress>;
+  VMEXRewardsVault: iParamsPerNetwork<tEthereumAddress>;
+  LendingPoolAddressesProvider: iParamsPerNetwork<tEthereumAddress>;
+  AssetMappings: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface ICommonConfiguration extends IBaseConfiguration {

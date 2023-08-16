@@ -15,11 +15,12 @@ import {
   ICommonConfiguration,
   eContractid,
 } from "../../helpers/types";
-import { waitForTx } from "../../helpers/misc-utils";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { initAssetData } from "../../helpers/init-helpers";
 import {
   getLendingPoolAddressesProvider,
   getAssetMappings,
+  getFirstSigner,
 } from "../../helpers/contracts-getters";
 
 task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
@@ -39,8 +40,14 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
       ReservesConfig,
       CurveMetadata,
       BeethovenMetadata,
+      AssetMappings
     } = poolConfig as ICommonConfiguration;
 
+    const assetMappings = getParamPerNetwork(AssetMappings, network);
+
+    if (notFalsyOrZeroAddress(assetMappings)) {
+      console.log('Already deployed asset mappings Address at', assetMappings);
+    } else {
     const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
     const curveAssets = await getParamPerNetwork(CurveMetadata, network);
@@ -49,9 +56,7 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
 
     const addressesProvider = await getLendingPoolAddressesProvider();
 
-    const admin = await DRE.ethers.getSigner(
-      await addressesProvider.getGlobalAdmin()
-    );
+    const admin = await getFirstSigner();
 
 
     // const oracle = await addressesProvider.getPriceOracle();
@@ -136,4 +141,5 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
     //     CvxStrategy.address
     //   )
     // ); //0 is default strategy
+    }
   });

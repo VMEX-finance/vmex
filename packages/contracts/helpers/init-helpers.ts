@@ -18,7 +18,7 @@ import {
 import {
   rawInsertContractAddressInDb,
 } from "./contracts-helpers";
-import { BigNumberish, ethers } from "ethers";
+import { BigNumberish, ethers, Signer } from "ethers";
 import { deployRateStrategy } from "./contracts-deployments";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -53,7 +53,7 @@ export const claimTrancheId = async (
 export const initAssetData = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
-  admin: SignerWithAddress,
+  admin: SignerWithAddress | Signer,
   verify: boolean,
   curveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
   beethovenMetadata?: iMultiPoolsAssets<IBeethovenMetadata>
