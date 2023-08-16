@@ -160,6 +160,7 @@ export const getWrappedNativeTokenAddress = async (
     <eNetwork>currentNetwork
   );
   if (wethAddress) {
+    console.log("WETH address: ", wethAddress)
     return wethAddress;
   }
   if (currentNetwork.includes("main")) {
