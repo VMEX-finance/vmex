@@ -2041,7 +2041,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
-      "address": "0xd524cb4d27c7F1Fa4AD8D5DD216Cf473eBDd9308"
+      "address": "0x4Ed125c7e8Df8C56716708Aef86F2516DaE28454"
     }
   },
   "IncentivesControllerProxy": {
