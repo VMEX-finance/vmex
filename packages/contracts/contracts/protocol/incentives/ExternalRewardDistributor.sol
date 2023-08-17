@@ -100,6 +100,8 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     for(uint256 i; i < length;) {
         stakingTypes[_stakingContracts[i]] = _stakingTypes[i];
 
+        emit StakingTypeSet(_stakingContracts[i], uint8(_stakingTypes[i]));
+
         unchecked { ++i; }
     }
   }
