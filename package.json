@@ -1,6 +1,6 @@
 {
   "name": "vmex",
-  "version": "0.0.10",
+  "version": "0.0.1",
   "description": "VMEX Monorepo",
   "repository": "https://github.com/vmex-finance/vmex",
   "private": true,
