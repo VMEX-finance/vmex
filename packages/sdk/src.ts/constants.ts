@@ -1,5 +1,5 @@
-import AaveConfig from "@vmexfinance/contracts"
-import OptimismConfig from "@vmexfinance/contracts"
+import AaveConfig from "@vmexfinance/contracts/dist"
+import OptimismConfig from "@vmexfinance/contracts/dist"
 import Deployments from "./deployed-contracts.json";
 export const deployments = Deployments;
 
