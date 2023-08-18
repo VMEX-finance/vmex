@@ -1,5 +1,5 @@
-import AaveConfig from "@vmexfinance/contracts/dist/markets/aave"
-import OptimismConfig from "@vmexfinance/contracts/dist/markets/optimism"
+import AaveConfig from "@vmexfinance/contracts"
+import OptimismConfig from "@vmexfinance/contracts"
 import Deployments from "./deployed-contracts.json";
 export const deployments = Deployments;
 
@@ -22,10 +22,10 @@ const formatNetworkMappings = (
 };
 
 export const [MAINNET_ASSET_MAPPINGS, REVERSE_MAINNET_ASSET_MAPPINGS] =
-  formatNetworkMappings(AaveConfig.ReserveAssets['main']);
+  formatNetworkMappings(AaveConfig.reserveAssets['main']);
 
 export const [OPTIMISM_ASSET_MAPPINGS, REVERSE_OPTIMISM_ASSET_MAPPINGS] =
-  formatNetworkMappings(OptimismConfig.ReserveAssets['optimism']);
+  formatNetworkMappings(OptimismConfig.reserveAssets['optimism']);
 
 export const flipAndLowerCase = (
   data: Map<string, string>

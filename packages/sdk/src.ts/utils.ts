@@ -29,7 +29,6 @@ function isMainnetFork(network: string): boolean {
   return network == "main" || network == "localhost";
 }
 
-// import { LendingPoolConfiguratorFactory } from "@vmexfinance/contracts/dist";
 export function convertAddressToSymbol(asset: string, network: string) {
   if (!asset) {
     throw new Error("convertAddressToSymbol missing asset");

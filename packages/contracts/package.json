@@ -24,7 +24,7 @@
   "scripts": {
     "run-env": "npm i && tail -f /dev/null",
     "hardhat": "hardhat",
-    "build": "tsc && cp -r ./artifacts ./dist/artifacts",
+    "build": "tsc",
     "start:dev:mainnet": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node:fork:main\"  \"yarn vmex:deploy:fork:main\"",
     "start:dev:optimism": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node:fork:optimism\"  \"yarn vmex:deploy:fork:optimism\"",
     "start:dev": "concurrently --restart-tries 3 --restart-after 20000 -n 'network,deployments' \"yarn vmex:node\"  \"yarn vmex:dev:deploy\"",
