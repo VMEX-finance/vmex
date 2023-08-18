@@ -71,7 +71,7 @@ library QueryTrancheHelpers {
         for (uint8 i = 0; i < assets.length;) {
 
             QueryAssetHelpers.AssetData memory assetData =
-                QueryAssetHelpers.getAssetData(assets[i], tranche, addressesProvider);
+                QueryAssetHelpers.getAssetData(assets[i], tranche, addressesProvider, address(0));//TODO: add chainlink address if this function is needed
 
             tvl += assetData.totalReserves;
 

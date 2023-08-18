@@ -18,7 +18,7 @@ contract GetAllTrancheAssetsData {
         QueryAssetHelpers.AssetData[] memory allAssetsData = new QueryAssetHelpers.AssetData[](assets.length);
         for (uint64 i = 0; i < assets.length;) {
             allAssetsData[i] = QueryAssetHelpers.getAssetData(
-                assets[i], tranche, providerAddr);
+                assets[i], tranche, providerAddr, address(0)); //TODO: add chainlink address if this function is needed
 
             unchecked { ++i; }
         }

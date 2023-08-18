@@ -115,6 +115,8 @@ export function convertListSymbolToAddress(assets: string[], network: string) {
 async function getAssetPricesContractCall(params?: {
   assets: string[];
   network: string;
+  ETHBase: boolean;
+  chainlinkConverter: string;
   test?: boolean;
   providerRpc?: string;
 }): Promise<Map<string, PriceData>> {
@@ -141,6 +143,8 @@ async function getAssetPricesContractCall(params?: {
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     assets,
+    params.ETHBase,
+    params.chainlinkConverter
   ]);
 
   let assetPrices: Map<string, PriceData> = new Map();
@@ -165,9 +169,10 @@ export async function getAssetPrices(params?: {
     case "sepolia":
     case "localhost":
     case "optimism_localhost":
-      return getAssetPricesContractCall(params);
+      return getAssetPricesContractCall({...params, ETHBase: true, chainlinkConverter: ZERO_ADDRESS});
 
     case "optimism":
+      return getAssetPricesContractCall({...params, ETHBase: false, chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"});
     case "main":
       // TODO: get asset prices from subgraph
       return;

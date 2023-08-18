@@ -1,7 +1,7 @@
 // import { BigNumber, utils } from "ethers";
 
 require("dotenv").config();
-const { deployments } = require("../dist/src.ts/constants.js");
+const { deployments } = require("../dist/constants.js");
 const { ethers, BigNumber, Wallet } = require("ethers");
 const chai = require("chai");
 const { expect, assert } = require("chai");
@@ -17,11 +17,12 @@ const {
   initTranche,
   lendingPoolPause,
   configureExistingTranche,
-} = require("../dist/src.ts/protocol.js");
+} = require("../dist/protocol.js");
 
 const {
   isLocalhost,
-} = require("../dist/src.ts/utils.js");
+  getAssetPrices
+} = require("../dist/utils.js");
 
 const network = process.env.NETWORK;
 
@@ -138,5 +139,21 @@ describe("WETHgateway", () => {
       }
     );
     tx.wait(1)
+  });
+});
+
+
+describe("getPrices", () => {
+  it("Try getting prices of weth and btc", async () => {
+    const dat = await getAssetPrices(
+      {
+        assets: ["WETH","WBTC"],
+        network: network,
+        test: false,
+        providerRpc: providerRpc
+      }
+    );
+
+    console.log(dat)
   });
 });
