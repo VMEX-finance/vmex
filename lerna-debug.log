@@ -1,6 +1,0 @@
-47 error Error: Command failed with exit code 128: git tag v0.0.9 -m v0.0.9
-47 error fatal: tag 'v0.0.9' already exists
-47 error     at makeError (/home/shell/vmex/node_modules/execa/lib/error.js:60:11)
-47 error     at handlePromise (/home/shell/vmex/node_modules/execa/index.js:118:26)
-47 error     at processTicksAndRejections (node:internal/process/task_queues:96:5)
-47 error     at async Promise.all (index 0)

@@ -1,4 +1,4 @@
-import { batchConfigureCollateralParams, isLocalhost, setGlobalAdmin, unverifyTranche, verifyTranche } from "../src.ts";
+import { batchConfigureCollateralParams, isLocalhost, setGlobalAdmin, unverifyTranche, verifyTranche } from "../index";
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 // Load environment variables from .env file
