@@ -221,7 +221,7 @@ export async function getTrancheMarketsData(
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/asset/GetAllTrancheAssetsData.sol/GetAllTrancheAssetsData.json");
+  } = require("./artifacts/contracts/analytics-utilities/asset/GetAllTrancheAssetsData.sol/GetAllTrancheAssetsData.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
@@ -248,7 +248,7 @@ export async function getAllTrancheData(
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/tranche/GetAllTrancheData.sol/GetAllTrancheData.json");
+  } = require("./artifacts/contracts/analytics-utilities/tranche/GetAllTrancheData.sol/GetAllTrancheData.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
@@ -272,7 +272,7 @@ export async function getTrancheData(
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/tranche/GetTrancheData.sol/GetTrancheData.json");
+  } = require("./artifacts/contracts/analytics-utilities/tranche/GetTrancheData.sol/GetTrancheData.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
@@ -302,7 +302,7 @@ export async function getTrancheAssetData(
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/asset/GetTrancheAssetData.sol/GetTrancheAssetData.json");
+  } = require("./artifacts/contracts/analytics-utilities/asset/GetTrancheAssetData.sol/GetTrancheAssetData.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
@@ -332,7 +332,7 @@ export async function getUserSummaryData(
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/user/GetUserSummaryData.sol/GetUserSummaryData.json");
+  } = require("./artifacts/contracts/analytics-utilities/user/GetUserSummaryData.sol/GetUserSummaryData.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
@@ -357,7 +357,7 @@ export async function getUserTrancheData(
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/user/GetUserTrancheData.sol/GetUserTrancheData.json");
+  } = require("./artifacts/contracts/analytics-utilities/user/GetUserTrancheData.sol/GetUserTrancheData.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
@@ -383,7 +383,7 @@ export async function getUserWalletData(
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/user/GetUserWalletData.sol/GetUserWalletData.json");
+  } = require("../contracts/artifacts/contracts/analytics-utilities/user/GetUserWalletData.sol/GetUserWalletData.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;

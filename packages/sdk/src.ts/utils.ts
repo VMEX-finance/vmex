@@ -128,7 +128,7 @@ async function getAssetPricesContractCall(params?: {
   const {
     abi,
     bytecode,
-  } = require("@vmexfinance/contracts/artifacts/contracts/analytics-utilities/asset/GetAllAssetPrices.sol/GetAllAssetPrices.json");
+  } = require("./artifacts/contracts/analytics-utilities/asset/GetAllAssetPrices.sol/GetAllAssetPrices.json");
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "main"].address;
 

@@ -1,0 +1,11 @@
+import { IInterestRateStrategyParams } from '../../types';
+export declare const rateStrategyStableOne: IInterestRateStrategyParams;
+export declare const rateStrategyStableTwo: IInterestRateStrategyParams;
+export declare const rateStrategyStableThree: IInterestRateStrategyParams;
+export declare const rateStrategyWETH: IInterestRateStrategyParams;
+export declare const rateStrategyLUSD: IInterestRateStrategyParams;
+export declare const rateStrategyUnborrowable: IInterestRateStrategyParams;
+export declare const rateStrategyVolatileOne: IInterestRateStrategyParams;
+export declare const rateStrategyVolatileTwo: IInterestRateStrategyParams;
+export declare const rateStrategyVolatileThree: IInterestRateStrategyParams;
+export declare const rateStrategyVolatileFour: IInterestRateStrategyParams;

@@ -1,17 +1,17 @@
 import { ethers } from "ethers";
 import { deployments } from "./constants";
 import _ from "lodash";
-import AaveProtocolDataProvider from "@vmexfinance/contracts/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json";
-import IERC20 from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20.sol/IERC20.json";
-import IAToken from "@vmexfinance/contracts/artifacts/contracts/interfaces/IAToken.sol/IAToken.json";
-import ILendingPool from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
-import ILendingPoolConfigurator from "@vmexfinance/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
-import ILendingPoolAddressesProvider from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
-import WETHGateway from "@vmexfinance/contracts/artifacts/contracts/misc/WETHGateway.sol/WETHGateway.json";
-import IncentivesController from "@vmexfinance/contracts/artifacts/contracts/protocol/incentives/IncentivesController.sol/IncentivesController.json";
-import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
-import MintableERC20 from "@vmexfinance/contracts/artifacts/contracts/mocks/tokens/MintableERC20.sol/MintableERC20.json";
-import VariableDebtToken from "@vmexfinance/contracts/artifacts/contracts/protocol/tokenization/VariableDebtToken.sol/VariableDebtToken.json";
+import AaveProtocolDataProvider from "./artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json";
+import IERC20 from "./artifacts/contracts/dependencies/openzeppelin/contracts/IERC20.sol/IERC20.json";
+import IAToken from "./artifacts/contracts/interfaces/IAToken.sol/IAToken.json";
+import ILendingPool from "./artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
+import ILendingPoolConfigurator from "./artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
+import ILendingPoolAddressesProvider from "./artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
+import WETHGateway from "./artifacts/contracts/misc/WETHGateway.sol/WETHGateway.json";
+import IncentivesController from "./artifacts/contracts/protocol/incentives/IncentivesController.sol/IncentivesController.json";
+import IERC20Detailed from "./artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
+import MintableERC20 from "./artifacts/contracts/mocks/tokens/MintableERC20.sol/MintableERC20.json";
+import VariableDebtToken from "./artifacts/contracts/protocol/tokenization/VariableDebtToken.sol/VariableDebtToken.json";
 
 export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc

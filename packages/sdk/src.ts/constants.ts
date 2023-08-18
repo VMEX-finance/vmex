@@ -1,5 +1,5 @@
-import AaveConfig from "@vmexfinance/contracts/dist"
-import OptimismConfig from "@vmexfinance/contracts/dist"
+import AaveConfig from "./markets/aave"
+import OptimismConfig from "./markets/optimism"
 import Deployments from "./deployed-contracts.json";
 export const deployments = Deployments;
 
@@ -22,7 +22,7 @@ const formatNetworkMappings = (
 };
 
 export const [MAINNET_ASSET_MAPPINGS, REVERSE_MAINNET_ASSET_MAPPINGS] =
-  formatNetworkMappings(AaveConfig.reserveAssets['main']);
+  formatNetworkMappings(AaveConfig.reverseAssets['main']);
 
 export const [OPTIMISM_ASSET_MAPPINGS, REVERSE_OPTIMISM_ASSET_MAPPINGS] =
   formatNetworkMappings(OptimismConfig.reserveAssets['optimism']);

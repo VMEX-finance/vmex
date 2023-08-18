@@ -3726,9 +3726,9 @@
     "semver" "^7.3.2"
     "tsutils" "^3.17.1"
 
-"@vmexfinance/contracts@^1.2.7", "@vmexfinance/contracts@file:/home/yoyobojo/Desktop/vmex/vmex/packages/contracts":
+"@vmexfinance/contracts@^1.2.8", "@vmexfinance/contracts@file:/home/yoyobojo/Desktop/vmex/vmex/packages/contracts":
   "resolved" "file:packages/contracts"
-  "version" "1.2.7"
+  "version" "1.2.8"
   dependencies:
     "@openzeppelin/contracts" "^4.9.2"
     "bignumber.js" "9.0.0"
@@ -3737,9 +3737,9 @@
 
 "@vmexfinance/sdk@file:/home/yoyobojo/Desktop/vmex/vmex/packages/sdk":
   "resolved" "file:packages/sdk"
-  "version" "1.2.7"
+  "version" "1.2.8"
   dependencies:
-    "@vmexfinance/contracts" "^1.2.6"
+    "@vmexfinance/contracts" "^1.2.7"
     "chai" "^4.3.6"
     "chai-bignumber" "^3.1.0"
     "cross-env" "^7.0.3"
