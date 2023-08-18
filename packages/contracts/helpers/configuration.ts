@@ -11,10 +11,10 @@ import {
   getEthersSignersAddresses,
   getParamPerPool,
 } from "./contracts-helpers";
-import AaveConfig from "../markets/aave";
-import OptimismConfig from "../markets/optimism";
+import AaveConfig from "../src/markets/aave";
+import OptimismConfig from "../src/markets/optimism";
 
-import { CommonsConfig } from "../markets/aave/commons";
+import { CommonsConfig } from "../src/common";
 import { DRE, filterMapBy } from "./misc-utils";
 import { tEthereumAddress } from "./types";
 import { getParamPerNetwork } from "./contracts-helpers";

@@ -8,7 +8,7 @@ import { DRE } from "../helpers/misc-utils";
 import { BigNumber, utils } from "ethers";
 import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
-import {OptimismConfig} from "../markets/optimism"
+import {OptimismConfig} from "../../src/markets/optimism"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { toBytes32, setStorageAt } from "../helpers/token-fork";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";

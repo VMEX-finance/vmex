@@ -7,7 +7,7 @@ import { DRE } from "../helpers/misc-utils";
 import { BigNumber, utils } from "ethers";
 import { eEthereumNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import {AaveConfig} from "../markets/aave"
+import {AaveConfig} from "../../src/markets/aave"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { toBytes32, setStorageAt } from "../helpers/token-fork";
 import { getAToken, getPairsTokenAggregator } from "../helpers/contracts-getters";

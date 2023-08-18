@@ -11,7 +11,7 @@ import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
 import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
 
-import OptimismConfig from "../markets/optimism";
+import OptimismConfig from "../../src/markets/optimism";
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
 import { setBalance } from "./helpers/mint-tokens";

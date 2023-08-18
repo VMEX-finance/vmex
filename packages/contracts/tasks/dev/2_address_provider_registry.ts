@@ -1,12 +1,11 @@
 import { task } from 'hardhat/config';
-import { getVMEXTreasury } from '../../helpers/configuration';
 import {
   deployLendingPoolAddressesProvider,
   deployLendingPoolAddressesProviderRegistry,
 } from '../../helpers/contracts-deployments';
 import { getEthersSigners } from '../../helpers/contracts-helpers';
 import { waitForTx } from '../../helpers/misc-utils';
-import { AaveConfig } from '../../markets/aave';
+import { AaveConfig } from '../../src/markets/aave';
 
 task(
   'dev:deploy-address-provider',

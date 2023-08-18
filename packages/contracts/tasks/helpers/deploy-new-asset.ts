@@ -1,12 +1,11 @@
 import { task } from 'hardhat/config';
 import { eEthereumNetwork } from '../../helpers/types';
-import * as marketConfigs from '../../markets/aave';
-import * as reserveConfigs from '../../markets/aave/reservesConfigs';
+import * as marketConfigs from '../../src/markets/aave';
+import * as reserveConfigs from '../../src/markets/aave/reservesConfigs';
 import { getLendingPoolAddressesProvider } from './../../helpers/contracts-getters';
 import {
   chooseATokenDeployment,
   deployDefaultReserveInterestRateStrategy,
-  deployStableDebtToken,
   deployVariableDebtToken,
 } from './../../helpers/contracts-deployments';
 import { setDRE } from '../../helpers/misc-utils';

@@ -1,4 +1,4 @@
-import { BigNumberish, Contract, Signer } from "ethers";
+import { Contract, Signer } from "ethers";
 import { DRE, notFalsyOrZeroAddress, waitForTx } from "./misc-utils";
 import {
   tEthereumAddress,
@@ -21,9 +21,7 @@ import {
 import {
   getValidationLogic,
   getAaveProtocolDataProvider,
-  getAllMockedTokens,
   getAssetMappings,
-  getAToken,
   getDbEntry,
   getEmergencyAdminT0,
   getTrancheAdminT1,
@@ -31,13 +29,9 @@ import {
   getLendingPool,
   getLendingPoolAddressesProvider,
   getLendingPoolAddressesProviderRegistry,
-  getLendingPoolCollateralManager,
   getLendingPoolConfiguratorProxy,
   getPairsTokenAggregator,
-  getPriceOracle,
   getVMEXOracle,
-  getvStrategyHelper,
-  getWETHGateway,
   getMintableERC20,
   getIncentivesControllerProxy,
   getReserveLogic,
@@ -47,12 +41,9 @@ import {
   AssetMappingsFactory,
   AaveProtocolDataProviderFactory,
   ATokenFactory,
-  // ATokensAndRatesHelperFactory,
   VMEXOracleFactory,
   DefaultReserveInterestRateStrategyFactory,
   DelegationAwareATokenFactory,
-  // CurveOracleV2Factory,
-  // CurveWrapperFactory,
   InitializableAdminUpgradeabilityProxyFactory,
   LendingPoolAddressesProviderFactory,
   LendingPoolAddressesProviderRegistryFactory,
@@ -71,14 +62,9 @@ import {
   WalletBalanceProviderFactory,
   WETH9MockedFactory,
   WETHGatewayFactory,
-  BoosterFactory,
-  BaseRewardPoolFactory,
-  LendingPoolAddressesProvider,
-  // CurveOracleV1Factory,
   BaseUniswapOracleFactory,
   YearnTokenMockedFactory,
   WETH9Mocked,
-  UpgradeableBeacon,
   UpgradeableBeaconFactory,
   SequencerUptimeFeedFactory,
   IncentivesControllerFactory,
@@ -101,16 +87,13 @@ import {
   getOptionalParamAddressPerNetwork,
   getEthersSignersAddresses,
   getContractAddressWithJsonFallback,
-  getParamPerNetwork,
   getEthersSigners,
   convertToCurrencyDecimals,
-  // getContractAddressWithJsonFallback,
 } from "./contracts-helpers";
 import { readArtifact as buidlerReadArtifact } from "@nomiclabs/buidler/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { LendingPoolLibraryAddresses } from "../types/LendingPoolFactory";
 import { eNetwork } from "./types";
-import AaveConfig from "../markets/aave";
+import AaveConfig from "../src/markets/aave";
 import {
   claimTrancheId,
   getTranche0MockedData,
@@ -118,7 +101,7 @@ import {
   initAssetData,
   initReservesByHelper,
 } from "./init-helpers";
-import { MAX_UINT_AMOUNT, MOCK_USD_PRICE_IN_WEI, oneEther, ZERO_ADDRESS } from "./constants";
+import { MAX_UINT_AMOUNT, oneEther, ZERO_ADDRESS } from "./constants";
 import {
   deployAllMockAggregators,
   setInitialAssetPricesInOracle,

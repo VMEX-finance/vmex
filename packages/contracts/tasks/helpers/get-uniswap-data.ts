@@ -1,4 +1,4 @@
-import AaveConfig from "../../markets/aave";
+import AaveConfig from "../../../src/markets/aave";
 import { ICommonConfiguration, eNetwork, SymbolMap, eEthereumNetwork, iEthereumParamsPerNetwork, ITokenAddressTarget } from "../../helpers/types";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 

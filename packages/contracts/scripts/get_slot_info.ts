@@ -1,7 +1,7 @@
 import hre from 'hardhat';
 import { getParamPerNetwork } from '../helpers/contracts-helpers';
 import { eOptimismNetwork } from '../helpers/types';
-import OptimismConfig from '../markets/optimism';
+import OptimismConfig from '../../src/markets/optimism';
 const { ethers, artifacts } = hre;
 const {execSync} = require('child_process')
 

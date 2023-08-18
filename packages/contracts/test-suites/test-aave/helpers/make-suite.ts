@@ -49,7 +49,7 @@ import { LendingPoolAddressesProvider } from "../../../types/LendingPoolAddresse
 import { LendingPoolAddressesProviderRegistry } from "../../../types/LendingPoolAddressesProviderRegistry";
 import { WETH9Mocked } from "../../../types/WETH9Mocked";
 import { WETHGateway } from "../../../types/WETHGateway";
-import { AaveConfig } from "../../../markets/aave";
+import { AaveConfig } from "../../../src/markets/aave";
 import {
   AssetMappings,
   UpgradeableBeacon,

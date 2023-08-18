@@ -12,7 +12,7 @@ import {UserAccountData} from "./interfaces/index";
 import {almostEqualOrEqual} from "./helpers/almostEqual";
 import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
 
-import AaveConfig from "../markets/aave";
+import AaveConfig from "../../src/markets/aave";
 chai.use(function (chai: any, utils: any) {
   chai.Assertion.overwriteMethod(
     "almostEqualOrEqual",

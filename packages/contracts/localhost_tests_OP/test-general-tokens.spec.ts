@@ -7,7 +7,7 @@ import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { BigNumber, ethers, utils } from "ethers";
 import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import {OptimismConfig} from "../markets/optimism"
+import {OptimismConfig} from "../../src/markets/optimism"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
 import { eventChecker } from "../test-suites/test-aave/incentives/helpers/comparator-engine";
