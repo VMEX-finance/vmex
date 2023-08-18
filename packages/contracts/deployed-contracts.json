@@ -717,7 +717,7 @@
   },
   "DefaultReserveInterestRateStrategy": {
     "hardhat": {
-      "address": "0x6B22eee9Ae8aaE0893f465dDDD63Fbd394d9b4e4",
+      "address": "0x5889354f21A1C8D8D2f82669d778f6Dab778B519",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -935,7 +935,7 @@
   },
   "LendingPoolImpl": {
     "hardhat": {
-      "address": "0xD662fb7FDC7526C79AA4417d2A4415416e057ec4"
+      "address": "0xAfC307938C1c0035942c141c31524504c89Aaa8B"
     },
     "localhost": {
       "address": "0xD662fb7FDC7526C79AA4417d2A4415416e057ec4"
@@ -949,7 +949,8 @@
   },
   "LendingPool": {
     "hardhat": {
-      "address": "0xF558cbCe44480Ec342B727bbaC44fD11387F61fd"
+      "address": "0xAfC307938C1c0035942c141c31524504c89Aaa8B",
+      "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
       "address": "0xF558cbCe44480Ec342B727bbaC44fD11387F61fd"
