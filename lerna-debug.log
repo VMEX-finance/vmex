@@ -1,6 +1,12 @@
-47 error Error: Command failed with exit code 128: git tag v0.0.9 -m v0.0.9
-47 error fatal: tag 'v0.0.9' already exists
-47 error     at makeError (/home/shell/vmex/node_modules/execa/lib/error.js:60:11)
-47 error     at handlePromise (/home/shell/vmex/node_modules/execa/index.js:118:26)
-47 error     at processTicksAndRejections (node:internal/process/task_queues:96:5)
-47 error     at async Promise.all (index 0)
+32 error Error: Command failed with exit code 1: npm install --package-lock-only --ignore-scripts
+32 error npm ERR! code ETARGET
+32 error npm ERR! notarget No matching version found for @vmexfinance/contracts@^1.2.0.
+32 error npm ERR! notarget In most cases you or one of your dependencies are requesting
+32 error npm ERR! notarget a package version that doesn't exist.
+32 error
+32 error npm ERR! A complete log of this run can be found in:
+32 error npm ERR!     /home/yoyobojo/.npm/_logs/2023-08-18T06_40_55_900Z-debug-0.log
+32 error     at makeError (/home/yoyobojo/.nvm/versions/node/v16.19.0/lib/node_modules/lerna/node_modules/execa/lib/error.js:59:11)
+32 error     at handlePromise (/home/yoyobojo/.nvm/versions/node/v16.19.0/lib/node_modules/lerna/node_modules/execa/index.js:114:26)
+32 error     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+32 error     at async Promise.all (index 0)

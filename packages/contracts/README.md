@@ -1,3 +1,5 @@
+# Contracts
+
 ### Setup
 
 Run `yarn install` to install node_modules or update them
