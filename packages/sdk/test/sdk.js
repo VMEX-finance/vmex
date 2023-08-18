@@ -1,14 +1,14 @@
 // import { BigNumber, utils } from "ethers";
 
 require("dotenv").config();
-const { deployments } = require("../dist/src.ts/constants.js");
+const { deployments, ZERO_ADDRESS } = require("../dist/constants.js");
 const { ethers, BigNumber, Wallet } = require("ethers");
 const chai = require("chai");
 const { expect, assert } = require("chai");
 const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
 chai.use(require("chai-bignumber")());
-const { getLendingPool, getProvider } = require("../dist/src.ts/contract-getters.js");
+const { getLendingPool, getProvider } = require("../dist/contract-getters.js");
 const {
   borrow,
   supply,
@@ -16,7 +16,7 @@ const {
   initTranche,
   lendingPoolPause,
   configureExistingTranche,
-} = require("../dist/src.ts/protocol.js");
+} = require("../dist/protocol.js");
 const {
   getUserTrancheData,
   getTrancheAssetData,
@@ -29,13 +29,13 @@ const {
   getTotalTranches,
   getUserWalletData,
 
-} = require("../dist/src.ts/analytics.js");
+} = require("../dist/analytics.js");
 const {
   getAssetPrices,
   mintTokens,
   convertSymbolToAddress,
   isLocalhost,
-} = require("../dist/src.ts/utils.js");
+} = require("../dist/utils.js");
 
 const IERC20abi = [
   "function allowance(address owner, address spender) external view returns (uint256 remaining)",
@@ -122,6 +122,7 @@ describe("Analytics", () => {
       user: await temp.getAddress(),
       network: network,
       test: true,
+      chainlinkConverter: ZERO_ADDRESS
     });
 
     console.log(dat);

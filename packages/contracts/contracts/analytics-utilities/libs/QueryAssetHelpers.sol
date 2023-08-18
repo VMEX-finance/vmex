@@ -43,7 +43,8 @@ library QueryAssetHelpers {
     function getAssetData(
         address asset,
         uint64 tranche,
-        address providerAddr
+        address providerAddr,
+        address chainlinkOracleConverter
     )
         internal
         returns (AssetData memory assetData)
@@ -68,10 +69,10 @@ library QueryAssetHelpers {
         assetData.canBeCollateral = reserve.configuration.getCollateralEnabled(asset, a);//assetData.liquidationThreshold != 0;
         assetData.canBeBorrowed = reserve.configuration.getBorrowingEnabled(asset, a);
         assetData.oracle = ILendingPoolAddressesProvider(providerAddr).getPriceOracle();
-        assetData.totalSupplied = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.aTokenAddress).totalSupply(), assetData.decimals);
-        assetData.totalBorrowed = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.variableDebtTokenAddress).totalSupply(), assetData.decimals);
+        assetData.totalSupplied = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.aTokenAddress).totalSupply(), assetData.decimals, chainlinkOracleConverter);
+        assetData.totalBorrowed = convertAmountToUsd(assetData.oracle, assetData.asset, IAToken(reserve.variableDebtTokenAddress).totalSupply(), assetData.decimals, chainlinkOracleConverter);
 
-        assetData.totalReserves = convertAmountToUsd(assetData.oracle, assetData.asset, IERC20(asset).balanceOf(reserve.aTokenAddress), assetData.decimals);
+        assetData.totalReserves = convertAmountToUsd(assetData.oracle, assetData.asset, IERC20(asset).balanceOf(reserve.aTokenAddress), assetData.decimals, chainlinkOracleConverter);
         assetData.totalReservesNative = IERC20(asset).balanceOf(reserve.aTokenAddress);
 
         assetData.utilization = assetData.totalBorrowed == 0
@@ -91,7 +92,8 @@ library QueryAssetHelpers {
         address oracle,
         address underlying,
         uint256 amount,
-        uint256 decimals
+        uint256 decimals,
+        address chainlinkOracleConverter
     ) internal returns(uint256) {
         //has number of decimals equal to decimals of orig token
         uint256 assetPrice = IPriceOracleGetter(oracle).getAssetPrice(underlying);
@@ -101,7 +103,7 @@ library QueryAssetHelpers {
         //this has the same number of tokens as assetPrice. All ETH pairs have 18 decimals
         uint256 ethAmount = (amount * assetPrice) / (10**(decimals));
 
-        return convertEthToUsd(ethAmount);
+        return convertEthToUsd(ethAmount, chainlinkOracleConverter);
     }
 
     function convertEthToNative(
@@ -118,17 +120,38 @@ library QueryAssetHelpers {
         return  (ethAmount * (10**(decimals))) / assetPrice;
     }
 
+    /// @dev chainlinkOracleConverter is the oracle that facilitates the conversion:
+    /// ex: price of ETH in USD on mainnet 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
     function convertEthToUsd(
-        uint256 amount
+        uint256 amount,
+        address chainlinkOracleConverter
     ) view internal returns(uint256) {
-        if(Address.isContract(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419)){ //if we are on mainnet
-            uint256 ethUSD = uint256(IChainlinkPriceFeed(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).latestAnswer());
+        if(Address.isContract(chainlinkOracleConverter)){ //if we are on mainnet
+            uint256 ethUSD = uint256(IChainlinkPriceFeed(chainlinkOracleConverter).latestAnswer()); 
 
             //ethUSD/usdDecimals (unitless factor for conversion). So this is in units of chainlink aggregator. If ETH pair, it's 18
-            return (amount * ethUSD) / (10**IChainlinkPriceFeed(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419).decimals()) ;
+            return (amount * ethUSD) / (10**IChainlinkPriceFeed(chainlinkOracleConverter).decimals()) ;
         }
         else{
-            return (amount * 1589);
+            return (amount * 1660); //mocking the price of ETH. This means USD also has 18 decimals, or whatever number of decimals the original amount has 
+        }
+    }
+
+
+    /// @dev chainlinkOracleConverter is the oracle that facilitates the conversion:
+    /// price of WETH in USD on OP mainnet: 0x13e3Ee699D1909E989722E753853AE30b17e08c5
+    function convertUsdToEth(
+        uint256 amount,
+        address chainlinkOracleConverter
+    ) view internal returns(uint256) {
+        if(Address.isContract(chainlinkOracleConverter)){ //if we are on mainnet
+            uint256 ethUSD = uint256(IChainlinkPriceFeed(chainlinkOracleConverter).latestAnswer());
+
+            //this is in units of chainlink aggregator. If ETH pair, it's 18
+            return (amount * 10**IChainlinkPriceFeed(chainlinkOracleConverter).decimals()) / (ethUSD) ;
+        }
+        else{
+            return (amount / 1660); //mocking the price of ETH. Keeps same num decimals
         }
     }
 }

@@ -7,10 +7,12 @@ import { QueryUserHelpers } from "../libs/QueryUserHelpers.sol";
 contract GetUserWalletData {
 	constructor(
         address addressesProvider,
-        address user)
+        address user,
+		address chainlinkConverter
+	)
     {
         QueryUserHelpers.WalletData[] memory userData =
-            QueryUserHelpers.getUserWalletData(user, addressesProvider);
+            QueryUserHelpers.getUserWalletData(user, addressesProvider, chainlinkConverter);
 
 	    bytes memory returnData = abi.encode(userData);
 

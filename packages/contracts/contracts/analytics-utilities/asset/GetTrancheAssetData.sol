@@ -11,7 +11,7 @@ contract GetTrancheAssetData {
         uint64 tranche)
     {
         QueryAssetHelpers.AssetData memory assetData = QueryAssetHelpers.getAssetData(
-            asset, tranche, providerAddr);
+            asset, tranche, providerAddr, address(0));//TODO: add chainlink address if this function is needed
 
 	    bytes memory returnData = abi.encode(assetData);
 		assembly {

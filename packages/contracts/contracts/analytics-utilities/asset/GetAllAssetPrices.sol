@@ -15,21 +15,23 @@ contract GetAllAssetPrices {
         uint256 priceUSD;
     }
 
-	constructor(address providerAddr, address[] memory assets)
+    /// @dev ETHBase is true if the base unit for chainlink is ETH, false if USD
+	constructor(address providerAddr, address[] memory assets, bool ETHBase, address chainlinkOracleConverter)
     {
         AssetPrice[] memory allAssetPrices = new AssetPrice[](assets.length);
 
         for (uint64 i = 0; i < assets.length;) {
             allAssetPrices[i].oracle = ILendingPoolAddressesProvider(providerAddr)
                 .getPriceOracle();
-            allAssetPrices[i].priceETH = IPriceOracleGetter(allAssetPrices[i].oracle).getAssetPrice(assets[i]);
-
-            allAssetPrices[i].priceUSD = QueryAssetHelpers.convertAmountToUsd(
-                allAssetPrices[i].oracle,
-                assets[i],
-                1,
-                0);
-        unchecked { ++i; }
+            if(ETHBase){
+                allAssetPrices[i].priceETH = IPriceOracleGetter(allAssetPrices[i].oracle).getAssetPrice(assets[i]);
+                allAssetPrices[i].priceUSD = QueryAssetHelpers.convertEthToUsd(allAssetPrices[i].priceETH, chainlinkOracleConverter);
+            } else { //prices are in USD
+                allAssetPrices[i].priceUSD = IPriceOracleGetter(allAssetPrices[i].oracle).getAssetPrice(assets[i]);
+                allAssetPrices[i].priceETH = QueryAssetHelpers.convertUsdToEth(allAssetPrices[i].priceUSD, chainlinkOracleConverter);
+            }
+            
+            unchecked { ++i; }
         }
 
 	    bytes memory returnData = abi.encode(allAssetPrices);

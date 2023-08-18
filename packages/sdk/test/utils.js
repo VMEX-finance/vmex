@@ -6,7 +6,7 @@ chai.use(solidity);
 
 const {
     getAssetPrices
-} = require("../dist/src.ts/utils");
+} = require("../dist/utils");
 
 const MAINNET_ASSET_MAPPINGS = new Map([
     ['AAVE', '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9'],

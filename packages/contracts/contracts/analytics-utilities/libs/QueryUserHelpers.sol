@@ -143,7 +143,7 @@ library QueryUserHelpers {
                         assetOracle,
                         vars.allAssets[i],
                         vars.currentATokenBalance,
-                        a.getDecimals(vars.allAssets[i])),
+                        a.getDecimals(vars.allAssets[i]), address(0)), //TODO: chainlink converter address
                     amountNative: vars.currentATokenBalance,
                     isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
                     apy: vars.reserve.currentLiquidityRate
@@ -159,7 +159,7 @@ library QueryUserHelpers {
                         assetOracle,
                         vars.allAssets[i],
                         vars.currentVariableDebt,
-                        a.getDecimals(vars.allAssets[i])),
+                        a.getDecimals(vars.allAssets[i]), address(0)),//TODO: chainlink converter address
                     amountNative: vars.currentVariableDebt,
                     apy: vars.reserve.currentVariableBorrowRate
                 });
@@ -168,7 +168,8 @@ library QueryUserHelpers {
             c[i] = AvailableBorrowData({
                 asset: vars.allAssets[i],
                 amountUSD: QueryAssetHelpers.convertEthToUsd(
-                        availableBorrowsETH.percentDiv(a.getBorrowFactor(vars.allAssets[i])) //18 decimals, so returned is also 18
+                        availableBorrowsETH.percentDiv(a.getBorrowFactor(vars.allAssets[i])), //18 decimals, so returned is also 18 
+                        address(0)//TODO: chainlink converter address
                     ),
                 amountNative: QueryAssetHelpers.convertEthToNative(
                         assetOracle,
@@ -200,7 +201,9 @@ library QueryUserHelpers {
 
     function getUserWalletData(
         address user,
-        address addressesProvider)
+        address addressesProvider,
+        address chainlinkConverter
+    )
     internal returns (WalletData[] memory)
     {
         AssetMappings a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
@@ -221,7 +224,8 @@ library QueryUserHelpers {
                     assetOracle,
                     approvedTokens[i],
                     IERC20(approvedTokens[i]).balanceOf(user),
-                    IERC20Detailed(approvedTokens[i]).decimals()
+                    IERC20Detailed(approvedTokens[i]).decimals(),
+                    chainlinkConverter
                 ),
                 amountNative: IERC20(approvedTokens[i]).balanceOf(user)
                 // currentPrice: IPriceOracleGetter(assetOracle).getAssetPrice(approvedTokens[i])

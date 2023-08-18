@@ -1,4 +1,4 @@
-import { deployments } from "./constants";
+import { deployments, ZERO_ADDRESS } from "./constants";
 import { BigNumber } from "ethers";
 import { getLendingPoolConfiguratorProxy, getProvider } from "./contract-getters";
 import {
@@ -387,9 +387,12 @@ export async function getUserWalletData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
+  let chainlinkConverter = ZERO_ADDRESS
+  if(params.network == "optimism") chainlinkConverter = "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     params.user,
+    chainlinkConverter,
   ]);
 
   return data;
