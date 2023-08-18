@@ -15,5 +15,6 @@
   },
   "include": [
     "./src/*",
+    "./artifacts/*" // TODO: compile this into dist as it's own folder
   ]
 }
