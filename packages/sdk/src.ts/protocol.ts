@@ -5,6 +5,8 @@ import {
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
   getProvider,
+  getVariableDebtToken,
+  getWETHGateway,
 } from "./contract-getters";
 import {
   approveUnderlyingIfFirstInteraction,
@@ -12,10 +14,11 @@ import {
   convertListSymbolToAddress,
   convertSymbolToAddress,
   convertToCurrencyDecimals,
+  getUserTokenBalance,
 } from "./utils";
 import { getTotalTranches } from "./analytics";
 import { RewardConfig, SetAddress, UserRewards } from "./interfaces";
-import { MAX_UINT_AMOUNT } from "./constants";
+import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "./constants";
 
 export async function borrow(
   params: {
@@ -48,25 +51,63 @@ export async function borrow(
     test: params.test,
     providerRpc: params.providerRpc,
   });
-  if (params.test) {
-    tx = await lendingPool.borrow(
-      params.underlying,
-      params.trancheId,
-      amount,
-      params.referrer || 0,
-      client,
-      {
-        gasLimit: "8000000",
+
+
+  let gateway = await getWETHGateway({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  if(params.underlying==ZERO_ADDRESS){ //native eth
+    try {
+      const WETH = await convertSymbolToAddress("WETH", params.network);
+      const reserveDat = await lendingPool.getReserveData(WETH, params.trancheId)
+      const variableDebtTokenAddress = reserveDat.variableDebtTokenAddress
+      const varDebtToken = await getVariableDebtToken({
+        address: variableDebtTokenAddress,
+        network: params.network,
+        providerRpc: params.providerRpc
+      });
+      const allowance = await varDebtToken.connect(params.signer).borrowAllowance(client, gateway.address)
+      console.log("gateway's allowance: ", allowance)
+      if(allowance.lt(amount)) {
+        console.log("setting allowance: ")
+        await varDebtToken.connect(params.signer).approveDelegation(gateway.address,MAX_UINT_AMOUNT)
       }
-    );
-  } else {
-    tx = await lendingPool.borrow(
-      params.underlying,
-      params.trancheId,
-      amount,
-      params.referrer || 0,
-      client
-    );
+      tx = await gateway.borrowETH(
+        lendingPool.address,
+        params.trancheId,
+        amount,
+        params.referrer || 0
+      )
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
+  }
+  else {
+    if (params.test) {
+      tx = await lendingPool.borrow(
+        params.underlying,
+        params.trancheId,
+        amount,
+        params.referrer || 0,
+        client,
+        {
+          gasLimit: "8000000",
+        }
+      );
+    } else {
+      tx = await lendingPool.borrow(
+        params.underlying,
+        params.trancheId,
+        amount,
+        params.referrer || 0,
+        client
+      );
+    }
   }
 
   if (callback) {
@@ -89,6 +130,7 @@ export async function markReserveAsCollateral(
   },
   callback?: () => Promise<any>
 ) {
+  if(params.asset=="ETH") params.asset = "WETH"
   params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
   const client = await params.signer.getAddress();
@@ -98,6 +140,7 @@ export async function markReserveAsCollateral(
     test: params.test,
     providerRpc: params.providerRpc,
   });
+  console.log("params: ", params)
   tx = await lendingPool.setUserUseReserveAsCollateral(
     params.asset,
     params.trancheId,
@@ -127,12 +170,19 @@ export async function withdraw(
 ) {
   params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
-  let amount = await convertToCurrencyDecimals(
-    params.asset,
-    params.amount.toString(),
-    params.test,
-    params.providerRpc
-  );
+  let amount;
+  
+  if (params.isMax) {
+    amount = MAX_UINT_AMOUNT //can do max here
+  }
+  else {
+    amount = await convertToCurrencyDecimals(
+      params.asset,
+      params.amount.toString(),
+      params.test,
+      params.providerRpc
+    );
+  } 
   let client = await params.signer.getAddress();
   let to = params.to || client;
   console.log("client: ", client);
@@ -143,14 +193,46 @@ export async function withdraw(
     test: params.test,
     providerRpc: params.providerRpc,
   });
-  if (params.isMax) {
-    tx = await lendingPool.withdraw(
-      params.asset,
-      params.trancheId,
-      MAX_UINT_AMOUNT,
-      client
-    );
-  } else {
+
+
+  let gateway = await getWETHGateway({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  if(params.asset==ZERO_ADDRESS){ //native eth
+    try {
+      const WETH = convertSymbolToAddress("WETH", params.network);
+      const reserveDat = await lendingPool.getReserveData(WETH, params.trancheId)
+      const aWETH = reserveDat.aTokenAddress
+      await approveUnderlyingIfFirstInteraction( //need to approve the aWETH to gateway so it can withdraw
+        params.signer,
+        aWETH,
+        gateway.address //approving the gateway
+      );
+    } catch (error) {
+      throw new Error(
+        "failed to approve spend for aWETH, error: " +
+          error +
+          " amount is " +
+          amount.toString()
+      );
+    }
+    try {
+      tx = await gateway.withdrawETH(
+        lendingPool.address,
+        params.trancheId,
+        amount,
+        client
+      )
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
+  }
+  else {
     tx = await lendingPool.withdraw(
       params.asset,
       params.trancheId,
@@ -160,9 +242,7 @@ export async function withdraw(
   }
 
   if (callback) {
-    await callback().catch((error) => {
-      console.error("CALLBACK_ERROR: \n", error);
-    });
+    await callback();
   }
 
   return tx;
@@ -183,12 +263,17 @@ export async function repay(
 ) {
   params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
-  let amount = await convertToCurrencyDecimals(
-    params.asset,
-    params.amount.toString(),
-    params.test,
-    params.providerRpc
-  );
+  let amount;
+  if (params.isMax) {
+    amount = MAX_UINT_AMOUNT
+  } else {
+    amount = await convertToCurrencyDecimals(
+      params.asset,
+      params.amount.toString(),
+      params.test,
+      params.providerRpc
+    );
+  }
   let client = await params.signer.getAddress();
   let lendingPool = await getLendingPool({
     signer: params.signer,
@@ -197,28 +282,54 @@ export async function repay(
     providerRpc: params.providerRpc,
   });
 
-  try {
-    await approveUnderlyingIfFirstInteraction(
-      params.signer,
-      params.asset,
-      lendingPool.address
-    );
-  } catch (error) {
-    throw new Error(
-      "failed to approve spend for underlying asset, error: " +
-        error +
-        " amount is " +
-        amount.toString()
-    );
+  let gateway = await getWETHGateway({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  if(params.asset==ZERO_ADDRESS){ //native eth
+    if(amount == MAX_UINT_AMOUNT) {
+      const WETH = await convertSymbolToAddress("WETH", params.network);
+      const reserveDat = await lendingPool.getReserveData(WETH, params.trancheId)
+      const debtToken = reserveDat.variableDebtTokenAddress
+      amount = await getUserTokenBalance( //can't set the max cause for native eth, it won't be able to pass the  gateway
+        debtToken,
+        client,
+        params.test,
+        params.providerRpc
+      );
+    }
+    console.log("During repay, trying to pay: ",amount)
+    try {
+      tx = await gateway.repayETH(
+        lendingPool.address,
+        params.trancheId,
+        amount,
+        client, 
+        { value: amount }
+      )
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
   }
-  if (params.isMax) {
-    tx = await lendingPool.repay(
-      params.asset,
-      params.trancheId,
-      MAX_UINT_AMOUNT,
-      client
-    );
-  } else {
+  else {
+    try {
+      await approveUnderlyingIfFirstInteraction(
+        params.signer,
+        params.asset,
+        lendingPool.address
+      );
+    } catch (error) {
+      throw new Error(
+        "failed to approve spend for underlying asset, error: " +
+          error +
+          " amount is " +
+          amount.toString()
+      );
+    }
     tx = await lendingPool.repay(
       params.asset,
       params.trancheId,
@@ -255,7 +366,12 @@ export async function supply(
   let client = await params.signer.getAddress();
   let amount;
   if (params.isMax) {
-    amount = MAX_UINT_AMOUNT;
+    amount = await getUserTokenBalance( //can't set the max cause for native eth, it won't be able to pass the  gateway
+      params.underlying,
+      client,
+      params.test,
+      params.providerRpc
+    );
   } else {
     amount = await convertToCurrencyDecimals(
       params.underlying,
@@ -271,53 +387,92 @@ export async function supply(
     providerRpc: params.providerRpc,
   });
 
-  try {
-    await approveUnderlyingIfFirstInteraction(
-      params.signer,
-      params.underlying,
-      lendingPool.address
-    );
-  } catch (error) {
-    throw new Error(
-      "failed to approve spend for underlying asset, error: " +
-        error +
-        " amount is " +
-        amount.toString()
-    );
+  let gateway = await getWETHGateway({
+    signer: params.signer,
+    network: params.network,
+    test: params.test,
+    providerRpc: params.providerRpc,
+  });
+
+  if(params.underlying==ZERO_ADDRESS){ //native eth
+    try {
+      console.log("initial amount: ", amount)
+      if(params.isMax){
+        // const estimation = await gateway.estimateGas.depositETH(
+        //   lendingPool.address,
+        //   params.trancheId,
+        //   client,
+        //   params.referrer || 0, 
+        //   { value: ethers.utils.parseEther("0.000001") }
+        // )
+        // console.log("Estimated gas: ", estimation)
+        amount = amount.mul(9).div(10) //90%
+        console.log("new amount: ", amount)
+      }
+      
+      tx = await gateway.depositETH(
+        lendingPool.address,
+        params.trancheId,
+        client,
+        params.referrer || 0, 
+        { value: amount }
+      )
+
+      params.underlying = await convertSymbolToAddress("WETH", params.network);
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
   }
-  try {
-    if (params.test) {
-      tx = await lendingPool.deposit(
+  else {
+    try {
+      await approveUnderlyingIfFirstInteraction(
+        params.signer,
         params.underlying,
-        params.trancheId,
-        amount,
-        client,
-        params.referrer || 0,
-        {
-          gasLimit: "8000000",
-        }
+        lendingPool.address
       );
-    } else {
-      tx = await lendingPool.deposit(
-        params.underlying,
-        params.trancheId,
-        amount,
-        client,
-        params.referrer || 0
+    } catch (error) {
+      throw new Error(
+        "failed to approve spend for underlying asset, error: " +
+          error +
+          " amount is " +
+          amount.toString()
       );
     }
-  } catch (error) {
-    console.log("Lending Pool Failed with ", error);
-    throw new Error(error);
-  }
+    try {
+      if (params.test) {
+        tx = await lendingPool.deposit(
+          params.underlying,
+          params.trancheId,
+          amount,
+          client,
+          params.referrer || 0,
+          {
+            gasLimit: "8000000",
+          }
+        );
+      } else {
+        tx = await lendingPool.deposit(
+          params.underlying,
+          params.trancheId,
+          amount,
+          client,
+          params.referrer || 0
+        );
+      }
+    } catch (error) {
+      console.log("Lending Pool Failed with ", error);
+      throw new Error(error);
+    }
 
-  if (params.collateral === false) {
-    await tx.wait();
-    await lendingPool.setUserUseReserveAsCollateral(
-      params.underlying,
-      params.trancheId,
-      params.collateral
-    );
+    if (params.collateral === false) {
+      await tx.wait();
+      await lendingPool.setUserUseReserveAsCollateral(
+        params.underlying,
+        params.trancheId,
+        params.collateral
+      );
+    }
   }
 
   if (callback) {

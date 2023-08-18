@@ -10,6 +10,7 @@ import {
   REVERSE_OPTIMISM_ASSET_MAPPINGS,
   REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS,
   SEPOLIA_CUSTOM_ASSET_MAPPINGS,
+  ZERO_ADDRESS,
 } from "./constants";
 import {
   getLendingPoolConfiguratorProxy,
@@ -64,6 +65,9 @@ export function convertSymbolToAddress(asset: string, network: string) {
   }
   asset = asset.toUpperCase();
 
+  if(asset=="ETH"){
+    return ZERO_ADDRESS
+  }
   switch (network) {
     // goerli, optimism_goerli, sepolia will use our custom deployments
     case "goerli":
@@ -205,10 +209,29 @@ export const convertToCurrencyDecimals = async (
   test?: boolean,
   providerRpc?: string
 ) => {
+  if(tokenAddress==ZERO_ADDRESS) { //native eth
+    return ethers.utils.parseUnits(amount, 18); 
+  }
   const token = await getIErc20Detailed(tokenAddress, providerRpc, test);
   let decimals = (await token.decimals()).toString();
 
   return ethers.utils.parseUnits(amount, decimals);
+};
+
+
+export const getUserTokenBalance = async (
+  tokenAddress: string,
+  user: string,
+  test?: boolean,
+  providerRpc?: string
+) => {
+  const provider = getProvider(providerRpc, test)
+  if(tokenAddress==ZERO_ADDRESS) { //native eth
+    return provider.getBalance(user); 
+  }
+  const token = await getIErc20Detailed(tokenAddress, providerRpc, test);
+
+  return token.balanceOf(user);
 };
 
 export async function mintTokens(params: {

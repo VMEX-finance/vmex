@@ -11,18 +11,18 @@ const {
   getUserIncentives,
   removeExternalIncentives,
   withdraw,
-} = require("../dist/protocol.js");
+} = require("../dist/src.ts/protocol.js");
 
 const {
   getAssetPrices,
   convertSymbolToAddress,
   increaseTime,
   isLocalhost,
-} = require("../dist/utils");
+} = require("../dist/src.ts/utils");
 const {
   getLendingPool,
   getIncentivesController,
-} = require("../dist/contract-getters.js");
+} = require("../dist/src.ts/contract-getters.js");
 
 const network = process.env.NETWORK;
 const USDCaddr = convertSymbolToAddress("USDC", network);

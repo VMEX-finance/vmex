@@ -198,7 +198,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eOptimismNetwork.optimism]: ZERO_ADDRESS,
   },
   VMEXTreasury: {
-    [eOptimismNetwork.optimism]: "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49",
+    [eOptimismNetwork.optimism]: "0x6BfCF01CcdbA163c2A01F4DD99508790aBc20509",
   },
   VMEXRewardsVault: {
     [eOptimismNetwork.optimism]: "0x856a5c389F77a6dFed7542635AB93D8Da23B6103",

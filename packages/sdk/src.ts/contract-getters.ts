@@ -7,9 +7,11 @@ import IAToken from "@vmexfinance/contracts/artifacts/contracts/interfaces/IATok
 import ILendingPool from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
 import ILendingPoolConfigurator from "@vmexfinance/contracts/artifacts/contracts/protocol/lendingpool/LendingPoolConfigurator.sol/LendingPoolConfigurator.json";
 import ILendingPoolAddressesProvider from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json";
+import WETHGateway from "@vmexfinance/contracts/artifacts/contracts/misc/WETHGateway.sol/WETHGateway.json";
 import IncentivesController from "@vmexfinance/contracts/artifacts/contracts/protocol/incentives/IncentivesController.sol/IncentivesController.json";
 import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
 import MintableERC20 from "@vmexfinance/contracts/artifacts/contracts/mocks/tokens/MintableERC20.sol/MintableERC20.json";
+import VariableDebtToken from "@vmexfinance/contracts/artifacts/contracts/protocol/tokenization/VariableDebtToken.sol/VariableDebtToken.json";
 
 export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc
@@ -162,4 +164,49 @@ export async function getIncentivesController(params?: {
   );
   if (params.signer) return incentivesController.connect(params.signer);
   return incentivesController;
+}
+
+
+/**
+ * getWETHGateway
+ * Gets the weth gateway contract, connect a signer if given one
+ */
+export async function getWETHGateway(params?: {
+  signer?: ethers.Signer;
+  network?: string;
+  test?: boolean;
+  providerRpc?: string;
+}) {
+  let gateway = new ethers.Contract(
+    deployments.WETHGateway[
+      `${params && params.network ? params.network : "mainnet"}`
+    ].address,
+    WETHGateway.abi,
+    getProvider(params.providerRpc, params.test)
+  );
+
+  if (params.signer) return gateway.connect(params.signer);
+
+  return gateway;
+}
+
+
+export async function getVariableDebtToken(params?: {
+  address?: string;
+  signer?: ethers.Signer;
+  network?: string;
+  test?: boolean;
+  providerRpc?: string;
+}) {
+  let token = new ethers.Contract(
+    params.address || deployments.VariableDebtToken[
+      `${params && params.network ? params.network : "mainnet"}`
+    ].address,
+    VariableDebtToken.abi,
+    getProvider(params.providerRpc, params.test)
+  );
+
+  if (params.signer) return token.connect(params.signer);
+
+  return token;
 }

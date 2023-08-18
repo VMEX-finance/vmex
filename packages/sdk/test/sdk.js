@@ -1,14 +1,14 @@
 // import { BigNumber, utils } from "ethers";
 
 require("dotenv").config();
-const { deployments } = require("../dist/constants.js");
+const { deployments } = require("../dist/src.ts/constants.js");
 const { ethers, BigNumber, Wallet } = require("ethers");
 const chai = require("chai");
 const { expect, assert } = require("chai");
 const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
 chai.use(require("chai-bignumber")());
-const { getLendingPool, getProvider } = require("../dist/contract-getters.js");
+const { getLendingPool, getProvider } = require("../dist/src.ts/contract-getters.js");
 const {
   borrow,
   supply,
@@ -16,7 +16,7 @@ const {
   initTranche,
   lendingPoolPause,
   configureExistingTranche,
-} = require("../dist/protocol.js");
+} = require("../dist/src.ts/protocol.js");
 const {
   getUserTrancheData,
   getTrancheAssetData,
@@ -28,13 +28,14 @@ const {
   getAllMarketsData,
   getTotalTranches,
   getUserWalletData,
-} = require("../dist/analytics.js");
+
+} = require("../dist/src.ts/analytics.js");
 const {
   getAssetPrices,
   mintTokens,
   convertSymbolToAddress,
   isLocalhost,
-} = require("../dist/utils.js");
+} = require("../dist/src.ts/utils.js");
 
 const IERC20abi = [
   "function allowance(address owner, address spender) external view returns (uint256 remaining)",
@@ -66,7 +67,7 @@ if (isLocalhost(network)) {
   provider = new ethers.providers.JsonRpcProvider(providerRpc);
   temp = provider.getSigner(2);
   owner = provider.getSigner(0);
-} else if (network == "goerli") {
+} else {
   const myprovider = new ethers.providers.AlchemyProvider(
     network,
     process.env.ALCHEMY_KEY
@@ -75,8 +76,32 @@ if (isLocalhost(network)) {
     myprovider
   ); //0th signer
   owner = temp;
-  providerRpc = "https://eth-goerli.public.blastapi.io";
+  if (network == "goerli") providerRpc = "https://eth-goerli.public.blastapi.io";
+  if (network == "optimism") providerRpc = "https://mainnet.optimism.io";
 }
+
+describe("WETHgateway", () => {
+  it("Try depositing 0.005 ETH", async () => {
+    const dat = await supply(
+      {
+        underlying: "ETH",
+        trancheId: 1,
+        amount: "0.005",
+        signer: owner,
+        network: network,
+        isMax: false,
+        test: false,
+        providerRpc: providerRpc,
+        collateral: true
+      },
+      () => {
+        return true;
+      }
+    );
+
+    console.log(dat);
+  });
+});
 
 describe("Analytics", () => {
   var mytranche;
