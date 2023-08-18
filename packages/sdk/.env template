@@ -1,0 +1,18 @@
+# Mnemonic, only first address will be used
+MNEMONIC=""
+
+# Add Alchemy or Infura provider keys, alchemy takes preference at the config level
+ALCHEMY_KEY= ""
+
+# alchemy key for optimism mainnet
+OP_ALCHEMY_KEY= ""
+
+# alchemy key for sepolia rpc
+SEPOLIA_ALCHEMY_KEY= ""
+
+# Optional Etherscan key, for automatize the verification of the contracts at Etherscan. Replace with optimism etherscan key if on OP
+ETHERSCAN_KEY=""
+
+# Optional, if you plan to use Tenderly scripts
+TENDERLY_PROJECT=""
+TENDERLY_USERNAME=""
