@@ -1,6 +1,6 @@
 {
   "name": "@vmexfinance/contracts",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "VMEX V1 smart contracts",
   "private": false,
   "files": [
@@ -13,6 +13,7 @@
     "Kevin Yao <kevin@vmex.finance>",
     "Steven Yao <steven@vmex.finance>",
     "Mel0n <mel0n@vmex.finance>",
+    "Filip <filip.lasic89@gmail.com>",
     "Jay <jay@vmex.finance>",
     "Flex <flex@vmex.finance>",
     "ALo <alo@vmex.finance>"

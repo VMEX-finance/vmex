@@ -151,10 +151,18 @@ makeSuite(
       expect(aTokensBalance).to.be.gte(depositSize);
 
       // Borrow WETH with WETH as collateral
+      // await waitForTx(
+      //   await pool
+      //     .connect(user.signer)
+      //     .borrow(weth.address, tranche, borrowSize, "0", user.address)
+      // );
+
+      // Borrow ETH with WETH as collateral
+      await varDebtToken.connect(user.signer).approveDelegation(wethGateway.address,MAX_UINT_AMOUNT)
       await waitForTx(
-        await pool
+        await wethGateway
           .connect(user.signer)
-          .borrow(weth.address, tranche, borrowSize, "0", user.address)
+          .borrowETH(pool.address, tranche, borrowSize, "0")
       );
 
       const debtBalance = await varDebtToken.balanceOf(user.address);

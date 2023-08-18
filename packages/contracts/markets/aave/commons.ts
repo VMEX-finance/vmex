@@ -76,6 +76,17 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.sepolia]: undefined,
     [eEthereumNetwork.tenderly]: undefined,
   },
+  VMEXRewardsVault: {
+    [eEthereumNetwork.hardhat]: undefined,
+    [eEthereumNetwork.coverage]: undefined,
+    [eEthereumNetwork.buidlerevm]: undefined,
+    [eEthereumNetwork.kovan]: undefined,
+    [eEthereumNetwork.ropsten]: undefined,
+    [eEthereumNetwork.main]: undefined,
+    [eEthereumNetwork.goerli]: undefined,
+    [eEthereumNetwork.sepolia]: undefined,
+    [eEthereumNetwork.tenderly]: undefined,
+  },
   EmergencyAdminIndex: 1,
   ProviderRegistry: {
     [eEthereumNetwork.kovan]: '', //'0x1E40B561EC587036f9789aF83236f057D1ed2A90',
@@ -89,6 +100,28 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.tenderly]: '', //0x52D306e36E3B6B02c153d0266ff0f85d18BCD413
   },
   ProviderRegistryOwner: {
+    [eEthereumNetwork.kovan]: '', // 0x85e4A467343c0dc4aDAB74Af84448D9c45D8ae6F
+    [eEthereumNetwork.ropsten]: '',
+    [eEthereumNetwork.main]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
+    [eEthereumNetwork.coverage]: '',
+    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.buidlerevm]: '',
+    [eEthereumNetwork.goerli]: '',
+    [eEthereumNetwork.sepolia]: '',
+    [eEthereumNetwork.tenderly]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
+  },
+  LendingPoolAddressesProvider: {
+    [eEthereumNetwork.kovan]: '', // 0x85e4A467343c0dc4aDAB74Af84448D9c45D8ae6F
+    [eEthereumNetwork.ropsten]: '',
+    [eEthereumNetwork.main]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
+    [eEthereumNetwork.coverage]: '',
+    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.buidlerevm]: '',
+    [eEthereumNetwork.goerli]: '',
+    [eEthereumNetwork.sepolia]: '',
+    [eEthereumNetwork.tenderly]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
+  },
+  AssetMappings: {
     [eEthereumNetwork.kovan]: '', // 0x85e4A467343c0dc4aDAB74Af84448D9c45D8ae6F
     [eEthereumNetwork.ropsten]: '',
     [eEthereumNetwork.main]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
