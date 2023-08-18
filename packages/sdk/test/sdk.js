@@ -68,16 +68,27 @@ if (isLocalhost(network)) {
   temp = provider.getSigner(2);
   owner = provider.getSigner(0);
 } else {
+  let key;
+  if (network == "goerli") {
+    key = process.env.GOERLI_ALCHEMY_KEY
+    providerRpc = "https://eth-goerli.public.blastapi.io";
+  }
+  if (network == "sepolia") {
+    key = process.env.SEPOLIA_ALCHEMY_KEY
+    providerRpc = `https://eth-sepolia.g.alchemy.com/v2/${key}`;
+  }
+  if (network == "optimism") {
+    key = process.env.OP_ALCHEMY_KEY
+    providerRpc = "https://mainnet.optimism.io";
+  }
   const myprovider = new ethers.providers.AlchemyProvider(
     network,
-    process.env.ALCHEMY_KEY
+    key
   );
   temp = Wallet.fromMnemonic(process.env.MNEMONIC, `m/44'/60'/0'/0/0`).connect(
     myprovider
   ); //0th signer
   owner = temp;
-  if (network == "goerli") providerRpc = "https://eth-goerli.public.blastapi.io";
-  if (network == "optimism") providerRpc = "https://mainnet.optimism.io";
 }
 
 describe("WETHgateway", () => {
