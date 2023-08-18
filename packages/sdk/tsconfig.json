@@ -13,6 +13,9 @@
     "declaration": true,
     "types": [
       // "node"
-    ]
+    ],
   },
+  "include": [
+    "./src.ts/*"
+  ]
 }
