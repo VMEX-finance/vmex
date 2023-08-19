@@ -127,11 +127,11 @@ async function findBalancesSlot(tokenAddr: tEthereumAddress): Promise<SlotInfo> 
 //         slot = 0;
 //         keyFirst = true;
 //       }
-//       else if(symbol=="ThreeCRV"){
+//       else if(symbol==""3CRV""){
 //         slot = 26;
 //         keyFirst = false;
 //       }
-//       else if(symbol=="sUSD3CRV"){
+//       else if(symbol==""sUSD3CRV-f"-f"){
 //         slot = 17;
 //         keyFirst = false;
 //       }

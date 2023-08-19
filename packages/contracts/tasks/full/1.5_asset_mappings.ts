@@ -43,11 +43,11 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
       AssetMappings
     } = poolConfig as ICommonConfiguration;
 
-    const assetMappings = getParamPerNetwork(AssetMappings, network);
+    // const assetMappings = getParamPerNetwork(AssetMappings, network);
 
-    if (notFalsyOrZeroAddress(assetMappings)) {
-      console.log('Already deployed asset mappings Address at', assetMappings);
-    } else {
+    // if (notFalsyOrZeroAddress(assetMappings)) {
+    //   console.log('Already deployed asset mappings Address at', assetMappings);
+    // } else {
     const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
     const curveAssets = await getParamPerNetwork(CurveMetadata, network);
@@ -141,5 +141,5 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
     //     CvxStrategy.address
     //   )
     // ); //0 is default strategy
-    }
+    // }
   });

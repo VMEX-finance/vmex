@@ -30,12 +30,12 @@ task(
     const network = <eNetwork>DRE.network.name;
     const poolConfig = loadPoolConfig(pool);
     const { MarketId, LendingPoolAddressesProvider } = poolConfig;
-    const addressesProvider = getParamPerNetwork(LendingPoolAddressesProvider, network);
+    // const addressesProvider = getParamPerNetwork(LendingPoolAddressesProvider, network);
 
-    if (notFalsyOrZeroAddress(addressesProvider)) {
-      console.log('Already deployed Addresses Provider Address at', addressesProvider);
-    } else {
-    console.log("trying to deploy addr provider")
+    // if (notFalsyOrZeroAddress(addressesProvider)) {
+    //   console.log('Already deployed Addresses Provider Address at', addressesProvider);
+    // } else {
+    // console.log("trying to deploy addr provider")
     // 1. Deploy address provider and set genesis manager
     const addressesProvider = await deployLendingPoolAddressesProvider(
       MarketId,
@@ -62,7 +62,7 @@ task(
       )
     );
 
-    if(network.toString() == "optimism_localhost" || network.toString() == "localhost"){
+    if(network.includes("localhost")){
       await waitForTx(
         await addressesProvider.setGlobalAdmin(
           await getGenesisPoolAdminIndex(poolConfig) 
@@ -134,6 +134,6 @@ task(
       " and ",
       await getEmergencyAdmin(poolConfig)
     );
-    }
+    // }
     // console.log('Emergency Admin', await addressesProvider.getEmergencyAdmin());
   });

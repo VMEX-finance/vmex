@@ -118,7 +118,7 @@ makeSuite(
                 // if(symbol=="SUSD"){
                 //   continue;
                 // }
-                if(symbol.substring(0,2)!="yv" && symbol.substring(0,4)!="velo" && symbol.substring(0,4)!="beet" && symbol.slice(-3)!="CRV") {
+                if(symbol.substring(0,2)!="yv" && symbol.substring(1,4)!="AMM" && symbol.substring(0,3)!="BPT" && !symbol.includes("CRV")) {
                   continue
                 }
 
@@ -254,13 +254,13 @@ makeSuite(
               if(symbol.substring(0,2)=="yv") {
                 rewardAdd = "0x7D2382b1f8Af621229d33464340541Db362B4907"
               }
-              if(symbol.substring(0,4)=="velo") {
+              if(symbol.substring(1,4)!="AMM") {
                 rewardAdd = "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db"
               }
-              if(symbol.substring(0,4)=="beet") {
+              if(symbol.substring(0,3)!="BPT") {
                 rewardAdd = "0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921"
               }
-              if(symbol.slice(-3)=="CRV") {
+              if(symbol.includes("CRV")) {
                 rewardAdd = "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53" //per curve FE, 3crv has not started streaming CRV yet
               }
               console.log("Testing ", symbol);
@@ -274,12 +274,12 @@ makeSuite(
               const stakingAddress = externalRewardsData.address
 
               let stakingContract;
-              if(symbol.slice(-3)!="CRV") stakingContract = new ethers.Contract(stakingAddress, Stakingabi);
+              if(!symbol.includes("CRV")) stakingContract = new ethers.Contract(stakingAddress, Stakingabi);
               else stakingContract = new ethers.Contract(stakingAddress, StakingCurveabi);
               
               const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
               let earned
-              if(symbol.slice(-3)!="CRV") earned = await stakingContract.connect(signer).earned(incentivesController.address)
+              if(!symbol.includes("CRV")) earned = await stakingContract.connect(signer).earned(incentivesController.address)
               else earned = await stakingContract.connect(signer).claimable_reward(incentivesController.address, rewardAdd)
               console.log("earned: ",earned)
               // expect(amtStaked).equal(ethers.utils.parseUnits("9.0", await yvUSDC.connect(signer).decimals()))
