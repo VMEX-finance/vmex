@@ -89,12 +89,12 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   CurveMetadata: {
     [eOptimismNetwork.optimism]: {
-      ThreeCRV: {
+      "3CRV": {
         _reentrancyType: 0, //0 means no check needed
         _poolSize: '3',
         _curvePool: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
       },
-      sUSD3CRV: {
+      "sUSD3CRV-f": {
         _reentrancyType: 0,
         _poolSize: '2',
         _curvePool: '0x061b87122Ed14b9526A813209C8a59a633257bAb'
@@ -113,7 +113,7 @@ export const CommonsConfig: ICommonConfiguration = {
       //   _legacy: false,
       //   _exists: true,
       // },
-      beethoven_wstETHETH: {
+      "BPT-WSTETH-WETH": {
         _typeOfPool: "1",
         _legacy: true,
         _exists: true,
@@ -123,7 +123,7 @@ export const CommonsConfig: ICommonConfiguration = {
       //   _legacy: true,
       //   _exists: true,
       // },
-      beethoven_rETHETH: {
+      "BPT-rETH-ETH": {
         _typeOfPool: "1",
         _legacy: true,
         _exists: true,
@@ -231,11 +231,11 @@ export const CommonsConfig: ICommonConfiguration = {
       //   address: "0xd0E434831a765839051DA9C0B9B99C6b0Fb87201",
       //   type: 2,
       // },
-      velo_wstETHWETH: {
+      "vAMMV2-wstETH/WETH": {
         address: "0x9f82A8b19804141161C582CfEa1b84853340A246",
         type: 2,
       },
-      velo_ETHUSDC: {
+      "vAMMV2-WETH/USDC": {
         address: "0xe7630c9560c59ccbf5eed8f33dd0cca2e67a3981",
         type: 2,
       },
@@ -247,19 +247,19 @@ export const CommonsConfig: ICommonConfiguration = {
       //   address: "0x36691b39ec8fa915204ba1e1a4a3596994515639",
       //   type: 2,
       // },
-      velo_LUSDWETH: {
+      "vAMMV2-WETH/LUSD": {
         address: "0x121de0e978d117590588cb37533ef121c8826a8a",
         type: 2,
       },
-      velo_LUSDUSDC: {
+      "sAMMV2-USDC/LUSD": {
         address: "0x065b2613ae8e182112f2519b58bb842889596fc7",
         type: 2,
       },
-      velo_USDCsUSD: {
+      "sAMMV2-USDC/sUSD": {
         address: "0x55a272304456355242f6690863b5c8d5c512ff71",
         type: 2,
       },
-      velo_DAIUSDC: {
+      "sAMMV2-USDC/DAI": {
         address: "0x6998089f6bdd9c74c7d8d01b99d7e379ccccb02d",
         type: 2,
       },
@@ -271,19 +271,19 @@ export const CommonsConfig: ICommonConfiguration = {
       //   address: "0xa2f27d183a4e409c734367712f9344328f8ec98d",
       //   type: 2,
       // },
-      beethoven_rETHETH: {
+      "BPT-rETH-ETH": {
         address: "0x61ac9315a1Ae71633E95Fb35601B59180eC8d61d",
         type: 3,
       },
-      beethoven_wstETHETH: {
+      "BPT-WSTETH-WETH": {
         address: "0xe110b862E4D076596707892c0C5163BC183eb161",
         type: 3,
       },
-      ThreeCRV: {
+      "3CRV": {
         address: "0x7f90122BF0700F9E7e1F688fe926940E8839F353",
         type: 4,
       },
-      sUSD3CRV: {
+      "sUSD3CRV-f": {
         address: "0xc5aE4B5F86332e70f3205a8151Ee9eD9F71e0797",
         type: 4,
       },

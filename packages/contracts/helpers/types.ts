@@ -319,9 +319,9 @@ export interface iAssetBase<T> {
   USD: T;
   REN: T;
   ENJ: T;
-  ThreeCRV: T;
+  "3CRV": T;
   wstETH: T;
-  sUSD3CRV: T;
+  "sUSD3CRV-f": T;
   wstETHCRV: T;
   UniDAIWETH: T;
   UniWBTCWETH: T;
@@ -365,11 +365,11 @@ export interface iAssetBase<T> {
   mooCurveFsUSD: T;
   mooCurveWSTETH: T;
   velo_rETHWETH: T;
-  velo_wstETHWETH: T;
+  "vAMMV2-wstETH/WETH": T;
   moo_velo_wstETHWETH: T;
-  velo_USDCsUSD: T;
+  "sAMMV2-USDC/sUSD": T;
   moo_velo_USDCsUSD: T;
-  velo_ETHUSDC: T;
+  "vAMMV2-WETH/USDC": T;
   moo_velo_ETHUSDC: T;
   velo_OPETH: T;
   moo_velo_OPETH: T;
@@ -377,24 +377,24 @@ export interface iAssetBase<T> {
   moo_velo_ETHSNX: T;
   velo_OPUSDC: T;
   moo_velo_OPUSDC: T;
-  velo_DAIUSDC: T;
+  "sAMMV2-USDC/DAI": T;
   moo_velo_DAIUSDC: T;
   velo_FRAXUSDC: T;
   moo_velo_FRAXUSDC: T;
   velo_USDTUSDC: T;
   moo_velo_USDTUSDC: T;
   beethoven_USDCDAI: T;
-  beethoven_wstETHETH: T;
+  "BPT-WSTETH-WETH": T;
   beethoven_WETHOPUSDC: T;
   rETH: T;
-  beethoven_rETHETH: T;
+  "BPT-rETH-ETH": T;
   yvUSDC: T;
   yvUSDT: T;
   yvDAI: T;
   yvWETH: T;
   LUSD: T;
-  velo_LUSDWETH: T;
-  velo_LUSDUSDC: T;
+  "vAMMV2-WETH/LUSD": T;
+  "sAMMV2-USDC/LUSD": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -500,17 +500,17 @@ export type iOptimismPoolAssets<T> = Partial<
     | "FRAX"
     | "OP"
     | "rETH"
-    | "ThreeCRV"
-    | "sUSD3CRV"
+    | "3CRV"
+    | "sUSD3CRV-f"
     | "wstETHCRV"
     | "mooCurveFsUSD"
     | "mooCurveWSTETH"
     | "velo_rETHWETH"
-    | "velo_wstETHWETH"
+    | "vAMMV2-wstETH/WETH"
     | "moo_velo_wstETHWETH"
-    | "velo_USDCsUSD"
+    | "sAMMV2-USDC/sUSD"
     | "moo_velo_USDCsUSD"
-    | "velo_ETHUSDC"
+    | "vAMMV2-WETH/USDC"
     | "moo_velo_ETHUSDC"
     | "velo_OPETH"
     | "moo_velo_OPETH"
@@ -518,23 +518,23 @@ export type iOptimismPoolAssets<T> = Partial<
     | "moo_velo_ETHSNX"
     | "velo_OPUSDC"
     | "moo_velo_OPUSDC"
-    | "velo_DAIUSDC"
+    | "sAMMV2-USDC/DAI"
     | "moo_velo_DAIUSDC"
     | "velo_FRAXUSDC"
     | "moo_velo_FRAXUSDC"
     | "velo_USDTUSDC"
     | "moo_velo_USDTUSDC"
     | "beethoven_USDCDAI"
-    | "beethoven_wstETHETH"
+    | "BPT-WSTETH-WETH"
     | "beethoven_WETHOPUSDC"
-    | "beethoven_rETHETH"
+    | "BPT-rETH-ETH"
     | "yvUSDC"
     | "yvUSDT"
     | "yvDAI"
     | "yvWETH"
     | "LUSD"
-    | "velo_LUSDWETH"
-    | "velo_LUSDUSDC"
+    | "vAMMV2-WETH/LUSD"
+    | "sAMMV2-USDC/LUSD"
   >
 >;
 
