@@ -50,7 +50,7 @@ export const getEmergencyAdminT0 = async () => (await getEthersSigners())[0];
 export const getTrancheAdminT1 = async () => (await getEthersSigners())[7];
 
 export const getDbEntry = async (
-  id: eContractid
+  id: string | eContractid
 ) =>
     await getDb()
       .get(

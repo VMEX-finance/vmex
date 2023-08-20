@@ -20,7 +20,7 @@ task('vmex:dev', 'Deploy development enviroment')
 
     console.log('Migration started\n');
 
-    await buildTestEnv(deployer, overwrite);
+    await buildTestEnv(deployer, overwrite, verify);
 
     // console.log('1. Deploy mock tokens');
     // await localBRE.run('dev:deploy-mock-tokens', { verify });
