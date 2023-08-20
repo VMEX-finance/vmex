@@ -1,5 +1,5 @@
 import { BigNumberish, Contract, Signer } from "ethers";
-import { DRE, notFalsyOrZeroAddress, waitForTx } from "./misc-utils";
+import { DRE, notZeroAddress, waitForTx } from "./misc-utils";
 import {
   tEthereumAddress,
   eContractid,
@@ -42,6 +42,8 @@ import {
   getIncentivesControllerProxy,
   getReserveLogic,
   getDepositWithdrawLogic,
+  getVmexToken,
+  getATokenMock,
 } from "./contracts-getters";
 import {
   AssetMappingsFactory,
@@ -124,49 +126,92 @@ import {
   setInitialAssetPricesInOracle,
 } from "./oracles-helpers";
 
-//dev: overwrite boolean if true means we want to overwrite the implememtations, rather than upgrade them. by default it is false
-export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
+//dev: overwrite boolean if true means we want to overwrite the existing contracts, rather than upgrade them. by default it is false
+export const buildTestEnv = async (deployer: Signer, overwrite?: boolean, verify?: boolean) => {
   console.time("setup");
 
   const network = DRE.network.name;
   const aaveAdmin = await deployer.getAddress();
   var config = loadPoolConfig(ConfigNames.Aave);
 
-  await deployAaveLibraries(); //deploy once and for all
+  if(
+    network == "localhost" ||
+    network == "hardhat" ||
+    !notZeroAddress(await getDbEntry(eContractid.ReserveLogic)) ||
+    overwrite
+  ) {
+    await deployAaveLibraries(verify); //deploy once and for all
+  }
   let mockTokens: {
     [symbol: string]: MockContract | MintableERC20 | WETH9Mocked;
   };
 
-  console.log("deploying mock tokens");
-  mockTokens = {
-    ...(await deployAllMockTokens()),
-  };
+  if(
+    network == "localhost" ||
+    network == "hardhat" ||
+    !notZeroAddress(await getDbEntry("DAI")) ||
+    overwrite
+  ) {
+    console.log("deploying mock tokens");
+    mockTokens = {
+      ...(await deployAllMockTokens()),
+    };
+  } else {
   // use this script if the mock tokens are already deployed on the network
-  // mockTokens = await getAllMockedTokens();
+    mockTokens = await getAllMockedTokens();
+  }
 
   console.log("mockTokens[USDC]: ", mockTokens["USDC"].address);
   let addressesProvider;
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.LendingPoolAddressesProvider)) === undefined
-  )
+    !notZeroAddress(await getDbEntry(eContractid.LendingPoolAddressesProvider))||
+    overwrite
+  ) {
     addressesProvider = await deployLendingPoolAddressesProvider(
-      AaveConfig.MarketId
+      AaveConfig.MarketId,
+      verify
     );
-  else addressesProvider = await getLendingPoolAddressesProvider();
 
-  await waitForTx(
-    await addressesProvider.setVMEXTreasury(
-      "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49"
-    )
-  );
-  console.log(
-    "set vmex treasury to be",
-    await addressesProvider.getVMEXTreasury()
-  );
-  await waitForTx(await addressesProvider.setGlobalAdmin(aaveAdmin));
-  await waitForTx(await addressesProvider.setEmergencyAdmin(aaveAdmin));
+    await waitForTx(
+      await addressesProvider.setVMEXTreasury(
+        "0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49"
+      )
+    );
+    console.log(
+      "set vmex treasury to be",
+      await addressesProvider.getVMEXTreasury()
+    );
+    await waitForTx(await addressesProvider.setGlobalAdmin(aaveAdmin));
+    await waitForTx(await addressesProvider.setEmergencyAdmin(aaveAdmin));
+
+    if (network == "localhost" || network == "hardhat") {
+      console.log("Adding whitelisted addresses");
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(
+          await deployer.getAddress(),
+          true
+        )
+      );
+
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(addressList[1], true)
+      );
+
+      await waitForTx(
+        await addressesProvider.addWhitelistedAddress(addressList[2], true)
+      );
+    } else {
+      console.log("Setting permissionless tranches");
+      await waitForTx(await addressesProvider.setPermissionlessTranches(true));
+    }
+  }
+  else {
+    console.log("Addresses provider already set, using deployed in db")
+    addressesProvider = await getLendingPoolAddressesProvider();
+  }
+
 
   //setting users[1] as emergency admin, which is in position 2 in the DRE addresses list
   const addressList = await getEthersSignersAddresses();
@@ -178,11 +223,11 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.LendingPoolAddressesProviderRegistry)) ===
-      undefined
+    (await getDbEntry(eContractid.LendingPoolAddressesProviderRegistry)) ===undefined||
+    overwrite
   ) {
     addressesProviderRegistry =
-      await deployLendingPoolAddressesProviderRegistry();
+      await deployLendingPoolAddressesProviderRegistry(verify);
     await waitForTx(
       await addressesProviderRegistry.registerAddressesProvider(
         addressesProvider.address,
@@ -190,6 +235,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       )
     );
   } else {
+    console.log("registry already deployed")
     addressesProviderRegistry = await getLendingPoolAddressesProviderRegistry();
   }
 
@@ -222,10 +268,12 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.AaveProtocolDataProvider)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.AaveProtocolDataProvider))||
+    overwrite
   ) {
     testHelpers = await deployAaveProtocolDataProvider(
-      addressesProvider.address
+      addressesProvider.address,
+      verify
     );
   } else {
     testHelpers = await getAaveProtocolDataProvider();
@@ -240,9 +288,10 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.AssetMappings)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.AssetMappings))||
+    overwrite
   ) {
-    const AssetMappingImpl = await deployAssetMapping();
+    const AssetMappingImpl = await deployAssetMapping(verify);
 
     await waitForTx(
       await addressesProvider.setAssetMappingsImpl(AssetMappingImpl.address)
@@ -263,16 +312,10 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.LendingPool)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.LendingPool))||
+    overwrite
   ) {
-    const lendingPoolImpl = await deployLendingPool();
-
-    if (overwrite) {
-      await waitForTx(
-        //hard replace existing proxy address with 0x0 so it can
-        await addressesProvider.setAddress("LENDING_POOL", ZERO_ADDRESS)
-      );
-    }
+    const lendingPoolImpl = await deployLendingPool(verify);
 
     await waitForTx(
       await addressesProvider.setLendingPoolImpl(lendingPoolImpl.address)
@@ -295,19 +338,11 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.LendingPoolConfigurator)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.LendingPoolConfigurator))||
+    overwrite
   ) {
-    const lendingPoolConfiguratorImpl = await deployLendingPoolConfigurator();
+    const lendingPoolConfiguratorImpl = await deployLendingPoolConfigurator(verify);
 
-    if (overwrite) {
-      await waitForTx(
-        //hard replace existing proxy address with 0x0 so it can
-        await addressesProvider.setAddress(
-          "LENDING_POOL_CONFIGURATOR",
-          ZERO_ADDRESS
-        )
-      );
-    }
     await waitForTx(
       await addressesProvider.setLendingPoolConfiguratorImpl(
         lendingPoolConfiguratorImpl.address
@@ -332,14 +367,15 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.VMEXOracle)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.VMEXOracle)) ||
+    overwrite
   ) {
     const MOCK_USD_PRICE_IN_WEI =
       AaveConfig.ProtocolGlobalParams.MockUsdPriceInWei;
     const ALL_ASSETS_INITIAL_PRICES = AaveConfig.Mocks.AllAssetsInitialPrices;
     const USD_ADDRESS = AaveConfig.ProtocolGlobalParams.UsdAddress;
 
-    const fallbackOracle = await deployPriceOracle();
+    const fallbackOracle = await deployPriceOracle(verify);
     await waitForTx(await fallbackOracle.setEthUsdPrice(MOCK_USD_PRICE_IN_WEI));
     await setInitialAssetPricesInOracle(
       ALL_ASSETS_INITIAL_PRICES,
@@ -451,7 +487,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     );
 
     const mockAggregators = await deployAllMockAggregators(
-      ALL_ASSETS_INITIAL_PRICES
+      ALL_ASSETS_INITIAL_PRICES,
+      false //never verify this
     );
 
     const allAggregatorsAddresses = Object.entries(mockAggregators).reduce(
@@ -471,7 +508,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       config.OracleQuoteCurrency
     );
 
-    const vmexOracleImpl = await deployVMEXOracle();
+    const vmexOracleImpl = await deployVMEXOracle(verify);
 
     await waitForTx(
       await addressesProvider.setPriceOracle(vmexOracleImpl.address)
@@ -523,10 +560,11 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.AToken)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.AToken))||
+    overwrite
   ) {
     console.log("Deploying atoken implementations");
-    await deployATokenImplementations(ConfigNames.Aave, reservesParams, false);
+    await deployATokenImplementations(ConfigNames.Aave, reservesParams, verify);
     const aTokenImplAddress = await getContractAddressWithJsonFallback(
       eContractid.AToken, //this is implementation contract
       ConfigNames.Aave
@@ -541,7 +579,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       await addressesProvider.setVariableDebtToken(varDebtTokenImplAddress)
     );
 
-    const aTokenBeacon = await deployATokenBeacon([aTokenImplAddress], false);
+    const aTokenBeacon = await deployATokenBeacon([aTokenImplAddress], verify);
 
     await waitForTx(
       await addressesProvider.setATokenBeacon(aTokenBeacon.address)
@@ -549,7 +587,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
 
     const variableDebtBeacon = await deployVariableDebtTokenBeacon(
       [varDebtTokenImplAddress],
-      false
+      verify
     );
 
     await waitForTx(
@@ -559,33 +597,24 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     );
   }
 
-  if (network == "localhost" || network == "hardhat") {
-    console.log("Adding whitelisted addresses");
-    await waitForTx(
-      await addressesProvider.addWhitelistedAddress(
-        await deployer.getAddress(),
-        true
-      )
-    );
-
-    await waitForTx(
-      await addressesProvider.addWhitelistedAddress(addressList[1], true)
-    );
-
-    await waitForTx(
-      await addressesProvider.addWhitelistedAddress(addressList[2], true)
-    );
-  } else {
-    console.log("Setting permissionless tranches");
-    await waitForTx(await addressesProvider.setPermissionlessTranches(true));
-  }
-
   // Deploy Incentives Controller before init reserve, so atokens can approve it upon initialization
   const signers = await getEthersSigners();
   const vaultOfRewards = signers[3];
-  const vmexIncentivesControllerProxy = await setupVmexIncentives(
-    await vaultOfRewards.getAddress()
-  );
+  let vmexIncentivesControllerProxy;
+  if (
+    network == "localhost" ||
+    network == "hardhat" ||
+    !notZeroAddress(await getDbEntry(eContractid.IncentivesControllerProxy)) ||
+    overwrite
+  ) {
+    vmexIncentivesControllerProxy = await setupVmexIncentives(
+      await vaultOfRewards.getAddress(),
+      verify
+    );
+  } else {
+    vmexIncentivesControllerProxy = await getIncentivesControllerProxy();
+    console.log("Using deployed incentives controller proxy: ", vmexIncentivesControllerProxy.address)
+  }
 
   //-------------------------------------------------------------
   //deploy tranche 0
@@ -594,16 +623,12 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   //   ...config.ReservesConfig,
   // };
   console.log("Before init reserves");
-  //reset tranches admins 0 and 1 (the other tranche admins will be overwritten)
-  if (overwrite) {
-    await addressesProvider.setTrancheAdmin(ZERO_ADDRESS, "0");
-    await addressesProvider.setTrancheAdmin(ZERO_ADDRESS, "1");
-  }
 
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    !notFalsyOrZeroAddress(await addressesProvider.getTrancheAdmin("0"))
+    !notZeroAddress(await addressesProvider.getTrancheAdmin("0"))||
+    overwrite
   ) {
     console.log("Claiming and deploying tranche 0");
     await claimTrancheId("Vmex tranche 0", admin);
@@ -637,7 +662,8 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    !notFalsyOrZeroAddress(await addressesProvider.getTrancheAdmin("1"))
+    !notZeroAddress(await addressesProvider.getTrancheAdmin("1"))||
+    overwrite
   ) {
     await claimTrancheId("Vmex tranche 1", user1);
     treasuryAddress = user1.address;
@@ -659,14 +685,16 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
       1
     );
   }
+  
 
   //-------------------------------------------------------------
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.LendingPoolCollateralManager)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.LendingPoolCollateralManager)) ||
+    overwrite
   ) {
-    const collateralManager = await deployLendingPoolCollateralManager();
+    const collateralManager = await deployLendingPoolCollateralManager(verify);
     await waitForTx(
       await addressesProvider.setLendingPoolCollateralManager(
         collateralManager.address
@@ -684,21 +712,33 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   if (
     network == "localhost" ||
     network == "hardhat" ||
-    (await getDbEntry(eContractid.WETHGateway)) === undefined
+    !notZeroAddress(await getDbEntry(eContractid.WETHGateway)) ||
+    overwrite
   ) {
-    const gateWay = await deployWETHGateway([mockTokens.WETH.address]);
+    const gateWay = await deployWETHGateway([mockTokens.WETH.address], verify);
     await authorizeWETHGateway(gateWay.address, lendingPoolProxy.address);
   }
 
   //-------------------------------------------------------------
   // Deploy Vmex Token
 
-  const vmexToken = await deployVmexToken();
+  let vmexToken;
+  if (
+    network == "localhost" ||
+    network == "hardhat" ||
+    !notZeroAddress(await getDbEntry(eContractid.VmexToken))||
+    overwrite
+  ) {
+    vmexToken = await deployVmexToken(verify);
+  } else {
+    vmexToken = await getVmexToken();
+  }
 
   const rewardToken = await getMintableERC20(mockTokens.USDC.address);
+  console.log("mockTokens.USDC.address: ", mockTokens.USDC.address)
 
   // give the vault reward tokens to distribute
-  await rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"1000000000000000.0"));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).mint(await convertToCurrencyDecimals(mockTokens.USDC.address,"1000000000000000.0")));
   console.log(`minted USDC ${await rewardToken.balanceOf(await vaultOfRewards.getAddress())}`)
 
   const rewardTokens = [rewardToken, vmexToken];
@@ -710,18 +750,42 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
     );
   }
 
-  const aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aDai");
-  const aAave = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aAave");
-  const aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aBusd");
-  const aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aUsdt");
-  const aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aWeth");
+  let aDai, aAave, aBusd, aUsdt, aWeth;
+  if (
+    network == "localhost" ||
+    network == "hardhat" ||
+    !notZeroAddress(await getDbEntry("aDai"))||
+    overwrite
+  ) {
+   aDai = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aDai");
+   aAave = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aAave");
+   aBusd = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aBusd");
+   aUsdt = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aUsdt");
+   aWeth = await deployATokenMock(vmexIncentivesControllerProxy.address, addressesProvider.address, "aWeth");
+  } else {
+    aDai = await getATokenMock({
+      slug: "aDai"
+    })
+    aAave = await getATokenMock({
+      slug: "aAave"
+    })
+    aBusd = await getATokenMock({
+      slug: "aBusd"
+    })
+    aUsdt = await getATokenMock({
+      slug: "aUsdt"
+    })
+    aWeth = await getATokenMock({
+      slug: "aWeth"
+    })
+  }
 
   // need mocks used for linking external rewards to link to 'real' tokens
-  await aDai.setUnderlying(mockTokens["DAI"].address)
-  await aBusd.setUnderlying(mockTokens["BUSD"].address)
-  await aAave.setUnderlying(mockTokens["AAVE"].address)
-  await aUsdt.setUnderlying(mockTokens["USDT"].address)
-  await aWeth.setUnderlying(mockTokens["WETH"].address)
+  await waitForTx(await aDai.setUnderlying(mockTokens["DAI"].address))
+  await waitForTx(await aBusd.setUnderlying(mockTokens["BUSD"].address))
+  await waitForTx(await aAave.setUnderlying(mockTokens["AAVE"].address))
+  await waitForTx(await aUsdt.setUnderlying(mockTokens["USDT"].address))
+  await waitForTx(await aWeth.setUnderlying(mockTokens["WETH"].address))
 
   // deploy and fund test staking contracts
   const stakingA = await deployStakingRewardsMock([rewardToken.address, mockTokens["DAI"].address], "yaDai");
@@ -732,24 +796,24 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean) => {
   const stakingF = await deployStakingRewardsMock([rewardToken.address, mockTokens["WETH"].address], "yaWeth");
   const stakingG = await deployStakingRewardsMock([rewardToken.address, mockTokens["yvTricrypto2"].address], "yayvTricrypto2");
 
-  await rewardToken.connect(vaultOfRewards).transfer(stakingA.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).transfer(stakingA.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
   console.log(`staking A received USDC ${await rewardToken.balanceOf(stakingA.address)}`)
-  await stakingA.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await waitForTx(await stakingA.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
   console.log('first notifyReward succeeded')
 
-  await rewardToken.connect(vaultOfRewards).transfer(stakingB.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await stakingB.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).transfer(stakingB.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await stakingB.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
 
-  await rewardToken.connect(vaultOfRewards).transfer(stakingC.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await stakingC.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await rewardToken.connect(vaultOfRewards).transfer(stakingD.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await stakingD.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await rewardToken.connect(vaultOfRewards).transfer(stakingE.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await stakingE.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await rewardToken.connect(vaultOfRewards).transfer(stakingF.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await stakingF.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await rewardToken.connect(vaultOfRewards).transfer(stakingG.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
-  await stakingG.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0"));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).transfer(stakingC.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await stakingC.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).transfer(stakingD.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await stakingD.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).transfer(stakingE.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await stakingE.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).transfer(stakingF.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await stakingF.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await rewardToken.connect(vaultOfRewards).transfer(stakingG.address, await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
+  await waitForTx(await stakingG.notifyRewardAmount(await convertToCurrencyDecimals(mockTokens.USDC.address,"100000000000000.0")));
 
   // const ic = await getIncentivesControllerProxy();
   // await ic.batchAddStakingRewards(
@@ -1402,7 +1466,7 @@ export const deployATokenImplementations = async (
       poolConfig[aTokenImplementations[x].toString()],
       network
     );
-    if (!notFalsyOrZeroAddress(aTokenAddress)) {
+    if (!notZeroAddress(aTokenAddress)) {
       const deployImplementationMethod = chooseATokenDeployment(
         aTokenImplementations[x]
       );
@@ -1424,7 +1488,7 @@ export const deployATokenImplementations = async (
     network
   );
 
-  if (!notFalsyOrZeroAddress(geneticVariableDebtTokenAddress)) {
+  if (!notZeroAddress(geneticVariableDebtTokenAddress)) {
     await deployGenericVariableDebtToken(verify);
   }
 };
@@ -1554,7 +1618,7 @@ export const setupVmexIncentives = async (
   const vmexIncentivesControllerImplementation =
     await deployIncentivesController(verify);
 
-  await addressesProvider.setIncentivesController(vmexIncentivesControllerImplementation.address);
+  await waitForTx(await addressesProvider.setIncentivesController(vmexIncentivesControllerImplementation.address));
 
   const vmexIncentivesControllerProxy = await getIncentivesControllerProxy(await addressesProvider.getIncentivesController());
 

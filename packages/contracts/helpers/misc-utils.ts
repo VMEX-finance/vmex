@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import low from 'lowdb';
 import FileSync from 'lowdb/adapters/FileSync';
-import { WAD } from './constants';
+import { WAD, ZERO_ADDRESS } from './constants';
 import { Wallet, ContractTransaction } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { BuidlerRuntimeEnvironment } from '@nomiclabs/buidler/types';
@@ -71,7 +71,7 @@ export const advanceTimeAndBlock = async function (forwardTime: number) {
   await DRE.ethers.provider.send('evm_mine', []);
 };
 
-export const waitForTx = async (tx: ContractTransaction) => await tx.wait(1);
+export const waitForTx = async (tx: ContractTransaction) => await tx.wait();
 
 export const filterMapBy = (raw: { [key: string]: any }, fn: (key: string) => boolean) =>
   Object.keys(raw)
@@ -119,6 +119,13 @@ export const notFalsyOrZeroAddress = (address: tEthereumAddress | null | undefin
     return false;
   }
   return isAddress(address) && !isZeroAddress(address);
+};
+
+export const notZeroAddress = (address: tEthereumAddress | null | undefined): boolean => {
+  if (!address) {
+    return false;
+  }
+  return address != ZERO_ADDRESS;
 };
 
 export const impersonateAddress = async (address: tEthereumAddress): Promise<SignerWithAddress> => {
