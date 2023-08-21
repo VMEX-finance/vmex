@@ -10,7 +10,10 @@ contract GetUserSummaryData {
 
 	constructor(
         address providerAddr,
-        address user)
+        address user,
+        bool ETHBase, //true if ETH is base, false if USD is base
+        address chainlinkConverter
+    )
     {
         QueryUserHelpers.UserSummaryData memory userSummaryData;
         uint64 totalTranches = LendingPoolConfigurator(
@@ -19,7 +22,7 @@ contract GetUserSummaryData {
 
         for (uint64 i = 0; i < totalTranches; ++i) {
             QueryUserHelpers.UserTrancheData memory userTrancheData =
-                QueryUserHelpers.getUserTrancheData(user, i, providerAddr);
+                QueryUserHelpers.getUserTrancheData(user, i, providerAddr, ETHBase, chainlinkConverter);
             userSummaryData.totalCollateralETH += userTrancheData.totalCollateralETH;
             userSummaryData.totalDebtETH += userTrancheData.totalDebtETH;
             userSummaryData.availableBorrowsETH += userTrancheData.availableBorrowsETH;

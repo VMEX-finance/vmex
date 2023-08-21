@@ -70,7 +70,10 @@ library QueryUserHelpers {
     function getUserTrancheData(
         address user,
         uint64 tranche,
-        address addressesProvider)
+        address addressesProvider,
+        bool ETHBase, //true if ETH is base, false if USD is base
+        address chainlinkConverter
+        )
     internal returns (UserTrancheData memory userData)
     {
         ILendingPool lendingPool = ILendingPool(
@@ -87,7 +90,7 @@ library QueryUserHelpers {
 
         (userData.suppliedAssetData,
             userData.borrowedAssetData,
-            userData.assetBorrowingPower) = getUserAssetData(user, tranche, addressesProvider, userData.availableBorrowsETH);
+            userData.assetBorrowingPower) = getUserAssetData(user, tranche, addressesProvider, userData.availableBorrowsETH, ETHBase, chainlinkConverter);
     }
 
     struct getUserAssetDataVars {
@@ -100,13 +103,17 @@ library QueryUserHelpers {
         SuppliedAssetData[] tempSuppliedAssetData;
         BorrowedAssetData[] tempBorrowedAssetData;
         address[] allAssets;
+        AssetMappings a;
+        address assetOracle;
     }
 
     function getUserAssetData(
         address user,
         uint64 tranche,
         address addressesProvider,
-        uint256 availableBorrowsETH
+        uint256 availableBorrowsETH,
+        bool ETHBase, //true if ETH is base, false if USD is base
+        address chainlinkConverter
     ) internal returns (SuppliedAssetData[] memory s, BorrowedAssetData[] memory b, AvailableBorrowData[] memory c)
     {
         getUserAssetDataVars memory vars;
@@ -130,8 +137,8 @@ library QueryUserHelpers {
             vars.currentATokenBalance = IERC20(vars.reserve.aTokenAddress).balanceOf(user);
             vars.currentVariableDebt = IERC20(vars.reserve.variableDebtTokenAddress).balanceOf(user);
 
-            AssetMappings a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
-            address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
+            vars.a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
+            vars.assetOracle = ILendingPoolAddressesProvider(addressesProvider)
                 .getPriceOracle();
 
             if (vars.currentATokenBalance > 0) {
@@ -139,11 +146,14 @@ library QueryUserHelpers {
                 vars.tempSuppliedAssetData[vars.s_idx++] = SuppliedAssetData ({
                     asset: vars.allAssets[i],
                     tranche: tranche,
-                    amount: QueryAssetHelpers.convertAmountToUsd(
-                        assetOracle,
+                    amount: ETHBase ? QueryAssetHelpers.convertAmountToUsd(
+                        vars.assetOracle,
                         vars.allAssets[i],
                         vars.currentATokenBalance,
-                        a.getDecimals(vars.allAssets[i]), address(0)), //TODO: chainlink converter address
+                        vars.a.getDecimals(vars.allAssets[i]), 
+                        chainlinkConverter
+                    )
+                    : IPriceOracleGetter(vars.assetOracle).getAssetPrice(vars.allAssets[i]), 
                     amountNative: vars.currentATokenBalance,
                     isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
                     apy: vars.reserve.currentLiquidityRate
@@ -155,11 +165,14 @@ library QueryUserHelpers {
                 vars.tempBorrowedAssetData[vars.b_idx++] = BorrowedAssetData ({
                     asset: vars.allAssets[i],
                     tranche: tranche,
-                    amount: QueryAssetHelpers.convertAmountToUsd(
-                        assetOracle,
+                    amount: ETHBase ? QueryAssetHelpers.convertAmountToUsd(
+                        vars.assetOracle,
                         vars.allAssets[i],
                         vars.currentVariableDebt,
-                        a.getDecimals(vars.allAssets[i]), address(0)),//TODO: chainlink converter address
+                        vars.a.getDecimals(vars.allAssets[i]), 
+                        chainlinkConverter
+                    )
+                    : IPriceOracleGetter(vars.assetOracle).getAssetPrice(vars.allAssets[i]), 
                     amountNative: vars.currentVariableDebt,
                     apy: vars.reserve.currentVariableBorrowRate
                 });
@@ -167,16 +180,18 @@ library QueryUserHelpers {
 
             c[i] = AvailableBorrowData({
                 asset: vars.allAssets[i],
-                amountUSD: QueryAssetHelpers.convertEthToUsd(
-                        availableBorrowsETH.percentDiv(a.getBorrowFactor(vars.allAssets[i])), //18 decimals, so returned is also 18 
-                        address(0)//TODO: chainlink converter address
-                    ),
-                amountNative: QueryAssetHelpers.convertEthToNative(
-                        assetOracle,
-                        vars.allAssets[i],
-                        availableBorrowsETH.percentDiv(a.getBorrowFactor(vars.allAssets[i])),
-                        a.getDecimals(vars.allAssets[i])
+                amountUSD: ETHBase ? QueryAssetHelpers.convertEthToUsd(
+                        availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])), 
+                        chainlinkConverter
                     )
+                    : availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])),
+                amountNative: QueryAssetHelpers.convertEthToNative( //works for USD too
+                        vars.assetOracle,
+                        vars.allAssets[i],
+                        availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])),
+                        IPriceOracleGetter(vars.assetOracle).BASE_CURRENCY_DECIMALS()
+                    )
+                    
             });
         }
 

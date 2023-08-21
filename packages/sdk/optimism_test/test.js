@@ -23,6 +23,19 @@ const {
   isLocalhost,
   getAssetPrices
 } = require("../dist/utils.js");
+const {
+  getUserTrancheData,
+  getTrancheAssetData,
+  getUserSummaryData,
+  getTrancheData,
+  getAllTrancheData,
+  getProtocolData,
+  getTopAssets,
+  getAllMarketsData,
+  getTotalTranches,
+  getUserWalletData,
+
+} = require("../dist/analytics.js");
 
 const network = process.env.NETWORK;
 

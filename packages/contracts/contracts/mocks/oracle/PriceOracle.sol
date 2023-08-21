@@ -6,6 +6,7 @@ import {IPriceOracle} from "../../interfaces/IPriceOracle.sol";
 contract PriceOracle is IPriceOracle {
     mapping(address => uint256) prices;
     uint256 ethPriceUsd;
+    uint256 public BASE_CURRENCY_DECIMALS;
 
     event AssetPriceUpdated(address _asset, uint256 _price, uint256 timestamp);
     event EthPriceUpdated(uint256 _price, uint256 timestamp);
