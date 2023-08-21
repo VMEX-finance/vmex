@@ -81,9 +81,8 @@ if (isLocalhost(network)) {
     key = process.env.OP_ALCHEMY_KEY
     providerRpc = "https://mainnet.optimism.io";
   }
-  console.log("providerRpc: ", providerRpc)
   const myprovider = new ethers.providers.JsonRpcProvider(providerRpc);
-  console.log("myprovider: ", myprovider)
+  provider = myprovider
   temp = Wallet.fromMnemonic(process.env.MNEMONIC, `m/44'/60'/0'/0/0`).connect(
     myprovider
   ); //0th signer
@@ -120,29 +119,30 @@ describe("Analytics", () => {
     const dat = await getUserWalletData({
       user: await temp.getAddress(),
       network: network,
-      test: true,
-      chainlinkConverter: ZERO_ADDRESS
+      providerRpc
     });
 
     console.log(dat);
   });
 
-  // it("1 - test get tranche data", async () => {
-  //   const dat = await getUserTrancheData({
-  //     tranche: "0",
-  //     user: await temp.getAddress(),
-  //     network: network,
-  //     test: true,
-  //   });
+  it("1 - test get tranche data", async () => {
+    const dat = await getUserTrancheData({
+      tranche: "0",
+      user: await temp.getAddress(),
+      network: network,
+      test: true,
+      providerRpc
+    });
 
-  //   console.log(JSON.stringify(dat))
-  // });
+    console.log(JSON.stringify(dat))
+  });
 
   it("2 - test get prices", async () => {
     const dat = await getAssetPrices({
       assets: ["USDC"],
       network: network,
       test: true,
+      providerRpc
     });
 
     console.log(JSON.stringify(dat));

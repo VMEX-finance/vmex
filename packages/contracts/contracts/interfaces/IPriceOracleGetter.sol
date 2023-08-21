@@ -21,4 +21,7 @@ interface IPriceOracleGetter {
      * @return the ETH price of the asset
      **/
     function getAssetPrice(address asset) external returns (uint256);
+
+
+    function BASE_CURRENCY_DECIMALS() external returns (uint256);
 }

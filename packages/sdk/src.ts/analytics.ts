@@ -14,7 +14,7 @@ import {
   BorrowedAssetData,
 } from "./interfaces";
 import { decodeConstructorBytecode } from "./decode-bytecode";
-import { cache, convertAddressToSymbol } from "./utils";
+import { cache, convertAddressToSymbol, getDecimalBase } from "./utils";
 
 /**
  * PROTOCOL LEVEL ANALYTICS
@@ -336,9 +336,12 @@ export async function getUserSummaryData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
+  const base = getDecimalBase(params.network)
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     params.user,
+    base.ETHBase,
+    base.chainlinkConverter
   ]);
   return data;
 }
@@ -361,10 +364,13 @@ export async function getUserTrancheData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
+  const base = getDecimalBase(params.network)
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     params.user,
     params.tranche,
+    base.ETHBase,
+    base.chainlinkConverter
   ]);
 
   return data;

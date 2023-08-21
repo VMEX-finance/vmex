@@ -163,20 +163,7 @@ export async function getAssetPrices(params?: {
   test?: boolean;
   providerRpc?: string;
 }): Promise<Map<string, PriceData>> {
-  switch(params.network) {
-    // subgraph asset prices not work for these network
-    case "goerli":
-    case "sepolia":
-    case "localhost":
-    case "optimism_localhost":
-      return getAssetPricesContractCall({...params, ETHBase: true, chainlinkConverter: ZERO_ADDRESS});
-
-    case "optimism":
-      return getAssetPricesContractCall({...params, ETHBase: false, chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"});
-    case "main":
-      // TODO: get asset prices from subgraph
-      return;
-  }
+  return getAssetPricesContractCall({...params, ...getDecimalBase(params.network)});
 }
 
 /**
@@ -289,3 +276,24 @@ export const increaseTime = async (provider, secondsToIncrease: number) => {
 export const isLocalhost = (network) => {
   return network == "localhost" || network == "optimism_localhost";
 };
+
+export function getDecimalBase(network): {ETHBase: boolean, chainlinkConverter: string} {
+  switch(network) {
+    // subgraph asset prices not work for these network
+    case "goerli":
+      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+    case "sepolia":
+      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+    case "localhost":
+      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+    case "optimism_localhost":
+      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+
+    case "optimism":
+      return {ETHBase: false, chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"};
+    case "main":
+      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+      // TODO: get asset prices from subgraph
+      return;
+  }
+}
