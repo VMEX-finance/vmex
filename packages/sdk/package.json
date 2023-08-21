@@ -22,7 +22,7 @@
     "test:optimism_localhost": "yarn build && NETWORK=optimism_localhost mocha --timeout 0 --reporter spec",
     "test-unit:optimism_localhost": "yarn build && NETWORK=optimism_localhost mocha --timeout 0 --reporter spec --grep $TEST",
     "test:goerli": "yarn build && NETWORK=goerli mocha --timeout 0 --reporter spec",
-    "test-unit:sepolia": "yarn build && NETWORK=sepolia mocha --timeout 0 --reporter spec --grep $TEST",
+    "test-unit:sepolia": "yarn build && NETWORK=sepolia mocha optimism_test --timeout 0 --reporter spec --grep $TEST",
     "test:optimism": "yarn build && NETWORK=optimism mocha --timeout 0 --reporter spec",
     "test:analytics": "yarn build && NETWORK=localhost mocha --timeout 0 --reporter spec --grep Analytics",
     "test:optimism:wethgateway": "yarn build && NETWORK=optimism mocha optimism_test --timeout 0 --reporter spec --grep WETHgateway",

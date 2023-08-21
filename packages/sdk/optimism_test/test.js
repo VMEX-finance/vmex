@@ -33,93 +33,103 @@ if (isLocalhost(network)) {
   temp = provider.getSigner(2);
   owner = provider.getSigner(0);
 } else {
-  const myprovider = new ethers.providers.AlchemyProvider(
-    network,
-    process.env.ALCHEMY_KEY
-  );
+  let key;
+  if (network == "goerli") {
+    key = process.env.GOERLI_ALCHEMY_KEY
+    providerRpc = "https://eth-goerli.public.blastapi.io";
+  }
+  if (network == "sepolia") {
+    key = process.env.SEPOLIA_ALCHEMY_KEY
+    providerRpc = `https://eth-sepolia.g.alchemy.com/v2/${key}`;
+  }
+  if (network == "optimism") {
+    key = process.env.OP_ALCHEMY_KEY
+    providerRpc = "https://mainnet.optimism.io";
+  }
+  console.log("providerRpc: ", providerRpc)
+  const myprovider = new ethers.providers.JsonRpcProvider(providerRpc);
+  console.log("myprovider: ", myprovider)
   temp = Wallet.fromMnemonic(process.env.MNEMONIC, `m/44'/60'/0'/0/0`).connect(
     myprovider
   ); //0th signer
   owner = temp;
-  if (network == "goerli") providerRpc = "https://eth-goerli.public.blastapi.io";
-  if (network == "optimism") providerRpc = "https://mainnet.optimism.io";
 }
 
 describe("WETHgateway", () => {
-  // it("Try depositing 0.005 ETH", async () => {
-  //   const dat = await supply(
-  //     {
-  //       underlying: "ETH",
-  //       trancheId: 1,
-  //       amount: "0.005",
-  //       signer: owner,
-  //       network: network,
-  //       isMax: false,
-  //       test: false,
-  //       providerRpc: providerRpc,
-  //       collateral: true
-  //     },
-  //     () => {
-  //       return true;
-  //     }
-  //   );
-  //   dat.wait(1)
+  it("Try depositing 0.005 ETH", async () => {
+    const dat = await supply(
+      {
+        underlying: "ETH",
+        trancheId: 1,
+        amount: "0.005",
+        signer: owner,
+        network: network,
+        isMax: false,
+        test: false,
+        providerRpc: providerRpc,
+        collateral: true
+      },
+      () => {
+        return true;
+      }
+    );
+    dat.wait(1)
 
-  //   console.log("finished supplying: ",dat);
-  // });
+    console.log("finished supplying: ",dat);
+  });
 
-  // it("Set user reserve as collateral", async () => {
-  //   const dat = await markReserveAsCollateral(
-  //     {
-  //       asset: "ETH",
-  //       trancheId: 1,
-  //       signer: owner,
-  //       network: network,
-  //       test: false,
-  //       providerRpc: providerRpc,
-  //       useAsCollateral: true
-  //     },
-  //     () => {
-  //       return true;
-  //     }
-  //   );
-  //   dat.wait(1)
+  it("Set user reserve as collateral", async () => {
+    const dat = await markReserveAsCollateral(
+      {
+        asset: "ETH",
+        trancheId: 1,
+        signer: owner,
+        network: network,
+        test: false,
+        providerRpc: providerRpc,
+        useAsCollateral: true
+      },
+      () => {
+        return true;
+      }
+    );
+    dat.wait(1)
 
-  //   console.log("finished setting as collateral: ");
-  // });
-  // it("Try borrowing 0.0005 ETH", async () => {
-  //   const tx = await borrow(
-  //     {
-  //       underlying: "ETH",
-  //       trancheId: 1,
-  //       amount: "0.0005",
-  //       signer: owner,
-  //       network: network,
-  //       isMax: false,
-  //       test: false,
-  //       providerRpc: providerRpc
-  //     }
-  //   );
-  //   tx.wait(1)
+    console.log("finished setting as collateral: ");
+  });
+  it("Try borrowing 0.0005 ETH", async () => {
+    const tx = await borrow(
+      {
+        underlying: "ETH",
+        trancheId: 1,
+        amount: "0.0005",
+        signer: owner,
+        network: network,
+        isMax: false,
+        test: false,
+        providerRpc: providerRpc
+      }
+    );
+    tx.wait(1)
 
-  //   console.log("finished borrowing: ");
+    console.log("finished borrowing: ");
 
-  // });
-  // it("Try repaying max: 0.005 ETH", async () => {
-  //   const tx = await repay(
-  //     {
-  //       asset: "ETH",
-  //       trancheId: 1,
-  //       amount: "0.0000",
-  //       signer: owner,
-  //       network: network,
-  //       isMax: true,
-  //       test: false,
-  //       providerRpc: providerRpc
-  //     }
-  //   );
-  //   tx.wait(1)
-  // });
+  });
+  it("Try repaying max: 0.005 ETH", async () => {
+    const tx = await repay(
+      {
+        asset: "ETH",
+        trancheId: 1,
+        amount: "0.0000",
+        signer: owner,
+        network: network,
+        isMax: true,
+        test: false,
+        providerRpc: providerRpc
+      }
+    );
+    tx.wait(1)
+  });
 
 
   it("Try withdrawing all", async () => {
