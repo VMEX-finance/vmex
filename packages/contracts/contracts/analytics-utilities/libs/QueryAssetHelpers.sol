@@ -95,15 +95,28 @@ library QueryAssetHelpers {
         uint256 decimals,
         address chainlinkOracleConverter
     ) internal returns(uint256) {
+        uint256 ethAmount = findAmountValue(
+            oracle,
+            underlying,
+            amount,
+            decimals
+        );
+        return convertEthToUsd(ethAmount, chainlinkOracleConverter);
+    }
+
+    function findAmountValue(
+        address oracle,
+        address underlying,
+        uint256 amount,
+        uint256 decimals
+    ) internal returns(uint256) {
         //has number of decimals equal to decimals of orig token
         uint256 assetPrice = IPriceOracleGetter(oracle).getAssetPrice(underlying);
         //amount is from atoken, which has same amount of tokens as underlying
         //ethAmount thus has 18 decimals
 
         //this has the same number of tokens as assetPrice. All ETH pairs have 18 decimals
-        uint256 ethAmount = (amount * assetPrice) / (10**(decimals));
-
-        return convertEthToUsd(ethAmount, chainlinkOracleConverter);
+        return (amount * assetPrice) / (10**(decimals));
     }
 
     function convertEthToNative(

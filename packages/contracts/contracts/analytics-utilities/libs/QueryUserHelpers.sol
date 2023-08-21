@@ -153,7 +153,12 @@ library QueryUserHelpers {
                         vars.a.getDecimals(vars.allAssets[i]), 
                         chainlinkConverter
                     )
-                    : IPriceOracleGetter(vars.assetOracle).getAssetPrice(vars.allAssets[i]), 
+                    : QueryAssetHelpers.findAmountValue(
+                        vars.assetOracle,
+                        vars.allAssets[i],
+                        vars.currentATokenBalance,
+                        vars.a.getDecimals(vars.allAssets[i])
+                    ), 
                     amountNative: vars.currentATokenBalance,
                     isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
                     apy: vars.reserve.currentLiquidityRate
@@ -172,7 +177,12 @@ library QueryUserHelpers {
                         vars.a.getDecimals(vars.allAssets[i]), 
                         chainlinkConverter
                     )
-                    : IPriceOracleGetter(vars.assetOracle).getAssetPrice(vars.allAssets[i]), 
+                    : QueryAssetHelpers.findAmountValue(
+                        vars.assetOracle,
+                        vars.allAssets[i],
+                        vars.currentVariableDebt,
+                        vars.a.getDecimals(vars.allAssets[i])
+                    ), 
                     amountNative: vars.currentVariableDebt,
                     apy: vars.reserve.currentVariableBorrowRate
                 });
@@ -189,7 +199,7 @@ library QueryUserHelpers {
                         vars.assetOracle,
                         vars.allAssets[i],
                         availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])),
-                        IPriceOracleGetter(vars.assetOracle).BASE_CURRENCY_DECIMALS()
+                        vars.a.getDecimals(vars.allAssets[i])
                     )
                     
             });
