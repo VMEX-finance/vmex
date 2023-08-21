@@ -210,7 +210,8 @@ export async function withdraw(
       await approveUnderlyingIfFirstInteraction( //need to approve the aWETH to gateway so it can withdraw
         params.signer,
         aWETH,
-        gateway.address //approving the gateway
+        gateway.address, //approving the gateway
+        amount
       );
     } catch (error) {
       throw new Error(
@@ -320,7 +321,8 @@ export async function repay(
       await approveUnderlyingIfFirstInteraction(
         params.signer,
         params.asset,
-        lendingPool.address
+        lendingPool.address,
+        amount
       );
     } catch (error) {
       throw new Error(
@@ -429,7 +431,8 @@ export async function supply(
       await approveUnderlyingIfFirstInteraction(
         params.signer,
         params.underlying,
-        lendingPool.address
+        lendingPool.address,
+        amount
       );
     } catch (error) {
       throw new Error(
@@ -981,7 +984,8 @@ export async function setIncentives(
     approveUnderlyingIfFirstInteraction(
       params.signer,
       config.reward.toString(),
-      incentivesController.address
+      incentivesController.address,
+      MAX_UINT_AMOUNT
     );
   });
 

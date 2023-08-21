@@ -46,9 +46,7 @@ if (isLocalhost(network)) {
     key = process.env.OP_ALCHEMY_KEY
     providerRpc = "https://mainnet.optimism.io";
   }
-  console.log("providerRpc: ", providerRpc)
   const myprovider = new ethers.providers.JsonRpcProvider(providerRpc);
-  console.log("myprovider: ", myprovider)
   temp = Wallet.fromMnemonic(process.env.MNEMONIC, `m/44'/60'/0'/0/0`).connect(
     myprovider
   ); //0th signer
