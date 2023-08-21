@@ -185,7 +185,8 @@ export async function getAssetPrices(params?: {
 export async function approveUnderlyingIfFirstInteraction(
   signer: ethers.Signer,
   underlying: string,
-  spender: string
+  spender: string,
+  attemptedSpendAmount: string,
 ) {
   let _underlying = new ethers.Contract(
     underlying,
@@ -198,7 +199,8 @@ export async function approveUnderlyingIfFirstInteraction(
   let allowance = await _underlying
     .connect(signer)
     .allowance(await signer.getAddress(), spender);
-  if (allowance.eq(BigNumber.from("0"))) {
+
+  if (allowance.lt(attemptedSpendAmount)) {
     const tx = await _underlying
       .connect(signer)
       .approve(
