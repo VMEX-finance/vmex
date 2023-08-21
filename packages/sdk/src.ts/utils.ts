@@ -199,12 +199,13 @@ export async function approveUnderlyingIfFirstInteraction(
     .connect(signer)
     .allowance(await signer.getAddress(), spender);
   if (allowance.eq(BigNumber.from("0"))) {
-    return await _underlying
+    const tx = await _underlying
       .connect(signer)
       .approve(
         spender,
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       ); //approves uint256 max
+    return tx.wait()
   }
 }
 
