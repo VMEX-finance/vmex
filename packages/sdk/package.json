@@ -32,9 +32,9 @@
     "fund:vaultOfRewards": "mocha dev --timeout 0 --reporter spec --grep Fund_vault",
     "fund:goerli:accounts": "mocha dev --timeout 0 --reporter spec --grep Get_goerli",
     "update:deployed-contracts": "cp ../contracts/deployed-contracts.json ./src.ts",
-    "scripts:verify-tranche:sepolia": "NETWORK=sepolia FUNCTION=verify-tranche npx ts-node -r dotenv/config scripts/admin.ts",
-    "scripts:update-global-admin:sepolia": "NETWORK=sepolia FUNCTION=set-global-admin npx ts-node -r dotenv/config scripts/admin.ts",
-    "scripts:set-risk-params:sepolia": "NETWORK=sepolia FUNCTION=set-risk-params npx ts-node -r dotenv/config scripts/admin.ts"
+    "scripts:verify-tranche:sepolia": "NETWORK=sepolia FUNCTION=verify-tranche npx ts-node -r dotenv/config src.ts/scripts/admin.ts",
+    "scripts:update-global-admin:sepolia": "NETWORK=sepolia FUNCTION=set-global-admin npx ts-node -r dotenv/config src.ts/scripts/admin.ts",
+    "scripts:set-risk-params:sepolia": "NETWORK=sepolia FUNCTION=set-risk-params npx ts-node -r dotenv/config src.ts/scripts/admin.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
