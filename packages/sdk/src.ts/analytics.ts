@@ -393,12 +393,12 @@ export async function getUserWalletData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
-  let chainlinkConverter = ZERO_ADDRESS
-  if(params.network == "optimism") chainlinkConverter = "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+  const base = getDecimalBase(params.network)
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     params.user,
-    chainlinkConverter,
+    base.ETHBase,
+    base.chainlinkConverter
   ]);
 
   return data;

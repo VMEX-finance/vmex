@@ -223,36 +223,50 @@ library QueryUserHelpers {
         // uint256 currentPrice;
     }
 
+    struct GetUserWalletDataVars {
+        uint8 i;
+        AssetMappings a;
+        address assetOracle;
+    }
+
 
     function getUserWalletData(
         address user,
-        address addressesProvider,
+        address addressesProvider, 
+        bool ETHBase,
         address chainlinkConverter
     )
     internal returns (WalletData[] memory)
     {
-        AssetMappings a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
+        GetUserWalletDataVars memory vars; 
+        vars.a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
 
-        address[] memory approvedTokens = a.getAllApprovedTokens();
+        address[] memory approvedTokens = vars.a.getAllApprovedTokens();
 
         WalletData[] memory data = new WalletData[](approvedTokens.length);
 
 
 
-        for (uint8 i = 0; i < approvedTokens.length; ++i) {
-            address assetOracle = ILendingPoolAddressesProvider(addressesProvider)
+        for (vars.i = 0; vars.i < approvedTokens.length; ++vars.i) {
+            vars.assetOracle = ILendingPoolAddressesProvider(addressesProvider)
                 .getPriceOracle();
 
-            data[i] = WalletData ({
-                asset: approvedTokens[i],
-                amount: QueryAssetHelpers.convertAmountToUsd(
-                    assetOracle,
-                    approvedTokens[i],
-                    IERC20(approvedTokens[i]).balanceOf(user),
-                    IERC20Detailed(approvedTokens[i]).decimals(),
+            data[vars.i] = WalletData ({
+                asset: approvedTokens[vars.i],
+                amount: ETHBase ? QueryAssetHelpers.convertAmountToUsd(
+                    vars.assetOracle,
+                    approvedTokens[vars.i],
+                    IERC20(approvedTokens[vars.i]).balanceOf(user),
+                    IERC20Detailed(approvedTokens[vars.i]).decimals(),
                     chainlinkConverter
+                )
+                : QueryAssetHelpers.findAmountValue(
+                    vars.assetOracle,
+                    approvedTokens[vars.i],
+                    IERC20(approvedTokens[vars.i]).balanceOf(user),
+                    IERC20Detailed(approvedTokens[vars.i]).decimals()
                 ),
-                amountNative: IERC20(approvedTokens[i]).balanceOf(user)
+                amountNative: IERC20(approvedTokens[vars.i]).balanceOf(user)
                 // currentPrice: IPriceOracleGetter(assetOracle).getAssetPrice(approvedTokens[i])
             });
 
