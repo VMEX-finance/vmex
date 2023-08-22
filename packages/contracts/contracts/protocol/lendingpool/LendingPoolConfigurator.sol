@@ -136,13 +136,15 @@ contract LendingPoolConfigurator is
                 uint64 liquidationBonus,
                 uint64 borrowFactor
             ) = assetMappings.getDefaultCollateralParams(reserves[i]); //it doesn't matter what the tranche and user address is since it will get params from global params
-            pool.setCollateralParams(
+            _configureCollateralParams(
                 reserves[i],
                 trancheId,
-                ltv,
-                liquidationThreshold,
-                liquidationBonus,
-                borrowFactor
+                ConfigureCollateralParams(
+                    ltv,
+                    liquidationThreshold,
+                    liquidationBonus,
+                    borrowFactor
+                )
             );
 
             _setReserveInterestRateStrategyAddress(
@@ -159,7 +161,7 @@ contract LendingPoolConfigurator is
 
 
     /**
-     * @dev Unverifies tranche to revoke privileges, unstake, and return to global parameters. 
+     * @dev Unverifies tranche to revoke privileges, unstake, and return to global parameters.
      Either the verified tranche admin himself or the global admin can call this
      * @param trancheId the tranche that is verified
      **/
@@ -270,7 +272,7 @@ contract LendingPoolConfigurator is
     }
 
     /**
-     * @dev Inits aToken and varDebtToken proxy, initializes reserveData in pool, 
+     * @dev Inits aToken and varDebtToken proxy, initializes reserveData in pool,
      sets collateral and borrow enabled locally (only sets if globally the asset is allowed as collateral or borrowable),
      sets reserve factor, sets active to true and frozen to false
      **/
