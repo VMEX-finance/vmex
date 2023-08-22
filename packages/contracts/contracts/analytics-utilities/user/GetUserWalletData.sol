@@ -8,11 +8,12 @@ contract GetUserWalletData {
 	constructor(
         address addressesProvider,
         address user,
+		bool ETHBase,
 		address chainlinkConverter
 	)
     {
         QueryUserHelpers.WalletData[] memory userData =
-            QueryUserHelpers.getUserWalletData(user, addressesProvider, chainlinkConverter);
+            QueryUserHelpers.getUserWalletData(user, addressesProvider, ETHBase, chainlinkConverter);
 
 	    bytes memory returnData = abi.encode(userData);
 
