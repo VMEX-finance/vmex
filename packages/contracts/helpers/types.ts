@@ -64,6 +64,7 @@ export enum AavePools {
   avalanche = "avalanche",
 }
 
+
 export enum eContractid {
   Example = "Example",
   Booster = "Booster",
@@ -131,7 +132,7 @@ export enum eContractid {
   UserConfiguration = "UserConfiguration",
   BaseUniswapOracle = "BaseUniswapOracle",
   MockStrategy = "MockStrategy",
-  YearnTokenMocked="YearnTokenMocked",
+  YearnTokenMocked = "YearnTokenMocked",
   ATokenBeacon = "ATokenBeacon",
   VariableDebtTokenBeacon = "VariableDebtTokenBeacon",
   SequencerUptimeFeed = "SequencerUptimeFeed",
@@ -142,6 +143,7 @@ export enum eContractid {
   DoubleTransferHelper = "DoubleTransferHelper",
   StakingRewardsMock = "StakingRewardsMock",
   MockIncentivesControllerImpl = "MockIncentivesControllerImpl",
+  AssetMappingsImpl = "AssetMappingsImpl"
 }
 
 /*
@@ -783,6 +785,7 @@ export interface IBaseConfiguration {
   VMEXRewardsVault: iParamsPerNetwork<tEthereumAddress>;
   LendingPoolAddressesProvider: iParamsPerNetwork<tEthereumAddress>;
   AssetMappings: iParamsPerNetwork<tEthereumAddress>;
+  AssetMappingsImpl: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface ICommonConfiguration extends IBaseConfiguration {

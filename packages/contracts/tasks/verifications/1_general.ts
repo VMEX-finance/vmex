@@ -8,6 +8,7 @@ import { ZERO_ADDRESS } from '../../helpers/constants';
 import {
   getAaveProtocolDataProvider,
   getAddressById,
+  getAssetMappingsImpl,
   getLendingPool,
   getLendingPoolAddressesProvider,
   getLendingPoolAddressesProviderRegistry,
@@ -40,8 +41,10 @@ task('verify:general', 'Verify contracts at Etherscan')
       LendingPoolConfigurator,
       LendingPool,
       WethGateway,
+      AssetMappingsImpl
     } = poolConfig as ICommonConfiguration;
 
+    const assetMappingsImplAddress = getParamPerNetwork(AssetMappingsImpl, network);
     const registryAddress = getParamPerNetwork(ProviderRegistry, network);
     const addressesProvider = await getLendingPoolAddressesProvider();
     const addressesProviderRegistry = notFalsyOrZeroAddress(registryAddress)
@@ -86,6 +89,15 @@ task('verify:general', 'Verify contracts at Etherscan')
       const wethGateway = notFalsyOrZeroAddress(wethGatewayAddress)
         ? await getWETHGateway(wethGatewayAddress)
         : await getWETHGateway();
+
+
+      const assetMappingsImpl = notFalsyOrZeroAddress(assetMappingsImplAddress)
+      ? await getAssetMappingsImpl(assetMappingsImplAddress)
+      : await getAssetMappingsImpl();
+
+      // Asset mappings
+      console.log('\n- Verifying asset mappings impl...\n');
+      await verifyContract(eContractid.AssetMappingsImpl, assetMappingsImpl, []);
 
       // Address Provider
       console.log('\n- Verifying address provider...\n');

@@ -156,6 +156,20 @@ export const getAssetMappings = async (
   );
 };
 
+export const getAssetMappingsImpl = async (
+  address?: tEthereumAddress
+) => {
+  return await AssetMappingsFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.AssetMappingsImpl}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+};
+
 export const getLendingPool = async (address?: tEthereumAddress) =>
   await LendingPoolFactory.connect(
     address ||

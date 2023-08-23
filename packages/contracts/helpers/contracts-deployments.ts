@@ -1532,7 +1532,7 @@ export const deployAssetMapping = async (verify?: boolean) =>
     await new AssetMappingsFactory({
       ["__$de8c0cf1a7d7c36c802af9a64fb9d86036$__"]: (await getValidationLogic()).address
     },await getFirstSigner()).deploy(),
-    eContractid.AssetMappings,
+    eContractid.AssetMappingsImpl,
     [],
     verify
   );
