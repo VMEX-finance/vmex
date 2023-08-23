@@ -79,6 +79,7 @@ library DepositWithdrawLogic {
         if (isFirstDeposit && vars.onBehalfOf == msg.sender) {
             // if collateral is enabled, by default the user's deposit is marked as collateral
             user.setUsingAsCollateral(self.id, self.configuration.getCollateralEnabled(vars.asset, vars._assetMappings));
+            emit ReserveUsedAsCollateralEnabled(vars.asset, vars.trancheId, vars.onBehalfOf);
         }
         return vars.amount;
     }
