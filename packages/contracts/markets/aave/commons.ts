@@ -121,6 +121,17 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.sepolia]: '',
     [eEthereumNetwork.tenderly]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
   },
+  AssetMappingsImpl: {
+    [eEthereumNetwork.kovan]: '', // 0x85e4A467343c0dc4aDAB74Af84448D9c45D8ae6F
+    [eEthereumNetwork.ropsten]: '',
+    [eEthereumNetwork.main]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
+    [eEthereumNetwork.coverage]: '',
+    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.buidlerevm]: '',
+    [eEthereumNetwork.goerli]: '',
+    [eEthereumNetwork.sepolia]: '',
+    [eEthereumNetwork.tenderly]: '', // 0xB9062896ec3A615a4e4444DF183F0531a77218AE
+  },
   AssetMappings: {
     [eEthereumNetwork.kovan]: '', // 0x85e4A467343c0dc4aDAB74Af84448D9c45D8ae6F
     [eEthereumNetwork.ropsten]: '',

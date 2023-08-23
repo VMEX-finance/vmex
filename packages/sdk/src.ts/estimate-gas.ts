@@ -1,11 +1,14 @@
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { MAX_UINT_AMOUNT } from "./constants";
-import { getIncentivesController, getLendingPool } from "./contract-getters";
-import { convertSymbolToAddress, convertToCurrencyDecimals } from "./utils";
+import { getIncentivesController, getLendingPool, getVMEXOracle } from "./contract-getters";
+import { convertAddressToSymbol, convertSymbolToAddress, convertToCurrencyDecimals, getAssetPrices, getDecimalBase } from "./utils";
 
 async function getGasCostAlchemy(networkAlias: string) {
+  console.log("networkAlias: ", networkAlias)
   return fetch(
-    `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}`,
+    networkAlias == 'optimism' 
+    ? `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}`
+    : `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_SEPOLIA_ALCHEMY_KEY}`,
     {
       method: "POST",
       headers: {
@@ -60,7 +63,8 @@ export async function estimateGas(params: {
   incentivizedAssets?: string[];
   to?: string;
 }) {
-  try {
+  // catch where this is consumed
+  // try {
     const client = await params.signer.getAddress();
     let tokenAddress = "";
     let amount;
@@ -79,6 +83,12 @@ export async function estimateGas(params: {
     }
 
     const lendingPool = await getLendingPool({
+      signer: params.signer,
+      network: params.network,
+      test: params.test,
+      providerRpc: params.providerRpc,
+    });
+    const oracle = await getVMEXOracle({
       signer: params.signer,
       network: params.network,
       test: params.test,
@@ -146,8 +156,21 @@ export async function estimateGas(params: {
         break;
     }
     console.log("function", params.function, "has gasamount", gasAmount.toHexString())
-    return gasAmount.mul(await getGasCost(params.network));
-  } catch (err) {
-    console.error(err);
-  }
+    console.log("gas cost: ",await getGasCost(params.network))
+    //get eth price
+    const prices = await getAssetPrices({
+      assets: ["WETH"],
+      network: params.network,
+      test: params.test,
+      providerRpc: params.providerRpc
+    })
+    console.log("convert: ",convertSymbolToAddress("WETH", params.network))
+    console.log("prices: ",prices)
+    console.log("prices: ",prices.get(convertSymbolToAddress("WETH", params.network)).priceUSD)
+    
+    // gas cost is in wei
+    return gasAmount.mul(await getGasCost(params.network)).mul(prices.get(convertSymbolToAddress("WETH", params.network)).priceUSD).div(ethers.utils.parseEther("1"));
+  // } catch (err) {
+  //   console.error(err);
+  // }
 }

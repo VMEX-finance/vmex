@@ -12,6 +12,7 @@ import IncentivesController from "@vmexfinance/contracts/artifacts/contracts/pro
 import IERC20Detailed from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol/IERC20Detailed.json";
 import MintableERC20 from "@vmexfinance/contracts/artifacts/contracts/mocks/tokens/MintableERC20.sol/MintableERC20.json";
 import VariableDebtToken from "@vmexfinance/contracts/artifacts/contracts/protocol/tokenization/VariableDebtToken.sol/VariableDebtToken.json";
+import VMEXOracle from "@vmexfinance/contracts/artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json";
 
 export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc
@@ -209,4 +210,23 @@ export async function getVariableDebtToken(params?: {
   if (params.signer) return token.connect(params.signer);
 
   return token;
+}
+
+export async function getVMEXOracle(params?: {
+  signer?: ethers.Signer;
+  network?: string;
+  test?: boolean;
+  providerRpc?: string;
+}) {
+  let gateway = new ethers.Contract(
+    deployments.VMEXOracle[
+      `${params && params.network ? params.network : "mainnet"}`
+    ].address,
+    VMEXOracle.abi,
+    getProvider(params.providerRpc, params.test)
+  );
+
+  if (params.signer) return gateway.connect(params.signer);
+
+  return gateway;
 }

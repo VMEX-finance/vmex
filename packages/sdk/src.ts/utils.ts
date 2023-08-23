@@ -292,7 +292,7 @@ export function getDecimalBase(network): {ETHBase: boolean, chainlinkConverter: 
     case "optimism":
       return {ETHBase: false, chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"};
     case "main":
-      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+      return {ETHBase: true, chainlinkConverter: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"};
       // TODO: get asset prices from subgraph
       return;
   }
