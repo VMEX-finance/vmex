@@ -133,7 +133,7 @@
       "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     }
   },
-  "SUSD": {
+  "sUSD": {
     "hardhat": {
       "address": "0x8B5B7a6055E54a36fF574bbE40cf2eA68d5554b3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"

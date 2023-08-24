@@ -48,7 +48,7 @@ export const OptimismConfig: IOptimismConfiguration = {
   ReservesConfig: {
     DAI: strategyDAI,
     SNX: strategySNX,
-    SUSD: strategySUSD,
+    sUSD: strategySUSD,
     USDC: strategyUSDC,
     USDT: strategyUSDT,
     WBTC: strategyWBTC,
@@ -97,7 +97,7 @@ export const OptimismConfig: IOptimismConfiguration = {
     [eOptimismNetwork.optimism]: {
       DAI: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       // SNX: '0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4',
-      SUSD: '0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9',
+      sUSD: '0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9',
       USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       USDT: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
       WBTC: '0x68f180fcCe6836688e9084f035309E29Bf0A2095',

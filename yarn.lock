@@ -3859,16 +3859,6 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@vmexfinance/contracts@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@vmexfinance/contracts/-/contracts-1.0.8.tgz#7b16d6fb131a4df34ba0bb0f0daf931ae8e61f10"
-  integrity sha512-Kt56vFeS6aCmiFAEU3tr2DBJq5MTbQsp7yuGm1xwpWqA5LuSah8szE2eJYyY8kyPGe+MLKT+cIG5iW0WZq37xA==
-  dependencies:
-    "@openzeppelin/contracts" "^4.9.2"
-    bignumber.js "9.0.0"
-    hardhat "^2.13.0"
-    mocha "^10.2.0"
-
 "@yarnpkg/lockfile@^1.1.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz"

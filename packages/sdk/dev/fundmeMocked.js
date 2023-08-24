@@ -36,7 +36,7 @@ describe("Fund accounts", () => {
     "MKR",
     "REN",
     "SNX",
-    "SUSD",
+    "sUSD",
     "TUSD",
     "UNI",
     "USDC",

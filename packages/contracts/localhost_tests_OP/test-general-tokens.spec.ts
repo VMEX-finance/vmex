@@ -115,7 +115,7 @@ makeSuite(
             for(let [symbol, address] of Object.entries(tokens)){
                 console.log("Testing ",symbol)
 
-                // if(symbol=="SUSD"){
+                // if(symbol=="sUSD"){
                 //   continue;
                 // }
                 if(symbol.substring(0,2)!="yv" && symbol.substring(1,4)!="AMM" && symbol.substring(0,3)!="BPT" && !symbol.includes("CRV")) {

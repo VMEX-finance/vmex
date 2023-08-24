@@ -26,7 +26,7 @@ interface SlotInfo {
 
   const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
   const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_OP/abis/velo.json").toString()
-// doesn't work for SNX and SUSD
+// doesn't work for SNX and sUSD
 export async function setBalance(tokenAddr: tEthereumAddress, signer: SignerWithAddress, balance: string) {
     if(tokenAddr == "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4" || tokenAddr == "0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9") {
         const VELO_ROUTER_CONTRACT = new ethers.Contract(VELO_ROUTER_ADDRESS, VELO_ROUTER_ABI)

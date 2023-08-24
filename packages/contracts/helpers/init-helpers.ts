@@ -336,7 +336,7 @@ export const getTranche0MockedData = (allReservesAddresses: {
     allReservesAddresses["TUSD"],
     allReservesAddresses["USDC"],
     allReservesAddresses["USDT"],
-    allReservesAddresses["SUSD"],
+    allReservesAddresses["sUSD"],
     allReservesAddresses["AAVE"],
     allReservesAddresses["BAT"],
     allReservesAddresses["LINK"],
@@ -373,7 +373,7 @@ export const getTranche1MockedData = (allReservesAddresses: {
     allReservesAddresses["TUSD"],
     allReservesAddresses["USDC"],
     allReservesAddresses["USDT"],
-    allReservesAddresses["SUSD"],
+    allReservesAddresses["sUSD"],
     allReservesAddresses["AAVE"],
     allReservesAddresses["BAT"],
     allReservesAddresses["LINK"],
@@ -469,7 +469,7 @@ export const getTranche1MockedDataOP = (allReservesAddresses: {
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
   let assets0: tEthereumAddress[] = [
     allReservesAddresses["DAI"],
-    allReservesAddresses["SUSD"],
+    allReservesAddresses["sUSD"],
     allReservesAddresses["USDC"],
     allReservesAddresses["USDT"],
     allReservesAddresses["WBTC"],

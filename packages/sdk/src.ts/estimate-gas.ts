@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { MAX_UINT_AMOUNT } from "./constants";
-import { getIncentivesController, getLendingPool, getVMEXOracle } from "./contract-getters";
+import { getIErc20, getIncentivesController, getLendingPool, getVMEXOracle } from "./contract-getters";
 import { convertAddressToSymbol, convertSymbolToAddress, convertToCurrencyDecimals, getAssetPrices, getDecimalBase } from "./utils";
 
 async function getGasCostAlchemy(networkAlias: string) {
@@ -81,14 +81,12 @@ export async function estimateGas(params: {
         params.providerRpc
       );
     }
+    const token = await getIErc20({
+      address: tokenAddress,
+      providerRpc: params.providerRpc
+    })
 
     const lendingPool = await getLendingPool({
-      signer: params.signer,
-      network: params.network,
-      test: params.test,
-      providerRpc: params.providerRpc,
-    });
-    const oracle = await getVMEXOracle({
       signer: params.signer,
       network: params.network,
       test: params.test,
@@ -104,6 +102,15 @@ export async function estimateGas(params: {
     const optionalParams = params.test ? { gasLimit: "8000000" } : {};
     switch (params.function) {
       case "supply":
+      const allowance = await token.allowance(client, lendingPool.address)
+      if (allowance.lt(amount)) { //approval first
+        gasAmount = await token
+          .connect(params.signer)
+          .estimateGas.approve(
+            lendingPool.address,
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          );
+      } else {
         gasAmount = await lendingPool
           .connect(params.signer)
           .estimateGas.deposit(
@@ -114,6 +121,7 @@ export async function estimateGas(params: {
             params.referrer || 0,
             optionalParams
           );
+      }
         break;
       case "borrow":
         gasAmount = await lendingPool
