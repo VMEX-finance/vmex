@@ -454,12 +454,14 @@ export const buildParaSwapLiquiditySwapParams = (
 export const verifyContract = async (
   id: string,
   instance: Contract,
-  args: (string | string[])[]
+  args: (string | string[])[],
+  msDelay = 3000,
+  times = 4
 ) => {
   if (usingTenderly()) {
     await verifyAtTenderly(id, instance);
   }
-  await verifyEtherscanContract(instance.address, args);
+  await verifyEtherscanContract(instance.address, args, undefined, msDelay, times);
   return instance;
 };
 

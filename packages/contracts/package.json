@@ -112,6 +112,7 @@
     "mainnet:verify:tokens": "npm run hardhat:main verify:tokens -- --pool Aave",
     "mainnet:sepolia:verify": "npm run hardhat:sepolia verify:general -- --all --pool Aave",
     "vmex:optimism:verify": "npm run hardhat:optimism verify:general -- --all --pool Optimism",
+    "vmex:optimism:verify:tokens": "npm run hardhat:optimism verify:tokens -- --pool Optimism",
     "print-config:fork:mainnet": "FORK=main hardhat print-config:fork",
     "external:deploy-assets-main": "npm run compile && hardhat --network main external:deploy-new-asset --symbol ${SYMBOL} --verify",
     "prepublishOnly": "npm run compile",

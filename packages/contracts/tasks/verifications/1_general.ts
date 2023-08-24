@@ -164,13 +164,5 @@ task('verify:general', 'Verify contracts at Etherscan')
       []
     );
 
-    // Proxy vmex oracle
-    console.log('\n- Verifying  vmex oracle Proxy...\n');
-    await verifyContract(
-      eContractid.VMEXOracle,
-      vmexoracleProxy,
-      []
-    );
-
     console.log('Finished verifications.');
   });

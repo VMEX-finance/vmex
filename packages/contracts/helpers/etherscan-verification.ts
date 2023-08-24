@@ -31,7 +31,9 @@ function delay(ms: number) {
 export const verifyEtherscanContract = async (
   address: string,
   constructorArguments: (string | string[])[],
-  libraries?: string
+  libraries?: string,
+  msDelay = 3000,
+  times = 4
 ) => {
   const currentNetwork = DRE.network.name;
 
@@ -48,8 +50,6 @@ export const verifyEtherscanContract = async (
     console.log(
       "[ETHERSCAN][WARNING] Delaying Etherscan verification due their API can not find newly deployed contracts"
     );
-    const msDelay = 3000;
-    const times = 4;
     // Write a temporal file to host complex parameters for buidler-etherscan https://github.com/nomiclabs/buidler/tree/development/packages/buidler-etherscan#complex-arguments
     const { fd, path, cleanup } = await file({
       prefix: "verify-params-",
