@@ -143,7 +143,7 @@ export const CommonsConfig: ICommonConfiguration = {
         feed: '0x2FCF37343e916eAEd1f1DdaaF84458a359b53877',
         heartbeat: 1200
       },
-      SUSD: {
+      sUSD: {
         feed: '0x7f99817d87baD03ea21E05112Ca799d715730efe',
         heartbeat: 86400
       },

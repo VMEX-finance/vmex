@@ -305,7 +305,7 @@ export interface iAssetBase<T> {
   TUSD: T;
   USDC: T;
   USDT: T;
-  SUSD: T;
+  sUSD: T;
   AAVE: T;
   BAT: T;
   MKR: T;
@@ -410,7 +410,7 @@ export type iAavePoolAssets<T> = Partial<
     | "TUSD"
     | "USDC"
     | "USDT"
-    | "SUSD"
+    | "sUSD"
     | "AAVE"
     | "BAT"
     | "MKR"
@@ -494,7 +494,7 @@ export type iOptimismPoolAssets<T> = Partial<
     | "DAI"
     | "USDC"
     | "USDT"
-    | "SUSD"
+    | "sUSD"
     | "WBTC"
     | "SNX"
     | "WETH"
@@ -554,7 +554,7 @@ export enum TokenContractId {
   WETH = "WETH",
   USDC = "USDC",
   USDT = "USDT",
-  SUSD = "SUSD",
+  sUSD = "sUSD",
   ZRX = "ZRX",
   MKR = "MKR",
   WBTC = "WBTC",

@@ -385,7 +385,7 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean, verify
         TUSD: mockTokens.TUSD.address,
         USDC: mockTokens.USDC.address,
         USDT: mockTokens.USDT.address,
-        SUSD: mockTokens.SUSD.address,
+        sUSD: mockTokens.sUSD.address,
         AAVE: mockTokens.AAVE.address,
         BAT: mockTokens.BAT.address,
         MKR: mockTokens.MKR.address,

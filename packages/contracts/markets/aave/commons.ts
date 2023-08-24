@@ -229,7 +229,7 @@ export const CommonsConfig: ICommonConfiguration = {
       MKR: '0xe8c6c9227491C0a8156A0106A0204d881BB7E531',
       REN: '0x2dD56b633FAa1A5B46107d248714C9cCB6e20920',
       SNX: '0xEDe8dd046586d22625Ae7fF2708F879eF7bdb8CF',
-      SUSD: ZERO_ADDRESS,
+      sUSD: ZERO_ADDRESS,
       TUSD: '0x714b8443D0ADA18eCE1fcE5702567e313bfa8f29',
       UNI: '0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801',
       USDC: '0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640',
@@ -270,7 +270,7 @@ export const CommonsConfig: ICommonConfiguration = {
       MKR: '0xe8c6c9227491C0a8156A0106A0204d881BB7E531',
       REN: '0x2dD56b633FAa1A5B46107d248714C9cCB6e20920',
       SNX: '0xEDe8dd046586d22625Ae7fF2708F879eF7bdb8CF',
-      SUSD: ZERO_ADDRESS,
+      sUSD: ZERO_ADDRESS,
       TUSD: '0x714b8443D0ADA18eCE1fcE5702567e313bfa8f29',
       UNI: '0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801',
       USDC: '0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640',
@@ -320,7 +320,7 @@ export const CommonsConfig: ICommonConfiguration = {
       MKR: '0',
       REN: '0',
       SNX: '0',
-      SUSD: '0',
+      sUSD: '0',
       TUSD: '0',
       UNI: '0',
       USDC: '0',
@@ -361,7 +361,7 @@ export const CommonsConfig: ICommonConfiguration = {
       MKR: '0',
       REN: '0',
       SNX: '0',
-      SUSD: '0',
+      sUSD: '0',
       TUSD: '0',
       UNI: '0',
       USDC: '0',
@@ -482,7 +482,7 @@ export const CommonsConfig: ICommonConfiguration = {
         feed: '0x79291A9d692Df95334B1a0B3B4AE6bC606782f8c',
         heartbeat: 864000000
       },
-      SUSD:{
+      sUSD:{
         feed: '0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757',
         heartbeat: 864000000
       },
