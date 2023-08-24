@@ -1091,3 +1091,29 @@ export async function removeExternalIncentives(
 
   return tx;
 }
+
+export async function claimExternalRewards(
+  signer: ethers.Signer,
+  network: string,
+  address: string,
+  rewardToken: string,
+  claimable: string,
+  proof: string[],
+  test?: boolean,
+  providerRpc?: string
+) {
+
+  const incentivesController = await getIncentivesController({
+    signer: signer,
+    network: network,
+    test: test,
+    providerRpc: providerRpc,
+  });
+
+  return incentivesController.claim(
+    address,
+    rewardToken,
+    claimable,
+    proof
+  );
+}
