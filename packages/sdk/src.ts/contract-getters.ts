@@ -16,7 +16,7 @@ import VMEXOracle from "@vmexfinance/contracts/artifacts/contracts/protocol/orac
 
 export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc
-  ? ethers.getDefaultProvider(providerRpc)
+  ? new ethers.providers.JsonRpcProvider(providerRpc, "any")
   : test || test===undefined
     ? ethers.getDefaultProvider(
       "http://0.0.0.0:8545"
