@@ -46,7 +46,7 @@ export const findCustomTokenAddresses = (
   const addressesMap = new Map();
   symbols.forEach((symbol) => {
     if (!deployments[symbol] || !deployments[symbol][network]) return;
-    addressesMap.set(symbol, deployments[symbol][network].address);
+    addressesMap.set(symbol.toUpperCase(), deployments[symbol][network].address);
   });
   return addressesMap;
 };
@@ -67,5 +67,4 @@ export const SEPOLIA_CUSTOM_ASSET_MAPPINGS = findCustomTokenAddresses(
 export const REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS = flipAndLowerCase(
   SEPOLIA_CUSTOM_ASSET_MAPPINGS
 );
-
 

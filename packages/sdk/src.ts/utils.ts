@@ -65,23 +65,30 @@ export function convertSymbolToAddress(asset: string, network: string) {
   }
   asset = asset.toUpperCase();
 
-  if(asset=="ETH"){
-    return ZERO_ADDRESS
-  }
-  switch (network) {
-    // goerli, optimism_goerli, sepolia will use our custom deployments
-    case "goerli":
-    case "sepolia":
-      return deployments[asset][network].address;
+  try {
+    if(asset=="ETH"){
+      return ZERO_ADDRESS
+    }
 
-    // forks and networks will use real addresses
-    case "localhost":
-    case "main":
-      return MAINNET_ASSET_MAPPINGS.get(asset);
-    case "optimism_localhost":
-    case "optimism":
-      return OPTIMISM_ASSET_MAPPINGS.get(asset);
+    switch (network) {
+      // goerli, optimism_goerli, sepolia will use our custom deployments
+      case "goerli":
+        return GOERLI_CUSTOM_ASSET_MAPPINGS.get(asset);
+      case "sepolia":
+        return SEPOLIA_CUSTOM_ASSET_MAPPINGS.get(asset);
+
+      // forks and networks will use real addresses
+      case "localhost":
+      case "main":
+        return MAINNET_ASSET_MAPPINGS.get(asset);
+      case "optimism_localhost":
+      case "optimism":
+        return OPTIMISM_ASSET_MAPPINGS.get(asset);
+    }
+  } catch (err) {
+    console.log(`Asset ${asset} mappings error: ${err}`)
   }
+  
 
   throw Error(`Asset=${asset} not found on network ${network}`);
 }
