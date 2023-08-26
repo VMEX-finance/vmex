@@ -30,7 +30,7 @@ export const getIErc20Detailed = async (address: string, providerRpc: string, te
  * getLendingPool
  * Gets the lending pool contract, connect a signer if given one
  */
-export async function getLendingPool(params?: {
+export function getLendingPool(params?: {
   signer?: ethers.Signer;
   network?: string;
   test?: boolean;
@@ -49,7 +49,7 @@ export async function getLendingPool(params?: {
   return lendingPool;
 }
 
-export async function getMintableERC20(params?: {
+export function getMintableERC20(params?: {
   tokenSymbol: string;
   signer?: ethers.Signer;
   network?: string;
@@ -69,7 +69,7 @@ export async function getMintableERC20(params?: {
   return token;
 }
 
-export async function getAaveProtocolDataProvider(params?: {
+export function getAaveProtocolDataProvider(params?: {
   signer?: ethers.Signer;
   network?: string;
   test?: boolean;
@@ -86,7 +86,7 @@ export async function getAaveProtocolDataProvider(params?: {
   return helperContract;
 }
 
-export async function getAToken(params?: {
+export function getAToken(params?: {
   address: string;
   signer?: ethers.Signer;
   test?: boolean;
@@ -101,7 +101,7 @@ export async function getAToken(params?: {
   return aToken;
 }
 
-export async function getIErc20(params?: {
+export function getIErc20(params?: {
   address: string;
   signer?: ethers.Signer;
   test?: boolean;
@@ -116,7 +116,7 @@ export async function getIErc20(params?: {
   return ercToken;
 }
 
-export async function getLendingPoolConfiguratorProxy(params?: {
+export function getLendingPoolConfiguratorProxy(params?: {
   signer?: ethers.Signer;
   network?: string;
   test?: boolean;
@@ -133,7 +133,7 @@ export async function getLendingPoolConfiguratorProxy(params?: {
   return configurator;
 }
 
-export async function getLendingPoolAddressesProvider(params?: {
+export function getLendingPoolAddressesProvider(params?: {
   signer?: ethers.Signer;
   network?: string;
   test?: boolean;
@@ -150,7 +150,7 @@ export async function getLendingPoolAddressesProvider(params?: {
   return addressProvider;
 }
 
-export async function getIncentivesController(params?: {
+export function getIncentivesController(params?: {
   signer?: ethers.Signer;
   network?: string;
   test?: boolean;
@@ -172,7 +172,7 @@ export async function getIncentivesController(params?: {
  * getWETHGateway
  * Gets the weth gateway contract, connect a signer if given one
  */
-export async function getWETHGateway(params?: {
+export function getWETHGateway(params?: {
   signer?: ethers.Signer;
   network?: string;
   test?: boolean;
@@ -192,7 +192,7 @@ export async function getWETHGateway(params?: {
 }
 
 
-export async function getVariableDebtToken(params?: {
+export function getVariableDebtToken(params?: {
   address?: string;
   signer?: ethers.Signer;
   network?: string;
@@ -212,7 +212,7 @@ export async function getVariableDebtToken(params?: {
   return token;
 }
 
-export async function getVMEXOracle(params?: {
+export function getVMEXOracle(params?: {
   signer?: ethers.Signer;
   network?: string;
   test?: boolean;

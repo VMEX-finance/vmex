@@ -45,7 +45,7 @@ export async function borrow(
   );
 
   let client = await params.signer.getAddress();
-  let lendingPool = await getLendingPool({
+  let lendingPool = getLendingPool({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -53,7 +53,7 @@ export async function borrow(
   });
 
 
-  let gateway = await getWETHGateway({
+  let gateway = getWETHGateway({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -65,7 +65,7 @@ export async function borrow(
       const WETH = await convertSymbolToAddress("WETH", params.network);
       const reserveDat = await lendingPool.getReserveData(WETH, params.trancheId)
       const variableDebtTokenAddress = reserveDat.variableDebtTokenAddress
-      const varDebtToken = await getVariableDebtToken({
+      const varDebtToken = getVariableDebtToken({
         address: variableDebtTokenAddress,
         network: params.network,
         providerRpc: params.providerRpc
@@ -134,7 +134,7 @@ export async function markReserveAsCollateral(
   params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
   const client = await params.signer.getAddress();
-  const lendingPool = await getLendingPool({
+  const lendingPool = getLendingPool({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -187,7 +187,7 @@ export async function withdraw(
   let to = params.to || client;
   console.log("client: ", client);
   console.log("to: ", to);
-  let lendingPool = await getLendingPool({
+  let lendingPool = getLendingPool({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -195,7 +195,7 @@ export async function withdraw(
   });
 
 
-  let gateway = await getWETHGateway({
+  let gateway = getWETHGateway({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -276,14 +276,14 @@ export async function repay(
     );
   }
   let client = await params.signer.getAddress();
-  let lendingPool = await getLendingPool({
+  let lendingPool = getLendingPool({
     signer: params.signer,
     network: params.network,
     test: params.test,
     providerRpc: params.providerRpc,
   });
 
-  let gateway = await getWETHGateway({
+  let gateway = getWETHGateway({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -382,14 +382,14 @@ export async function supply(
       params.providerRpc
     );
   }
-  let lendingPool = await getLendingPool({
+  let lendingPool = getLendingPool({
     signer: params.signer,
     network: params.network,
     test: params.test,
     providerRpc: params.providerRpc,
   });
 
-  let gateway = await getWETHGateway({
+  let gateway = getWETHGateway({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -497,7 +497,7 @@ export async function lendingPoolPause(
   callback?: () => Promise<any>
 ) {
   console.log(params);
-  const addressProvider = await getLendingPoolAddressesProvider({
+  const addressProvider = getLendingPoolAddressesProvider({
     network: params.network,
     signer: params.approvedSigner,
     test: params.test,
@@ -508,7 +508,7 @@ export async function lendingPoolPause(
     (await addressProvider.getTrancheAdmin(params.tranche))
   )
     throw new Error("signer must be pool admin");
-  const lendingPool = await getLendingPool({
+  const lendingPool = getLendingPool({
     signer: params.approvedSigner,
     network: params.network,
     test: params.test,
@@ -516,7 +516,7 @@ export async function lendingPoolPause(
   });
 
   try {
-    const configurator = await getLendingPoolConfiguratorProxy({
+    const configurator = getLendingPoolConfiguratorProxy({
       network: params.network,
       signer: params.approvedSigner,
       test: params.test,
@@ -565,7 +565,7 @@ export async function initNewReserves(
 ) {
   let tx;
   const mytranche = params.trancheId;
-  let configurator = await getLendingPoolConfiguratorProxy({
+  let configurator = getLendingPoolConfiguratorProxy({
     network: params.network,
     signer: params.admin,
     test: params.test,
@@ -663,7 +663,7 @@ export async function initTranche(
     })
   ).toString();
 
-  let configurator = await getLendingPoolConfiguratorProxy({
+  let configurator = getLendingPoolConfiguratorProxy({
     network: params.network,
     signer: params.admin,
     test: params.test,
@@ -756,7 +756,7 @@ export async function configureExistingTranche(
   console.log(params);
   let tx;
   const mytranche = params.trancheId;
-  let configurator = await getLendingPoolConfiguratorProxy({
+  let configurator = getLendingPoolConfiguratorProxy({
     network: params.network,
     signer: params.admin,
     test: params.test,
@@ -932,7 +932,7 @@ export async function claimIncentives(
     return;
   }
 
-  let incentivesController = await getIncentivesController({
+  let incentivesController = getIncentivesController({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -963,7 +963,7 @@ export async function setIncentives(
   },
   callback?: () => Promise<any>
 ) {
-  let incentivesController = await getIncentivesController({
+  let incentivesController = getIncentivesController({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -1007,7 +1007,7 @@ export async function getUserIncentives(
   },
   callback?: () => Promise<any>
 ): Promise<UserRewards> {
-  let incentivesController = await getIncentivesController({
+  let incentivesController = getIncentivesController({
     network: params.network,
     test: params.test,
     providerRpc: params.providerRpc,
@@ -1041,7 +1041,7 @@ export async function setExternalIncentives(
   },
   callback?: () => Promise<any>
 ) {
-  let incentivesController = await getIncentivesController({
+  let incentivesController = getIncentivesController({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -1072,7 +1072,7 @@ export async function removeExternalIncentives(
   },
   callback?: () => Promise<any>
 ) {
-  let incentivesController = await getIncentivesController({
+  let incentivesController = getIncentivesController({
     signer: params.signer,
     network: params.network,
     test: params.test,
@@ -1103,7 +1103,7 @@ export async function claimExternalRewards(
   providerRpc?: string
 ) {
 
-  const incentivesController = await getIncentivesController({
+  const incentivesController = getIncentivesController({
     signer: signer,
     network: network,
     test: test,
