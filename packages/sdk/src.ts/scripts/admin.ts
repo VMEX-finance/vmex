@@ -84,7 +84,10 @@ async function main() {
       tx = await batchConfigureCollateralParams({
         signer: owner,
         input: [{
-            underlyingAsset: "0xf48f1796EC864A19e123578D13fB086A336E8F2b",
+            // address of the aToken to modify risk params of
+            underlyingAsset: "0xB8B945779a5b85340eeC8d3F9F8Da00297586336",
+
+            // CHANGE THESE MANUALLY FOR NOW, DO NOT COMMIT TO GIT
             collateralParams: {
                 baseLTV: "690000000000000000",
                 liquidationThreshold: "770000000000000000",
@@ -92,7 +95,7 @@ async function main() {
                 borrowFactor: "1069000000000000000"
             }
         }],
-        trancheId: 2,
+        trancheId: 4,
         network: network,
         test: false,
         providerRpc: providerRpc
