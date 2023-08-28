@@ -28,7 +28,6 @@ export async function borrow(
     referrer?: number;
     signer: ethers.Signer;
     network: string;
-    isMax?: boolean;
     test?: boolean;
     providerRpc?: string;
   },
@@ -171,7 +170,7 @@ export async function withdraw(
   params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
   let amount;
-  
+
   if (params.isMax) {
     amount = MAX_UINT_AMOUNT //can do max here
   }
@@ -182,7 +181,7 @@ export async function withdraw(
       params.test,
       params.providerRpc
     );
-  } 
+  }
   let client = await params.signer.getAddress();
   let to = params.to || client;
   console.log("client: ", client);
@@ -308,7 +307,7 @@ export async function repay(
         lendingPool.address,
         params.trancheId,
         amount,
-        client, 
+        client,
         { value: amount }
       )
     } catch (error) {
@@ -404,19 +403,19 @@ export async function supply(
         //   lendingPool.address,
         //   params.trancheId,
         //   client,
-        //   params.referrer || 0, 
+        //   params.referrer || 0,
         //   { value: ethers.utils.parseEther("0.000001") }
         // )
         // console.log("Estimated gas: ", estimation)
         amount = amount.mul(9).div(10) //90%
         console.log("new amount: ", amount)
       }
-      
+
       tx = await gateway.depositETH(
         lendingPool.address,
         params.trancheId,
         client,
-        params.referrer || 0, 
+        params.referrer || 0,
         { value: amount }
       )
 
