@@ -28,6 +28,8 @@ interface IExternalRewardsDistributor {
 
     event StakingTypeSet(address indexed stakingContract, uint8 stakingType);
 
+    event CurveGaugeFactorySet(address curveGaugeFactory);
+
     enum StakingType {
         NOT_SET, // unset value of 0 can be used to delineate which staking contracts have been set
         YEARN_OP,

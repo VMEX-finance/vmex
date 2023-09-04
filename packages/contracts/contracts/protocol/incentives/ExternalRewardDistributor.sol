@@ -12,6 +12,7 @@ import {IExternalRewardsDistributor} from '../../interfaces/IExternalRewardsDist
 import {IAuraBooster} from '../../interfaces/IAuraBooster.sol';
 import {IAuraRewardPool} from '../../interfaces/IAuraRewardPool.sol';
 import {ICurveRewardGauge} from '../../interfaces/ICurveRewardGauge.sol';
+import {ICurveGaugeFactory} from '../../interfaces/ICurveGaugeFactory.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -34,7 +35,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
 
   address public rewardAdmin;
 
-  uint256[40] __gap_ExternalRewardDistributor;
+  address public curveGaugeFactory;
+
+  uint256[39] __gap_ExternalRewardDistributor;
 
   modifier onlyGlobalAdmin() {
       Helpers.onlyGlobalAdmin(addressesProvider, msg.sender);
@@ -143,6 +146,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
       }
       else if(stakingTypes[stakingContract] == StakingType.CURVE) {
         ICurveRewardGauge(stakingContract).claim_rewards();
+        address curveGaugeFactoryAddress = curveGaugeFactory;
+        if (curveGaugeFactoryAddress != address(0)) {
+          ICurveGaugeFactory(curveGaugeFactoryAddress).mint(stakingContract);
+        }
       }
       else {
         revert("Invalid staking contract");
@@ -235,6 +242,12 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     
 
     emit RewardConfigured(aToken, stakingContract, amount);
+  }
+
+  function setCurveGaugeFactory(address newCurveGaugeFactory) external onlyGlobalAdmin {
+    curveGaugeFactory = newCurveGaugeFactory;
+    
+    emit CurveGaugeFactorySet(newCurveGaugeFactory);
   }
 
   /******** Internal functions ********/
