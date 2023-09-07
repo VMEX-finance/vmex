@@ -46,11 +46,11 @@ makeSuite(
         ];
 
         const DAIadd = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
-        const DAI_ABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+        const DAI_ABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
 
 
         const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-        const UNISWAP_ROUTER_ABI = fs.readFileSync("./localhost_tests/abis/uniswapAbi.json").toString()
+        const UNISWAP_ROUTER_ABI = fs.readFileSync("./localhost_tests_utils/abis/uniswapAbi.json").toString()
 
         var triCryptoDepositAdd = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7" 
 var triCryptoDepositAbi = [
@@ -109,7 +109,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0xba100000625a3754423978a60c9317c58a424e3D"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -168,7 +168,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0xD533a949740bb3306d119CC777fa900bA034cd52"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -226,7 +226,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -276,7 +276,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0x3472A5A71965499acd81997a54BBA8D852C6E53d"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -334,7 +334,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -392,7 +392,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -443,7 +443,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0x111111111117dC0aa78b770fA6A738034120C302"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -501,7 +501,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0x853d955aCEf822Db058eb8505911ED77F175b99e"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
@@ -538,7 +538,7 @@ var triCryptoDepositAbi = [
             const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
             const lendingPool = await contractGetters.getLendingPool();
             var USDCadd = "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
-            var USDCABI = fs.readFileSync("./localhost_tests/abis/DAI_ABI.json").toString()
+            var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
             var USDC = new ethers.Contract(USDCadd,USDCABI)
 
             const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)

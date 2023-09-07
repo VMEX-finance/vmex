@@ -5,13 +5,13 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
-import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors, tEthereumAddress } from '../helpers/types';
+import { eBaseNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors, tEthereumAddress } from '../helpers/types';
 import {getCurvePrice} from "../localhost_tests_utils/helpers/curve-calculation";
 import {UserAccountData} from "../localhost_tests_utils/interfaces/index";
 import {almostEqualOrEqual} from "../localhost_tests_utils/helpers/almostEqual";
 import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "../localhost_tests_utils/helpers/strategy-interest";
 
-import OptimismConfig from "../markets/optimism";
+import BaseConfig from "../markets/base";
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
 import { setBalance } from "../localhost_tests_utils/helpers/mint-tokens";
@@ -161,14 +161,14 @@ makeSuite(
        const oracleAdd = await addProv.connect(signer).getPriceOracle();
        const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
-       const network = "optimism" as any
+       const network = "base" as any
        const {
          ProtocolGlobalParams: { UsdAddress },
          ReserveAssets,
          ChainlinkAggregator,
          SequencerUptimeFeed,
          ProviderId
-       } = OptimismConfig as ICommonConfiguration;
+       } = BaseConfig as ICommonConfiguration;
        const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
        const chainlinkAggregators = await getParamPerNetwork(
@@ -186,7 +186,7 @@ makeSuite(
        const [tokens2, aggregators] = getPairsTokenAggregator(
          tokensToWatch,
          chainlinkAggregators,
-         OptimismConfig.OracleQuoteCurrency
+         BaseConfig.OracleQuoteCurrency
        );
 
        const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
@@ -202,10 +202,10 @@ makeSuite(
 
 
     it("test pricing", async () => {
-      const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
+      const tokens = await getParamPerNetwork(BaseConfig.ReserveAssets, eBaseNetwork.base);
        var signer = await contractGetters.getFirstSigner();
-       const {ReserveAssets, ReservesConfig} = OptimismConfig
-       const reserveAssets = await getParamPerNetwork(ReserveAssets, eOptimismNetwork.optimism);
+       const {ReserveAssets, ReservesConfig} = BaseConfig
+       const reserveAssets = await getParamPerNetwork(ReserveAssets, eBaseNetwork.base);
        if(!reserveAssets){
            throw "reserveAssets not defined"
        }

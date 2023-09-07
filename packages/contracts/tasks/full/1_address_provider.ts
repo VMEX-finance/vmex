@@ -9,6 +9,7 @@ import {
   getVMEXTreasury,
   getGenesisPoolAdminIndex,
   getEmergencyAdminIndex,
+  getGlobalAdminMulitisig,
 } from "../../helpers/configuration";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { eNetwork } from "../../helpers/types";
@@ -110,7 +111,7 @@ task(
       );
       await waitForTx(
         await addressesProvider.addWhitelistedAddress(
-          "0x599e1DE505CfD6f10F64DD7268D856831f61627a", //team multisig
+          await getGlobalAdminMulitisig(poolConfig), //team multisig
           true
         )
       );

@@ -7,10 +7,10 @@ import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
 import { ProtocolErrors } from '../helpers/types';
-import {getCurvePrice} from "./helpers/curve-calculation";
-import {UserAccountData} from "./interfaces/index";
-import {almostEqualOrEqual} from "./helpers/almostEqual";
-import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
+import {getCurvePrice} from "../localhost_tests_utils/helpers/curve-calculation";
+import {UserAccountData} from "../localhost_tests_utils/interfaces/index";
+import {almostEqualOrEqual} from "../localhost_tests_utils/helpers/almostEqual";
+import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "../localhost_tests_utils/helpers/strategy-interest";
 
 import AaveConfig from "../markets/aave";
 chai.use(function (chai: any, utils: any) {

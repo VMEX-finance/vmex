@@ -6,15 +6,15 @@ import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
 import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors, tEthereumAddress } from '../helpers/types';
-import {getCurvePrice} from "./helpers/curve-calculation";
-import {UserAccountData} from "./interfaces/index";
-import {almostEqualOrEqual} from "./helpers/almostEqual";
-import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "./helpers/strategy-interest";
+import {getCurvePrice} from "../localhost_tests_utils/helpers/curve-calculation";
+import {UserAccountData} from "../localhost_tests_utils/interfaces/index";
+import {almostEqualOrEqual} from "../localhost_tests_utils/helpers/almostEqual";
+import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "../localhost_tests_utils/helpers/strategy-interest";
 
 import OptimismConfig from "../markets/optimism";
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
-import { setBalance } from "./helpers/mint-tokens";
+import { setBalance } from "../localhost_tests_utils/helpers/mint-tokens";
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
 
@@ -63,10 +63,10 @@ makeSuite(
     // Load the first signer
 
   const VELO_ROUTER_ADDRESS = "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
-  const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_OP/abis/velo_v2.json").toString()
-  const BALANCER_POOL_ABI = fs.readFileSync("./localhost_tests_OP/abis/balancer_pool.json").toString()
+  const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_utils/abis/velo_v2.json").toString()
+  const BALANCER_POOL_ABI = fs.readFileSync("./localhost_tests_utils/abis/balancer_pool.json").toString()
   const BALANCER_VAULT_ADDRESS = "0xBA12222222228d8Ba445958a75a0704d566BF2C8";
-  const BALANCER_VAULT_ABI = fs.readFileSync("./localhost_tests_OP/abis/balancer_vault.json").toString()
+  const BALANCER_VAULT_ABI = fs.readFileSync("./localhost_tests_utils/abis/balancer_vault.json").toString()
 
      const VeloAbi = [
         "function allowance(address owner, address spender) external view returns (uint256 remaining)",

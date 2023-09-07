@@ -131,6 +131,10 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   LUSD: oneEther.multipliedBy("0.00367714136416").toFixed(),
   "vAMMV2-WETH/LUSD": oneEther.toFixed(),
   "sAMMV2-USDC/LUSD": oneEther.multipliedBy("0.00367714136416").toFixed(),
+  USDbC: oneEther.multipliedBy("0.00367714136416").toFixed(),
+  cbETH: oneEther.toFixed(),
+  "vAMM-WETH/USDbC": oneEther.toFixed(),
+  "vAMM-cbETH/WETH": oneEther.toFixed(),
 };
 
 export const chainlinkAggregatorProxy = {

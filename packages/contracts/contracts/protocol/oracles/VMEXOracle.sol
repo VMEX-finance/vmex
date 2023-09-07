@@ -194,8 +194,8 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
 
         DataTypes.ReserveAssetType tmp = _assetMappings.getAssetType(asset);
 
-        if(tmp==DataTypes.ReserveAssetType.AAVE){
-            return getOracleAssetPrice(asset);
+        if(tmp==DataTypes.ReserveAssetType.CHAINLINK){
+            return getChainlinkAssetPrice(asset);
         }
         else if(tmp==DataTypes.ReserveAssetType.CURVE || tmp==DataTypes.ReserveAssetType.CURVEV2){
             return getCurveAssetPrice(asset, tmp);
@@ -215,6 +215,9 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         else if (tmp == DataTypes.ReserveAssetType.RETH) {
             return getRETHPrice(asset);
         }
+        else if (tmp == DataTypes.ReserveAssetType.CL_PRICE_ADAPTER) {
+            return getCLPriceAdapterPrice(asset);
+        }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
@@ -222,7 +225,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
      * @dev Gets an asset price for an asset with a chainlink aggregator
      * @param asset The asset address
      **/
-    function getOracleAssetPrice(address asset) internal returns (uint256){
+    function getChainlinkAssetPrice(address asset) internal returns (uint256){
         IChainlinkPriceFeed source = _assetsSources[asset].feed;
         if (address(source) == address(0)) {
             return _fallbackOracle.getAssetPrice(asset);
@@ -239,6 +242,29 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
                     price < int256(aggregator.maxAnswer()) && 
                     block.timestamp - updatedAt < _assetsSources[asset].heartbeat
                 ) {
+                    return uint256(price);
+                } else {
+                    return _fallbackOracle.getAssetPrice(asset);
+                }
+            } catch {
+                return _fallbackOracle.getAssetPrice(asset);
+            }
+        }
+    }
+
+    /**
+     * @dev Gets an asset price for an asset with a chainlink aggregator but in the wrong units. Uses Aave's adapter: https://basescan.org/address/0x80f2c02224a2e548fc67c0bf705ebfa825dd5439#code
+     * @param asset The asset address
+     **/
+    function getCLPriceAdapterPrice(address asset) internal returns (uint256){
+        IChainlinkPriceFeed source = _assetsSources[asset].feed;
+        if (address(source) == address(0)) {
+            return _fallbackOracle.getAssetPrice(asset);
+        } else {
+            try IChainlinkPriceFeed(source).latestAnswer() returns (
+                int256 price
+            ) {
+                if (price > 0) {
                     return uint256(price);
                 } else {
                     return _fallbackOracle.getAssetPrice(asset);

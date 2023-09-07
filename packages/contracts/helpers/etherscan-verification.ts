@@ -22,6 +22,7 @@ export const SUPPORTED_ETHERSCAN_NETWORKS = [
   "mumbai",
   "sepolia",
   "optimism",
+  "base",
 ];
 
 function delay(ms: number) {
