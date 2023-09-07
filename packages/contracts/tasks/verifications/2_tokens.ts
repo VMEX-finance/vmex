@@ -56,41 +56,41 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
     const aTokenBeacon = await addressesProvider.getATokenBeacon();
     const debtBeacon = await addressesProvider.getVariableDebtTokenBeacon();
 
-    // console.log('\n- Verifying atoken impl...\n');
-    // await verifyContract(
-    //   eContractid.AToken, 
-    //   await getAToken(aTokenImpl), 
-    //   [],
-    //   0
-    // );
+    console.log('\n- Verifying atoken impl...\n');
+    await verifyContract(
+      eContractid.AToken, 
+      await getAToken(aTokenImpl), 
+      [],
+      0
+    );
 
-    // console.log('\n- Verifying var debt impl...\n');
-    // await verifyContract(
-    //   eContractid.VariableDebtToken, 
-    //   await getVariableDebtToken(varDebtImpl), 
-    //   [],
-    //   0
-    // );
+    console.log('\n- Verifying var debt impl...\n');
+    await verifyContract(
+      eContractid.VariableDebtToken, 
+      await getVariableDebtToken(varDebtImpl), 
+      [],
+      0
+    );
 
-    // console.log('\n- Verifying atoken beacon...\n');
-    // await verifyContract(
-    //   eContractid.ATokenBeacon, 
-    //   await getATokenBeacon(aTokenBeacon), 
-    //   [
-    //     aTokenImpl,
-    //   ],
-    //   0
-    // );
+    console.log('\n- Verifying atoken beacon...\n');
+    await verifyContract(
+      eContractid.ATokenBeacon, 
+      await getATokenBeacon(aTokenBeacon), 
+      [
+        aTokenImpl,
+      ],
+      0
+    );
 
-    // console.log('\n- Verifying variable debt beacon...\n');
-    // await verifyContract(
-    //   eContractid.VariableDebtTokenBeacon, 
-    //   await getVariableDebtTokenBeacon(debtBeacon), 
-    //   [
-    //     varDebtImpl,
-    //   ],
-    //   0
-    // );
+    console.log('\n- Verifying variable debt beacon...\n');
+    await verifyContract(
+      eContractid.VariableDebtTokenBeacon, 
+      await getVariableDebtTokenBeacon(debtBeacon), 
+      [
+        varDebtImpl,
+      ],
+      0
+    );
     const lendingPoolProxy = LendingPoolFactory.connect(
       await addressesProvider.getLendingPool(),
       await getFirstSigner()

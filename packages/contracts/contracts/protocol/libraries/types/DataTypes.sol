@@ -47,17 +47,17 @@ library DataTypes {
     }
 
     enum ReserveAssetType {
-        AAVE, //0
+        CHAINLINK, //0
         CURVE, //1
         CURVEV2, //2
         YEARN, //3
         BEEFY, //4
         VELODROME, //5
         BEETHOVEN, //6
-        RETH //7
+        RETH, //7
+        CL_PRICE_ADAPTER //8
     } //update with other possible types of the underlying asset
-    //AAVE is the original assets in the aave protocol
-    //CURVE is the new LP tokens we are providing support for
+
     struct TrancheAddress {
         uint64 trancheId;
         address asset;

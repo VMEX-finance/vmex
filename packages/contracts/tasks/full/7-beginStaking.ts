@@ -11,6 +11,7 @@ import {
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { eNetwork } from "../../helpers/types";
+import { waitForTx } from "../../helpers/misc-utils";
 
 task(`full-beginStaking`, `setup staking and begin staking for tranche 0`)
 .addParam('pool', `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
@@ -42,13 +43,13 @@ task(`full-beginStaking`, `setup staking and begin staking for tranche 0`)
     var signer = await getFirstSigner();
     const lendingPool = await getLendingPool();
     console.log("Current incentives controller", await addressesProvider.getIncentivesController());
-    // await addressesProvider.setIncentivesController(incentivesController.address);
-    // console.log("New incentives controller", await addressesProvider.getIncentivesController());
+    await addressesProvider.setIncentivesController(incentivesController.address);
+    console.log("New incentives controller", await addressesProvider.getIncentivesController());
 
-    await incentivesController.setStakingType(
+    await waitForTx(await incentivesController.setStakingType(
       Object.values(stakingContracts).map((el)=>el.address), 
       Object.values(stakingContracts).map((el)=>el.type)
-    );
+    ));
 
     console.log("finished setting staking type")
 

@@ -492,3 +492,27 @@ export const getTranche1MockedDataOP = (allReservesAddresses: {
 
   return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
 };
+
+
+export const getTranche0MockedDataBase = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
+    allReservesAddresses["USDbC"],
+    allReservesAddresses["WETH"],
+    allReservesAddresses["cbETH"],
+    allReservesAddresses["vAMM-WETH/USDbC"],
+    allReservesAddresses["vAMM-cbETH/WETH"],
+  ];
+
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("0");
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
+  }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};

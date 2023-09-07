@@ -21,6 +21,8 @@ import {
   eAvalancheNetwork,
   eOptimismNetwork,
   iOptimismParamsPerNetwork,
+  eBaseNetwork,
+  iBaseParamsPerNetwork,
 } from "./types";
 import { MintableERC20 } from "../types";
 import { Artifact } from "hardhat/types";
@@ -194,6 +196,7 @@ export const getParamPerNetwork = <T>(
   const { xdai } = param as iXDaiParamsPerNetwork<T>;
   const { avalanche, fuji } = param as iAvalancheParamsPerNetwork<T>;
   const { optimism } = param as iOptimismParamsPerNetwork<T>;
+  const { base } = param as iBaseParamsPerNetwork<T>;
   if (process.env.FORK) {
     return param[process.env.FORK as eNetwork] as T;
   }
@@ -225,6 +228,8 @@ export const getParamPerNetwork = <T>(
       return fuji;
     case eOptimismNetwork.optimism:
       return optimism;
+    case eBaseNetwork.base:
+      return base;
   }
 };
 

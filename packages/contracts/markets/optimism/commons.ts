@@ -51,6 +51,9 @@ export const CommonsConfig: ICommonConfiguration = {
     [eOptimismNetwork.optimism]: "0x839d8c6BDB283B72F7bfbb2efa32eD40855dF95c", //filip's address
   },
   EmergencyAdminIndex: 1,
+  GlobalAdminMultisig: {
+    [eOptimismNetwork.optimism]: "0x599e1DE505CfD6f10F64DD7268D856831f61627a", //multisig address: 0x599e1DE505CfD6f10F64DD7268D856831f61627a
+  },
   ProviderRegistry: {
     [eOptimismNetwork.optimism]: "0xEB125b3386322886769f43B7744327B9983A24Da",
   },
@@ -193,9 +196,6 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   WrappedNativeToken: {
     [eOptimismNetwork.optimism]: '0x4200000000000000000000000000000000000006',
-  },
-  ReserveFactorTreasuryAddress: {
-    [eOptimismNetwork.optimism]: '0xEFd23344F89F7215417DC6F9E9627aBFfE69d2EE',
   },
   IncentivesController: {
     [eOptimismNetwork.optimism]: ZERO_ADDRESS,

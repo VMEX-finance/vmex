@@ -5,12 +5,10 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 
 import { BigNumber, ethers, utils } from "ethers";
-import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
+import { eBaseNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import {OptimismConfig} from "../markets/optimism"
+import {BaseConfig} from "../markets/base"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
-import { getPairsTokenAggregator } from "../helpers/contracts-getters";
-import { eventChecker } from "../test-suites/test-aave/incentives/helpers/comparator-engine";
 import {setBalance} from "../localhost_tests_utils/helpers/mint-tokens";
 
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
@@ -98,8 +96,8 @@ makeSuite(
           });
           
           it("Testing general tokens deposit and borrow", async () => {
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const config = OptimismConfig.ReservesConfig
+            const tokens = await getParamPerNetwork(BaseConfig.ReserveAssets, eBaseNetwork.base);
+            const config = BaseConfig.ReservesConfig
             const WETHConfig = config["WETH"]
             if(!tokens || !WETHConfig){
               return
@@ -115,14 +113,6 @@ makeSuite(
             for(let [symbol, address] of Object.entries(tokens)){
                 console.log("Testing ",symbol)
 
-                // if(symbol=="sUSD"){
-                //   continue;
-                // }
-                if(symbol.substring(0,2)!="yv" && symbol.substring(1,4)!="AMM" && symbol.substring(0,3)!="BPT" && !symbol.includes("CRV")) {
-                  continue
-                }
-
-                
                 var USDCadd = address
                 var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
                 var USDC = new ethers.Contract(USDCadd,USDCABI)
@@ -130,15 +120,9 @@ makeSuite(
                 const WETHdec = await myWETH.connect(signer).decimals();
                 const tokenConfig = config[symbol]
 
-                
-
-
-                // if(symbol!="WETH") {
-                  // await mintToken(symbol, signer, USDCadd, tokenDec);
-                  const origAmt = Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec)
-                  console.log(origAmt)
-                  await setBalance(address, signer, origAmt.toString())
-                // }
+                const origAmt = Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec)
+                console.log(origAmt)
+                await setBalance(address, signer, origAmt.toString())
                 var signerOrigAmt = await USDC.connect(signer).balanceOf(signer.address)
                 //give some to emergency so they can repay debt
                 await USDC.connect(signer).approve(emergency.address,ethers.utils.parseEther("100000.0"))
@@ -241,8 +225,8 @@ makeSuite(
 
           it("wait and harvest all rewards", async () => {
             increaseTime(50000)
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const stakingContracts = await getParamPerNetwork(OptimismConfig.ExternalStakingContracts, eOptimismNetwork.optimism);
+            const tokens = await getParamPerNetwork(BaseConfig.ReserveAssets, eBaseNetwork.base);
+            const stakingContracts = await getParamPerNetwork(BaseConfig.ExternalStakingContracts, eBaseNetwork.base);
             if(!tokens || !stakingContracts){
               return
             }
@@ -313,8 +297,8 @@ makeSuite(
           });
 
           it("Testing withdraw everything", async () => {
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const config = OptimismConfig.ReservesConfig
+            const tokens = await getParamPerNetwork(BaseConfig.ReserveAssets, eBaseNetwork.base);
+            const config = BaseConfig.ReservesConfig
             const WETHConfig = config["WETH"]
             if(!tokens || !WETHConfig){
               return

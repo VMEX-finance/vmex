@@ -46,9 +46,19 @@ task('sidechain:mainnet', 'Deploy market at sidechain')
     await DRE.run('full:initialize-lending-pool', { pool: POOL_NAME });
 
     console.log("6.1. Initialize lending pool tranche 0");
-    await DRE.run("full:initialize-lending-pool-tranches-0-OP", {
-      pool: POOL_NAME,
-    });
+    if(POOL_NAME=="Optimism") {
+      await DRE.run("full:initialize-lending-pool-tranches-0-OP", {
+        pool: POOL_NAME,
+      });
+    }
+    else if(POOL_NAME=="Base") {
+      await DRE.run("full:initialize-lending-pool-tranches-0-Base", {
+        pool: POOL_NAME,
+      });
+    }
+    else {
+      throw "pool not supported"
+    }
 
     console.log('7. Begin staking for tranche 0');
     await DRE.run('full-beginStaking', { pool: POOL_NAME });

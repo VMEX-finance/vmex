@@ -35,6 +35,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
     try {
       await DRE.run("set-DRE");
       const network = <eNetwork>DRE.network.name;
+      console.log("3: network: ", network)
       const poolConfig = loadPoolConfig(pool);
       const {
         ProtocolGlobalParams: { UsdAddress },

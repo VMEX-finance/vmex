@@ -2,6 +2,7 @@
 import { HardhatNetworkForkingUserConfig, HardhatUserConfig } from 'hardhat/types';
 import {
   eAvalancheNetwork,
+  eBaseNetwork,
   eEthereumNetwork,
   eOptimismNetwork,
   ePolygonNetwork,
@@ -15,6 +16,7 @@ const INFURA_KEY = process.env.INFURA_KEY || '';
 const ALCHEMY_KEY = process.env.ALCHEMY_KEY || '';
 const SEPOLIA_ALCHEMY_KEY = process.env.SEPOLIA_ALCHEMY_KEY || '';
 const OP_ALCHEMY_KEY = process.env.OP_ALCHEMY_KEY || '';
+const BASE_ALCHEMY_KEY = process.env.BASE_ALCHEMY_KEY || '';
 const TENDERLY_FORK_ID = process.env.TENDERLY_FORK_ID || '';
 const FORK = process.env.FORK || '';
 const FORK_BLOCK_NUMBER = process.env.FORK_BLOCK_NUMBER
@@ -67,9 +69,12 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eOptimismNetwork.optimism]:
     //`https://mainnet.optimism.io`,
     `https://opt-mainnet.g.alchemy.com/v2/${OP_ALCHEMY_KEY}`,
+  [eBaseNetwork.base]:
+    //`https://mainnet.optimism.io`,
+    `https://base-mainnet.g.alchemy.com/v2/${BASE_ALCHEMY_KEY}`,
 };
 
-export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
+export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number | string> = {
   [eEthereumNetwork.kovan]: 3 * GWEI,
   [eEthereumNetwork.goerli]: 3 * GWEI,
   [eEthereumNetwork.sepolia]: 3 * GWEI,
@@ -84,6 +89,8 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eXDaiNetwork.xdai]: 1 * GWEI,
   [eAvalancheNetwork.avalanche]: 225 * GWEI,
   [eAvalancheNetwork.fuji]: 85 * GWEI,
+  [eOptimismNetwork.optimism]: "auto",
+  [eBaseNetwork.base]: "auto",
 };
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
@@ -100,4 +107,5 @@ export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eAvalancheNetwork.avalanche]: undefined,
   [eAvalancheNetwork.fuji]: undefined,
   [eOptimismNetwork.optimism]: 106761131,
+  [eBaseNetwork.base]: 3634830,
 };

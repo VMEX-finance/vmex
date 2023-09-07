@@ -13,6 +13,7 @@ import {
 } from "./contracts-helpers";
 import AaveConfig from "../markets/aave";
 import OptimismConfig from "../markets/optimism";
+import BaseConfig from "../markets/base"
 
 import { CommonsConfig } from "../markets/aave/commons";
 import { DRE, filterMapBy } from "./misc-utils";
@@ -28,6 +29,7 @@ export enum ConfigNames {
   Amm = "Amm",
   Avalanche = "Avalanche",
   Optimism = "Optimism",
+  Base = "Base",
 }
 
 export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
@@ -42,6 +44,8 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
     //   return AvalancheConfig;
     case ConfigNames.Optimism:
       return OptimismConfig;
+    case ConfigNames.Base:
+      return BaseConfig;
     case ConfigNames.Commons:
       return CommonsConfig;
     default:
@@ -100,6 +104,13 @@ const getAddressFromConfigIndex = async (
   const addressList = await getEthersSignersAddresses();
   return addressList[targetIndex];
 }
+
+export const getGlobalAdminMulitisig = async (
+  config: IBaseConfiguration
+): Promise<tEthereumAddress> => {
+  return getAddressFromConfig(config.GlobalAdminMultisig, 0);
+};
+
 
 export const getGenesisPoolAdmin = async (
   config: IBaseConfiguration

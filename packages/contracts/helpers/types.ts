@@ -14,7 +14,8 @@ export type eNetwork =
   | ePolygonNetwork
   | eXDaiNetwork
   | eAvalancheNetwork
-  | eOptimismNetwork;
+  | eOptimismNetwork
+  | eBaseNetwork;
 
 export enum eEthereumNetwork {
   buidlerevm = "buidlerevm",
@@ -44,6 +45,11 @@ export enum eAvalancheNetwork {
 
 export enum eOptimismNetwork {
   optimism = "optimism",
+}
+
+
+export enum eBaseNetwork {
+  base = "base"
 }
 
 export enum EthereumNetworkNames {
@@ -397,6 +403,10 @@ export interface iAssetBase<T> {
   LUSD: T;
   "vAMMV2-WETH/LUSD": T;
   "sAMMV2-USDC/LUSD": T;
+  "vAMM-WETH/USDbC": T;
+  "vAMM-cbETH/WETH": T;
+  "USDbC": T;
+  "cbETH": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -540,6 +550,17 @@ export type iOptimismPoolAssets<T> = Partial<
   >
 >;
 
+export type iBaseL2PoolAssets<T> = Partial<
+  Pick<
+    iAssetsWithoutUSD<T>,
+    | "USDbC"
+    | "WETH"
+    | "cbETH"
+    | "vAMM-WETH/USDbC"
+    | "vAMM-cbETH/WETH"
+  >
+>;
+
 export type iMultiPoolsAssets<T> = iAssetCommon<T> | iAavePoolAssets<T>;
 
 export type iAavePoolTokens<T> = Omit<iAavePoolAssets<T>, "ETH">;
@@ -661,7 +682,8 @@ export type iParamsPerNetwork<T> =
   | iPolygonParamsPerNetwork<T>
   | iXDaiParamsPerNetwork<T>
   | iAvalancheParamsPerNetwork<T>
-  | iOptimismParamsPerNetwork<T>;
+  | iOptimismParamsPerNetwork<T>
+  | iBaseParamsPerNetwork<T>;
 
 export interface iParamsPerNetworkAll<T>
   extends iEthereumParamsPerNetwork<T>,
@@ -696,6 +718,10 @@ export interface iAvalancheParamsPerNetwork<T> {
 
 export interface iOptimismParamsPerNetwork<T> {
   [eOptimismNetwork.optimism]: T;
+}
+
+export interface iBaseParamsPerNetwork<T> {
+  [eBaseNetwork.base]: T;
 }
 
 export interface iParamsPerPool<T> {
@@ -768,12 +794,12 @@ export interface IBaseConfiguration {
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   EmergencyAdminIndex: number;
+  GlobalAdminMultisig: iParamsPerNetwork<tEthereumAddress | undefined>;
   VMEXTreasury?: iParamsPerNetwork<tEthereumAddress | undefined>;
   ATokenDomainSeparator: iParamsPerNetwork<string>;
   WETH: iParamsPerNetwork<tEthereumAddress>;
   WrappedNativeToken: iParamsPerNetwork<tEthereumAddress>;
   WethGateway: iParamsPerNetwork<tEthereumAddress>;
-  ReserveFactorTreasuryAddress: iParamsPerNetwork<tEthereumAddress>;
   IncentivesController: iParamsPerNetwork<tEthereumAddress>;
   VariableDebtTokenImplementation?: iParamsPerNetwork<tEthereumAddress>;
   ReserveAssets: iParamsPerNetwork<SymbolMap<tEthereumAddress>>;
@@ -818,6 +844,10 @@ export interface IAvalancheConfiguration extends ICommonConfiguration {
 
 export interface IOptimismConfiguration extends ICommonConfiguration {
   ReservesConfig: iOptimismPoolAssets<IReserveParams>;
+}
+
+export interface IBaseL2Configuration extends ICommonConfiguration {
+  ReservesConfig: iBaseL2PoolAssets<IReserveParams>;
 }
 
 export interface ITokenAddress {

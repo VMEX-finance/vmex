@@ -5,8 +5,10 @@ import { HardhatUserConfig } from 'hardhat/types';
 import { accounts } from './test-wallets.js';
 import {
   eAvalancheNetwork,
+  eBaseNetwork,
   eEthereumNetwork,
   eNetwork,
+  eOptimismNetwork,
   ePolygonNetwork,
   eXDaiNetwork,
 } from './helpers/types';
@@ -34,10 +36,12 @@ import 'solidity-coverage';
 import { fork } from 'child_process';
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true';
-const DEFAULT_BLOCK_GAS_LIMIT = 30000000;
-const DEFAULT_GAS_MUL = 5;
-const HARDFORK = 'merge';
+const DEFAULT_BLOCK_GAS_LIMIT = 30_000_000;
+const DEFAULT_GAS_MUL = 2;
+const HARDFORK = 'shanghai';
 const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || '';
+const OP_ETHERSCAN_KEY = process.env.OP_ETHERSCAN_KEY || '';
+const BASE_ETHERSCAN_KEY = process.env.BASE_ETHERSCAN_KEY || '';
 const MNEMONIC_PATH = "m/44'/60'/0'/0";
 const MNEMONIC = process.env.MNEMONIC || '';
 const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === 'true';
@@ -88,23 +92,33 @@ const buidlerConfig: HardhatUserConfig = {
     target: 'ethers-v5',
   },
   etherscan: {
-    apiKey: ETHERSCAN_KEY,
+    apiKey: {
+      mainnet: ETHERSCAN_KEY,
+      optimisticEthereum: OP_ETHERSCAN_KEY,
+      base: BASE_ETHERSCAN_KEY
+    },
+    customChains: [
+      {
+        network: "base",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.basescan.org/api",
+          browserURL: "https://basescan.org"
+        }
+      }
+    ]  
   },
   mocha: {
     timeout: 0,
   },
   networks: {
-    optimism: {
-      url: "https://mainnet.optimism.io/",
-      accounts: {
-        mnemonic: MNEMONIC,
-        path: MNEMONIC_PATH,
-        initialIndex: 0,
-        count: 20,
-      },
-      chainId: 10,
-      // ovm: true
+    base: getCommonNetworkConfig(eBaseNetwork.base, 8453),
+    base_localhost: {
+      url: "http://0.0.0.0:8545",
+      forking: buildForkConfig(),
+      chainId: 31337,
     },
+    optimism: getCommonNetworkConfig(eOptimismNetwork.optimism, 10),
     optimism_localhost: {
       url: "http://0.0.0.0:8545",
       forking: buildForkConfig(),

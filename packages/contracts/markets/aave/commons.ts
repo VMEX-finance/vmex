@@ -601,17 +601,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.sepolia]: '',
     [eEthereumNetwork.tenderly]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   },
-  ReserveFactorTreasuryAddress: {//TODO: change this to our addresses
-    [eEthereumNetwork.coverage]: '0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49',
-    [eEthereumNetwork.hardhat]: '0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49',
-    [eEthereumNetwork.buidlerevm]: '0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49',
-    [eEthereumNetwork.kovan]: '0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49',
-    [eEthereumNetwork.ropsten]: '0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49',
-    [eEthereumNetwork.main]: '0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49',
-    [eEthereumNetwork.goerli]: '',
-    [eEthereumNetwork.sepolia]: '',
-    [eEthereumNetwork.tenderly]: '0xF2539a767D6a618A86E0E45D6d7DB3dE6282dE49',
-  },
   IncentivesController: {
     [eEthereumNetwork.coverage]: ZERO_ADDRESS,
     [eEthereumNetwork.hardhat]: ZERO_ADDRESS,
