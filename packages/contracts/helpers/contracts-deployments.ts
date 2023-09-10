@@ -195,12 +195,14 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean, verify
         )
       );
 
+      const addressList = await getEthersSigners()
+
       await waitForTx(
-        await addressesProvider.addWhitelistedAddress(addressList[1], true)
+        await addressesProvider.addWhitelistedAddress(await addressList[1].getAddress(), true)
       );
 
       await waitForTx(
-        await addressesProvider.addWhitelistedAddress(addressList[2], true)
+        await addressesProvider.addWhitelistedAddress(await addressList[2].getAddress(), true)
       );
     } else {
       console.log("Setting permissionless tranches");
@@ -482,6 +484,10 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean, verify
         LUSD: ZERO_ADDRESS,
         "vAMMV2-WETH/LUSD": ZERO_ADDRESS,
         "sAMMV2-USDC/LUSD": ZERO_ADDRESS,
+        "vAMM-WETH/USDbC": ZERO_ADDRESS, 
+        "vAMM-cbETH/WETH": ZERO_ADDRESS,
+        "USDbC": ZERO_ADDRESS, 
+        "cbETH": ZERO_ADDRESS
       },
       fallbackOracle
     );

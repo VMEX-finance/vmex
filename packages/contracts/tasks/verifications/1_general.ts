@@ -9,6 +9,7 @@ import {
   getAaveProtocolDataProvider,
   getAddressById,
   getAssetMappingsImpl,
+  getIncentivesControllerImpl,
   getLendingPool,
   getLendingPoolAddressesProvider,
   getLendingPoolAddressesProviderRegistry,
@@ -94,6 +95,12 @@ task('verify:general', 'Verify contracts at Etherscan')
       const assetMappingsImpl = notFalsyOrZeroAddress(assetMappingsImplAddress)
       ? await getAssetMappingsImpl(assetMappingsImplAddress)
       : await getAssetMappingsImpl();
+
+      const incentivesControllerImpl = await getIncentivesControllerImpl();
+
+      // Asset mappings
+      console.log('\n- Verifying incentivesControllerImpl...\n');
+      await verifyContract(eContractid.IncentivesControllerImpl, incentivesControllerImpl, []);
 
       // Asset mappings
       console.log('\n- Verifying asset mappings impl...\n');

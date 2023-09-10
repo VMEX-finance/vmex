@@ -44,7 +44,7 @@ export const CommonsConfig: ICommonConfiguration = {
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
-    [eBaseNetwork.base]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", //multisig address: 0x599e1DE505CfD6f10F64DD7268D856831f61627a
+    [eBaseNetwork.base]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", 
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
@@ -52,7 +52,7 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   GlobalAdminMultisig: {
-    [eBaseNetwork.base]: "0x06408654FDdEaaF341191F56a474659b92F075D1", //multisig address: 0x599e1DE505CfD6f10F64DD7268D856831f61627a
+    [eBaseNetwork.base]: "0x06408654FDdEaaF341191F56a474659b92F075D1", 
   },
   ProviderRegistry: {
     [eBaseNetwork.base]: "0xEB125b3386322886769f43B7744327B9983A24Da",
@@ -61,31 +61,31 @@ export const CommonsConfig: ICommonConfiguration = {
     [eBaseNetwork.base]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B",
   },
   LendingPoolAddressesProvider: {
-    [eBaseNetwork.base]: "",
+    [eBaseNetwork.base]: "0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0",
   },
   AssetMappingsImpl: {
-    [eBaseNetwork.base]: "",
+    [eBaseNetwork.base]: "0x4cE76015b2A994A42d4dC4695070c2E6D2c0Ce71",
   },
   AssetMappings: {
-    [eBaseNetwork.base]: "",
+    [eBaseNetwork.base]: "0x48CB441A85d6EA9798C72c4a1829658D786F3027",
   },
   LendingPoolCollateralManager: { //this is the impl
-    [eBaseNetwork.base]: '',
+    [eBaseNetwork.base]: '0x993A082292d55f2F44AA43bE08837199AD6eC169',
   },
   LendingPoolConfigurator: { //this is the impl
-    [eBaseNetwork.base]: '',
+    [eBaseNetwork.base]: '0x47E405ed60cec87cbcc4B21C20b908e6b1ECE49E',
   },
   LendingPool: { //this is the impl
-    [eBaseNetwork.base]: '',
+    [eBaseNetwork.base]: '0x8AA00F73410269e8064fEA966EaE164f4458B9bC',
   },
   WethGateway: {
-    [eBaseNetwork.base]: '',
+    [eBaseNetwork.base]: '0xBE72D961317dD1B59f48f50EE4131C8a7eef1803',
   },
   TokenDistributor: {
     [eBaseNetwork.base]: '',
   },
   FallbackOracle: {
-    [eBaseNetwork.base]: '',
+    [eBaseNetwork.base]: '0x0c3E4a646363b91b8b956cF5D1fe761521C1E1ff',
   },
   UniswapV3OracleAddresses: {
     [eBaseNetwork.base]: {},

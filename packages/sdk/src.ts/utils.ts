@@ -5,10 +5,12 @@ import {
   GOERLI_CUSTOM_ASSET_MAPPINGS,
   MAINNET_ASSET_MAPPINGS,
   OPTIMISM_ASSET_MAPPINGS,
+  BASE_ASSET_MAPPINGS,
   REVERSE_GOERLI_CUSTOM_ASSET_MAPPINGS,
   REVERSE_MAINNET_ASSET_MAPPINGS,
   REVERSE_OPTIMISM_ASSET_MAPPINGS,
   REVERSE_SEPOLIA_CUSTOM_ASSET_MAPPINGS,
+  REVERSE_BASE_ASSET_MAPPINGS,
   SEPOLIA_CUSTOM_ASSET_MAPPINGS,
   ZERO_ADDRESS,
 } from "./constants";
@@ -50,6 +52,8 @@ export function convertAddressToSymbol(asset: string, network: string) {
     case "optimism_localhost":
     case "optimism":
       return REVERSE_OPTIMISM_ASSET_MAPPINGS.get(asset);
+    case "base":
+      return REVERSE_BASE_ASSET_MAPPINGS.get(asset);
   }
 
   throw Error(`Asset=${asset} not found on network ${network}`);
@@ -84,6 +88,8 @@ export function convertSymbolToAddress(asset: string, network: string) {
       case "optimism_localhost":
       case "optimism":
         return OPTIMISM_ASSET_MAPPINGS.get(asset);
+      case "base":
+        return BASE_ASSET_MAPPINGS.get(asset);
     }
   } catch (err) {
     console.log(`Asset ${asset} mappings error: ${err}`)
@@ -107,6 +113,8 @@ export function getAllAssetSymbols(network: string): string[] {
     case "optimism_localhost":
     case "optimism":
       return Array.from(OPTIMISM_ASSET_MAPPINGS.keys());
+    case "base":
+      return Array.from(BASE_ASSET_MAPPINGS.keys());
   }
   throw Error(`network=${network} not found`);
 }
@@ -298,6 +306,8 @@ export function getDecimalBase(network): {ETHBase: boolean, chainlinkConverter: 
 
     case "optimism":
       return {ETHBase: false, chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"};
+    case "base":
+      return {ETHBase: false, chainlinkConverter: "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"};
     case "main":
       return {ETHBase: true, chainlinkConverter: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"};
       // TODO: get asset prices from subgraph
