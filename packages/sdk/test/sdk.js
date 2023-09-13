@@ -79,7 +79,11 @@ if (isLocalhost(network)) {
   }
   if (network == "optimism") {
     key = process.env.OP_ALCHEMY_KEY
-    providerRpc = "https://mainnet.optimism.io";
+    providerRpc = `https://opt-mainnet.g.alchemy.com/v2/${key}`;
+  }
+  if (network == "base") {
+    key = process.env.BASE_ALCHEMY_KEY
+    providerRpc = `https://base-mainnet.g.alchemy.com/v2/${key}`;
   }
   const myprovider = new ethers.providers.JsonRpcProvider(providerRpc);
   provider = myprovider

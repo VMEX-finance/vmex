@@ -357,6 +357,7 @@ export async function supply(
     isMax?: boolean;
     referrer?: number;
     collateral?: boolean;
+    collateralBefore?: boolean;
     test?: boolean;
     providerRpc?: string;
   },
@@ -467,12 +468,25 @@ export async function supply(
       throw new Error(error);
     }
 
-    if (params.collateral === false) {
+    if (params.collateral !== params.collateralBefore) {
+      // need to update user reserve as collateral
       await tx.wait();
+      // fix edge case where this transaction runs out of gas
+      let gasEstimate: BigNumber = await lendingPool.estimateGas
+        .setUserUseReserveAsCollateral(
+          params.underlying,
+          params.trancheId,
+          params.collateral
+        );
+      // increase by 20%
+      gasEstimate = gasEstimate.mul("12").div("10");
       await lendingPool.setUserUseReserveAsCollateral(
         params.underlying,
         params.trancheId,
-        params.collateral
+        params.collateral,
+        {
+          gasLimit: gasEstimate,
+        }
       );
     }
   }

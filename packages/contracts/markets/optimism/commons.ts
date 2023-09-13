@@ -44,7 +44,7 @@ export const CommonsConfig: ICommonConfiguration = {
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
-    [eOptimismNetwork.optimism]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", //multisig address: 0x599e1DE505CfD6f10F64DD7268D856831f61627a
+    [eOptimismNetwork.optimism]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", 
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
@@ -52,7 +52,7 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   GlobalAdminMultisig: {
-    [eOptimismNetwork.optimism]: "0x599e1DE505CfD6f10F64DD7268D856831f61627a", //multisig address: 0x599e1DE505CfD6f10F64DD7268D856831f61627a
+    [eOptimismNetwork.optimism]: "0x599e1DE505CfD6f10F64DD7268D856831f61627a", 
   },
   ProviderRegistry: {
     [eOptimismNetwork.optimism]: "0xEB125b3386322886769f43B7744327B9983A24Da",
@@ -197,8 +197,8 @@ export const CommonsConfig: ICommonConfiguration = {
   WrappedNativeToken: {
     [eOptimismNetwork.optimism]: '0x4200000000000000000000000000000000000006',
   },
-  IncentivesController: {
-    [eOptimismNetwork.optimism]: ZERO_ADDRESS,
+  IncentivesController: { //impl
+    [eOptimismNetwork.optimism]: "0xE1A55E97FfE942D530B1690096D81B6Cc7d54dF4",
   },
   VMEXTreasury: {
     [eOptimismNetwork.optimism]: "0x6BfCF01CcdbA163c2A01F4DD99508790aBc20509",

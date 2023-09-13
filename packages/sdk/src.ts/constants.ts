@@ -1,5 +1,6 @@
 import AaveConfig from "@vmexfinance/contracts/dist/markets/aave"
 import OptimismConfig from "@vmexfinance/contracts/dist/markets/optimism"
+import BaseConfig from "@vmexfinance/contracts/dist/markets/base"
 import Deployments from "./deployed-contracts.json";
 export const deployments = Deployments;
 
@@ -26,6 +27,9 @@ export const [MAINNET_ASSET_MAPPINGS, REVERSE_MAINNET_ASSET_MAPPINGS] =
 
 export const [OPTIMISM_ASSET_MAPPINGS, REVERSE_OPTIMISM_ASSET_MAPPINGS] =
   formatNetworkMappings(OptimismConfig.ReserveAssets['optimism']);
+
+export const [BASE_ASSET_MAPPINGS, REVERSE_BASE_ASSET_MAPPINGS] =
+  formatNetworkMappings(BaseConfig.ReserveAssets['base']);
 
 export const flipAndLowerCase = (
   data: Map<string, string>

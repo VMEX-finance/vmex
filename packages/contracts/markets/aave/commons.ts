@@ -187,6 +187,17 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.sepolia]: '',
     [eEthereumNetwork.tenderly]: '',
   },
+  GlobalAdminMultisig: {
+    [eEthereumNetwork.coverage]: '',
+    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.buidlerevm]: '',
+    [eEthereumNetwork.kovan]: '',
+    [eEthereumNetwork.ropsten]: '',
+    [eEthereumNetwork.main]: '',
+    [eEthereumNetwork.goerli]: '',
+    [eEthereumNetwork.sepolia]: '',
+    [eEthereumNetwork.tenderly]: '',
+  },
   TokenDistributor: {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.buidlerevm]: '',
