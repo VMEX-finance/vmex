@@ -104,6 +104,7 @@
     "vmex:optimism:upgrade:incentives": "npm run compile && hardhat vmex:upgrade-incentives --network optimism --verify",
     "vmex:optimism:redeploy:weth-gateway": "npm run compile && hardhat full-redeploy-weth-gateway --pool Optimism --network optimism --verify",
     "vmex:base:full:migration": "npm run compile && hardhat sidechain:mainnet --pool Base --network base --verify",
+    "vmex:sepolia:deploy:vmextoken": "npm run compile && hardhat deploy-VmexToken --network sepolia --verify",
     "vmex:permtranche": "hardhat vmex:permissionless-tranches --network goerli",
     "vmex:set-oracle": "hardhat vmex:set-oracle --network goerli",
     "prettier:check": "npx prettier -c 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test-suites/test-aave/**/*.ts'",

@@ -95,7 +95,8 @@ const buidlerConfig: HardhatUserConfig = {
     apiKey: {
       mainnet: ETHERSCAN_KEY,
       optimisticEthereum: OP_ETHERSCAN_KEY,
-      base: BASE_ETHERSCAN_KEY
+      base: BASE_ETHERSCAN_KEY,
+      sepolia: ETHERSCAN_KEY
     },
     customChains: [
       {
@@ -106,7 +107,7 @@ const buidlerConfig: HardhatUserConfig = {
           browserURL: "https://basescan.org"
         }
       }
-    ]  
+    ]
   },
   mocha: {
     timeout: 0,
