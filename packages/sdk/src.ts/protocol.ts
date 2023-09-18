@@ -75,11 +75,18 @@ export async function borrow(
         console.log("setting allowance: ")
         await varDebtToken.connect(params.signer).approveDelegation(gateway.address,MAX_UINT_AMOUNT)
       }
-      tx = await gateway.borrowETH(
+      const gasEstimate = await gateway.estimateGas.borrowETH(
         lendingPool.address,
         params.trancheId,
         amount,
         params.referrer || 0
+      )
+      tx = await gateway.borrowETH(
+        lendingPool.address,
+        params.trancheId,
+        amount,
+        params.referrer || 0,
+        { gasLimit: gasEstimate.mul(12).div(10) }
       )
     } catch (error) {
       console.log(error)
@@ -99,12 +106,20 @@ export async function borrow(
         }
       );
     } else {
-      tx = await lendingPool.borrow(
+      const gasEstimate = await lendingPool.estimateGas.borrow(
         params.underlying,
         params.trancheId,
         amount,
         params.referrer || 0,
         client
+      );
+      tx = await lendingPool.borrow(
+        params.underlying,
+        params.trancheId,
+        amount,
+        params.referrer || 0,
+        client,
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
     }
   }
@@ -132,7 +147,7 @@ export async function markReserveAsCollateral(
   if(params.asset=="ETH") params.asset = "WETH"
   params.asset = convertSymbolToAddress(params.asset, params.network);
   let tx;
-  const client = await params.signer.getAddress();
+
   const lendingPool = getLendingPool({
     signer: params.signer,
     network: params.network,
@@ -140,10 +155,16 @@ export async function markReserveAsCollateral(
     providerRpc: params.providerRpc,
   });
   console.log("params: ", params)
-  tx = await lendingPool.setUserUseReserveAsCollateral(
+  const gasEstimate = await lendingPool.estimateGas.setUserUseReserveAsCollateral(
     params.asset,
     params.trancheId,
     params.useAsCollateral
+  );
+  tx = await lendingPool.setUserUseReserveAsCollateral(
+    params.asset,
+    params.trancheId,
+    params.useAsCollateral,
+    { gasLimit: gasEstimate.mul(12).div(10) }
   );
 
   if (callback) {
@@ -221,11 +242,18 @@ export async function withdraw(
       );
     }
     try {
-      tx = await gateway.withdrawETH(
+      const gasEstimate = await gateway.estimateGas.withdrawETH(
         lendingPool.address,
         params.trancheId,
         amount,
         client
+      )
+      tx = await gateway.withdrawETH(
+        lendingPool.address,
+        params.trancheId,
+        amount,
+        client,
+        { gasLimit: gasEstimate.mul(12).div(10) }
       )
     } catch (error) {
       console.log(error)
@@ -233,11 +261,18 @@ export async function withdraw(
     }
   }
   else {
-    tx = await lendingPool.withdraw(
+    const gasEstimate = await lendingPool.estimateGas.withdraw(
       params.asset,
       params.trancheId,
       amount,
       client
+    );
+    tx = await lendingPool.withdraw(
+      params.asset,
+      params.trancheId,
+      amount,
+      client,
+      { gasLimit: gasEstimate.mul(12).div(10) }
     );
   }
 
@@ -303,12 +338,22 @@ export async function repay(
     }
     console.log("During repay, trying to pay: ",amount)
     try {
-      tx = await gateway.repayETH(
+      const gasEstimate = await gateway.estimateGas.repayETH(
         lendingPool.address,
         params.trancheId,
         amount,
         client,
         { value: amount }
+      )
+      tx = await gateway.repayETH(
+        lendingPool.address,
+        params.trancheId,
+        amount,
+        client,
+        {
+          value: amount,
+          gasLimit: gasEstimate.mul(12).div(10)
+        }
       )
     } catch (error) {
       console.log(error)
@@ -331,11 +376,18 @@ export async function repay(
           amount.toString()
       );
     }
-    tx = await lendingPool.repay(
+    const gasEstimate = await lendingPool.estimateGas.repay(
       params.asset,
       params.trancheId,
       amount,
       client
+    );
+    tx = await lendingPool.repay(
+      params.asset,
+      params.trancheId,
+      amount,
+      client,
+      { gasLimit: gasEstimate.mul(12).div(10) }
     );
   }
 
@@ -412,12 +464,20 @@ export async function supply(
         console.log("new amount: ", amount)
       }
 
-      tx = await gateway.depositETH(
+      const gasEstimate = await gateway.estimateGas.depositETH(
         lendingPool.address,
         params.trancheId,
         client,
         params.referrer || 0,
         { value: amount }
+      )
+
+      tx = await gateway.depositETH(
+        lendingPool.address,
+        params.trancheId,
+        client,
+        params.referrer || 0,
+        { value: amount, gasLimit: gasEstimate.mul(12).div(10) }
       )
 
       params.underlying = await convertSymbolToAddress("WETH", params.network);
@@ -455,12 +515,20 @@ export async function supply(
           }
         );
       } else {
-        tx = await lendingPool.deposit(
+        const gasEstimate = await lendingPool.estimateGas.deposit(
           params.underlying,
           params.trancheId,
           amount,
           client,
           params.referrer || 0
+        );
+        tx = await lendingPool.deposit(
+          params.underlying,
+          params.trancheId,
+          amount,
+          client,
+          params.referrer || 0,
+          { gasLimit: gasEstimate.mul(12).div(10) }
         );
       }
     } catch (error) {
@@ -478,14 +546,12 @@ export async function supply(
           params.trancheId,
           params.collateral
         );
-      // increase by 20%
-      gasEstimate = gasEstimate.mul("12").div("10");
       await lendingPool.setUserUseReserveAsCollateral(
         params.underlying,
         params.trancheId,
         params.collateral,
         {
-          gasLimit: gasEstimate,
+          gasLimit: gasEstimate.mul("12").div("10"),
         }
       );
     }
@@ -536,7 +602,8 @@ export async function lendingPoolPause(
       providerRpc: params.providerRpc,
     });
 
-    await configurator.setTranchePause(false, params.tranche);
+    const gasEstimate = await configurator.estimateGas.setTranchePause(false, params.tranche);
+    await configurator.setTranchePause(false, params.tranche, { gasLimit: gasEstimate.mul(12).div(10) });
     return await lendingPool.paused(params.tranche);
   } catch (error) {
     console.log(error);
@@ -620,9 +687,14 @@ export async function initNewReserves(
       chunkIndex < chunkedInitInputParams.length;
       chunkIndex++
     ) {
-      const tx3 = await configurator.batchInitReserve(
+      const gasEstimate = await configurator.estimateGas.batchInitReserve(
         chunkedInitInputParams[chunkIndex],
         mytranche
+      );
+      const tx3 = await configurator.batchInitReserve(
+        chunkedInitInputParams[chunkIndex],
+        mytranche,
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
 
       console.log(
@@ -684,9 +756,15 @@ export async function initTranche(
   });
 
   try {
+    const address = await params.admin.getAddress()
+    const gasEstimate = await configurator.estimateGas.claimTrancheId(
+      params.name,
+      address
+    );
     let tx = await configurator.claimTrancheId(
       params.name,
-      await params.admin.getAddress()
+      address,
+      { gasLimit: gasEstimate.mul(12).div(10) }
     );
 
     await tx.wait(); // wait 1 network confirmation
@@ -695,9 +773,14 @@ export async function initTranche(
   }
 
   try {
-    let tx = await configurator.updateTreasuryAddress(
+    const gasEstimate = await configurator.estimateGas.updateTreasuryAddress(
       params.treasuryAddress,
       mytranche
+    );
+    let tx = await configurator.updateTreasuryAddress(
+      params.treasuryAddress,
+      mytranche,
+      { gasLimit: gasEstimate.mul(12).div(10) }
     );
 
     await tx.wait(); // wait 1 network confirmation
@@ -710,10 +793,16 @@ export async function initTranche(
   if (params.whitelisted.length != 0) {
     try {
       console.log("Setting whitelist");
-      const tx4 = await configurator.setTrancheWhitelist(
+      const gasEstimate = await configurator.estimateGas.setTrancheWhitelist(
         mytranche,
         params.whitelisted,
         new Array(params.whitelisted.length).fill(true)
+      );
+      const tx4 = await configurator.setTrancheWhitelist(
+        mytranche,
+        params.whitelisted,
+        new Array(params.whitelisted.length).fill(true),
+        { gasLimit: gasEstimate.mul(12).div(10)}
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -725,10 +814,16 @@ export async function initTranche(
   if (params.blacklisted.length != 0) {
     try {
       console.log("Setting blacklisted");
-      const tx4 = await configurator.setTrancheBlacklist(
+      const gasEstimate = await configurator.estimateGas.setTrancheBlacklist(
         mytranche,
         params.blacklisted,
         new Array(params.blacklisted.length).fill(true)
+      );
+      const tx4 = await configurator.setTrancheBlacklist(
+        mytranche,
+        params.blacklisted,
+        new Array(params.blacklisted.length).fill(true),
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -778,9 +873,14 @@ export async function configureExistingTranche(
   if (params.newName) {
     try {
       console.log("Setting new name");
-      const tx4 = await configurator.changeTrancheName(
+      const gasEstimate = await configurator.estimateGas.changeTrancheName(
         mytranche,
         params.newName
+      );
+      const tx4 = await configurator.changeTrancheName(
+        mytranche,
+        params.newName,
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -792,9 +892,14 @@ export async function configureExistingTranche(
   if (params.newTreasuryAddress) {
     try {
       console.log("Setting new treasury address");
-      const tx4 = await configurator.updateTreasuryAddress(
+      const gasEstimate = await configurator.estimateGas.updateTreasuryAddress(
         params.newTreasuryAddress,
         mytranche
+      );
+      const tx4 = await configurator.updateTreasuryAddress(
+        params.newTreasuryAddress,
+        mytranche,
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -806,9 +911,14 @@ export async function configureExistingTranche(
   if (params.isTrancheWhitelisted !== undefined) {
     try {
       console.log("Setting isTrancheWhitelisted");
-      const tx4 = await configurator.setTrancheWhitelistEnabled(
+      const gasEstimate = await configurator.estimateGas.setTrancheWhitelistEnabled(
         mytranche,
         params.isTrancheWhitelisted
+      );
+      const tx4 = await configurator.setTrancheWhitelistEnabled(
+        mytranche,
+        params.isTrancheWhitelisted,
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -820,10 +930,16 @@ export async function configureExistingTranche(
   if (params.whitelisted && params.whitelisted.length != 0) {
     try {
       console.log("Setting whitelist");
-      const tx4 = await configurator.setTrancheWhitelist(
+      const gasEstimate = await configurator.estimateGas.setTrancheWhitelist(
         mytranche,
         params.whitelisted.map((el: SetAddress) => el.addr),
         params.whitelisted.map((el: SetAddress) => el.newValue)
+      );
+      const tx4 = await configurator.setTrancheWhitelist(
+        mytranche,
+        params.whitelisted.map((el: SetAddress) => el.addr),
+        params.whitelisted.map((el: SetAddress) => el.newValue),
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -835,10 +951,16 @@ export async function configureExistingTranche(
   if (params.blacklisted && params.blacklisted.length != 0) {
     try {
       console.log("Setting blacklisted");
-      const tx4 = await configurator.setTrancheBlacklist(
+      const gasEstimate = await configurator.estimateGas.setTrancheBlacklist(
         mytranche,
         params.blacklisted.map((el: SetAddress) => el.addr),
         params.blacklisted.map((el: SetAddress) => el.newValue)
+      );
+      const tx4 = await configurator.setTrancheBlacklist(
+        mytranche,
+        params.blacklisted.map((el: SetAddress) => el.addr),
+        params.blacklisted.map((el: SetAddress) => el.newValue),
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -858,12 +980,20 @@ export async function configureExistingTranche(
         ),
         params.reserveFactors.map((el: SetAddress) => el.newValue)
       );
-      const tx4 = await configurator.setReserveFactor(
+      const gasEstimate = await configurator.estimateGas.setReserveFactor(
         params.reserveFactors.map((el: SetAddress) =>
           convertSymbolToAddress(el.addr, params.network)
         ),
         mytranche,
         params.reserveFactors.map((el: SetAddress) => el.newValue)
+      );
+      const tx4 = await configurator.setReserveFactor(
+        params.reserveFactors.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
+        mytranche,
+        params.reserveFactors.map((el: SetAddress) => el.newValue),
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -875,12 +1005,20 @@ export async function configureExistingTranche(
   if (params.canBorrow && params.canBorrow.length != 0) {
     try {
       console.log("Setting canBorrow");
-      const tx4 = await configurator.setBorrowingOnReserve(
+      const gasEstimate = await configurator.estimateGas.setBorrowingOnReserve(
         params.canBorrow.map((el: SetAddress) =>
           convertSymbolToAddress(el.addr, params.network)
         ),
         mytranche,
         params.canBorrow.map((el: SetAddress) => el.newValue)
+      );
+      const tx4 = await configurator.setBorrowingOnReserve(
+        params.canBorrow.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
+        mytranche,
+        params.canBorrow.map((el: SetAddress) => el.newValue),
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -892,12 +1030,20 @@ export async function configureExistingTranche(
   if (params.canBeCollateral && params.canBeCollateral.length != 0) {
     try {
       console.log("Setting canBeCollateral");
-      const tx4 = await configurator.setCollateralEnabledOnReserve(
+      const gasEstimate = await configurator.estimateGas.setCollateralEnabledOnReserve(
         params.canBeCollateral.map((el: SetAddress) =>
           convertSymbolToAddress(el.addr, params.network)
         ),
         mytranche,
         params.canBeCollateral.map((el: SetAddress) => el.newValue)
+      );
+      const tx4 = await configurator.setCollateralEnabledOnReserve(
+        params.canBeCollateral.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
+        mytranche,
+        params.canBeCollateral.map((el: SetAddress) => el.newValue),
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -909,12 +1055,20 @@ export async function configureExistingTranche(
   if (params.isFrozen && params.isFrozen.length != 0) {
     try {
       console.log("Setting frozen");
-      const tx4 = await configurator.setFreezeReserve(
+      const gasEstimate = await configurator.estimateGas.setFreezeReserve(
         params.isFrozen.map((el: SetAddress) =>
           convertSymbolToAddress(el.addr, params.network)
         ),
         mytranche,
         params.isFrozen.map((el: SetAddress) => el.newValue)
+      );
+      const tx4 = await configurator.setFreezeReserve(
+        params.isFrozen.map((el: SetAddress) =>
+          convertSymbolToAddress(el.addr, params.network)
+        ),
+        mytranche,
+        params.isFrozen.map((el: SetAddress) => el.newValue),
+        { gasLimit: gasEstimate.mul(12).div(10) }
       );
       console.log("    * gasUsed", (await tx4.wait(1)).gasUsed.toString());
     } catch (error) {
@@ -952,9 +1106,15 @@ export async function claimIncentives(
     providerRpc: params.providerRpc,
   });
 
-  const tx = await incentivesController.claimAllRewards(
+  const gasEstimate = await incentivesController.estimateGas.claimAllRewards(
     params.incentivizedATokens,
     params.to
+  );
+
+  const tx = await incentivesController.claimAllRewards(
+    params.incentivizedATokens,
+    params.to,
+    { gasLimit: gasEstimate.mul(12).div(10) }
   );
 
   if (callback) {
@@ -983,7 +1143,8 @@ export async function setIncentives(
     providerRpc: params.providerRpc,
   });
 
-  const tx = await incentivesController.configureRewards(params.rewardConfigs);
+  const gasEstimate = await incentivesController.estimateGas.configureRewards(params.rewardConfigs);
+  const tx = await incentivesController.configureRewards(params.rewardConfigs, { gasLimit: gasEstimate.mul(12).div(10) });
 
   const rewardsVault = await incentivesController.REWARDS_VAULT();
   if (rewardsVault != (await params.signer.getAddress())) {
@@ -1026,7 +1187,7 @@ export async function getUserIncentives(
     providerRpc: params.providerRpc,
   });
 
-  const tx = await incentivesController.getPendingRewards(
+  const rewardsInfo = await incentivesController.getPendingRewards(
     params.incentivizedATokens,
     params.user
   );
@@ -1038,8 +1199,8 @@ export async function getUserIncentives(
   }
 
   return {
-    rewardTokens: tx[0],
-    rewardAmounts: tx[1],
+    rewardTokens: rewardsInfo[0],
+    rewardAmounts: rewardsInfo[1],
   };
 }
 
@@ -1061,9 +1222,14 @@ export async function setExternalIncentives(
     providerRpc: params.providerRpc,
   });
 
-  const tx = await incentivesController.batchBeginStakingRewards(
+  const gasEstimate = await incentivesController.estimateGas.batchBeginStakingRewards(
     params.incentivizedATokens,
     params.stakingContracts
+  );
+  const tx = await incentivesController.batchBeginStakingRewards(
+    params.incentivizedATokens,
+    params.stakingContracts,
+    { gasLimit: gasEstimate.mul(12).div(10) }
   );
 
   if (callback) {
@@ -1092,8 +1258,12 @@ export async function removeExternalIncentives(
     providerRpc: params.providerRpc,
   });
 
-  const tx = await incentivesController.removeStakingReward(
+  const gasEstimate = await incentivesController.estimateGas.removeStakingReward(
     params.incentivizedAToken
+  );
+  const tx = await incentivesController.removeStakingReward(
+    params.incentivizedAToken,
+    { gasLimit: gasEstimate.mul(12).div(10) }
   );
 
   if (callback) {
@@ -1123,10 +1293,18 @@ export async function claimExternalRewards(
     providerRpc: providerRpc,
   });
 
-  return incentivesController.claim(
+  const gasEstimate = await incentivesController.estimateGas.claim(
     address,
     rewardToken,
     claimable,
     proof
+  );
+
+  return incentivesController.claim(
+    address,
+    rewardToken,
+    claimable,
+    proof,
+    { gasLimit: gasEstimate.mul(12).div(10) }
   );
 }

@@ -203,11 +203,19 @@ export async function approveUnderlyingIfFirstInteraction(
     .allowance(await signer.getAddress(), spender);
 
   if (allowance.lt(attemptedSpendAmount)) {
+    const gasEstimate = await _underlying
+    .connect(signer)
+    .estimateGas
+    .approve(
+      spender,
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ); //approves uint256 max
     const tx = await _underlying
       .connect(signer)
       .approve(
         spender,
-        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        { gasLimit: gasEstimate.mul(12).div(10) }
       ); //approves uint256 max
     return tx.wait()
   }
