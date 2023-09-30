@@ -52,6 +52,10 @@ export enum eBaseNetwork {
   base = "base"
 }
 
+export enum eArbitrumNetwork {
+  arbitrum = "arbitrum"
+}
+
 export enum EthereumNetworkNames {
   kovan = "kovan",
   ropsten = "ropsten",
@@ -407,6 +411,19 @@ export interface iAssetBase<T> {
   "vAMM-cbETH/WETH": T;
   "USDbC": T;
   "cbETH": T;
+  "USDC.e": T;
+  "ARB": T;
+  "vAMM-WETH/USDC": T;
+  "vAMM-WETH/USDT": T;
+  "wstETH-WETH-BPT": T;
+  "rETH-WETH-BPT": T;
+  "2CRV" : T;
+  "FRAXBPCRV-f": T;
+  "CMLT-ARB-ETH": T;
+  "CMLT-ETH-USDC.e": T;
+  "CMLT-USDT-USDC.e": T;
+  "CMLT-wstETH-ETH": T;
+  "CMLT-LUSD-USDC.e": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -561,6 +578,35 @@ export type iBaseL2PoolAssets<T> = Partial<
   >
 >;
 
+export type iArbitrumPoolAssets<T> = Partial<
+  Pick<
+    iAssetsWithoutUSD<T>,
+    | "USDC.e"
+    | "WETH"
+    | "wstETH"
+    | "WBTC"
+    | "USDT"
+    | "USDC"
+    | "DAI"
+    | "ARB"
+    | "rETH"
+    | "LUSD"
+    | "FRAX"
+    | "vAMM-WETH/USDC"
+    | "vAMM-WETH/USDT"
+    | "wstETH-WETH-BPT"
+    | "rETH-WETH-BPT"
+    | "2CRV"
+    | "wstETHCRV"
+    | "FRAXBPCRV-f"
+    | "CMLT-ARB-ETH"
+    | "CMLT-ETH-USDC.e"
+    | "CMLT-USDT-USDC.e"
+    | "CMLT-wstETH-ETH"
+    | "CMLT-LUSD-USDC.e"
+  >
+>;
+
 export type iMultiPoolsAssets<T> = iAssetCommon<T> | iAavePoolAssets<T>;
 
 export type iAavePoolTokens<T> = Omit<iAavePoolAssets<T>, "ETH">;
@@ -683,7 +729,8 @@ export type iParamsPerNetwork<T> =
   | iXDaiParamsPerNetwork<T>
   | iAvalancheParamsPerNetwork<T>
   | iOptimismParamsPerNetwork<T>
-  | iBaseParamsPerNetwork<T>;
+  | iBaseParamsPerNetwork<T>
+  | iArbitrumParamsPerNetwork<T>;
 
 export interface iParamsPerNetworkAll<T>
   extends iEthereumParamsPerNetwork<T>,
@@ -724,6 +771,10 @@ export interface iBaseParamsPerNetwork<T> {
   [eBaseNetwork.base]: T;
 }
 
+export interface iArbitrumParamsPerNetwork<T> {
+  [eArbitrumNetwork.arbitrum]: T;
+}
+
 export interface iParamsPerPool<T> {
   [AavePools.proto]: T;
   // [AavePools.matic]: T;
@@ -756,7 +807,7 @@ export interface IProtocolGlobalConfig {
 }
 
 export interface IMocksConfig {
-  AllAssetsInitialPrices: iAssetBase<string>;
+  AllAssetsInitialPrices: Partial<iAssetBase<string>>;
 }
 
 export interface ILendingRateOracleRatesCommon {
@@ -848,6 +899,10 @@ export interface IOptimismConfiguration extends ICommonConfiguration {
 
 export interface IBaseL2Configuration extends ICommonConfiguration {
   ReservesConfig: iBaseL2PoolAssets<IReserveParams>;
+}
+
+export interface IArbitrumConfiguration extends ICommonConfiguration {
+  ReservesConfig: iArbitrumPoolAssets<IReserveParams>;
 }
 
 export interface ITokenAddress {

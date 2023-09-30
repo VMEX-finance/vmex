@@ -56,6 +56,11 @@ task('sidechain:mainnet', 'Deploy market at sidechain')
         pool: POOL_NAME,
       });
     }
+    else if(POOL_NAME=="Arbitrum") {
+      await DRE.run("full:initialize-lending-pool-tranches-0-Arbitrum", {
+        pool: POOL_NAME,
+      });
+    }
     else {
       throw "pool not supported"
     }

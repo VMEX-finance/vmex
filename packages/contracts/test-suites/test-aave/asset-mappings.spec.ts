@@ -195,6 +195,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "1000000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(
@@ -239,6 +240,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "100000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(
@@ -278,6 +280,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "100000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(
@@ -317,6 +320,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "100000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(
