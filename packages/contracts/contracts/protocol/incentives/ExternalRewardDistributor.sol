@@ -13,7 +13,6 @@ import {IAuraBooster} from '../../interfaces/IAuraBooster.sol';
 import {IAuraRewardPool} from '../../interfaces/IAuraRewardPool.sol';
 import {ICurveRewardGauge} from '../../interfaces/ICurveRewardGauge.sol';
 import {ICurveGaugeFactory} from '../../interfaces/ICurveGaugeFactory.sol';
-import {IChronosGaugeFactory} from '../../interfaces/IChronosGaugeFactory.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -152,9 +151,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
           ICurveGaugeFactory(curveGaugeFactoryAddress).mint(stakingContract);
         }
       }
-      // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
-      //   IChronosRewardGauge(stakingContract).getAllReward();
-      // }
       else {
         revert("Invalid staking contract");
       }
@@ -287,9 +283,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     else if(stakingTypes[stakingContract] == StakingType.CURVE) {
       ICurveRewardGauge(stakingContract).deposit(amount);
     }
-    // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
-    //   IChronosRewardGauge(stakingContract).deposit(amount);
-    // }
     else {
       revert("Asset type has no valid staking");
     }
@@ -315,10 +308,6 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     else if(stakingTypes[stakingContract] == StakingType.CURVE) {
       ICurveRewardGauge(stakingContract).withdraw(amount);
     }
-    // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
-    //   require()
-    //   IChronosRewardGauge(stakingContract).withdrawAndHarvestAll(); //must withdraw everything
-    // }
     else {
       revert("Asset type has no valid staking");
     }

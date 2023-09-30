@@ -14,8 +14,8 @@ import { waitForTx } from './misc-utils';
 import { registerContractInJsonDb } from './contracts-helpers';
 
 export const setInitialAssetPricesInOracle = async (
-  prices: Partial<iAssetBase<tEthereumAddress>>,
-  assetsAddresses: Partial<iAssetBase<tEthereumAddress>>,
+  prices: iAssetBase<tEthereumAddress>,
+  assetsAddresses: iAssetBase<tEthereumAddress>,
   priceOracleInstance: PriceOracle
 ) => {
   for (const [assetSymbol, price] of Object.entries(prices) as [string, string][]) {
@@ -60,7 +60,7 @@ export const deployMockAggregators = async (initialPrices: SymbolMap<string>, ve
 };
 
 export const deployAllMockAggregators = async (
-  initialPrices: Partial<iAssetAggregatorBase<string>>,
+  initialPrices: iAssetAggregatorBase<string>,
   verify?: boolean
 ) => {
   const aggregators: { [tokenSymbol: string]: MockAggregator } = {};

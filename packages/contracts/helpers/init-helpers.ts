@@ -160,7 +160,6 @@ export const initAssetData = async (
       borrowFactor: borrowFactor,
       borrowingEnabled: borrowingEnabled,
       VMEXReserveFactor: reserveFactor,
-      tokenSymbol: symbol
     }
     initInputParams.push(input);
   }
@@ -505,24 +504,6 @@ export const getTranche0MockedDataBase = (allReservesAddresses: {
     allReservesAddresses["vAMM-WETH/USDbC"],
     allReservesAddresses["vAMM-cbETH/WETH"],
   ];
-
-  let reserveFactors0: string[] = [];
-  let canBorrow0: boolean[] = [];
-  let canBeCollateral0: boolean[] = [];
-  for (let i = 0; i < assets0.length; i++) {
-    reserveFactors0.push("0");
-    canBorrow0.push(true);
-    canBeCollateral0.push(true);
-  }
-
-  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
-};
-
-
-export const getTranche0MockedDataArbitrum = (allReservesAddresses: {
-  [symbol: string]: tEthereumAddress;
-}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0: tEthereumAddress[] = Object.values(allReservesAddresses);
 
   let reserveFactors0: string[] = [];
   let canBorrow0: boolean[] = [];

@@ -171,7 +171,7 @@ contract AssetMappings is IAssetMappings, Initializable{
             emit AssetDataSet(
                 currentAssetAddress,
                 IERC20Detailed(currentAssetAddress).decimals(),
-                inputAsset.tokenSymbol,
+                currentAssetAddress.getSymbol(),
                 inputAsset.supplyCap,
                 inputAsset.borrowCap,
                 inputAsset.baseLTV,

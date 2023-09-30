@@ -20,8 +20,6 @@ OP_ETHERSCAN_KEY=""
 
 BASE_ETHERSCAN_KEY=""
 
-ARBITRUM_ETHERSCAN_KEY=""
-
 # Optional, if you plan to use Tenderly scripts
 TENDERLY_PROJECT=""
 TENDERLY_USERNAME=""

@@ -192,6 +192,17 @@ export const getPriceOracle = async (address?: tEthereumAddress) =>
     await getFirstSigner()
   );
 
+export const getCurvePriceOracleWrapper = async (address?: tEthereumAddress) =>
+  await CurveWrapperFactory.connect(
+    address ||
+      (
+        await getDb()
+          .get(`${eContractid.CurveWrapper}.${DRE.network.name}`)
+          .value()
+      ).address,
+    await getFirstSigner()
+  );
+
 export const getAToken = async (address?: tEthereumAddress) =>
   await ATokenFactory.connect(
     address ||

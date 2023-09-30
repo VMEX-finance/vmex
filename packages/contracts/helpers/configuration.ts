@@ -14,7 +14,6 @@ import {
 import AaveConfig from "../markets/aave";
 import OptimismConfig from "../markets/optimism";
 import BaseConfig from "../markets/base"
-import ArbitrumConfig from "../markets/arbitrum"
 
 import { CommonsConfig } from "../markets/aave/commons";
 import { DRE, filterMapBy } from "./misc-utils";
@@ -31,7 +30,6 @@ export enum ConfigNames {
   Avalanche = "Avalanche",
   Optimism = "Optimism",
   Base = "Base",
-  Arbitrum = "Arbitrum",
 }
 
 export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
@@ -48,8 +46,6 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
       return OptimismConfig;
     case ConfigNames.Base:
       return BaseConfig;
-    case ConfigNames.Arbitrum:
-      return ArbitrumConfig;
     case ConfigNames.Commons:
       return CommonsConfig;
     default:

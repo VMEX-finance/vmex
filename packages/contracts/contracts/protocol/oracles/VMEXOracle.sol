@@ -25,7 +25,6 @@ import {IVault} from "../../interfaces/IVault.sol";
 import {VelodromeOracle} from "./VelodromeOracle.sol";
 import {BalancerOracle} from "./BalancerOracle.sol";
 import {IRocketPriceOracle} from "../../interfaces/IRocketPriceOracle.sol";
-import {ICamelotPair} from "../../interfaces/ICamelotPair.sol"; 
 
 /// @title VMEXOracle
 /// @author VMEX, with inspiration from Aave
@@ -219,9 +218,6 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         else if (tmp == DataTypes.ReserveAssetType.CL_PRICE_ADAPTER) {
             return getCLPriceAdapterPrice(asset);
         }
-        else if (tmp == DataTypes.ReserveAssetType.CAMELOT) {
-            return getCamelotPrice(asset);
-        }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
@@ -321,7 +317,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
     }
 
     /**
-     * @dev Gets an asset price for a velodrome (or chronos) token
+     * @dev Gets an asset price for a velodrome token
      * @param asset The asset address
      **/
     function getVeloPrice(
@@ -330,6 +326,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         uint256[] memory prices = new uint256[](2);
 
         (address token0, address token1) = IVeloPair(asset).tokens();
+		(, , , , bool stable, , ) = IVeloPair(asset).metadata();  
 
         if(token0 == ETH_NATIVE){
             token0 = WETH;
@@ -343,40 +340,7 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
         require(prices[1] != 0, Errors.VO_UNDERLYING_FAIL);
 
-        price = VelodromeOracle.get_lp_price(asset, prices, BASE_CURRENCY_DECIMALS); //has 18 decimals
-
-        if(price == 0){
-            return _fallbackOracle.getAssetPrice(asset);
-        }
-
-        return price;
-    }
-
-    /**
-     * @dev Gets an asset price for a Camelot token
-     * @param asset The asset address
-     **/
-    function getCamelotPrice(
-        address asset
-    ) internal returns (uint256 price) {
-        uint256[] memory prices = new uint256[](2);
-
-        address token0 = ICamelotPair(asset).token0();
-        address token1 = ICamelotPair(asset).token1();
-
-        if(token0 == ETH_NATIVE){
-            token0 = WETH;
-        }
-        prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
-        require(prices[0] != 0, Errors.VO_UNDERLYING_FAIL);
-
-        if(token1 == ETH_NATIVE){
-            token1 = WETH;
-        }
-        prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
-        require(prices[1] != 0, Errors.VO_UNDERLYING_FAIL);
-
-        price = VelodromeOracle.get_cmlt_lp_price(asset, prices, BASE_CURRENCY_DECIMALS); //has 18 decimals
+        price = VelodromeOracle.get_lp_price(asset, prices, BASE_CURRENCY_DECIMALS, stable); //has 18 decimals
 
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);

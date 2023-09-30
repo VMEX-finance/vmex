@@ -42,7 +42,6 @@ const HARDFORK = 'shanghai';
 const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || '';
 const OP_ETHERSCAN_KEY = process.env.OP_ETHERSCAN_KEY || '';
 const BASE_ETHERSCAN_KEY = process.env.BASE_ETHERSCAN_KEY || '';
-const ARBITRUM_ETHERSCAN_KEY = process.env.ARBITRUM_ETHERSCAN_KEY || '';
 const MNEMONIC_PATH = "m/44'/60'/0'/0";
 const MNEMONIC = process.env.MNEMONIC || '';
 const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === 'true';
@@ -97,8 +96,7 @@ const buidlerConfig: HardhatUserConfig = {
       mainnet: ETHERSCAN_KEY,
       optimisticEthereum: OP_ETHERSCAN_KEY,
       base: BASE_ETHERSCAN_KEY,
-      sepolia: ETHERSCAN_KEY,
-      arbitrum: ARBITRUM_ETHERSCAN_KEY,
+      sepolia: ETHERSCAN_KEY
     },
     customChains: [
       {
@@ -115,12 +113,6 @@ const buidlerConfig: HardhatUserConfig = {
     timeout: 0,
   },
   networks: {
-    arbitrum: getCommonNetworkConfig(eBaseNetwork.base, 42161),
-    arbitrum_localhost: {
-      url: "http://0.0.0.0:8545",
-      forking: buildForkConfig(),
-      chainId: 31337,
-    },
     base: getCommonNetworkConfig(eBaseNetwork.base, 8453),
     base_localhost: {
       url: "http://0.0.0.0:8545",

@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 import {vMath} from "./libs/vMath.sol";
 import {FixedPointMathLib} from "../../dependencies/solmate/FixedPointMathLib.sol"; 
 import {IVeloPair} from "../../interfaces/IVeloPair.sol"; 
-import {ICamelotPair} from "../../interfaces/ICamelotPair.sol"; 
 import {IERC20} from "../../interfaces/IERC20WithPermit.sol"; 
 
 
@@ -15,49 +14,13 @@ library VelodromeOracle {
      * @dev Gets the price of a velodrome lp token
      * @param lp_token The lp token address
      * @param prices The prices of the underlying in the liquidity pool, there must be 18 decimals
+	 * @param stable is the pair stable or volatile
      **/
 	//@dev assumes oracles only pass in wad scaled decimals for ALL prices
-	function get_lp_price(address lp_token, uint256[] memory prices, uint256 priceDecimals) internal view returns(uint256) {
+	function get_lp_price(address lp_token, uint256[] memory prices, uint256 priceDecimals, bool stable) internal view returns(uint256) {
 		IVeloPair token = IVeloPair(lp_token); 	
 		uint256 total_supply = IERC20(lp_token).totalSupply()* 1e18 / (10**IERC20(lp_token).decimals()); //force to be 18 decimals
-		(uint256 d0, uint256 d1, uint256 r0, uint256 r1, bool stable, ,) = token.metadata(); 
-
-		r0 *= 1e18 / d0; 
-		r1 *= 1e18 / d1; 
-	
-		if (stable) {
-			return calculate_stable_lp_token_price(
-				total_supply, 
-				prices[0],
-				prices[1],
-				r0,
-				r1,
-				priceDecimals
-			); 
-		} else {
-			return calculate_lp_token_price(
-				total_supply, 
-				prices[0],
-				prices[1],
-				r0,
-				r1
-			); 
-		}
-	}
-
-	/**
-     * @dev Gets the price of a velodrome lp token
-     * @param lp_token The lp token address
-     * @param prices The prices of the underlying in the liquidity pool, there must be 18 decimals
-     **/
-	//@dev assumes oracles only pass in wad scaled decimals for ALL prices
-	function get_cmlt_lp_price(address lp_token, uint256[] memory prices, uint256 priceDecimals) internal view returns(uint256) {
-		ICamelotPair token = ICamelotPair(lp_token); 	
-		uint256 total_supply = IERC20(lp_token).totalSupply()* 1e18 / (10**IERC20(lp_token).decimals()); //force to be 18 decimals
-		uint256 d0 = token.precisionMultiplier0();
-		uint256 d1 = token.precisionMultiplier1();
-		(uint256 r0, uint256 r1, , ) = token.getReserves(); 
-		bool stable = token.stableSwap();
+		(uint256 d0, uint256 d1, uint256 r0, uint256 r1, , ,) = token.metadata(); 
 
 		r0 *= 1e18 / d0; 
 		r1 *= 1e18 / d1; 

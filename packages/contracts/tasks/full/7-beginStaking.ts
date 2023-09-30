@@ -42,9 +42,9 @@ task(`full-beginStaking`, `setup staking and begin staking for tranche 0`)
     const incentivesController = await getIncentivesControllerProxy();
     var signer = await getFirstSigner();
     const lendingPool = await getLendingPool();
-    // console.log("Current incentives controller", await addressesProvider.getIncentivesController());
-    // await addressesProvider.setIncentivesController(incentivesController.address);
-    // console.log("New incentives controller", await addressesProvider.getIncentivesController());
+    console.log("Current incentives controller", await addressesProvider.getIncentivesController());
+    await addressesProvider.setIncentivesController(incentivesController.address);
+    console.log("New incentives controller", await addressesProvider.getIncentivesController());
 
     await waitForTx(await incentivesController.setStakingType(
       Object.values(stakingContracts).map((el)=>el.address), 

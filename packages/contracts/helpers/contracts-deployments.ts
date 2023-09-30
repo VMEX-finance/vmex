@@ -10,7 +10,6 @@ import {
   IReserveParams,
   PoolConfiguration,
   eEthereumNetwork,
-  IChainlinkInternal,
 } from "./types";
 import { MintableERC20 } from "../types/MintableERC20";
 import { MockContract } from "ethereum-waffle";
@@ -491,6 +490,28 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean, verify
         "cbETH": ZERO_ADDRESS
       },
       fallbackOracle
+    );
+
+    const mockAggregators = await deployAllMockAggregators(
+      ALL_ASSETS_INITIAL_PRICES,
+      false //never verify this
+    );
+
+    const allAggregatorsAddresses = Object.entries(mockAggregators).reduce(
+      (
+        accum: { [tokenSymbol: string]: tEthereumAddress },
+        [tokenSymbol, aggregator]
+      ) => ({
+        ...accum,
+        [tokenSymbol]: aggregator.address,
+      }),
+      {}
+    );
+
+    const [tokens, aggregators] = getPairsTokenAggregator(
+      allTokenAddresses,
+      allAggregatorsAddresses,
+      config.OracleQuoteCurrency
     );
 
     const vmexOracleImpl = await deployVMEXOracle(verify);

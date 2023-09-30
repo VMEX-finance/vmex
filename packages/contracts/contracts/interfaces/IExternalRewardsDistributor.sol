@@ -35,8 +35,7 @@ interface IExternalRewardsDistributor {
         YEARN_OP,
         VELODROME_V2,
         AURA,
-        CURVE,
-        CHRONOS
+        CURVE
     }
 
     function getStakingContract(address aToken) external view

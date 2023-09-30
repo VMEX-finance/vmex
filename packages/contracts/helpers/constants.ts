@@ -135,7 +135,6 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES = {
   cbETH: oneEther.toFixed(),
   "vAMM-WETH/USDbC": oneEther.toFixed(),
   "vAMM-cbETH/WETH": oneEther.toFixed(),
-  DEFAULT_TOKEN: oneEther.toFixed(), 
 };
 
 export const chainlinkAggregatorProxy = {

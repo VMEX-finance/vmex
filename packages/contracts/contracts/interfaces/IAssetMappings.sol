@@ -52,7 +52,6 @@ interface IAssetMappings {
         bool borrowingEnabled;
         uint8 assetType; //to choose what oracle to use
         uint64 VMEXReserveFactor;
-        string tokenSymbol;
     }
 
     function getVMEXReserveFactor(
