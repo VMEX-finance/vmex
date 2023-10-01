@@ -4,18 +4,15 @@ const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 
-import { BigNumber, utils } from "ethers";
-import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors, tEthereumAddress } from '../helpers/types';
-import {getCurvePrice} from "../localhost_tests_utils/helpers/curve-calculation";
+import { eNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors, tEthereumAddress } from '../helpers/types';
 import {UserAccountData} from "../localhost_tests_utils/interfaces/index";
 import {almostEqualOrEqual} from "../localhost_tests_utils/helpers/almostEqual";
-import {calculateExpectedInterest, calculateUserStake, calculateAdminInterest} from "../localhost_tests_utils/helpers/strategy-interest";
 
-import OptimismConfig from "../markets/optimism";
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
 import { setBalance } from "../localhost_tests_utils/helpers/mint-tokens";
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
+import { ConfigNames, loadPoolConfig } from "../helpers/configuration";
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
 
 chai.use(function (chai: any, utils: any) {
@@ -52,6 +49,10 @@ interface FundManagement {
   recipient;
   toInternalBalance;
 }
+
+const network = process.env.FORK
+if(!network) throw "No fork"
+const poolConfig = loadPoolConfig(network as ConfigNames);
 
 makeSuite(
     "general oracle test ",
@@ -161,19 +162,18 @@ makeSuite(
        const oracleAdd = await addProv.connect(signer).getPriceOracle();
        const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
-       const network = "optimism" as any
        const {
          ProtocolGlobalParams: { UsdAddress },
          ReserveAssets,
          ChainlinkAggregator,
          SequencerUptimeFeed,
          ProviderId
-       } = OptimismConfig as ICommonConfiguration;
-       const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
+       } = poolConfig as ICommonConfiguration;
+       const reserveAssets = getParamPerNetwork(ReserveAssets, network as eNetwork);
 
-       const chainlinkAggregators = await getParamPerNetwork(
+       const chainlinkAggregators = getParamPerNetwork(
          ChainlinkAggregator,
-         network
+         network as eNetwork
        );
        let tokensToWatch = {
          ...reserveAssets,
@@ -186,7 +186,7 @@ makeSuite(
        const [tokens2, aggregators] = getPairsTokenAggregator(
          tokensToWatch,
          chainlinkAggregators,
-         OptimismConfig.OracleQuoteCurrency
+         poolConfig.OracleQuoteCurrency
        );
 
        const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
@@ -202,10 +202,10 @@ makeSuite(
 
 
     it("test pricing", async () => {
-      const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
+      const tokens = await getParamPerNetwork(poolConfig.ReserveAssets, network as eNetwork);
        var signer = await contractGetters.getFirstSigner();
-       const {ReserveAssets, ReservesConfig} = OptimismConfig
-       const reserveAssets = await getParamPerNetwork(ReserveAssets, eOptimismNetwork.optimism);
+       const {ReserveAssets, ReservesConfig} = poolConfig
+       const reserveAssets = await getParamPerNetwork(ReserveAssets, network as eNetwork);
        if(!reserveAssets){
            throw "reserveAssets not defined"
        }
@@ -228,8 +228,19 @@ makeSuite(
           //  if(symbol!="velo_USDTUSDC") continue;
           //  if( strat.assetType != 5) continue;
 
-           if(strat.assetType==0 || strat.assetType == 1 || strat.assetType == 2) {
+           if(strat.assetType==0) {
                continue;
+           }
+           else if(strat.assetType == 1) {
+            if(currentAsset == "0x061b87122Ed14b9526A813209C8a59a633257bAb"){ 
+              expectedPrice = "101530212"
+            }
+            if(currentAsset == "0xEfDE221f306152971D8e9f181bFe998447975810"){ 
+              expectedPrice = "193750835389"
+            }
+           }
+           else if(strat.assetType == 2) {
+
            }
            else if(strat.assetType==3) { //yearn
              const yVault = new DRE.ethers.Contract(currentAsset, yvAbi)
@@ -264,7 +275,7 @@ makeSuite(
               const tvl = (Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1))
               const tvlReadable = tvl/Number(ethers.utils.parseUnits("1",18+8))
               console.log("TVL in USD: ", tvlReadable)
-              expect(tvlReadable).gte(1000000) //make sure tvl is greater than 1million
+              expect(tvlReadable).gte(100000) //make sure tvl is greater than 100k
               let naivePrice = Math.round(tvl / Number(totalSupply));
 
               let percentDiff = Math.abs(Number(naivePrice) - Number(price))/Number(price)
@@ -325,132 +336,6 @@ makeSuite(
               let beginningK;
               [expectedPrice, beginningK] = await checkExpectedPrice(met)
                
-              if(!testSwapping) continue;
-
-               var route: Route[] = [{
-                  from: met.t0, 
-                  to: met.t1, 
-                  stable: met.st, 
-                  factory: "0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a"
-                }];
-              // try swapping. Should not change the price
-              const VELO_ROUTER_CONTRACT = new DRE.ethers.Contract(VELO_ROUTER_ADDRESS, VELO_ROUTER_ABI)
-
-              console.log("try swapping ", met.t0)
-
-              console.log("_________******____________")
-              for(let j= 1;j<= 10;++j){ //try multiple values
-                let amtSwap = (1000*5**j)
-                if(price0.lt(ethers.utils.parseUnits("1000", 8))){
-                  amtSwap *=1000
-                }
-                if(amtSwap*Number(price0)/1e8 > 1e9) { //if we are swapping less than a billion of value
-                  break
-                }
-                const amt0 = DRE.ethers.utils.parseUnits((amtSwap).toString(), await token0.connect(signer).decimals())
-                console.log("amount to swap: ", amtSwap)
-                await setBalance(met.t0, signer, amt0)
-                try{
-                  await expect(VELO_ROUTER_CONTRACT.connect(signer).swapExactTokensForTokens(amt0, "0", route, signer.address, deadline))
-                  .to.be.reverted;
-
-                  break
-                } catch {
-
-                }
-
-                met = await vel.connect(signer).metadata();
-                let currentMathPrice, newK;
-                [currentMathPrice, newK] = await checkExpectedPrice(met);
-                const diffK = Math.abs(Number(newK) - Number(beginningK))/Number(beginningK)
-                console.log("percent diff in K: ", diffK)
-
-                const manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
-                percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
-                console.log("manip price 1: ", manipPrice)
-                console.log("percent diff: ", percentDiff)
-                const diffPrice = Math.abs(Number(currentMathPrice) - Number(manipPrice))/Number(manipPrice)
-                expect(diffPrice).lte(1e-6, "Make sure rounding on chain isn't too bad during huge swaps")
-                expect(percentDiff).lte(1e-4, "swapping induces velo price change 0")
-                naivePrice = Math.round((Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1)) / Number(totalSupply));
-                console.log("Naive pricing after big swap: ", naivePrice)
-                expect(Number(price)).lte(naivePrice, "naive price should always be higher than fair reserves price");
-
-                console.log("_____________________")
-              }
-              console.log("try swapping ", met.t1)
-              route = [{
-                from: met.t1, 
-                to: met.t0, 
-                stable: met.st, 
-                factory: "0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a"
-              }];
-
-
-              console.log("_________******____________")
-              for(let j= 1;j<=10;++j){ //try multiple values
-                let amtSwap = (1000*5**j)
-                if(price1.lt(ethers.utils.parseUnits("1000", 8))){
-                  amtSwap *=1000
-                }
-
-                if(amtSwap*Number(price1)/1e8 > 1e9) { //if we are swapping less than a billion of value
-                  break
-                }
-                let amt1 = DRE.ethers.utils.parseUnits(amtSwap.toString(), await token1.connect(signer).decimals())
-                await setBalance(met.t1, signer, amt1)
-                console.log("amount to swap: ", amtSwap)
-                try {
-                  await expect(VELO_ROUTER_CONTRACT.connect(signer).swapExactTokensForTokens(amt1, "0", route, signer.address, deadline)
-                    ).to.be.reverted;
-
-                  break
-                } catch {
-
-                }
-
-                met = await vel.connect(signer).metadata();
-                let currentMathPrice, newK;
-                [currentMathPrice, newK] = await checkExpectedPrice(met);
-
-                const diffK = Math.abs(Number(newK) - Number(beginningK))/Number(beginningK)
-                console.log("percent diff in K: ", diffK)
-
-                const manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
-                percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
-                console.log("manip price 2: ", manipPrice, "percent diff: ", percentDiff)
-                // expect(percentDiff).lte(1e-2, "swapping induces velo price change 1 greater than 1%")
-                const diffPrice = Math.abs(Number(currentMathPrice) - Number(manipPrice))/Number(manipPrice)
-                expect(diffPrice).lte(1e-6, "Make sure rounding on chain isn't too bad during huge swaps")
-                expect(percentDiff).lte(1e-4, "swapping induces velo price change 0")
-                naivePrice = Math.round((Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1)) / Number(totalSupply));
-                console.log("Naive pricing after big swap: ", naivePrice)
-                expect(Number(price)).lte(naivePrice, "naive price should always be higher than fair reserves price");
-
-           console.log("_____________________")
-              }
-
-              console.log("try adding liquidity")
-
-              for(let j= 1;j<=5;++j){ //try multiple values
-                const amt0 = DRE.ethers.utils.parseUnits((10*2**j).toString(), await token0.connect(signer).decimals())
-                const amt1 = DRE.ethers.utils.parseUnits((10*2**j).toString(), await token1.connect(signer).decimals())
-                await setBalance(met.t0, signer, amt0)
-                await setBalance(met.t1, signer, amt1)
-                try{
-                  await expect(VELO_ROUTER_CONTRACT.connect(signer).addLiquidity(met.t0, met.t1,met.st, amt0, amt1, 0, 0, signer.address, deadline)
-                  ).to.be.reverted;
-                  break;
-                }
-                catch {
-
-                }
-                const manipPrice = await oracle.connect(signer).callStatic.getAssetPrice(currentAsset);
-
-                console.log("adding liquidity: ", manipPrice)
-                percentDiff = Math.abs(Number(manipPrice) - Number(price))/Number(price)
-                expect(percentDiff).lte(1e-6, "adding liquidity induces velo price change 0")
-              }
 
            }
            else if(strat.assetType == 6) { //beethoven

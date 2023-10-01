@@ -108,4 +108,5 @@ export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eAvalancheNetwork.fuji]: undefined,
   [eOptimismNetwork.optimism]: 106761131,
   [eBaseNetwork.base]: 3634830,
+  [eArbitrumNetwork.arbitrum]: 136565633,
 };

@@ -13,6 +13,7 @@ import {IAuraBooster} from '../../interfaces/IAuraBooster.sol';
 import {IAuraRewardPool} from '../../interfaces/IAuraRewardPool.sol';
 import {ICurveRewardGauge} from '../../interfaces/ICurveRewardGauge.sol';
 import {ICurveGaugeFactory} from '../../interfaces/ICurveGaugeFactory.sol';
+import {IChronosRewardGauge} from '../../interfaces/IChronosRewardGauge.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";

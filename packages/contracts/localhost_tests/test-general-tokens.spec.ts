@@ -5,26 +5,26 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 
 import { BigNumber, ethers, utils } from "ethers";
-import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
+import { eBaseNetwork, eNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import {OptimismConfig} from "../markets/optimism"
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
-import { getPairsTokenAggregator } from "../helpers/contracts-getters";
-import { eventChecker } from "../test-suites/test-aave/incentives/helpers/comparator-engine";
 import {setBalance} from "../localhost_tests_utils/helpers/mint-tokens";
+import { ConfigNames, loadPoolConfig } from "../helpers/configuration";
 
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
+const network = process.env.FORK
+if(!network) throw "No fork"
+const poolConfig = loadPoolConfig(network as ConfigNames);
 makeSuite(
     "General testing of tokens",
     () => {
         const { VL_COLLATERAL_CANNOT_COVER_NEW_BORROW, VL_BORROWING_NOT_ENABLED } = ProtocolErrors;
         const fs = require('fs');
         const contractGetters = require('../helpers/contracts-getters.ts');
-        const OPadd = "0x4200000000000000000000000000000000000042"
         // const lendingPool = await contractGetters.getLendingPool();
         // Load the first signer
         
-        const WETHadd = "0x4200000000000000000000000000000000000006"
+        const WETHadd = getParamPerNetwork(poolConfig.WETH, network as eNetwork)
         const WETHabi = [
             "function allowance(address owner, address spender) external view returns (uint256 remaining)",
             "function approve(address spender, uint256 value) external returns (bool success)",
@@ -98,8 +98,8 @@ makeSuite(
           });
           
           it("Testing general tokens deposit and borrow", async () => {
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const config = OptimismConfig.ReservesConfig
+            const tokens = getParamPerNetwork(poolConfig.ReserveAssets, network as eNetwork);
+            const config = poolConfig.ReservesConfig
             const WETHConfig = config["WETH"]
             if(!tokens || !WETHConfig){
               return
@@ -115,14 +115,6 @@ makeSuite(
             for(let [symbol, address] of Object.entries(tokens)){
                 console.log("Testing ",symbol)
 
-                // if(symbol=="sUSD"){
-                //   continue;
-                // }
-                if(symbol.substring(0,2)!="yv" && symbol.substring(1,4)!="AMM" && symbol.substring(0,3)!="BPT" && !symbol.includes("CRV")) {
-                  continue
-                }
-
-                
                 var USDCadd = address
                 var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
                 var USDC = new ethers.Contract(USDCadd,USDCABI)
@@ -130,15 +122,9 @@ makeSuite(
                 const WETHdec = await myWETH.connect(signer).decimals();
                 const tokenConfig = config[symbol]
 
-                
-
-
-                // if(symbol!="WETH") {
-                  // await mintToken(symbol, signer, USDCadd, tokenDec);
-                  const origAmt = Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec)
-                  console.log(origAmt)
-                  await setBalance(address, signer, origAmt.toString())
-                // }
+                const origAmt = Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec)
+                console.log(origAmt)
+                await setBalance(address, signer, origAmt.toString())
                 var signerOrigAmt = await USDC.connect(signer).balanceOf(signer.address)
                 //give some to emergency so they can repay debt
                 await USDC.connect(signer).approve(emergency.address,ethers.utils.parseEther("100000.0"))
@@ -241,8 +227,9 @@ makeSuite(
 
           it("wait and harvest all rewards", async () => {
             increaseTime(50000)
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const stakingContracts = await getParamPerNetwork(OptimismConfig.ExternalStakingContracts, eOptimismNetwork.optimism);
+            if(!poolConfig.ExternalStakingContracts) throw "config not set"
+            const tokens = getParamPerNetwork(poolConfig.ReserveAssets, network as eNetwork);
+            const stakingContracts = getParamPerNetwork(poolConfig.ExternalStakingContracts, network as eNetwork);
             if(!tokens || !stakingContracts){
               return
             }
@@ -250,7 +237,7 @@ makeSuite(
             const incentivesController = await contractGetters.getIncentivesControllerProxy();
             const lendingPool = await contractGetters.getLendingPool();
             for(let [symbol, externalRewardsData] of Object.entries(stakingContracts)){
-              let rewardAdd;
+              let rewardAdd;//per curve FE, 3crv has not started streaming CRV yet
               if(symbol.substring(0,2)=="yv") {
                 rewardAdd = "0x7D2382b1f8Af621229d33464340541Db362B4907"
               }
@@ -261,7 +248,8 @@ makeSuite(
                 rewardAdd = "0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921"
               }
               if(symbol.includes("CRV")) {
-                rewardAdd = "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53" //per curve FE, 3crv has not started streaming CRV yet
+                if(network == "optimism") rewardAdd = "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53" 
+                if(network == "arbitrum") rewardAdd = "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978" 
               }
               console.log("Testing ", symbol);
               var USDCadd = tokens[symbol]
@@ -313,8 +301,8 @@ makeSuite(
           });
 
           it("Testing withdraw everything", async () => {
-            const tokens = await getParamPerNetwork(OptimismConfig.ReserveAssets, eOptimismNetwork.optimism);
-            const config = OptimismConfig.ReservesConfig
+            const tokens = await getParamPerNetwork(poolConfig.ReserveAssets, network as eNetwork);
+            const config = poolConfig.ReservesConfig
             const WETHConfig = config["WETH"]
             if(!tokens || !WETHConfig){
               return

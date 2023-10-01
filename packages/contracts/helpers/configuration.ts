@@ -23,13 +23,14 @@ import { deployWETHMocked } from "./contracts-deployments";
 import BigNumber from "bignumber.js";
 
 export enum ConfigNames {
-  Commons = "Commons",
-  Aave = "Aave",
-  Matic = "Matic",
-  Amm = "Amm",
-  Avalanche = "Avalanche",
-  Optimism = "Optimism",
-  Base = "Base",
+  Commons = "commons",
+  Aave = "aave",
+  Matic = "matic",
+  Amm = "amm",
+  Avalanche = "avalanche",
+  Optimism = "optimism",
+  Base = "base",
+  Arbitrum = "arbitrum",
 }
 
 export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
