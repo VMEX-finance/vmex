@@ -152,6 +152,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
           ICurveGaugeFactory(curveGaugeFactoryAddress).mint(stakingContract);
         }
       }
+      // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
+      //   IChronosRewardGauge(stakingContract).getAllReward();
+      // }
       else {
         revert("Invalid staking contract");
       }
@@ -284,6 +287,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     else if(stakingTypes[stakingContract] == StakingType.CURVE) {
       ICurveRewardGauge(stakingContract).deposit(amount);
     }
+    // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
+    //   IChronosRewardGauge(stakingContract).deposit(amount);
+    // }
     else {
       revert("Asset type has no valid staking");
     }
@@ -309,6 +315,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     else if(stakingTypes[stakingContract] == StakingType.CURVE) {
       ICurveRewardGauge(stakingContract).withdraw(amount);
     }
+    // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
+    //   require()
+    //   IChronosRewardGauge(stakingContract).withdrawAndHarvestAll(); //must withdraw everything
+    // }
     else {
       revert("Asset type has no valid staking");
     }

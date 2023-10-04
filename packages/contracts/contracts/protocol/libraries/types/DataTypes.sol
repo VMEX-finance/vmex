@@ -55,7 +55,8 @@ library DataTypes {
         VELODROME, //5
         BEETHOVEN, //6
         RETH, //7
-        CL_PRICE_ADAPTER //8
+        CL_PRICE_ADAPTER, //8
+        CAMELOT //9
     } //update with other possible types of the underlying asset
 
     struct TrancheAddress {
