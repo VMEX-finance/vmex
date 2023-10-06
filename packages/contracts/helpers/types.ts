@@ -424,6 +424,8 @@ export interface iAssetBase<T> {
   "CMLT-USDT-USDC.e": T;
   "CMLT-wstETH-ETH": T;
   "CMLT-LUSD-USDC.e": T;
+  "bIB01": T;
+  "bIBTA": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -575,6 +577,8 @@ export type iBaseL2PoolAssets<T> = Partial<
     | "cbETH"
     | "vAMM-WETH/USDbC"
     | "vAMM-cbETH/WETH"
+    | "bIB01"
+    | "bIBTA"
   >
 >;
 

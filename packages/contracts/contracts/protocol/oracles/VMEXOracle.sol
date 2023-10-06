@@ -103,15 +103,17 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
      * @dev External function called by the VMEX governance to set or replace sources of assets
      * @param assets The addresses of the assets
      * @param sources The address of the source of each asset
+     * @param checkDenomination true if the description of the chainlink price feed should be checked, false for exceptions
      **/
     function setAssetSources(
         address[] calldata assets,
-        ChainlinkData[] calldata sources
+        ChainlinkData[] calldata sources,
+        bool checkDenomination
     ) external onlyGlobalAdmin {
         require(assets.length == sources.length, Errors.ARRAY_LENGTH_MISMATCH);
         uint256 assetsLength = assets.length;
         for (uint256 i; i < assetsLength; ++i) {
-            require(Helpers.compareSuffix(IChainlinkPriceFeed(sources[i].feed).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
+            require(!checkDenomination || Helpers.compareSuffix(IChainlinkPriceFeed(sources[i].feed).description(), BASE_CURRENCY_STRING), Errors.VO_BAD_DENOMINATION);
             require(IChainlinkPriceFeed(sources[i].feed).decimals() == BASE_CURRENCY_DECIMALS, Errors.VO_BAD_DECIMALS);
             _assetsSources[assets[i]] = sources[i];
             emit AssetSourceUpdated(assets[i], address(sources[i].feed));
