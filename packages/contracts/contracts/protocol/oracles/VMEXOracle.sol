@@ -364,15 +364,11 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         address token0 = ICamelotPair(asset).token0();
         address token1 = ICamelotPair(asset).token1();
 
-        if(token0 == ETH_NATIVE){
-            token0 = WETH;
-        }
+        token0 = token0 == ETH_NATIVE ? WETH : token0;
         prices[0] = getAssetPrice(token0); //handles case where underlying is curve too.
         require(prices[0] != 0, Errors.VO_UNDERLYING_FAIL);
 
-        if(token1 == ETH_NATIVE){
-            token1 = WETH;
-        }
+        token1 = token1 == ETH_NATIVE ? WETH : token1;
         prices[1] = getAssetPrice(token1); //handles case where underlying is curve too.
         require(prices[1] != 0, Errors.VO_UNDERLYING_FAIL);
 

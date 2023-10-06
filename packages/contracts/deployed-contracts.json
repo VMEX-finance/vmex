@@ -2737,7 +2737,7 @@
   },
   "AToken": {
     "hardhat": {
-      "address": "0x1FB61ED838A993b8885Ceb08936524F742F525cf",
+      "address": "0xbC7Ab6F930D83CB7e80A207d4dD3DD80aA8a2153",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -2771,7 +2771,7 @@
   },
   "DelegationAwareAToken": {
     "hardhat": {
-      "address": "0xE03C10626D77391a3EE15Fe9e4E859e5389b9aa0",
+      "address": "0xf45C720549136d5E2d6a5A2F12573A36E36C3411",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -2785,7 +2785,7 @@
   },
   "VariableDebtToken": {
     "hardhat": {
-      "address": "0xcBf7A8f676Bf5fa60339ba8dFab867D4a074c604",
+      "address": "0x7997A4c8b8E97d289989431B996AB1C6a9975Ad9",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -2819,7 +2819,7 @@
   },
   "ATokenBeacon": {
     "hardhat": {
-      "address": "0x010e948B9B7D30771E23346C0B17a4D5Ff04e300",
+      "address": "0x63b9792E7A95e3aa037255E8cAa0Dfd76f7383e7",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -2853,7 +2853,7 @@
   },
   "VariableDebtTokenBeacon": {
     "hardhat": {
-      "address": "0xEE0A69d0Bb1312685870Dd7E20AcAD66b6f6264F",
+      "address": "0x2dD8146Ad2138ac61F93E549f8F917927B47E28a",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -2887,7 +2887,7 @@
   },
   "LendingPoolCollateralManagerImpl": {
     "hardhat": {
-      "address": "0xD4b06774A717Ff5A7c20c8712e31c6BbfFcb1F01"
+      "address": "0xb2B548BE73010C188C083c510d255Aed74843b05"
     },
     "localhost": {
       "address": "0x16d1802cd7cfcb67955BBBa26bAae1cE559B5F5B"
@@ -2913,7 +2913,7 @@
   },
   "LendingPoolCollateralManager": {
     "hardhat": {
-      "address": "0xD4b06774A717Ff5A7c20c8712e31c6BbfFcb1F01"
+      "address": "0xb2B548BE73010C188C083c510d255Aed74843b05"
     },
     "localhost": {
       "address": "0x16d1802cd7cfcb67955BBBa26bAae1cE559B5F5B"
@@ -2944,7 +2944,7 @@
   },
   "WETHGateway": {
     "hardhat": {
-      "address": "0x93AfC6Df4bB8F62F2493B19e577f8382c0BA9EBC",
+      "address": "0x5Ea694f66BD0CBd08FC7967af01b67Dcef68cC5c",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -2992,7 +2992,7 @@
   },
   "IncentivesControllerImpl": {
     "hardhat": {
-      "address": "0xff1B1B810F5DCe853a9b1819DE220D532D1CFeF2",
+      "address": "0xC8Df507578fEfb60aA626ABFDDB20B48ee439ad1",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3051,7 +3051,7 @@
   },
   "aDai": {
     "hardhat": {
-      "address": "0xEcb928A3c079a1696Aa5244779eEc3dE1717fACd",
+      "address": "0x63387deC8C4a0F17Cf0C27Ea3476F03F6a45d3AE",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3065,7 +3065,7 @@
   },
   "aWeth": {
     "hardhat": {
-      "address": "0xa89E20284Bd638F31b0011D0fC754Fc9d2fa73e3",
+      "address": "0xDf73fC454FA018051D4a1509e63D11530A59DE10",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3089,7 +3089,7 @@
   },
   "aBusd": {
     "hardhat": {
-      "address": "0x5191aA68c7dB195181Dd2441dBE23A48EA24b040",
+      "address": "0x2B681757d757fbB80cc51c6094cEF5eE75bF55aA",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3103,7 +3103,7 @@
   },
   "aUsdt": {
     "hardhat": {
-      "address": "0x8F9422aa37215c8b3D1Ea1674138107F84D68F26",
+      "address": "0xBEF0d4b9c089a5883741fC14cbA352055f35DDA2",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3183,7 +3183,7 @@
   },
   "VmexToken": {
     "hardhat": {
-      "address": "0xdE7c40e675bF1aA45c18cCbaEb9662B16b0Ddf7E",
+      "address": "0xd4e934C2749CA8C1618659D02E7B28B074bf4df7",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3211,7 +3211,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0xDFbeeed692AA81E7f86E72F7ACbEA2A1C4d63544",
+      "address": "0x8280D40C9E9F04229D2435EAad6e0011309ce81B",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "sepolia": {
@@ -3225,7 +3225,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0xaF6D34adD35E1A565be4539E4d1069c48A49C953",
+      "address": "0x3b050AFb4ac4ACE646b31fF3639C1CD43aC31460",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "sepolia": {
@@ -3239,7 +3239,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x1E59BA56B1F61c3Ee946D8c7e2994B4A9b0cA45C",
+      "address": "0xBE36BE5680244Ae1A6F983E4A6f6E1c142cdAbe3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "sepolia": {
@@ -3253,7 +3253,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x53813198c75959DDB604462831d8989C29152164",
+      "address": "0xD67ba212bA61226DF3d20B2bD92deD3A6770f32d",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "sepolia": {
@@ -3267,7 +3267,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x0eD6115873ce6B807a03FE0df1f940387779b729",
+      "address": "0xD4B5A49d5bA242572ec3f4A8E52B97a10AF2543a",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "sepolia": {
@@ -3281,7 +3281,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0xFFfDa24e7E3d5F89a24278f53d6f0F81B3bE0d6B",
+      "address": "0x6aaF7e94e099291a94ed8E245c90f4766CE9bB7C",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "sepolia": {
@@ -3291,7 +3291,7 @@
   },
   "yayvTricrypto2": {
     "hardhat": {
-      "address": "0x5889354f21A1C8D8D2f82669d778f6Dab778B519",
+      "address": "0x40A939911b662656C0EE71c19B954DB1911Dc8e3",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3309,7 +3309,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x48bb3E35D2D6994374db457a6Bf61de2d9cC8E49",
+      "address": "0xEBAB67ee3ef604D5c250A53b4b8fcbBC6ec3007C",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "sepolia": {

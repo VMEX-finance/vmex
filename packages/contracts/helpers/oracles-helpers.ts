@@ -22,6 +22,7 @@ export const setInitialAssetPricesInOracle = async (
     const assetAddressIndex = Object.keys(assetsAddresses).findIndex(
       (value) => value === assetSymbol
     );
+    if (assetAddressIndex == -1) continue
     const [, assetAddress] = (Object.entries(assetsAddresses) as [string, string][])[
       assetAddressIndex
     ];

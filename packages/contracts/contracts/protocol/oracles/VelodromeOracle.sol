@@ -13,47 +13,45 @@ library VelodromeOracle {
 		
 	/**
      * @dev Gets the price of a velodrome lp token
-     * @param lp_token The lp token address
+     * @param lpToken The lp token address
      * @param prices The prices of the underlying in the liquidity pool, there must be 18 decimals
      **/
 	//@dev assumes oracles only pass in wad scaled decimals for ALL prices
-	function get_lp_price(address lp_token, uint256[] memory prices, uint256 priceDecimals) internal view returns(uint256) {
-		IVeloPair token = IVeloPair(lp_token); 	
-		uint256 total_supply = IERC20(lp_token).totalSupply()* 1e18 / (10**IERC20(lp_token).decimals()); //force to be 18 decimals
+	function get_lp_price(address lpToken, uint256[] memory prices, uint256 priceDecimals) internal view returns(uint256) {
+		IVeloPair token = IVeloPair(lpToken); 	
+		uint256 total_supply = IERC20(lpToken).totalSupply()* 1e18 / (10**IERC20(lpToken).decimals()); //force to be 18 decimals
 		(uint256 d0, uint256 d1, uint256 r0, uint256 r1, bool stable, ,) = token.metadata(); 
 
 		r0 *= 1e18 / d0; 
 		r1 *= 1e18 / d1; 
 	
-		if (stable) {
-			return calculate_stable_lp_token_price(
+		return stable ?
+			calculate_stable_lp_token_price(
 				total_supply, 
 				prices[0],
 				prices[1],
 				r0,
 				r1,
 				priceDecimals
-			); 
-		} else {
-			return calculate_lp_token_price(
+			)
+			: calculate_lp_token_price(
 				total_supply, 
 				prices[0],
 				prices[1],
 				r0,
 				r1
 			); 
-		}
 	}
 
 	/**
-     * @dev Gets the price of a velodrome lp token
-     * @param lp_token The lp token address
+     * @dev Gets the price of a camelot lp token
+     * @param lpToken The lp token address
      * @param prices The prices of the underlying in the liquidity pool, there must be 18 decimals
      **/
 	//@dev assumes oracles only pass in wad scaled decimals for ALL prices
-	function get_cmlt_lp_price(address lp_token, uint256[] memory prices, uint256 priceDecimals) internal view returns(uint256) {
-		ICamelotPair token = ICamelotPair(lp_token); 	
-		uint256 total_supply = IERC20(lp_token).totalSupply()* 1e18 / (10**IERC20(lp_token).decimals()); //force to be 18 decimals
+	function get_cmlt_lp_price(address lpToken, uint256[] memory prices, uint256 priceDecimals) internal view returns(uint256) {
+		ICamelotPair token = ICamelotPair(lpToken); 	
+		uint256 total_supply = IERC20(lpToken).totalSupply()* 1e18 / (10**IERC20(lpToken).decimals()); //force to be 18 decimals
 		uint256 d0 = token.precisionMultiplier0();
 		uint256 d1 = token.precisionMultiplier1();
 		(uint256 r0, uint256 r1, , ) = token.getReserves(); 
@@ -62,24 +60,22 @@ library VelodromeOracle {
 		r0 *= 1e18 / d0; 
 		r1 *= 1e18 / d1; 
 	
-		if (stable) {
-			return calculate_stable_lp_token_price(
+		return stable ?
+			calculate_stable_lp_token_price(
 				total_supply, 
 				prices[0],
 				prices[1],
 				r0,
 				r1,
 				priceDecimals
-			); 
-		} else {
-			return calculate_lp_token_price(
+			)
+			: calculate_lp_token_price(
 				total_supply, 
 				prices[0],
 				prices[1],
 				r0,
 				r1
 			); 
-		}
 	}
 	
 	//where total supply is the total supply of the LP token
