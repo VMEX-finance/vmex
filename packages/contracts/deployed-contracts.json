@@ -3117,7 +3117,7 @@
   },
   "SequencerUptimeFeed": {
     "hardhat": {
-      "address": "0x4301cb254CCc126B9eb9cbBE030C6FDA2FA16D4a",
+      "address": "0x51fa472EB89c046484B037B6125CF843C9d41b44",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3127,7 +3127,7 @@
   },
   "MockAToken": {
     "hardhat": {
-      "address": "0x4301cb254CCc126B9eb9cbBE030C6FDA2FA16D4a",
+      "address": "0x51fa472EB89c046484B037B6125CF843C9d41b44",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3137,7 +3137,7 @@
   },
   "MockVariableDebtToken": {
     "hardhat": {
-      "address": "0xaF6D34adD35E1A565be4539E4d1069c48A49C953",
+      "address": "0x24E420B42971372F060a93129846761F354Bc50B",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3147,7 +3147,7 @@
   },
   "SelfdestructTransferMock": {
     "hardhat": {
-      "address": "0x0766c9592a8686CAB0081b4f35449462c6e82F11",
+      "address": "0x4b2c297ba5be42610994974b9543D56B864CA011",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3197,7 +3197,7 @@
   },
   "DoubleTransferHelper": {
     "hardhat": {
-      "address": "0xaF6D34adD35E1A565be4539E4d1069c48A49C953",
+      "address": "0x24E420B42971372F060a93129846761F354Bc50B",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
@@ -3403,7 +3403,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "hardhat": {
-      "address": "0x1E59BA56B1F61c3Ee946D8c7e2994B4A9b0cA45C",
+      "address": "0xb840b4fe440b5E26e1840cd2D6320FAda1C0ca5d",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   },

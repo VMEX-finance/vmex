@@ -85,3 +85,34 @@ export const strategyVeloCbETHWETH: IReserveParams = {
   borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now
   reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
+
+export const strategyBIB01: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: ethers.utils.parseUnits('0.8',18).toString(), 
+  liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(), 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 0, //using chainlink
+  supplyCap: '1000000',
+  borrowCap: '0',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
+};
+
+
+export const strategyBIBTA: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: ethers.utils.parseUnits('0.8',18).toString(), 
+  liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(), 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 0, //chainlink
+  supplyCap: '1000000',
+  borrowCap: '0',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
+};
