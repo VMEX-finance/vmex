@@ -115,6 +115,14 @@ export const CommonsConfig: ICommonConfiguration = {
         feed: '0x80f2c02224a2E548FC67c0bF705eBFA825dd5439',
         heartbeat: 86400
       },
+      bIB01: {
+        feed: '0xB376D14d3dd93318A21E4Dd49fDdEC0e8574FA81',
+        heartbeat: 3600
+      },
+      bIBTA: {
+        feed: '0x426F41474098f567562ce8FEfB0eE7AA990aa0F9',
+        heartbeat: 3600
+      },
     },
   },
   ReserveAssets: {
