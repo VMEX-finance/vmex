@@ -14,6 +14,7 @@ import {
 import AaveConfig from "../markets/aave";
 import OptimismConfig from "../markets/optimism";
 import BaseConfig from "../markets/base"
+import ArbitrumConfig from "../markets/arbitrum"
 
 import { CommonsConfig } from "../markets/aave/commons";
 import { DRE, filterMapBy } from "./misc-utils";
@@ -23,13 +24,14 @@ import { deployWETHMocked } from "./contracts-deployments";
 import BigNumber from "bignumber.js";
 
 export enum ConfigNames {
-  Commons = "Commons",
-  Aave = "Aave",
-  Matic = "Matic",
-  Amm = "Amm",
-  Avalanche = "Avalanche",
-  Optimism = "Optimism",
-  Base = "Base",
+  Commons = "commons",
+  Aave = "aave",
+  Matic = "matic",
+  Amm = "amm",
+  Avalanche = "avalanche",
+  Optimism = "optimism",
+  Base = "base",
+  Arbitrum = "arbitrum",
 }
 
 export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
@@ -46,6 +48,8 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
       return OptimismConfig;
     case ConfigNames.Base:
       return BaseConfig;
+    case ConfigNames.Arbitrum:
+      return ArbitrumConfig;
     case ConfigNames.Commons:
       return CommonsConfig;
     default:

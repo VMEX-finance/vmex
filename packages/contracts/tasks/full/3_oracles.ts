@@ -50,7 +50,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
       //   FallbackOracle,
       //   network
       // );
-      const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
+      const reserveAssets = getParamPerNetwork(ReserveAssets, network);
 
       let tokensToWatch: SymbolMap<string> = {
         ...reserveAssets,

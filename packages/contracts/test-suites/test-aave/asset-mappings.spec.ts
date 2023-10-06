@@ -164,6 +164,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowingEnabled: boolean;
       assetType: BigNumberish;
       VMEXReserveFactor: BigNumberish;
+      tokenSymbol: string;
     }[] = [];
 
     const newInterestRateStrategy = createRandomAddress();
@@ -180,6 +181,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: 0,
       borrowingEnabled: false,
       VMEXReserveFactor: 0,
+      tokenSymbol: "newErc20"
     });
 
     // adding a new asset mapping should still work
@@ -195,6 +197,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "1000000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(
@@ -223,6 +226,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowingEnabled: boolean;
       assetType: BigNumberish;
       VMEXReserveFactor: BigNumberish;
+      tokenSymbol: string;
     }[] = [];
 
     const newInterestRateStrategy = createRandomAddress();
@@ -239,6 +243,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "100000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(
@@ -262,6 +267,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowingEnabled: boolean;
       assetType: BigNumberish;
       VMEXReserveFactor: BigNumberish;
+      tokenSymbol: string;
     }[] = [];
 
     const newInterestRateStrategy = createRandomAddress();
@@ -278,6 +284,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "100000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(
@@ -301,6 +308,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowingEnabled: boolean;
       assetType: BigNumberish;
       VMEXReserveFactor: BigNumberish;
+      tokenSymbol: string;
     }[] = [];
 
     const newInterestRateStrategy = createRandomAddress();
@@ -317,6 +325,7 @@ makeSuite("Asset mappings", (testEnv: TestEnv) => {
       borrowFactor: "100000000000000000",
       borrowingEnabled: true,
       VMEXReserveFactor: "100000000000000000",
+      tokenSymbol: "newErc20"
     });
 
     await expect(

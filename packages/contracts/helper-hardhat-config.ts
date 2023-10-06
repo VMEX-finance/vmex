@@ -1,6 +1,7 @@
 // @ts-ignore
 import { HardhatNetworkForkingUserConfig, HardhatUserConfig } from 'hardhat/types';
 import {
+  eArbitrumNetwork,
   eAvalancheNetwork,
   eBaseNetwork,
   eEthereumNetwork,
@@ -17,6 +18,7 @@ const ALCHEMY_KEY = process.env.ALCHEMY_KEY || '';
 const SEPOLIA_ALCHEMY_KEY = process.env.SEPOLIA_ALCHEMY_KEY || '';
 const OP_ALCHEMY_KEY = process.env.OP_ALCHEMY_KEY || '';
 const BASE_ALCHEMY_KEY = process.env.BASE_ALCHEMY_KEY || '';
+const ARBITRUM_ALCHEMY_KEY = process.env.ARBITRUM_ALCHEMY_KEY || '';
 const TENDERLY_FORK_ID = process.env.TENDERLY_FORK_ID || '';
 const FORK = process.env.FORK || '';
 const FORK_BLOCK_NUMBER = process.env.FORK_BLOCK_NUMBER
@@ -72,6 +74,8 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eBaseNetwork.base]:
     //`https://mainnet.optimism.io`,
     `https://base-mainnet.g.alchemy.com/v2/${BASE_ALCHEMY_KEY}`,
+  [eArbitrumNetwork.arbitrum]:
+    `https://arb-mainnet.g.alchemy.com/v2/${ARBITRUM_ALCHEMY_KEY}`,
 };
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number | string> = {
@@ -108,4 +112,5 @@ export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eAvalancheNetwork.fuji]: undefined,
   [eOptimismNetwork.optimism]: 106761131,
   [eBaseNetwork.base]: 3634830,
+  [eArbitrumNetwork.arbitrum]: 136565633,
 };
