@@ -155,52 +155,6 @@ makeSuite(
     '0xc40F949F8a4e094D1b49a23ea9241D289B7b2819': 0.6 //LUSD
   }
 
-    it("set heartbeat higher", async () => {
-       var signer = await contractGetters.getFirstSigner();
-       const addProv = await contractGetters.getLendingPoolAddressesProvider();
-
-       const oracleAdd = await addProv.connect(signer).getPriceOracle();
-       const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
-
-       const {
-         ProtocolGlobalParams: { UsdAddress },
-         ReserveAssets,
-         ChainlinkAggregator,
-         SequencerUptimeFeed,
-         ProviderId
-       } = poolConfig as ICommonConfiguration;
-       const reserveAssets = getParamPerNetwork(ReserveAssets, network as eNetwork);
-
-       const chainlinkAggregators = getParamPerNetwork(
-         ChainlinkAggregator,
-         network as eNetwork
-       );
-       let tokensToWatch = {
-         ...reserveAssets,
-         USD: UsdAddress,
-       };
-       
-       if (!chainlinkAggregators) {
-         throw "chainlinkAggregators is undefined. Check configuration at config directory";
-       }
-       const [tokens2, aggregators] = getPairsTokenAggregator(
-         tokensToWatch,
-         chainlinkAggregators,
-         poolConfig.OracleQuoteCurrency
-       );
-
-       const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
-       {
-         return {
-           feed: el.feed,
-           heartbeat: 86400000
-         }
-       })
-
-       await oracle.connect(signer).setAssetSources(tokens2, ag2);
-     });
-
-
     it("test pricing", async () => {
       const tokens = await getParamPerNetwork(poolConfig.ReserveAssets, network as eNetwork);
        var signer = await contractGetters.getFirstSigner();
