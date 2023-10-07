@@ -46,17 +46,17 @@ task('sidechain:mainnet', 'Deploy market at sidechain')
     await DRE.run('full:initialize-lending-pool', { pool: POOL_NAME });
 
     console.log("6.1. Initialize lending pool tranche 0");
-    if(POOL_NAME=="Optimism") {
+    if(POOL_NAME=="optimism") {
       await DRE.run("full:initialize-lending-pool-tranches-0-OP", {
         pool: POOL_NAME,
       });
     }
-    else if(POOL_NAME=="Base") {
+    else if(POOL_NAME=="base") {
       await DRE.run("full:initialize-lending-pool-tranches-0-Base", {
         pool: POOL_NAME,
       });
     }
-    else if(POOL_NAME=="Arbitrum") {
+    else if(POOL_NAME=="arbitrum") {
       await DRE.run("full:initialize-lending-pool-tranches-0-Arbitrum", {
         pool: POOL_NAME,
       });

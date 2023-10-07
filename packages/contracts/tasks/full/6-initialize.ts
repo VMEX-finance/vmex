@@ -104,7 +104,7 @@ task(
       const lendingPoolAddress = await addressesProvider.getLendingPool();
 
       let gateWay = getParamPerNetwork(WethGateway, network);
-      if (!notFalsyOrZeroAddress(gateWay)) {
+      if (!notFalsyOrZeroAddress(gateWay) || network.includes("localhost")) {
         gateWay = (await getWETHGateway()).address;
       }
       console.log("GATEWAY", gateWay);

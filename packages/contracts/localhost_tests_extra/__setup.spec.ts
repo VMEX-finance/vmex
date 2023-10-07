@@ -65,5 +65,5 @@ before(async () => {
       }
     })
 
-    await oracle.connect(signer).setAssetSources(tokens2, ag2);
+    await oracle.connect(signer).setAssetSources(tokens2, ag2, true);
   });

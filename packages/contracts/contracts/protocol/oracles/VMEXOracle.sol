@@ -224,6 +224,9 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         else if (tmp == DataTypes.ReserveAssetType.CAMELOT) {
             return getCamelotPrice(asset);
         }
+        else if (tmp == DataTypes.ReserveAssetType.BACKED) {
+            return getBackedAssetPrice(asset);
+        }
         revert(Errors.VO_ORACLE_ADDRESS_NOT_FOUND);
     }
 
@@ -271,6 +274,33 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
                 int256 price
             ) {
                 if (price > 0) {
+                    return uint256(price);
+                } else {
+                    return _fallbackOracle.getAssetPrice(asset);
+                }
+            } catch {
+                return _fallbackOracle.getAssetPrice(asset);
+            }
+        }
+    }
+
+    /**
+     * @dev Gets an asset price for an asset with a chainlink aggregator
+     * @param asset The asset address
+     **/
+    function getBackedAssetPrice(address asset) internal returns (uint256){
+        IChainlinkPriceFeed source = _assetsSources[asset].feed;
+        if (address(source) == address(0)) {
+            return _fallbackOracle.getAssetPrice(asset);
+        } else {
+            try IChainlinkPriceFeed(source).latestRoundData() returns (
+                uint80,
+                int256 price,
+                uint,
+                uint256 updatedAt,
+                uint80
+            ) {
+                if (block.timestamp - updatedAt < _assetsSources[asset].heartbeat) {
                     return uint256(price);
                 } else {
                     return _fallbackOracle.getAssetPrice(asset);

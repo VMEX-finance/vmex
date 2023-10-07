@@ -7,7 +7,7 @@ import { buildTestEnv, deployLendingPoolConfigurator } from '../../helpers/contr
 import { getLendingPoolAddressesProvider, getLendingPoolConfiguratorProxy } from '../../helpers/contracts-getters';
 import { eContractid } from '../../helpers/types';
 
-task('vmex:upgrade-configurator', 'Deploy development enviroment')
+task('vmex:upgrade-configurator', 'Upgrade configurator contract')
   .addFlag('verify', 'Verify contracts at Etherscan')
   .setAction(async ({ verify }, localBRE) => {
     const POOL_NAME = ConfigNames.Aave;

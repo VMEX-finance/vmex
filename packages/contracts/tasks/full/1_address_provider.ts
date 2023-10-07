@@ -53,7 +53,7 @@ task(
       await DRE.run("add-market-to-registry", {
         pool,
         addressesProvider: addressesProvider.address,
-        deployRegistry: !notFalsyOrZeroAddress(providerRegistryAddress),
+        deployRegistry: !notFalsyOrZeroAddress(providerRegistryAddress) || network.includes("localhost"),
       });
     }
     // 3. Set pool admins and vmex treasury

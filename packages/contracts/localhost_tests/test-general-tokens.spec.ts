@@ -123,7 +123,6 @@ makeSuite(
                 const tokenConfig = config[symbol]
 
                 const origAmt = Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec)
-                console.log(origAmt)
                 await setBalance(address, signer, origAmt.toString())
                 var signerOrigAmt = await USDC.connect(signer).balanceOf(signer.address)
                 //give some to emergency so they can repay debt

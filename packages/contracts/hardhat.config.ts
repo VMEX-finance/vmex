@@ -98,7 +98,7 @@ const buidlerConfig: HardhatUserConfig = {
       optimisticEthereum: OP_ETHERSCAN_KEY,
       base: BASE_ETHERSCAN_KEY,
       sepolia: ETHERSCAN_KEY,
-      arbitrum: ARBITRUM_ETHERSCAN_KEY,
+      arbitrumOne: ARBITRUM_ETHERSCAN_KEY,
     },
     customChains: [
       {
