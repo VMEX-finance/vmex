@@ -94,7 +94,7 @@ export const strategyBIB01: IReserveParams = {
   borrowingEnabled: false,
   reserveDecimals: '18', 
   aTokenImpl: eContractid.AToken,
-  assetType: 0, //using chainlink
+  assetType: 10, //using backed chainlink
   supplyCap: '1000000',
   borrowCap: '0',
   borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now
@@ -110,7 +110,7 @@ export const strategyBIBTA: IReserveParams = {
   borrowingEnabled: false,
   reserveDecimals: '18', 
   aTokenImpl: eContractid.AToken,
-  assetType: 0, //chainlink
+  assetType: 10, //backed chainlink
   supplyCap: '1000000',
   borrowCap: '0',
   borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now

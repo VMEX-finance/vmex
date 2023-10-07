@@ -530,16 +530,6 @@ export const buildTestEnv = async (deployer: Signer, overwrite?: boolean, verify
 
     console.log("WETH addr: ",mockTokens["WETH"].address)
     await waitForTx(await VMEXOracleProxy.setWETH(mockTokens["WETH"].address));
-
-    //we want to use the fallback oracle, so don't set aggregators
-    // await waitForTx(
-    //   await VMEXOracleProxy.connect(admin).setAssetSources(
-    //     tokens,
-    //     aggregators
-    //     )
-    // );
-
-    // console.log("Set vmex oracle aggregators")
   }
 
   if (
