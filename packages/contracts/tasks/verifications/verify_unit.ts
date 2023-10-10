@@ -5,9 +5,12 @@ import {
   getWrappedNativeTokenAddress,
 } from '../../helpers/configuration';
 import {
+  getInterestRateStrategy,
   getVMEXOracle,
 } from '../../helpers/contracts-getters';
 import { verifyContract, getParamPerNetwork } from '../../helpers/contracts-helpers';
+import BigNumber from 'bignumber.js';
+import { oneRay } from '../../helpers/constants';
 
 task('verify:unit', 'Verify a single contract at Etherscan')
   .addFlag('all', 'Verify all contracts at Etherscan')
@@ -15,11 +18,11 @@ task('verify:unit', 'Verify a single contract at Etherscan')
   .setAction(async ({ all, pool }, localDRE) => {
     await localDRE.run('set-DRE');
     
-      const oracleImpl = await getVMEXOracle("0x6FA8a39F7f0d812155F6Caf54A08344aD87903bB");
+      const c = await getInterestRateStrategy("0x7671B8296722a9609152cc35AB15FB2d2e4D13B9");
 
       // Asset mappings
-      console.log('\n- Verifying oracle...\n');
-      await verifyContract("", oracleImpl, []);
+      console.log('\n- Verifying contract...\n');
+      await verifyContract("", c, ["0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0", new BigNumber(0.45).multipliedBy(oneRay).toFixed(), '0', '0', '0']);
 
     console.log('Finished verifications.');
   });
