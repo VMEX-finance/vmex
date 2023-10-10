@@ -224,6 +224,26 @@ export const CommonsConfig: ICommonConfiguration = {
       //   address: "0xC4c063941Ba3b130f99769AB7e801ACB7b09E29F",
       //   type: 5,
       // },
+      "CMLT-ARB-ETH": {
+        address: "0x9FFC53cE956Bf040c4465B73B3cfC04569EDaEf1",
+        type: 6
+      },
+      "CMLT-ETH-USDC.e": {
+        address: "0x6BC938abA940fB828D39Daa23A94dfc522120C11",
+        type: 6
+      },
+      "CMLT-USDT-USDC.e": {
+        address: "0xcC9f28dAD9b85117AB5237df63A5EE6fC50B02B7",
+        type: 6
+      },
+      "CMLT-wstETH-ETH": {
+        address: "0x32B18B8ccD84983C7ddc14c215A42caC098BA714",
+        type: 6
+      },
+      "CMLT-LUSD-USDC.e": {
+        address: "0xd74C89229FfE9516aC34030DEa348DABAe46366d",
+        type: 6
+      },
     },
   }
 };

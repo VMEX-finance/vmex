@@ -78,6 +78,7 @@ export const initAssetData = async (
     borrowingEnabled: boolean;
     assetType: BigNumberish;
     VMEXReserveFactor: BigNumberish;
+    tokenSymbol: string;
   }[] = [];
 
   let strategyRates: [

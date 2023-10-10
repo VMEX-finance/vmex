@@ -14,17 +14,19 @@ import {IAuraRewardPool} from '../../interfaces/IAuraRewardPool.sol';
 import {ICurveRewardGauge} from '../../interfaces/ICurveRewardGauge.sol';
 import {ICurveGaugeFactory} from '../../interfaces/ICurveGaugeFactory.sol';
 import {IChronosRewardGauge} from '../../interfaces/IChronosRewardGauge.sol';
+import {ICamelotNFTPool} from '../../interfaces/ICamelotNFTPool.sol';
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 /// @title VMEX External Rewards Distributor.
 /// @author Volatile Labs Ltd.
 /// @notice This contract allows Vmex users to claim their rewards. This contract is largely inspired by Euler Distributor's contract: https://github.com/euler-xyz/euler-contracts/blob/master/contracts/mining/EulDistributor.sol.
 /// Note: msg.sender will always be the aToken who sent the call to IncentivesController
-contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable {
+contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable, IERC721Receiver {
   using SafeERC20 for IERC20;
 
   mapping(address => address) internal stakingData; // incentivized aToken => address of staking contract
@@ -38,7 +40,9 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
 
   address public curveGaugeFactory;
 
-  uint256[39] __gap_ExternalRewardDistributor;
+  mapping(address=>uint256) public camelotTokenId; // camelot NFT pool (stakingContract) -> token Id (since each pool has a separate token id)
+
+  uint256[38] __gap_ExternalRewardDistributor;
 
   modifier onlyGlobalAdmin() {
       Helpers.onlyGlobalAdmin(addressesProvider, msg.sender);
@@ -155,6 +159,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
       // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
       //   IChronosRewardGauge(stakingContract).getAllReward();
       // }
+      else if(stakingTypes[stakingContract] == StakingType.CAMELOT) {
+        require(camelotTokenId[stakingContract]!=0, "Camelot NFT not initialized yet");
+        ICamelotNFTPool(stakingContract).harvestPosition(camelotTokenId[stakingContract]);
+      }
       else {
         revert("Invalid staking contract");
       }
@@ -290,6 +298,14 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     // else if(stakingTypes[stakingContract] == StakingType.CHRONOS) {
     //   IChronosRewardGauge(stakingContract).deposit(amount);
     // }
+    else if(stakingTypes[stakingContract] == StakingType.CAMELOT) {
+      if(camelotTokenId[stakingContract]==0) {
+        camelotTokenId[stakingContract] = ICamelotNFTPool(stakingContract).lastTokenId() + 1;
+        ICamelotNFTPool(stakingContract).createPosition(amount, 0 /* lockDuration */);
+      } else {
+        ICamelotNFTPool(stakingContract).addToPosition(camelotTokenId[stakingContract], amount);
+      }
+    }
     else {
       revert("Asset type has no valid staking");
     }
@@ -319,6 +335,10 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
     //   require()
     //   IChronosRewardGauge(stakingContract).withdrawAndHarvestAll(); //must withdraw everything
     // }
+    else if(stakingTypes[stakingContract] == StakingType.CAMELOT) {
+      require(camelotTokenId[stakingContract]!=0, "Camelot NFT not initialized yet");
+      ICamelotNFTPool(stakingContract).withdrawFromPosition(camelotTokenId[stakingContract], amount);
+    }
     else {
       revert("Asset type has no valid staking");
     }
@@ -371,6 +391,35 @@ contract ExternalRewardDistributor is IExternalRewardsDistributor, Initializable
   function onTransfer(address user, uint256 amount, bool sender) internal {
     //no-op since totalStaked doesn't change, the amounts each person owns is calculated off chain
     emit UserTransfer(user, msg.sender, amount, sender);
+  }
+
+
+  /**
+    Camelot hooks for ERC721
+   **/
+
+  function onERC721Received(address /* operator */, address from, uint256 tokenId, bytes calldata /* data */) external override returns (bytes4) {
+    require(camelotTokenId[msg.sender]==tokenId, "Camelot ERC721 received mismatch");
+    return IERC721Receiver.onERC721Received.selector;
+  }
+
+  function onNFTHarvest(address operator, address to, uint256 tokenId, uint256 grailAmount, uint256 xGrailAmount) external view returns (bool) {
+    require(operator == address(this), "Caller of harvest must be IncentivesController");
+    require(to == address(this), "Rewards must be sent to IncentivesController");
+    require(camelotTokenId[msg.sender] == tokenId, "Camelot harvest token id mismatch");
+    return true;
+  }
+
+  function onNFTAddToPosition(address operator, uint256 tokenId, uint256 lpAmount) external returns (bool) {
+    require(operator == address(this), "Caller of harvest must be IncentivesController");
+    require(camelotTokenId[msg.sender] == tokenId, "Camelot harvest token id mismatch");
+    return true;
+  }
+
+  function onNFTWithdraw(address operator, uint256 tokenId, uint256 lpAmount) external returns (bool) {
+    require(operator == address(this), "Caller of harvest must be IncentivesController");
+    require(camelotTokenId[msg.sender] == tokenId, "Camelot harvest token id mismatch");
+    return true;
   }
 
 }
