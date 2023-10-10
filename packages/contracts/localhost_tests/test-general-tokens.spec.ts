@@ -250,6 +250,9 @@ makeSuite(
                 if(network == "optimism") rewardAdd = "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53" 
                 if(network == "arbitrum") rewardAdd = "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978" 
               }
+              if(symbol.substring(0,3)!="CMLT") {
+                rewardAdd = "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8"
+              }
               console.log("Testing ", symbol);
               var USDCadd = tokens[symbol]
               var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
@@ -264,16 +267,16 @@ makeSuite(
               if(!symbol.includes("CRV")) stakingContract = new ethers.Contract(stakingAddress, Stakingabi);
               else stakingContract = new ethers.Contract(stakingAddress, StakingCurveabi);
               
-              const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
-              let earned
-              if(!symbol.includes("CRV")) earned = await stakingContract.connect(signer).earned(incentivesController.address)
-              else earned = await stakingContract.connect(signer).claimable_reward(incentivesController.address, rewardAdd)
-              console.log("earned: ",earned)
-              // expect(amtStaked).equal(ethers.utils.parseUnits("9.0", await yvUSDC.connect(signer).decimals()))
-              if(Number(earned)==0){
-                console.log("Not streaming rewards")
-                //  continue;
-              }
+              // const amtStaked = await stakingContract.connect(signer).balanceOf(incentivesController.address)
+              // let earned
+              // if(!symbol.includes("CRV")) earned = await stakingContract.connect(signer).earned(incentivesController.address)
+              // else earned = await stakingContract.connect(signer).claimable_reward(incentivesController.address, rewardAdd)
+              // console.log("earned: ",earned)
+              // // expect(amtStaked).equal(ethers.utils.parseUnits("9.0", await yvUSDC.connect(signer).decimals()))
+              // if(Number(earned)==0){
+              //   console.log("Not streaming rewards")
+              //   //  continue;
+              // }
               // expect(earned).gt(0)
 
               const rewardToken = new ethers.Contract(rewardAdd, WETHabi)
@@ -285,13 +288,7 @@ makeSuite(
               const balanceAfter = await rewardToken.connect(signer).balanceOf(incentivesController.address);
               const reward = Number(balanceAfter) - Number(balanceBefore);
               console.log("true rewards earned: ", reward);
-              console.log("earned: ", earned);
-              const emitted = receipt.events || [];
-
-              // eventChecker(emitted[2], 'HarvestedReward', [
-              //   stakingAddress
-              // ]);
-
+              // console.log("earned: ", earned);
               console.log("-----------------------------------")
               console.log()
               console.log()
