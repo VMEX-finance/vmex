@@ -14,6 +14,7 @@ import { setBalance } from "../localhost_tests_utils/helpers/mint-tokens";
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { ConfigNames, loadPoolConfig } from "../helpers/configuration";
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
+const camelotAbi = require("../artifacts/contracts/interfaces/ICamelotPair.sol/ICamelotPair.json")
 
 chai.use(function (chai: any, utils: any) {
   chai.Assertion.overwriteMethod(
@@ -192,9 +193,11 @@ makeSuite(
             if(currentAsset == "0xEfDE221f306152971D8e9f181bFe998447975810"){ 
               expectedPrice = "193750835389"
             }
+            if(currentAsset =="0x7f90122BF0700F9E7e1F688fe926940E8839F353") expectedPrice="101417786"
+            if(currentAsset =="0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b") expectedPrice="172134021460"
+            if(currentAsset =="0xc9b8a3fdecb9d5b218d02555a8baf332e5b740d5") expectedPrice="100972742"
            }
            else if(strat.assetType == 2) {
-
            }
            else if(strat.assetType==3) { //yearn
              const yVault = new DRE.ethers.Contract(currentAsset, yvAbi)
@@ -416,6 +419,35 @@ makeSuite(
            }
            else if(strat.assetType == 7) { //rETH
              expectedPrice = 202185432577
+           } else if(strat.assetType == 9) { //camelot
+              const cam = new DRE.ethers.Contract(currentAsset, camelotAbi.abi)
+
+              const met = await cam.connect(signer).getReserves()
+               const dec = 18;
+               const totalSupply = await cam.connect(signer).totalSupply();
+              const token0 = await cam.connect(signer).token0()
+              const token1 = await cam.connect(signer).token1()
+              const price0 = await oracle.connect(signer).callStatic.getAssetPrice(token0)
+              const price1 = await oracle.connect(signer).callStatic.getAssetPrice(token1)
+              console.log("price0: ",price0)
+              console.log("price1: ",price1)
+
+              const factor1 = Math.pow(10,Number(dec))/ Number(await cam.connect(signer).precisionMultiplier0()) 
+              const factor2 = Math.pow(10,Number(dec)) / Number(await cam.connect(signer).precisionMultiplier1()) //convert to same num decimals as total supply
+              console.log("factor1: ",factor1)
+              console.log("factor2: ",factor2)
+              const tvl = (Number(met.reserve0) * factor1 * Number(price0) + Number(met.reserve1) * factor2 * Number(price1))
+              const tvlReadable = tvl/Number(ethers.utils.parseUnits("1",18+8))
+              console.log("TVL in USD: ", tvlReadable)
+              expect(tvlReadable).gte(100000) //make sure tvl is greater than 100k
+              let naivePrice = Math.round(tvl / Number(totalSupply));
+
+              let percentDiff = Math.abs(Number(naivePrice) - Number(price))/Number(price)
+              console.log("Naive pricing: ", naivePrice)
+              console.log("percent diff: ",percentDiff)
+              expect(percentDiff).lte(2e-2, "camelot token price not consistent with naive pricing (mainly decimals issue)");
+              expect((Number(price)-naivePrice)/naivePrice).lte(2e-2, "naive price should always be higher than fair reserves price");
+              continue
            }
            else {
                continue
