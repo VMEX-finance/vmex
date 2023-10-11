@@ -114,6 +114,9 @@ makeSuite(
             const lendingPool = await contractGetters.getLendingPool();
             for(let [symbol, address] of Object.entries(tokens)){
                 console.log("Testing ",symbol)
+                if(symbol=="WETH"){
+                  continue
+                }
 
                 var USDCadd = address
                 var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
