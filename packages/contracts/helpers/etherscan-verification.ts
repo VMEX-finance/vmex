@@ -23,6 +23,7 @@ export const SUPPORTED_ETHERSCAN_NETWORKS = [
   "sepolia",
   "optimism",
   "base",
+  "arbitrum",
 ];
 
 function delay(ms: number) {

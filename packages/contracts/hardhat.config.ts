@@ -4,6 +4,7 @@ import { HardhatUserConfig } from 'hardhat/types';
 // @ts-ignore
 import { accounts } from './test-wallets.js';
 import {
+  eArbitrumNetwork,
   eAvalancheNetwork,
   eBaseNetwork,
   eEthereumNetwork,
@@ -115,7 +116,7 @@ const buidlerConfig: HardhatUserConfig = {
     timeout: 0,
   },
   networks: {
-    arbitrum: getCommonNetworkConfig(eBaseNetwork.base, 42161),
+    arbitrum: getCommonNetworkConfig(eArbitrumNetwork.arbitrum, 42161),
     arbitrum_localhost: {
       url: "http://0.0.0.0:8545",
       forking: buildForkConfig(),

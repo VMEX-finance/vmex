@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import { deployLendingPoolAddressesProvider } from "../../helpers/contracts-deployments";
+import { deployAaveLibraries, deployLendingPoolAddressesProvider } from "../../helpers/contracts-deployments";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   ConfigNames,
@@ -38,6 +38,9 @@ task(
     // } else {
     // console.log("trying to deploy addr provider")
     // 1. Deploy address provider and set genesis manager
+
+    console.log("NEW: deploy aave libraries first so all contracts can use it")
+    await deployAaveLibraries();
     const addressesProvider = await deployLendingPoolAddressesProvider(
       MarketId,
       verify

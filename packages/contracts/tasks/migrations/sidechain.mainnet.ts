@@ -19,11 +19,11 @@ task('sidechain:mainnet', 'Deploy market at sidechain')
 
     console.log('Migration started\n');
 
-    console.log('0. Deploy address provider registry');
-    await DRE.run('full:deploy-address-provider-registry', { pool: POOL_NAME });
+    // console.log('0. Deploy address provider registry');
+    // await DRE.run('full:deploy-address-provider-registry', { pool: POOL_NAME });
 
-    console.log('1. Deploy address provider');
-    await DRE.run('full:deploy-address-provider', { pool: POOL_NAME, skipRegistry });
+    // console.log('1. Deploy address provider');
+    // await DRE.run('full:deploy-address-provider', { pool: POOL_NAME, skipRegistry });
 
     console.log("1.5. Deploy asset mappings");
     await DRE.run("full:deploy-asset-mappings", { pool: POOL_NAME });

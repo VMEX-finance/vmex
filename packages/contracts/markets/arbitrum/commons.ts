@@ -52,7 +52,7 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   GlobalAdminMultisig: {
-    [eArbitrumNetwork.arbitrum]: "", 
+    [eArbitrumNetwork.arbitrum]: "0x0A5611a386249412b3E67ef009C905689E4bF0D7", 
   },
   ProviderRegistry: {
     [eArbitrumNetwork.arbitrum]: "",
@@ -191,10 +191,10 @@ export const CommonsConfig: ICommonConfiguration = {
     [eArbitrumNetwork.arbitrum]: ZERO_ADDRESS,
   },
   VMEXTreasury: {
-    [eArbitrumNetwork.arbitrum]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", //TODO change
+    [eArbitrumNetwork.arbitrum]: "0x88c3112a6D029a2b738e72C2B2ec33E496E78C82", 
   },
   VMEXRewardsVault: {
-    [eArbitrumNetwork.arbitrum]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", //TODO change
+    [eArbitrumNetwork.arbitrum]: "0x00C1aB6ac0cA3F3De7511b147d9E4F455af72657", 
   },
   SequencerUptimeFeed: {
     [eArbitrumNetwork.arbitrum]: "0xBCF85224fc0756B9Fa45aA7892530B47e10b6433"
@@ -215,6 +215,14 @@ export const CommonsConfig: ICommonConfiguration = {
       "FRAXBPCRV-f": {
         address: "0x95285ea6ff14f80a2fd3989a6bab993bd6b5fa13",
         type: 4,
+      },
+      "wstETH-WETH-BPT": {
+        address: "0xa7bdad177d474f946f3cdeb4bcea9d24cf017471",
+        type: 3, //aura
+      },
+      "rETH-WETH-BPT": {
+        address: "0x129a44ac6ff0f965c907579f96f2ed682e52c84a",
+        type: 3, //aura
       },
       // "vAMM-WETH/USDC": {
       //   address: "0xdb74aE9C3d1b96326BDAb8E1da9c5e98281d576e",
