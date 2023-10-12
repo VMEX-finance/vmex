@@ -30,6 +30,4 @@ task('full:deploy-address-provider-registry', 'Deploy address provider registry'
       const contract = await deployLendingPoolAddressesProviderRegistry(verify);
       console.log('Deployed Registry Address:', contract.address);
     }
-    console.log("NEW: deploy aave libraries first so all contracts can use it")
-    await deployAaveLibraries();
   });

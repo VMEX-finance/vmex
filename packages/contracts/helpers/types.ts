@@ -15,7 +15,8 @@ export type eNetwork =
   | eXDaiNetwork
   | eAvalancheNetwork
   | eOptimismNetwork
-  | eBaseNetwork;
+  | eBaseNetwork
+  | eArbitrumNetwork;
 
 export enum eEthereumNetwork {
   buidlerevm = "buidlerevm",

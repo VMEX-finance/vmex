@@ -11,6 +11,8 @@ import {
   claimTrancheId,
   initReservesByHelper,
   getTranche0MockedDataArbitrum,
+  getTranche0TestingMockedDataArbitrum,
+  getTranche1MockedDataArbitrum,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -67,10 +69,14 @@ task(
       await waitForTx(
         await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 0)
       );
+      let assets0, reserveFactors0, canBorrow0, canBeCollateral0;
       
-      // TODO: use real data for tranches that we want to deploy
-
-      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedDataArbitrum(reserveAssets);
+      if(network.includes("localhost")) {
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0TestingMockedDataArbitrum(reserveAssets);
+      } else {
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedDataArbitrum(reserveAssets);
+      }
+      
       await initReservesByHelper(
         assets0,
         reserveFactors0,
@@ -90,32 +96,32 @@ task(
           .setTranchePause(false, 0)
       );
 
-      // await claimTrancheId("Vmex tranche 1", admin);
+      await claimTrancheId("Vmex tranche 1", admin);
 
-      // // Pause market during deployment
-      // await waitForTx(
-      //   await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 1)
-      // );
+      // Pause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 1)
+      );
 
-      // let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1MockedDataOP(reserveAssets);
-      // await initReservesByHelper(
-      //   assets1,
-      //   reserveFactors1,
-      //   canBorrow1,
-      //   canBeCollateral1,
-      //   admin,
-      //   treasuryAddress,
-      //   1
-      // );
+      let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1MockedDataArbitrum(reserveAssets);
+      await initReservesByHelper(
+        assets1,
+        reserveFactors1,
+        canBorrow1,
+        canBeCollateral1,
+        admin,
+        treasuryAddress,
+        1
+      );
 
       
 
-      // // Unpause market during deployment
-      // await waitForTx(
-      //   await lendingPoolConfiguratorProxy
-      //     .connect(admin)
-      //     .setTranchePause(false, 1)
-      // );
+      // Unpause market during deployment
+      await waitForTx(
+        await lendingPoolConfiguratorProxy
+          .connect(admin)
+          .setTranchePause(false, 1)
+      );
     } catch (err) {
       console.error(err);
       exit(1);

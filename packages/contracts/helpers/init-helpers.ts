@@ -520,10 +520,76 @@ export const getTranche0MockedDataBase = (allReservesAddresses: {
 };
 
 
-export const getTranche0MockedDataArbitrum = (allReservesAddresses: {
+export const getTranche0TestingMockedDataArbitrum = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
   let assets0: tEthereumAddress[] = Object.values(allReservesAddresses);
+
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("0");
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
+  }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
+
+
+export const getTranche1MockedDataArbitrum = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
+    allReservesAddresses["DAI"],
+    allReservesAddresses["ARB"],
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDT"],
+    allReservesAddresses["WBTC"],
+    allReservesAddresses["WETH"],
+    allReservesAddresses["wstETH"],
+    allReservesAddresses["FRAX"],
+    allReservesAddresses["USDC.e"],
+    allReservesAddresses["rETH"],
+    allReservesAddresses["LUSD"],
+  ];
+
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("0");
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
+  }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
+
+
+export const getTranche0MockedDataArbitrum = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
+    allReservesAddresses["USDC.e"],
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDT"],
+    allReservesAddresses["WETH"],
+    allReservesAddresses["wstETH"],
+
+    allReservesAddresses["2CRV"],
+    allReservesAddresses["FRAXBPCRV-f"],
+    allReservesAddresses["wstETHCRV"],
+    allReservesAddresses["rETH-WETH-BPT"],
+    allReservesAddresses["wstETH-WETH-BPT"],
+
+    allReservesAddresses["CMLT-ARB-ETH"],
+    allReservesAddresses["CMLT-ETH-USDC.e"],
+    allReservesAddresses["CMLT-USDT-USDC.e"],
+    allReservesAddresses["CMLT-wstETH-ETH"],
+    allReservesAddresses["CMLT-LUSD-USDC.e"],
+  ];
 
   let reserveFactors0: string[] = [];
   let canBorrow0: boolean[] = [];
