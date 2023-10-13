@@ -55,37 +55,37 @@ export const CommonsConfig: ICommonConfiguration = {
     [eArbitrumNetwork.arbitrum]: "0x0A5611a386249412b3E67ef009C905689E4bF0D7", 
   },
   ProviderRegistry: {
-    [eArbitrumNetwork.arbitrum]: "",
+    [eArbitrumNetwork.arbitrum]: "0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0",
   },
   ProviderRegistryOwner: {
     [eArbitrumNetwork.arbitrum]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B",
   },
   LendingPoolAddressesProvider: {
-    [eArbitrumNetwork.arbitrum]: "",
+    [eArbitrumNetwork.arbitrum]: "0x47a61eb4a66E68ca522e998e6c163C880845c5a9",
   },
   AssetMappingsImpl: {
-    [eArbitrumNetwork.arbitrum]: "",
+    [eArbitrumNetwork.arbitrum]: "0x19dDCA5857BBC4DFc1AEd23a08317eeb7708C576",
   },
   AssetMappings: {
-    [eArbitrumNetwork.arbitrum]: "",
+    [eArbitrumNetwork.arbitrum]: "0x1703F0EC7f77a1042D9B0c2868e38c60300b4C9b",
   },
   LendingPoolCollateralManager: { //this is the impl
-    [eArbitrumNetwork.arbitrum]: '',
+    [eArbitrumNetwork.arbitrum]: '0xcb8d8dBD00144DBCEcB0bd1dE7Bf1b4edd7f8bA3',
   },
   LendingPoolConfigurator: { //this is the impl
-    [eArbitrumNetwork.arbitrum]: '',
+    [eArbitrumNetwork.arbitrum]: '0x92FC9165dC2080F4B9E56d089B295EE1f666813B',
   },
   LendingPool: { //this is the impl
-    [eArbitrumNetwork.arbitrum]: '',
+    [eArbitrumNetwork.arbitrum]: '0x44dDc5Bfc8a165Dae7113232F139Ba4d065Ac50F',
   },
   WethGateway: {
-    [eArbitrumNetwork.arbitrum]: '',
+    [eArbitrumNetwork.arbitrum]: '0x57e24fFa944F80573B0F46D3e69d8E8Df158Dc64',
   },
   TokenDistributor: {
     [eArbitrumNetwork.arbitrum]: '',
   },
   FallbackOracle: {
-    [eArbitrumNetwork.arbitrum]: '',
+    [eArbitrumNetwork.arbitrum]: '0xD46DC5cB51aC5d9E9584EAd99e9a6E061B143A97',
   },
   UniswapV3OracleAddresses: {
     [eArbitrumNetwork.arbitrum]: {},
@@ -200,7 +200,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eArbitrumNetwork.arbitrum]: "0xBCF85224fc0756B9Fa45aA7892530B47e10b6433"
   },
   RETHOracle: {
-    [eArbitrumNetwork.arbitrum]: ""
+    [eArbitrumNetwork.arbitrum]: "" //not using the rate, but instead Aave's CL Adapter Sync
   },
   ExternalStakingContracts: {
     [eArbitrumNetwork.arbitrum]: {
