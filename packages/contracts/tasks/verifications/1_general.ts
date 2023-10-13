@@ -19,6 +19,7 @@ import {
   getLendingPoolConfiguratorProxy,
   getLendingPoolImpl,
   getProxy,
+  getVmexToken,
   getWalletProvider,
   getWETHGateway,
 } from '../../helpers/contracts-getters';
@@ -168,6 +169,15 @@ task('verify:general', 'Verify contracts at Etherscan')
     await verifyContract(
       eContractid.VMEXOracle,
       vmexoracleProxy,
+      []
+    );
+
+    // Vmex Token
+    const vmexToken = await getVmexToken();
+    console.log('\n- Verifying Vmex Token...\n');
+    await verifyContract(
+      eContractid.VmexToken,
+      vmexToken,
       []
     );
 
