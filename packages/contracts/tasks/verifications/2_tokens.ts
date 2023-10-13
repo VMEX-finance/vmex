@@ -61,7 +61,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
       eContractid.AToken, 
       await getAToken(aTokenImpl), 
       [],
-      0
     );
 
     console.log('\n- Verifying var debt impl...\n');
@@ -69,7 +68,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
       eContractid.VariableDebtToken, 
       await getVariableDebtToken(varDebtImpl), 
       [],
-      0
     );
 
     console.log('\n- Verifying atoken beacon...\n');
@@ -79,7 +77,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
       [
         aTokenImpl,
       ],
-      0
     );
 
     console.log('\n- Verifying variable debt beacon...\n');
@@ -89,7 +86,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
       [
         varDebtImpl,
       ],
-      0
     );
     const lendingPoolProxy = LendingPoolFactory.connect(
       await addressesProvider.getLendingPool(),
@@ -169,7 +165,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
           eContractid.InitializableAdminUpgradeabilityProxy,
           await getProxy(variableDebtTokenAddress),
           [debtBeacon, varDebtEncodedCall],
-          100,
         );
 
         // Proxy aToken
@@ -178,8 +173,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
           eContractid.InitializableAdminUpgradeabilityProxy,
           await getProxy(aTokenAddress),
           [aTokenBeacon, aTokenEncodedCall],
-          0,
-          1
         );
 
         // Strategy Rate
@@ -194,7 +187,6 @@ task("verify:tokens", "Deploy oracles for dev enviroment")
             variableRateSlope1,
             variableRateSlope2,
           ],
-          100
         );
 
         // const variableDebt = await getAddressById(`variableDebt${token}`);
