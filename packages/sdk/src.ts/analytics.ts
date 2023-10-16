@@ -328,6 +328,7 @@ export async function getUserSummaryData(
   },
   callback?: () => Promise<UserSummaryData>
 ): Promise<UserSummaryData> {
+  console.log("getUserSummaryData: ",params)
   const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
@@ -343,6 +344,7 @@ export async function getUserSummaryData(
     base.ETHBase,
     base.chainlinkConverter
   ]);
+  console.log("finished getUserSummaryData: ", data)
   return data;
 }
 

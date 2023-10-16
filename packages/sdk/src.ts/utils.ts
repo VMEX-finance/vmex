@@ -13,6 +13,8 @@ import {
   REVERSE_BASE_ASSET_MAPPINGS,
   SEPOLIA_CUSTOM_ASSET_MAPPINGS,
   ZERO_ADDRESS,
+  REVERSE_ARBITRUM_ASSET_MAPPINGS,
+  ARBITRUM_ASSET_MAPPINGS,
 } from "./constants";
 import {
   getLendingPoolConfiguratorProxy,
@@ -54,6 +56,8 @@ export function convertAddressToSymbol(asset: string, network: string) {
       return REVERSE_OPTIMISM_ASSET_MAPPINGS.get(asset);
     case "base":
       return REVERSE_BASE_ASSET_MAPPINGS.get(asset);
+    case "arbitrum":
+      return REVERSE_ARBITRUM_ASSET_MAPPINGS.get(asset);
   }
 
   throw Error(`Asset=${asset} not found on network ${network}`);
@@ -90,6 +94,8 @@ export function convertSymbolToAddress(asset: string, network: string) {
         return OPTIMISM_ASSET_MAPPINGS.get(asset);
       case "base":
         return BASE_ASSET_MAPPINGS.get(asset);
+      case "arbitrum":
+        return ARBITRUM_ASSET_MAPPINGS.get(asset);
     }
   } catch (err) {
     console.log(`Asset ${asset} mappings error: ${err}`)
@@ -115,6 +121,8 @@ export function getAllAssetSymbols(network: string): string[] {
       return Array.from(OPTIMISM_ASSET_MAPPINGS.keys());
     case "base":
       return Array.from(BASE_ASSET_MAPPINGS.keys());
+    case "arbitrum":
+      return Array.from(ARBITRUM_ASSET_MAPPINGS.keys());
   }
   throw Error(`network=${network} not found`);
 }
@@ -316,6 +324,8 @@ export function getDecimalBase(network): {ETHBase: boolean, chainlinkConverter: 
       return {ETHBase: false, chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"};
     case "base":
       return {ETHBase: false, chainlinkConverter: "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"};
+    case "arbitrum":
+      return {ETHBase: false, chainlinkConverter: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"};
     case "main":
       return {ETHBase: true, chainlinkConverter: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"};
       // TODO: get asset prices from subgraph

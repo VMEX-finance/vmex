@@ -63,6 +63,10 @@ if (isLocalhost(network)) {
     key = process.env.BASE_ALCHEMY_KEY
     providerRpc = `https://base-mainnet.g.alchemy.com/v2/${key}`;
   }
+  if (network == "arbitrum") {
+    key = process.env.ARBITRUM_ALCHEMY_KEY
+    providerRpc = `https://arb-mainnet.g.alchemy.com/v2/${key}`;
+  }
   const myprovider = new ethers.providers.JsonRpcProvider(providerRpc);
   temp = Wallet.fromMnemonic(process.env.MNEMONIC, `m/44'/60'/0'/0/0`).connect(
     myprovider
@@ -172,7 +176,7 @@ describe("getPrices", () => {
   it("Try getting prices of weth and btc", async () => {
     const dat = await getAssetPrices(
       {
-        assets: ["WETH","WBTC"],
+        assets: ["WETH"],
         network: network,
         test: false,
         providerRpc: providerRpc

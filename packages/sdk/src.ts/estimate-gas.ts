@@ -4,12 +4,21 @@ import { getIErc20, getIncentivesController, getLendingPool, getVMEXOracle } fro
 import { convertAddressToSymbol, convertSymbolToAddress, convertToCurrencyDecimals, getAssetPrices, getDecimalBase } from "./utils";
 
 async function getGasCostAlchemy(networkAlias: string) {
+  let requestQuery;
+  switch (networkAlias) {
+    case "opt":
+      requestQuery = `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}`;
+    case "base":
+      requestQuery = `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_BASE_ALCHEMY_KEY}`
+    case "arb":
+      requestQuery = `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ARBITRUM_ALCHEMY_KEY}`
+    case "sepolia":
+      requestQuery = `https://eth-sepolia.g.alchemy.com/v2/${process.env.REACT_APP_SEPOLIA_ALCHEMY_KEY}`
+    case "eth":
+      requestQuery = `https://eth-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_MAINNET_ALCHEMY_KEY}`
+  }
   return fetch(
-    networkAlias == 'opt'
-    ? `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}`
-    : networkAlias == 'base'
-    ? `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_BASE_ALCHEMY_KEY}`
-    :`https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_SEPOLIA_ALCHEMY_KEY}`,
+    requestQuery,
     {
       method: "POST",
       headers: {
@@ -35,15 +44,14 @@ export async function getGasCost(network: string): Promise<BigNumberish> {
     case "mainnet":
       return getGasCostAlchemy("eth");
     case "sepolia":
-      return getGasCostAlchemy("eth");
-    case "goerli":
-      return getGasCostAlchemy("eth");
-
+      return getGasCostAlchemy("sepolia");
     case "optimism_localhost":
     case "optimism":
       return getGasCostAlchemy("opt");
     case "base":
       return getGasCostAlchemy("base");
+    case "arbitrum":
+      return getGasCostAlchemy("arb");
   }
 
   console.error("Could not get gas cost of network: ", network);
