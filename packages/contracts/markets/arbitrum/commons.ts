@@ -197,7 +197,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eArbitrumNetwork.arbitrum]: "0x00C1aB6ac0cA3F3De7511b147d9E4F455af72657", 
   },
   SequencerUptimeFeed: {
-    [eArbitrumNetwork.arbitrum]: "0xBCF85224fc0756B9Fa45aA7892530B47e10b6433"
+    [eArbitrumNetwork.arbitrum]: "0xFdB631F5EE196F0ed6FAa767959853A9F217697D"
   },
   RETHOracle: {
     [eArbitrumNetwork.arbitrum]: "" //not using the rate, but instead Aave's CL Adapter Sync

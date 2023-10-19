@@ -99,6 +99,11 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   BeethovenMetadata: {
     [eBaseNetwork.base]: {
+      "cbETH-WETH-BPT": {
+        _typeOfPool: "1",
+        _legacy: false, // since uses actual supply, not total supply
+        _exists: true,
+      }
     },
   },
   ChainlinkAggregator: {
@@ -112,16 +117,24 @@ export const CommonsConfig: ICommonConfiguration = {
         heartbeat: 86400
       },
       cbETH: {
-        feed: '0x80f2c02224a2E548FC67c0bF705eBFA825dd5439',
+        feed: '0xd7818272B9e248357d13057AAb0B417aF31E817d',
+        heartbeat: 1200
+      },
+      DAI: {
+        feed: '0x591e79239a7d679378ec8c847e5038150364c78f',
+        heartbeat: 86400
+      },
+      USDC: {
+        feed: '0x7e860098F58bBFC8648a4311b374B1D669a2bc6B',
         heartbeat: 86400
       },
       bIB01: {
         feed: '0xB376D14d3dd93318A21E4Dd49fDdEC0e8574FA81',
-        heartbeat: 3600
+        heartbeat: 86400
       },
       bIBTA: {
         feed: '0x426F41474098f567562ce8FEfB0eE7AA990aa0F9',
-        heartbeat: 3600
+        heartbeat: 86400
       },
     },
   },
@@ -161,6 +174,14 @@ export const CommonsConfig: ICommonConfiguration = {
       },
       "vAMM-cbETH/WETH": {
         address: "0xDf9D427711CCE46b52fEB6B2a20e4aEaeA12B2b7",
+        type: 2,
+      },
+      "sAMM-DAI/USDbC": {
+        address: "0xCF1D5Aa63083fda05c7f8871a9fDbfed7bA49060",
+        type: 2,
+      },
+      "sAMM-USDC/USDbC": {
+        address: "0x1cfc45c5221a07da0de958098a319a29fbbd66fe",
         type: 2,
       },
     },

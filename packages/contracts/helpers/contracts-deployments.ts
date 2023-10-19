@@ -1031,7 +1031,7 @@ export const deployMockAggregator = async (
 export const deployVMEXOracle = async (verify?: boolean) =>
   withSaveAndVerify(
     await new VMEXOracleFactory(await getFirstSigner()).deploy(),
-    eContractid.VMEXOracle,
+    eContractid.VMEXOracleImpl,
     [],
     verify
   );

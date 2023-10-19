@@ -5,18 +5,25 @@ import { convertAddressToSymbol, convertSymbolToAddress, convertToCurrencyDecima
 
 async function getGasCostAlchemy(networkAlias: string) {
   let requestQuery;
+  console.log("networkAlias: ", networkAlias)
   switch (networkAlias) {
     case "opt":
       requestQuery = `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}`;
+      break
     case "base":
       requestQuery = `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_BASE_ALCHEMY_KEY}`
+      break
     case "arb":
       requestQuery = `https://${networkAlias}-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ARBITRUM_ALCHEMY_KEY}`
+      break
     case "sepolia":
       requestQuery = `https://eth-sepolia.g.alchemy.com/v2/${process.env.REACT_APP_SEPOLIA_ALCHEMY_KEY}`
+      break
     case "eth":
       requestQuery = `https://eth-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_MAINNET_ALCHEMY_KEY}`
+      break
   }
+  console.log("requestQuery: ", requestQuery)
   return fetch(
     requestQuery,
     {
@@ -75,6 +82,7 @@ export async function estimateGas(params: {
   incentivizedAssets?: string[];
   to?: string;
 }) {
+  console.log(params)
   // catch where this is consumed
   // try {
     const client = await params.signer.getAddress();

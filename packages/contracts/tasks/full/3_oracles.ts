@@ -109,7 +109,12 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         poolConfig.OracleQuoteUnit,
         poolConfig.OracleQuoteCurrency
       ));
-      await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators, true));
+      if(network == "base_localhost" as eNetwork) {
+        await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators, false));
+      } else {
+        await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators, true));
+      }
+      
       await waitForTx(await VMEXOracleProxy.setFallbackOracle(uniswapOracle.address));
       console.log("WETH addr: ",tokensToWatch["WETH"])
       await waitForTx(await VMEXOracleProxy.setWETH(tokensToWatch["WETH"]));

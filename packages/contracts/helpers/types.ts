@@ -76,6 +76,8 @@ export enum AavePools {
 }
 
 
+
+
 export enum eContractid {
   Example = "Example",
   Booster = "Booster",
@@ -154,7 +156,8 @@ export enum eContractid {
   DoubleTransferHelper = "DoubleTransferHelper",
   StakingRewardsMock = "StakingRewardsMock",
   MockIncentivesControllerImpl = "MockIncentivesControllerImpl",
-  AssetMappingsImpl = "AssetMappingsImpl"
+  AssetMappingsImpl = "AssetMappingsImpl",
+  VMEXOracleImpl = "VMEXOracleImpl"
 }
 
 /*
@@ -427,6 +430,9 @@ export interface iAssetBase<T> {
   "CMLT-LUSD-USDC.e": T;
   "bIB01": T;
   "bIBTA": T;
+  "sAMM-DAI/USDbC": T;
+  "sAMM-USDC/USDbC": T;
+  "cbETH-WETH-BPT": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -576,10 +582,15 @@ export type iBaseL2PoolAssets<T> = Partial<
     | "USDbC"
     | "WETH"
     | "cbETH"
+    | "DAI"
+    | "USDC"
     | "vAMM-WETH/USDbC"
     | "vAMM-cbETH/WETH"
+    | "sAMM-DAI/USDbC"
+    | "sAMM-USDC/USDbC"
     | "bIB01"
     | "bIBTA"
+    | "cbETH-WETH-BPT"
   >
 >;
 
