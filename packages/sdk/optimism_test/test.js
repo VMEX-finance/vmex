@@ -176,7 +176,7 @@ describe("getPrices", () => {
   it("Try getting prices of weth and btc", async () => {
     const dat = await getAssetPrices(
       {
-        assets: ["WETH"],
+        assets: ["bIB01"],
         network: network,
         test: false,
         providerRpc: providerRpc

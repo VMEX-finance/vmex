@@ -7,13 +7,15 @@ import {
   IBeethovenMetadata,
   CurveMetadata,
   BeethovenMetadata,
+  IInterestRateStrategyParams,
 } from "./types";
-import { chunk, getDb, waitForTx } from "./misc-utils";
+import { DRE, chunk, getDb, waitForTx } from "./misc-utils";
 import {
   getAToken,
   getLendingPoolAddressesProvider,
   getLendingPoolConfiguratorProxy,
   getAssetMappings,
+  getDbEntry,
 } from "./contracts-getters";
 import {
   rawInsertContractAddressInDb,
@@ -21,6 +23,7 @@ import {
 import { BigNumberish, ethers, Signer } from "ethers";
 import { deployRateStrategy } from "./contracts-deployments";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import * as fs from 'fs';
 
 export const getATokenExtraParams = async (
   aTokenName: string,
@@ -47,6 +50,124 @@ export const claimTrancheId = async (
   console.log("    * gasUsed", ret.gasUsed.toString());
 };
 
+const deployRateStrategyHelper = async (
+  strategy: IInterestRateStrategyParams,
+  addressesProvider: tEthereumAddress,
+  verify: boolean
+ ): Promise<tEthereumAddress> => {
+  // Strategy does not exist, create a new one
+  const rateStrategy: [
+    string, // addresses provider
+    string,
+    string,
+    string,
+    string
+  ] = [
+    addressesProvider,
+    strategy.optimalUtilizationRate,
+    strategy.baseVariableBorrowRate,
+    strategy.variableRateSlope1,
+    strategy.variableRateSlope2,
+  ];
+  const newStrategyAddresses = await deployRateStrategy(
+    strategy.name,
+    rateStrategy,
+    verify
+  );
+
+  // This causes the last strategy to be printed twice, once under "DefaultReserveInterestRateStrategy"
+  // and once under the actual `strategyASSET` key.
+  rawInsertContractAddressInDb(
+    strategy.name,
+    newStrategyAddresses
+  );
+
+  return newStrategyAddresses
+}
+
+const submitCurveMetadata = async (
+  tokenAddresses: { [symbol: string]: tEthereumAddress },
+  admin: SignerWithAddress | Signer,
+  submitTx: boolean,
+  curveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
+) => {
+  if (curveMetadata) {
+    const assetMappings = await getAssetMappings();
+    let curveToken: string[] = [];
+    let curveParams: CurveMetadata[] = [];
+
+    for (let [symbol, params] of Object.entries(curveMetadata)) {
+      if (!tokenAddresses[symbol]) {
+        console.log(
+          `- Skipping init of ${symbol} due token address is not set at markets config`
+        );
+        continue;
+      }
+      const existingCurveMetadata = await assetMappings.getCurveMetadata(tokenAddresses[symbol])
+      console.log("existingCurveMetadata: ", existingCurveMetadata)
+      if(!existingCurveMetadata) continue
+      curveToken.push(tokenAddresses[symbol]);
+      curveParams.push(params);
+    }
+    console.log("- Setting curve metadata");
+    if(submitTx) {
+      const tx4 = await waitForTx(
+        await assetMappings
+          .connect(admin)
+          .setCurveMetadata(curveToken, curveParams)
+      );
+
+      console.log("    * gasUsed", tx4.gasUsed.toString());
+    } else if(curveToken.length != 0) {
+      const setCurveMetadataData = assetMappings.interface.encodeFunctionData("setCurveMetadata", [curveToken, curveParams])
+      console.log("setCurveMetadataData: ", setCurveMetadataData);
+    }
+  }
+}
+
+const submitBeethovenMetadata = async (
+  tokenAddresses: { [symbol: string]: tEthereumAddress },
+  admin: SignerWithAddress | Signer,
+  submitTx: boolean,
+  beethovenMetadata?: iMultiPoolsAssets<IBeethovenMetadata>,
+) => {
+  if (beethovenMetadata) {
+    const assetMappings = await getAssetMappings();
+    let beethovenToken: string[] = [];
+    let beethovenParams: BeethovenMetadata[] = [];
+
+    for (let [symbol, params] of Object.entries(beethovenMetadata)) {
+      if (!tokenAddresses[symbol]) {
+        console.log(
+          `- Skipping init of ${symbol} due token address is not set at markets config`
+        );
+        continue;
+      }
+      const isAssetInMappings = await assetMappings.isAssetInMappings(tokenAddresses[symbol])
+
+      if(isAssetInMappings) continue
+      console.log("adding beethoven metadata for symbol: ", symbol)
+      beethovenToken.push(tokenAddresses[symbol]);
+      beethovenParams.push(params);
+    }
+    console.log("- Setting beethoven metadata");
+
+    if(submitTx) {
+      const tx4 = await waitForTx(
+        await assetMappings
+          .connect(admin)
+          .setBeethovenMetadata(beethovenToken, beethovenParams)
+      );
+
+      console.log("    * gasUsed", tx4.gasUsed.toString());
+
+    } else if(beethovenToken.length != 0) {
+      const setBeethovenMetadataData = assetMappings.interface.encodeFunctionData("setBeethovenMetadata", [beethovenToken, beethovenParams])
+      console.log("setBeethovenMetadataData: ", setBeethovenMetadataData);
+    }
+  }
+}
+
 //create another initReserves that initializes the curve v2, or just use this.
 //called by aave:fork mainnet setup where they know the addresses of the tokens.
 // initializes more reserves that are not lendable, have no stable and variable debt, no interest rate strategy, governance needs to give them a risk
@@ -56,9 +177,9 @@ export const initAssetData = async (
   admin: SignerWithAddress | Signer,
   verify: boolean,
   curveMetadata?: iMultiPoolsAssets<ICurveMetadata>,
-  beethovenMetadata?: iMultiPoolsAssets<IBeethovenMetadata>
+  beethovenMetadata?: iMultiPoolsAssets<IBeethovenMetadata>,
+  submitTx: boolean = true //if false, prints tx hash to console instead of submitting it. This is for the purpose of submitting in multisig
 ) => {
-  // initTrancheMultiplier();
   const addressProvider = await getLendingPoolAddressesProvider();
 
   // Initialize variables for future reserves initialization
@@ -81,14 +202,6 @@ export const initAssetData = async (
     tokenSymbol: string;
   }[] = [];
 
-  let strategyRates: [
-    string, // addresses provider
-    string,
-    string,
-    string,
-    string
-  ];
-  let rateStrategies: Record<string, typeof strategyRates> = {};
   let strategyAddresses: Record<string, tEthereumAddress> = {};
 
   const reserves = Object.entries(reservesParams);
@@ -118,33 +231,24 @@ export const initAssetData = async (
       reserveFactor,
     } = params;
 
-    const {
-      optimalUtilizationRate,
-      baseVariableBorrowRate,
-      variableRateSlope1,
-      variableRateSlope2,
-    } = strategy;
-    if (!strategyAddresses[strategy.name]) {
-      // Strategy does not exist, create a new one
-      rateStrategies[strategy.name] = [
-        addressProvider.address,
-        optimalUtilizationRate,
-        baseVariableBorrowRate,
-        variableRateSlope1,
-        variableRateSlope2,
-      ];
-      strategyAddresses[strategy.name] = await deployRateStrategy(
-        strategy.name,
-        rateStrategies[strategy.name],
-        verify
-      );
+    const isAssetInMappings = await assetMappings.isAssetInMappings(tokenAddresses[symbol])
 
-      // This causes the last strategy to be printed twice, once under "DefaultReserveInterestRateStrategy"
-      // and once under the actual `strategyASSET` key.
-      rawInsertContractAddressInDb(
-        strategy.name,
-        strategyAddresses[strategy.name]
-      );
+    if(isAssetInMappings) {
+      console.log("already have ", symbol, " in mappings. skipping")
+      const existingMapping = await assetMappings.getAssetMapping(tokenAddresses[symbol])
+      strategyAddresses[strategy.name] = existingMapping.defaultInterestRateStrategyAddress
+      continue
+    }
+    console.log("Attempting to process new asset: ", symbol)
+
+    const dbEntry = await getDbEntry(strategy.name);
+    if(dbEntry && DRE.network.name.includes("localhost")){
+      console.log("db already has ", strategy.name, " as ",dbEntry.address)
+      strategyAddresses[strategy.name] = dbEntry.address
+    }
+
+    if (!strategyAddresses[strategy.name]) {
+      strategyAddresses[strategy.name] = await deployRateStrategyHelper(strategy, addressProvider.address, verify)
     }
     // Prepare input parameters
     reserveSymbols.push(symbol);
@@ -167,61 +271,20 @@ export const initAssetData = async (
   }
 
   console.log(`- AssetData initialization`);
-  const tx3 = await waitForTx(
-    await assetMappings.connect(admin).addAssetMapping(initInputParams)
-  );
-
-  console.log("    * gasUsed", tx3.gasUsed.toString());
-
-  if (curveMetadata) {
-    let curveToken: string[] = [];
-    let curveParams: CurveMetadata[] = [];
-
-    for (let [symbol, params] of Object.entries(curveMetadata)) {
-      if (!tokenAddresses[symbol]) {
-        console.log(
-          `- Skipping init of ${symbol} due token address is not set at markets config`
-        );
-        continue;
-      }
-      curveToken.push(tokenAddresses[symbol]);
-      curveParams.push(params);
-    }
-    console.log("- Setting curve metadata");
-
-    const tx4 = await waitForTx(
-      await assetMappings
-        .connect(admin)
-        .setCurveMetadata(curveToken, curveParams)
+  if(submitTx) {
+    const tx3 = await waitForTx(
+      await assetMappings.connect(admin).addAssetMapping(initInputParams)
     );
 
-    console.log("    * gasUsed", tx4.gasUsed.toString());
+    console.log("    * gasUsed", tx3.gasUsed.toString());
+  } else {
+    const addAssetMappingCall = assetMappings.interface.encodeFunctionData("addAssetMapping", [initInputParams])
+
+    console.log("addAssetMappingCall: ", addAssetMappingCall);
   }
 
-  if (beethovenMetadata) {
-    let beethovenToken: string[] = [];
-    let beethovenParams: BeethovenMetadata[] = [];
-
-    for (let [symbol, params] of Object.entries(beethovenMetadata)) {
-      if (!tokenAddresses[symbol]) {
-        console.log(
-          `- Skipping init of ${symbol} due token address is not set at markets config`
-        );
-        continue;
-      }
-      beethovenToken.push(tokenAddresses[symbol]);
-      beethovenParams.push(params);
-    }
-    console.log("- Setting beethoven metadata");
-
-    const tx4 = await waitForTx(
-      await assetMappings
-        .connect(admin)
-        .setBeethovenMetadata(beethovenToken, beethovenParams)
-    );
-
-    console.log("    * gasUsed", tx4.gasUsed.toString());
-  }
+  await submitCurveMetadata(tokenAddresses, admin, submitTx, curveMetadata)
+  await submitBeethovenMetadata(tokenAddresses, admin, submitTx, beethovenMetadata)
 };
 
 //create another initReserves that initializes the curve v2, or just use this.
@@ -496,6 +559,23 @@ export const getTranche1MockedDataOP = (allReservesAddresses: {
 };
 
 
+export const getTranche0TestingMockedDataBase = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] =  Object.values(allReservesAddresses);
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("0");
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
+  }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
+
+
 export const getTranche0MockedDataBase = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
@@ -503,10 +583,13 @@ export const getTranche0MockedDataBase = (allReservesAddresses: {
     allReservesAddresses["USDbC"],
     allReservesAddresses["WETH"],
     allReservesAddresses["cbETH"],
-    allReservesAddresses["vAMM-WETH/USDbC"],
-    allReservesAddresses["vAMM-cbETH/WETH"],
-  ];
-
+    allReservesAddresses["DAI"],
+    allReservesAddresses["USDC"],
+    allReservesAddresses["USDbC"],
+    allReservesAddresses["sAMM-DAI/USDbC"],
+    allReservesAddresses["sAMM-USDC/USDbC"],
+    allReservesAddresses["cbETH-WETH-BPT"],
+  ]
   let reserveFactors0: string[] = [];
   let canBorrow0: boolean[] = [];
   let canBeCollateral0: boolean[] = [];

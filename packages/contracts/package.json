@@ -1,6 +1,6 @@
 {
   "name": "@vmexfinance/contracts",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "description": "VMEX V1 smart contracts",
   "private": false,
   "files": [
@@ -47,6 +47,7 @@
     "hardhat:sepolia": "hardhat --network sepolia",
     "hardhat:optimism": "hardhat --network optimism",
     "hardhat:base": "hardhat --network base",
+    "hardhat:arbitrum": "hardhat --network arbitrum",
     "compile": "SKIP_LOAD=true hardhat compile",
     "console:fork": "FORK=main hardhat console",
     "console:localhost:fork": "FORK=main hardhat console --network localhost",
@@ -100,6 +101,7 @@
     "vmex:base:upgrade:oracle": "npm run compile && hardhat vmex:upgrade-oracle --network base --verify",
     "vmex:base:upgrade:assetmappings": "npm run compile && hardhat vmex:upgrade-assetmappings --network base --verify",
     "vmex:base:backed-bytecode": "npm run compile && hardhat vmex:backed-bytecode --network base",
+    "vmex:base:add-assets": "npm run compile && hardhat add:assets --network base --pool base",
     "vmex:optimism:redeploy:weth-gateway": "npm run compile && hardhat full-redeploy-weth-gateway --pool optimism --network optimism --verify",
     "vmex:base:full:migration": "npm run compile && hardhat sidechain:mainnet --pool base --network base --verify",
     "vmex:arbitrum:full:migration": "npm run compile && hardhat sidechain:mainnet --pool arbitrum --network arbitrum --verify",
@@ -124,6 +126,7 @@
     "vmex:base:verify": "npm run hardhat:base verify:general -- --all --pool base",
     "vmex:base:verify:tokens": "npm run hardhat:base verify:tokens -- --pool base",
     "vmex:base:verify:unit": "npm run hardhat:base verify:unit -- --pool base",
+    "vmex:arb:verify:unit": "npm run hardhat:arbitrum verify:unit -- --pool arbitrum",
     "print-config:fork:mainnet": "FORK=main hardhat print-config:fork",
     "external:deploy-assets-main": "npm run compile && hardhat --network main external:deploy-new-asset --symbol ${SYMBOL} --verify",
     "prepublishOnly": "npm run compile",

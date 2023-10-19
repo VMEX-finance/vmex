@@ -114,7 +114,7 @@ makeSuite(
             const lendingPool = await contractGetters.getLendingPool();
             for(let [symbol, address] of Object.entries(tokens)){
                 console.log("Testing ",symbol)
-                if(symbol=="WETH"){
+                if(symbol=="bIB01" || symbol=="bIBTA" || symbol=="USDbC"){
                   continue
                 }
 
@@ -125,7 +125,7 @@ makeSuite(
                 const WETHdec = await myWETH.connect(signer).decimals();
                 const tokenConfig = config[symbol]
 
-                const origAmt = Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec)
+                const origAmt = Math.round(Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec))
                 await setBalance(address, signer, origAmt.toString())
                 var signerOrigAmt = await USDC.connect(signer).balanceOf(signer.address)
                 //give some to emergency so they can repay debt
@@ -243,17 +243,18 @@ makeSuite(
               if(symbol.substring(0,2)=="yv") {
                 rewardAdd = "0x7D2382b1f8Af621229d33464340541Db362B4907"
               }
-              if(symbol.substring(1,4)!="AMM") {
-                rewardAdd = "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db"
+              if(symbol.substring(1,4)=="AMM") {
+                if(network == "optimism") rewardAdd = "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db"
+                if(network == "base") rewardAdd = "0x940181a94A35A4569E4529A3CDfB74e38FD98631"
               }
-              if(symbol.substring(0,3)!="BPT") {
+              if(symbol.substring(0,3)=="BPT") {
                 rewardAdd = "0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921"
               }
               if(symbol.includes("CRV")) {
                 if(network == "optimism") rewardAdd = "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53" 
                 if(network == "arbitrum") rewardAdd = "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978" 
               }
-              if(symbol.substring(0,3)!="CMLT") {
+              if(symbol.substring(0,3)=="CMLT") {
                 rewardAdd = "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8"
               }
               console.log("Testing ", symbol);

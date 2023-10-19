@@ -2,8 +2,16 @@ import BigNumber from 'bignumber.js';
 import { oneRay } from '../../helpers/constants';
 import { IInterestRateStrategyParams } from '../../helpers/types';
 
+// DAI
+export const rateStrategyStableTwo: IInterestRateStrategyParams = {
+  name: "rateStrategyStableTwo",
+  optimalUtilizationRate: new BigNumber(0.9).multipliedBy(oneRay).toFixed(),
+  baseVariableBorrowRate: new BigNumber(0).multipliedBy(oneRay).toFixed(),
+  variableRateSlope1: new BigNumber(0.04).multipliedBy(oneRay).toFixed(),
+  variableRateSlope2: new BigNumber(0.75).multipliedBy(oneRay).toFixed(),
+}
 
-// USDC USDT
+// USDC USDbC
 export const rateStrategyStableThree: IInterestRateStrategyParams = {
   name: "rateStrategyStableThree",
   optimalUtilizationRate: new BigNumber(0.9).multipliedBy(oneRay).toFixed(),

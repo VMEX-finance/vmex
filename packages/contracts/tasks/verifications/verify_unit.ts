@@ -6,6 +6,7 @@ import {
 } from '../../helpers/configuration';
 import {
   getInterestRateStrategy,
+  getLendingPoolAddressesProvider,
   getVMEXOracle,
 } from '../../helpers/contracts-getters';
 import { verifyContract, getParamPerNetwork } from '../../helpers/contracts-helpers';
@@ -18,11 +19,11 @@ task('verify:unit', 'Verify a single contract at Etherscan')
   .setAction(async ({ all, pool }, localDRE) => {
     await localDRE.run('set-DRE');
     
-      const c = await getInterestRateStrategy("0x7671B8296722a9609152cc35AB15FB2d2e4D13B9");
+      const c = await getVMEXOracle("0x0c3E4a646363b91b8b956cF5D1fe761521C1E1ff");
 
       // Asset mappings
       console.log('\n- Verifying contract...\n');
-      await verifyContract("", c, ["0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0", new BigNumber(0.45).multipliedBy(oneRay).toFixed(), '0', '0', '0']);
+      await verifyContract("", c, []);
 
     console.log('Finished verifications.');
   });
