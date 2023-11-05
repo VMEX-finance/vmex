@@ -12,6 +12,7 @@
   "scripts": {
     "contracts": "yarn workspace @vmexfinance/contracts",
     "sdk": "yarn workspace @vmexfinance/sdk",
+    "monitoring": "yarn workspace @vmexfinance/monitoring",
     "start:dev": "yarn contracts compile && yarn sdk build && yarn contracts start:dev && yarn sdk fund:accounts"
   },
   "dependencies": {

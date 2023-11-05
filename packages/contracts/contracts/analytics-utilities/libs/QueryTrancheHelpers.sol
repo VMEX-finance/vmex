@@ -12,7 +12,7 @@ import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import { IERC20Detailed } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import { IChainlinkAggregator } from "../../interfaces/IChainlinkAggregator.sol";
 import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
-import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
+import { QueryReserveHelpers } from "./QueryReserveHelpers.sol";
 
 library QueryTrancheHelpers {
 
@@ -70,9 +70,10 @@ library QueryTrancheHelpers {
 
         for (uint8 i = 0; i < assets.length;) {
 
-            QueryAssetHelpers.AssetData memory assetData =
-                QueryAssetHelpers.getAssetData(assets[i], tranche, addressesProvider, address(0));//TODO: add chainlink address if this function is needed
+            QueryReserveHelpers.ReserveSummary memory assetData =
+                QueryReserveHelpers.getReserveData(assets[i], tranche, addressesProvider);
 
+            // TODO: convert amounts to usd
             tvl += assetData.totalReserves;
 
             totalSupplied += assetData.totalSupplied;

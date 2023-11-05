@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
-import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
+import { PricingHelpers } from "../libs/PricingHelpers.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { IERC20Detailed } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
@@ -24,13 +24,13 @@ contract GetAllAssetPrices {
             allAssetPrices[i].oracle = ILendingPoolAddressesProvider(providerAddr)
                 .getPriceOracle();
             if(ETHBase){
-                allAssetPrices[i].priceETH = QueryAssetHelpers.tryGetAssetPrice(allAssetPrices[i].oracle, assets[i]);
-                allAssetPrices[i].priceUSD = QueryAssetHelpers.convertEthToUsd(allAssetPrices[i].priceETH, chainlinkOracleConverter);
+                allAssetPrices[i].priceETH = PricingHelpers.tryGetAssetPrice(allAssetPrices[i].oracle, assets[i]);
+                allAssetPrices[i].priceUSD = PricingHelpers.convertEthToUsd(allAssetPrices[i].priceETH, chainlinkOracleConverter);
             } else { //prices are in USD
-                allAssetPrices[i].priceUSD = QueryAssetHelpers.tryGetAssetPrice(allAssetPrices[i].oracle, assets[i]);
-                allAssetPrices[i].priceETH = QueryAssetHelpers.convertUsdToEth(allAssetPrices[i].priceUSD, chainlinkOracleConverter);
+                allAssetPrices[i].priceUSD = PricingHelpers.tryGetAssetPrice(allAssetPrices[i].oracle, assets[i]);
+                allAssetPrices[i].priceETH = PricingHelpers.convertUsdToEth(allAssetPrices[i].priceUSD, chainlinkOracleConverter);
             }
-            
+
             unchecked { ++i; }
         }
 
