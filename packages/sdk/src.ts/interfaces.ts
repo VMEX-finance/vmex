@@ -61,43 +61,48 @@ export interface UserWalletData {
   currentPrice: BigNumber;
 }
 
-/**
- * Tranche view tab: Viewing a specific asset inside the graph inset
- *
- * Provides data about a specific asset in a specific tranche.
- */
-export interface MarketData {
+export interface ReserveData {
+  configuration: BigNumber;
+  liquidityIndex: BigNumber;
+  variableBorrowIndex: BigNumber;
+  currentLiquidityRate: BigNumber;
+  currentVariableBorrowRate: BigNumber;
+  lastUpdateTimestamp: BigNumber;
+  aTokenAddress: string;
+  variableDebtTokenAddress: string;
+  id: number;
+
+  interestRateStrategyAddress: string;
+  baseLTV: BigNumber;
+  liquidationThreshold: BigNumber;
+  liquidationBonus: BigNumber;
+  borrowFactor: BigNumber;
+}
+
+export interface ReserveSummary {
+  reserveData: ReserveData;
   tranche: BigNumber;
   asset: string;
-  decimals: BigNumber;
-  ltv: BigNumber;
-  liquidationThreshold: BigNumber;
-  liquidationPenalty: BigNumber;
+  decimals: number;
+
   canBeCollateral: boolean;
   canBeBorrowed: boolean;
-  oracle: string;
-  totalSupplied: BigNumber;
-  utilization: BigNumber;
-  totalBorrowed: BigNumber; // aka totalVariableDebt
-  strategyAddress: string;
+  supplyCap: BigNumber;
+  borrowCap: BigNumber;
   adminFee: BigNumber;
   platformFee: BigNumber;
-  supplyApy: BigNumber;
-  borrowApy: BigNumber;
+
+  totalSupplied: BigNumber;
+  totalBorrowed: BigNumber;
   totalReserves: BigNumber;
-  totalReservesNative: BigNumber;
+  utilization: BigNumber;
+
+  stakingContract: string;
+  totalStaked: BigNumber;
+  pendingRewards: BigNumber;
+
+  oracle: string;
   currentPriceETH: BigNumber;
-  supplyCap: BigNumber;
-  // liquidityIndex: BigNumber;
-  // variableBorrowIndex: BigNumber;
-  // currentLiquidityRate: BigNumber;
-  // currentVariableBorrowRate: BigNumber;
-  // currentStableBorrowRate: BigNumber;
-  // lastUpdateTimestamp: BigNumber;
-  // aTokenAddress: BigNumber;
-  // variableDebtTokenAddress: BigNumber;
-  // interestRateStrategyAddress: BigNumber;
-  // availableLiquidity: BigNumber;
 }
 
 /**

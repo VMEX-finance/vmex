@@ -1,24 +1,22 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
-import { QueryAssetHelpers } from "../libs/QueryAssetHelpers.sol";
+import { QueryReserveHelpers } from "../libs/QueryReserveHelpers.sol";
 import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 
 //import "hardhat/console.sol";
 // NOTE: this function starts to fail if we have a large number of markets
-contract GetAllTrancheAssetsData {
+contract GetAllTrancheReserveData {
 
 	constructor(address providerAddr, uint64 tranche)
     {
         address lendingPool = ILendingPoolAddressesProvider(providerAddr).getLendingPool();
 
-        // TODO: find deterministic upper bound. temporary solution: 35 assets per tranche
-
         address[] memory assets = ILendingPool(lendingPool).getReservesList(tranche);
-        QueryAssetHelpers.AssetData[] memory allAssetsData = new QueryAssetHelpers.AssetData[](assets.length);
+        QueryReserveHelpers.ReserveSummary[] memory allAssetsData = new QueryReserveHelpers.ReserveSummary[](assets.length);
         for (uint64 i = 0; i < assets.length;) {
-            allAssetsData[i] = QueryAssetHelpers.getAssetData(
-                assets[i], tranche, providerAddr, address(0)); //TODO: add chainlink address if this function is needed
+            allAssetsData[i] = QueryReserveHelpers.getReserveData(
+                assets[i], tranche, providerAddr);
 
             unchecked { ++i; }
         }
@@ -29,6 +27,6 @@ contract GetAllTrancheAssetsData {
 		}
 	}
 
-	function getType() public view returns(QueryAssetHelpers.AssetData[] memory){}
+	function getType() public view returns(QueryReserveHelpers.ReserveSummary[] memory){}
 
 }

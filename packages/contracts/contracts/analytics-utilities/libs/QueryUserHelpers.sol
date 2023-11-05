@@ -10,7 +10,7 @@ import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 import { UserConfiguration } from "../../protocol/libraries/configuration/UserConfiguration.sol";
 import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
-import { QueryAssetHelpers } from "./QueryAssetHelpers.sol";
+import { PricingHelpers } from "./PricingHelpers.sol";
 import { IPriceOracleGetter } from "../../interfaces/IPriceOracleGetter.sol";
 import {PercentageMath} from "../../protocol/libraries/math/PercentageMath.sol";
 
@@ -85,7 +85,7 @@ library QueryUserHelpers {
     }
 
     function tryGetUserAccountData(
-        ILendingPool lendingPool, 
+        ILendingPool lendingPool,
         address user,
         uint64 tranche
     ) private returns(UserTrancheData memory userData) {
@@ -161,19 +161,19 @@ library QueryUserHelpers {
                 vars.tempSuppliedAssetData[vars.s_idx++] = SuppliedAssetData ({
                     asset: vars.allAssets[i],
                     tranche: tranche,
-                    amount: ETHBase ? QueryAssetHelpers.convertAmountToUsd(
+                    amount: ETHBase ? PricingHelpers.convertAmountToUsd(
                         vars.assetOracle,
                         vars.allAssets[i],
                         vars.currentATokenBalance,
-                        vars.a.getDecimals(vars.allAssets[i]), 
+                        vars.a.getDecimals(vars.allAssets[i]),
                         chainlinkConverter
                     )
-                    : QueryAssetHelpers.findAmountValue(
+                    : PricingHelpers.findAmountValue(
                         vars.assetOracle,
                         vars.allAssets[i],
                         vars.currentATokenBalance,
                         vars.a.getDecimals(vars.allAssets[i])
-                    ), 
+                    ),
                     amountNative: vars.currentATokenBalance,
                     isCollateral: vars.userConfig.isUsingAsCollateral(vars.reserve.id),
                     apy: vars.reserve.currentLiquidityRate
@@ -185,19 +185,19 @@ library QueryUserHelpers {
                 vars.tempBorrowedAssetData[vars.b_idx++] = BorrowedAssetData ({
                     asset: vars.allAssets[i],
                     tranche: tranche,
-                    amount: ETHBase ? QueryAssetHelpers.convertAmountToUsd(
+                    amount: ETHBase ? PricingHelpers.convertAmountToUsd(
                         vars.assetOracle,
                         vars.allAssets[i],
                         vars.currentVariableDebt,
-                        vars.a.getDecimals(vars.allAssets[i]), 
+                        vars.a.getDecimals(vars.allAssets[i]),
                         chainlinkConverter
                     )
-                    : QueryAssetHelpers.findAmountValue(
+                    : PricingHelpers.findAmountValue(
                         vars.assetOracle,
                         vars.allAssets[i],
                         vars.currentVariableDebt,
                         vars.a.getDecimals(vars.allAssets[i])
-                    ), 
+                    ),
                     amountNative: vars.currentVariableDebt,
                     apy: vars.reserve.currentVariableBorrowRate
                 });
@@ -205,18 +205,18 @@ library QueryUserHelpers {
 
             c[i] = AvailableBorrowData({
                 asset: vars.allAssets[i],
-                amountUSD: ETHBase ? QueryAssetHelpers.convertEthToUsd(
-                        availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])), 
+                amountUSD: ETHBase ? PricingHelpers.convertEthToUsd(
+                        availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])),
                         chainlinkConverter
                     )
                     : availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])),
-                amountNative: QueryAssetHelpers.convertEthToNative( //works for USD too
+                amountNative: PricingHelpers.convertEthToNative( //works for USD too
                         vars.assetOracle,
                         vars.allAssets[i],
                         availableBorrowsETH.percentDiv(vars.a.getBorrowFactor(vars.allAssets[i])),
                         vars.a.getDecimals(vars.allAssets[i])
                     )
-                    
+
             });
         }
 
@@ -247,13 +247,13 @@ library QueryUserHelpers {
 
     function getUserWalletData(
         address user,
-        address addressesProvider, 
+        address addressesProvider,
         bool ETHBase,
         address chainlinkConverter
     )
     internal returns (WalletData[] memory)
     {
-        GetUserWalletDataVars memory vars; 
+        GetUserWalletDataVars memory vars;
         vars.a = AssetMappings(ILendingPoolAddressesProvider(addressesProvider).getAssetMappings());
 
         address[] memory approvedTokens = vars.a.getAllApprovedTokens();
@@ -268,14 +268,14 @@ library QueryUserHelpers {
 
             data[vars.i] = WalletData ({
                 asset: approvedTokens[vars.i],
-                amount: ETHBase ? QueryAssetHelpers.convertAmountToUsd(
+                amount: ETHBase ? PricingHelpers.convertAmountToUsd(
                     vars.assetOracle,
                     approvedTokens[vars.i],
                     IERC20(approvedTokens[vars.i]).balanceOf(user),
                     IERC20Detailed(approvedTokens[vars.i]).decimals(),
                     chainlinkConverter
                 )
-                : QueryAssetHelpers.findAmountValue(
+                : PricingHelpers.findAmountValue(
                     vars.assetOracle,
                     approvedTokens[vars.i],
                     IERC20(approvedTokens[vars.i]).balanceOf(user),
