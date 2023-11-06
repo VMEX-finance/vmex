@@ -1,6 +1,9 @@
 import { deployments, ZERO_ADDRESS } from "./constants";
 import { BigNumber } from "ethers";
-import { getLendingPoolConfiguratorProxy, getProvider } from "./contract-getters";
+import {
+  getLendingPoolConfiguratorProxy,
+  getProvider,
+} from "./contract-getters";
 import {
   MarketData,
   ProtocolData,
@@ -58,7 +61,6 @@ export async function getAllMarketsData(
   },
   callback?: () => Promise<MarketData[]>
 ): Promise<MarketData[]> {
-
   const numTranches = await getTotalTranches(params);
   const allMarketsData: MarketData[] = [];
   for (let i = 0; i < numTranches; i++) {
@@ -328,7 +330,7 @@ export async function getUserSummaryData(
   },
   callback?: () => Promise<UserSummaryData>
 ): Promise<UserSummaryData> {
-  console.log("getUserSummaryData: ",params)
+  console.log("getUserSummaryData: ", params);
   const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,
@@ -337,14 +339,14 @@ export async function getUserSummaryData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
-  const base = getDecimalBase(params.network)
+  const base = getDecimalBase(params.network);
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     params.user,
     base.ETHBase,
-    base.chainlinkConverter
+    base.chainlinkConverter,
   ]);
-  console.log("finished getUserSummaryData: ", data)
+  console.log("finished getUserSummaryData: ", data);
   return data;
 }
 
@@ -366,13 +368,13 @@ export async function getUserTrancheData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
-  const base = getDecimalBase(params.network)
+  const base = getDecimalBase(params.network);
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     params.user,
     params.tranche,
     base.ETHBase,
-    base.chainlinkConverter
+    base.chainlinkConverter,
   ]);
 
   return data;
@@ -395,12 +397,12 @@ export async function getUserWalletData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
-  const base = getDecimalBase(params.network)
+  const base = getDecimalBase(params.network);
   let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
     _addressProvider,
     params.user,
     base.ETHBase,
-    base.chainlinkConverter
+    base.chainlinkConverter,
   ]);
 
   return data;

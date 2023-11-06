@@ -64,7 +64,6 @@ const IERC20abi = [
   "function withdraw(uint wad) public",
 ];
 
-
 async function getWETH(user) {
   const WETHContract = new ethers.Contract(WETHaddr, IERC20abi);
   const wethTx = await WETHContract.connect(user).deposit({
@@ -344,8 +343,10 @@ describe("Protocol - external incentives controller setting and claiming", () =>
 
     const USDCContract = new ethers.Contract(USDCaddr, IERC20abi);
 
-    const userUSDCAmount = await USDCContract.connect(user).balanceOf(userAddress);
-    console.log("USER USDC AMOUNT", userUSDCAmount.toString())
+    const userUSDCAmount = await USDCContract.connect(user).balanceOf(
+      userAddress
+    );
+    console.log("USER USDC AMOUNT", userUSDCAmount.toString());
     expect(userUSDCAmount.toString()).to.not.be.equal(
       "0",
       "Did not get USDC token"

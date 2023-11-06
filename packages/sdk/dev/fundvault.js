@@ -45,7 +45,7 @@ describe("Fund_vault", () => {
     const assetAddr = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
     const token = new ethers.Contract(assetAddr, IERC20abi, provider);
     const path = [myWETH.address, token.address];
-    const deadline = (await provider.getBlock('latest')).timestamp + 60 * 20; // 20 minutes from the current Unix time
+    const deadline = (await provider.getBlock("latest")).timestamp + 60 * 20; // 20 minutes from the current Unix time
 
     await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(
       "0",

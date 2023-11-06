@@ -16,15 +16,22 @@ import VMEXOracle from "@vmexfinance/contracts/artifacts/contracts/protocol/orac
 
 export function getProvider(providerRpc?: string, test?: boolean) {
   return providerRpc
-  ? new ethers.providers.JsonRpcProvider(providerRpc, "any")
-  : test || test===undefined
-    ? ethers.getDefaultProvider(
-      "http://0.0.0.0:8545"
-    ) : null;
+    ? new ethers.providers.JsonRpcProvider(providerRpc, "any")
+    : test || test === undefined
+    ? ethers.getDefaultProvider("http://0.0.0.0:8545")
+    : null;
 }
 
-export const getIErc20Detailed = async (address: string, providerRpc: string, test: boolean) =>
-  new ethers.Contract(address, IERC20Detailed.abi, getProvider(providerRpc, test))
+export const getIErc20Detailed = async (
+  address: string,
+  providerRpc: string,
+  test: boolean
+) =>
+  new ethers.Contract(
+    address,
+    IERC20Detailed.abi,
+    getProvider(providerRpc, test)
+  );
 
 /**
  * getLendingPool
@@ -167,7 +174,6 @@ export function getIncentivesController(params?: {
   return incentivesController;
 }
 
-
 /**
  * getWETHGateway
  * Gets the weth gateway contract, connect a signer if given one
@@ -191,7 +197,6 @@ export function getWETHGateway(params?: {
   return gateway;
 }
 
-
 export function getVariableDebtToken(params?: {
   address?: string;
   signer?: ethers.Signer;
@@ -200,9 +205,10 @@ export function getVariableDebtToken(params?: {
   providerRpc?: string;
 }) {
   let token = new ethers.Contract(
-    params.address || deployments.VariableDebtToken[
-      `${params && params.network ? params.network : "mainnet"}`
-    ].address,
+    params.address ||
+      deployments.VariableDebtToken[
+        `${params && params.network ? params.network : "mainnet"}`
+      ].address,
     VariableDebtToken.abi,
     getProvider(params.providerRpc, params.test)
   );

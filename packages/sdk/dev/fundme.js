@@ -128,7 +128,7 @@ describe("Fund accounts", () => {
   });
 
   it("Uniswap ETH for assets", async () => {
-    const deadline = (await provider.getBlock('latest')).timestamp + 60 * 20; // 20 minutes from the current Unix time
+    const deadline = (await provider.getBlock("latest")).timestamp + 60 * 20; // 20 minutes from the current Unix time
 
     for (let j = 0; j < uniswapAssets.length; j++) {
       const assetAddr = uniswapAssets[j];

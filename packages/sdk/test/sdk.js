@@ -28,7 +28,6 @@ const {
   getAllMarketsData,
   getTotalTranches,
   getUserWalletData,
-
 } = require("../dist/analytics.js");
 const {
   getAssetPrices,
@@ -70,23 +69,23 @@ if (isLocalhost(network)) {
 } else {
   let key;
   if (network == "goerli") {
-    key = process.env.GOERLI_ALCHEMY_KEY
+    key = process.env.GOERLI_ALCHEMY_KEY;
     providerRpc = "https://eth-goerli.public.blastapi.io";
   }
   if (network == "sepolia") {
-    key = process.env.SEPOLIA_ALCHEMY_KEY
+    key = process.env.SEPOLIA_ALCHEMY_KEY;
     providerRpc = `https://eth-sepolia.g.alchemy.com/v2/${key}`;
   }
   if (network == "optimism") {
-    key = process.env.OP_ALCHEMY_KEY
+    key = process.env.OP_ALCHEMY_KEY;
     providerRpc = `https://opt-mainnet.g.alchemy.com/v2/${key}`;
   }
   if (network == "base") {
-    key = process.env.BASE_ALCHEMY_KEY
+    key = process.env.BASE_ALCHEMY_KEY;
     providerRpc = `https://base-mainnet.g.alchemy.com/v2/${key}`;
   }
   const myprovider = new ethers.providers.JsonRpcProvider(providerRpc);
-  provider = myprovider
+  provider = myprovider;
   temp = Wallet.fromMnemonic(process.env.MNEMONIC, `m/44'/60'/0'/0/0`).connect(
     myprovider
   ); //0th signer
@@ -105,7 +104,7 @@ describe("WETHgateway", () => {
         isMax: false,
         test: false,
         providerRpc: providerRpc,
-        collateral: true
+        collateral: true,
       },
       () => {
         return true;
@@ -123,7 +122,7 @@ describe("Analytics", () => {
     const dat = await getUserWalletData({
       user: await temp.getAddress(),
       network: network,
-      providerRpc
+      providerRpc,
     });
 
     console.log(dat);
@@ -135,10 +134,10 @@ describe("Analytics", () => {
       user: await temp.getAddress(),
       network: network,
       test: true,
-      providerRpc
+      providerRpc,
     });
 
-    console.log(JSON.stringify(dat))
+    console.log(JSON.stringify(dat));
   });
 
   it("2 - test get prices", async () => {
@@ -146,7 +145,7 @@ describe("Analytics", () => {
       assets: ["USDC"],
       network: network,
       test: true,
-      providerRpc
+      providerRpc,
     });
 
     console.log(JSON.stringify(dat));

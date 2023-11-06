@@ -1,4 +1,10 @@
-import { batchConfigureCollateralParams, isLocalhost, setGlobalAdmin, unverifyTranche, verifyTranche } from "../index";
+import {
+  batchConfigureCollateralParams,
+  isLocalhost,
+  setGlobalAdmin,
+  unverifyTranche,
+  verifyTranche,
+} from "../index";
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 // Load environment variables from .env file
@@ -44,61 +50,63 @@ async function main() {
     case "set-global-admin":
       const newAdmin = process.env.NEW_ADMIN;
       if (!newAdmin) {
-        throw new Error("NEW_ADMIN env varibable not set!")
+        throw new Error("NEW_ADMIN env varibable not set!");
       }
       tx = await setGlobalAdmin({
         signer: owner,
         newGlobalAdmin: newAdmin,
         network: network,
         test: false,
-        providerRpc: providerRpc
+        providerRpc: providerRpc,
       });
       break;
     case "verify-tranche":
       trancheId = process.env.TRANCHE_ID;
       if (!trancheId) {
-        throw new Error("TRANCHE_ID env varibable not set!")
+        throw new Error("TRANCHE_ID env varibable not set!");
       }
       tx = await verifyTranche({
         signer: owner,
         trancheId: Number(trancheId),
         network: network,
         test: false,
-        providerRpc: providerRpc
+        providerRpc: providerRpc,
       });
       break;
     case "unverify-tranche":
       trancheId = process.env.TRANCHE_ID;
       if (!trancheId) {
-        throw new Error("TRANCHE_ID env varibable not set!")
+        throw new Error("TRANCHE_ID env varibable not set!");
       }
       tx = await unverifyTranche({
         signer: owner,
         trancheId: Number(trancheId),
         network: network,
         test: false,
-        providerRpc: providerRpc
+        providerRpc: providerRpc,
       });
       break;
     case "set-risk-params":
       tx = await batchConfigureCollateralParams({
         signer: owner,
-        input: [{
+        input: [
+          {
             // address of the aToken to modify risk params of
             underlyingAsset: "0xB8B945779a5b85340eeC8d3F9F8Da00297586336",
 
             // CHANGE THESE MANUALLY FOR NOW, DO NOT COMMIT TO GIT
             collateralParams: {
-                baseLTV: "690000000000000000",
-                liquidationThreshold: "770000000000000000",
-                liquidationBonus: "1042000000000000000",
-                borrowFactor: "1069000000000000000"
-            }
-        }],
+              baseLTV: "690000000000000000",
+              liquidationThreshold: "770000000000000000",
+              liquidationBonus: "1042000000000000000",
+              borrowFactor: "1069000000000000000",
+            },
+          },
+        ],
         trancheId: 4,
         network: network,
         test: false,
-        providerRpc: providerRpc
+        providerRpc: providerRpc,
       });
       break;
   }

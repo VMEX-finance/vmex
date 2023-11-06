@@ -1,4 +1,4 @@
-import {BigNumber, BigNumberish} from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 
 export interface SetAddress {
   addr: string;
@@ -51,7 +51,7 @@ export interface UserTrancheData {
   avgBorrowFactor: BigNumber;
   suppliedAssetData: SuppliedAssetData[];
   borrowedAssetData: BorrowedAssetData[];
-  assetBorrowingPower: AvailableBorrowData[] ;
+  assetBorrowingPower: AvailableBorrowData[];
 }
 
 export interface UserWalletData {
@@ -78,7 +78,7 @@ export interface MarketData {
   oracle: string;
   totalSupplied: BigNumber;
   utilization: BigNumber;
-  totalBorrowed: BigNumber;   // aka totalVariableDebt
+  totalBorrowed: BigNumber; // aka totalVariableDebt
   strategyAddress: string;
   adminFee: BigNumber;
   platformFee: BigNumber;
@@ -133,8 +133,8 @@ export interface ProtocolData {
   totalBorrowed: BigNumber;
   topSuppliedAssets: AssetBalance[];
   topBorrowedAssets: AssetBalance[];
-  numLenders: number;                      // TODO
-  numBorrowers: number;                    // TODO
+  numLenders: number; // TODO
+  numBorrowers: number; // TODO
   numTranches: number;
   numMarkets: number;
   topTranches: TrancheData[];
