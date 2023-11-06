@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import {
-  getLendingPoolAddressesProvider, getLendingPoolConfiguratorProxy,
+  getLendingPoolAddressesProvider,
+  getLendingPoolConfiguratorProxy,
 } from "./contract-getters";
 import { ConfigureCollateralParamsInput } from "./interfaces";
 
@@ -46,9 +47,7 @@ export async function verifyTranche(
     test: params.test,
     providerRpc: params.providerRpc,
   });
-  const tx = await lendingPoolConfigurator.verifyTranche(
-    params.trancheId
-  );
+  const tx = await lendingPoolConfigurator.verifyTranche(params.trancheId);
 
   if (callback) {
     await callback();
@@ -72,9 +71,7 @@ export async function unverifyTranche(
     test: params.test,
     providerRpc: params.providerRpc,
   });
-  const tx = await lendingPoolConfigurator.unverifyTranche(
-    params.trancheId
-  );
+  const tx = await lendingPoolConfigurator.unverifyTranche(params.trancheId);
 
   if (callback) {
     await callback();

@@ -74,8 +74,8 @@ export function convertSymbolToAddress(asset: string, network: string) {
   asset = asset.toUpperCase();
 
   try {
-    if(asset=="ETH"){
-      return ZERO_ADDRESS
+    if (asset == "ETH") {
+      return ZERO_ADDRESS;
     }
 
     switch (network) {
@@ -98,9 +98,8 @@ export function convertSymbolToAddress(asset: string, network: string) {
         return ARBITRUM_ASSET_MAPPINGS.get(asset);
     }
   } catch (err) {
-    console.log(`Asset ${asset} mappings error: ${err}`)
+    console.log(`Asset ${asset} mappings error: ${err}`);
   }
-  
 
   throw Error(`Asset=${asset} not found on network ${network}`);
 }
@@ -167,7 +166,7 @@ async function getAssetPricesContractCall(params?: {
     _addressProvider,
     assets,
     params.ETHBase,
-    params.chainlinkConverter
+    params.chainlinkConverter,
   ]);
 
   let assetPrices: Map<string, PriceData> = new Map();
@@ -186,7 +185,10 @@ export async function getAssetPrices(params?: {
   test?: boolean;
   providerRpc?: string;
 }): Promise<Map<string, PriceData>> {
-  return getAssetPricesContractCall({...params, ...getDecimalBase(params.network)});
+  return getAssetPricesContractCall({
+    ...params,
+    ...getDecimalBase(params.network),
+  });
 }
 
 /**
@@ -196,7 +198,7 @@ export async function approveUnderlyingIfFirstInteraction(
   signer: ethers.Signer,
   underlying: string,
   spender: string,
-  attemptedSpendAmount: string,
+  attemptedSpendAmount: string
 ) {
   let _underlying = new ethers.Contract(
     underlying,
@@ -212,12 +214,11 @@ export async function approveUnderlyingIfFirstInteraction(
 
   if (allowance.lt(attemptedSpendAmount)) {
     const gasEstimate = await _underlying
-    .connect(signer)
-    .estimateGas
-    .approve(
-      spender,
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    ); //approves uint256 max
+      .connect(signer)
+      .estimateGas.approve(
+        spender,
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ); //approves uint256 max
     const tx = await _underlying
       .connect(signer)
       .approve(
@@ -225,7 +226,7 @@ export async function approveUnderlyingIfFirstInteraction(
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         { gasLimit: gasEstimate.mul(12).div(10) }
       ); //approves uint256 max
-    return tx.wait()
+    return tx.wait();
   }
 }
 
@@ -235,8 +236,9 @@ export const convertToCurrencyDecimals = async (
   test?: boolean,
   providerRpc?: string
 ) => {
-  if(tokenAddress==ZERO_ADDRESS) { //native eth
-    return ethers.utils.parseUnits(amount, 18); 
+  if (tokenAddress == ZERO_ADDRESS) {
+    //native eth
+    return ethers.utils.parseUnits(amount, 18);
   }
   const token = await getIErc20Detailed(tokenAddress, providerRpc, test);
   let decimals = (await token.decimals()).toString();
@@ -244,16 +246,16 @@ export const convertToCurrencyDecimals = async (
   return ethers.utils.parseUnits(amount, decimals);
 };
 
-
 export const getUserTokenBalance = async (
   tokenAddress: string,
   user: string,
   test?: boolean,
   providerRpc?: string
 ) => {
-  const provider = getProvider(providerRpc, test)
-  if(tokenAddress==ZERO_ADDRESS) { //native eth
-    return provider.getBalance(user); 
+  const provider = getProvider(providerRpc, test);
+  if (tokenAddress == ZERO_ADDRESS) {
+    //native eth
+    return provider.getBalance(user);
   }
   const token = await getIErc20Detailed(tokenAddress, providerRpc, test);
 
@@ -282,7 +284,7 @@ export async function mintTokens(params: {
       ethers.utils.parseUnits("1000000.0", await token.decimals())
     );
   } catch (error) {
-    console.error("DEV: mint tokens failed with", error)
+    console.error("DEV: mint tokens failed with", error);
     throw new Error(error);
   }
 
@@ -308,26 +310,41 @@ export const isLocalhost = (network) => {
   return network == "localhost" || network == "optimism_localhost";
 };
 
-export function getDecimalBase(network): {ETHBase: boolean, chainlinkConverter: string} {
-  switch(network) {
+export function getDecimalBase(network): {
+  ETHBase: boolean;
+  chainlinkConverter: string;
+} {
+  switch (network) {
     // subgraph asset prices not work for these network
     case "goerli":
-      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+      return { ETHBase: true, chainlinkConverter: ZERO_ADDRESS };
     case "sepolia":
-      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+      return { ETHBase: true, chainlinkConverter: ZERO_ADDRESS };
     case "localhost":
-      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+      return { ETHBase: true, chainlinkConverter: ZERO_ADDRESS };
     case "optimism_localhost":
-      return {ETHBase: true, chainlinkConverter: ZERO_ADDRESS};
+      return { ETHBase: true, chainlinkConverter: ZERO_ADDRESS };
 
     case "optimism":
-      return {ETHBase: false, chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"};
+      return {
+        ETHBase: false,
+        chainlinkConverter: "0x13e3Ee699D1909E989722E753853AE30b17e08c5",
+      };
     case "base":
-      return {ETHBase: false, chainlinkConverter: "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"};
+      return {
+        ETHBase: false,
+        chainlinkConverter: "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+      };
     case "arbitrum":
-      return {ETHBase: false, chainlinkConverter: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"};
+      return {
+        ETHBase: false,
+        chainlinkConverter: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+      };
     case "main":
-      return {ETHBase: true, chainlinkConverter: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"};
+      return {
+        ETHBase: true,
+        chainlinkConverter: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+      };
       // TODO: get asset prices from subgraph
       return;
   }

@@ -5,5 +5,5 @@ export * from "./constants";
 export * from "./mock-env";
 export * from "./protocol";
 export * from "./interfaces";
-export * from './estimate-gas';
-export * from './contract-getters';
+export * from "./estimate-gas";
+export * from "./contract-getters";

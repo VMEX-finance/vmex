@@ -19,10 +19,7 @@ const {
   configureExistingTranche,
 } = require("../dist/protocol.js");
 
-const {
-  isLocalhost,
-  getAssetPrices
-} = require("../dist/utils.js");
+const { isLocalhost, getAssetPrices } = require("../dist/utils.js");
 const {
   getUserTrancheData,
   getTrancheAssetData,
@@ -34,7 +31,6 @@ const {
   getAllMarketsData,
   getTotalTranches,
   getUserWalletData,
-
 } = require("../dist/analytics.js");
 
 const network = process.env.NETWORK;
@@ -48,23 +44,23 @@ if (isLocalhost(network)) {
 } else {
   let key;
   if (network == "goerli") {
-    key = process.env.GOERLI_ALCHEMY_KEY
+    key = process.env.GOERLI_ALCHEMY_KEY;
     providerRpc = "https://eth-goerli.public.blastapi.io";
   }
   if (network == "sepolia") {
-    key = process.env.SEPOLIA_ALCHEMY_KEY
+    key = process.env.SEPOLIA_ALCHEMY_KEY;
     providerRpc = `https://eth-sepolia.g.alchemy.com/v2/${key}`;
   }
   if (network == "optimism") {
-    key = process.env.OP_ALCHEMY_KEY
+    key = process.env.OP_ALCHEMY_KEY;
     providerRpc = `https://opt-mainnet.g.alchemy.com/v2/${key}`;
   }
   if (network == "base") {
-    key = process.env.BASE_ALCHEMY_KEY
+    key = process.env.BASE_ALCHEMY_KEY;
     providerRpc = `https://base-mainnet.g.alchemy.com/v2/${key}`;
   }
   if (network == "arbitrum") {
-    key = process.env.ARBITRUM_ALCHEMY_KEY
+    key = process.env.ARBITRUM_ALCHEMY_KEY;
     providerRpc = `https://arb-mainnet.g.alchemy.com/v2/${key}`;
   }
   const myprovider = new ethers.providers.JsonRpcProvider(providerRpc);
@@ -86,15 +82,15 @@ describe("WETHgateway", () => {
         isMax: false,
         test: false,
         providerRpc: providerRpc,
-        collateral: true
+        collateral: true,
       },
       () => {
         return true;
       }
     );
-    dat.wait(1)
+    dat.wait(1);
 
-    console.log("finished supplying: ",dat);
+    console.log("finished supplying: ", dat);
   });
 
   // it("Set user reserve as collateral", async () => {
@@ -150,7 +146,6 @@ describe("WETHgateway", () => {
   //   tx.wait(1)
   // });
 
-
   // it("Try withdrawing all", async () => {
   //   const tx = await withdraw(
   //     {
@@ -171,18 +166,15 @@ describe("WETHgateway", () => {
   // });
 });
 
-
 describe("getPrices", () => {
   it("Try getting prices of weth and btc", async () => {
-    const dat = await getAssetPrices(
-      {
-        assets: ["bIB01"],
-        network: network,
-        test: false,
-        providerRpc: providerRpc
-      }
-    );
+    const dat = await getAssetPrices({
+      assets: ["bIB01"],
+      network: network,
+      test: false,
+      providerRpc: providerRpc,
+    });
 
-    console.log(dat)
+    console.log(dat);
   });
 });

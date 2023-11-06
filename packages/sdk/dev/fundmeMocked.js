@@ -1,7 +1,7 @@
 // import { BigNumber, utils } from "ethers";
 //Require dotenv
-require('dotenv').config();
-const {deployments} = require("../dist/constants.js")
+require("dotenv").config();
+const { deployments } = require("../dist/constants.js");
 const { ethers, BigNumber, Wallet } = require("ethers");
 const IERC20abi = [
   "function allowance(address owner, address spender) external view returns (uint256 remaining)",
@@ -18,12 +18,13 @@ const IERC20abi = [
   "function mint(uint256 value) public returns(bool)",
 ];
 
-
-
 describe("Fund accounts", () => {
   const network = process.env.NETWORK;
-  console.log("key: ",process.env.ALCHEMY_KEY)
-  let provider = new ethers.providers.AlchemyProvider(network, process.env.ALCHEMY_KEY);
+  console.log("key: ", process.env.ALCHEMY_KEY);
+  let provider = new ethers.providers.AlchemyProvider(
+    network,
+    process.env.ALCHEMY_KEY
+  );
   const assets = [
     "AAVE",
     "BAT",
@@ -84,38 +85,44 @@ describe("Fund accounts", () => {
     "yvStethEth",
     "yvFraxUSDC",
     "yvFrax3Crv",
-  ]
-
+  ];
 
   it("Get_goerli", async () => {
-
     let token = [];
-    for(let i =0;i<assets.length;i++){
+    for (let i = 0; i < assets.length; i++) {
       // console.log(assets[i].toUpperCase())
       // console.log(deployments[assets[i].toUpperCase()])
-       token.push(
-          new ethers.Contract(
-            deployments[assets[i].toUpperCase()][
-              "goerli"
-            ].address,
-            IERC20abi,
-            provider
-          )
+      token.push(
+        new ethers.Contract(
+          deployments[assets[i].toUpperCase()]["goerli"].address,
+          IERC20abi,
+          provider
         )
+      );
     }
 
     // console.log("Tokens: ",token)
 
-      for(let j =0;j<2;j++){
-        const wallet = Wallet.fromMnemonic(process.env.MNEMONIC,`m/44'/60'/0'/0/${j}`);
-        const signer = wallet.connect(provider);
-        // console.log(signer)
-        for(let i = 0;i<token.length;i++){
-          await token[i].connect(signer).mint(ethers.utils.parseUnits("1000.0",await token[i].decimals()));
-          console.log("Signer: ",signer.address," token: ",await token[i].name()," amount: ",(await token[i].connect(signer).balanceOf(signer.address)).toString());
-        }
-
+    for (let j = 0; j < 2; j++) {
+      const wallet = Wallet.fromMnemonic(
+        process.env.MNEMONIC,
+        `m/44'/60'/0'/0/${j}`
+      );
+      const signer = wallet.connect(provider);
+      // console.log(signer)
+      for (let i = 0; i < token.length; i++) {
+        await token[i]
+          .connect(signer)
+          .mint(ethers.utils.parseUnits("1000.0", await token[i].decimals()));
+        console.log(
+          "Signer: ",
+          signer.address,
+          " token: ",
+          await token[i].name(),
+          " amount: ",
+          (await token[i].connect(signer).balanceOf(signer.address)).toString()
+        );
       }
+    }
   });
-
 });
