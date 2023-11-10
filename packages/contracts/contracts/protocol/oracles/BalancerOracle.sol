@@ -43,33 +43,10 @@ library BalancerOracle {
 		IVault vault = IBalancer(bal_pool).getVault(); 
 		VaultReentrancyLib.ensureNotInVaultContext(vault); 
 
-		if (type_of_pool == 1) { //stable
-			price = calc_stable_lp_price(
-				vmexOracle,
-				bal_pool,
-				legacy
-			); 
-		} else {
-			revert("Balancer pool not supported");  
-		}
-
-
-		return price; 
-			
-	}
-	
-	// inspired from https://github.com/Midas-Protocol/contracts/blob/352be0e9ba2795e14d05a5fa4661cb2569655141/contracts/oracles/default/BalancerLpStablePoolPriceOracle.sol
-	function calc_stable_lp_price(
-		address vmexOracle,
-		address bal_pool, 
-		bool legacy
-	) internal returns (uint256) {	
 		IBalancer pool = IBalancer(bal_pool);
 
         // get the underlying assets
-        IVault vault = IBalancer(bal_pool).getVault();
         bytes32 poolId = IBalancer(bal_pool).getPoolId();
-
 
         (
             IERC20[] memory tokens,
@@ -77,46 +54,112 @@ library BalancerOracle {
         ) = vault.getPoolTokens(poolId);
 		
 		uint256 bptIndex;
-		// if(legacy) {
-		// 	bptIndex = type(uint256).max;
-		// } else {
-		// 	bptIndex = pool.getBptIndex();
-		// }
 		try pool.getBptIndex() returns (uint ind) {
 			bptIndex = ind;
 		} catch {
 			bptIndex = type(uint256).max;
 		}
 
-		uint256 minPrice = type(uint256).max;
-
 		address[] memory rateProviders;
 		if(legacy) {
 			rateProviders = pool.getRateProviders();
 		} 
 
+		if (type_of_pool == 1) { //stable
+			return calc_stable_lp_price(
+				vmexOracle,
+				pool,
+				legacy,
+				tokens,
+				bptIndex,
+				rateProviders
+			); 
+		} else if (type_of_pool == 0) { //weighted
+			return calc_weighted_lp_price(
+				vmexOracle,
+				pool,
+				legacy,
+				tokens,
+				bptIndex,
+				rateProviders
+			); 
+		} else {
+			revert("Balancer pool not supported");  
+		}			
+	}
+
+	function getRateAdjustedPrice(
+		address vmexOracle,
+		address token,
+		address rateProvider,
+		IBalancer pool,
+		bool legacy
+	) internal returns (uint256) {
+		// Get the price of each of the base tokens in ETH
+		// This also includes the price of the nested LP tokens, if they are e.g. LinearPools
+		// The only requirement is that the nested LP tokens have a price oracle registered
+		// See BalancerLpLinearPoolPriceOracle.sol for an example, as well as the relevant tests
+		uint256 price = IPriceOracle(vmexOracle).getAssetPrice(token);
+		uint256 tokenRate;
+		if(legacy) {
+			if(rateProvider == address(0)){
+				return price;
+			} else {
+				tokenRate = IRateProvider(rateProvider).getRate();
+			}
+		} else {
+			tokenRate = pool.getTokenRate(token);
+		}
+		return (price * 1e18) / tokenRate; //rate always has 18 decimals, so this preserves original decimals of price
+	}
+	
+	// inspired from https://github.com/Midas-Protocol/contracts/blob/352be0e9ba2795e14d05a5fa4661cb2569655141/contracts/oracles/default/BalancerLpStablePoolPriceOracle.sol
+	function calc_stable_lp_price(
+		address vmexOracle,
+		IBalancer pool, 
+		bool legacy,
+		IERC20[] memory tokens,
+		uint256 bptIndex,
+		address[] memory rateProviders
+	) internal returns (uint256) {	
+		uint256 minPrice = type(uint256).max;
 		for (uint256 i = 0; i < tokens.length; i++) {
 			if (i == bptIndex) {
 				continue;
 			}
-			// Get the price of each of the base tokens in ETH
-			// This also includes the price of the nested LP tokens, if they are e.g. LinearPools
-			// The only requirement is that the nested LP tokens have a price oracle registered
-			// See BalancerLpLinearPoolPriceOracle.sol for an example, as well as the relevant tests
-			uint256 price = IPriceOracle(vmexOracle).getAssetPrice(address(tokens[i]));
-			uint256 depositTokenPrice;
-			if(legacy) {
-				if(rateProviders[i] == address(0)){
-					depositTokenPrice = 1e18;
-				} else {
-					depositTokenPrice = IRateProvider(rateProviders[i]).getRate();
-				}
-			} else {
-				depositTokenPrice = pool.getTokenRate(address(tokens[i]));
+			uint256 rateAdjustedPrice = getRateAdjustedPrice(vmexOracle, tokens[i], rateProviders[i],pool, legacy);
+			if (rateAdjustedPrice < minPrice) {
+				minPrice = rateAdjustedPrice;
 			}
-			uint256 finalPrice = (price * 1e18) / depositTokenPrice; //rate always yas 18 decimals, so this preserves original decimals of price
-			if (finalPrice < minPrice) {
-				minPrice = finalPrice;
+		}
+		// Multiply the value of each of the base tokens' share in ETH by the rate of the pool
+		// pool.getRate() is the rate of the pool, scaled by 1e18
+		return (minPrice * pool.getRate()) / 1e18;
+	}
+
+	// inspired from https://github.com/Revest-Finance/ResonateContracts/blob/public/hardhat/contracts/oracles/adapters/balancer/BalancerV2WeightedPoolPriceOracle.sol
+	function calc_weighted_lp_price(
+		address vmexOracle,
+		IBalancer pool, 
+		bool legacy,
+		IERC20[] memory tokens,
+		uint256 bptIndex,
+		address[] memory rateProviders
+	) internal returns (uint256) {	
+		uint256 totalSupply;
+		try pool.getActualSupply() returns (uint256 supply) {
+			totalSupply = supply;
+		} catch {
+			totalSupply = pool.totalSupply();
+		}
+		int256 totalPi = PRBMathSD59x18.fromInt(1e18);
+		for (uint256 i = 0; i < tokens.length; i++) {
+			if (i == bptIndex) {
+				continue;
+			}
+			uint256 rateAdjustedPrice = getRateAdjustedPrice(vmexOracle, tokens[i], rateProviders[i],pool, legacy);
+			if (rateAdjustedPrice < minPrice) {
+				minPrice = rateAdjustedPrice;
 			}
 		}
 		// Multiply the value of each of the base tokens' share in ETH by the rate of the pool
