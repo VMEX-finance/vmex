@@ -8,6 +8,7 @@ interface IBalancer {
 	function getPoolId() external view returns (bytes32 poolID); 
 	function getVault() external view returns (IVault vaultAddress); 
 	function getInvariant() external returns (uint256); 
+	function getLastInvariant() external returns (uint256); 
 	function totalSupply() external returns (uint256); 
 	function getActualSupply() external returns (uint256); 
 	function getVirtualSupply() external returns (uint256); 
