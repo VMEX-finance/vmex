@@ -24,10 +24,10 @@ contract GetAllAssetPrices {
             allAssetPrices[i].oracle = ILendingPoolAddressesProvider(providerAddr)
                 .getPriceOracle();
             if(ETHBase){
-                allAssetPrices[i].priceETH = IPriceOracleGetter(allAssetPrices[i].oracle).getAssetPrice(assets[i]);
+                allAssetPrices[i].priceETH = QueryAssetHelpers.tryGetAssetPrice(allAssetPrices[i].oracle, assets[i]);
                 allAssetPrices[i].priceUSD = QueryAssetHelpers.convertEthToUsd(allAssetPrices[i].priceETH, chainlinkOracleConverter);
             } else { //prices are in USD
-                allAssetPrices[i].priceUSD = IPriceOracleGetter(allAssetPrices[i].oracle).getAssetPrice(assets[i]);
+                allAssetPrices[i].priceUSD = QueryAssetHelpers.tryGetAssetPrice(allAssetPrices[i].oracle, assets[i]);
                 allAssetPrices[i].priceETH = QueryAssetHelpers.convertUsdToEth(allAssetPrices[i].priceUSD, chainlinkOracleConverter);
             }
             

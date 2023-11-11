@@ -330,7 +330,7 @@ export async function getUserSummaryData(
   },
   callback?: () => Promise<UserSummaryData>
 ): Promise<UserSummaryData> {
-  console.log("getUserSummaryData: ", params);
+  console.log("getUserSummaryData params: ", params);
   const provider = getProvider(params.providerRpc, params.test);
   const {
     abi,

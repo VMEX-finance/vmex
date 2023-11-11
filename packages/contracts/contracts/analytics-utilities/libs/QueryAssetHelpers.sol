@@ -83,7 +83,7 @@ library QueryAssetHelpers {
         assetData.platformFee = a.getVMEXReserveFactor(asset);
         assetData.supplyApy = reserve.currentLiquidityRate;
         assetData.borrowApy = reserve.currentVariableBorrowRate;
-        assetData.currentPriceETH = IPriceOracleGetter(assetData.oracle).getAssetPrice(assetData.asset);
+        assetData.currentPriceETH = tryGetAssetPrice(assetData.oracle, assetData.asset);
         assetData.supplyCap = a.getSupplyCap(assetData.asset);
 
     }
@@ -111,7 +111,7 @@ library QueryAssetHelpers {
         uint256 decimals
     ) internal returns(uint256) {
         //has number of decimals equal to decimals of orig token
-        uint256 assetPrice = IPriceOracleGetter(oracle).getAssetPrice(underlying);
+        uint256 assetPrice = tryGetAssetPrice(oracle, underlying);
         //amount is from atoken, which has same amount of tokens as underlying
         //ethAmount thus has 18 decimals
 
@@ -126,7 +126,8 @@ library QueryAssetHelpers {
         uint256 decimals
     ) internal returns(uint256) {
         //has number of decimals equal to decimals of orig token
-        uint256 assetPrice = IPriceOracleGetter(oracle).getAssetPrice(underlying);
+        uint256 assetPrice = tryGetAssetPrice(oracle, underlying);
+        if(assetPrice == 0) return 0; //handle case where in price feeds broken but on FE we want to display something at least
         //amount is from atoken, which has same amount of tokens as underlying
         //ethAmount thus has 18 decimals
         //18 decimals in ethAmount, assetPRice has 18 decimals, so returned is number of decimals of native
@@ -165,6 +166,17 @@ library QueryAssetHelpers {
         }
         else{
             return (amount / 1660); //mocking the price of ETH. Keeps same num decimals
+        }
+    }
+
+    function tryGetAssetPrice(
+        address oracle,
+        address token
+    ) internal returns(uint256) {
+        try IPriceOracleGetter(oracle).getAssetPrice(token) returns(uint256 price) {
+            return price;
+        } catch {
+            return 0;
         }
     }
 }
