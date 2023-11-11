@@ -135,6 +135,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.2",
+    "@prb/math": "^4.0.1",
     "bignumber.js": "9.0.0",
     "hardhat": "^2.17.2",
     "mocha": "^10.2.0"
