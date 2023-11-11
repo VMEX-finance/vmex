@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0; 
 
-import "../../dependencies/balancer/BNum.sol"; //already audited import 
 import "../../interfaces/IBalancer.sol"; //imports IVault as well
 import "../../interfaces/IRateProvider.sol"; 
 import "../../interfaces/IPriceOracle.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {IERC20Detailed} from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import "./libs/vMath.sol";
 import "../../dependencies/balancer/VaultReentrancyLib.sol";
+import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 //This contract orignally comes from alpha homora v2 -- audited by peckshield and quantstamp
 //has been modified to suit VMEX's structure, updated to solc 0.8
 //has also been updated to balancer v2 pools and structure
 //mathematical formula remains the same
 library BalancerOracle {
-
 	uint256 internal constant uint211 = (2**211) - 1; 
 	
 	//weighted == 0
@@ -60,28 +58,20 @@ library BalancerOracle {
 			bptIndex = type(uint256).max;
 		}
 
-		address[] memory rateProviders;
-		if(legacy) {
-			rateProviders = pool.getRateProviders();
-		} 
-
 		if (type_of_pool == 1) { //stable
 			return calc_stable_lp_price(
 				vmexOracle,
 				pool,
 				legacy,
 				tokens,
-				bptIndex,
-				rateProviders
+				bptIndex
 			); 
 		} else if (type_of_pool == 0) { //weighted
 			return calc_weighted_lp_price(
 				vmexOracle,
 				pool,
-				legacy,
 				tokens,
-				bptIndex,
-				rateProviders
+				bptIndex
 			); 
 		} else {
 			revert("Balancer pool not supported");  
@@ -119,15 +109,19 @@ library BalancerOracle {
 		IBalancer pool, 
 		bool legacy,
 		IERC20[] memory tokens,
-		uint256 bptIndex,
-		address[] memory rateProviders
+		uint256 bptIndex
 	) internal returns (uint256) {	
+		address[] memory rateProviders;
+		if(legacy) {
+			rateProviders = pool.getRateProviders();
+		} 
+
 		uint256 minPrice = type(uint256).max;
 		for (uint256 i = 0; i < tokens.length; i++) {
 			if (i == bptIndex) {
 				continue;
 			}
-			uint256 rateAdjustedPrice = getRateAdjustedPrice(vmexOracle, tokens[i], rateProviders[i],pool, legacy);
+			uint256 rateAdjustedPrice = getRateAdjustedPrice(vmexOracle, address(tokens[i]), rateProviders[i],pool, legacy);
 			if (rateAdjustedPrice < minPrice) {
 				minPrice = rateAdjustedPrice;
 			}
@@ -141,10 +135,8 @@ library BalancerOracle {
 	function calc_weighted_lp_price(
 		address vmexOracle,
 		IBalancer pool, 
-		bool legacy,
 		IERC20[] memory tokens,
-		uint256 bptIndex,
-		address[] memory rateProviders
+		uint256 bptIndex
 	) internal returns (uint256) {	
 		uint256 totalSupply;
 		try pool.getActualSupply() returns (uint256 supply) {
@@ -152,19 +144,23 @@ library BalancerOracle {
 		} catch {
 			totalSupply = pool.totalSupply();
 		}
-		int256 totalPi = PRBMathSD59x18.fromInt(1e18);
+		UD60x18 totalPi = ud(1e18);
+		uint256[] memory weights = pool.getNormalizedWeights();
+
 		for (uint256 i = 0; i < tokens.length; i++) {
 			if (i == bptIndex) {
 				continue;
 			}
-			uint256 rateAdjustedPrice = getRateAdjustedPrice(vmexOracle, tokens[i], rateProviders[i],pool, legacy);
-			if (rateAdjustedPrice < minPrice) {
-				minPrice = rateAdjustedPrice;
-			}
+			uint256 price = IPriceOracle(vmexOracle).getAssetPrice(address(tokens[i]));
+			UD60x18 val = ud(price).div(ud(weights[i]));
+            UD60x18 indivPi = val.pow(ud(weights[i]));
+
+            totalPi = totalPi.mul(indivPi);
 		}
-		// Multiply the value of each of the base tokens' share in ETH by the rate of the pool
-		// pool.getRate() is the rate of the pool, scaled by 1e18
-		return (minPrice * pool.getRate()) / 1e18;
+		UD60x18 invariant = ud(pool.getLastInvariant());
+        UD60x18 numerator = totalPi.mul(invariant);
+
+        return (numerator.div(ud(totalSupply))).intoUint256();
 	}
 	
 }
