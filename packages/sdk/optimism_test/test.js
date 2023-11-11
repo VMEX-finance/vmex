@@ -169,7 +169,7 @@ describe("WETHgateway", () => {
 describe("getPrices", () => {
   it("Try getting prices of weth and btc", async () => {
     const dat = await getAssetPrices({
-      assets: ["bIB01"],
+      assets: ["USDbC"],
       network: network,
       test: false,
       providerRpc: providerRpc,

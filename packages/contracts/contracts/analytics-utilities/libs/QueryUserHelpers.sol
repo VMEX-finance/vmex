@@ -73,24 +73,39 @@ library QueryUserHelpers {
         address addressesProvider,
         bool ETHBase, //true if ETH is base, false if USD is base
         address chainlinkConverter
-        )
-    internal returns (UserTrancheData memory userData)
-    {
+    ) internal returns (UserTrancheData memory userData) {
         ILendingPool lendingPool = ILendingPool(
             ILendingPoolAddressesProvider(addressesProvider).getLendingPool());
 
-        (userData.totalCollateralETH,
-            userData.totalDebtETH,
-            userData.availableBorrowsETH,
-            userData.currentLiquidationThreshold,
-            userData.ltv,
-            userData.healthFactor,
-            userData.avgBorrowFactor
-            ) = lendingPool.getUserAccountData(user, tranche); //for displaying on FE, this should be false, since liquidations are based on this being false
+        userData = tryGetUserAccountData(lendingPool, user, tranche);
 
         (userData.suppliedAssetData,
             userData.borrowedAssetData,
             userData.assetBorrowingPower) = getUserAssetData(user, tranche, addressesProvider, userData.availableBorrowsETH, ETHBase, chainlinkConverter);
+    }
+
+    function tryGetUserAccountData(
+        ILendingPool lendingPool, 
+        address user,
+        uint64 tranche
+    ) private returns(UserTrancheData memory userData) {
+        try lendingPool.getUserAccountData(user, tranche) returns (uint256 totalCollateralETH,
+            uint256 totalDebtETH,
+            uint256 availableBorrowsETH,
+            uint256 currentLiquidationThreshold,
+            uint256 ltv,
+            uint256 healthFactor,
+            uint256 avgBorrowFactor
+        ) {
+            userData.totalCollateralETH = totalCollateralETH;
+            userData.totalDebtETH = totalDebtETH;
+            userData.availableBorrowsETH = availableBorrowsETH;
+            userData.currentLiquidationThreshold = currentLiquidationThreshold;
+            userData.ltv = ltv;
+            userData.healthFactor = healthFactor;
+            userData.avgBorrowFactor = avgBorrowFactor;
+        } catch {
+        }
     }
 
     struct getUserAssetDataVars {
@@ -267,7 +282,6 @@ library QueryUserHelpers {
                     IERC20Detailed(approvedTokens[vars.i]).decimals()
                 ),
                 amountNative: IERC20(approvedTokens[vars.i]).balanceOf(user)
-                // currentPrice: IPriceOracleGetter(assetOracle).getAssetPrice(approvedTokens[i])
             });
 
         }
