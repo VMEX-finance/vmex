@@ -10,10 +10,8 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
-  getTranche0MockedDataOP,
-  getTranche1MockedDataOP,
-  getTranche0MockedDataBase,
-  getTranche0TestingMockedDataBase,
+  getTranche0DataBase,
+  getAllMockedData,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -71,11 +69,11 @@ task(
         await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 0)
       );
       let assets0, reserveFactors0, canBorrow0, canBeCollateral0
-      // TODO: use real data for tranches that we want to deploy
+
       if(network.includes("localhost")) {
-        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0TestingMockedDataBase(reserveAssets);
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getAllMockedData(reserveAssets);
       } else {
-        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedDataBase(reserveAssets);
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataBase(reserveAssets);
       }
       await initReservesByHelper(
         assets0,
@@ -86,42 +84,12 @@ task(
         treasuryAddress,
         0
       );
-
-      
-
-      // Unpause market during deployment
+      // Unpause market after deployment
       await waitForTx(
         await lendingPoolConfiguratorProxy
           .connect(admin)
           .setTranchePause(false, 0)
       );
-
-      // await claimTrancheId("Vmex tranche 1", admin);
-
-      // // Pause market during deployment
-      // await waitForTx(
-      //   await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 1)
-      // );
-
-      // let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1MockedDataOP(reserveAssets);
-      // await initReservesByHelper(
-      //   assets1,
-      //   reserveFactors1,
-      //   canBorrow1,
-      //   canBeCollateral1,
-      //   admin,
-      //   treasuryAddress,
-      //   1
-      // );
-
-      
-
-      // // Unpause market during deployment
-      // await waitForTx(
-      //   await lendingPoolConfiguratorProxy
-      //     .connect(admin)
-      //     .setTranchePause(false, 1)
-      // );
     } catch (err) {
       console.error(err);
       exit(1);

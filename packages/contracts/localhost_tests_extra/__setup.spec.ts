@@ -6,14 +6,17 @@ import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 
 import { BigNumber, utils } from "ethers";
-import { eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
-import { MAX_UINT_AMOUNT } from "../helpers/constants";
-import {OptimismConfig} from "../markets/optimism"
+import { IChainlinkInternal, ICommonConfiguration, ProtocolErrors } from '../helpers/types';
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { toBytes32, setStorageAt } from "../helpers/token-fork";
 import { getPairsTokenAggregator } from "../helpers/contracts-getters";
+import { ConfigNames, loadPoolConfig } from "../helpers/configuration";
 const contractGetters = require('../helpers/contracts-getters.ts');
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
+
+const network = process.env.FORK
+if(!network) throw "No fork"
+const poolConfig = loadPoolConfig(network as ConfigNames);
 before(async () => {
     await rawBRE.run("set-DRE");
 
@@ -29,14 +32,13 @@ before(async () => {
     const oracleAdd = await addProv.connect(signer).getPriceOracle();
     const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
-    const network = "optimism" as any
     const {
       ProtocolGlobalParams: { UsdAddress },
       ReserveAssets,
       ChainlinkAggregator,
       SequencerUptimeFeed,
       ProviderId
-    } = OptimismConfig as ICommonConfiguration;
+    } = poolConfig as ICommonConfiguration;
     const reserveAssets = await getParamPerNetwork(ReserveAssets, network);
 
     const chainlinkAggregators = await getParamPerNetwork(
@@ -54,7 +56,7 @@ before(async () => {
     const [tokens2, aggregators] = getPairsTokenAggregator(
       tokensToWatch,
       chainlinkAggregators,
-      OptimismConfig.OracleQuoteCurrency
+      poolConfig.OracleQuoteCurrency
     );
 
     const ag2:IChainlinkInternal[] = aggregators.map((el:IChainlinkInternal)=>
@@ -65,5 +67,5 @@ before(async () => {
       }
     })
 
-    await oracle.connect(signer).setAssetSources(tokens2, ag2, true);
+    await oracle.connect(signer).setAssetSources(tokens2, ag2, false);
   });

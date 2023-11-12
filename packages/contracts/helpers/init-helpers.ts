@@ -105,7 +105,7 @@ const submitCurveMetadata = async (
       }
       const existingCurveMetadata = await assetMappings.getCurveMetadata(tokenAddresses[symbol])
       console.log("existingCurveMetadata: ", existingCurveMetadata)
-      if(!existingCurveMetadata) continue
+      if(!existingCurveMetadata && !DRE.network.name.includes("localhost")) continue
       curveToken.push(tokenAddresses[symbol]);
       curveParams.push(params);
     }
@@ -145,7 +145,7 @@ const submitBeethovenMetadata = async (
       }
       const isAssetInMappings = await assetMappings.isAssetInMappings(tokenAddresses[symbol])
 
-      if(isAssetInMappings) continue
+      if(isAssetInMappings && !DRE.network.name.includes("localhost")) continue
       console.log("adding beethoven metadata for symbol: ", symbol)
       beethovenToken.push(tokenAddresses[symbol]);
       beethovenParams.push(params);
@@ -242,7 +242,7 @@ export const initAssetData = async (
     console.log("Attempting to process new asset: ", symbol)
 
     const dbEntry = await getDbEntry(strategy.name);
-    if(dbEntry && DRE.network.name.includes("localhost")){
+    if(dbEntry && !DRE.network.name.includes("localhost")){
       console.log("db already has ", strategy.name, " as ",dbEntry.address)
       strategyAddresses[strategy.name] = dbEntry.address
     }
@@ -393,6 +393,23 @@ const isErc20SymbolCorrect = async (
   return symbol === erc20Symbol;
 };
 
+
+export const getAllMockedData = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] =  Object.values(allReservesAddresses);
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("0");
+    canBorrow0.push(true);
+    canBeCollateral0.push(true);
+  }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
+
 export const getTranche0MockedData = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
@@ -489,7 +506,7 @@ export const getTranche1MockedData = (allReservesAddresses: {
   return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
 };
 
-export const getTranche0MockedDataOP = (allReservesAddresses: {
+export const getTranche0DataOP = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
   let assets0: tEthereumAddress[] = [
@@ -529,7 +546,7 @@ export const getTranche0MockedDataOP = (allReservesAddresses: {
 };
 
 
-export const getTranche1MockedDataOP = (allReservesAddresses: {
+export const getTranche1DataOP = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
   let assets0: tEthereumAddress[] = [
@@ -559,24 +576,7 @@ export const getTranche1MockedDataOP = (allReservesAddresses: {
 };
 
 
-export const getTranche0TestingMockedDataBase = (allReservesAddresses: {
-  [symbol: string]: tEthereumAddress;
-}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0: tEthereumAddress[] =  Object.values(allReservesAddresses);
-  let reserveFactors0: string[] = [];
-  let canBorrow0: boolean[] = [];
-  let canBeCollateral0: boolean[] = [];
-  for (let i = 0; i < assets0.length; i++) {
-    reserveFactors0.push("0");
-    canBorrow0.push(true);
-    canBeCollateral0.push(true);
-  }
-
-  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
-};
-
-
-export const getTranche0MockedDataBase = (allReservesAddresses: {
+export const getTranche0DataBase = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
   let assets0: tEthereumAddress[] = [
@@ -602,26 +602,7 @@ export const getTranche0MockedDataBase = (allReservesAddresses: {
   return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
 };
 
-
-export const getTranche0TestingMockedDataArbitrum = (allReservesAddresses: {
-  [symbol: string]: tEthereumAddress;
-}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
-  let assets0: tEthereumAddress[] = Object.values(allReservesAddresses);
-
-  let reserveFactors0: string[] = [];
-  let canBorrow0: boolean[] = [];
-  let canBeCollateral0: boolean[] = [];
-  for (let i = 0; i < assets0.length; i++) {
-    reserveFactors0.push("0");
-    canBorrow0.push(true);
-    canBeCollateral0.push(true);
-  }
-
-  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
-};
-
-
-export const getTranche1MockedDataArbitrum = (allReservesAddresses: {
+export const getTranche1DataArbitrum = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
   let assets0: tEthereumAddress[] = [
@@ -651,7 +632,7 @@ export const getTranche1MockedDataArbitrum = (allReservesAddresses: {
 };
 
 
-export const getTranche0MockedDataArbitrum = (allReservesAddresses: {
+export const getTranche0DataArbitrum = (allReservesAddresses: {
   [symbol: string]: tEthereumAddress;
 }): [tEthereumAddress[], string[], boolean[], boolean[]] => {
   let assets0: tEthereumAddress[] = [

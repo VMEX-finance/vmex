@@ -10,8 +10,9 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
-  getTranche0MockedDataOP,
-  getTranche1MockedDataOP,
+  getTranche0DataOP,
+  getTranche1DataOP,
+  getAllMockedData,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -68,10 +69,13 @@ task(
       await waitForTx(
         await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 0)
       );
+      let assets0, reserveFactors0, canBorrow0, canBeCollateral0
       
-      // TODO: use real data for tranches that we want to deploy
-
-      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedDataOP(reserveAssets);
+      if(network.includes("localhost")) {
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getAllMockedData(reserveAssets);
+      } else {
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataOP(reserveAssets);
+      }
       await initReservesByHelper(
         assets0,
         reserveFactors0,
@@ -98,7 +102,7 @@ task(
         await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 1)
       );
 
-      let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1MockedDataOP(reserveAssets);
+      let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1DataOP(reserveAssets);
       await initReservesByHelper(
         assets1,
         reserveFactors1,
