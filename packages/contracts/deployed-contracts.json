@@ -913,7 +913,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x3619DbE27d7c1e7E91aA738697Ae7Bc5FC3eACA5",
+      "address": "0xf784709d2317D872237C4bC22f867d1BAe2913AB",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -951,7 +951,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x7c2C195CD6D34B8F845992d380aADB2730bB9C6F",
+      "address": "0x3619DbE27d7c1e7E91aA738697Ae7Bc5FC3eACA5",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -989,7 +989,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x8565Fb7dfB5D36b2aA00086ffc920cfF20db4F2f",
+      "address": "0x93C1e99C8dD990D77232821f9476c308FBad47f5",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -1025,7 +1025,7 @@
       "address": "0x5b3A3F865D19Cbafc64DeAC5401BcEDb6Fbc42cf"
     },
     "optimism_localhost": {
-      "address": "0x44e73999f3e55E4F6b753893502680C51F84817D"
+      "address": "0x93892E7ef9aB548bcb7b00354A51A84A4Fe94Cd7"
     },
     "optimism": {
       "address": "0x48CB441A85d6EA9798C72c4a1829658D786F3027"
@@ -1056,7 +1056,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x58F132FBB86E21545A4Bace3C19f1C05d86d7A22",
+      "address": "0xa4bcDF64Cdd5451b6ac3743B414124A6299B65FF",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -1103,7 +1103,7 @@
       "address": "0xe04ed89798eb331e515E9D1D93604792b75c0463"
     },
     "optimism_localhost": {
-      "address": "0xd15468525c35BDBC1eD8F2e09A00F8a173437f2f"
+      "address": "0x7e35Eaf7e8FBd7887ad538D4A38Df5BbD073814a"
     },
     "optimism": {
       "address": "0xba39d2D0D66704C793814251075DD2A0d0fB8A94"
@@ -1152,7 +1152,7 @@
       "address": "0xE96680e011FE0Bb5c9646f5463Ba3587962Cd952"
     },
     "optimism_localhost": {
-      "address": "0x2D8553F9ddA85A9B3259F6Bf26911364B85556F5"
+      "address": "0x52d3b94181f8654db2530b0fEe1B19173f519C52"
     },
     "optimism": {
       "address": "0xcA7F547cc1f0717575e453f843F53Ed2C951d57A"
@@ -1181,7 +1181,7 @@
       "address": "0xB30914453D4CeB5B9a3bD9460D039391D787D33f"
     },
     "optimism_localhost": {
-      "address": "0x5bcb88A0d20426e451332eE6C4324b0e663c50E0"
+      "address": "0x3521eF8AaB0323004A6dD8b03CE890F4Ea3A13f5"
     },
     "optimism": {
       "address": "0x5d4d0B38803Ef8d8001FdA16CD8a78Ee2906f064"
@@ -1207,7 +1207,7 @@
       "address": "0xd73Aa22528C52cf0508198C70cFB04E6345E93eC"
     },
     "optimism_localhost": {
-      "address": "0x3521eF8AaB0323004A6dD8b03CE890F4Ea3A13f5"
+      "address": "0x53369fd4680FfE3DfF39Fc6DDa9CfbfD43daeA2E"
     },
     "optimism": {
       "address": "0xEdf7A9f4aaEF6f64642AaA21dAA3d79C4351e17B"
@@ -1224,7 +1224,7 @@
       "address": "0x36e656E489918C3a5c58Be0551Fe12F3bF5E9830"
     },
     "optimism_localhost": {
-      "address": "0x52d3b94181f8654db2530b0fEe1B19173f519C52"
+      "address": "0xd15468525c35BDBC1eD8F2e09A00F8a173437f2f"
     },
     "optimism": {
       "address": "0xc0C0Fc800FEAB46ca49e53F9df1Cd531E9d3A774"
@@ -1253,7 +1253,7 @@
       "address": "0xe57b44D01BD15281b8B57fa11B9Af1226A1EC27f"
     },
     "optimism_localhost": {
-      "address": "0x7e35Eaf7e8FBd7887ad538D4A38Df5BbD073814a"
+      "address": "0x5bcb88A0d20426e451332eE6C4324b0e663c50E0"
     },
     "optimism": {
       "address": "0x7671B8296722a9609152cc35AB15FB2d2e4D13B9"
@@ -1296,7 +1296,7 @@
       "address": "0x6B22eee9Ae8aaE0893f465dDDD63Fbd394d9b4e4"
     },
     "optimism_localhost": {
-      "address": "0x53369fd4680FfE3DfF39Fc6DDa9CfbfD43daeA2E"
+      "address": "0xB00cC45B4a7d3e1FEE684cFc4417998A1c183e6d"
     },
     "optimism": {
       "address": "0x44dDc5Bfc8a165Dae7113232F139Ba4d065Ac50F"
@@ -1315,7 +1315,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x8858eeB3DfffA017D4BCE9801D340D36Cf895CCf",
+      "address": "0x7c2C195CD6D34B8F845992d380aADB2730bB9C6F",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -1353,7 +1353,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x0078371BDeDE8aAc7DeBfFf451B74c5EDB385Af7",
+      "address": "0x8858eeB3DfffA017D4BCE9801D340D36Cf895CCf",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -1391,7 +1391,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0xf4e77E5Da47AC3125140c470c71cBca77B5c638c",
+      "address": "0x0078371BDeDE8aAc7DeBfFf451B74c5EDB385Af7",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -1429,7 +1429,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0xf784709d2317D872237C4bC22f867d1BAe2913AB",
+      "address": "0xf4e77E5Da47AC3125140c470c71cBca77B5c638c",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -1465,7 +1465,7 @@
       "address": "0xD662fb7FDC7526C79AA4417d2A4415416e057ec4"
     },
     "optimism_localhost": {
-      "address": "0x18b9306737eaf6E8FC8e737F488a1AE077b18053"
+      "address": "0xFAe0fd738dAbc8a0426F47437322b6d026A9FD95"
     },
     "optimism": {
       "address": "0xc5A42E1c1c8640c77fFc8Fac88248AB6937fdabA"
@@ -1494,7 +1494,7 @@
       "address": "0xF558cbCe44480Ec342B727bbaC44fD11387F61fd"
     },
     "optimism_localhost": {
-      "address": "0x4d6D1C6D25193dD381f8C94d3BdeCe7b86212fD7"
+      "address": "0xcBC2b18ac2b34512881B0966460B92696A844621"
     },
     "optimism": {
       "address": "0x60F015F66F3647168831d31C7048ca95bb4FeaF9"
@@ -1523,7 +1523,7 @@
       "address": "0xEC1C93A9f6a9e18E97784c76aC52053587FcDB89"
     },
     "optimism_localhost": {
-      "address": "0x8456161947DFc1fC159A0B26c025cD2b4bba0c3e"
+      "address": "0x12080583C4F0211eC382d33a273E6D0f9fAb0F75"
     },
     "optimism": {
       "address": "0x907F93AD19265B75C576673F2EeC55dF88572d1F"
@@ -1552,7 +1552,7 @@
       "address": "0xAb88e2134DC600C8938aE1923c4ddF5B2f664733"
     },
     "optimism_localhost": {
-      "address": "0x7B315f4004750c7B82a895665f3571bA55A4B16B"
+      "address": "0xd69457615364E4444077b627A3D478291173cb9E"
     },
     "optimism": {
       "address": "0xe9CFdd8375a3E8cDfD8F18F6462c7158a7062484"
@@ -2785,7 +2785,7 @@
       "address": "0xE0c308fcEaB0Fe0BC6792570F54d5CC1d263A53e"
     },
     "optimism_localhost": {
-      "address": "0xb39f0e4b1De2d344Cd8031B891c5f6145031A13F"
+      "address": "0xD8529A1b5aA56527D5FCA58445b75bfE75aF2Eb2"
     },
     "optimism": {
       "address": "0xA1F5DDf4A9C4Bc2b1b63A6A4e7707B7afc58f010"
@@ -2817,7 +2817,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x5F6CaC05CDF893f029b29F44d368eAeD40e573B6",
+      "address": "0x92cfBAB5A86631e9F1A6126b42E01A74eadA61Df",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -2869,7 +2869,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x92cfBAB5A86631e9F1A6126b42E01A74eadA61Df",
+      "address": "0x78Aeff0658Fa67735fBF99Ce7CDB01Fe5D520259",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -2907,7 +2907,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x06bA8d8af0dF898D0712DffFb0f862cC51AF45c2",
+      "address": "0xb682dEEf4f8e298d86bFc3e21f50c675151FB974",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -2945,7 +2945,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x1750499D05Ed1674d822430FB960d5F6731fDf64",
+      "address": "0xE4C10Db67595aF2Cb4166c8C274e0140f7E43059",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -3047,7 +3047,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x93C1e99C8dD990D77232821f9476c308FBad47f5",
+      "address": "0x57965788BD1a93639CE738a58176e1A3d6F4d04f",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -3099,7 +3099,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x57965788BD1a93639CE738a58176e1A3d6F4d04f",
+      "address": "0xBbC60A8fAf66552554e460d55Ac0563Fb9e76c01",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -3134,7 +3134,7 @@
       "address": "0x5C893AdB524aa19dD8aC8AaD5C419AA8A566Eb99"
     },
     "optimism_localhost": {
-      "address": "0x9560aEA60844DA99618F7EA8DEb8130AAE057768"
+      "address": "0x5733B31af670E22c971FfBC94B130dED428dBF4b"
     },
     "optimism": {
       "address": "0x8E2a4c71906640B058051c00783160bE306c38fE"
@@ -3267,7 +3267,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0x099d9fF8F818290C8b5B7Db5bFca84CEebd2714c",
+      "address": "0x85bdE212E66e2BAE510E44Ed59116c1eC712795b",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -3591,7 +3591,7 @@
   },
   "rateStrategyUnborrowable": {
     "optimism_localhost": {
-      "address": "0xB00cC45B4a7d3e1FEE684cFc4417998A1c183e6d"
+      "address": "0x58F132FBB86E21545A4Bace3C19f1C05d86d7A22"
     },
     "optimism": {
       "address": "0x8AA00F73410269e8064fEA966EaE164f4458B9bC"
@@ -3611,7 +3611,7 @@
   },
   "rateStrategyLUSD": {
     "optimism_localhost": {
-      "address": "0x58F132FBB86E21545A4Bace3C19f1C05d86d7A22"
+      "address": "0xa4bcDF64Cdd5451b6ac3743B414124A6299B65FF"
     },
     "optimism": {
       "address": "0x635A475A139648e6eC2Ad58a9E9F123318C40519"
@@ -3737,6 +3737,10 @@
     "arbitrum": {
       "address": "0x19dDCA5857BBC4DFc1AEd23a08317eeb7708C576",
       "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "optimism_localhost": {
+      "address": "0x1d80315fac6aBd3EfeEbE97dEc44461ba7556160",
+      "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   },
   "rateStrategyCbETH": {
@@ -3795,6 +3799,10 @@
     },
     "hardhat": {
       "address": "0x3870a14c5057f596e385ea21537792fE4fF4C1BE",
+      "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
+    },
+    "optimism_localhost": {
+      "address": "0xe1B3b8F6b298b52bCd15357ED29e65e66a4045fF",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     }
   }

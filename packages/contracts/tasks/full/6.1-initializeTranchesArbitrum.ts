@@ -10,9 +10,9 @@ import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   claimTrancheId,
   initReservesByHelper,
-  getTranche0MockedDataArbitrum,
-  getTranche0TestingMockedDataArbitrum,
-  getTranche1MockedDataArbitrum,
+  getTranche0DataArbitrum,
+  getAllMockedData,
+  getTranche1DataArbitrum,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import {
@@ -72,9 +72,9 @@ task(
       let assets0, reserveFactors0, canBorrow0, canBeCollateral0;
       
       if(network.includes("localhost")) {
-        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0TestingMockedDataArbitrum(reserveAssets);
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getAllMockedData(reserveAssets);
       } else {
-        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedDataArbitrum(reserveAssets);
+        [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataArbitrum(reserveAssets);
       }
       
       await initReservesByHelper(
@@ -103,7 +103,7 @@ task(
         await lendingPoolConfiguratorProxy.connect(admin).setTranchePause(true, 1)
       );
 
-      let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1MockedDataArbitrum(reserveAssets);
+      let [assets1, reserveFactors1, canBorrow1, canBeCollateral1] = getTranche1DataArbitrum(reserveAssets);
       await initReservesByHelper(
         assets1,
         reserveFactors1,

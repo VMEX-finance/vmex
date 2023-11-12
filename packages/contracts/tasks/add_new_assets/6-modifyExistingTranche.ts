@@ -8,7 +8,7 @@ import { getLendingPool, getWETHGateway } from "../../helpers/contracts-getters"
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
-  getTranche0MockedDataBase,
+  getTranche0DataBase,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import { ZERO_ADDRESS } from "../../helpers/constants";
@@ -43,7 +43,7 @@ task(
 
       // TODO: use real data for tranches that we want to deploy
 
-      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0MockedDataBase(reserveAssets);
+      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataBase(reserveAssets);
       const lendingpool = await getLendingPool();
       // Initialize variables for future reserves initialization
       let initInputParams: {

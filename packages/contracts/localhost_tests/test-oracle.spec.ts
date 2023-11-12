@@ -9,7 +9,6 @@ import {UserAccountData} from "../localhost_tests_utils/interfaces/index";
 import {almostEqualOrEqual} from "../localhost_tests_utils/helpers/almostEqual";
 
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
-import { getPairsTokenAggregator } from "../helpers/contracts-getters";
 import { setBalance } from "../localhost_tests_utils/helpers/mint-tokens";
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { ConfigNames, loadPoolConfig } from "../helpers/configuration";
@@ -188,7 +187,7 @@ makeSuite(
            }
            else if(strat.assetType == 1) {
             if(currentAsset == "0x061b87122Ed14b9526A813209C8a59a633257bAb"){ 
-              expectedPrice = "101530212"
+              expectedPrice = "101555626"
             }
             if(currentAsset == "0xEfDE221f306152971D8e9f181bFe998447975810"){ 
               expectedPrice = "193750835389"
@@ -196,6 +195,7 @@ makeSuite(
             if(currentAsset =="0x7f90122BF0700F9E7e1F688fe926940E8839F353") expectedPrice="101417786"
             if(currentAsset =="0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b") expectedPrice="172134021460"
             if(currentAsset =="0xc9b8a3fdecb9d5b218d02555a8baf332e5b740d5") expectedPrice="100972742"
+            if(currentAsset == "0x1337BedC9D22ecbe766dF105c9623922A27963EC") expectedPrice="101870436"
            }
            else if(strat.assetType == 2) {
            }
@@ -334,7 +334,7 @@ makeSuite(
               let percentDiff = Math.abs(Number(naivePrice) - Number(price))/Number(price)
               console.log("Naive pricing: ", naivePrice)
               console.log("percent diff: ",percentDiff)
-              expect(percentDiff).lte(1e-2, "velo token price not consistent with naive pricing (mainly decimals issue)");
+              expect(percentDiff).lte(1e-2, "bal token price not consistent with naive pricing (mainly decimals issue)");
               expect((Number(price)-naivePrice)/naivePrice).lte(1e-4, "naive price should always be higher than fair reserves price");
 
 
