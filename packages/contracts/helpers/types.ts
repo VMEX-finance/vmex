@@ -433,6 +433,7 @@ export interface iAssetBase<T> {
   "sAMM-DAI/USDbC": T;
   "sAMM-USDC/USDbC": T;
   "cbETH-WETH-BPT": T;
+  "WETH-OP-USDC-BPT": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;

@@ -1056,7 +1056,7 @@
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism_localhost": {
-      "address": "0xa4bcDF64Cdd5451b6ac3743B414124A6299B65FF",
+      "address": "0xCeEa6148D75268b6E930AE41d7a31baE1CA318d8",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "optimism": {
@@ -3591,7 +3591,7 @@
   },
   "rateStrategyUnborrowable": {
     "optimism_localhost": {
-      "address": "0x58F132FBB86E21545A4Bace3C19f1C05d86d7A22"
+      "address": "0xCeEa6148D75268b6E930AE41d7a31baE1CA318d8"
     },
     "optimism": {
       "address": "0x8AA00F73410269e8064fEA966EaE164f4458B9bC"
