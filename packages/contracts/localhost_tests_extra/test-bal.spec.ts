@@ -4,13 +4,15 @@ const { expect } = chai;
 import { makeSuite } from "../test-suites/test-aave/helpers/make-suite";
 import { DRE } from "../helpers/misc-utils";
 
-import { eNetwork, eOptimismNetwork, IChainlinkInternal, ICommonConfiguration, ProtocolErrors, tEthereumAddress } from '../helpers/types';
+import { BeethovenMetadata, eContractid, eNetwork, eOptimismNetwork, iAssetsWithoutUSD, IBeethovenMetadata, IChainlinkInternal, ICommonConfiguration, iMultiPoolsAssets, iOptimismPoolAssets, IReserveParams, ProtocolErrors, tEthereumAddress } from '../helpers/types';
 import {UserAccountData} from "../localhost_tests_utils/interfaces/index";
 import {almostEqualOrEqual} from "../localhost_tests_utils/helpers/almostEqual";
 import { getParamPerNetwork } from "../helpers/contracts-helpers";
 import { setBalance } from "../localhost_tests_utils/helpers/mint-tokens";
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { ConfigNames, loadPoolConfig } from "../helpers/configuration";
+import { initAssetData } from "../helpers/init-helpers"
+import { rateStrategyUnborrowable } from "../markets/optimism/rateStrategies";
 const oracleAbi = require("../artifacts/contracts/protocol/oracles/VMEXOracle.sol/VMEXOracle.json")
 
 chai.use(function (chai: any, utils: any) {
@@ -89,6 +91,44 @@ makeSuite(
     ];
     var deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 
+    it("add weth op usdc metadata and allow (on optimism)", async () => {
+      type iTestingPoolAssets<T> = Partial<
+      Pick<
+        iAssetsWithoutUSD<T>,
+        | "WETH-OP-USDC-BPT"
+      >
+    >;
+      const strategyNewBal: IReserveParams = {
+        strategy: rateStrategyUnborrowable,
+        baseLTVAsCollateral: '650000000000000000',
+        liquidationThreshold: '700000000000000000',
+        liquidationBonus: '1100000000000000000',
+        borrowingEnabled: false,
+        reserveDecimals: '18',
+        aTokenImpl: eContractid.AToken,
+        assetType: 6, // beethoven
+        supplyCap: '100',
+        borrowCap: '0',
+        borrowFactor: '1000000000000000000',
+        reserveFactor: '150000000000000000',  
+      };
+      const newReserveAsset:iTestingPoolAssets<IReserveParams> = {
+        "WETH-OP-USDC-BPT": strategyNewBal
+      }
+      const tokenAddress: { [symbol: string]: tEthereumAddress } = {
+        "WETH-OP-USDC-BPT": "0x39965c9dAb5448482Cf7e002F583c812Ceb53046"
+      }
+      const admin = await contractGetters.getFirstSigner();
+      const balMetadata: iTestingPoolAssets<BeethovenMetadata> = {
+        "WETH-OP-USDC-BPT": {
+          _typeOfPool: "0",
+          _legacy: true,
+          _exists: true
+        }
+      }
+      await initAssetData(newReserveAsset, tokenAddress, admin, false, undefined, balMetadata)
+    });
+
     it("test balancer pricing", async () => {
         var signer = await contractGetters.getFirstSigner();
         const addProv = await contractGetters.getLendingPoolAddressesProvider();
@@ -96,7 +136,7 @@ makeSuite(
         const oracleAdd = await addProv.connect(signer).getPriceOracle();
         const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
-       const testTokens = ["0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2"]
+       const testTokens = ["0x39965c9dAb5448482Cf7e002F583c812Ceb53046"]
     //    const testTokens =  Object.values(reserveAssets);
        for(let i =0;i<testTokens.length;i++){
           const currentAsset = testTokens[i]
