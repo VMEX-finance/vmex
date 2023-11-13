@@ -1,32 +1,36 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import {
   oneRay,
   ZERO_ADDRESS,
   MOCK_CHAINLINK_AGGREGATORS_PRICES,
   oneEther,
-} from '../../helpers/constants';
-import { ICommonConfiguration, eEthereumNetwork, eOptimismNetwork } from '../../helpers/types';
+} from "../../helpers/constants";
+import {
+  ICommonConfiguration,
+  eEthereumNetwork,
+  eOptimismNetwork,
+} from "../../helpers/types";
 
 // ----------------
 // PROTOCOL GLOBAL PARAMS
 // ----------------
 
 export const CommonsConfig: ICommonConfiguration = {
-  MarketId: 'Commons',
-  ATokenNamePrefix: 'Vmex interest bearing',
-  VariableDebtTokenNamePrefix: 'Vmex variable debt bearing',
-  SymbolPrefix: '',
+  MarketId: "Commons",
+  ATokenNamePrefix: "Vmex interest bearing",
+  VariableDebtTokenNamePrefix: "Vmex variable debt bearing",
+  SymbolPrefix: "",
   ProviderId: 0, // Overriden in index.ts
-  OracleQuoteCurrency: 'USD',
+  OracleQuoteCurrency: "USD",
   OracleQuoteDecimals: 8,
-  OracleQuoteUnit: ethers.utils.parseUnits("1",8).toString(),
+  OracleQuoteUnit: ethers.utils.parseUnits("1", 8).toString(),
   ProtocolGlobalParams: {
-    TokenDistributorPercentageBase: '10000',
-    MockUsdPriceInWei: '5848466240000000',
-    UsdAddress: '0x10F7Fc1F91Ba351f9C629c5947AD69bD03C05b96',
+    TokenDistributorPercentageBase: "10000",
+    MockUsdPriceInWei: "5848466240000000",
+    UsdAddress: "0x10F7Fc1F91Ba351f9C629c5947AD69bD03C05b96",
     NilAddress: ZERO_ADDRESS,
-    OneAddress: '0x0000000000000000000000000000000000000001',
-    AaveReferral: '0',
+    OneAddress: "0x0000000000000000000000000000000000000001",
+    AaveReferral: "0",
   },
 
   // ----------------
@@ -44,7 +48,7 @@ export const CommonsConfig: ICommonConfiguration = {
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
-    [eOptimismNetwork.optimism]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B", 
+    [eOptimismNetwork.optimism]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B",
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
@@ -52,7 +56,7 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   GlobalAdminMultisig: {
-    [eOptimismNetwork.optimism]: "0x599e1DE505CfD6f10F64DD7268D856831f61627a", 
+    [eOptimismNetwork.optimism]: "0x599e1DE505CfD6f10F64DD7268D856831f61627a",
   },
   ProviderRegistry: {
     [eOptimismNetwork.optimism]: "0xEB125b3386322886769f43B7744327B9983A24Da",
@@ -69,23 +73,26 @@ export const CommonsConfig: ICommonConfiguration = {
   AssetMappings: {
     [eOptimismNetwork.optimism]: "0x48CB441A85d6EA9798C72c4a1829658D786F3027",
   },
-  LendingPoolCollateralManager: { //this is the impl
-    [eOptimismNetwork.optimism]: '0x18437Fa16Aa60e0Def18938F254615d77115d46d',
+  LendingPoolCollateralManager: {
+    //this is the impl
+    [eOptimismNetwork.optimism]: "0x18437Fa16Aa60e0Def18938F254615d77115d46d",
   },
-  LendingPoolConfigurator: { //this is the impl
-    [eOptimismNetwork.optimism]: '0x907F93AD19265B75C576673F2EeC55dF88572d1F',
+  LendingPoolConfigurator: {
+    //this is the impl
+    [eOptimismNetwork.optimism]: "0x907F93AD19265B75C576673F2EeC55dF88572d1F",
   },
-  LendingPool: { //this is the impl
-    [eOptimismNetwork.optimism]: '0xc5A42E1c1c8640c77fFc8Fac88248AB6937fdabA',
+  LendingPool: {
+    //this is the impl
+    [eOptimismNetwork.optimism]: "0xc5A42E1c1c8640c77fFc8Fac88248AB6937fdabA",
   },
   WethGateway: {
-    [eOptimismNetwork.optimism]: '',
+    [eOptimismNetwork.optimism]: "",
   },
   TokenDistributor: {
-    [eOptimismNetwork.optimism]: '',
+    [eOptimismNetwork.optimism]: "",
   },
   FallbackOracle: {
-    [eOptimismNetwork.optimism]: '0xdC33956bFdD227b38CCaa1647a1511e0efc18C60',
+    [eOptimismNetwork.optimism]: "0xdC33956bFdD227b38CCaa1647a1511e0efc18C60",
   },
   UniswapV3OracleAddresses: {
     [eOptimismNetwork.optimism]: {},
@@ -97,18 +104,18 @@ export const CommonsConfig: ICommonConfiguration = {
     [eOptimismNetwork.optimism]: {
       "3CRV": {
         _reentrancyType: 0, //0 means no check needed
-        _poolSize: '3',
-        _curvePool: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
+        _poolSize: "3",
+        _curvePool: "0x1337BedC9D22ecbe766dF105c9623922A27963EC",
       },
       "sUSD3CRV-f": {
         _reentrancyType: 0,
-        _poolSize: '2',
-        _curvePool: '0x061b87122Ed14b9526A813209C8a59a633257bAb'
+        _poolSize: "2",
+        _curvePool: "0x061b87122Ed14b9526A813209C8a59a633257bAb",
       },
       wstETHCRV: {
         _reentrancyType: 4, //REMOVE_LIQUIDITY_2_RETURNS
-        _poolSize: '2',
-        _curvePool: '0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415'
+        _poolSize: "2",
+        _curvePool: "0xB90B9B1F91a01Ea22A182CD84C1E22222e39B415",
       },
     },
   },
@@ -139,49 +146,49 @@ export const CommonsConfig: ICommonConfiguration = {
   ChainlinkAggregator: {
     [eOptimismNetwork.optimism]: {
       DAI: {
-        feed: '0x8dBa75e83DA73cc766A7e5a0ee71F656BAb470d6',
-        heartbeat: 86400
+        feed: "0x8dBa75e83DA73cc766A7e5a0ee71F656BAb470d6",
+        heartbeat: 86400,
       },
       SNX: {
-        feed: '0x2FCF37343e916eAEd1f1DdaaF84458a359b53877',
-        heartbeat: 1200
+        feed: "0x2FCF37343e916eAEd1f1DdaaF84458a359b53877",
+        heartbeat: 1200,
       },
       sUSD: {
-        feed: '0x7f99817d87baD03ea21E05112Ca799d715730efe',
-        heartbeat: 86400
-      },
-      USDC:{
-        feed: '0x16a9FA2FDa030272Ce99B29CF780dFA30361E0f3',
+        feed: "0x7f99817d87baD03ea21E05112Ca799d715730efe",
         heartbeat: 86400,
       },
-      USDT:{
-        feed: '0xECef79E109e997bCA29c1c0897ec9d7b03647F5E',
+      USDC: {
+        feed: "0x16a9FA2FDa030272Ce99B29CF780dFA30361E0f3",
         heartbeat: 86400,
       },
-      WBTC:{
-        feed: '0x718A5788b89454aAE3A028AE9c111A29Be6c2a6F',
+      USDT: {
+        feed: "0xECef79E109e997bCA29c1c0897ec9d7b03647F5E",
+        heartbeat: 86400,
+      },
+      WBTC: {
+        feed: "0x718A5788b89454aAE3A028AE9c111A29Be6c2a6F",
         heartbeat: 1200,
       },
-      WETH:{
-        feed: '0x13e3Ee699D1909E989722E753853AE30b17e08c5',
+      WETH: {
+        feed: "0x13e3Ee699D1909E989722E753853AE30b17e08c5",
         heartbeat: 1200,
       },
-      wstETH:{
-        feed: '0x698B585CbC4407e2D54aa898B2600B53C68958f7',
+      wstETH: {
+        feed: "0x698B585CbC4407e2D54aa898B2600B53C68958f7",
         heartbeat: 86400,
       },
-      FRAX:{
-        feed: '0xc7D132BeCAbE7Dcc4204841F33bae45841e41D9C',
+      FRAX: {
+        feed: "0xc7D132BeCAbE7Dcc4204841F33bae45841e41D9C",
         heartbeat: 86400,
       },
-      OP:{
-        feed: '0x0D276FC14719f9292D5C1eA2198673d1f4269246',
+      OP: {
+        feed: "0x0D276FC14719f9292D5C1eA2198673d1f4269246",
         heartbeat: 1200,
       },
-      LUSD:{
-        feed: '0x9dfc79Aaeb5bb0f96C6e9402671981CdFc424052',
+      LUSD: {
+        feed: "0x9dfc79Aaeb5bb0f96C6e9402671981CdFc424052",
         heartbeat: 86400,
-      }
+      },
     },
   },
   ReserveAssets: {
@@ -189,15 +196,16 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   ReservesConfig: {},
   ATokenDomainSeparator: {
-    [eOptimismNetwork.optimism]: '',
+    [eOptimismNetwork.optimism]: "",
   },
   WETH: {
-    [eOptimismNetwork.optimism]: '0x4200000000000000000000000000000000000006',
+    [eOptimismNetwork.optimism]: "0x4200000000000000000000000000000000000006",
   },
   WrappedNativeToken: {
-    [eOptimismNetwork.optimism]: '0x4200000000000000000000000000000000000006',
+    [eOptimismNetwork.optimism]: "0x4200000000000000000000000000000000000006",
   },
-  IncentivesController: { //impl
+  IncentivesController: {
+    //impl
     [eOptimismNetwork.optimism]: "0xE1A55E97FfE942D530B1690096D81B6Cc7d54dF4",
   },
   VMEXTreasury: {
@@ -207,10 +215,10 @@ export const CommonsConfig: ICommonConfiguration = {
     [eOptimismNetwork.optimism]: "0x856a5c389F77a6dFed7542635AB93D8Da23B6103",
   },
   SequencerUptimeFeed: {
-    [eOptimismNetwork.optimism]: "0x371EAD81c9102C9BF4874A9075FFFf170F2Ee389"
+    [eOptimismNetwork.optimism]: "0x371EAD81c9102C9BF4874A9075FFFf170F2Ee389",
   },
   RETHOracle: {
-    [eOptimismNetwork.optimism]: "0x1a8F81c256aee9C640e14bB0453ce247ea0DFE6F"
+    [eOptimismNetwork.optimism]: "0x1a8F81c256aee9C640e14bB0453ce247ea0DFE6F",
   },
   ExternalStakingContracts: {
     [eOptimismNetwork.optimism]: {
@@ -283,7 +291,7 @@ export const CommonsConfig: ICommonConfiguration = {
         type: 3,
       },
       "3CRV": {
-        address: "0x7f90122BF0700F9E7e1F688fe926940E8839F353",
+        address: "0x15F52286C0FF1d7A7dDbC9E300dd66628D46D4e6",
         type: 4,
       },
       "sUSD3CRV-f": {
@@ -295,5 +303,5 @@ export const CommonsConfig: ICommonConfiguration = {
         type: 4,
       },
     },
-  }
+  },
 };
