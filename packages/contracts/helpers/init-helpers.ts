@@ -36,6 +36,10 @@ export const getATokenExtraParams = async (
   }
 };
 
+export const isTestNetwork = () => {
+  return DRE.network.name.includes("localhost") || DRE.network.name == "hardhat"
+}
+
 export const claimTrancheId = async (
   name: string,
   admin: SignerWithAddress
@@ -105,7 +109,7 @@ const submitCurveMetadata = async (
       }
       const existingCurveMetadata = await assetMappings.getCurveMetadata(tokenAddresses[symbol])
       console.log("existingCurveMetadata: ", existingCurveMetadata)
-      if(!existingCurveMetadata && !DRE.network.name.includes("localhost")) continue
+      if(!existingCurveMetadata && !isTestNetwork()) continue
       curveToken.push(tokenAddresses[symbol]);
       curveParams.push(params);
     }
@@ -145,7 +149,7 @@ const submitBeethovenMetadata = async (
       }
       const isAssetInMappings = await assetMappings.isAssetInMappings(tokenAddresses[symbol])
 
-      if(isAssetInMappings && !DRE.network.name.includes("localhost")) continue
+      if(isAssetInMappings && !isTestNetwork()) continue
       console.log("adding beethoven metadata for symbol: ", symbol)
       beethovenToken.push(tokenAddresses[symbol]);
       beethovenParams.push(params);
@@ -242,7 +246,7 @@ export const initAssetData = async (
     console.log("Attempting to process new asset: ", symbol)
 
     const dbEntry = await getDbEntry(strategy.name);
-    if(dbEntry && !DRE.network.name.includes("localhost")){
+    if(dbEntry && !isTestNetwork()){
       console.log("db already has ", strategy.name, " as ",dbEntry.address)
       strategyAddresses[strategy.name] = dbEntry.address
     }
