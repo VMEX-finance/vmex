@@ -3091,7 +3091,7 @@
   },
   "IncentivesControllerImpl": {
     "hardhat": {
-      "address": "0x51fa472EB89c046484B037B6125CF843C9d41b44",
+      "address": "0xC8Df507578fEfb60aA626ABFDDB20B48ee439ad1",
       "deployer": "0xc783df8a850f42e7F7e57013759C285caa701eB6"
     },
     "localhost": {
