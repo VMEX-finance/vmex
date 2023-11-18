@@ -6,12 +6,8 @@ import {
 } from "./contract-getters";
 import {
   ReserveSummary,
-  ProtocolData,
-  TopAssetsData,
-  TrancheData,
   UserSummaryData,
   UserTrancheData,
-  AssetBalance,
   UserWalletData,
 } from "./interfaces";
 import { decodeConstructorBytecode } from "./decode-bytecode";
