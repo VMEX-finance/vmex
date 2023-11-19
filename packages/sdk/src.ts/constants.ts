@@ -2,7 +2,7 @@ import AaveConfig from "@vmexfinance/contracts/dist/markets/aave";
 import OptimismConfig from "@vmexfinance/contracts/dist/markets/optimism";
 import BaseConfig from "@vmexfinance/contracts/dist/markets/base";
 import ArbitrumConfig from "@vmexfinance/contracts/dist/markets/arbitrum";
-import Deployments from "./deployed-contracts.json";
+import Deployments from "@vmexfinance/contracts/deployed-contracts-prod.json";
 export const deployments = Deployments;
 
 export const MAX_UINT_AMOUNT =

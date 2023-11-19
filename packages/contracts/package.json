@@ -6,7 +6,8 @@
   "files": [
     "contracts",
     "artifacts",
-    "dist"
+    "dist",
+    "deployed-contracts-prod.json"
   ],
   "author": "VMEX Finance",
   "contributors": [

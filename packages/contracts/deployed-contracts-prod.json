@@ -1,0 +1,1597 @@
+{
+  "MintableERC20": {
+    "sepolia": {
+      "address": "0x0E179a983d987D9809BD53e88798CDf7b4F321dA",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "DAI": {
+    "sepolia": {
+      "address": "0xB8B945779a5b85340eeC8d3F9F8Da00297586336",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "AAVE": {
+    "sepolia": {
+      "address": "0x80AD5e089637700517015dB138b1878c71a00C1c",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "TUSD": {
+    "sepolia": {
+      "address": "0xd544effDfb4DECc7b431E8a5800a85a582c59165",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BAT": {
+    "sepolia": {
+      "address": "0x0589d02867Cf6756b552a88a836Bd0c9E12b9B88",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WETHMocked": {
+    "optimism": {
+      "address": "0x73068eD1ddc474Da2880a30a48E2Ac3Ada7d154D",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x79D5B9FDd4022498b3C9D35BA12aF0CE00524d0c",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WETH": {
+    "sepolia": {
+      "address": "0x79D5B9FDd4022498b3C9D35BA12aF0CE00524d0c",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "USDC": {
+    "sepolia": {
+      "address": "0x2e616e02C9683B28028189E355F6f3dA231FE710",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "USDT": {
+    "sepolia": {
+      "address": "0xA58949E8bf8C331024Af7e0558C5bC10FC230B25",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "sUSD": {
+    "sepolia": {
+      "address": "0xac4a3cBfb79597f1D76632a5179CE7593D0D9b65",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ZRX": {
+    "sepolia": {
+      "address": "0x9bA1f7e8Df315312E09BC5f8E3B9bF7b416fe127",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MKR": {
+    "sepolia": {
+      "address": "0x4AabA898176da2Af98a3D11886e7De6BA456b96B",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WBTC": {
+    "sepolia": {
+      "address": "0x87c16764e2E808c08D4b24ced6F78D273284A8BE",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LINK": {
+    "sepolia": {
+      "address": "0x4DAa8445980210aEB432C72695c514ad451Df95a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "KNC": {
+    "sepolia": {
+      "address": "0x632f23d3f537868d7cC3471b32512B21B827Eb1A",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MANA": {
+    "sepolia": {
+      "address": "0xA755522e665d6b76fF6E7d5C1d27658983b9B795",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "REN": {
+    "sepolia": {
+      "address": "0x8D0901395C16305f04161fBa7B2e0271dC0d5844",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "SNX": {
+    "sepolia": {
+      "address": "0x19117Ed4b40b56804773400626cC5Dd370B1F791",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BUSD": {
+    "sepolia": {
+      "address": "0x555402ab012EFfA23c1365205883A0b916128aB0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "USD": {
+    "sepolia": {
+      "address": "0xF497355BcDE77310F8D3663bAD416A6A10F73c1a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YFI": {
+    "sepolia": {
+      "address": "0x4De5D104f319Cff2D31b0Cc78aa1257921d7c633",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNI": {
+    "sepolia": {
+      "address": "0xc751e35607C31bc0f02d4BA0C9209653334322E1",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ENJ": {
+    "sepolia": {
+      "address": "0x6a2d97f6768F853f4D831a9b0BAe93eE4Bf788A9",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WSTETH": {
+    "sepolia": {
+      "address": "0xc35C936aA4425468fa606B9412d828Bf73F6570B",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "OP": {
+    "sepolia": {
+      "address": "0x5c51C1c8933Eb2a9135D79a1DB6b930f46581630",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIDAIWETH": {
+    "sepolia": {
+      "address": "0x3Db5f7e5D1911C0AEf9eC5d1901DeF521E899E15",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIWBTCWETH": {
+    "sepolia": {
+      "address": "0xD356f7174d950CF76cE7A3FB9FaD136EEBb5F162",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIAAVEWETH": {
+    "sepolia": {
+      "address": "0x93be41a42EE66c72eA437694119Db8FD773315aa",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIBATWETH": {
+    "sepolia": {
+      "address": "0x4C791F7Db0538958E5f1Ced3cd275Ad0E8eC45dE",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIDAIUSDC": {
+    "sepolia": {
+      "address": "0xb9111af412694DbdA2247330bDfDa5536b15e4D3",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNICRVWETH": {
+    "sepolia": {
+      "address": "0xb06038E8Ec728209BbCa935B081a03b682BCB5D3",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNILINKWETH": {
+    "sepolia": {
+      "address": "0x531b858c674C125124edDDC918fE8062bAe27524",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIMKRWETH": {
+    "sepolia": {
+      "address": "0x5A22a4f7c8538e4dB8Ae3b99697637182A8E7487",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIRENWETH": {
+    "sepolia": {
+      "address": "0x22FE8B441330e6b22a7b673d3aB0371c048B6D8b",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNISNXWETH": {
+    "sepolia": {
+      "address": "0x048C29c933DC660aE4fa55bA5c9354f8e95B6c87",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIUNIWETH": {
+    "sepolia": {
+      "address": "0x5Dc405C990724EBc463Dbe791ff6F24a520a073C",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIUSDCWETH": {
+    "sepolia": {
+      "address": "0x9f0c805182Da6Be4F0e201B5CB8083d98809E311",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIWBTCUSDC": {
+    "sepolia": {
+      "address": "0xA39d6D77750B27A11a53FC21166f591e22c50403",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIYFIWETH": {
+    "sepolia": {
+      "address": "0x5439855702aEDD4548A488D799722E0C9Ab6355b",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BPTWBTCWETH": {
+    "sepolia": {
+      "address": "0x55DC18Ed50A8Cc3e9ec94fD555bfe8e8B17F8c7F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BPTBALWETH": {
+    "sepolia": {
+      "address": "0x35644Ef02a439F112180FF824CDe841668BAAae5",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WMATIC": {
+    "sepolia": {
+      "address": "0x074892fB4da5082b63F99C4CAe58BDfb931eA78D",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "STAKE": {
+    "sepolia": {
+      "address": "0x28BD3905C5CF4937204bC77FCaBF692aB1662395",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WAVAX": {
+    "sepolia": {
+      "address": "0xb12fb61A2C12bd7415dd118944debA44936BB245",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "TRICRYPTO2": {
+    "sepolia": {
+      "address": "0xB818FE5699A9dd723198316BF70414FD81C9eb0B",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "THREEPOOL": {
+    "sepolia": {
+      "address": "0xFa67CCF6EC85866932a37147223F2AA4bee2067d",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "STETHETH": {
+    "sepolia": {
+      "address": "0x835dbE442E50DE93aAb9468f9313BF302dd836e3",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "STETH": {
+    "sepolia": {
+      "address": "0x5Fe73c1C421275151d6A3b40968801dec73689da",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "FRAXUSDC": {
+    "sepolia": {
+      "address": "0xec2c833D3B143a1A3711101128e4F899cdf77737",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "FRAX3CRV": {
+    "sepolia": {
+      "address": "0xe57A80ACe11b94c5b47083ad738ccd22265cfe2A",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "FRAX": {
+    "sepolia": {
+      "address": "0xAE3f74D381474F5F91c4166261786aF81B98f11d",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BAL": {
+    "sepolia": {
+      "address": "0xC1800c5e4D4D6E75c062031149ab3aDA0578C90e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "CRV": {
+    "sepolia": {
+      "address": "0x8b7b14706f8a7D5696F2E9F6f076cbB91cAC4Dff",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "CVX": {
+    "sepolia": {
+      "address": "0xA76648C9e894Ec685f466dEfb1b895cCfbB2cE3c",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BADGER": {
+    "sepolia": {
+      "address": "0x1A0983351994e88f4cD40B87832710659113f127",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LDO": {
+    "sepolia": {
+      "address": "0x0CCDbAB8720D91C0c6e17503E272206CE8ded1f7",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ALCX": {
+    "sepolia": {
+      "address": "0xbD62764b3C624D63D5cDF4E25b6031d07EFCfE42",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ONEINCH": {
+    "sepolia": {
+      "address": "0x0E179a983d987D9809BD53e88798CDf7b4F321dA",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YearnTokenMocked": {
+    "sepolia": {
+      "address": "0xA789f5dd8ACD3000609B01803c69fD4F88c89190",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVTRICRYPTO2": {
+    "sepolia": {
+      "address": "0x868fa1dA95720Ba1607F636B19E2cCf2F145Bd14",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVTHREEPOOL": {
+    "sepolia": {
+      "address": "0xE2A9A87c6bc31D0C5e61185472E8D507fdC9E184",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVSTETHETH": {
+    "sepolia": {
+      "address": "0x29B5FfAdD160737C63Da26f1E7d25DFfDf16ebC8",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVFRAXUSDC": {
+    "sepolia": {
+      "address": "0xea8d03a3910Fec5FA33FC52E18F6453c049C0f07",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVFRAX3CRV": {
+    "sepolia": {
+      "address": "0xA789f5dd8ACD3000609B01803c69fD4F88c89190",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LendingPoolAddressesProvider": {
+    "optimism": {
+      "address": "0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x04cA601E0a4665460682B33E2F4C1484470C4bF0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x47a61eb4a66E68ca522e998e6c163C880845c5a9",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LendingPoolAddressesProviderRegistry": {
+    "optimism": {
+      "address": "0xEB125b3386322886769f43B7744327B9983A24Da",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0xc6BD97a68d32192BC324d6A6d8b1C2e6366f96A3",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xEB125b3386322886769f43B7744327B9983A24Da",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "AaveProtocolDataProvider": {
+    "optimism": {
+      "address": "0x7A92D5c7ECAc738FC0D3B3d80CeA3b4115961a6C",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0xcf56389F664Da9C15892C8614047108F425e2c14",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0x57e24fFa944F80573B0F46D3e69d8E8Df158Dc64",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x5264CC51C27775f9EcF16506fB7C3F83A689A92c",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "AssetMappings": {
+    "optimism": {
+      "address": "0x48CB441A85d6EA9798C72c4a1829658D786F3027"
+    },
+    "sepolia": {
+      "address": "0xE7F35652E90e53f6d0EE8765B5C21306B953C6E6"
+    },
+    "base": {
+      "address": "0x48CB441A85d6EA9798C72c4a1829658D786F3027"
+    },
+    "arbitrum": {
+      "address": "0x1703F0EC7f77a1042D9B0c2868e38c60300b4C9b"
+    }
+  },
+  "DefaultReserveInterestRateStrategy": {
+    "optimism": {
+      "address": "0x635A475A139648e6eC2Ad58a9E9F123318C40519",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x70BaD852898Be29055c68f67801CF6834751823F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0x06de2264eD583fD1388A454Afb39382d8eB5d85A",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xba39d2D0D66704C793814251075DD2A0d0fB8A94",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "rateStrategyAAVE": {
+    "sepolia": {
+      "address": "0x78eAfF921099a92e3194E3fBf1F890Bffa75849B"
+    }
+  },
+  "rateStrategyVolatileOne": {
+    "optimism": {
+      "address": "0xba39d2D0D66704C793814251075DD2A0d0fB8A94"
+    },
+    "sepolia": {
+      "address": "0x93391E39CEBe1e3b266a26E3271a474a43056fa3"
+    },
+    "arbitrum": {
+      "address": "0x4cE76015b2A994A42d4dC4695070c2E6D2c0Ce71"
+    }
+  },
+  "rateStrategyStableOne": {
+    "sepolia": {
+      "address": "0xB21512AfFd864043938cBcECdAa4B5047065E292"
+    },
+    "arbitrum": {
+      "address": "0x17bC1CF511B8490603ab30b7b86560b16d3FbeD8"
+    }
+  },
+  "rateStrategyStableTwo": {
+    "optimism": {
+      "address": "0xcA7F547cc1f0717575e453f843F53Ed2C951d57A"
+    },
+    "sepolia": {
+      "address": "0xc35E70C949C06244DB82f82D25dd2023ec5C4d0a"
+    },
+    "arbitrum": {
+      "address": "0x1aa0620b6E75bFEa64f65479CD659054df5F1A73"
+    },
+    "base": {
+      "address": "0xEAf9510452de5a1E06f245374cb885bE84aaA0B0"
+    }
+  },
+  "rateStrategyVolatileTwo": {
+    "optimism": {
+      "address": "0x5d4d0B38803Ef8d8001FdA16CD8a78Ee2906f064"
+    },
+    "sepolia": {
+      "address": "0x6fa0d6f2d38595bB4A60D061448Ddfa4F359A062"
+    },
+    "arbitrum": {
+      "address": "0xcA7F547cc1f0717575e453f843F53Ed2C951d57A"
+    }
+  },
+  "rateStrategyVolatileThree": {
+    "optimism": {
+      "address": "0xEdf7A9f4aaEF6f64642AaA21dAA3d79C4351e17B"
+    },
+    "sepolia": {
+      "address": "0x6380eb5e2074bec5f3eEF5fD32135b47f8e1Ee1C"
+    }
+  },
+  "rateStrategyStableThree": {
+    "optimism": {
+      "address": "0xc0C0Fc800FEAB46ca49e53F9df1Cd531E9d3A774"
+    },
+    "sepolia": {
+      "address": "0xf0a20B8702625B4E7481c3d926d3D6282561aC21"
+    },
+    "base": {
+      "address": "0xcA7F547cc1f0717575e453f843F53Ed2C951d57A"
+    },
+    "arbitrum": {
+      "address": "0xc0C0Fc800FEAB46ca49e53F9df1Cd531E9d3A774"
+    }
+  },
+  "rateStrategyWETH": {
+    "optimism": {
+      "address": "0x7671B8296722a9609152cc35AB15FB2d2e4D13B9"
+    },
+    "sepolia": {
+      "address": "0x14412Eab8c36b5C9fABE615521eeFBD4D2d5F54c"
+    },
+    "base": {
+      "address": "0xc0C0Fc800FEAB46ca49e53F9df1Cd531E9d3A774"
+    },
+    "arbitrum": {
+      "address": "0xEE19Bf5eB11940DD52EE827c27F32127E91dEEDb"
+    }
+  },
+  "rateStrategyCurve": {
+    "sepolia": {
+      "address": "0x2F1b1DFb79DC4cB268C3247F02930bBDE92fB9cE"
+    }
+  },
+  "rateStrategyVolatileFour": {
+    "optimism": {
+      "address": "0x44dDc5Bfc8a165Dae7113232F139Ba4d065Ac50F"
+    },
+    "sepolia": {
+      "address": "0x70BaD852898Be29055c68f67801CF6834751823F"
+    }
+  },
+  "ReserveLogic": {
+    "optimism": {
+      "address": "0x9819F145ECf521f6B20674A10ACFDB3f7B8352a0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0xC31d2776d22BEb4b4D779b9cD27Bce3e6ccCe1cE",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0x9819F145ECf521f6B20674A10ACFDB3f7B8352a0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x12458DDD257b5CE763725265EfCeaF16a87fCC68",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "GenericLogic": {
+    "optimism": {
+      "address": "0xb1C2010B11fE9A8220F567f4b046aC7438E36B16",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0xF360E1b999f698356119807392E77140840De2F5",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xb1C2010B11fE9A8220F567f4b046aC7438E36B16",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x8939225D788f01C7EB450cb13d6C691eeD47d52C",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ValidationLogic": {
+    "optimism": {
+      "address": "0xdbfaB9F47e819b142d7ed22a9D586367771DbC2F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x81e325607E762B7E235d573B48A4db113841033a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xdbfaB9F47e819b142d7ed22a9D586367771DbC2F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xd3A13b7F5d391Eb1567a89FBc0b347e1F7F6719e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "DepositWithdrawLogic": {
+    "optimism": {
+      "address": "0x6324511D46c6339D49697C23ca35cde62089E32a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x91Faa1180585E618f453ccB475609B161aAFDE1a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0x6324511D46c6339D49697C23ca35cde62089E32a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xDC88cAD6d23d32AaD744289B582c1517D2931483",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LendingPoolImpl": {
+    "optimism": {
+      "address": "0xc5A42E1c1c8640c77fFc8Fac88248AB6937fdabA"
+    },
+    "sepolia": {
+      "address": "0xb239479C85f7b9b855C19dB0C099488B48862B04"
+    },
+    "base": {
+      "address": "0x8AA00F73410269e8064fEA966EaE164f4458B9bC"
+    },
+    "arbitrum": {
+      "address": "0x44dDc5Bfc8a165Dae7113232F139Ba4d065Ac50F"
+    }
+  },
+  "LendingPool": {
+    "optimism": {
+      "address": "0x60F015F66F3647168831d31C7048ca95bb4FeaF9"
+    },
+    "sepolia": {
+      "address": "0xa6596F47c1ebef65546671846dFb11561Ef737f1"
+    },
+    "base": {
+      "address": "0x60F015F66F3647168831d31C7048ca95bb4FeaF9"
+    },
+    "arbitrum": {
+      "address": "0x23AEA7d17b63682b4F7D4a78D5929796def836cb"
+    }
+  },
+  "LendingPoolConfiguratorImpl": {
+    "optimism": {
+      "address": "0x907F93AD19265B75C576673F2EeC55dF88572d1F"
+    },
+    "sepolia": {
+      "address": "0x8c1fE38198171043238Dc5EBAaac3dab281FEEfA"
+    },
+    "base": {
+      "address": "0x47E405ed60cec87cbcc4B21C20b908e6b1ECE49E"
+    },
+    "arbitrum": {
+      "address": "0x92FC9165dC2080F4B9E56d089B295EE1f666813B"
+    }
+  },
+  "LendingPoolConfigurator": {
+    "optimism": {
+      "address": "0xe9CFdd8375a3E8cDfD8F18F6462c7158a7062484"
+    },
+    "sepolia": {
+      "address": "0x9DA476cB1F07ecd0175D2F12B91def9EF4Ca765e"
+    },
+    "base": {
+      "address": "0xe9CFdd8375a3E8cDfD8F18F6462c7158a7062484"
+    },
+    "arbitrum": {
+      "address": "0x57239fbF594f82b0251eC65B799858aB986F250F"
+    }
+  },
+  "PriceOracle": {
+    "sepolia": {
+      "address": "0xAe0C02Cdaf288FaAAfa00469D1c42Be96F052DD8",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MockAggregator": {
+    "sepolia": {
+      "address": "0x929384D9c83574c84Bf831966fdb64FcA1984659",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "AAVE_AGG": {
+    "sepolia": {
+      "address": "0x0F508AeA30ef6B04786d145Aa030b7ca9d11453F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BAT_AGG": {
+    "sepolia": {
+      "address": "0xA229272b62Da0Bd76C404430aCa48B48F2a234Fa",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BUSD_AGG": {
+    "sepolia": {
+      "address": "0x1983BB313fA17af45e765c55229beA6a01d21dd2",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "DAI_AGG": {
+    "sepolia": {
+      "address": "0x4E49fc70340A82b8ac01BDafdBB9Af49bBD2f238",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ENJ_AGG": {
+    "sepolia": {
+      "address": "0xBECD790F653083EB1bC746293c3b54E3D69B4317",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "KNC_AGG": {
+    "sepolia": {
+      "address": "0xA050aA83b70ae3B7477C1B983219d164d9F9aEE4",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LINK_AGG": {
+    "sepolia": {
+      "address": "0x54E8163950E6663c9E510FCBaf095E46e70F7DA7",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MANA_AGG": {
+    "sepolia": {
+      "address": "0x2Cf49029d8F182Ea38B829ccbF6F79FEE4b9F7Cb",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MKR_AGG": {
+    "sepolia": {
+      "address": "0x994E349f54049a6888B1dB459059826FD69E8dDC",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "REN_AGG": {
+    "sepolia": {
+      "address": "0x81f1aa9de46e05F9aAB4E450fB9Ed9C7BC99150e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "SNX_AGG": {
+    "sepolia": {
+      "address": "0x879477D7001390037841F38e8866993fF3E13401",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "SUSD_AGG": {
+    "sepolia": {
+      "address": "0x266528F208E1C88830fd6f23C267732c43ac90be",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "TUSD_AGG": {
+    "sepolia": {
+      "address": "0x90d318D048a5F63734c12030A85bA89C8f6B1742",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNI_AGG": {
+    "sepolia": {
+      "address": "0x4808d1B63B482F5Ba568c4fFc2efAa8516d44Af2",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "USDC_AGG": {
+    "sepolia": {
+      "address": "0xDbe4fb325F59a1079486F35f3F72c3d96A23c959",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "USDT_AGG": {
+    "sepolia": {
+      "address": "0x79D84F31D81E28694f33C0D90eC07862458C5ce1",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WETH_AGG": {
+    "sepolia": {
+      "address": "0x02a8eA38a878390A3C0CFF4CDb2d6Ad62F64A2CD",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WBTC_AGG": {
+    "sepolia": {
+      "address": "0x37FC503d37e9432Ba03e2D8778594854b0B035C8",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YFI_AGG": {
+    "sepolia": {
+      "address": "0x105596Af71fA1D057c55C15BccCdAcAAA16d530D",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ZRX_AGG": {
+    "sepolia": {
+      "address": "0x8587e518BEbFbd05580736a9137f7432D2688a98",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "OP_AGG": {
+    "sepolia": {
+      "address": "0xe604A2FC90fb965640717A8C68de42E742FDc20D",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WSTETHCRV_AGG": {
+    "sepolia": {
+      "address": "0x0154dd352d28E564514fbc54079cb3931D7D4c1e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIDAIWETH_AGG": {
+    "sepolia": {
+      "address": "0x85FEb4DA934A99576ae8466C4651611EDFdD2E77",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIWBTCWETH_AGG": {
+    "sepolia": {
+      "address": "0xa844c1a6F30dF180B25629C72F42AD4eb355a6f2",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIAAVEWETH_AGG": {
+    "sepolia": {
+      "address": "0xBefBa8299Ce3a5Bc9622f8545218B33A113974d8",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIBATWETH_AGG": {
+    "sepolia": {
+      "address": "0xd658eB52C8351633b87E042b2b25B4d61121081A",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIDAIUSDC_AGG": {
+    "sepolia": {
+      "address": "0x8c02F24E47A12C09504d50926FF7C293fefFB5B1",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNICRVWETH_AGG": {
+    "sepolia": {
+      "address": "0xb8f2B0927D20419D638622b0D611968B338EC206",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNILINKWETH_AGG": {
+    "sepolia": {
+      "address": "0x8c9284E7493f3748dBed577Fa4AAb6f3F420d221",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIMKRWETH_AGG": {
+    "sepolia": {
+      "address": "0xE9665506758E8e5eDF7C9AE6F75b1D2f8c18e43d",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIRENWETH_AGG": {
+    "sepolia": {
+      "address": "0x541b6243265D47380b0952575e126485E66Cc45C",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNISNXWETH_AGG": {
+    "sepolia": {
+      "address": "0x4341256399Bea18CFA85A3AF78E747B45DCaB427",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIUNIWETH_AGG": {
+    "sepolia": {
+      "address": "0xe573c1233Ef2711f1b717d30ba788f74E94CCd30",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIUSDCWETH_AGG": {
+    "sepolia": {
+      "address": "0xA930AB87318A01a567fd722861570216f7Ca1c81",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIWBTCUSDC_AGG": {
+    "sepolia": {
+      "address": "0xa1e0c674a8A5212b265b6599913E06F85C6Ae061",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "UNIYFIWETH_AGG": {
+    "sepolia": {
+      "address": "0x16722dA734c35ee5796a4616c969083f81267162",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BPTWBTCWETH_AGG": {
+    "sepolia": {
+      "address": "0x57f8622336776041333Cda9FB4465204ecAaB9C2",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BPTBALWETH_AGG": {
+    "sepolia": {
+      "address": "0x8A7E02f5ab371D6eA5c2f4Dcabc46730A38cE21d",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WMATIC_AGG": {
+    "sepolia": {
+      "address": "0x75E4706c383a1e10F307682f85D1C16Ce0A9FCb1",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "STAKE_AGG": {
+    "sepolia": {
+      "address": "0xa56502e15973D8Abbe48dC5f865BA8fE14F55A01",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WAVAX_AGG": {
+    "sepolia": {
+      "address": "0x7Dbc36a8Af56Cee6C4777f75b836DE257dF7b715",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "USD_AGG": {
+    "sepolia": {
+      "address": "0x4F8Cb5601fB64812D261cF28Ae807Be63cd772d6",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "TRICRYPTO2_AGG": {
+    "sepolia": {
+      "address": "0x811c3427781e0fAe31c447cA2D5b3094BF233853",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "THREEPOOL_AGG": {
+    "sepolia": {
+      "address": "0xDDBAb279c58EBae597501008c6d0d5460B5C2c2C",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "STETHETH_AGG": {
+    "sepolia": {
+      "address": "0x7567182eb42A1ac3162b6A89d89b067336535910",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "STETH_AGG": {
+    "sepolia": {
+      "address": "0xd972784E3ca23069DA44807b94991C94d3BcF0FA",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WSTETH_AGG": {
+    "sepolia": {
+      "address": "0x509E284B64bb9dC680ecE45667f1835229F3cCBF",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "FRAXUSDC_AGG": {
+    "sepolia": {
+      "address": "0x1C899326C82cC8dB2C0CC573439963aAC8165f94",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "FRAX3CRV_AGG": {
+    "sepolia": {
+      "address": "0x43F6B173cd925DC5Cf21FB778eFc192f2d4A74eB",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "FRAX_AGG": {
+    "sepolia": {
+      "address": "0xdC7F993222Ce8a1d9753B3042C1BE14E2ADAC274",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BAL_AGG": {
+    "sepolia": {
+      "address": "0xf547c172E1706A556C5F1CEB3235259Ac51Ad681",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "CRV_AGG": {
+    "sepolia": {
+      "address": "0x8D6869502507E197392E394aE772aFB63e099e13",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "CVX_AGG": {
+    "sepolia": {
+      "address": "0x1e3a2D1434347255370A1d91b95153A73Ae09EB2",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BADGER_AGG": {
+    "sepolia": {
+      "address": "0x307D6f6282e306Bd2f18049A90f046536dDBDd26",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LDO_AGG": {
+    "sepolia": {
+      "address": "0x1aFBAd7526e71DE9Ee63b748604dBBc07849b69F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ALCX_AGG": {
+    "sepolia": {
+      "address": "0x3Ed6739403e421c2eA0C163ADE5380ffC62d4413",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ONEINCH_AGG": {
+    "sepolia": {
+      "address": "0x7dEBe95D4DB33b5171483a3a9320FE5A3dE19E36",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVTRICRYPTO2_AGG": {
+    "sepolia": {
+      "address": "0x6Fc94d4709ab511bE88F06e648714aeD4586C4A2",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVTHREEPOOL_AGG": {
+    "sepolia": {
+      "address": "0x0f4e1e7Ce09cEec7d5e24c026d988cAf18725804",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVSTETHETH_AGG": {
+    "sepolia": {
+      "address": "0x8741207399e9518A7beaA8142DcafcA3B44aB7E6",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVFRAXUSDC_AGG": {
+    "sepolia": {
+      "address": "0x83Ac7d5732f4c3EE595ac396AeAA4CcA2e7a91C9",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVFRAX3CRV_AGG": {
+    "sepolia": {
+      "address": "0x8C6E2E890d9204f9065869B9C223d10781eB9FDf",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOOCURVEFSUSD_AGG": {
+    "sepolia": {
+      "address": "0xF4a11aA02f06Bae57e92DCAbCe54B41B41964b6F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOOCURVEWSTETH_AGG": {
+    "sepolia": {
+      "address": "0x4890458c557564aFCC90dDf27b32d63c8Ee9e8b6",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_WSTETHWETH_AGG": {
+    "sepolia": {
+      "address": "0xF4958180CB75316267b40f8B226718bc342F282f",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_USDCSUSD_AGG": {
+    "sepolia": {
+      "address": "0x0507654bc05403a9F535A6A63CA26E79658244eF",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_ETHUSDC_AGG": {
+    "sepolia": {
+      "address": "0x44f8bfa03A495d1C94455cF784F4b07fcb1eA635",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VELO_OPETH_AGG": {
+    "sepolia": {
+      "address": "0xE6d5F2EcfD2D08A63bAe1C4A056f06Ae3a78CF07",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_OPETH_AGG": {
+    "sepolia": {
+      "address": "0x90Da9De7ff3d100FAf2a635D9b7bcDFF84eb797D",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VELO_ETHSNX_AGG": {
+    "sepolia": {
+      "address": "0xf8ae733B1937Fe961128968d7049a911d0CA1F19",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_ETHSNX_AGG": {
+    "sepolia": {
+      "address": "0x0278C977F37e1A745BC61544c0e5e176B988e24B",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VELO_OPUSDC_AGG": {
+    "sepolia": {
+      "address": "0xEfc0fCB2623108505b054377EC2F3A09a1022f8F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_OPUSDC_AGG": {
+    "sepolia": {
+      "address": "0x731347B529595Fca36e7ea4B4c66f079dfB4e56C",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_DAIUSDC_AGG": {
+    "sepolia": {
+      "address": "0x3AAbb82a6F43a51F93639653f335F3e32d6F5C4e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VELO_FRAXUSDC_AGG": {
+    "sepolia": {
+      "address": "0xBEaf27d789F64cb6119Ff1162ECAf437019fB8A4",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_FRAXUSDC_AGG": {
+    "sepolia": {
+      "address": "0x653a2fad5e6722CDB92E1A9810868A8286889d7B",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VELO_USDTUSDC_AGG": {
+    "sepolia": {
+      "address": "0xd963B9070f5d104a59f97E545142b8910900B22A",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "MOO_VELO_USDTUSDC_AGG": {
+    "sepolia": {
+      "address": "0xb21D344576f0876C5971c480B039c74416bBFF1A",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BEETHOVEN_USDCDAI_AGG": {
+    "sepolia": {
+      "address": "0x0F1e357a8F7aF5A3dABf2BbbD2f79E64e6886615",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VMEXOracle": {
+    "optimism": {
+      "address": "0xA1F5DDf4A9C4Bc2b1b63A6A4e7707B7afc58f010"
+    },
+    "sepolia": {
+      "address": "0x16a83d3f7e46B45DB759081A027E28d9e70b0D22"
+    },
+    "base": {
+      "address": "0xe8B126Fe0F14da2411fd3F37c01504CC23163E35",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xc306ea2EDe474980a618fD66A4c3f17AE414eB62"
+    }
+  },
+  "AToken": {
+    "optimism": {
+      "address": "0xE97e5bC6e29e4dEcC657A5E3bd9bA51181dd3917",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0xCbc900042Be043B84258C24E95487F6632B72d62",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xc5A42E1c1c8640c77fFc8Fac88248AB6937fdabA",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x7bCD32ee395F8cA53b5803542256f0dd7c7c317F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "DelegationAwareAToken": {
+    "sepolia": {
+      "address": "0x6c061274dA7C4629C9d51E6A0F965A2202481547",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VariableDebtToken": {
+    "optimism": {
+      "address": "0x1D1A00CAA8B4DFe256c715dE1A9e00c6a3827122",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x2D216ea24F78d98C9Be7d0dff7d72CC9B33cFA4E",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xFE255766b1C45A12e436e6d381e6B9Ee76Dd5268",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xc5A42E1c1c8640c77fFc8Fac88248AB6937fdabA",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "ATokenBeacon": {
+    "optimism": {
+      "address": "0xD18Baaa90293154Baa572a1F65e5EfbA6dB85E42",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x6F40b78A64298B9adDabE704f7451a19982f69aD",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xB5f1a962BD98480Bbe7272d5FD5E4a8f97ABca70",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x907F93AD19265B75C576673F2EeC55dF88572d1F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VariableDebtTokenBeacon": {
+    "optimism": {
+      "address": "0xbB2b0D2a7700D3F83Ed41b6C46840965e9abfFd5",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0xF6c3A6EFFE4A4f101404636E6610224Be1Ab3e70",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0x1D1A00CAA8B4DFe256c715dE1A9e00c6a3827122",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xE97e5bC6e29e4dEcC657A5E3bd9bA51181dd3917",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LendingPoolCollateralManagerImpl": {
+    "optimism": {
+      "address": "0x18437Fa16Aa60e0Def18938F254615d77115d46d"
+    },
+    "sepolia": {
+      "address": "0x0Dd612521bDbc62F21E452FF1E751e92445B0ad3"
+    },
+    "base": {
+      "address": "0x993A082292d55f2F44AA43bE08837199AD6eC169"
+    },
+    "arbitrum": {
+      "address": "0xcb8d8dBD00144DBCEcB0bd1dE7Bf1b4edd7f8bA3"
+    }
+  },
+  "LendingPoolCollateralManager": {
+    "optimism": {
+      "address": "0x18437Fa16Aa60e0Def18938F254615d77115d46d",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x0Dd612521bDbc62F21E452FF1E751e92445B0ad3"
+    },
+    "base": {
+      "address": "0x993A082292d55f2F44AA43bE08837199AD6eC169",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xcb8d8dBD00144DBCEcB0bd1dE7Bf1b4edd7f8bA3",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "WETHGateway": {
+    "optimism": {
+      "address": "0xDA99Df60953199a4E9B74b250FDc2A8eaE8d6682",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "sepolia": {
+      "address": "0x2f763aF926655099d3Ba63b686B0Ce035829a4D1",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xBE72D961317dD1B59f48f50EE4131C8a7eef1803",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x57e24fFa944F80573B0F46D3e69d8E8Df158Dc64",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "IncentivesControllerImpl": {
+    "optimism": {
+      "address": "0x4Ed125c7e8Df8C56716708Aef86F2516DaE28454"
+    },
+    "sepolia": {
+      "address": "0x44d9fbBDCA2920e4f79E7dD81213d853816e04BE",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0xE1A55E97FfE942D530B1690096D81B6Cc7d54dF4",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xBE72D961317dD1B59f48f50EE4131C8a7eef1803",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "IncentivesControllerProxy": {
+    "optimism": {
+      "address": "0x8E2a4c71906640B058051c00783160bE306c38fE"
+    },
+    "sepolia": {
+      "address": "0x4fF0302cd2DF18d422EAd1A66e1294903B79280c"
+    },
+    "base": {
+      "address": "0x8E2a4c71906640B058051c00783160bE306c38fE"
+    },
+    "arbitrum": {
+      "address": "0xAabbA700d2086d406CEA8253df527DFb8E0af106"
+    }
+  },
+  "aDai": {
+    "sepolia": {
+      "address": "0x30C0D90504C6dd3a7a0b1E3BD33D1Fa8c8EE4164",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "aWeth": {
+    "sepolia": {
+      "address": "0xC444e165B8105402054bAa72d3158629F1Bac353",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "aBusd": {
+    "sepolia": {
+      "address": "0xdd7A74897FAFcC49fBF09bc7C7495f0f84a93023",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "aUsdt": {
+    "sepolia": {
+      "address": "0xB5baFb3425F0bc12DF175F5fBf7A100771bCD3f5",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BaseUniswapOracle": {
+    "optimism": {
+      "address": "0xdC33956bFdD227b38CCaa1647a1511e0efc18C60",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "base": {
+      "address": "0x0c3E4a646363b91b8b956cF5D1fe761521C1E1ff",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0xD46DC5cB51aC5d9E9584EAd99e9a6E061B143A97",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VmexToken": {
+    "sepolia": {
+      "address": "0x139Ea7DF42f844eBed544aE6dC1df87d85D2D761",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "aAave": {
+    "sepolia": {
+      "address": "0xcB88eAAa077f3339741AB0De2FeB6B325E73a1A0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "yaDai": {
+    "sepolia": {
+      "address": "0x546d41C27bc0068751a623330C892AEb4891F807",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "yaBusd": {
+    "sepolia": {
+      "address": "0xb3d0Eb4E0F73d2dc3d95334f51AbA319704c93f1",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "yaAave": {
+    "sepolia": {
+      "address": "0x0B8Bd479D09DD8e8a54700154bBd9B61fb5d6871",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "yaUsdt": {
+    "sepolia": {
+      "address": "0x43Fb1112960Ca74bc5F91A1a4E0D57e1643a142e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "yaWeth": {
+    "sepolia": {
+      "address": "0xff335880b8cBeEe4e4Bdd5081820817D37cA8e83",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "yayvTricrypto2": {
+    "sepolia": {
+      "address": "0x1330C5891257fc2F683551E328E7a73d11366369",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "yaDaiCp": {
+    "sepolia": {
+      "address": "0xA9af3d33830B03Cc029552c3385E67436DA0f32e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "RETH_AGG": {
+    "sepolia": {
+      "address": "0x490bb688AFF41f97d8aD4903C019D8c12A5a2929",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVUSDC_AGG": {
+    "sepolia": {
+      "address": "0x80b70bD46d638d40D60BB8FEf8466863e9DdF04c",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVDAI_AGG": {
+    "sepolia": {
+      "address": "0x1F328fe234ce53a5e10CBDfcC3EF4a3Df280A689",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVUSDT_AGG": {
+    "sepolia": {
+      "address": "0xc8892896ef5D75Af92Bf78e99843082594795e51",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "YVWETH_AGG": {
+    "sepolia": {
+      "address": "0x93d11Ea6fC81A780F170991E217E2d5C59265c4a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VELO_RETHWETH_AGG": {
+    "sepolia": {
+      "address": "0xFe0FBB831D2d50C34a83f8a0C20671043656CcB6",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "LUSD_AGG": {
+    "sepolia": {
+      "address": "0x9C871d6a5C9A3D8ba5C4337e711D72F93A8B39a0",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BEETHOVEN_WETHOPUSDC_AGG": {
+    "sepolia": {
+      "address": "0x79BE2fbbe454AeA8814A0fF003982251b66bEf1F",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "rateStrategyUnborrowable": {
+    "optimism": {
+      "address": "0x8AA00F73410269e8064fEA966EaE164f4458B9bC"
+    },
+    "base": {
+      "address": "0x7671B8296722a9609152cc35AB15FB2d2e4D13B9"
+    },
+    "arbitrum": {
+      "address": "0xba39d2D0D66704C793814251075DD2A0d0fB8A94"
+    }
+  },
+  "rateStrategyLUSD": {
+    "optimism": {
+      "address": "0x635A475A139648e6eC2Ad58a9E9F123318C40519"
+    }
+  },
+  "3CRV_AGG": {
+    "sepolia": {
+      "address": "0x0508594d740919e5A922d2AD8C15f7BDb7D78971",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "SUSD3CRV-F_AGG": {
+    "sepolia": {
+      "address": "0x8bF06ee111ccf7ae8c32079dde422d4aeb76D2Ac",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VAMMV2-WSTETH/WETH_AGG": {
+    "sepolia": {
+      "address": "0xf67CDA8708a85B79dD9D6AaD1C77e87D9c6a6b85",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "SAMMV2-USDC/SUSD_AGG": {
+    "sepolia": {
+      "address": "0x96445c0a8199405c95e0E8e92B320f80F202db91",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VAMMV2-WETH/USDC_AGG": {
+    "sepolia": {
+      "address": "0x3445f87a93fE01777A4cEf4A310113d1B699638E",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "SAMMV2-USDC/DAI_AGG": {
+    "sepolia": {
+      "address": "0x7Fe2Bcd7796A838b22525DEf0c315187E25Df96A",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BPT-WSTETH-WETH_AGG": {
+    "sepolia": {
+      "address": "0x1f757a0C9D1d2773E3e970CC7F96AB109CD1814a",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "BPT-RETH-ETH_AGG": {
+    "sepolia": {
+      "address": "0x1417ED0930DbDAb95cF7010Bb1CE074D4911A51e",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "VAMMV2-WETH/LUSD_AGG": {
+    "sepolia": {
+      "address": "0x872b591691bdce64E92189A4A078F2e027771E36",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "SAMMV2-USDC/LUSD_AGG": {
+    "sepolia": {
+      "address": "0x929384D9c83574c84Bf831966fdb64FcA1984659",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "AssetMappingsImpl": {
+    "base": {
+      "address": "0x1b080D5095635622e1C2D63704622fd200A5Ad59",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "arbitrum": {
+      "address": "0x19dDCA5857BBC4DFc1AEd23a08317eeb7708C576",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    }
+  },
+  "rateStrategyCbETH": {
+    "base": {
+      "address": "0xba39d2D0D66704C793814251075DD2A0d0fB8A94"
+    }
+  },
+  "rateStrategywstETH": {
+    "arbitrum": {
+      "address": "0x628CA674C6C8D85fc28337fBb5936fC95888B1D2"
+    }
+  }
+}
