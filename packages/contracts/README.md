@@ -24,6 +24,7 @@ Run `yarn vmex:mainnetfork:unit-tests` to test all localhost tests
 ### How to deploy on Sepolia:
 
 Setup
+
 - Make sure your .env file has the SEPOLIA_ALCHEMY_KEY and MNEMONIC set
 - Fill up your wallet 0 with ~0.5 ETH, wallet 3 with ~0.05 ETH, and wallet 7 with ~0.05 ETH
 
@@ -68,11 +69,19 @@ ENOENT: no such file or directory ...
 ```
 
 Fix:
+
 ```
 npx hardhat clean
 yarn compile
 # rerun scripts
 ```
+
+# Foundry testing
+
+1. Install foundry: https://book.getfoundry.sh/getting-started/installation
+2. Run `yarn` (make sure @nomicfoundation/hardhat-foundry is installed)
+3. Initialize with `npx hardhat init-foundry`
+4. Now can build and run tests: `forge test --fork-url https://mainnet.base.org --fork-block-number 4924830 --match-contract CLSyncOracle -vvvv`
 
 # Hardhat Accounts
 
