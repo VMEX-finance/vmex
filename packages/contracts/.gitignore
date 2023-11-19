@@ -17,3 +17,8 @@ coverage
 deployed-contracts.json
 
 .certora*
+
+# foundry 
+lib/
+cache_forge/
+out/
