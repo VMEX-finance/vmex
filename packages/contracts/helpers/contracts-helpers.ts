@@ -2,7 +2,13 @@ import { Contract, Signer, utils, ethers, BigNumberish } from "ethers";
 import { signTypedData_v4 } from "eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import BigNumber from "bignumber.js";
-import { getDb, DRE, waitForTx, notFalsyOrZeroAddress } from "./misc-utils";
+import {
+  getDb,
+  DRE,
+  waitForTx,
+  notFalsyOrZeroAddress,
+  getProdDb,
+} from "./misc-utils";
 import {
   tEthereumAddress,
   eContractid,
@@ -39,27 +45,29 @@ import { getDefenderRelaySigner, usingDefender } from "./defender-utils";
 
 export type MockTokenMap = { [symbol: string]: MintableERC20 };
 
+export const isProdNetwork = (network: string): boolean => {
+  return (
+    network === "sepolia" ||
+    network === "optimism" ||
+    network === "base" ||
+    network === "arbitrum"
+  );
+};
+
 export const registerContractInJsonDb = async (
   contractId: string,
   contractInstance: Contract
 ) => {
   const currentNetwork = DRE.network.name;
-  const FORK = process.env.FORK;
-  if (
-    FORK ||
-    (currentNetwork !== "hardhat" && !currentNetwork.includes("coverage"))
-  ) {
-    // console.log(`*** ${contractId} ***\n`);
-    // console.log(`Network: ${currentNetwork}`);
-    // console.log(`tx: ${contractInstance.deployTransaction.hash}`);
-    // console.log(`contract address: ${contractInstance.address}`);
-    // console.log(`deployer address: ${contractInstance.deployTransaction.from}`);
-    // console.log(`gas price: ${contractInstance.deployTransaction.gasPrice}`);
-    // console.log(`gas used: ${contractInstance.deployTransaction.gasLimit}`);
-    // console.log(`\n******`);
-    // console.log();
-  }
 
+  if (isProdNetwork(currentNetwork)) {
+    await getProdDb()
+      .set(`${contractId}.${currentNetwork}`, {
+        address: contractInstance.address,
+        deployer: contractInstance.deployTransaction.from,
+      })
+      .write();
+  }
   await getDb()
     .set(`${contractId}.${currentNetwork}`, {
       address: contractInstance.address,
@@ -115,9 +123,11 @@ export const getCurrentBlock = async () => {
   return DRE.ethers.provider.getBlockNumber();
 };
 
-export const getBlockTimestamp = async (blockNumber?: number): Promise<number> => {
+export const getBlockTimestamp = async (
+  blockNumber?: number
+): Promise<number> => {
   if (!blockNumber) {
-    throw new Error('No block number passed');
+    throw new Error("No block number passed");
   }
   const block = await DRE.ethers.provider.getBlock(blockNumber);
   return block.timestamp;
@@ -144,9 +154,9 @@ export const withSaveAndVerify = async <ContractType extends Contract>(
   args: (string | string[])[],
   verify?: boolean
 ): Promise<ContractType> => {
-  console.log("Deploying ", id)
+  console.log("Deploying ", id);
   const tx = await waitForTx(instance.deployTransaction);
-  console.log(" * gas used",tx.gasUsed.toString())
+  console.log(" * gas used", tx.gasUsed.toString());
   await registerContractInJsonDb(id, instance);
   if (verify) {
     await verifyContract(id, instance, args);
@@ -249,7 +259,7 @@ export const getOptionalParamAddressPerNetwork = (
 };
 
 export const getParamPerPool = <T>(
-  { proto/*, amm, matic, avalanche*/ }: iParamsPerPool<T>,
+  { proto /*, amm, matic, avalanche*/ }: iParamsPerPool<T>,
   pool: AavePools
 ) => {
   switch (pool) {
@@ -471,7 +481,13 @@ export const verifyContract = async (
   if (usingTenderly()) {
     await verifyAtTenderly(id, instance);
   }
-  await verifyEtherscanContract(instance.address, args, undefined, msDelay, times);
+  await verifyEtherscanContract(
+    instance.address,
+    args,
+    undefined,
+    msDelay,
+    times
+  );
   return instance;
 };
 
