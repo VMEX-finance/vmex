@@ -95,11 +95,21 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   CurveMetadata: {
     [eBaseNetwork.base]: {
+      "cbETHWETHCRV": {
+        _reentrancyType: 4, //REMOVE_LIQUIDITY_2_RETURNS
+        _poolSize: "2",
+        _curvePool: "0x11c1fbd4b3de66bc0565779b35171a6cf3e71f59",
+      },
     },
   },
   BeethovenMetadata: {
     [eBaseNetwork.base]: {
       "cbETH-WETH-BPT": {
+        _typeOfPool: "1",
+        _legacy: false, // since uses actual supply, not total supply
+        _exists: true,
+      },
+      "rETH-WETH-BPT": {
         _typeOfPool: "1",
         _legacy: false, // since uses actual supply, not total supply
         _exists: true,
@@ -134,6 +144,10 @@ export const CommonsConfig: ICommonConfiguration = {
       },
       bIBTA: {
         feed: '0x426F41474098f567562ce8FEfB0eE7AA990aa0F9',
+        heartbeat: 86400
+      },
+      rETH: {
+        feed: '0x6e61c5e4626C682f6174e0d992C2d0971Ed1A734',
         heartbeat: 86400
       },
     },
@@ -183,6 +197,10 @@ export const CommonsConfig: ICommonConfiguration = {
       "sAMM-USDC/USDbC": {
         address: "0x1cfc45c5221a07da0de958098a319a29fbbd66fe",
         type: 2,
+      },
+      "cbETHWETHCRV": {
+        address: "0xe9c898ba654dec2ba440392028d2e7a194e6dc3e",
+        type: 4,
       },
     },
   }

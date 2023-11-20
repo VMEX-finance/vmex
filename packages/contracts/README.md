@@ -76,12 +76,12 @@ yarn compile
 # rerun scripts
 ```
 
-# Foundry testing
+### Foundry testing
 
-1. Install foundry: https://book.getfoundry.sh/getting-started/installation
-2. Run `yarn` (make sure @nomicfoundation/hardhat-foundry is installed)
-3. Initialize with `npx hardhat init-foundry`
-4. Now can build and run tests: `forge test --fork-url https://mainnet.base.org --fork-block-number 4924830 --match-contract CLSyncOracle -vvvv`
+> Make sure to install packages with node, since foundry will read node dependencies but hardhat will not read foundry dependencies in lib
+
+1. Install foundry and forge: https://book.getfoundry.sh/getting-started/installation
+2. Now can build and run tests: `forge test --fork-url https://mainnet.base.org --fork-block-number 4924830 --match-contract CLSyncOracle -vvvv`
 
 # Hardhat Accounts
 

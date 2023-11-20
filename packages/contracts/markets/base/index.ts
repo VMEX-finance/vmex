@@ -15,7 +15,10 @@ import {
   strategyUSDC,
   strategyVeloDAIUSDC,
   strategyVeloUSDCUSDbC,
-  strategyCbETHBPT
+  strategyCbETHBPT,
+  strategyrETH,
+  strategyrETHETHBPT,
+  strategycbETHWETHCRV
 } from './reservesConfigs';
 
 // ----------------
@@ -31,6 +34,7 @@ export const BaseConfig: IBaseL2Configuration = {
     USDbC: strategyUSDbC,
     WETH: strategyWETH,
     cbETH: strategyCbETH,
+    rETH: strategyrETH,
     DAI: strategyDAI,
     USDC: strategyUSDC,
     "vAMM-WETH/USDbC": strategyVeloWETHUSDbC,
@@ -40,12 +44,15 @@ export const BaseConfig: IBaseL2Configuration = {
     bIB01: strategyBIB01,
     bIBTA: strategyBIBTA,
     "cbETH-WETH-BPT": strategyCbETHBPT,
+    "rETH-WETH-BPT": strategyrETHETHBPT,
+    "cbETHWETHCRV": strategycbETHWETHCRV,
   },
   ReserveAssets: {
     [eBaseNetwork.base]: {
       USDbC: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
       WETH: "0x4200000000000000000000000000000000000006",
       cbETH: "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      rETH: "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
       DAI: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
       USDC: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       "vAMM-WETH/USDbC": "0xB4885Bc63399BF5518b994c1d0C153334Ee579D0",
@@ -55,6 +62,8 @@ export const BaseConfig: IBaseL2Configuration = {
       bIB01: "0xCA30c93B02514f86d5C86a6e375E3A330B435Fb5",
       bIBTA: "0x52d134c6DB5889FaD3542A09eAf7Aa90C0fdf9E4",
       "cbETH-WETH-BPT": "0xFb4C2E6E6e27B5b4a07a36360C89EDE29bB3c9B6",
+      "rETH-WETH-BPT": "0xC771c1a5905420DAEc317b154EB13e4198BA97D0",
+      "cbETHWETHCRV": "0x98244d93d42b42ab3e3a4d12a5dc0b3e7f8f32f9"
     },
   },
 };

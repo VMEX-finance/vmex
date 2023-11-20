@@ -1,6 +1,9 @@
 # Mnemonic, only first address will be used
 MNEMONIC=""
 
+# If using forge to deploy contracts, get the private key of  the first address
+PRIVATE_KEY=""
+
 # Add Alchemy or Infura provider keys, alchemy takes preference at the config level
 ALCHEMY_KEY= ""
 
