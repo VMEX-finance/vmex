@@ -7,6 +7,7 @@ import {
   rateStrategyUnborrowable,
   rateStrategyCbETH,
   rateStrategyStableTwo,
+  rateStrategyVolatileTwo,
 } from './rateStrategies';
 
 export const strategyUSDbC: IReserveParams = {
@@ -53,6 +54,22 @@ export const strategyDAI: IReserveParams = {
   borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now
   reserveFactor: ethers.utils.parseUnits('0.1',18).toString(),
 };
+
+export const strategyrETH: IReserveParams = {
+  strategy: rateStrategyVolatileTwo,
+  baseLTVAsCollateral: ethers.utils.parseUnits('0.67',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.74',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.075',18).toString(),
+  borrowingEnabled: true,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  assetType: 8, //CL price adapter type
+  supplyCap: '1700', 
+  borrowCap: '340', 
+  borrowFactor: ethers.utils.parseUnits('1.33',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
+};
+
 
 
 export const strategyWETH: IReserveParams = {
@@ -192,4 +209,34 @@ export const strategyCbETHBPT: IReserveParams = {
   borrowCap: '0',
   borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now
   reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
+};
+
+export const strategyrETHETHBPT: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '500000000000000000',
+  liquidationThreshold: '550000000000000000',
+  liquidationBonus: '1100000000000000000',
+  borrowingEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  assetType: 6, // beethoven
+  supplyCap: '50',
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000',
+  reserveFactor: '150000000000000000',  
+};
+
+export const strategycbETHWETHCRV: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '500000000000000000',
+  liquidationThreshold: '550000000000000000',
+  liquidationBonus: '1100000000000000000',
+  borrowingEnabled: false,
+  reserveDecimals: '18',
+  aTokenImpl: eContractid.AToken,
+  assetType: 2, // curve v2
+  supplyCap: '50',
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000',
+  reserveFactor: '150000000000000000',  
 };

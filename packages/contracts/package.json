@@ -135,10 +135,10 @@
     "prepublishOnly": "npm run compile",
     "get-uniswap-data": "hardhat get-uniswap-data --network localhost",
     "get-velo-gauge": "hardhat get-velo-gauge --network optimism_localhost",
-    "test-CLSync": "forge test --fork-url https://mainnet.base.org --fork-block-number 4924830 --match-contract CLSyncOracle -vvvv"
+    "test-CLSync": "forge test --fork-url https://mainnet.base.org --fork-block-number 4924830 --match-contract CLSyncOracle -vvvv",
+    "deploy-base-CLSync": "source .env && forge create --rpc-url https://mainnet.base.org --constructor-args 0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70 0xf397bF97280B488cA19ee3093E81C0a77F02e9a5 8 \\\"rETH/USD\\\" --private-key $PRIVATE_KEY --etherscan-api-key $BASE_ETHERSCAN_KEY --verify contracts/protocol/oracles/CLSynchronicityPriceAdapterPegToBase.sol:CLSynchronicityPriceAdapterPegToBase"
   },
   "dependencies": {
-    "@nomicfoundation/hardhat-foundry": "^1.1.1",
     "@openzeppelin/contracts": "^4.9.2",
     "@prb/math": "^4.0.1",
     "bignumber.js": "9.0.0",
@@ -147,7 +147,6 @@
   },
   "devDependencies": {
     "@eth-optimism/plugins": "^1.0.0-alpha.3",
-    "@nomicfoundation/hardhat-foundry": "^1.1.1",
     "@nomiclabs/buidler": "^1.4.7",
     "@nomiclabs/buidler-ethers": "2.0.0",
     "@nomiclabs/buidler-etherscan": "^2.1.0",
