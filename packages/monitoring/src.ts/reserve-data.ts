@@ -21,8 +21,9 @@ export function getProviderRpcUrl(network: string): string {
 }
 
 const vmexAlertsDiscordWebhook = process.env.DISCORD_ALERTS_WEBHOOK_URL;
+const vmexHeartbeatDiscordWebhook = process.env.DISCORD_HEARTBEAT_WEBHOOK_URL;
 
-export function sendAlert(
+export function formatAlert(
   message: string,
   severity: number,
   messages: string[]
@@ -32,20 +33,19 @@ export function sendAlert(
     alertMessage +=
       "\n<@377672785591402496> <@976609805949091911> <@174610463655460865> <@374108299743985676> <@170740980746551296>";
   }
-  console.error(alertMessage);
   messages.push(alertMessage);
   // TODO: More alerting depending on severity
 }
 
-function sendMessage(message: string) {
-  if (!vmexAlertsDiscordWebhook) {
+function sendMessage(message: string, webhook: string) {
+  if (!webhook) {
     throw new Error(
       "Vmex discord messages webhook is not defined in env variables"
     );
   }
   const data = typeof message === "string" ? { content: message } : message;
   return new Promise<void>((resolve, reject) => {
-    fetch(vmexAlertsDiscordWebhook, {
+    fetch(webhook, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ function sendMessage(message: string) {
 function checkMarketLockedExceedsDebt(
   market: ReserveSummary,
   network: string,
-  messages: string[]
+  alerts: string[]
 ) {
   // amount underlying held by aToken >= aToken outstanding supply - debtToken outstanding supply
   // this means the amount underlying the atoken holds must be greater than amount underlying users
@@ -78,7 +78,7 @@ function checkMarketLockedExceedsDebt(
   let accountsPayable = market.totalSupplied.sub(market.totalBorrowed);
 
   if (market.totalReserves.add(market.totalStaked).lt(accountsPayable)) {
-    sendAlert(
+    formatAlert(
       `
         NETWORK: ${network}
         Reserve ${market.asset} on tranche ${market.tranche} lost funds.
@@ -89,7 +89,7 @@ function checkMarketLockedExceedsDebt(
         deficit: ${accountsPayable.sub(market.totalReserves).toString()}
         `,
       1,
-      messages
+      alerts
     );
   }
 }
@@ -97,22 +97,26 @@ function checkMarketLockedExceedsDebt(
 function checkOracle(
   market: ReserveSummary,
   network: string,
-  messages: string[]
+  alerts: string[]
 ) {
   if (market.currentPriceETH.eq("0")) {
     // oracle for the market is down
-    sendAlert(
+    formatAlert(
       `
       NETWORK: ${network}
       Oracle for asset ${market.asset} is down. Check configurations and oracle providers.
       `,
       2,
-      messages
+      alerts
     );
   }
 }
 
-export async function monitorAllMarkets(network: string, messages: string[]) {
+export async function monitorAllMarkets(
+  network: string,
+  messages: string[],
+  alerts: string[]
+) {
   const providerRpc = getProviderRpcUrl(network);
   if (!providerRpc) {
     throw new Error("Provider Rpc is not defined");
@@ -124,19 +128,19 @@ export async function monitorAllMarkets(network: string, messages: string[]) {
   });
 
   if (!marketsData.length) {
-    sendAlert(
+    formatAlert(
       `Monitoring network ${network} received 0 markets. Fix monitoring code`,
       2,
-      messages
+      alerts
     );
     return;
   }
 
   const checkedAssets = new Set();
   marketsData.forEach((market) => {
-    checkMarketLockedExceedsDebt(market, network, messages);
+    checkMarketLockedExceedsDebt(market, network, alerts);
     if (!checkedAssets.has(market.asset)) {
-      checkOracle(market, network, messages);
+      checkOracle(market, network, alerts);
       checkedAssets.add(market.asset);
     }
   });
@@ -146,16 +150,20 @@ export async function monitorAllMarkets(network: string, messages: string[]) {
   );
 }
 
-export async function heartbeat(messages: string[]) {
+export async function heartbeat(messages: string[], alerts: string[]) {
   console.log("Heartbeat: All monitoring tasks have ran");
   messages.push("All monitoring tasks have ran");
-  await sendMessage(messages.join("\n\n"));
+  await sendMessage(messages.join("\n\n"), vmexHeartbeatDiscordWebhook);
+  if (alerts.length > 1) {
+    await sendMessage(alerts.join("\n\n"), vmexAlertsDiscordWebhook);
+  }
 }
 
 if (require.main === module) {
   const alerts = [];
-  monitorAllMarkets("optimism", alerts).then(() =>
+  const messages = [];
+  monitorAllMarkets("optimism", alerts, messages).then(() =>
     console.log("Done monitoring OP")
   );
-  heartbeat(alerts).then(() => console.log("DONE"));
+  heartbeat(alerts, messages).then(() => console.log("DONE"));
 }

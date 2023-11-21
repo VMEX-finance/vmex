@@ -1,12 +1,12 @@
 import schedule from "node-schedule";
-import { heartbeat, monitorAllMarkets, sendAlert } from "./reserve-data";
+import { heartbeat, monitorAllMarkets, formatAlert } from "./reserve-data";
 
-async function tryToMonitorNetwork(network, alerts) {
+async function tryToMonitorNetwork(network, alerts, messages) {
   try {
-    await monitorAllMarkets(network, alerts);
+    await monitorAllMarkets(network, alerts, messages);
   } catch (e) {
     console.error(e);
-    sendAlert(
+    formatAlert(
       `Unable to monitor network ${network}. Failed with error: ${e
         .toString()
         .substring(0, 100)}`,
@@ -18,16 +18,18 @@ async function tryToMonitorNetwork(network, alerts) {
 
 async function marketsMonitor() {
   const messages = [];
+  const alerts = [];
   const currentDate = new Date();
   messages.push(`Summary for ${currentDate.toUTCString()}`);
+  alerts.push(`Summary for ${currentDate.toUTCString()}`);
 
   await Promise.all([
-    tryToMonitorNetwork("optimism", messages),
-    tryToMonitorNetwork("arbitrum", messages),
-    tryToMonitorNetwork("base", messages),
+    tryToMonitorNetwork("optimism", messages, alerts),
+    tryToMonitorNetwork("arbitrum", messages, alerts),
+    tryToMonitorNetwork("base", messages, alerts),
     // tryToMonitorNetwork("sepolia"),
   ]);
-  await heartbeat(messages);
+  await heartbeat(messages, alerts);
 }
 
 if (require.main === module) {

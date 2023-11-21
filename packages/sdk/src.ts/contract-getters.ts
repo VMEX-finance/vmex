@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { deployments } from "./constants";
 import _ from "lodash";
-import AaveProtocolDataProvider from "@vmexfinance/contracts/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json";
 import IERC20 from "@vmexfinance/contracts/artifacts/contracts/dependencies/openzeppelin/contracts/IERC20.sol/IERC20.json";
 import IAToken from "@vmexfinance/contracts/artifacts/contracts/interfaces/IAToken.sol/IAToken.json";
 import ILendingPool from "@vmexfinance/contracts/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json";
@@ -74,23 +73,6 @@ export function getMintableERC20(params?: {
   if (params.signer) return token.connect(params.signer);
 
   return token;
-}
-
-export function getAaveProtocolDataProvider(params?: {
-  signer?: ethers.Signer;
-  network?: string;
-  test?: boolean;
-  providerRpc?: string;
-}) {
-  let helperContract = new ethers.Contract(
-    deployments.AaveProtocolDataProvider[
-      `${params.network || "mainnet"}`
-    ].address,
-    AaveProtocolDataProvider.abi,
-    getProvider(params.providerRpc, params.test)
-  );
-  if (params.signer) return helperContract.connect(params.signer);
-  return helperContract;
 }
 
 export function getAToken(params?: {
