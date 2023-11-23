@@ -23,6 +23,8 @@ export function getProviderRpcUrl(network: string): string {
 const vmexAlertsDiscordWebhook = process.env.DISCORD_ALERTS_WEBHOOK_URL;
 const vmexHeartbeatDiscordWebhook = process.env.DISCORD_HEARTBEAT_WEBHOOK_URL;
 
+const ROUNDING_ERROR = 100;
+
 export function formatAlert(
   message: string,
   severity: number,
@@ -77,7 +79,12 @@ function checkMarketLockedExceedsDebt(
   // the amount we need to pay lenders if all borrowers are liquidated
   let accountsPayable = market.totalSupplied.sub(market.totalBorrowed);
 
-  if (market.totalReserves.add(market.totalStaked).lt(accountsPayable)) {
+  if (
+    market.totalReserves
+      .add(market.totalStaked)
+      .add(ROUNDING_ERROR)
+      .lt(accountsPayable)
+  ) {
     formatAlert(
       `
         NETWORK: ${network}
