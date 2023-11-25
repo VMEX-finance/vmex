@@ -96,7 +96,7 @@ export const CommonsConfig: ICommonConfiguration = {
   CurveMetadata: {
     [eBaseNetwork.base]: {
       "cbETHWETHCRV": {
-        _reentrancyType: 4, //REMOVE_LIQUIDITY_2_RETURNS
+        _reentrancyType: 7, //CLAIM_ADMIN_FEES
         _poolSize: "2",
         _curvePool: "0x11c1fbd4b3de66bc0565779b35171a6cf3e71f59",
       },
@@ -196,6 +196,10 @@ export const CommonsConfig: ICommonConfiguration = {
       },
       "sAMM-USDC/USDbC": {
         address: "0x1cfc45c5221a07da0de958098a319a29fbbd66fe",
+        type: 2,
+      },
+      "vAMM-WETH/DAI": {
+        address: "0x36bda777ccbefe881ed729aff7f1f06779f4199a",
         type: 2,
       },
       "cbETHWETHCRV": {

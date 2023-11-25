@@ -41,6 +41,9 @@ library CurveOracle {
 			uint[3] memory amounts = [uint(0), uint(0), uint(0)];
 			ICurvePool(curve_pool).remove_liquidity(0, amounts);
 		}
+		else if(reentrancyType == ICurvePool.CurveReentrancyType.CLAIM_ADMIN_FEES){
+			ICurvePool(curve_pool).claim_admin_fees();
+		}
 		else {
 			revert(Errors.VO_REENTRANCY_GUARD_FAIL);
 		}

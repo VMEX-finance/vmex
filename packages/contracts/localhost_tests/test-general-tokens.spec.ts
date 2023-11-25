@@ -253,6 +253,7 @@ makeSuite(
               if(symbol.includes("CRV")) {
                 if(network == "optimism") rewardAdd = "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53" 
                 if(network == "arbitrum") rewardAdd = "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978" 
+                if(network == "base") rewardAdd = "0xD533a949740bb3306d119CC777fa900bA034cd52"
               }
               if(symbol.substring(0,3)=="CMLT") {
                 rewardAdd = "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8"
@@ -262,8 +263,12 @@ makeSuite(
               var USDCABI = fs.readFileSync("./localhost_tests_utils/abis/DAI_ABI.json").toString()
               var yvUSDC = new ethers.Contract(USDCadd,USDCABI)
               const yvUSDCDat = await lendingPool.getReserveData(USDCadd, 0);
-              console.log("How much yvUSDC is held in aToken: ", await yvUSDC.connect(signer).balanceOf(yvUSDCDat.aTokenAddress))
-              console.log("How much yvUSDC is held in incentives controller: ", await yvUSDC.connect(signer).balanceOf(incentivesController.address))
+              const amountAtoken = await yvUSDC.connect(signer).balanceOf(yvUSDCDat.aTokenAddress)
+              const amountIncentivesController = await yvUSDC.connect(signer).balanceOf(incentivesController.address)
+              console.log("How much yvUSDC is held in aToken: ", amountAtoken)
+              console.log("How much yvUSDC is held in incentives controller: ", )
+              expect(amountAtoken).eq(BigNumber.from("0"))
+              expect(amountIncentivesController).eq(BigNumber.from("0"))
               
               const stakingAddress = externalRewardsData.address
 
@@ -284,14 +289,14 @@ makeSuite(
               // expect(earned).gt(0)
 
               const rewardToken = new ethers.Contract(rewardAdd, WETHabi)
-              const balanceBefore = await rewardToken.connect(signer).balanceOf(incentivesController.address);
+              // const balanceBefore = await rewardToken.connect(signer).balanceOf(incentivesController.address);
               const receipt = await waitForTx(
                 await incentivesController.harvestReward(stakingAddress)
               );
 
-              const balanceAfter = await rewardToken.connect(signer).balanceOf(incentivesController.address);
-              const reward = Number(balanceAfter) - Number(balanceBefore);
-              console.log("true rewards earned: ", reward);
+              // const balanceAfter = await rewardToken.connect(signer).balanceOf(incentivesController.address);
+              // const reward = Number(balanceAfter) - Number(balanceBefore);
+              // console.log("true rewards earned: ", reward);
               // console.log("earned: ", earned);
               console.log("-----------------------------------")
               console.log()

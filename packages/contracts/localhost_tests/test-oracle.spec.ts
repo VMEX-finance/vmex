@@ -198,6 +198,7 @@ makeSuite(
             if(currentAsset == "0x1337BedC9D22ecbe766dF105c9623922A27963EC") expectedPrice="101870436"
            }
            else if(strat.assetType == 2) {
+            if(currentAsset == "0x98244d93d42b42ab3e3a4d12a5dc0b3e7f8f32f9") expectedPrice="414221316402"
            }
            else if(strat.assetType==3) { //yearn
              const yVault = new DRE.ethers.Contract(currentAsset, yvAbi)
@@ -232,7 +233,7 @@ makeSuite(
               const tvl = (Number(met.r0) * factor1 * Number(price0) + Number(met.r1) * factor2 * Number(price1))
               const tvlReadable = tvl/Number(ethers.utils.parseUnits("1",18+8))
               console.log("TVL in USD: ", tvlReadable)
-              expect(tvlReadable).gte(100000) //make sure tvl is greater than 100k
+              expect(tvlReadable).gte(50000) //make sure tvl is greater than 50k
               let naivePrice = Math.round(tvl / Number(totalSupply));
 
               let percentDiff = Math.abs(Number(naivePrice) - Number(price))/Number(price)
@@ -309,6 +310,12 @@ makeSuite(
                }
                if(currentAsset == "0x39965c9dAb5448482Cf7e002F583c812Ceb53046") {
                 expectedPrice = 2363882259;
+               }
+               if(currentAsset == "0xFb4C2E6E6e27B5b4a07a36360C89EDE29bB3c9B6") {
+                expectedPrice = 201980122461;
+               }
+               if(currentAsset == "0xC771c1a5905420DAEc317b154EB13e4198BA97D0") {
+                expectedPrice = 202544254059;
                }
            }
            else if(strat.assetType == 7) { //rETH

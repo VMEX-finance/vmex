@@ -10,8 +10,8 @@ interface ICurvePool {
         REMOVE_LIQUIDITY_2, //3
         REMOVE_LIQUIDITY_2_RETURNS, //4
         REMOVE_LIQUIDITY_3, //5
-        REMOVE_LIQUIDITY_3_RETURNS //6
-        // CLAIM_ADMIN_FEES,
+        REMOVE_LIQUIDITY_3_RETURNS, //6
+        CLAIM_ADMIN_FEES //7
         // WITHDRAW_ADMIN_FEES
     }
 
