@@ -39,10 +39,6 @@ function setReserveCache(network: string, reserve: ReserveSummary) {
     lastReserveSummary[network] = new Map();
   }
 
-  // console.log("setting reserve cache for", network, reserve.asset)
-  if (lastReserveSummary[network][cacheKey(reserve)]) {
-    console.log("overwritting for ", network, cacheKey(reserve));
-  }
   lastReserveSummary[network][cacheKey(reserve)] = reserve;
 }
 
@@ -68,8 +64,16 @@ export class MonitorReserves {
     this.networks = networks;
 
     const currentDate = new Date();
-    this.messages.push(`Summary for ${currentDate.toString()}`);
-    this.alerts.push(`Summary for ${currentDate.toString()}`);
+    this.messages.push(
+      `Summary for ${currentDate.toLocaleString("en-US", {
+        timeZone: "America/New_York",
+      })} EST`
+    );
+    this.alerts.push(
+      `Summary for ${currentDate.toLocaleString("en-US", {
+        timeZone: "America/New_York",
+      })} EST`
+    );
   }
 
   public async monitorAllNetworks() {
@@ -81,9 +85,11 @@ export class MonitorReserves {
   public async sendMessages(dry: boolean = false) {
     this.messages.push("All monitoring tasks have ran");
     if (dry) {
+      console.log("DRY RUN RESULTS:");
       console.log("Got messages:\n\n", this.messages.join("\n\n"));
       console.log("Got alerts:\n\n", this.alerts.join("\n\n"));
     } else {
+      console.log("SENDING MESSAGES");
       await sendMessage(
         this.messages.join("\n\n"),
         vmexHeartbeatDiscordWebhook
