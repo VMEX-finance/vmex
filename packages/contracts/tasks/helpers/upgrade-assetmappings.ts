@@ -22,10 +22,9 @@ task('vmex:upgrade-assetmappings', 'Upgrade asset mappings')
     const addressesProvider = await getLendingPoolAddressesProvider();
 
     const newImpl = await deployAssetMapping(verify); 
-    const dat = addressesProvider.interface.encodeFunctionData("setPriceOracle", [newImpl.address])
+    // const dat = addressesProvider.interface.encodeFunctionData("setAssetMappings", [newImpl.address])
     console.log("new address: ", newImpl.address)
-    console.log("dat: ", dat)
-    fs.writeFileSync('tasks/helpers/encodedFunctionCalls/upgradeAssetMapping'+newImpl.address+'.txt', dat, { flag: 'wx' });
+    // console.log("dat: ", dat)
     // await waitForTx(
     //   await addressesProvider.setPriceOracle(
     //     newOracleImpl.address
