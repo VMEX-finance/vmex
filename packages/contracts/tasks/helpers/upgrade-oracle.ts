@@ -25,7 +25,6 @@ task('vmex:upgrade-oracle', 'Upgrade oracle')
     const dat = addressesProvider.interface.encodeFunctionData("setPriceOracle", [newOracleImpl.address])
     console.log("new address: ", newOracleImpl.address)
     console.log("dat: ", dat)
-    fs.writeFileSync('tasks/helpers/encodedFunctionCalls/upgradeOracle'+newOracleImpl.address+'.txt', dat, { flag: 'wx' });
     // await waitForTx(
     //   await addressesProvider.setPriceOracle(
     //     newOracleImpl.address

@@ -520,6 +520,9 @@
     },
     "arbitrum": {
       "address": "0xcA7F547cc1f0717575e453f843F53Ed2C951d57A"
+    },
+    "base": {
+      "address": "0x5BC059313027E9876c66DF40Ab6FDBf01B7d5a5A"
     }
   },
   "rateStrategyVolatileThree": {
@@ -1576,7 +1579,7 @@
   },
   "AssetMappingsImpl": {
     "base": {
-      "address": "0x1b080D5095635622e1C2D63704622fd200A5Ad59",
+      "address": "0x73068eD1ddc474Da2880a30a48E2Ac3Ada7d154D",
       "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     },
     "arbitrum": {
@@ -1592,6 +1595,12 @@
   "rateStrategywstETH": {
     "arbitrum": {
       "address": "0x628CA674C6C8D85fc28337fBb5936fC95888B1D2"
+    }
+  },
+  "VMEXOracleImpl": {
+    "base": {
+      "address": "0x26344facD50b096cf08Dd0976960778c6B953BF4",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     }
   }
 }
