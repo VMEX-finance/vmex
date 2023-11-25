@@ -77,31 +77,6 @@ library BalancerOracle {
 			revert("Balancer pool not supported");  
 		}			
 	}
-
-	function getRateAdjustedPrice(
-		address vmexOracle,
-		address token,
-		address rateProvider,
-		IBalancer pool,
-		bool legacy
-	) internal returns (uint256) {
-		// Get the price of each of the base tokens in ETH
-		// This also includes the price of the nested LP tokens, if they are e.g. LinearPools
-		// The only requirement is that the nested LP tokens have a price oracle registered
-		// See BalancerLpLinearPoolPriceOracle.sol for an example, as well as the relevant tests
-		uint256 price = IPriceOracle(vmexOracle).getAssetPrice(token);
-		uint256 tokenRate;
-		if(legacy) {
-			if(rateProvider == address(0)){
-				return price;
-			} else {
-				tokenRate = IRateProvider(rateProvider).getRate();
-			}
-		} else {
-			tokenRate = pool.getTokenRate(token);
-		}
-		return (price * 1e18) / tokenRate; //rate always has 18 decimals, so this preserves original decimals of price
-	}
 	
 	// inspired from https://github.com/Midas-Protocol/contracts/blob/352be0e9ba2795e14d05a5fa4661cb2569655141/contracts/oracles/default/BalancerLpStablePoolPriceOracle.sol
 	function calc_stable_lp_price(
@@ -121,7 +96,22 @@ library BalancerOracle {
 			if (i == bptIndex) {
 				continue;
 			}
-			uint256 rateAdjustedPrice = getRateAdjustedPrice(vmexOracle, address(tokens[i]), rateProviders[i],pool, legacy);
+			// Get the price of each of the base tokens in ETH
+			// This also includes the price of the nested LP tokens, if they are e.g. LinearPools
+			// The only requirement is that the nested LP tokens have a price oracle registered
+			// See BalancerLpLinearPoolPriceOracle.sol for an example, as well as the relevant tests
+			uint256 price = IPriceOracle(vmexOracle).getAssetPrice(address(tokens[i]));
+			uint256 tokenRate;
+			if(legacy) {
+				if(rateProviders[i] == address(0)){
+					return price;
+				} else {
+					tokenRate = IRateProvider(rateProviders[i]).getRate();
+				}
+			} else {
+				tokenRate = pool.getTokenRate(address(tokens[i]));
+			}
+			uint256 rateAdjustedPrice = (price * 1e18) / tokenRate; //rate always has 18 decimals, so this preserves original decimals of price
 			if (rateAdjustedPrice < minPrice) {
 				minPrice = rateAdjustedPrice;
 			}

@@ -164,6 +164,22 @@ export const strategyVeloUSDCUSDbC: IReserveParams = {
   reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
+export const strategyVeloWETHDAI: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: ethers.utils.parseUnits('0.6',18).toString(), 
+  liquidationThreshold: ethers.utils.parseUnits('0.65',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(), 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 5, //5 is enum for velo
+  supplyCap: '900',
+  borrowCap: '0',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), //100% for now
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
+};
+
+
 export const strategyBIB01: IReserveParams = {
   strategy: rateStrategyUnborrowable,
   baseLTVAsCollateral: ethers.utils.parseUnits('0',18).toString(), // 0.8 in custom tranche

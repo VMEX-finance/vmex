@@ -435,6 +435,7 @@ export interface iAssetBase<T> {
   "cbETH-WETH-BPT": T;
   "WETH-OP-USDC-BPT": T;
   "cbETHWETHCRV": T;
+  "vAMM-WETH/DAI": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -596,6 +597,7 @@ export type iBaseL2PoolAssets<T> = Partial<
     | "cbETH-WETH-BPT"
     | "rETH-WETH-BPT"
     | "cbETHWETHCRV"
+    | "vAMM-WETH/DAI"
   >
 >;
 

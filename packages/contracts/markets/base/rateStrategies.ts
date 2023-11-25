@@ -19,6 +19,14 @@ export const rateStrategyStableThree: IInterestRateStrategyParams = {
   variableRateSlope1: new BigNumber(0.04).multipliedBy(oneRay).toFixed(),
   variableRateSlope2: new BigNumber(0.60).multipliedBy(oneRay).toFixed(),
 }
+// rETH
+export const rateStrategyVolatileTwo: IInterestRateStrategyParams = {
+  name: "rateStrategyVolatileTwo",
+  optimalUtilizationRate: new BigNumber(0.45).multipliedBy(oneRay).toFixed(),
+  baseVariableBorrowRate: new BigNumber(0).multipliedBy(oneRay).toFixed(),
+  variableRateSlope1: new BigNumber(0.07).multipliedBy(oneRay).toFixed(),
+  variableRateSlope2: new BigNumber(3).multipliedBy(oneRay).toFixed(),
+}
 
 // WETH
 export const rateStrategyWETH: IInterestRateStrategyParams = {
