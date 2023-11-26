@@ -1,13 +1,16 @@
 import {
   getAllMarketsData,
   ReserveSummary,
-  PRICING_DECIMALS,
   ReserveData,
 } from "@vmexfinance/sdk";
-import dotenv from "dotenv";
 import { BigNumber } from "ethers";
-import { formatAlert, sendMessage } from "./common";
-dotenv.config();
+import {
+  formatAlert,
+  getCurrentTime,
+  batchSendMessage,
+  vmexAlertsDiscordWebhook,
+  vmexHeartbeatDiscordWebhook,
+} from "./common";
 
 export function getProviderRpcUrl(network: string): string {
   if (network == "sepolia") {
@@ -23,34 +26,32 @@ export function getProviderRpcUrl(network: string): string {
   return "";
 }
 
-const vmexAlertsDiscordWebhook = process.env.DISCORD_ALERTS_WEBHOOK_URL;
-const vmexHeartbeatDiscordWebhook = process.env.DISCORD_HEARTBEAT_WEBHOOK_URL;
 const ROUNDING_ERROR = 100;
 
 // used to cache the last reserve summary: network -> asset -> summary
-let lastReserveSummary: Map<string, Map<string, ReserveSummary[]>> = new Map();
+let lastReserveSummary: Map<string, Map<string, ReserveSummary>> = new Map();
 
 function cacheKey(reserve: ReserveSummary): string {
   return `${reserve.asset}:${reserve.tranche}`;
 }
 
 function setReserveCache(network: string, reserve: ReserveSummary) {
-  if (!lastReserveSummary[network]) {
-    lastReserveSummary[network] = new Map();
+  if (!lastReserveSummary.has(network)) {
+    lastReserveSummary.set(network, new Map());
   }
 
-  lastReserveSummary[network][cacheKey(reserve)] = reserve;
+  lastReserveSummary.get(network).set(cacheKey(reserve), reserve);
 }
 
 function reserveCacheExists(network: string, reserve: ReserveSummary) {
   return (
-    lastReserveSummary[network] &&
-    lastReserveSummary[network][cacheKey(reserve)]
+    lastReserveSummary.has(network) &&
+    lastReserveSummary.get(network).has(cacheKey(reserve))
   );
 }
 
 function getReserveCache(network: string, reserve: ReserveSummary) {
-  return lastReserveSummary[network][cacheKey(reserve)];
+  return lastReserveSummary.get(network).get(cacheKey(reserve));
 }
 
 export class MonitorReserves {
@@ -63,17 +64,9 @@ export class MonitorReserves {
     this.alerts = [];
     this.networks = networks;
 
-    const currentDate = new Date();
-    this.messages.push(
-      `Summary for ${currentDate.toLocaleString("en-US", {
-        timeZone: "America/New_York",
-      })} EST`
-    );
-    this.alerts.push(
-      `Summary for ${currentDate.toLocaleString("en-US", {
-        timeZone: "America/New_York",
-      })} EST`
-    );
+    const currentTime = getCurrentTime();
+    this.messages.push(`Summary for ${currentTime} EST`);
+    this.alerts.push(`Summary for ${currentTime} EST`);
   }
 
   public async monitorAllNetworks() {
@@ -89,13 +82,15 @@ export class MonitorReserves {
       console.log("Got messages:\n\n", this.messages.join("\n\n"));
       console.log("Got alerts:\n\n", this.alerts.join("\n\n"));
     } else {
-      console.log("SENDING MESSAGES");
-      await sendMessage(
+      await batchSendMessage(
         this.messages.join("\n\n"),
         vmexHeartbeatDiscordWebhook
       );
       if (this.alerts.length > 1) {
-        await sendMessage(this.alerts.join("\n\n"), vmexAlertsDiscordWebhook);
+        await batchSendMessage(
+          this.alerts.join("\n\n"),
+          vmexAlertsDiscordWebhook
+        );
       }
     }
   }
@@ -317,11 +312,60 @@ export class MonitorReserves {
   }
 }
 
-// if (require.main === module) {
-//   const alerts = [];
-//   const messages = [];
-//   monitorAllMarkets("optimism", alerts, messages).then(() =>
-//     console.log("Done monitoring OP")
-//   );
-//   heartbeat(alerts, messages).then(() => console.log("DONE"));
-// }
+function getPnlReportNetwork(network: string): string {
+  if (!lastReserveSummary.has(network)) {
+    return "";
+  }
+
+  const reserves = lastReserveSummary.get(network);
+  const pnlReserve: string[] = [];
+  let totalPnl = "Not yet implemented";
+
+  reserves.forEach((reserve: ReserveSummary, key) => {
+    const accountsPayable = reserve.totalSupplied.sub(reserve.totalBorrowed);
+    const accountBalance = reserve.totalReserves.add(reserve.totalStaked);
+    if (accountBalance.eq(0) || reserve.totalBorrowed.eq(0)) {
+      // reserve is unused or has zero borrowed
+      return;
+    }
+
+    const price = reserve.currentPriceETH;
+    if (!price) {
+      pnlReserve.push(
+        `Unable to price (${reserve.asset}, tranche=${reserve.tranche})`
+      );
+      return;
+    }
+
+    if (accountBalance.gt(accountsPayable)) {
+      const profit = accountBalance.sub(accountsPayable);
+      pnlReserve.push(
+        `Reserve (${reserve.asset}, tranche=${reserve.tranche}) has a profit of ${profit}`
+      );
+    } else {
+      const loss = accountsPayable.sub(accountBalance);
+      pnlReserve.push(
+        `Reserve (${reserve.asset}, tranche=${reserve.tranche}) has a loss of ${loss}`
+      );
+    }
+  });
+
+  return (
+    `
+PnL summary for network ${network}:
+
+Total PnL: ${totalPnl}
+` + pnlReserve.join("\n")
+  );
+}
+
+export function getPnlReport(networks: string[]) {
+  const currentTime = getCurrentTime();
+
+  let report = "";
+  networks.forEach((network) => {
+    report += getPnlReportNetwork(network) + "\n\n";
+  });
+
+  return `Report summary on ${currentTime}\n\n` + report;
+}

@@ -1,3 +1,13 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+export const vmexAlertsDiscordWebhook = process.env.DISCORD_ALERTS_WEBHOOK_URL;
+export const vmexHeartbeatDiscordWebhook =
+  process.env.DISCORD_HEARTBEAT_WEBHOOK_URL;
+
+export const vmexReportsDiscordWebhook =
+  process.env.DISCORD_REPORTS_WEBHOOK_URL;
+
 export function formatAlert(message: string, severity: number) {
   let alertMessage = `SEV ${severity} ALERT: ${message}`;
   if (severity <= 1) {
@@ -13,6 +23,9 @@ export function sendMessage(message: string, webhook: string) {
     throw new Error(
       "Vmex discord messages webhook is not defined in env variables"
     );
+  }
+  if (message.length > 2000) {
+    message = "Output exceeds 2000 characters, not able to send on discord";
   }
   const data = typeof message === "string" ? { content: message } : message;
   return new Promise<void>((resolve, reject) => {
@@ -39,3 +52,24 @@ export function sendMessage(message: string, webhook: string) {
       });
   });
 }
+
+export async function batchSendMessage(message: string, webhook: string) {
+  if (!webhook) {
+    throw new Error(
+      "Vmex discord messages webhook is not defined in env variables"
+    );
+  }
+  if (message.length > 2000) {
+    for (let idx = 0; idx < message.length; idx += 2000) {
+      await sendMessage(message.slice(idx, idx + 2000), webhook);
+    }
+  } else {
+    await sendMessage(message, webhook);
+  }
+}
+
+export const getCurrentTime = (): string => {
+  return new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York",
+  });
+};
