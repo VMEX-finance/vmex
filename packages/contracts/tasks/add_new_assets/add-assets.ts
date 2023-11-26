@@ -22,10 +22,13 @@ task('add:assets', 'Add assets to existing deployment')
     // console.log('3. Deploy oracles');
     // await DRE.run('add:deploy-oracles', { pool: POOL_NAME });
 
-    console.log('6. modify lending pool');
-    await DRE.run('add:modify-lending-pool-tranches-0-Base', { pool: POOL_NAME });
+    // console.log('6. modify lending pool');
+    // await DRE.run('add:modify-lending-pool-tranches-0-Base', { pool: POOL_NAME });
 
-    console.log('7. Begin staking for tranche 0');
+    // console.log('7. Set staking types for tranche 0');
+    // await DRE.run('add-setStakingTypes', { pool: POOL_NAME });
+
+    console.log('7.1 Begin staking for tranche 0');
     await DRE.run('add-beginStaking', { pool: POOL_NAME });
 
     console.log('\nFinished adding');
