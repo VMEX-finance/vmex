@@ -369,7 +369,7 @@ function getPnlReportNetwork(network: string): string {
     `
 PnL summary for network ${network}:
 
-Total PnL: ${totalPnl}
+Total PnL: $${totalPnl}
 ` + pnlReserve.join("\n")
   );
 }
