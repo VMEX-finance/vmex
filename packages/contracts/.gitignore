@@ -18,7 +18,6 @@ deployed-contracts.json
 
 .certora*
 
-# foundry 
-lib/
+# foundry
 cache_forge/
 out/
