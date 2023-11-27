@@ -7,6 +7,7 @@ import { ILendingPool } from "../../interfaces/ILendingPool.sol";
 import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import { AssetMappings } from "../../protocol/lendingpool/AssetMappings.sol";
 import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import { IERC20Detailed } from "../../dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import { IAToken } from "../../interfaces/IAToken.sol";
 import { IIncentivesController } from "../../interfaces/IIncentivesController.sol";
 import { PricingHelpers } from "./PricingHelpers.sol";
@@ -21,6 +22,8 @@ library QueryReserveHelpers {
         DataTypes.ReserveData reserveData;
         uint64 tranche;
         address asset;
+        string name;
+        bool inVerifiedTranche;
         uint8 decimals;
 
         // read more complex values
@@ -68,6 +71,8 @@ library QueryReserveHelpers {
         reserveSummary.reserveData = reserve;
         reserveSummary.tranche = tranche;
         reserveSummary.asset = asset;
+        reserveSummary.name = IERC20Detailed(asset).name();
+        reserveSummary.inVerifiedTranche = lendingPool.getTrancheParams(tranche).verified;
         reserveSummary.decimals = IERC20(asset).decimals();
 
         reserveSummary.canBeCollateral = reserve.configuration.getCollateralEnabled(asset, a);

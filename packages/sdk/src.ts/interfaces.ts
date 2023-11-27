@@ -83,6 +83,8 @@ export interface ReserveSummary {
   reserveData: ReserveData;
   tranche: BigNumber;
   asset: string;
+  name: string;
+  inVerifiedTranche: boolean;
   decimals: number;
 
   canBeCollateral: boolean;

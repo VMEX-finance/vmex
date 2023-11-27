@@ -1,5 +1,9 @@
 import dotenv from "dotenv";
+import { ethers } from "ethers";
+
 dotenv.config();
+
+export const ONE_ETH = ethers.utils.parseUnits("1", "ether");
 
 export const vmexAlertsDiscordWebhook = process.env.DISCORD_ALERTS_WEBHOOK_URL;
 export const vmexHeartbeatDiscordWebhook =

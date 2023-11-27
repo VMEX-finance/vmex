@@ -3,7 +3,7 @@ import {
   ReserveSummary,
   ReserveData,
 } from "@vmexfinance/sdk";
-import { BigNumber } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import {
   formatAlert,
   getCurrentTime,
@@ -54,6 +54,10 @@ function getReserveCache(network: string, reserve: ReserveSummary) {
   return lastReserveSummary.get(network).get(cacheKey(reserve));
 }
 
+const getReserveString = (reserve: ReserveSummary) => {
+  return `Reserve ${reserve.name} (asset=${reserve.asset}, tranche=${reserve.tranche})`;
+};
+
 export class MonitorReserves {
   alerts: string[];
   messages: string[];
@@ -76,6 +80,7 @@ export class MonitorReserves {
   }
 
   public async sendMessages(dry: boolean = false) {
+    console.log(`${getCurrentTime()}: Sending reserve monitoring message`);
     this.messages.push("All monitoring tasks have ran");
     if (dry) {
       console.log("DRY RUN RESULTS:");
@@ -97,7 +102,7 @@ export class MonitorReserves {
 
   private async _tryToMonitorNetwork(network: string): Promise<void> {
     try {
-      await this._monitorAllMarkets(network);
+      await this._monitorAllReserves(network);
     } catch (e) {
       console.error(e);
       this.alerts.push(
@@ -111,21 +116,21 @@ export class MonitorReserves {
     }
   }
 
-  private async _monitorAllMarkets(network: string) {
+  private async _monitorAllReserves(network: string) {
     const providerRpc = getProviderRpcUrl(network);
     if (!providerRpc) {
       throw new Error("Provider Rpc is not defined");
     }
-    const marketsData = await getAllMarketsData({
+    const reservesData = await getAllMarketsData({
       network: network,
       test: false,
       providerRpc: providerRpc,
     });
 
-    if (!marketsData.length) {
+    if (!reservesData.length) {
       this.alerts.push(
         formatAlert(
-          `Monitoring network ${network} received 0 markets. Fix monitoring code`,
+          `Monitoring network ${network} received 0 reserves. Fix monitoring code`,
           2
         )
       );
@@ -133,23 +138,23 @@ export class MonitorReserves {
     }
 
     const checkedAssets = new Set();
-    marketsData.forEach((market) => {
-      this._checkMarketLockedExceedsDebt(market, network);
-      this._checkReserveDataInvariants(market, network);
-      if (!checkedAssets.has(market.asset)) {
-        this._checkOracle(market, network);
-        checkedAssets.add(market.asset);
+    reservesData.forEach((reserve) => {
+      this._checkReserveLockedExceedsDebt(reserve, network);
+      this._checkReserveDataInvariants(reserve, network);
+      if (!checkedAssets.has(reserve.asset)) {
+        this._checkOracle(reserve, network);
+        checkedAssets.add(reserve.asset);
       }
-      setReserveCache(network, market);
+      setReserveCache(network, reserve);
     });
 
     this.messages.push(
-      `Finished monitoring ${marketsData.length} markets on ${network}`
+      `Finished monitoring ${reservesData.length} reserves on ${network}`
     );
   }
 
-  private _checkMarketLockedExceedsDebt(
-    market: ReserveSummary,
+  private _checkReserveLockedExceedsDebt(
+    reserve: ReserveSummary,
     network: string
   ) {
     // amount underlying held by aToken >= aToken outstanding supply - debtToken outstanding supply
@@ -157,11 +162,11 @@ export class MonitorReserves {
     // have claim to less amount underlying users owe
 
     // the amount we need to pay lenders if all borrowers are liquidated
-    let accountsPayable = market.totalSupplied.sub(market.totalBorrowed);
+    let accountsPayable = reserve.totalSupplied.sub(reserve.totalBorrowed);
 
     if (
-      market.totalReserves
-        .add(market.totalStaked)
+      reserve.totalReserves
+        .add(reserve.totalStaked)
         .add(ROUNDING_ERROR)
         .lt(accountsPayable)
     ) {
@@ -169,12 +174,12 @@ export class MonitorReserves {
         formatAlert(
           `
           NETWORK: ${network}
-          Reserve ${market.asset} on tranche ${market.tranche} lost funds.
-          Reserve holds ${market.totalReserves.toString()}
-          Reserve has staked ${market.totalStaked.toString()}
-          aTokenSupply (amount protocol owes lenders): ${market.totalSupplied.toString()}
-          debtTokenSupply (amount borrowers owes protocol): ${market.totalBorrowed.toString()}
-          deficit: ${accountsPayable.sub(market.totalReserves).toString()}
+          ${getReserveString(reserve)} lost funds.
+          Reserve holds ${reserve.totalReserves.toString()}
+          Reserve has staked ${reserve.totalStaked.toString()}
+          aTokenSupply (amount protocol owes lenders): ${reserve.totalSupplied.toString()}
+          debtTokenSupply (amount borrowers owes protocol): ${reserve.totalBorrowed.toString()}
+          deficit: ${accountsPayable.sub(reserve.totalReserves).toString()}
           `,
           1
         )
@@ -182,18 +187,18 @@ export class MonitorReserves {
     }
   }
 
-  private _checkOracle(market: ReserveSummary, network: string) {
+  private _checkOracle(reserve: ReserveSummary, network: string) {
     if (
-      reserveCacheExists(network, market) &&
-      getReserveCache(network, market).currentPriceETH.eq("0") &&
-      market.currentPriceETH.eq("0")
+      reserveCacheExists(network, reserve) &&
+      getReserveCache(network, reserve).currentPriceETH.eq("0") &&
+      reserve.currentPriceETH.eq("0")
     ) {
-      // oracle for the market is down only if fail to get price twice in a row
+      // oracle for the reserve is down only if fail to get price twice in a row
       this.alerts.push(
         formatAlert(
           `
         NETWORK: ${network}
-        Oracle for asset ${market.asset} is down. Check configurations and oracle providers.
+        Oracle for asset ${reserve.asset} is down. Check configurations and oracle providers.
         `,
           3
         )
@@ -205,7 +210,7 @@ export class MonitorReserves {
     prevVal: BigNumber[],
     currVal: BigNumber[],
     name: string[],
-    market: ReserveSummary,
+    reserve: ReserveSummary,
     network: string
   ) {
     prevVal.forEach((_, idx: number) => {
@@ -215,7 +220,7 @@ export class MonitorReserves {
           formatAlert(
             `
             NETWORK: ${network}
-            Reserve (asset=${market.asset}, tranche=${market.tranche}) has decreasing ${name[idx]}
+            ${getReserveString(reserve)} has decreasing ${name[idx]}
             Last ${name[idx]} = ${prevVal[idx]}
             Current ${name[idx]} = ${currVal[idx]}
             `,
@@ -229,7 +234,7 @@ export class MonitorReserves {
   private _checkGtOne(
     val: BigNumber[],
     name: string[],
-    market: ReserveSummary,
+    reserve: ReserveSummary,
     network: string
   ) {
     val.forEach((_, idx: number) => {
@@ -238,7 +243,7 @@ export class MonitorReserves {
           formatAlert(
             `
             NETWORK: ${network}
-            Reserve (asset=${market.asset}, tranche=${market.tranche}) has ${name[idx]} < 1
+            ${getReserveString(reserve)} has ${name[idx]} < 1
             Current ${name[idx]} = ${val[idx]}
             `,
             1
@@ -251,7 +256,7 @@ export class MonitorReserves {
   private _checkNonZero(
     val: BigNumber[],
     name: string[],
-    market: ReserveSummary,
+    reserve: ReserveSummary,
     network: string
   ) {
     val.forEach((_, idx: number) => {
@@ -260,7 +265,7 @@ export class MonitorReserves {
           formatAlert(
             `
             NETWORK: ${network}
-            Reserve (asset=${market.asset}, tranche=${market.tranche}) has ${name[idx]} = 0
+            ${getReserveString(reserve)} has ${name[idx]} = 0
             `,
             1
           )
@@ -269,28 +274,31 @@ export class MonitorReserves {
     });
   }
 
-  private _checkReserveDataInvariants(market: ReserveSummary, network: string) {
-    const reserveData: ReserveData = market.reserveData;
+  private _checkReserveDataInvariants(
+    reserve: ReserveSummary,
+    network: string
+  ) {
+    const reserveData: ReserveData = reserve.reserveData;
     this._checkGtOne(
       [reserveData.liquidityIndex, reserveData.variableBorrowIndex],
       ["liquidity index", "variable borrow index"],
-      market,
+      reserve,
       network
     );
     this._checkNonZero(
       [reserveData.lastUpdateTimestamp],
       ["timestamp"],
-      market,
+      reserve,
       network
     );
 
-    if (!reserveCacheExists(network, market)) {
+    if (!reserveCacheExists(network, reserve)) {
       return;
     }
 
     const lastReserveData: ReserveData = getReserveCache(
       network,
-      market
+      reserve
     ).reserveData;
 
     // check indicies
@@ -306,7 +314,7 @@ export class MonitorReserves {
         reserveData.lastUpdateTimestamp,
       ],
       ["liquidity index", "variable borrow index", "timestamp"],
-      market,
+      reserve,
       network
     );
   }
@@ -319,7 +327,7 @@ function getPnlReportNetwork(network: string): string {
 
   const reserves = lastReserveSummary.get(network);
   const pnlReserve: string[] = [];
-  let totalPnl = "Not yet implemented";
+  let totalPnl = 0;
 
   reserves.forEach((reserve: ReserveSummary, key) => {
     const accountsPayable = reserve.totalSupplied.sub(reserve.totalBorrowed);
@@ -331,22 +339,29 @@ function getPnlReportNetwork(network: string): string {
 
     const price = reserve.currentPriceETH;
     if (!price) {
-      pnlReserve.push(
-        `Unable to price (${reserve.asset}, tranche=${reserve.tranche})`
-      );
+      pnlReserve.push(`Unable to price ${getReserveString(reserve)}`);
       return;
     }
 
-    if (accountBalance.gt(accountsPayable)) {
-      const profit = accountBalance.sub(accountsPayable);
-      pnlReserve.push(
-        `Reserve (${reserve.asset}, tranche=${reserve.tranche}) has a profit of ${profit}`
+    if (network != "mainnet") {
+      // price is measured in usd
+      const underlyingAmount = parseFloat(
+        ethers.utils.formatUnits(
+          accountBalance.sub(accountsPayable),
+          reserve.decimals
+        )
       );
+      // price has 8 decimals
+      const usdAmount = parseFloat(ethers.utils.formatUnits(price, 8));
+      const pnl = underlyingAmount * usdAmount;
+      totalPnl += pnl;
+
+      if (pnl > 0.001) {
+        pnlReserve.push(`${getReserveString(reserve)} has a pnl of $${pnl}`);
+      }
     } else {
-      const loss = accountsPayable.sub(accountBalance);
-      pnlReserve.push(
-        `Reserve (${reserve.asset}, tranche=${reserve.tranche}) has a loss of ${loss}`
-      );
+      // price is measured in eth
+      // TODO: NOT IMPLEMENTED
     }
   });
 
