@@ -137,6 +137,8 @@ makeSuite(
         const oracle = new DRE.ethers.Contract(oracleAdd,oracleAbi.abi);
 
        const testTokens = ["0x39965c9dAb5448482Cf7e002F583c812Ceb53046"]
+       const usdcPrice =  await oracle.connect(signer).callStatic.getAssetPrice("0x7F5c764cBc14f9669B88837ca1490cCa17c31607");
+       console.log("usdc price: ", usdcPrice)
     //    const testTokens =  Object.values(reserveAssets);
        for(let i =0;i<testTokens.length;i++){
           const currentAsset = testTokens[i]
