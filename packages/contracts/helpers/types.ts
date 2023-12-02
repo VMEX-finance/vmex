@@ -16,7 +16,8 @@ export type eNetwork =
   | eAvalancheNetwork
   | eOptimismNetwork
   | eBaseNetwork
-  | eArbitrumNetwork;
+  | eArbitrumNetwork
+  | eMainnetNetwork;
 
 export enum eEthereumNetwork {
   buidlerevm = "buidlerevm",
@@ -42,6 +43,10 @@ export enum eXDaiNetwork {
 export enum eAvalancheNetwork {
   avalanche = "avalanche",
   fuji = "fuji",
+}
+
+export enum eMainnetNetwork {
+  mainnet = "mainnet"
 }
 
 export enum eOptimismNetwork {
@@ -362,6 +367,7 @@ export interface iAssetBase<T> {
   ThreePool: T;
   StethEth: T;
   Steth: T;
+  stETH: T;
   FraxUSDC: T;
   Frax3Crv: T;
   FRAX: T;
@@ -436,6 +442,9 @@ export interface iAssetBase<T> {
   "WETH-OP-USDC-BPT": T;
   "cbETHWETHCRV": T;
   "vAMM-WETH/DAI": T;
+  "stETHCRV": T;
+  "stETHv2CRV": T;
+  "rETHCRV": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -525,6 +534,21 @@ export type iXDAIPoolAssets<T> = Pick<
 export type iAvalanchePoolAssets<T> = Pick<
   iAssetsWithoutUSD<T>,
   "WETH" | "DAI" | "USDT" | "AAVE" | "WBTC" | "WAVAX" | "USDC"
+>;
+
+export type iMainnetPoolAssets<T> = Partial<
+  Pick<
+    iAssetsWithoutUSD<T>,
+    | "WETH"
+    | "stETH"
+    | "wstETH"
+    | "rETH"
+    | "BPT-WSTETH-WETH"
+    | "BPT-rETH-ETH"
+    | "stETHCRV"
+    | "stETHv2CRV"
+    | "rETHCRV"
+  >
 >;
 
 export type iOptimismPoolAssets<T> = Partial<
@@ -753,7 +777,8 @@ export type iParamsPerNetwork<T> =
   | iAvalancheParamsPerNetwork<T>
   | iOptimismParamsPerNetwork<T>
   | iBaseParamsPerNetwork<T>
-  | iArbitrumParamsPerNetwork<T>;
+  | iArbitrumParamsPerNetwork<T>
+  | iMainnetParamsPerNetwork<T>;
 
 export interface iParamsPerNetworkAll<T>
   extends iEthereumParamsPerNetwork<T>,
@@ -796,6 +821,10 @@ export interface iBaseParamsPerNetwork<T> {
 
 export interface iArbitrumParamsPerNetwork<T> {
   [eArbitrumNetwork.arbitrum]: T;
+}
+
+export interface iMainnetParamsPerNetwork<T> {
+  [eMainnetNetwork.main]: T;
 }
 
 export interface iParamsPerPool<T> {
@@ -898,6 +927,10 @@ export interface ICommonConfiguration extends IBaseConfiguration {
 
 export interface IAaveConfiguration extends ICommonConfiguration {
   ReservesConfig: iAavePoolAssets<IReserveParams>;
+}
+
+export interface IMainnetConfiguration extends ICommonConfiguration {
+  ReservesConfig: iMainnetPoolAssets<IReserveParams>;
 }
 
 export interface IAmmConfiguration extends ICommonConfiguration {
