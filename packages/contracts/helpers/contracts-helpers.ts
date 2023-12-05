@@ -32,6 +32,7 @@ import {
   eArbitrumNetwork,
   iArbitrumParamsPerNetwork,
   iMainnetParamsPerNetwork,
+  eMainnetNetwork,
 } from "./types";
 import { MintableERC20 } from "../types";
 import { Artifact } from "hardhat/types";
@@ -247,6 +248,8 @@ export const getParamPerNetwork = <T>(
       return base;
     case eArbitrumNetwork.arbitrum:
       return arbitrum;
+    case eMainnetNetwork.mainnet:
+      return mainnet;
   }
 };
 

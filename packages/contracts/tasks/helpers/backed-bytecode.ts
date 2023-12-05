@@ -64,7 +64,7 @@ task('vmex:backed-bytecode', 'Set asset sources for base backed oracles, then ad
         supplyCap, //1,000,000
         borrowCap,
         reserveDecimals,
-        baseLTVAsCollateral,
+        baseLTV,
         borrowFactor,
         liquidationBonus,
         liquidationThreshold,
@@ -78,7 +78,7 @@ task('vmex:backed-bytecode', 'Set asset sources for base backed oracles, then ad
         assetType: assetType,
         supplyCap: ethers.utils.parseUnits(supplyCap, reserveDecimals), 
         borrowCap: ethers.utils.parseUnits(borrowCap, reserveDecimals), 
-        baseLTV: baseLTVAsCollateral,
+        baseLTV: baseLTV,
         liquidationThreshold: liquidationThreshold,
         liquidationBonus: liquidationBonus,
         borrowFactor: borrowFactor,

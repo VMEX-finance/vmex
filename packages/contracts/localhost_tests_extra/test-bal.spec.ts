@@ -100,7 +100,7 @@ makeSuite(
     >;
       const strategyNewBal: IReserveParams = {
         strategy: rateStrategyUnborrowable,
-        baseLTVAsCollateral: '650000000000000000',
+        baseLTV: '650000000000000000',
         liquidationThreshold: '700000000000000000',
         liquidationBonus: '1100000000000000000',
         borrowingEnabled: false,

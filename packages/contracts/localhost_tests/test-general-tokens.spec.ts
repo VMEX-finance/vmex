@@ -165,7 +165,7 @@ makeSuite(
                   console.log("Manual check: weth price is (USD) $",wethPrice)
 
                   const amountBorrowable = (
-                    amountWETH.mul(wethPrice).mul(WETHConfig.baseLTVAsCollateral).mul(ethers.utils.parseUnits("1",tokenDec))
+                    amountWETH.mul(wethPrice).mul(WETHConfig.baseLTV).mul(ethers.utils.parseUnits("1",tokenDec))
                   ).div
                   (
                     tokenPrice.mul(ethers.utils.parseUnits("1",WETHdec)).mul(tokenConfig.borrowFactor)
@@ -213,7 +213,7 @@ makeSuite(
 
                 //Just used to test the limits of gas. Don't run normally, cause will cause HeadersTimeoutError: Headers Timeout Error
                 
-                // if(Number(tokenConfig.baseLTVAsCollateral)!=0){
+                // if(Number(tokenConfig.baseLTV)!=0){
                 //   //signer has the tokens as collateral. Check gas usage
                 //   const tx = await lendingPool.connect(signer).borrow(myWETH.address, 0, ethers.utils.parseEther("0.001"), '0', await signer.getAddress()); 
                 //   const tx2 = await tx.wait(1);

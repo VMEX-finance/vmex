@@ -8,6 +8,7 @@ import {
   CurveMetadata,
   BeethovenMetadata,
   IInterestRateStrategyParams,
+  IReserveCollateralParams,
 } from "./types";
 import { DRE, chunk, getDb, waitForTx } from "./misc-utils";
 import {
@@ -43,14 +44,30 @@ export const isTestNetwork = () => {
 export const claimTrancheId = async (
   name: string,
   admin: SignerWithAddress
-) => {
+): Promise<BigNumberish> => {
   const configurator = await getLendingPoolConfiguratorProxy();
+
+  const trancheId = await configurator.totalTranches();
 
   let ret = await waitForTx(
     await configurator.claimTrancheId(name, admin.address)
   );
 
   console.log(`-${ret}:${name} claimed for ${admin.address}`);
+  console.log("    * gasUsed", ret.gasUsed.toString());
+  return trancheId
+};
+
+export const verifyTrancheId = async (
+  trancheId: BigNumberish
+) => {
+  const configurator = await getLendingPoolConfiguratorProxy();
+
+  let ret = await waitForTx(
+    await configurator.verifyTranche(trancheId)
+  );
+
+  console.log(`-${ret}:${trancheId} verified`);
   console.log("    * gasUsed", ret.gasUsed.toString());
 };
 
@@ -227,7 +244,7 @@ export const initAssetData = async (
       supplyCap, //1,000,000
       borrowCap,
       reserveDecimals,
-      baseLTVAsCollateral,
+      baseLTV,
       borrowFactor,
       liquidationBonus,
       liquidationThreshold,
@@ -263,7 +280,7 @@ export const initAssetData = async (
       assetType: assetType,
       supplyCap: ethers.utils.parseUnits(supplyCap, reserveDecimals), 
       borrowCap: ethers.utils.parseUnits(borrowCap, reserveDecimals), 
-      baseLTV: baseLTVAsCollateral,
+      baseLTV: baseLTV,
       liquidationThreshold: liquidationThreshold,
       liquidationBonus: liquidationBonus,
       borrowFactor: borrowFactor,
@@ -348,6 +365,54 @@ export const initReservesByHelper = async (
 
     console.log(
       `  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`
+    );
+    console.log("    * gasUsed", tx3.gasUsed.toString());
+  }
+};
+
+export const configureCollateralParams = async (
+  assetAddresses: { [symbol: string]: tEthereumAddress },
+  collateralParams: iMultiPoolsAssets<IReserveCollateralParams>,
+  trancheId: BigNumberish,
+  admin: SignerWithAddress,
+) => {
+  // Initialize variables for future reserves initialization
+  let initInputParams: {
+    underlyingAsset: string;
+    collateralParams: IReserveCollateralParams;
+  }[] = [];
+  const addresses = Object.entries(assetAddresses)
+  for (let [symbol, address] of addresses) {
+    initInputParams.push(
+      {
+        underlyingAsset: address,
+        collateralParams: collateralParams[symbol]
+      }
+    );
+  }
+
+  // Deploy init reserves per tranche
+  // tranche CONFIGURATION
+  const configurator = await getLendingPoolConfiguratorProxy();
+  let initChunks = 5;
+  const chunkedSymbols = chunk(Object.keys(assetAddresses), initChunks);
+  const chunkedInitInputParams = chunk(initInputParams, initChunks);
+
+  console.log(
+    `- Collateral params update in ${chunkedInitInputParams.length} txs`
+  );
+  for (
+    let chunkIndex = 0;
+    chunkIndex < chunkedInitInputParams.length;
+    chunkIndex++
+  ) {
+    const tx3 = await waitForTx(
+      await configurator
+        .connect(admin)
+        .batchConfigureCollateralParams(chunkedInitInputParams[chunkIndex], trancheId)
+    );
+    console.log(
+      `  - Collateral params updated for: ${chunkedSymbols[chunkIndex].join(", ")}`
     );
     console.log("    * gasUsed", tx3.gasUsed.toString());
   }
@@ -671,6 +736,34 @@ export const getTranche0DataArbitrum = (allReservesAddresses: {
     canBorrow0.push(true);
     canBeCollateral0.push(true);
   }
+
+  return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
+};
+
+export const getLSDTrancheEthereum = (allReservesAddresses: {
+  [symbol: string]: tEthereumAddress;
+}): [tEthereumAddress[], string[], boolean[], boolean[]] => {
+  let assets0: tEthereumAddress[] = [
+    allReservesAddresses["WETH"],
+    allReservesAddresses["stETH"],
+    allReservesAddresses["wstETH"],
+    allReservesAddresses["rETH"],
+    allReservesAddresses["stETHCRV"],
+    allReservesAddresses["stETHv2CRV"],
+    allReservesAddresses["rETHCRV"],
+    allReservesAddresses["rETH-WETH-BPT"],
+    allReservesAddresses["wstETH-WETH-BPT"],
+  ];
+
+  let reserveFactors0: string[] = [];
+  let canBorrow0: boolean[] = [];
+  let canBeCollateral0: boolean[] = [];
+  for (let i = 0; i < assets0.length; i++) {
+    reserveFactors0.push("0");
+    canBorrow0.push(false);
+    canBeCollateral0.push(true);
+  }
+  canBorrow0[0] = true
 
   return [assets0, reserveFactors0, canBorrow0, canBeCollateral0];
 };

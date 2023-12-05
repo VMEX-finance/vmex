@@ -735,6 +735,7 @@ export interface IReserveParams
   strategy: IInterestRateStrategyParams;
   supplyCap: string;
   borrowCap: string;
+  assetType: BigNumberish;
   hasStrategy?: boolean;
   usingGovernanceSetInterestRate?: boolean;
   governanceSetInterestRate?: string;
@@ -760,10 +761,9 @@ export interface IReserveBorrowParams {
 }
 
 export interface IReserveCollateralParams {
-  baseLTVAsCollateral: string;
+  baseLTV: string;
   liquidationThreshold: string;
   liquidationBonus: string;
-  assetType: BigNumberish;
   borrowFactor: string | BigNumberish;
 }
 export interface IMarketRates {
@@ -824,7 +824,7 @@ export interface iArbitrumParamsPerNetwork<T> {
 }
 
 export interface iMainnetParamsPerNetwork<T> {
-  [eMainnetNetwork.main]: T;
+  [eMainnetNetwork.mainnet]: T;
 }
 
 export interface iParamsPerPool<T> {
@@ -919,6 +919,7 @@ export interface IBaseConfiguration {
 
 export interface ICommonConfiguration extends IBaseConfiguration {
   ReservesConfig: iMultiPoolsAssets<IReserveParams>;
+  LSDReservesConfig?: iMultiPoolsAssets<IReserveCollateralParams>;
   Mocks: IMocksConfig;
   LendingRateOracleRatesCommon?: any;
   LendingRateOracle?: any;

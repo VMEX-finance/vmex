@@ -12,7 +12,7 @@ import {
 
 export const strategyUSDbC: IReserveParams = {
   strategy: rateStrategyStableThree,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.77',18).toString(),
+  baseLTV: ethers.utils.parseUnits('0.77',18).toString(),
   liquidationThreshold: ethers.utils.parseUnits('0.8',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(),
   borrowingEnabled: true,
@@ -27,7 +27,7 @@ export const strategyUSDbC: IReserveParams = {
 
 export const strategyUSDC: IReserveParams = {
   strategy: rateStrategyStableThree,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.77',18).toString(),
+  baseLTV: ethers.utils.parseUnits('0.77',18).toString(),
   liquidationThreshold: ethers.utils.parseUnits('0.8',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(),
   borrowingEnabled: true,
@@ -42,7 +42,7 @@ export const strategyUSDC: IReserveParams = {
 
 export const strategyDAI: IReserveParams = {
   strategy: rateStrategyStableTwo,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.77',18).toString(),
+  baseLTV: ethers.utils.parseUnits('0.77',18).toString(),
   liquidationThreshold: ethers.utils.parseUnits('0.8',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(),
   borrowingEnabled: true,
@@ -57,7 +57,7 @@ export const strategyDAI: IReserveParams = {
 
 export const strategyrETH: IReserveParams = {
   strategy: rateStrategyVolatileTwo,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.67',18).toString(),
+  baseLTV: ethers.utils.parseUnits('0.67',18).toString(),
   liquidationThreshold: ethers.utils.parseUnits('0.74',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.075',18).toString(),
   borrowingEnabled: true,
@@ -74,7 +74,7 @@ export const strategyrETH: IReserveParams = {
 
 export const strategyWETH: IReserveParams = {
   strategy: rateStrategyWETH,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.8',18).toString(),
+  baseLTV: ethers.utils.parseUnits('0.8',18).toString(),
   liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(),
   borrowingEnabled: true,
@@ -90,7 +90,7 @@ export const strategyWETH: IReserveParams = {
 
 export const strategyCbETH: IReserveParams = {
   strategy: rateStrategyCbETH,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.7',18).toString(),
+  baseLTV: ethers.utils.parseUnits('0.7',18).toString(),
   liquidationThreshold: ethers.utils.parseUnits('0.75',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.075',18).toString(),
   borrowingEnabled: true,
@@ -106,7 +106,7 @@ export const strategyCbETH: IReserveParams = {
 
 export const strategyVeloWETHUSDbC: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.6',18).toString(), 
+  baseLTV: ethers.utils.parseUnits('0.6',18).toString(), 
   liquidationThreshold: ethers.utils.parseUnits('0.65',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(), 
   borrowingEnabled: false,
@@ -121,7 +121,7 @@ export const strategyVeloWETHUSDbC: IReserveParams = {
 
 export const strategyVeloCbETHWETH: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.65',18).toString(), 
+  baseLTV: ethers.utils.parseUnits('0.65',18).toString(), 
   liquidationThreshold: ethers.utils.parseUnits('0.7',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(), 
   borrowingEnabled: false,
@@ -136,7 +136,7 @@ export const strategyVeloCbETHWETH: IReserveParams = {
 
 export const strategyVeloDAIUSDC: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.65',18).toString(), 
+  baseLTV: ethers.utils.parseUnits('0.65',18).toString(), 
   liquidationThreshold: ethers.utils.parseUnits('0.7',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(), 
   borrowingEnabled: false,
@@ -151,7 +151,7 @@ export const strategyVeloDAIUSDC: IReserveParams = {
 
 export const strategyVeloUSDCUSDbC: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.65',18).toString(), 
+  baseLTV: ethers.utils.parseUnits('0.65',18).toString(), 
   liquidationThreshold: ethers.utils.parseUnits('0.7',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(), 
   borrowingEnabled: false,
@@ -166,7 +166,7 @@ export const strategyVeloUSDCUSDbC: IReserveParams = {
 
 export const strategyVeloWETHDAI: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.6',18).toString(), 
+  baseLTV: ethers.utils.parseUnits('0.6',18).toString(), 
   liquidationThreshold: ethers.utils.parseUnits('0.65',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(), 
   borrowingEnabled: false,
@@ -182,7 +182,7 @@ export const strategyVeloWETHDAI: IReserveParams = {
 
 export const strategyBIB01: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0',18).toString(), // 0.8 in custom tranche
+  baseLTV: ethers.utils.parseUnits('0',18).toString(), // 0.8 in custom tranche
   liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(), 
   borrowingEnabled: false,
@@ -198,7 +198,7 @@ export const strategyBIB01: IReserveParams = {
 
 export const strategyBIBTA: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0',18).toString(), // 0.8 in custom tranche
+  baseLTV: ethers.utils.parseUnits('0',18).toString(), // 0.8 in custom tranche
   liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(), 
   borrowingEnabled: false,
@@ -214,7 +214,7 @@ export const strategyBIBTA: IReserveParams = {
 
 export const strategyCbETHBPT: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: ethers.utils.parseUnits('0.5',18).toString(), 
+  baseLTV: ethers.utils.parseUnits('0.5',18).toString(), 
   liquidationThreshold: ethers.utils.parseUnits('0.55',18).toString(),
   liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(), 
   borrowingEnabled: false,
@@ -229,7 +229,7 @@ export const strategyCbETHBPT: IReserveParams = {
 
 export const strategyrETHETHBPT: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: '500000000000000000',
+  baseLTV: '500000000000000000',
   liquidationThreshold: '550000000000000000',
   liquidationBonus: '1100000000000000000',
   borrowingEnabled: false,
@@ -244,7 +244,7 @@ export const strategyrETHETHBPT: IReserveParams = {
 
 export const strategycbETHWETHCRV: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTVAsCollateral: '500000000000000000',
+  baseLTV: '500000000000000000',
   liquidationThreshold: '550000000000000000',
   liquidationBonus: '1100000000000000000',
   borrowingEnabled: false,

@@ -1,41 +1,18 @@
-import { addListener } from 'process';
-import { oneRay, ZERO_ADDRESS } from '../../helpers/constants';
-import { IMainnetConfiguration, eEthereumNetwork, eMainnetNetwork } from '../../helpers/types';
+import { IMainnetConfiguration, eMainnetNetwork } from '../../helpers/types';
 
 import { CommonsConfig } from './commons';
 import {
-  strategyBUSD,
-  strategyDAI,
-  strategySUSD,
-  strategyTUSD,
-  strategyUSDC,
-  strategyUSDT,
-  strategyAAVE,
-  strategyBAT,
-  strategyZRX,
-  strategyKNC,
-  strategyLINK,
-  strategyMANA,
-  strategyMKR,
-  strategyREN,
-  strategySNX,
-  strategyUNI,
-  strategyWBTC,
   strategyWETH,
-  strategyYFI,
-  strategyENJ,
-  strategyCurveV1LPToken,
-  strategyCurveV2LPToken,
-  strategySTETH,
-  strategyFrax,
-  strategyBAL,
-  strategyCRV,
-  strategyALCX,
-  strategyBADGER,
-  strategyCVX,
-  strategyLDO,
-  strategyOneinch,
-  strategyYearnToken
+  strategystETH,
+  strategystETHCRV,
+  strategywstETH,
+  strategyrETH,
+  strategystETHv2CRV,
+  strategyrETHCRV,
+  strategywstETHBPT,
+  strategyrETHBPT,
+  LSDBaseConfig,
+  LSDLPConfig
 } from './reservesConfigs';
 
 // ----------------
@@ -46,17 +23,28 @@ export const MainnetConfig: IMainnetConfiguration = {
   ...CommonsConfig,
   MarketId: 'VMEX genesis market',
   ProviderId: 1,
+  LSDReservesConfig: {
+    WETH: LSDBaseConfig,
+    stETH: LSDBaseConfig,
+    wstETH: LSDBaseConfig,
+    rETH: LSDBaseConfig,
+    "BPT-WSTETH-WETH": LSDLPConfig,
+    "BPT-rETH-ETH": LSDLPConfig,
+    stETHCRV: LSDLPConfig,
+    stETHv2CRV: LSDLPConfig,
+    rETHCRV: LSDLPConfig,
+  },
 
   ReservesConfig: {
     WETH: strategyWETH,
     stETH: strategystETH,
     wstETH: strategywstETH,
     rETH: strategyrETH,
-    "BPT-WSTETH-WETH": ,
-    "BPT-rETH-ETH": ,
-    stETHCRV: ,
-    stETHv2CRV: ,
-    rETHCRV: ,
+    "BPT-WSTETH-WETH": strategywstETHBPT,
+    "BPT-rETH-ETH": strategyrETHBPT,
+    stETHCRV: strategystETHCRV,
+    stETHv2CRV: strategystETHv2CRV,
+    rETHCRV: strategyrETHCRV,
   },
   ReserveAssets: {
     [eMainnetNetwork.mainnet]: {

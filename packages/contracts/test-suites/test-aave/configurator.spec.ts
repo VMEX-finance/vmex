@@ -106,7 +106,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(isActive).to.be.equal(true);
     expect(isFrozen).to.be.equal(true);
     expect(decimals).to.be.equal(strategyWETH.reserveDecimals);
-    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
+    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTV);
     // expect(ethers.utils.formatUnits(liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
     // expect(stableBorrowRateEnabled).to.be.equal(
@@ -135,7 +135,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(isActive).to.be.equal(true);
     expect(isFrozen).to.be.equal(false);
     expect(decimals).to.be.equal(strategyWETH.reserveDecimals);
-    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
+    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTV);
     // expect(ethers.utils.formatUnits(liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
     // expect(stableBorrowRateEnabled).to.be.equal(
@@ -179,7 +179,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(isActive).to.be.equal(true);
     expect(isFrozen).to.be.equal(false);
     expect(decimals).to.be.equal(strategyWETH.reserveDecimals);
-    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
+    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTV);
     // expect(ethers.utils.formatUnits(liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
     // expect(stableBorrowRateEnabled).to.be.equal(
@@ -212,7 +212,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(isActive).to.be.equal(true);
     expect(isFrozen).to.be.equal(false);
     expect(decimals).to.be.equal(strategyWETH.reserveDecimals);
-    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
+    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTV);
     // expect(ethers.utils.formatUnits(liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
     // expect(stableBorrowRateEnabled).to.be.equal(
@@ -359,7 +359,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
 
     await assetMappings.configureAssetMapping(
       weth.address,
-      strategyWETH.baseLTVAsCollateral,
+      strategyWETH.baseLTV,
       strategyWETH.liquidationThreshold,
       strategyWETH.liquidationBonus,
       ethers.utils.parseUnits(strategyWETH.supplyCap, strategyWETH.reserveDecimals),
@@ -373,7 +373,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(ret.isActive).to.be.equal(true);
     expect(ret.isFrozen).to.be.equal(false);
     expect(ret.decimals).to.be.equal(18);
-    // expect(ethers.utils.formatUnits(ret.ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
+    // expect(ethers.utils.formatUnits(ret.ltv,factor)).to.be.equal(strategyWETH.baseLTV);
     // expect(ethers.utils.formatUnits(ret.liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(ret.liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
     expect(ret.supplyCap).to.be.equal(ethers.utils.parseEther(strategyWETH.supplyCap));
@@ -402,7 +402,7 @@ makeSuite("LendingPoolConfigurator", (testEnv: TestEnv) => {
     expect(isActive).to.be.equal(true);
     expect(isFrozen).to.be.equal(false);
     expect(decimals).to.be.equal(strategyWETH.reserveDecimals);
-    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTVAsCollateral);
+    // expect(ethers.utils.formatUnits(ltv,factor)).to.be.equal(strategyWETH.baseLTV);
     // expect(ethers.utils.formatUnits(liquidationThreshold,factor)).to.be.equal(strategyWETH.liquidationThreshold);
     // expect(ethers.utils.formatUnits(liquidationBonus,factor)).to.be.equal(strategyWETH.liquidationBonus);
     expect(reserveFactor).to.be.equal(ethers.utils.parseUnits("1000",14));

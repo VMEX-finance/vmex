@@ -4,6 +4,7 @@ import { ConfigNames } from "../../helpers/configuration";
 import { printContracts } from "../../helpers/misc-utils";
 import { usingTenderly } from "../../helpers/tenderly-utils";
 import { getEthersSignersAddresses } from "../../helpers/contracts-helpers";
+import { isTestNetwork } from "../../helpers/init-helpers";
 
 task("vmex:mainnet", "Deploy development enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -13,7 +14,7 @@ task("vmex:mainnet", "Deploy development enviroment")
   )
   .setAction(async ({ verify, skipRegistry }, DRE) => {
     console.log("Network name initial: ", DRE.network.name);
-    const POOL_NAME = ConfigNames.Aave;
+    const POOL_NAME = ConfigNames.Mainnet;
     await DRE.run("set-DRE");
 
     // Prevent loss of gas verifying all the needed ENVs for Etherscan verification
@@ -65,16 +66,23 @@ task("vmex:mainnet", "Deploy development enviroment")
 
     console.log("6. Initialize lending pool");
     await DRE.run("full:initialize-lending-pool", { pool: POOL_NAME });
-
-    console.log("6.1. Initialize lending pool tranche 0");
-    await DRE.run("full:initialize-lending-pool-tranches-0", {
-      pool: POOL_NAME,
-    });
-
-    console.log("6.2. Initialize lending pool tranche 1");
-    await DRE.run("full:initialize-lending-pool-tranches-1", {
-      pool: POOL_NAME,
-    });
+    
+    if(isTestNetwork()) {
+      console.log("6.1. Initialize lending pool tranche 0");
+      await DRE.run("full:initialize-lending-pool-tranches-0", {
+        pool: POOL_NAME,
+      });
+  
+      console.log("6.2. Initialize lending pool tranche 1");
+      await DRE.run("full:initialize-lending-pool-tranches-1", {
+        pool: POOL_NAME,
+      });
+    } else {
+      console.log("6.1. Initialize lending pool tranche 0");
+      await DRE.run("full:initialize-lending-pool-tranches-0-Ethereum", {
+        pool: POOL_NAME,
+      });
+    }
 
     console.log('7. Begin staking for tranche 0');
     await DRE.run('full-beginStaking', { pool: POOL_NAME });

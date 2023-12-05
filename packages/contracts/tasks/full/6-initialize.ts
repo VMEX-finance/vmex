@@ -51,22 +51,6 @@ task(
 
       const addressesProvider = await getLendingPoolAddressesProvider();
 
-      // const incentivesController = await getParamPerNetwork(
-      //   IncentivesController,
-      //   network
-      // );
-
-      // if(incentivesController && notFalsyOrZeroAddress(incentivesController)){
-      //   console.log("trying to set incentives controller (needs to be the implementation contract)")
-      //   await addressesProvider.setIncentivesController(incentivesController);
-      // }
-
-      // const oracle = await addressesProvider.getPriceOracle();
-
-      // if (!reserveAssets) {
-      //   throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
-      // }
-
       let collateralManagerAddress = await getParamPerNetwork(
         LendingPoolCollateralManager,
         network
