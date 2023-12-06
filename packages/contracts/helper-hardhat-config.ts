@@ -5,6 +5,7 @@ import {
   eAvalancheNetwork,
   eBaseNetwork,
   eEthereumNetwork,
+  eMainnetNetwork,
   eOptimismNetwork,
   ePolygonNetwork,
   eXDaiNetwork,
@@ -56,6 +57,9 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eEthereumNetwork.main]: ALCHEMY_KEY
     ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+  [eMainnetNetwork.mainnet]: ALCHEMY_KEY
+    ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
+    : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   [eEthereumNetwork.coverage]: 'http://localhost:8555',
   [eEthereumNetwork.hardhat]: 'http://localhost:8545',
   [eEthereumNetwork.buidlerevm]: 'http://localhost:8545',
@@ -84,6 +88,7 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number | string> = {
   [eEthereumNetwork.sepolia]: 3 * GWEI,
   [eEthereumNetwork.ropsten]: 65 * GWEI,
   [eEthereumNetwork.main]: 8000000000,
+  [eMainnetNetwork.mainnet]: 8000000000,
   [eEthereumNetwork.coverage]: 65 * GWEI,
   [eEthereumNetwork.hardhat]: 65 * GWEI,
   [eEthereumNetwork.buidlerevm]: 65 * GWEI,
@@ -99,6 +104,7 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number | string> = {
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eEthereumNetwork.main]: 16408037,//16173821 works for steth eth //15373013
+  [eMainnetNetwork.mainnet]: 18518159,
   [eEthereumNetwork.kovan]: undefined,
   [eEthereumNetwork.ropsten]: undefined,
   [eEthereumNetwork.coverage]: undefined,

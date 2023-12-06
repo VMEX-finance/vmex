@@ -293,11 +293,25 @@ export const initAssetData = async (
 
   console.log(`- AssetData initialization`);
   if(submitTx) {
-    const tx3 = await waitForTx(
-      await assetMappings.connect(admin).addAssetMapping(initInputParams)
+    let initChunks = 5;
+    const chunkedInitInputParams = chunk(initInputParams, initChunks);
+    const chunkedSymbols = chunk(Object.keys(reservesParams), initChunks)
+    console.log(
+      `- Asset data initialization in ${chunkedInitInputParams.length} txs`
     );
-
-    console.log("    * gasUsed", tx3.gasUsed.toString());
+    for (
+      let chunkIndex = 0;
+      chunkIndex < chunkedInitInputParams.length;
+      chunkIndex++
+    ) {
+      const tx3 = await waitForTx(
+        await assetMappings.connect(admin).addAssetMapping(chunkedInitInputParams[chunkIndex])
+      );
+      console.log(
+        `  - Asset data ready for: ${chunkedSymbols[chunkIndex].join(", ")}`
+      );
+      console.log("    * gasUsed", tx3.gasUsed.toString());
+    }
   } else {
     const addAssetMappingCall = assetMappings.interface.encodeFunctionData("addAssetMapping", [initInputParams])
 
@@ -337,6 +351,7 @@ export const initReservesByHelper = async (
       }
     );
   }
+  console.log("initInputParams: ", initInputParams)
 
   // Deploy init reserves per tranche
   // tranche CONFIGURATION
@@ -359,15 +374,15 @@ export const initReservesByHelper = async (
         .batchInitReserve(chunkedInitInputParams[chunkIndex], trancheId)
     );
 
-    await configurator
-      .connect(admin)
-      .updateTreasuryAddress(treasuryAddress, trancheId);
-
     console.log(
       `  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(", ")}`
     );
     console.log("    * gasUsed", tx3.gasUsed.toString());
   }
+
+  await configurator
+  .connect(admin)
+  .updateTreasuryAddress(treasuryAddress, trancheId);
 };
 
 export const configureCollateralParams = async (
@@ -751,8 +766,8 @@ export const getLSDTrancheEthereum = (allReservesAddresses: {
     allReservesAddresses["stETHCRV"],
     allReservesAddresses["stETHv2CRV"],
     allReservesAddresses["rETHCRV"],
-    allReservesAddresses["rETH-WETH-BPT"],
-    allReservesAddresses["wstETH-WETH-BPT"],
+    allReservesAddresses["BPT-WSTETH-WETH"],
+    allReservesAddresses["BPT-rETH-ETH"],
   ];
 
   let reserveFactors0: string[] = [];

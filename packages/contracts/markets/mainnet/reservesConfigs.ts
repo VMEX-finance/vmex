@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { eContractid, IReserveCollateralParams, IReserveParams } from '../../helpers/types';
 
 import {
@@ -13,151 +14,151 @@ import {
 
 export const strategyWETH: IReserveParams = {
   strategy: rateStrategyWETH,
-  baseLTV: '800000000000000000',
-  liquidationThreshold: '825000000000000000',
-  liquidationBonus: '1050000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.8',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(),
   borrowingEnabled: true,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
   supplyCap: '1800000', 
   borrowCap: '1400000', 
-  borrowFactor: '120000000000000000', //120% for now
-  reserveFactor: '100000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1.2',18).toString(), //120% for now
+  reserveFactor: ethers.utils.parseUnits('0.1',18).toString(),
 };
 
 export const strategystETH: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTV: '720000000000000000',
-  liquidationThreshold: '825000000000000000',
-  liquidationBonus: '1070000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.72',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.07',18).toString(),
   borrowingEnabled: false,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
   supplyCap: '100000', 
   borrowCap: '72000', 
-  borrowFactor: '1280000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1.28',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 export const strategywstETH: IReserveParams = {
   strategy: rateStrategyVolatileTwo,
-  baseLTV: '800000000000000000',
-  liquidationThreshold: '825000000000000000',
-  liquidationBonus: '1060000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.8',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.825',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.06',18).toString(),
   borrowingEnabled: true,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
   supplyCap: '100000', 
   borrowCap: '24000', 
-  borrowFactor: '1200000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1.2',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 export const strategyrETH: IReserveParams = {
   strategy: rateStrategyVolatileFour,
-  baseLTV: '750000000000000000',
-  liquidationThreshold: '780000000000000000',
-  liquidationBonus: '1075000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.75',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.78',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.075',18).toString(),
   borrowingEnabled: true,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 0,
   supplyCap: '60000', 
   borrowCap: '19200', 
-  borrowFactor: '1250000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1.25',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 export const strategystETHCRV: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTV: '650000000000000000',
-  liquidationThreshold: '700000000000000000',
-  liquidationBonus: '1100000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.65',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.7',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(),
   borrowingEnabled: false,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 1, // CURVE
   supplyCap: '10000', 
   borrowCap: '0', 
-  borrowFactor: '1000000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 export const strategystETHv2CRV: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTV: '650000000000000000',
-  liquidationThreshold: '700000000000000000',
-  liquidationBonus: '1100000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.65',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.7',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(),
   borrowingEnabled: false,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 1, // CURVE
   supplyCap: '4000', 
   borrowCap: '0', 
-  borrowFactor: '1000000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 
 export const strategyrETHCRV: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTV: '500000000000000000',
-  liquidationThreshold: '550000000000000000',
-  liquidationBonus: '1100000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.5',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.55',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(),
   borrowingEnabled: false,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 2, // CURVE2
   supplyCap: '600', 
   borrowCap: '0', 
-  borrowFactor: '1000000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 export const strategywstETHBPT: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTV: '650000000000000000',
-  liquidationThreshold: '700000000000000000',
-  liquidationBonus: '1100000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.65',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.7',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(),
   borrowingEnabled: false,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 6, // BALANCER
   supplyCap: '800', 
   borrowCap: '0', 
-  borrowFactor: '1000000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 export const strategyrETHBPT: IReserveParams = {
   strategy: rateStrategyUnborrowable,
-  baseLTV: '500000000000000000',
-  liquidationThreshold: '550000000000000000',
-  liquidationBonus: '1100000000000000000',
+  baseLTV: ethers.utils.parseUnits('0.5',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.55',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.1',18).toString(),
   borrowingEnabled: false,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
   assetType: 6, // BALANCER
   supplyCap: '3000', 
   borrowCap: '0', 
-  borrowFactor: '1000000000000000000', 
-  reserveFactor: '150000000000000000',
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), 
+  reserveFactor: ethers.utils.parseUnits('0.15',18).toString(),
 };
 
 
 export const LSDBaseConfig: IReserveCollateralParams = {
-  baseLTV: '900000000000000000',
-  liquidationThreshold: '930000000000000000',
-  liquidationBonus: '1010000000000000000',
-  borrowFactor: '100000000000000000', //120% for now
+  baseLTV: ethers.utils.parseUnits('0.9',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.93',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.01',18).toString(),
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), //120% for now
 };
 
 export const LSDLPConfig: IReserveCollateralParams = {
-  baseLTV: '800000000000000000',
-  liquidationThreshold: '850000000000000000',
-  liquidationBonus: '1050000000000000000',
-  borrowFactor: '100000000000000000', //120% for now
+  baseLTV: ethers.utils.parseUnits('0.8',18).toString(),
+  liquidationThreshold: ethers.utils.parseUnits('0.85',18).toString(),
+  liquidationBonus: ethers.utils.parseUnits('1.05',18).toString(),
+  borrowFactor: ethers.utils.parseUnits('1',18).toString(), //120% for now
 };

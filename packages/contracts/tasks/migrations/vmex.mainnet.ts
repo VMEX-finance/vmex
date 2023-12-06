@@ -67,7 +67,7 @@ task("vmex:mainnet", "Deploy development enviroment")
     console.log("6. Initialize lending pool");
     await DRE.run("full:initialize-lending-pool", { pool: POOL_NAME });
     
-    if(isTestNetwork()) {
+    if(DRE.network.name == "hardhat") {
       console.log("6.1. Initialize lending pool tranche 0");
       await DRE.run("full:initialize-lending-pool-tranches-0", {
         pool: POOL_NAME,
@@ -78,7 +78,7 @@ task("vmex:mainnet", "Deploy development enviroment")
         pool: POOL_NAME,
       });
     } else {
-      console.log("6.1. Initialize lending pool tranche 0");
+      console.log("6.1. Initialize lending pool tranche 0 Ethereum");
       await DRE.run("full:initialize-lending-pool-tranches-0-Ethereum", {
         pool: POOL_NAME,
       });

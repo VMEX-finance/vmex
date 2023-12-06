@@ -159,10 +159,10 @@ export const CommonsConfig: ICommonConfiguration = {
     [eMainnetNetwork.mainnet]: ZERO_ADDRESS,
   },
   VMEXTreasury: {
-    [eMainnetNetwork.mainnet]: "",
+    [eMainnetNetwork.mainnet]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B",
   },
   VMEXRewardsVault: {
-    [eMainnetNetwork.mainnet]: "",
+    [eMainnetNetwork.mainnet]: "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B",
   },
   SequencerUptimeFeed: {
     [eMainnetNetwork.mainnet]: ""
