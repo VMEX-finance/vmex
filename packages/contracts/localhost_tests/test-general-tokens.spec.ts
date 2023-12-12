@@ -54,19 +54,8 @@ makeSuite(
         //   "function swapExactETHForTokens(uint amountOutMin, route[] calldata routes, address to, uint deadline) external payable returns (uint[] memory amounts)"
         // ]
 
-        
-
-          it("give WETH to signer", async () => {
-            const myWETH = new DRE.ethers.Contract(WETHadd,WETHabi)
-            var signer = await contractGetters.getFirstSigner();
-            //give signer 1 WETH so he can get LP tokens
-            var options = {value: DRE.ethers.utils.parseEther("1000.0")}
-            await myWETH.connect(signer).deposit(options);
-            var signerWeth = await myWETH.connect(signer).balanceOf(signer.address);
-            expect(
-              signerWeth.toString()
-            ).to.be.bignumber.equal(DRE.ethers.utils.parseEther("1000.0"), "Did not get WETH");
-          });
+        const BORROWING_MASK = 0x4
+      
 
           it("Deposit WETH as collateral and to be borrowed", async () => {
             //emergency deposits 100 WETH to pool to provide liquidity
@@ -124,6 +113,9 @@ makeSuite(
                 const tokenDec = await USDC.connect(signer).decimals();
                 const WETHdec = await myWETH.connect(signer).decimals();
                 const tokenConfig = config[symbol]
+                const tokenReserveData = await lendingPool.getReserveData(address, 0)
+                console.log("tokenReserveData.configuration & BORROWING_MASK: ", tokenReserveData.configuration & BORROWING_MASK)
+                const isBorrowable = tokenConfig.borrowingEnabled && (tokenReserveData.configuration & BORROWING_MASK) != 0
 
                 const origAmt = Math.round(Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec))
                 await setBalance(address, signer, origAmt.toString())
@@ -156,16 +148,23 @@ makeSuite(
                 console.log("Amount of aTokens: ", userResDat.currentATokenBalance.toString())
                 expect(Number(userResDat.currentATokenBalance.toString())).to.be.gte(Number(signerAmt.toString()), "Did not get atoken");
 
+                const amtInAtoken = await USDC.connect(signer).balanceOf(tokenReserveData.aTokenAddress)
+                const amtStaked = await USDC.connect(signer).balanceOf(await addProv.getIncentivesController())
+                expect(Number(amtInAtoken+amtStaked)).to.be.gte(Number(userResDat.currentATokenBalance.toString()), "amount transferred not equal");
+                console.log("amtInAtoken: ", amtInAtoken)
+
                 console.log("Passed deposit checks\n")
-                if(tokenConfig.borrowingEnabled){
+                if(isBorrowable){
                   console.log("Attempting max borrow of",symbol)
                   const tokenPrice = await oracle.connect(signer).callStatic.getAssetPrice(USDCadd);
                   console.log("Manual check: ",symbol," price is (USD) $",tokenPrice)
                   const wethPrice = await oracle.connect(signer).callStatic.getAssetPrice(WETHadd);
                   console.log("Manual check: weth price is (USD) $",wethPrice)
 
+                  const WETHLTV = (await lendingPool.getReserveData(WETHadd, 0))["baseLTV"]
+
                   const amountBorrowable = (
-                    amountWETH.mul(wethPrice).mul(WETHConfig.baseLTV).mul(ethers.utils.parseUnits("1",tokenDec))
+                    amountWETH.mul(wethPrice).mul(WETHLTV).mul(ethers.utils.parseUnits("1",tokenDec))
                   ).div
                   (
                     tokenPrice.mul(ethers.utils.parseUnits("1",WETHdec)).mul(tokenConfig.borrowFactor)
@@ -334,6 +333,9 @@ makeSuite(
                 if(userResDat.currentATokenBalance.toString()=="0") {
                   continue;
                 }
+
+                const amtInAtoken = await USDC.connect(signer).balanceOf(dat.aTokenAddress)
+                console.log("amtInAtoken: ", amtInAtoken)
 
                 /************************************************************************************/
                 /****************** deposit BAL to pool and then borrow WETH  **********************/ 

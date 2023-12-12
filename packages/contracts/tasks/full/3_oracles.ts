@@ -109,7 +109,7 @@ task("full:deploy-oracles", "Deploy oracles for dev enviroment")
         poolConfig.OracleQuoteUnit,
         poolConfig.OracleQuoteCurrency
       ));
-      if(network == "base_localhost" as eNetwork) {
+      if(network == "base_localhost" as eNetwork || network.startsWith("mainnet")) {
         await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators, false));
       } else {
         await waitForTx(await VMEXOracleProxy.setAssetSources(tokens2, aggregators, true));

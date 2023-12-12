@@ -86,11 +86,12 @@ task("full:deploy-lending-pool", "Deploy lending pool for dev enviroment")
         lendingPoolConfiguratorImplAddress
       );
       // Set lending pool conf impl to Address Provider
-      await waitForTx(
+      const tx= await waitForTx(
         await addressesProvider.setLendingPoolConfiguratorImpl(
           lendingPoolConfiguratorImplAddress || ""
         )
       );
+      console.log("    * gasUsed", tx.gasUsed.toString());
 
       const lendingPoolConfiguratorProxy =
         await getLendingPoolConfiguratorProxy(

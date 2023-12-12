@@ -196,6 +196,10 @@ makeSuite(
             if(currentAsset =="0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b") expectedPrice="172134021460"
             if(currentAsset =="0xc9b8a3fdecb9d5b218d02555a8baf332e5b740d5") expectedPrice="100972742"
             if(currentAsset == "0x1337BedC9D22ecbe766dF105c9623922A27963EC") expectedPrice="101870436"
+
+            if(currentAsset == "0x1E19CF2D73a72Ef1332C882F20534B6519Be0276") {
+              expectedPrice = 204923053396;
+             }
            }
            else if(strat.assetType == 2) {
             if(currentAsset == "0x98244d93d42b42ab3e3a4d12a5dc0b3e7f8f32f9") expectedPrice="414221316402"
@@ -316,6 +320,12 @@ makeSuite(
                }
                if(currentAsset == "0xC771c1a5905420DAEc317b154EB13e4198BA97D0") {
                 expectedPrice = 202544254059;
+               }
+               if(currentAsset == "0x93d199263632a4EF4Bb438F1feB99e57b4b5f0BD") {
+                expectedPrice = 190199620351;
+               }
+               if(currentAsset == "0x1E19CF2D73a72Ef1332C882F20534B6519Be0276") {
+                expectedPrice = 189376210000;
                }
            }
            else if(strat.assetType == 7) { //rETH

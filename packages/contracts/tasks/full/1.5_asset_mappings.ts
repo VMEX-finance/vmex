@@ -68,9 +68,12 @@ task("full:deploy-asset-mappings", "Deploy asset mappings for dev enviroment")
     //deploy AssetMappings
     const AssetMappingImpl = await deployAssetMapping();
 
-    await waitForTx(
+    console.log("addressesProvider.setAssetMappingsImpl: ")
+    const tx=await waitForTx(
       await addressesProvider.setAssetMappingsImpl(AssetMappingImpl.address)
     );
+
+    console.log("    * gasUsed", tx.gasUsed.toString());
 
     const assetMappings = await getAssetMappings(
       await addressesProvider.getAssetMappings()

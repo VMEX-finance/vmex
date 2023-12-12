@@ -17,8 +17,8 @@ export const CommonsConfig: ICommonConfiguration = {
   VariableDebtTokenNamePrefix: 'Vmex variable debt bearing',
   SymbolPrefix: '',
   ProviderId: 0, // Overriden in index.ts
-  OracleQuoteCurrency: 'ETH',
-  OracleQuoteDecimals: 18,
+  OracleQuoteCurrency: 'USD',
+  OracleQuoteDecimals: 8,
   OracleQuoteUnit: ethers.utils.parseUnits("1",8).toString(),
   ProtocolGlobalParams: {
     TokenDistributorPercentageBase: '10000',
@@ -106,7 +106,7 @@ export const CommonsConfig: ICommonConfiguration = {
         _curvePool: "0x21e27a5e5513d6e65c4f830167390997aa84843a",
       },
       "rETHCRV": {
-        _reentrancyType: 3, //REMOVE_LIQUIDITY_2
+        _reentrancyType: 7, //CLAIM_ADMIN_FEES
         _poolSize: "2",
         _curvePool: "0x0f3159811670c117c372428d4e69ac32325e4d0f",
       },
@@ -128,16 +128,20 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   ChainlinkAggregator: {
     [eMainnetNetwork.mainnet]: {
+      WETH: {
+        feed: '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419',
+        heartbeat: 3600
+      },
       stETH: {
-        feed: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
-        heartbeat: 86400
+        feed: '0xcfe54b5cd566ab89272946f602d76ea879cab4a8',
+        heartbeat: 3600
       },
       wstETH: {
-        feed: '0x86392dC19c0b719886221c78AB11eb8Cf5c52812',
+        feed: '0x8B6851156023f4f5A66F68BEA80851c3D905Ac93',
         heartbeat: 86400
       },
       rETH: {
-        feed: '0x536218f9E9Eb48863970252233c8F271f554C2d0',
+        feed: '0x05225Cd708bCa9253789C1374e4337a019e99D56',
         heartbeat: 86400
       },
     },

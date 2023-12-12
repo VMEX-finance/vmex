@@ -2,7 +2,9 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, utils, Contract } from "ethers";
 const { ethers } = require('hardhat')
 import { toBytes32, setStorageAt } from "../../helpers/token-fork";
-import { tEthereumAddress } from "../../helpers/types";
+import { eNetwork, tEthereumAddress } from "../../helpers/types";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
+import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 const fs = require('fs');
 
 const ERC20abi = [
@@ -22,10 +24,15 @@ interface SlotInfo {
     slot: bigint;
     isVyper: boolean;
   }
-  const WETHadd = "0x4200000000000000000000000000000000000006"
+  const network = process.env.FORK
+    if(!network) throw "No fork"
+    const poolConfig = loadPoolConfig(network as ConfigNames);
+  const WETHadd = getParamPerNetwork(poolConfig.WETH, network as eNetwork)
 
   const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
+  const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" // mainnet
   const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_utils/abis/velo.json").toString()
+  const UNISWAP_ROUTER_ABI = fs.readFileSync("./localhost_tests_utils/abis/uniswapAbi.json").toString()
 // doesn't work for SNX and sUSD
 export async function setBalance(tokenAddr: tEthereumAddress, signer: SignerWithAddress, balance: string) {
     if(tokenAddr == "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4" || tokenAddr == "0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9") {
@@ -37,6 +44,16 @@ export async function setBalance(tokenAddr: tEthereumAddress, signer: SignerWith
         var options = {value: ethers.utils.parseEther("1000.0")}
         
         await VELO_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseUnits("0.0", 18), [path], signer.address, deadline,options)
+    }
+    else if (tokenAddr == '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84') {
+        const UNISWAP_ROUTER_CONTRACT = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI)
+
+        const path = [WETHadd, tokenAddr];
+        // await myWETH.connect(signer).approve(VELO_ROUTER_ADDRESS,ethers.utils.parseEther("100000.0"))
+        var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
+        var options = {value: ethers.utils.parseEther("10.0")}
+        
+        await UNISWAP_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseUnits("0.0", 18), path, signer.address, deadline,options)
     }
     else {
         const slotInfo = await findBalancesSlot(tokenAddr);

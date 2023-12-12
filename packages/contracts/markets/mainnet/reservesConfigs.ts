@@ -50,7 +50,7 @@ export const strategywstETH: IReserveParams = {
   borrowingEnabled: true,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
-  assetType: 0,
+  assetType: 8, //CL price adapter type
   supplyCap: '100000', 
   borrowCap: '24000', 
   borrowFactor: ethers.utils.parseUnits('1.2',18).toString(), 
@@ -65,7 +65,7 @@ export const strategyrETH: IReserveParams = {
   borrowingEnabled: true,
   reserveDecimals: '18',
   aTokenImpl: eContractid.AToken,
-  assetType: 0,
+  assetType: 8, //CL price adapter type
   supplyCap: '60000', 
   borrowCap: '19200', 
   borrowFactor: ethers.utils.parseUnits('1.25',18).toString(), 
