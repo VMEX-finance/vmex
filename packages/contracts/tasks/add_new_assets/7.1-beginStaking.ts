@@ -40,8 +40,8 @@ task(`add-beginStaking`, `setup staking and begin staking for tranche 0`)
     const tokensList = Object.values(tokens)
     const symbolsList = Object.keys(tokens)
 
-    const incentivesController = await getIncentivesControllerProxy();
-    const lendingPool = await getLendingPool();
+    const incentivesController = await getIncentivesControllerProxy(undefined, true);
+    const lendingPool = await getLendingPool(undefined, true);
 
     for(let i = 0; i<tokensList.length;i++) {
       const token = await lendingPool.getReserveData(tokensList[i], 0);
