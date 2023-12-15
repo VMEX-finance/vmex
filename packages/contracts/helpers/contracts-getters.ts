@@ -35,7 +35,7 @@ import {
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
-import { DRE, getDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
+import { DRE, getDb, getProdDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
 import {
   eContractid,
   IChainlinkInternal,
@@ -58,12 +58,13 @@ export const getDbEntry = async (
       ).value()
 
 export const getLendingPoolAddressesProvider = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await LendingPoolAddressesProviderFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.LendingPoolAddressesProvider}.${DRE.network.name}`
           )
@@ -74,12 +75,13 @@ export const getLendingPoolAddressesProvider = async (
 };
 
 export const getValidationLogic = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await ValidationLogicFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.ValidationLogic}.${DRE.network.name}`)
           .value()
       ).address,
@@ -88,12 +90,13 @@ export const getValidationLogic = async (
 };
 
 export const getDepositWithdrawLogic = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await DepositWithdrawLogicFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.DepositWithdrawLogic}.${DRE.network.name}`)
           .value()
       ).address,
@@ -101,12 +104,13 @@ export const getDepositWithdrawLogic = async (
   );
 };
 export const getLendingPoolConfiguratorProxy = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await LendingPoolConfiguratorFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.LendingPoolConfigurator}.${DRE.network.name}`)
           .value()
       ).address,
@@ -115,12 +119,13 @@ export const getLendingPoolConfiguratorProxy = async (
 };
 
 export const getATokenBeacon = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await UpgradeableBeaconFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.ATokenBeacon}.${DRE.network.name}`)
           .value()
       ).address,
@@ -129,12 +134,13 @@ export const getATokenBeacon = async (
 };
 
 export const getVariableDebtTokenBeacon = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await UpgradeableBeaconFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.VariableDebtTokenBeacon}.${DRE.network.name}`)
           .value()
       ).address,
@@ -143,12 +149,13 @@ export const getVariableDebtTokenBeacon = async (
 };
 
 export const getAssetMappings = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await AssetMappingsFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.AssetMappings}.${DRE.network.name}`)
           .value()
       ).address,
@@ -157,12 +164,13 @@ export const getAssetMappings = async (
 };
 
 export const getAssetMappingsImpl = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) => {
   return await AssetMappingsFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.AssetMappingsImpl}.${DRE.network.name}`)
           .value()
       ).address,
@@ -170,42 +178,54 @@ export const getAssetMappingsImpl = async (
   );
 };
 
-export const getLendingPool = async (address?: tEthereumAddress) =>
+export const getLendingPool = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await LendingPoolFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.LendingPool}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getPriceOracle = async (address?: tEthereumAddress) =>
+export const getPriceOracle = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await PriceOracleFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.PriceOracle}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getAToken = async (address?: tEthereumAddress) =>
+export const getAToken = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await ATokenFactory.connect(
     address ||
       (
-        await getDb().get(`${eContractid.AToken}.${DRE.network.name}`).value()
+        (isProd ? await getProdDb() : await getDb()).get(`${eContractid.AToken}.${DRE.network.name}`).value()
       ).address,
     await getFirstSigner()
   );
 
-export const getVariableDebtToken = async (address?: tEthereumAddress) =>
+export const getVariableDebtToken = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await VariableDebtTokenFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.VariableDebtToken}.${DRE.network.name}`)
           .value()
       ).address,
@@ -216,7 +236,7 @@ export const getMintableERC20 = async (address: tEthereumAddress) =>
   await MintableERC20Factory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.MintableERC20}.${DRE.network.name}`)
           .value()
       ).address,
@@ -227,7 +247,7 @@ export const getYearnTokenMocked = async (address: tEthereumAddress) =>
   await YearnTokenMockedFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.MintableERC20}.${DRE.network.name}`)
           .value()
       ).address,
@@ -238,29 +258,35 @@ export const getIErc20Detailed = async (address: tEthereumAddress) =>
   await IERC20DetailedFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.IERC20Detailed}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getAaveProtocolDataProvider = async (address?: tEthereumAddress) =>
+export const getAaveProtocolDataProvider = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await AaveProtocolDataProviderFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.AaveProtocolDataProvider}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getInterestRateStrategy = async (address?: tEthereumAddress) =>
+export const getInterestRateStrategy = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await DefaultReserveInterestRateStrategyFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.DefaultReserveInterestRateStrategy}.${DRE.network.name}`
           )
@@ -364,13 +390,14 @@ export const getPairsTokenAggregator = (
 };
 
 export const getLendingPoolAddressesProviderRegistry = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) =>
   await LendingPoolAddressesProviderRegistryFactory.connect(
     notFalsyOrZeroAddress(address)
       ? address
       : (
-          await getDb()
+          (isProd ? await getProdDb() : await getDb())
             .get(
               `${eContractid.LendingPoolAddressesProviderRegistry}.${DRE.network.name}`
             )
@@ -379,77 +406,98 @@ export const getLendingPoolAddressesProviderRegistry = async (
     await getFirstSigner()
   );
 
-export const getReserveLogic = async (address?: tEthereumAddress) =>
+export const getReserveLogic = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await ReserveLogicFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.ReserveLogic}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getGenericLogic = async (address?: tEthereumAddress) =>
+export const getGenericLogic = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await GenericLogicFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.GenericLogic}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getWETHGateway = async (address?: tEthereumAddress) =>
+export const getWETHGateway = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await WETHGatewayFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.WETHGateway}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getWETHMocked = async (address?: tEthereumAddress) =>
+export const getWETHMocked = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await WETH9MockedFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.WETHMocked}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getMockAToken = async (address?: tEthereumAddress) =>
+export const getMockAToken = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await MockATokenFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.MockAToken}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getMockVariableDebtToken = async (address?: tEthereumAddress) =>
+export const getMockVariableDebtToken = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await MockVariableDebtTokenFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.MockVariableDebtToken}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
 
-export const getSelfdestructTransferMock = async (address?: tEthereumAddress) =>
+export const getSelfdestructTransferMock = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await SelfdestructTransferFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.SelfdestructTransferMock}.${DRE.network.name}`)
           .value()
       ).address,
@@ -462,11 +510,14 @@ export const getProxy = async (address: tEthereumAddress) =>
     await getFirstSigner()
   );
 
-export const getLendingPoolImpl = async (address?: tEthereumAddress) =>
+export const getLendingPoolImpl = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await LendingPoolFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.LendingPoolImpl}.${DRE.network.name}`)
           .value()
       ).address,
@@ -474,12 +525,13 @@ export const getLendingPoolImpl = async (address?: tEthereumAddress) =>
   );
 
 export const getLendingPoolConfiguratorImpl = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) =>
   await LendingPoolConfiguratorFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.LendingPoolConfiguratorImpl}.${DRE.network.name}`)
           .value()
       ).address,
@@ -487,12 +539,13 @@ export const getLendingPoolConfiguratorImpl = async (
   );
 
 export const getLendingPoolCollateralManagerImpl = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) =>
   await LendingPoolCollateralManagerFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.LendingPoolCollateralManagerImpl}.${DRE.network.name}`
           )
@@ -501,11 +554,14 @@ export const getLendingPoolCollateralManagerImpl = async (
     await getFirstSigner()
   );
 
-export const getWalletProvider = async (address?: tEthereumAddress) =>
+export const getWalletProvider = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await WalletBalanceProviderFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.WalletBalanceProvider}.${DRE.network.name}`)
           .value()
       ).address,
@@ -513,12 +569,13 @@ export const getWalletProvider = async (address?: tEthereumAddress) =>
   );
 
 export const getLendingPoolCollateralManager = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) =>
   await LendingPoolCollateralManagerFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.LendingPoolCollateralManager}.${DRE.network.name}`
           )
@@ -530,45 +587,55 @@ export const getLendingPoolCollateralManager = async (
 export const getAddressById = async (
   id: string
 ): Promise<tEthereumAddress | undefined> =>
-  (await getDb().get(`${id}.${DRE.network.name}`).value())?.address ||
+  ((isProd ? await getProdDb() : await getDb()).get(`${id}.${DRE.network.name}`).value())?.address ||
   undefined;
 
-export const getVMEXOracle = async (address?: tEthereumAddress) =>
+export const getVMEXOracle = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await VMEXOracleFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.VMEXOracle}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
-  export const getBaseUniswapOracle = async (address?: tEthereumAddress) =>
+  export const getBaseUniswapOracle = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await BaseUniswapOracleFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${eContractid.BaseUniswapOracle}.${DRE.network.name}`)
           .value()
       ).address,
     await getFirstSigner()
   );
-export const getConvexBooster = async (address?: tEthereumAddress) =>
+export const getConvexBooster = async (
+  address?: tEthereumAddress,
+  isProd?: boolean
+) =>
   await BoosterFactory.connect(
     address ||
       (
-        await getDb().get(`${eContractid.Booster}.${DRE.network.name}`).value()
+        (isProd ? await getProdDb() : await getDb()).get(`${eContractid.Booster}.${DRE.network.name}`).value()
       ).address,
     await getFirstSigner()
   );
 
 export const getIncentivesControllerImpl = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) =>
   await IncentivesControllerFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.IncentivesControllerImpl}.${DRE.network.name}`
           )
@@ -578,12 +645,13 @@ export const getIncentivesControllerImpl = async (
   );
 
 export const getMockIncentivesControllerImpl = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) =>
   await MockIncentivesControllerFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.MockIncentivesControllerImpl}.${DRE.network.name}`
           )
@@ -593,12 +661,14 @@ export const getMockIncentivesControllerImpl = async (
   );
 
 export const getIncentivesControllerProxy = async (
-  address?: tEthereumAddress
-) =>
-  await IncentivesControllerFactory.connect(
+  address?: tEthereumAddress,
+  isProd?: boolean
+) => {
+  console.log("DRE.network.name: ", DRE.network.name)
+  return await IncentivesControllerFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.IncentivesControllerProxy}.${DRE.network.name}`
           )
@@ -606,6 +676,8 @@ export const getIncentivesControllerProxy = async (
       ).address,
     await getFirstSigner()
   );
+}
+  
 
 export const getATokenMock = async ({
   address,
@@ -617,7 +689,7 @@ export const getATokenMock = async ({
   await ATokenMockFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${slug || eContractid.ATokenMock}.${DRE.network.name}`
           )
@@ -627,12 +699,13 @@ export const getATokenMock = async ({
   );
 
 export const getVmexToken = async (
-  address?: tEthereumAddress
+  address?: tEthereumAddress,
+  isProd?: boolean
 ) =>
   await VmexTokenFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(
             `${eContractid.VmexToken}.${DRE.network.name}`
           )
@@ -651,7 +724,7 @@ export const getVmexToken = async (
   await StakingRewardsMockFactory.connect(
     address ||
       (
-        await getDb()
+        (isProd ? await getProdDb() : await getDb())
           .get(`${slug || eContractid.StakingRewardsMock}.${DRE.network.name}`)
           .value()
       ).address,
