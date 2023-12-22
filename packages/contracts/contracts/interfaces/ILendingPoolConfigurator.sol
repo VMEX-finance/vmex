@@ -17,7 +17,7 @@ interface ILendingPoolConfigurator {
     }
 
     struct ConfigureCollateralParamsInput {
-        address underlyingAsset; 
+        address underlyingAsset;
         ConfigureCollateralParams collateralParams;
     }
 
@@ -36,7 +36,7 @@ interface ILendingPoolConfigurator {
      * @param factor The new reserve factor
      **/
     event ReserveFactorChanged(address indexed asset, uint64 indexed trancheId, uint256 factor);
-    event TrancheNameChanged(uint64 indexed trancheId, string indexed name);
+    event TrancheNameChanged(uint64 indexed trancheId, string name);
     event AddedWhitelistedDepositBorrow(address indexed user);
 
     event UpdatedTreasuryAddress(uint64 trancheId, address newAddress);
