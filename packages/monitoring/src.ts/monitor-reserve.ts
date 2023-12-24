@@ -28,8 +28,13 @@ export function getProviderRpcUrl(network: string): string {
 
 const ROUNDING_ERROR = 100;
 
+// failing 6 times in a row means 30 minutes of not receiving data
+const RPC_FAIL_THRESHOLD = 6;
+
 // used to cache the last reserve summary: network -> asset -> summary
 let lastReserveSummary: Map<string, Map<string, ReserveSummary>> = new Map();
+// map of network name -> number of times it failed in a row
+let rpcHealth: Map<string, number> = new Map();
 
 function cacheKey(reserve: ReserveSummary): string {
   return `${reserve.asset}:${reserve.tranche}`;
@@ -103,16 +108,25 @@ export class MonitorReserves {
   private async _tryToMonitorNetwork(network: string): Promise<void> {
     try {
       await this._monitorAllReserves(network);
+      rpcHealth[network] = 0;
     } catch (e) {
       console.error(e);
-      this.alerts.push(
-        formatAlert(
-          `Unable to monitor network ${network}. Failed with error: ${e
-            .toString()
-            .substring(0, 100)}`,
-          3
-        )
-      );
+      if (rpcHealth[network] === undefined) {
+        rpcHealth[network] = 0;
+      }
+      rpcHealth[network] += 1;
+
+      if (rpcHealth[network] >= RPC_FAIL_THRESHOLD) {
+        this.alerts.push(
+          formatAlert(
+            `Unable to monitor network ${network}. Failed with error: ${e
+              .toString()
+              .substring(0, 100)}`,
+            3
+          )
+        );
+        rpcHealth[network] = 0;
+      }
     }
   }
 
