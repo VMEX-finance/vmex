@@ -16,7 +16,8 @@ export function getProviderRpcUrl(network: string): string {
   if (network == "sepolia") {
     return "https://eth-sepolia.public.blastapi.io";
   } else if (network == "optimism") {
-    return `https://optimism.llamarpc.com/rpc/${process.env.REACT_APP_LLAMA_RPC_KEY}`;
+    // return `https://optimism.llamarpc.com/rpc/${process.env.REACT_APP_LLAMA_RPC_KEY}`;
+    return `https://optimism-mainnet.public.blastapi.io`;
   } else if (network == "base") {
     return `https://base-mainnet.public.blastapi.io`;
   } else if (network == "arbitrum") {
