@@ -464,3 +464,139 @@ export const strategyBeethovenrETHETH: IReserveParams = {
   borrowFactor: '1000000000000000000',
   reserveFactor: '150000000000000000',  
 };
+
+export const strategyVelowstETHOP: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '300000000000000000', 
+  liquidationThreshold: '400000000000000000',
+  liquidationBonus: '1100000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 5, //5 is enum for velo
+  supplyCap: '2000', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+export const strategyVeloWETHOP: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '300000000000000000', 
+  liquidationThreshold: '400000000000000000',
+  liquidationBonus: '1100000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 5, //5 is enum for velo
+  supplyCap: '3000', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+export const strategyVeloUSDCOP: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '300000000000000000', 
+  liquidationThreshold: '400000000000000000',
+  liquidationBonus: '1100000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 5, //5 is enum for velo
+  supplyCap: '0.1', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+export const strategyyvVeloUSDCsUSD: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '500000000000000000', 
+  liquidationThreshold: '550000000000000000',
+  liquidationBonus: '1120000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 3, // 3 is the enum for yearn
+  supplyCap: '0', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+export const strategyyvVeloWETHUSDC: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '500000000000000000', 
+  liquidationThreshold: '550000000000000000',
+  liquidationBonus: '1120000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 3, // 3 is the enum for yearn
+  supplyCap: '0', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+export const strategyyvVelowstETHWETH: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '500000000000000000', 
+  liquidationThreshold: '550000000000000000',
+  liquidationBonus: '1120000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 3, // 3 is the enum for yearn
+  supplyCap: '0', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+
+export const strategyyvVelowstETHOP: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '300000000000000000', 
+  liquidationThreshold: '400000000000000000',
+  liquidationBonus: '1120000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 3, // 3 is the enum for yearn
+  supplyCap: '0', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+export const strategyyvVeloWETHOP: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '300000000000000000', 
+  liquidationThreshold: '400000000000000000',
+  liquidationBonus: '1120000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 3,
+  supplyCap: '0', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};
+
+export const strategyyvVeloUSDCOP: IReserveParams = {
+  strategy: rateStrategyUnborrowable,
+  baseLTVAsCollateral: '300000000000000000', 
+  liquidationThreshold: '400000000000000000',
+  liquidationBonus: '1120000000000000000', 
+  borrowingEnabled: false,
+  reserveDecimals: '18', 
+  aTokenImpl: eContractid.AToken,
+  assetType: 3,
+  supplyCap: '0', 
+  borrowCap: '0',
+  borrowFactor: '1000000000000000000', //100% for now
+  reserveFactor: '150000000000000000',
+};

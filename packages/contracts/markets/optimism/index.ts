@@ -33,7 +33,16 @@ import {
   strategyVeloUSDTUSDC,
   strategyVeloLUSDWETH,
   strategyVeloLUSDUSDC,
-  strategyBeethovenrETHETH
+  strategyBeethovenrETHETH,
+  strategyVeloUSDCOP,
+  strategyVeloWETHOP,
+  strategyVelowstETHOP,
+  strategyyvVeloUSDCOP,
+  strategyyvVeloUSDCsUSD,
+  strategyyvVeloWETHOP,
+  strategyyvVeloWETHUSDC,
+  strategyyvVelowstETHOP,
+  strategyyvVelowstETHWETH
 } from './reservesConfigs';
 
 // ----------------
@@ -92,6 +101,15 @@ export const OptimismConfig: IOptimismConfiguration = {
     LUSD: strategyLUSD,
     "vAMMV2-WETH/LUSD": strategyVeloLUSDWETH,
     "sAMMV2-USDC/LUSD": strategyVeloLUSDUSDC,
+    "vAMMV2-wstETH/OP": strategyVelowstETHOP,
+    "vAMMV2-WETH/OP": strategyVeloWETHOP,
+    "vAMMV2-USDC/OP": strategyVeloUSDCOP,
+    "yv-sAMMV2-USDC/sUSD": strategyyvVeloUSDCsUSD,
+    "yv-vAMMV2-WETH/USDC": strategyyvVeloWETHUSDC,
+    "yv-vAMMV2-wstETH/WETH": strategyyvVelowstETHWETH,
+    "yv-vAMMV2-wstETH/OP": strategyyvVelowstETHOP,
+    "yv-vAMMV2-WETH/OP": strategyyvVeloWETHOP,
+    "yv-vAMMV2-USDC/OP": strategyyvVeloUSDCOP,
   },
   ReserveAssets: {
     [eOptimismNetwork.optimism]: {
@@ -146,6 +164,17 @@ export const OptimismConfig: IOptimismConfiguration = {
       yvUSDT: '0xFaee21D0f0Af88EE72BB6d68E54a90E6EC2616de',
       yvDAI: '0x65343F414FFD6c97b0f6add33d16F6845Ac22BAc',
       yvWETH: '0x5B977577Eb8a480f63e11FC615D6753adB8652Ae',
+      
+      "vAMMV2-wstETH/OP": '0x7178F61694ba9109205B8d6F686282307625e62D',
+      // "vAMMV2-WETH/OP": '0xd25711EdfBf747efCE181442Cc1D8F5F8fc8a0D3',
+      // "vAMMV2-USDC/OP": '0x0df083de449F75691fc5A36477a6f3284C269108',
+
+      // "yv-sAMMV2-USDC/sUSD": '0x1B1d2EfB6045851F8ccdE24369003e0fF157980b',
+      // "yv-vAMMV2-WETH/USDC": '0xF89FdBBCE1A707061e9d59B8E4387f89798B4d10',
+      // "yv-vAMMV2-wstETH/WETH": '0x6Ec9d003f0e5184Ee54c1d899B414322a0f0Dc07',
+      // "yv-vAMMV2-wstETH/OP": '0x830cB4AabF786b9349d9701dD8ee073215d95174',
+      // "yv-vAMMV2-WETH/OP": '0xDdDCAeE873f2D9Df0E18a80709ef2B396d4a6EA5',
+      // "yv-vAMMV2-USDC/OP": '0x3AD9566b15AACDd26d8a220cA8635F925EA7a3f6',
     },
   },
 };

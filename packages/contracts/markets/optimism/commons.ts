@@ -302,6 +302,18 @@ export const CommonsConfig: ICommonConfiguration = {
         address: "0xD53cCBfED6577d8dc82987e766e75E3cb73a8563",
         type: 4,
       },
+      "vAMMV2-wstETH/OP": {
+        address: "0x790b716a4ccd256cb8ede4d638a103e130da5b19",
+        type: 2,
+      },
+      "vAMMV2-WETH/OP": {
+        address: "0xcc53cd0a8ec812d46f0e2c7cc5aadd869b6f0292",
+        type: 2,
+      },
+      "vAMMV2-USDC/OP": {
+        address: "0x36691b39ec8fa915204ba1e1a4a3596994515639",
+        type: 2,
+      },
     },
   },
 };
