@@ -16,20 +16,22 @@ task('add:assets', 'Add assets to existing deployment')
 
     console.log('Adding new assets started\n');
 
-    // console.log("1.5. Deploy asset mappings");
-    // await DRE.run("add:deploy-asset-mappings", { pool: POOL_NAME });
+    console.log("1. Upgrade any necessary contracts");
+    await DRE.run("add:upgrade-contracts", { pool: POOL_NAME });
 
-    // console.log('3. Deploy oracles');
-    // await DRE.run('add:deploy-oracles', { pool: POOL_NAME });
+    console.log("1.5. Deploy asset mappings");
+    await DRE.run("add:deploy-asset-mappings", { pool: POOL_NAME });
 
-    // console.log('6. modify lending pool');
-    // await DRE.run('add:modify-lending-pool-tranches-0-Base', { pool: POOL_NAME });
+    console.log('3. Deploy oracles');
+    await DRE.run('add:deploy-oracles', { pool: POOL_NAME });
 
-    // console.log('7. Set staking types for tranche 0');
-    // await DRE.run('add-setStakingTypes', { pool: POOL_NAME });
+    console.log('6. modify lending pool');
+    await DRE.run('add:modify-lending-pool-tranches-0-Base', { pool: POOL_NAME });
 
-    console.log('7.1 Begin staking for tranche 0');
-    await DRE.run('add-beginStaking', { pool: POOL_NAME });
+    console.log('7. Set staking types for tranche 0');
+    await DRE.run('add-setStakingTypes', { pool: POOL_NAME });
+
+    console.log('Begin staking for tranche 0 needs to be done after atokens have been deployed.');
 
     console.log('\nFinished adding');
   });

@@ -8,7 +8,7 @@ import { getLendingPool, getWETHGateway } from "../../helpers/contracts-getters"
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
-  getTranche0DataBase,
+  getTranche0DataBase, getTranche0DataOP,
 } from "../../helpers/init-helpers";
 import { exit } from "process";
 import { ZERO_ADDRESS } from "../../helpers/constants";
@@ -42,8 +42,10 @@ task(
       console.log("before initReservesByHelper");
 
       // TODO: use real data for tranches that we want to deploy
-
-      let [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataBase(reserveAssets);
+      let assets0, reserveFactors0, canBorrow0, canBeCollateral0;
+      if(network=="base") [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataBase(reserveAssets);
+      else if(network == "optimism") [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataOP(reserveAssets);
+      else throw "network not supported yet in modifyExistingTranche"
       const lendingpool = await getLendingPool();
       // Initialize variables for future reserves initialization
       let initInputParams: {

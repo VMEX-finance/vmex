@@ -125,7 +125,7 @@ makeSuite(
                 const WETHdec = await myWETH.connect(signer).decimals();
                 const tokenConfig = config[symbol]
 
-                const origAmt = Math.round(Math.min(10.0, Number(tokenConfig.supplyCap)) * 10**Number(tokenDec))
+                const origAmt = Math.round(Math.min(10.0, Number(tokenConfig.supplyCap) == 0 ? 10.0 : Number(tokenConfig.supplyCap)) * 10**Number(tokenDec))
                 await setBalance(address, signer, origAmt.toString())
                 var signerOrigAmt = await USDC.connect(signer).balanceOf(signer.address)
                 //give some to emergency so they can repay debt

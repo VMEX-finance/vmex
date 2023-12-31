@@ -108,8 +108,7 @@ const submitCurveMetadata = async (
         continue;
       }
       const existingCurveMetadata = await assetMappings.getCurveMetadata(tokenAddresses[symbol])
-      console.log("existingCurveMetadata: ", existingCurveMetadata)
-      if(!existingCurveMetadata && !isTestNetwork()) continue
+      if(existingCurveMetadata && !isTestNetwork()) continue
       curveToken.push(tokenAddresses[symbol]);
       curveParams.push(params);
     }
@@ -535,6 +534,12 @@ export const getTranche0DataOP = (allReservesAddresses: {
     allReservesAddresses["yvUSDT"],
     allReservesAddresses["yvDAI"],
     allReservesAddresses["yvWETH"],
+    allReservesAddresses["yv-sAMMV2-USDC/sUSD"],
+    allReservesAddresses["yv-vAMMV2-WETH/USDC"],
+    allReservesAddresses["yv-vAMMV2-wstETH/WETH"],
+    allReservesAddresses["yv-vAMMV2-wstETH/OP"],
+    allReservesAddresses["yv-vAMMV2-WETH/OP"],
+    allReservesAddresses["yv-vAMMV2-USDC/OP"],
   ];
 
   let reserveFactors0: string[] = [];

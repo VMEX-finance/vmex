@@ -436,6 +436,15 @@ export interface iAssetBase<T> {
   "WETH-OP-USDC-BPT": T;
   "cbETHWETHCRV": T;
   "vAMM-WETH/DAI": T;
+  "vAMMV2-wstETH/OP": T;
+  "vAMMV2-WETH/OP": T;
+  "vAMMV2-USDC/OP": T;
+  "yv-sAMMV2-USDC/sUSD": T;
+  "yv-vAMMV2-WETH/USDC": T;
+  "yv-vAMMV2-wstETH/WETH": T;
+  "yv-vAMMV2-wstETH/OP": T;
+  "yv-vAMMV2-WETH/OP": T;
+  "yv-vAMMV2-USDC/OP": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -576,6 +585,15 @@ export type iOptimismPoolAssets<T> = Partial<
     | "LUSD"
     | "vAMMV2-WETH/LUSD"
     | "sAMMV2-USDC/LUSD"
+    | "vAMMV2-wstETH/OP"
+    | "vAMMV2-WETH/OP"
+    | "vAMMV2-USDC/OP"
+    | "yv-sAMMV2-USDC/sUSD"
+    | "yv-vAMMV2-WETH/USDC"
+    | "yv-vAMMV2-wstETH/WETH"
+    | "yv-vAMMV2-wstETH/OP"
+    | "yv-vAMMV2-WETH/OP"
+    | "yv-vAMMV2-USDC/OP"
   >
 >;
 
