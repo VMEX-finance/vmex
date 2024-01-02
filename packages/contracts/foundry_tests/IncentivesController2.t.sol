@@ -1,20 +1,24 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19;
 
-import {Test, console2} from "forge-std/Test.sol";
+import "forge-std/Test.sol";
 import {LendingPool} from "../contracts/protocol/lendingpool/LendingPool.sol";
 import {IncentivesController} from "../contracts/protocol/incentives/IncentivesController2.sol";
 import {ILendingPool} from "../contracts/interfaces/ILendingPool.sol";
 import {ILendingPoolAddressesProvider} from "../contracts/interfaces/ILendingPoolAddressesProvider.sol";
 import {IAssetMappings} from "../contracts/interfaces/IAssetMappings.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {MockERC20} from "forge-std/mocks/MockERC20.sol";
 import {DataTypes} from "../contracts/protocol/libraries/types/DataTypes.sol";
+import {IDistributionManager} from "../contracts/interfaces/IDistributionManager.sol";
 
-contract DistributionManagerTest is Test {
+contract IncentivesController2Test is Test {
     uint256 optimismFork;
     IncentivesController incentivesController = IncentivesController(0x8E2a4c71906640B058051c00783160bE306c38fE);
     ILendingPool lendingPool = ILendingPool(0x60F015F66F3647168831d31C7048ca95bb4FeaF9);
     ILendingPoolAddressesProvider addressesProvider = ILendingPoolAddressesProvider(0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0);
+
+    MockERC20 dVmexMock;
 
     address TOKEN_WETH = 0x4200000000000000000000000000000000000006;
     address TOKEN_USDC = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
@@ -29,13 +33,15 @@ contract DistributionManagerTest is Test {
 
     IAssetMappings ASSET_MAPPINGS = IAssetMappings(0x48CB441A85d6EA9798C72c4a1829658D786F3027);
 
-
     address MULTISIG = 0x599e1DE505CfD6f10F64DD7268D856831f61627a;
-    
+
+    bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     function setUp() public {
         optimismFork = vm.createFork(vm.envString("OPTIMISM_RPC_URL"));
         vm.selectFork(optimismFork);
+
+        dVmexMock = new MockERC20();
 
         vm.label(address(lendingPool), "lendingPool");
         vm.label(TOKEN_WETH, "WETH");
@@ -58,14 +64,29 @@ contract DistributionManagerTest is Test {
     }
 
     function testUpgrade() public {
+        bytes32 oldImpl = vm.load(addressesProvider.getIncentivesController(), IMPLEMENTATION_SLOT);
+
         _upgradeIncentivesController();
 
-        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(address(TOKEN_USDC), TRANCHE_ID);
-
-        assertEq(incentivesController.getAssetRewardsNum(reserveData.aTokenAddress), 0);
+        assertFalse(oldImpl == vm.load(addressesProvider.getIncentivesController(), IMPLEMENTATION_SLOT));
     }
 
     function testConfigureRewards() public {
-        
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, TRANCHE_ID);
+
+        IDistributionManager.RewardConfig[] memory config = IDistributionManager.RewardConfig[](1);
+        config[0] = IDistributionManager.RewardConfig({
+            emissionPerSecond: 1,
+            endTimestamp: block.timestamp + 14 days,
+            incentivizedAsset: reserveData.aTokenAddress,
+            reward: 
+        });
+        incentivesController.configureRewards(config);
+
+
+    // uint128 emissionPerSecond;
+    // uint128 endTimestamp;
+    // address incentivizedAsset;
+    // address reward;
     }
 }
