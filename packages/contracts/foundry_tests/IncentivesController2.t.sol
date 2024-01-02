@@ -8,9 +8,9 @@ import {ILendingPool} from "../contracts/interfaces/ILendingPool.sol";
 import {ILendingPoolAddressesProvider} from "../contracts/interfaces/ILendingPoolAddressesProvider.sol";
 import {IAssetMappings} from "../contracts/interfaces/IAssetMappings.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
-import {MockERC20} from "forge-std/mocks/MockERC20.sol";
 import {DataTypes} from "../contracts/protocol/libraries/types/DataTypes.sol";
 import {IDistributionManager} from "../contracts/interfaces/IDistributionManager.sol";
+import {MockERC20} from "solmate/test/utils/mocks/MockERC20.sol";
 
 contract IncentivesController2Test is Test {
     uint256 optimismFork;
@@ -41,7 +41,7 @@ contract IncentivesController2Test is Test {
         optimismFork = vm.createFork(vm.envString("OPTIMISM_RPC_URL"));
         vm.selectFork(optimismFork);
 
-        dVmexMock = new MockERC20();
+        dVmexMock = new MockERC20("dVMEX", "dVMEX", 18);
 
         vm.label(address(lendingPool), "lendingPool");
         vm.label(TOKEN_WETH, "WETH");
@@ -72,21 +72,25 @@ contract IncentivesController2Test is Test {
     }
 
     function testConfigureRewards() public {
+        vm.startPrank(MULTISIG);
+
         DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, TRANCHE_ID);
 
-        IDistributionManager.RewardConfig[] memory config = IDistributionManager.RewardConfig[](1);
+        IDistributionManager.RewardConfig[] memory config = new IDistributionManager.RewardConfig[](1);
         config[0] = IDistributionManager.RewardConfig({
             emissionPerSecond: 1,
-            endTimestamp: block.timestamp + 14 days,
+            endTimestamp: uint128(block.timestamp + 14 days),
             incentivizedAsset: reserveData.aTokenAddress,
-            reward: 
+            reward: address(dVmexMock)
         });
         incentivesController.configureRewards(config);
 
-
-    // uint128 emissionPerSecond;
-    // uint128 endTimestamp;
-    // address incentivizedAsset;
-    // address reward;
+        assertEq(incentivesController.getAssetRewardsNum(reserveData.aTokenAddress), 1);
+        assertEq(incentivesController.getAssetRewardAddress(reserveData.aTokenAddress, 0), address(dVmexMock));
+        (uint128 emissionPerSecond, uint128 lastUpdateTimestamp, uint256 index, uint128 endTimestamp) = incentivesController.getAssetReward(reserveData.aTokenAddress, address(dVmexMock));
+        assertEq(emissionPerSecond, 1);
+        assertEq(lastUpdateTimestamp, 0);
+        assertEq(index, 0);
+        assertEq(endTimestamp, uint128(block.timestamp + 14 days));
     }
 }

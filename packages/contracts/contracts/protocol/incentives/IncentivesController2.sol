@@ -244,4 +244,22 @@ contract IncentivesController is
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
     }
+
+    function getAssetRewardsNum(address asset) external view returns (uint256) {
+        return _incentivizedAssets[asset].numRewards;
+    }
+
+    function getAssetRewardAddress(address asset, uint256 index) external view returns (address) {
+        return _incentivizedAssets[asset].rewardList[index];
+    }
+
+    function getAssetReward(address asset, address rewardAddress)
+        external
+        view
+        returns (uint128, uint128, uint256, uint128)
+    {
+        DistributionTypes.Reward storage reward = _incentivizedAssets[asset].rewardData[rewardAddress];
+
+        return (reward.emissionPerSecond, reward.lastUpdateTimestamp, reward.index, reward.endTimestamp);
+    }
 }
