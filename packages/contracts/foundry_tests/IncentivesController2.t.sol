@@ -46,6 +46,11 @@ contract IncentivesController2Test is Test {
     uint256 FIVE_YEARS = 5 * 365 days;
 
     address VE_VMEX_DEPOSIT_TOKEN;
+    
+    address[] users;
+    uint256[] usdcDepositAmounts;
+    uint256[] vmexLpLockAmounts;
+    uint256[] vmexLpLockDurations;
 
     function setUp() public {
         optimismFork = vm.createFork(vm.envString("OPTIMISM_RPC_URL"));
@@ -54,6 +59,8 @@ contract IncentivesController2Test is Test {
         dVmexMock = new MockERC20("dVMEX", "dVMEX", 18);
 
         VE_VMEX_DEPOSIT_TOKEN = IVeVmex(VE_VMEX).token();
+
+        _createUsers();
 
         vm.label(address(lendingPool), "lendingPool");
         vm.label(TOKEN_WETH, "WETH");
@@ -64,6 +71,39 @@ contract IncentivesController2Test is Test {
         vm.label(address(ASSET_MAPPINGS), "ASSET_MAPPINGS");
         vm.label(OP_TEST_USER, "OPTIMISM_TEST_USER");
         vm.label(address(incentivesController), "INCENTIVES_CONTROLLER");
+    }
+
+    function _createUsers() internal {
+        users.push(makeAddr('alice'));
+        usdcDepositAmounts.push(1e9);
+        vmexLpLockAmounts.push(1e20);
+        vmexLpLockDurations.push(365 days);
+
+        users.push(makeAddr('bob'));
+        usdcDepositAmounts.push(1e9);
+        vmexLpLockAmounts.push(1e20);
+        vmexLpLockDurations.push(2 * 365 days);
+
+        users.push(makeAddr('eve'));
+        usdcDepositAmounts.push(1e9);
+        vmexLpLockAmounts.push(1e20);
+        vmexLpLockDurations.push(3 * 365 days);
+
+        users.push(makeAddr('joe'));
+        usdcDepositAmounts.push(1e9);
+        vmexLpLockAmounts.push(1e20);
+        vmexLpLockDurations.push(4 * 365 days);
+
+        users.push(makeAddr('mike'));
+        usdcDepositAmounts.push(1e9);
+        vmexLpLockAmounts.push(1e20);
+        vmexLpLockDurations.push(5 * 365 days);
+
+        vm.label(users[0], 'alice');
+        vm.label(users[1], 'bob');
+        vm.label(users[2], 'eve');
+        vm.label(users[3], 'joe');
+        vm.label(users[4], 'mike');
     }
 
     function testUpgrade() public {
@@ -141,7 +181,48 @@ contract IncentivesController2Test is Test {
     }
 
     function testClaimManyUsers() public {
+        _upgradeIncentivesController();
+
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, TRANCHE_ID);
+        _configureRewards(EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock));
         
+        // deposit and lock for all users
+        for (uint256 i; i < users.length; ++i) {
+            _deposit(users[i], TOKEN_USDC, TRANCHE_ID, usdcDepositAmounts[i]);
+            _lockVmexLp(users[i], vmexLpLockAmounts[i], block.timestamp + vmexLpLockDurations[i]);
+        }
+
+        vm.warp(block.timestamp + 14 days);
+        
+
+        address[] memory assets = new address[](1);
+        assets[0] = reserveData.aTokenAddress;
+        uint256[] memory penalties = new uint256[](5);
+        uint256 dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
+        // claim for all users
+        for (uint256 i; i < users.length; ++i) {
+            vm.prank(users[i]);
+            incentivesController.claimAllRewards(assets, users[i]);
+            penalties[i] = dVmexMock.balanceOf(DVMEX_REWARD_POOL) - dvmexRewardPoolBalanceBefore;
+            dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
+        }
+
+        uint256[] memory balances = new uint256[](5);
+        for (uint256 i; i < users.length; ++i) {
+            balances[i] = dVmexMock.balanceOf(users[i]);
+        }
+
+        // ensure users with shorter lock have claimed less
+        assertTrue(balances[0] < balances[1]);
+        assertTrue(balances[1] < balances[2]);
+        assertTrue(balances[2] < balances[3]);
+        assertTrue(balances[3] < balances[4]);
+
+        // ensure users with shorter lock have paid more penalty
+        assertTrue(penalties[0] > penalties[1]);
+        assertTrue(penalties[1] > penalties[2]);
+        assertTrue(penalties[2] > penalties[3]);
+        assertTrue(penalties[3] > penalties[4]);
     }
 
     function _upgradeIncentivesController() internal {
