@@ -34,8 +34,9 @@ contract IncentivesController is
     address public VE_VMEX;
     address public PENALTY_RECIEVER;
 
-    uint256 public constant BOOSTING_FACTOR = 1;
-    uint256 public constant BOOST_DENOMINATOR = 10;
+    uint256 internal constant BOOSTING_FACTOR = 1;
+    uint256 internal constant BOOST_DENOMINATOR = 10;
+    uint256 internal constant STANDARD_DECIMALS = 18;
 
     /**
      * @dev Called by the proxy contract
@@ -184,7 +185,7 @@ contract IncentivesController is
         uint256 boostedAmount;
         for (uint256 i; i < incentivizedAssets.length;) {
             address asset = incentivizedAssets[i];
-            aTokenTotalSupply = IERC20(asset).totalSupply();
+            aTokenTotalSupply = _standardizeDecimals(IERC20(asset).totalSupply(), _incentivizedAssets[asset].decimals);
             for (uint256 j; j < rewards.length;) {
                 uint256 amount = _incentivizedAssets[asset].rewardData[rewards[j]].users[msg.sender].accrued;
                 boostedAmount = _calculateBoostedClaimable(veTotalSupply, aTokenTotalSupply, veUserBalance, amount);
@@ -212,7 +213,7 @@ contract IncentivesController is
         for (uint256 i; i < amountsLength;) {
             if (amounts[i] != 0) {
                 IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, to, amounts[i]);
-                IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, to, penaltyAmounts[i]);
+                IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, PENALTY_RECIEVER, penaltyAmounts[i]);
                 emit RewardClaimed(msg.sender, rewards[i], to, amounts[i]);
             }
 
@@ -243,6 +244,11 @@ contract IncentivesController is
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
+    }
+
+    // assumes biggest decimals is 18
+    function _standardizeDecimals(uint256 amount, uint256 decimals) internal pure returns (uint256) {
+        return decimals != STANDARD_DECIMALS ? amount * 10 ** (STANDARD_DECIMALS - decimals) : amount;
     }
 
     function getAssetRewardsNum(address asset) external view returns (uint256) {

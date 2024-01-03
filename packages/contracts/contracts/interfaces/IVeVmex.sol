@@ -16,6 +16,7 @@ interface IVeVmex is IERC20 {
 
     function locked(address _user) external view returns (LockedBalance memory);
 	function supply() external view returns (uint256); 
+	function token() external view returns (address);
 
     function modify_lock(
         uint256 _amount,
