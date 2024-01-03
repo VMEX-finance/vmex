@@ -192,8 +192,10 @@ contract IncentivesController is
                 if (amount != 0) {
                     amounts[j] += boostedAmount;
                     _incentivizedAssets[asset].rewardData[rewards[j]].users[msg.sender].accrued = 0;
+                    // if boostedAmount == amount boost is 100% so penalty is 0
                     if (boostedAmount != amount) {
                         unchecked {
+                            // boostedAmount is always less than amount
                             penaltyAmounts[j] = amount - boostedAmount;
                         }
                     }
@@ -233,7 +235,7 @@ contract IncentivesController is
     ) internal pure returns (uint256) {
         return veTotalSupply == 0
             ? claimable
-            : min(
+            : _min(
                 (
                     claimable * BOOSTING_FACTOR
                         + ((aTokenTotalSupply * veUserBalance) / veTotalSupply) * (BOOST_DENOMINATOR - BOOSTING_FACTOR)
@@ -242,7 +244,7 @@ contract IncentivesController is
             );
     }
 
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+    function _min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
     }
 
