@@ -4,7 +4,7 @@ import {
   ConfigNames,
   loadPoolConfig
 } from "../../helpers/configuration";
-import { getLendingPool, getWETHGateway } from "../../helpers/contracts-getters";
+import { getLendingPool, getLendingPoolConfiguratorProxy, getWETHGateway } from "../../helpers/contracts-getters";
 import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
@@ -47,27 +47,17 @@ task(
       else if(network == "optimism") [assets0, reserveFactors0, canBorrow0, canBeCollateral0] = getTranche0DataOP(reserveAssets);
       else throw "network not supported yet in modifyExistingTranche"
       const lendingpool = await getLendingPool();
+      const configurator = await getLendingPoolConfiguratorProxy();
       // Initialize variables for future reserves initialization
-      let initInputParams: {
-        underlyingAsset: string;
-        reserveFactor: string;
-        canBorrow: boolean;
-        canBeCollateral: boolean;
-      }[] = [];
+      let initInputParams: string = "[";
       for (let i = 0; i < assets0.length; i++) {
         const dat = await lendingpool.getReserveData(assets0[i], 0)
         if(!dat || dat.aTokenAddress == ZERO_ADDRESS) {
-          initInputParams.push(
-            {
-              underlyingAsset: assets0[i],
-              reserveFactor: reserveFactors0[i],
-              canBorrow: canBorrow0[i],
-              canBeCollateral: canBeCollateral0[i],
-            }
-          );
+          initInputParams += `["${assets0[i]}", "${reserveFactors0[i]}", "${canBorrow0[i]}", "${canBeCollateral0[i]}"],`
         }
       }
-      console.log(initInputParams)
+      console.log("configurator address: ", configurator.address)
+      console.log(initInputParams.substring(0,initInputParams.length-1)+"]")
 
     } catch (err) {
       console.error(err);

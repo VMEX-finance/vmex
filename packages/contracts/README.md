@@ -76,6 +76,8 @@ yarn compile
 # rerun scripts
 ```
 
+Note can use contract verification to see which contracts need upgrading since they are different from the local codebase
+
 ### Foundry testing
 
 > Make sure to install packages with node, since foundry will read node dependencies but hardhat will not read foundry dependencies in lib

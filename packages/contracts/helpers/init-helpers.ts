@@ -282,7 +282,7 @@ export const initAssetData = async (
     console.log("    * gasUsed", tx3.gasUsed.toString());
   } else {
     const addAssetMappingCall = assetMappings.interface.encodeFunctionData("addAssetMapping", [initInputParams])
-
+    console.log("assetmappings address: ", assetMappings.address)
     console.log("addAssetMappingCall: ", addAssetMappingCall);
   }
 
