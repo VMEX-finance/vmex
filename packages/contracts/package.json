@@ -102,6 +102,7 @@
     "vmex:optimism:upgrade:incentives": "npm run compile && hardhat vmex:upgrade-incentives --network optimism --verify",
     "vmex:basefork:upgrade:oracle": "npm run compile && FORK=base hardhat vmex:upgrade-oracle --network base_localhost",
     "vmex:base:upgrade:oracle": "npm run compile && hardhat vmex:upgrade-oracle --network base --verify",
+    "vmex:optimism:upgrade:assetmappings": "npm run compile && hardhat vmex:upgrade-assetmappings --network optimism --verify",
     "vmex:base:upgrade:assetmappings": "npm run compile && hardhat vmex:upgrade-assetmappings --network base --verify",
     "vmex:base:backed-bytecode": "npm run compile && hardhat vmex:backed-bytecode --network base",
     "vmex:add-assets": "npm run compile && hardhat add:assets --network $NETWORK --pool $NETWORK",

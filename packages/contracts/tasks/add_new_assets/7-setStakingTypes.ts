@@ -46,12 +46,17 @@ task(`add-setStakingTypes`, `setup staking and begin staking for tranche 0`)
     const lendingPool = await getLendingPool();
 
     const stakingContractValues = Object.values(stakingContracts)
-    const stakingToProcess: ExternalRewardsAddress[] = []
+    let stakingContracts1: string = "["
+    let stakingTypes: string = "["
     for(let i = 0; i<stakingContractValues.length;i++) {
       const dat = await incentivesController.stakingTypes(stakingContractValues[i].address);
       if(!dat || dat==0) {
-        stakingToProcess.push(stakingContractValues[i])
+        stakingContracts1 += `"${stakingContractValues[i].address}",`
+        stakingTypes +=  `"${stakingContractValues[i].type}",`
       }
     }
-    console.log("staking types: ", stakingToProcess)
+    console.log("incentives controller: ", incentivesController.address)
+
+    console.log("staking contracts: ", stakingContracts1.substring(0,stakingContracts1.length-1)+"]")
+    console.log("staking types: ", stakingTypes.substring(0,stakingTypes.length-1)+"]")
   });

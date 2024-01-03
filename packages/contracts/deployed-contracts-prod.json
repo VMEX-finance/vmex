@@ -1585,6 +1585,10 @@
     "arbitrum": {
       "address": "0x19dDCA5857BBC4DFc1AEd23a08317eeb7708C576",
       "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
+    },
+    "optimism": {
+      "address": "0x5Cae4ec4f1D7F28951d76f6EBDa3bC6e0019A0cF",
+      "deployer": "0x464eD76C6B2DdeCC9aa1E990211670a81b93474B"
     }
   },
   "rateStrategyCbETH": {
