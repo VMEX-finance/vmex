@@ -215,7 +215,9 @@ contract IncentivesController is
         for (uint256 i; i < amountsLength;) {
             if (amounts[i] != 0) {
                 IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, to, amounts[i]);
-                IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, PENALTY_RECIEVER, penaltyAmounts[i]);
+                if (penaltyAmounts[i] != 0) {
+                    IERC20(rewards[i]).safeTransferFrom(REWARDS_VAULT, PENALTY_RECIEVER, penaltyAmounts[i]);
+                }
                 emit RewardClaimed(msg.sender, rewards[i], to, amounts[i]);
             }
 
