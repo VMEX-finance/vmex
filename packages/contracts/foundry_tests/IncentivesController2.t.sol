@@ -3,7 +3,7 @@ pragma solidity >=0.8.19;
 
 import "forge-std/Test.sol";
 import {LendingPool} from "../contracts/protocol/lendingpool/LendingPool.sol";
-import {IncentivesController} from "../contracts/protocol/incentives/IncentivesController2.sol";
+import {IncentivesController} from "../contracts/protocol/incentives/IncentivesControllerVeVMEX.sol";
 import {ILendingPool} from "../contracts/interfaces/ILendingPool.sol";
 import {ILendingPoolAddressesProvider} from "../contracts/interfaces/ILendingPoolAddressesProvider.sol";
 import {IAssetMappings} from "../contracts/interfaces/IAssetMappings.sol";

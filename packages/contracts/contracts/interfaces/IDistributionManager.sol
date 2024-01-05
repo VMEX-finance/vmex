@@ -18,6 +18,24 @@ interface IDistributionManager {
     address reward;
   }
 
+  struct UpdateUserParams {
+    address user;
+    uint256 balance;
+    uint8 decimals;
+    address asset;
+    address rewardAddress;
+  }
+
+  struct UpdateIncentivizedAsset {
+    address rewardAddress;
+    uint8 decimals;
+    uint256 newIndex;
+    bool rewardUpdated;
+    uint256 rewardAccrued;
+    bool userUpdated;
+    uint256 i;
+  }
+
   event RewardConfigUpdated(
     address indexed asset,
     address indexed reward,
