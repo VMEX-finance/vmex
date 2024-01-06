@@ -8,24 +8,39 @@ import { ILendingPoolAddressesProvider } from "../../interfaces/ILendingPoolAddr
 // NOTE: this function starts to fail if we have a large number of markets
 contract GetAllTrancheReserveData {
 
-	constructor(address providerAddr, uint64 tranche)
+    /**
+    Pagination starts at 0. Will return 10 reserves at a time, and (pagination * 10)
+    is the start index
+     */
+    constructor(address providerAddr, uint64 tranche, uint64 pagination)
     {
         address lendingPool = ILendingPoolAddressesProvider(providerAddr).getLendingPool();
 
         address[] memory assets = ILendingPool(lendingPool).getReservesList(tranche);
-        QueryReserveHelpers.ReserveSummary[] memory allAssetsData = new QueryReserveHelpers.ReserveSummary[](assets.length);
-        for (uint64 i = 0; i < assets.length;) {
+        uint256 arrSize = 10;
+        uint64 startIdx = pagination*10;
+        if (assets.length - startIdx < arrSize) {
+            arrSize = assets.length - startIdx;
+        }
+        QueryReserveHelpers.ReserveSummary[] memory allAssetsData = new QueryReserveHelpers.ReserveSummary[](arrSize);
+
+        for (uint64 i = 0; i < arrSize;) {
+            uint64 currIdx = i+startIdx;
+            if (currIdx >= assets.length) {
+                // extra layer of safety, this should never trigger
+                break;
+            }
             allAssetsData[i] = QueryReserveHelpers.getReserveData(
-                assets[i], tranche, providerAddr);
+                assets[i+startIdx], tranche, providerAddr);
 
             unchecked { ++i; }
         }
 
-	    bytes memory returnData = abi.encode(allAssetsData);
-		assembly {
-			return(add(0x20, returnData), mload(returnData))
-		}
-	}
+        bytes memory returnData = abi.encode(allAssetsData);
+        assembly {
+            return(add(0x20, returnData), mload(returnData))
+        }
+    }
 
 	function getType() public view returns(QueryReserveHelpers.ReserveSummary[] memory){}
 

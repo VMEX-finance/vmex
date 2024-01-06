@@ -59,7 +59,7 @@ export async function getAllMarketsData(
   const allMarketsData: ReserveSummary[] = [];
   for (let i = 0; i < numTranches; i++) {
     allMarketsData.push(
-      ...(await getTrancheMarketsData({
+      ...(await getTrancheAllMarketsData({
         tranche: i,
         network: params.network,
         test: params.test,
@@ -68,7 +68,7 @@ export async function getAllMarketsData(
     );
   }
 
-  await cache.setItem("total-markets", allMarketsData.length, { ttl: 60 });
+  // await cache.setItem("total-markets", allMarketsData.length, { ttl: 60 });
 
   return allMarketsData;
 }
@@ -196,7 +196,7 @@ export async function getAllMarketsData(
  * TRANCHE LEVEL ANALYTICS
  */
 
-export async function getTrancheMarketsData(
+export async function getTrancheAllMarketsData(
   params: {
     tranche: number;
     network?: string;
@@ -213,12 +213,20 @@ export async function getTrancheMarketsData(
   let _addressProvider =
     deployments.LendingPoolAddressesProvider[params.network || "mainnet"]
       .address;
-  let [data] = await decodeConstructorBytecode(abi, bytecode, provider, [
-    _addressProvider,
-    params.tranche,
-  ]);
+  let allData = [];
+  let paginatedData = [];
+  let pagination = 0;
 
-  return data;
+  do {
+    [paginatedData] = await decodeConstructorBytecode(abi, bytecode, provider, [
+      _addressProvider,
+      params.tranche,
+      pagination++,
+    ]);
+    allData.push(...paginatedData);
+  } while (paginatedData.length == 10);
+
+  return allData;
 }
 
 // export async function getAllTrancheData(
