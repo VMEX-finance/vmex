@@ -70,19 +70,19 @@ task("add:deploy-oracles", "Add oracles given existing deployment")
           await addressesProvider.getPriceOracle()
         );
 
-      let tokensToProcess: string[] = []
-      let aggregatorsToProcess: IChainlinkInternal[] = []
+      let tokensToProcess: string = "["
+      let aggregatorsToProcess: string = "["
 
       for(let i = 0; i< tokens2.length; i++) {
         const aggInContract = await VMEXOracleProxy.getSourceOfAsset(tokens2[i])
         if(aggInContract == ZERO_ADDRESS) {
-          tokensToProcess.push(tokens2[i])
-          aggregatorsToProcess.push(aggregators[i])
+          tokensToProcess += `"${tokens2[i]}",`
+          aggregatorsToProcess += `["${aggregators[i].feed}", "${aggregators[i].heartbeat}"],`
         }
       }
-
-      console.log("processing ", tokensToProcess)
-      console.log("chainlink data ", aggregatorsToProcess)
+      console.log("vmexoracle address: ", VMEXOracleProxy.address)
+      console.log("assets: ", tokensToProcess.substring(0,tokensToProcess.length-1)+"]")
+      console.log("chainlink data ", aggregatorsToProcess.substring(0,aggregatorsToProcess.length-1)+"]")
 
     } catch (error) {
       throw error;

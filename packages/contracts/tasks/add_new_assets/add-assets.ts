@@ -16,11 +16,11 @@ task('add:assets', 'Add assets to existing deployment')
 
     console.log('Adding new assets started\n');
 
-    // console.log("1.5. Deploy asset mappings");
-    // await DRE.run("add:deploy-asset-mappings", { pool: POOL_NAME });
+    console.log("1.5. Deploy asset mappings");
+    await DRE.run("add:deploy-asset-mappings", { pool: POOL_NAME });
 
-    // console.log('3. Deploy oracles');
-    // await DRE.run('add:deploy-oracles', { pool: POOL_NAME });
+    console.log('3. Deploy oracles');
+    await DRE.run('add:deploy-oracles', { pool: POOL_NAME });
 
     console.log('6. modify lending pool');
     await DRE.run('add:modify-lending-pool-tranches-0-Base', { pool: POOL_NAME });
