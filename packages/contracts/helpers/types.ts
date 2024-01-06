@@ -445,6 +445,11 @@ export interface iAssetBase<T> {
   "yv-vAMMV2-wstETH/OP": T;
   "yv-vAMMV2-WETH/OP": T;
   "yv-vAMMV2-USDC/OP": T;
+  "vAMM-wstETH/WETH": T;
+  "yv-vAMM-cbETH/WETH": T;
+  "yv-vAMM-WETH/USDbC": T;
+  "yv-sAMM-USDC/USDbC": T;
+  "yv-vAMM-WETH/DAI": T;
 }
 
 export type iAssetsWithoutETH<T> = Omit<iAssetBase<T>, "ETH">;
@@ -616,6 +621,12 @@ export type iBaseL2PoolAssets<T> = Partial<
     | "rETH-WETH-BPT"
     | "cbETHWETHCRV"
     | "vAMM-WETH/DAI"
+    | "wstETH"
+    | "vAMM-wstETH/WETH"
+    | "yv-vAMM-cbETH/WETH"
+    | "yv-vAMM-WETH/USDbC"
+    | "yv-sAMM-USDC/USDbC"
+    | "yv-vAMM-WETH/DAI"
   >
 >;
 

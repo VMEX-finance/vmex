@@ -150,6 +150,10 @@ export const CommonsConfig: ICommonConfiguration = {
         feed: '0x6e61c5e4626C682f6174e0d992C2d0971Ed1A734',
         heartbeat: 86400
       },
+      wstETH: {
+        feed: '0x945fD405773973d286De54E44649cc0d9e264F78',
+        heartbeat: 86400
+      },
     },
   },
   ReserveAssets: {
@@ -205,6 +209,10 @@ export const CommonsConfig: ICommonConfiguration = {
       "cbETHWETHCRV": {
         address: "0xe9c898ba654dec2ba440392028d2e7a194e6dc3e",
         type: 4,
+      },
+      "vAMM-wstETH/WETH": {
+        address: "0xdf7c8f17ab7d47702a4a4b6d951d2a4c90f99bf4",
+        type: 2,
       },
     },
   }
