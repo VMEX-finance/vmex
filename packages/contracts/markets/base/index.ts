@@ -19,7 +19,13 @@ import {
   strategyrETH,
   strategyrETHETHBPT,
   strategycbETHWETHCRV,
-  strategyVeloWETHDAI
+  strategyVeloWETHDAI,
+  strategywstETH,
+  strategyVelowstETHWETH,
+  strategyyvVelocbETHWETH,
+  strategyyvVeloWETHUSDbC,
+  strategyyvVeloUSDCUSDbC,
+  strategyyvVeloWETHDAI
 } from './reservesConfigs';
 
 // ----------------
@@ -48,6 +54,15 @@ export const BaseConfig: IBaseL2Configuration = {
     "cbETH-WETH-BPT": strategyCbETHBPT,
     "rETH-WETH-BPT": strategyrETHETHBPT,
     "cbETHWETHCRV": strategycbETHWETHCRV,
+
+    wstETH: strategywstETH,
+    "vAMM-wstETH/WETH": strategyVelowstETHWETH,
+    
+    "yv-vAMM-cbETH/WETH": strategyyvVelocbETHWETH,
+    "yv-vAMM-WETH/USDbC": strategyyvVeloWETHUSDbC,
+    // "yv-vAMM-wstETH/WETH": ""
+    "yv-sAMM-USDC/USDbC": strategyyvVeloUSDCUSDbC,
+    "yv-vAMM-WETH/DAI": strategyyvVeloWETHDAI
   },
   ReserveAssets: {
     [eBaseNetwork.base]: {
@@ -69,9 +84,13 @@ export const BaseConfig: IBaseL2Configuration = {
       "cbETHWETHCRV": "0x98244d93d42b42ab3e3a4d12a5dc0b3e7f8f32f9",
 
       wstETH: "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
-      "vAMMV2-wstETH/WETH": '0xA6385c73961dd9C58db2EF0c4EB98cE4B60651e8',
+      "vAMM-wstETH/WETH": '0xA6385c73961dd9C58db2EF0c4EB98cE4B60651e8',
 
-      
+      "yv-vAMM-cbETH/WETH": "0x8C589ADdBe1466a9B555EaA6cE8940Ac1680C5F4",
+      "yv-vAMM-WETH/USDbC": "0x58dcE038423A1e43f3429cb62425a1364cc3bb4c",
+      // "yv-vAMM-wstETH/WETH": ""
+      "yv-sAMM-USDC/USDbC": "0x37fDacD764AA64F4e453842D8056853e5550c09b",
+      "yv-vAMM-WETH/DAI": "0xEcFc1e5BDa4d4191c9Cab053ec704347Db87Be5d"
     },
   },
 };
