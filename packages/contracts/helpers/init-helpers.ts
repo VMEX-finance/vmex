@@ -602,6 +602,12 @@ export const getTranche0DataBase = (allReservesAddresses: {
     allReservesAddresses["vAMM-WETH/DAI"],
     allReservesAddresses["rETH-WETH-BPT"],
     allReservesAddresses["cbETHWETHCRV"],
+    allReservesAddresses["wstETH"],
+    allReservesAddresses["vAMM-wstETH/WETH"],
+    allReservesAddresses["yv-vAMM-cbETH/WETH"],
+    allReservesAddresses["yv-vAMM-WETH/USDbC"],
+    allReservesAddresses["yv-sAMM-USDC/USDbC"],
+    allReservesAddresses["yv-vAMM-WETH/DAI"],
   ]
   let reserveFactors0: string[] = [];
   let canBorrow0: boolean[] = [];
