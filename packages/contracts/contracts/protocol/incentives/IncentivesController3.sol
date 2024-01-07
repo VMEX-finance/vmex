@@ -51,7 +51,8 @@ contract IncentivesController is
         uint32 lastUpdateTime;
         uint64 rewardRate;
         uint128 rewardPerTokenStored;
-        uint128 queuedRewards;
+        uint8 decimals;
+        uint120 queuedRewards;
         uint128 currentRewards;
     }
 
@@ -110,8 +111,6 @@ contract IncentivesController is
         uint256 newBalance,
         DistributionTypes.Action action
     ) external override {
-        // _updateDVmexRewards(msg.sender, user);
-
         // note: msg.sender is the incentivized asset (the vToken)
         _updateIncentivizedAsset(msg.sender, user, oldBalance, totalSupply);
 
@@ -128,6 +127,8 @@ contract IncentivesController is
                 }
             }
         }
+
+        _updateDVmexRewards(msg.sender, user, newBalance);
     }
 
     function _getUserState(address[] calldata assets, address user)
@@ -312,6 +313,16 @@ contract IncentivesController is
     /*//////////////////////////////////////////////////////////////
                       dVMEX rewards logic
     //////////////////////////////////////////////////////////////*/
+    function _updateDVmexRewards(address aToken, address user, uint256 newBalance) internal {
+        DVmexReward storage rewardInfo = _aTokenReward[aToken];
+
+        // rewards not configured for this aToken
+        if (rewardInfo.rewardRate == 0) return;
+        _updateReward(rewardInfo, aToken, user);
+
+        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, newBalance);
+    }
+
     /**
      *  @return timestamp until rewards are distributed
      */
@@ -358,7 +369,7 @@ contract IncentivesController is
             _notifyRewardAmount(reward, aToken, _amount);
             reward.queuedRewards = 0;
         } else {
-            reward.queuedRewards = uint128(_amount);
+            reward.queuedRewards = uint120(_amount);
         }
         return true;
     }
@@ -383,6 +394,11 @@ contract IncentivesController is
         return a < b ? a : b;
     }
 
+    // assumes biggest decimals is 18
+    function _standardizeDecimals(uint256 amount, uint256 decimals) internal pure returns (uint256) {
+        return decimals != STANDARD_DECIMALS ? amount * 10 ** (STANDARD_DECIMALS - decimals) : amount;
+    }
+
     function _updateReward(DVmexReward storage rewardInfo, address aToken, address _account) internal {
         uint256 newRewardPerTokenStored = _rewardPerToken(rewardInfo, aToken);
         rewardInfo.rewardPerTokenStored = uint128(newRewardPerTokenStored);
@@ -398,26 +414,6 @@ contract IncentivesController is
             }
             _userInfo[aToken][_account].rewardPerTokenPaid = uint128(newRewardPerTokenStored);
         }
-    }
-
-    function _beforeTokenTransfer(address _from, address _to, uint256) internal {
-        // TODO
-        // if (_from != address(0)) {
-        //     _updateReward(_from);
-        // }
-        // if (_to != address(0)) {
-        //     _updateReward(_to);
-        // }
-    }
-
-    function _afterTokenTransfer(address _from, address _to, uint256) internal {
-        // TODO
-        // if (_from != address(0)) {
-        //     _boostedBalances[_from] = _boostedBalanceOf(_from);
-        // }
-        // if (_to != address(0)) {
-        //     _boostedBalances[_to] = _boostedBalanceOf(_to);
-        // }
     }
 
     function _rewardPerToken(DVmexReward storage rewardInfo, address aToken) internal view returns (uint256) {
@@ -553,5 +549,9 @@ contract IncentivesController is
     function _transferVeYfiORewards(uint256 _penalty) internal {
         IERC20(DVMEX).approve(DVMEX_REWARD_POOL, _penalty);
         IDVmexRewardPool(DVMEX_REWARD_POOL).burn(_penalty);
+    }
+
+    function getATokenReward(address aToken) external view returns (DVmexReward memory) {
+        return _aTokenReward[aToken];
     }
 }
