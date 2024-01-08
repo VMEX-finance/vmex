@@ -19,6 +19,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {Helpers} from "../libraries/helpers/Helpers.sol";
 import {AggregatorV3Interface} from "../../interfaces/AggregatorV3Interface.sol";
 import {IBeefyVault} from "../../interfaces/IBeefyVault.sol";
+import {IReaperVault} from "../../interfaces/IReaperVault.sol"; 
 import {IVeloPair} from "../../interfaces/IVeloPair.sol";
 import {IBalancer} from "../../interfaces/IBalancer.sol";
 import {IVault} from "../../interfaces/IVault.sol";
@@ -458,6 +459,20 @@ contract VMEXOracle is Initializable, IPriceOracleGetter {
         IBeefyVault beefyVault = IBeefyVault(asset);
         uint256 underlyingPrice = getAssetPrice(beefyVault.want());
         uint256 price = beefyVault.getPricePerFullShare()*underlyingPrice / 10**beefyVault.decimals();
+        if(price == 0){
+            return _fallbackOracle.getAssetPrice(asset);
+        }
+        return price;
+	}
+
+    /**
+     * @dev Gets an asset price for a reaper vault token
+     * @param asset The asset address
+     **/
+	function getReaperPrice(address asset) internal returns (uint256) {
+        IReaperVault reaperVault = IReaperVault(asset);
+        uint256 underlyingPrice = getAssetPrice(reaperVault.asset());
+        uint256 price = reaperVault.getPricePerFullShare()*underlyingPrice / 10** reaperVault.decimals();
         if(price == 0){
             return _fallbackOracle.getAssetPrice(asset);
         }

@@ -57,7 +57,8 @@ library DataTypes {
         RETH, //7
         CL_PRICE_ADAPTER, //8
         CAMELOT, //9
-        BACKED //10
+        BACKED, //10
+		REAPER  //11
     } //update with other possible types of the underlying asset
 
     struct TrancheAddress {
