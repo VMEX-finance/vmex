@@ -320,7 +320,7 @@ contract IncentivesController is
         if (rewardInfo.rewardRate == 0) return;
         _updateReward(rewardInfo, aToken, user);
 
-        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, newBalance);
+        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, newBalance, rewardInfo.decimals);
     }
 
     /**
@@ -375,6 +375,9 @@ contract IncentivesController is
     }
 
     function _notifyRewardAmount(DVmexReward storage reward, address aToken, uint256 _reward) internal {
+        if (reward.currentRewards == 0) {
+            reward.decimals = IERC20(aToken).decimals();
+        }
         _updateReward(reward, aToken, address(0));
 
         if (block.timestamp >= reward.periodFinish) {
@@ -481,7 +484,7 @@ contract IncentivesController is
      *   account's real balance.
      */
     function nextBoostedBalanceOf(address aToken, address _account) external view returns (uint256) {
-        return _boostedBalanceOf(aToken, _account, IERC20(aToken).balanceOf(_account));
+        return _boostedBalanceOf(aToken, _account, IERC20(aToken).balanceOf(_account), _aTokenReward[aToken].decimals);
     }
 
     /**
@@ -495,7 +498,7 @@ contract IncentivesController is
      *   The account's boosted balance. Always lower than or equal to the
      *   account's real balance.
      */
-    function _boostedBalanceOf(address aToken, address _account, uint256 _realBalance)
+    function _boostedBalanceOf(address aToken, address _account, uint256 _realBalance, uint8 decimals)
         internal
         view
         returns (uint256)
@@ -504,6 +507,8 @@ contract IncentivesController is
         if (veTotalSupply == 0) {
             return _realBalance;
         }
+
+        uint256 aTokenSupply = _standardizeDecimals(IERC20(aToken).totalSupply(), decimals);
         return _min(
             (
                 (_realBalance * BOOSTING_FACTOR)
@@ -524,8 +529,9 @@ contract IncentivesController is
      * @return true
      */
     function getReward(address aToken, address _account) external returns (bool) {
-        _updateReward(_aTokenReward[aToken], aToken, _account);
-        _getReward(aToken, _account);
+        DVmexReward storage reward = _aTokenReward[aToken];
+        _updateReward(reward, aToken, _account);
+        _getReward(aToken, _account, reward.decimals);
         return true;
     }
 
@@ -535,8 +541,8 @@ contract IncentivesController is
      *   This function MUST NOT be called without the caller invoking
      *   updateReward(_account) first.
      */
-    function _getReward(address aToken, address _account) internal {
-        uint256 boostedBalance = _boostedBalanceOf(aToken, _account, IERC20(aToken).balanceOf(_account));
+    function _getReward(address aToken, address _account, uint8 decimals) internal {
+        uint256 boostedBalance = _boostedBalanceOf(aToken, _account, IERC20(aToken).balanceOf(_account), decimals);
         _boostedBalances[aToken][_account] = boostedBalance;
 
         uint256 reward = _userInfo[aToken][_account].reward;
