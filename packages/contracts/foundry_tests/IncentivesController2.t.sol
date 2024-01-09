@@ -207,6 +207,7 @@ contract IncentivesController2Test is Test {
         for (uint256 i; i < users.length; ++i) {
             _deposit(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
             _lockVmexLp(users[i], vmexLpLockAmounts[i], block.timestamp + vmexLpLockDurations[i]);
+            console.log('2 bro', IERC20(VE_VMEX).balanceOf(users[i]));
         }
 
         vm.warp(block.timestamp + 14 days);

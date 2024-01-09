@@ -13,18 +13,19 @@ import {DataTypes} from "../contracts/protocol/libraries/types/DataTypes.sol";
 import {IDistributionManager} from "../contracts/interfaces/IDistributionManager.sol";
 import {MockERC20} from "solmate/test/utils/mocks/MockERC20.sol";
 import {IDVmex} from "../contracts/interfaces/IDVmex.sol";
+import {IScaledBalanceToken} from "../contracts/interfaces/IScaledBalanceToken.sol";
 
-contract IncentivesController2Test is Test {
+contract IncentivesController3Test is Test {
     uint256 optimismFork;
     IncentivesController incentivesController = IncentivesController(0x8E2a4c71906640B058051c00783160bE306c38fE);
     ILendingPool lendingPool = ILendingPool(0x60F015F66F3647168831d31C7048ca95bb4FeaF9);
     ILendingPoolAddressesProvider addressesProvider =
         ILendingPoolAddressesProvider(0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0);
 
-    MockERC20 dVmexMock;
-
     address TOKEN_WETH = 0x4200000000000000000000000000000000000006;
+    uint256 TOKEN_WETH_DECIMALS = 18;
     address TOKEN_USDC = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
+    uint256 TOKEN_USDC_DECIMALS = 6;
     address TOKEN_LUSD = 0xc40F949F8a4e094D1b49a23ea9241D289B7b2819;
     address TOKEN_WSTETH = 0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb;
 
@@ -50,6 +51,9 @@ contract IncentivesController2Test is Test {
     bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     uint256 FIVE_YEARS = 5 * 365 days;
+    uint256 REWARD_AMOUNT = 5e23; // 500k
+    uint256 internal constant PRECISION_FACTOR = 10 ** 18;
+    uint256 internal constant STANDARD_DECIMALS = 18;
 
     address VE_VMEX_DEPOSIT_TOKEN;
 
@@ -62,8 +66,6 @@ contract IncentivesController2Test is Test {
     function setUp() public {
         optimismFork = vm.createFork(vm.envString("OPTIMISM_RPC_URL"));
         vm.selectFork(optimismFork);
-
-        dVmexMock = new MockERC20("dVMEX", "dVMEX", 18);
 
         VE_VMEX_DEPOSIT_TOKEN = IVeVmex(VE_VMEX).token();
 
@@ -110,12 +112,6 @@ contract IncentivesController2Test is Test {
         wethDepositAmounts.push(1 ether);
         vmexLpLockAmounts.push(1e20);
         vmexLpLockDurations.push(5 * 365 days);
-
-        vm.label(users[0], "alice");
-        vm.label(users[1], "bob");
-        vm.label(users[2], "eve");
-        vm.label(users[3], "joe");
-        vm.label(users[4], "mike");
     }
 
     function testUpgrade() public {
@@ -132,118 +128,108 @@ contract IncentivesController2Test is Test {
     function testQueueNewRewards() public {
         _upgradeIncentivesController();
 
-        uint256 amount = 5e23;
         DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
-        _queueNewRewards(reserveData.aTokenAddress, 5e23);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
         IncentivesController.DVmexReward memory reward = incentivesController.getATokenReward(reserveData.aTokenAddress);
-        
+
         assertEq(reward.periodFinish, uint32(block.timestamp + 14 days));
         assertEq(reward.lastUpdateTime, uint32(block.timestamp));
-        assertEq(reward.rewardRate, uint64(amount / 14 days));
+        assertEq(reward.rewardRate, uint64(REWARD_AMOUNT / 14 days));
         assertEq(reward.rewardPerTokenStored, 0);
         assertEq(reward.queuedRewards, 0);
-        assertEq(reward.currentRewards, uint128(amount));
-
+        assertEq(reward.currentRewards, uint128(REWARD_AMOUNT));
     }
 
-    // function testClaimMinBoost() public {
-    //     _upgradeIncentivesController();
+    function testClaimMinBoost() public {
+        _upgradeIncentivesController();
 
-    //     DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
 
-    //     _deposit(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     vm.warp(block.timestamp + 5 days);
+        _deposit(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
 
-    //     address[] memory assets = new address[](1);
-    //     assets[0] = reserveData.aTokenAddress;
+        vm.warp(block.timestamp + 5 days);
 
-    //     (, uint256[] memory amounts) = incentivesController.getPendingRewards(assets, USER);
-    //     uint256 dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
+        uint256 earned = incentivesController.earned(reserveData.aTokenAddress, USER);
+        uint256 penaltyBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
 
-    //     vm.prank(USER);
-    //     incentivesController.claimAllRewards(assets, USER);
+        vm.prank(USER);
+        incentivesController.getReward(reserveData.aTokenAddress, USER);
 
-    //     assertEq(dVmexMock.balanceOf(USER), amounts[0] / 10);
-    //     assertEq(dVmexMock.balanceOf(DVMEX_REWARD_POOL), dvmexRewardPoolBalanceBefore + amounts[0] - amounts[0] / 10);
-    // }
+        IncentivesController.DVmexReward memory rewardInfo =
+            incentivesController.getATokenReward(reserveData.aTokenAddress);
+        uint256 maxEarned = _standardizeDecimals(
+            IScaledBalanceToken(reserveData.aTokenAddress).scaledBalanceOf(USER), TOKEN_USDC_DECIMALS
+        ) * rewardInfo.rewardPerTokenStored / PRECISION_FACTOR;
 
-    // function testClaimMaxBoost() public {
-    //     _upgradeIncentivesController();
+        assertEq(IERC20(DVMEX).balanceOf(USER), earned);
+        assertEq(IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL), penaltyBalanceBefore + maxEarned - earned);
+    }
 
-    //     DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
+    function testClaimMaxBoost() public {
+        _upgradeIncentivesController();
 
-    //     _deposit(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     vm.warp(block.timestamp + 5 days);
+        _lockVmexLp(USER, 1e23, block.timestamp + FIVE_YEARS);
+        _deposit(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e10);
 
-    //     address[] memory assets = new address[](1);
-    //     assets[0] = reserveData.aTokenAddress;
+        vm.warp(block.timestamp + 5 days);
 
-    //     (, uint256[] memory amounts) = incentivesController.getPendingRewards(assets, USER);
-    //     uint256 dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
+        uint256 earned = incentivesController.earned(reserveData.aTokenAddress, USER);
+        uint256 penaltyBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
 
-    //     _lockVmexLp(USER, 1e21, block.timestamp + FIVE_YEARS);
+        vm.prank(USER);
+        incentivesController.getReward(reserveData.aTokenAddress, USER);
 
-    //     vm.prank(USER);
-    //     incentivesController.claimAllRewards(assets, USER);
+        assertEq(IERC20(DVMEX).balanceOf(USER), earned);
+        assertEq(IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL), penaltyBalanceBefore);
+    }
 
-    //     assertEq(dVmexMock.balanceOf(USER), amounts[0]);
-    //     assertEq(dVmexMock.balanceOf(DVMEX_REWARD_POOL), dvmexRewardPoolBalanceBefore);
-    // }
+    function testClaimManyUsersOneReward() public {
+        _upgradeIncentivesController();
 
-    // function testClaimManyUsersOneReward() public {
-    //     _upgradeIncentivesController();
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
+        // deposit and lock for all users
+        for (uint256 i; i < users.length; ++i) {
+            _lockVmexLp(users[i], vmexLpLockAmounts[i], block.timestamp + vmexLpLockDurations[i]);
 
-    //     // deposit and lock for all users
-    //     for (uint256 i; i < users.length; ++i) {
-    //         _deposit(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
-    //         _lockVmexLp(users[i], vmexLpLockAmounts[i], block.timestamp + vmexLpLockDurations[i]);
-    //     }
+            _deposit(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
+        }
 
-    //     vm.warp(block.timestamp + 14 days);
+        vm.warp(block.timestamp + 14 days);
 
-    //     address[] memory assets = new address[](1);
-    //     assets[0] = reserveData.aTokenAddress;
-    //     uint256[] memory penalties = new uint256[](5);
-    //     uint256 dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
-    //     // claim for all users
-    //     for (uint256 i; i < users.length; ++i) {
-    //         vm.prank(users[i]);
-    //         incentivesController.claimAllRewards(assets, users[i]);
-    //         penalties[i] = dVmexMock.balanceOf(DVMEX_REWARD_POOL) - dvmexRewardPoolBalanceBefore;
-    //         dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
-    //     }
+        uint256[] memory penalties = new uint256[](5);
+        uint256 dvmexRewardPoolBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
+        // claim for all users
+        for (uint256 i; i < users.length; ++i) {
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            penalties[i] = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL) - dvmexRewardPoolBalanceBefore;
+            dvmexRewardPoolBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
+        }
 
-    //     uint256[] memory balances = new uint256[](5);
-    //     for (uint256 i; i < users.length; ++i) {
-    //         balances[i] = dVmexMock.balanceOf(users[i]);
-    //     }
+        uint256[] memory balances = new uint256[](5);
+        for (uint256 i; i < users.length; ++i) {
+            balances[i] = IERC20(DVMEX).balanceOf(users[i]);
+        }
 
-    //     // ensure users with shorter lock have claimed less
-    //     assertTrue(balances[0] < balances[1]);
-    //     assertTrue(balances[1] < balances[2]);
-    //     assertTrue(balances[2] < balances[3]);
-    //     assertTrue(balances[3] < balances[4]);
+        // ensure users with shorter lock have claimed less
+        assertTrue(balances[0] < balances[1]);
+        assertTrue(balances[1] < balances[2]);
+        assertTrue(balances[2] < balances[3]);
+        assertTrue(balances[3] < balances[4]);
 
-    //     // ensure users with shorter lock have paid more penalty
-    //     assertTrue(penalties[0] > penalties[1]);
-    //     assertTrue(penalties[1] > penalties[2]);
-    //     assertTrue(penalties[2] > penalties[3]);
-    //     assertTrue(penalties[3] > penalties[4]);
-    // }
+        // ensure users with shorter lock have paid more penalty
+        assertTrue(penalties[0] > penalties[1]);
+        assertTrue(penalties[1] > penalties[2]);
+        assertTrue(penalties[2] > penalties[3]);
+        assertTrue(penalties[3] > penalties[4]);
+    }
 
     // function testClaimManyUsersManyRewards() public {
     //     _upgradeIncentivesController();
@@ -347,9 +333,7 @@ contract IncentivesController2Test is Test {
         vm.stopPrank();
     }
 
-    function _queueNewRewards(address asset, uint256 amount)
-        internal
-    {
+    function _queueNewRewards(address asset, uint256 amount) internal {
         vm.prank(MULTISIG);
         IDVmex(DVMEX).mint(address(this), amount);
 
@@ -358,26 +342,31 @@ contract IncentivesController2Test is Test {
         incentivesController.queueNewRewards(asset, amount);
     }
 
-    // function _deposit(address user, address token, uint64 trancheId, uint256 amount) internal {
-    //     deal(token, user, amount);
+    function _deposit(address user, address token, uint64 trancheId, uint256 amount) internal {
+        deal(token, user, amount);
 
-    //     vm.startPrank(user);
+        vm.startPrank(user);
 
-    //     IERC20(token).approve(address(lendingPool), amount);
+        IERC20(token).approve(address(lendingPool), amount);
 
-    //     lendingPool.deposit(token, trancheId, amount, user, 0);
+        lendingPool.deposit(token, trancheId, amount, user, 0);
 
-    //     vm.stopPrank();
-    // }
+        vm.stopPrank();
+    }
 
-    // function _lockVmexLp(address user, uint256 amount, uint256 end) internal {
-    //     deal(VE_VMEX_DEPOSIT_TOKEN, user, amount);
+    function _lockVmexLp(address user, uint256 amount, uint256 end) internal {
+        deal(VE_VMEX_DEPOSIT_TOKEN, user, amount);
 
-    //     vm.startPrank(user);
+        vm.startPrank(user);
 
-    //     IERC20(VE_VMEX_DEPOSIT_TOKEN).approve(VE_VMEX, amount);
-    //     IVeVmex(VE_VMEX).modify_lock(amount, end, user);
+        IERC20(VE_VMEX_DEPOSIT_TOKEN).approve(VE_VMEX, amount);
+        IVeVmex(VE_VMEX).modify_lock(amount, end, user);
 
-    //     vm.stopPrank();
-    // }
+        vm.stopPrank();
+    }
+
+    // assumes biggest decimals is 18
+    function _standardizeDecimals(uint256 amount, uint256 decimals) internal pure returns (uint256) {
+        return decimals != STANDARD_DECIMALS ? amount * 10 ** (STANDARD_DECIMALS - decimals) : amount;
+    }
 }

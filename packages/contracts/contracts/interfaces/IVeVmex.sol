@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
+pragma solidity ^0.8.19;
+
 import { IERC20 } from "../dependencies/openzeppelin/contracts/IERC20.sol";
 
 interface IVeVmex is IERC20 {

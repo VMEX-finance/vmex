@@ -15,6 +15,7 @@ import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddres
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {IVeVmex} from "../../interfaces/IVeVmex.sol";
 import {IDVmexRewardPool} from "../../interfaces/IDVmexRewardPool.sol";
+import {IScaledBalanceToken} from "../../interfaces/IScaledBalanceToken.sol";
 
 /**
  * @title IncentivesController
@@ -128,7 +129,7 @@ contract IncentivesController is
             }
         }
 
-        _updateDVmexRewards(msg.sender, user, newBalance);
+        _updateDVmexRewards(msg.sender, user);
     }
 
     function _getUserState(address[] calldata assets, address user)
@@ -313,14 +314,14 @@ contract IncentivesController is
     /*//////////////////////////////////////////////////////////////
                       dVMEX rewards logic
     //////////////////////////////////////////////////////////////*/
-    function _updateDVmexRewards(address aToken, address user, uint256 newBalance) internal {
+    function _updateDVmexRewards(address aToken, address user) internal {
         DVmexReward storage rewardInfo = _aTokenReward[aToken];
 
         // rewards not configured for this aToken
         if (rewardInfo.rewardRate == 0) return;
         _updateReward(rewardInfo, aToken, user);
 
-        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, newBalance, rewardInfo.decimals);
+        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, rewardInfo.decimals);
     }
 
     /**
@@ -375,7 +376,7 @@ contract IncentivesController is
     }
 
     function _notifyRewardAmount(DVmexReward storage reward, address aToken, uint256 _reward) internal {
-        if (reward.currentRewards == 0) {
+        if (reward.periodFinish == 0) {
             reward.decimals = IERC20(aToken).decimals();
         }
         _updateReward(reward, aToken, address(0));
@@ -406,21 +407,21 @@ contract IncentivesController is
         uint256 newRewardPerTokenStored = _rewardPerToken(rewardInfo, aToken);
         rewardInfo.rewardPerTokenStored = uint128(newRewardPerTokenStored);
         rewardInfo.lastUpdateTime = uint32(_lastTimeRewardApplicable(rewardInfo));
+
         if (_account != address(0)) {
             if (_boostedBalances[aToken][_account] != 0) {
                 uint256 newEarning = _newEarning(rewardInfo, aToken, _account);
-                uint256 maxEarning = _maxEarning(rewardInfo, aToken, _account);
 
                 _userInfo[aToken][_account].reward = uint128(newEarning + _userInfo[aToken][_account].reward);
-                uint256 penalty = maxEarning - newEarning;
-                _transferVeYfiORewards(penalty);
+
+                _transferVeYfiORewards(_maxEarning(rewardInfo, aToken, _account) - newEarning);
             }
             _userInfo[aToken][_account].rewardPerTokenPaid = uint128(newRewardPerTokenStored);
         }
     }
 
     function _rewardPerToken(DVmexReward storage rewardInfo, address aToken) internal view returns (uint256) {
-        uint256 totalSupply = IERC20(aToken).totalSupply();
+        uint256 totalSupply = _standardizeDecimals(IERC20(aToken).totalSupply(), rewardInfo.decimals);
         return totalSupply == 0
             ? rewardInfo.rewardPerTokenStored
             : rewardInfo.rewardPerTokenStored
@@ -469,7 +470,7 @@ contract IncentivesController is
         returns (uint256)
     {
         return (
-            IERC20(aToken).balanceOf(_account)
+            _standardizeDecimals(IScaledBalanceToken(aToken).scaledBalanceOf(_account), rewardInfo.decimals)
                 * (_rewardPerToken(rewardInfo, aToken) - _userInfo[aToken][_account].rewardPerTokenPaid)
         ) / PRECISION_FACTOR;
     }
@@ -484,7 +485,7 @@ contract IncentivesController is
      *   account's real balance.
      */
     function nextBoostedBalanceOf(address aToken, address _account) external view returns (uint256) {
-        return _boostedBalanceOf(aToken, _account, IERC20(aToken).balanceOf(_account), _aTokenReward[aToken].decimals);
+        return _boostedBalanceOf(aToken, _account, _aTokenReward[aToken].decimals);
     }
 
     /**
@@ -492,32 +493,30 @@ contract IncentivesController is
      *   Calculates the boosted balance of an account based on its gauge stake
      *   proportion & veYFI lock proportion.
      *  @dev This function expects this._totalAssets to be up to date.
+     *  @param aToken aToken for which we calculate boosted balance
      *  @param _account The account whose veYFI lock should be checked.
-     *  @param _realBalance The amount of token _account has locked in the gauge.
+     *  @param decimals aToken decimals
      *  @return
      *   The account's boosted balance. Always lower than or equal to the
      *   account's real balance.
      */
-    function _boostedBalanceOf(address aToken, address _account, uint256 _realBalance, uint8 decimals)
-        internal
-        view
-        returns (uint256)
-    {
+    function _boostedBalanceOf(address aToken, address _account, uint8 decimals) internal view returns (uint256) {
+        (uint256 aTokenBalance, uint256 aTokenSupply) =
+            IScaledBalanceToken(aToken).getScaledUserBalanceAndSupply(_account);
+        aTokenBalance = _standardizeDecimals(aTokenBalance, decimals);
+
         uint256 veTotalSupply = IVeVmex(VE_VMEX).totalSupply();
         if (veTotalSupply == 0) {
-            return _realBalance;
+            return aTokenBalance;
         }
 
-        uint256 aTokenSupply = _standardizeDecimals(IERC20(aToken).totalSupply(), decimals);
         return _min(
             (
-                (_realBalance * BOOSTING_FACTOR)
-                    + (
-                        ((IERC20(aToken).totalSupply() * IVeVmex(VE_VMEX).balanceOf(_account)) / veTotalSupply)
-                            * (BOOST_DENOMINATOR - BOOSTING_FACTOR)
-                    )
+                aTokenBalance * BOOSTING_FACTOR
+                    + _standardizeDecimals(aTokenSupply, decimals) * IVeVmex(VE_VMEX).balanceOf(_account) / veTotalSupply
+                        * (BOOST_DENOMINATOR - BOOSTING_FACTOR)
             ) / BOOST_DENOMINATOR,
-            _realBalance
+            aTokenBalance
         );
     }
 
@@ -542,7 +541,7 @@ contract IncentivesController is
      *   updateReward(_account) first.
      */
     function _getReward(address aToken, address _account, uint8 decimals) internal {
-        uint256 boostedBalance = _boostedBalanceOf(aToken, _account, IERC20(aToken).balanceOf(_account), decimals);
+        uint256 boostedBalance = _boostedBalanceOf(aToken, _account, decimals);
         _boostedBalances[aToken][_account] = boostedBalance;
 
         uint256 reward = _userInfo[aToken][_account].reward;
@@ -553,6 +552,7 @@ contract IncentivesController is
     }
 
     function _transferVeYfiORewards(uint256 _penalty) internal {
+        if (_penalty == 0) return;
         IERC20(DVMEX).approve(DVMEX_REWARD_POOL, _penalty);
         IDVmexRewardPool(DVMEX_REWARD_POOL).burn(_penalty);
     }
