@@ -32,6 +32,7 @@ contract IncentivesController3Test is Test {
     IERC20 VELO_USDC_LUSD_LP = IERC20(0xf04458f7B21265b80FC340dE7Ee598e24485c5bB);
 
     address USER = address(0xbabe);
+    address VE_VMEX_USER = 0x1552B1A051430290f1B5E31F156E3CD501f520C3;
     address OP_TEST_USER = 0xB79EA9a14FE37f289bD9C9ca6d53bBAB8Ebc4Df3;
     address SUPPLIER = address(0xbaba);
     uint64 LP_TRANCHE_ID = 0;
@@ -231,94 +232,125 @@ contract IncentivesController3Test is Test {
         assertTrue(penalties[3] > penalties[4]);
     }
 
-    // function testClaimManyUsersManyRewards() public {
-    //     _upgradeIncentivesController();
+    function testClaimManyUsersManyRewards() public {
+        _upgradeIncentivesController();
 
-    //     // USDC accross base & LP tranches
-    //     DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, BASE_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
-    //     reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
+        // USDC accross base & LP tranches
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, BASE_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     // WETH accross base LP & LSD tranches
-    //     reserveData = lendingPool.getReserveData(TOKEN_WETH, BASE_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
-    //     reserveData = lendingPool.getReserveData(TOKEN_WETH, LP_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
-    //     reserveData = lendingPool.getReserveData(TOKEN_WETH, LSD_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
+        reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     // wstETH accross base LP & LSD tranches
-    //     reserveData = lendingPool.getReserveData(TOKEN_WSTETH, BASE_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
-    //     reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LP_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
-    //     reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LSD_TRANCHE_ID);
-    //     _configureRewards(
-    //         EMISSION_PER_SECOND, uint128(block.timestamp + 14 days), reserveData.aTokenAddress, address(dVmexMock)
-    //     );
+        // WETH accross base LP & LSD tranches
+        reserveData = lendingPool.getReserveData(TOKEN_WETH, BASE_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     // deposit and lock for all users
-    //     for (uint256 i; i < users.length; ++i) {
-    //         _deposit(users[i], TOKEN_USDC, BASE_TRANCHE_ID, usdcDepositAmounts[i]);
-    //         _deposit(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
+        reserveData = lendingPool.getReserveData(TOKEN_WETH, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //         _deposit(users[i], TOKEN_WETH, BASE_TRANCHE_ID, wethDepositAmounts[i]);
-    //         _deposit(users[i], TOKEN_WETH, LP_TRANCHE_ID, wethDepositAmounts[i]);
-    //         _deposit(users[i], TOKEN_WETH, LSD_TRANCHE_ID, wethDepositAmounts[i]);
+        reserveData = lendingPool.getReserveData(TOKEN_WETH, LSD_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //         _deposit(users[i], TOKEN_WSTETH, BASE_TRANCHE_ID, wethDepositAmounts[i]);
-    //         _deposit(users[i], TOKEN_WSTETH, LP_TRANCHE_ID, wethDepositAmounts[i]);
-    //         _deposit(users[i], TOKEN_WSTETH, LSD_TRANCHE_ID, wethDepositAmounts[i]);
+        // wstETH accross base LP & LSD tranches
+        reserveData = lendingPool.getReserveData(TOKEN_WSTETH, BASE_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //         _lockVmexLp(users[i], vmexLpLockAmounts[i], block.timestamp + vmexLpLockDurations[i]);
-    //     }
+        reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     vm.warp(block.timestamp + 14 days);
+        reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LSD_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-    //     address[] memory assets = new address[](1);
-    //     assets[0] = reserveData.aTokenAddress;
-    //     uint256[] memory penalties = new uint256[](5);
-    //     uint256 dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
-    //     // claim for all users
-    //     for (uint256 i; i < users.length; ++i) {
-    //         vm.prank(users[i]);
-    //         incentivesController.claimAllRewards(assets, users[i]);
-    //         penalties[i] = dVmexMock.balanceOf(DVMEX_REWARD_POOL) - dvmexRewardPoolBalanceBefore;
-    //         dvmexRewardPoolBalanceBefore = dVmexMock.balanceOf(DVMEX_REWARD_POOL);
-    //     }
+        // deposit and lock for all users
+        for (uint256 i; i < users.length; ++i) {
+            _lockVmexLp(users[i], vmexLpLockAmounts[i], block.timestamp + vmexLpLockDurations[i]);
 
-    //     uint256[] memory balances = new uint256[](5);
-    //     for (uint256 i; i < users.length; ++i) {
-    //         balances[i] = dVmexMock.balanceOf(users[i]);
-    //     }
+            _deposit(users[i], TOKEN_USDC, BASE_TRANCHE_ID, usdcDepositAmounts[i]);
+            _deposit(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
 
-    //     // ensure users with shorter lock have claimed less
-    //     assertTrue(balances[0] < balances[1]);
-    //     assertTrue(balances[1] < balances[2]);
-    //     assertTrue(balances[2] < balances[3]);
-    //     assertTrue(balances[3] < balances[4]);
+            _deposit(users[i], TOKEN_WETH, BASE_TRANCHE_ID, wethDepositAmounts[i]);
+            _deposit(users[i], TOKEN_WETH, LP_TRANCHE_ID, wethDepositAmounts[i]);
+            _deposit(users[i], TOKEN_WETH, LSD_TRANCHE_ID, wethDepositAmounts[i]);
 
-    //     // ensure users with shorter lock have paid more penalty
-    //     assertTrue(penalties[0] > penalties[1]);
-    //     assertTrue(penalties[1] > penalties[2]);
-    //     assertTrue(penalties[2] > penalties[3]);
-    //     assertTrue(penalties[3] > penalties[4]);
-    // }
+            _deposit(users[i], TOKEN_WSTETH, BASE_TRANCHE_ID, wethDepositAmounts[i]);
+            _deposit(users[i], TOKEN_WSTETH, LP_TRANCHE_ID, wethDepositAmounts[i]);
+            _deposit(users[i], TOKEN_WSTETH, LSD_TRANCHE_ID, wethDepositAmounts[i]);
+        }
+
+        vm.warp(block.timestamp + 14 days);
+
+        uint256[] memory penalties = new uint256[](5);
+        uint256 dvmexRewardPoolBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
+        // claim for all users
+        for (uint256 i; i < users.length; ++i) {
+            vm.startPrank(users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_USDC, BASE_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_WETH, BASE_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_WETH, LP_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_WETH, LSD_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_WSTETH, BASE_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LP_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LSD_TRANCHE_ID);
+            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+
+            penalties[i] = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL) - dvmexRewardPoolBalanceBefore;
+            dvmexRewardPoolBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
+        }
+
+        uint256[] memory balances = new uint256[](5);
+        for (uint256 i; i < users.length; ++i) {
+            balances[i] = IERC20(DVMEX).balanceOf(users[i]);
+        }
+
+        // ensure users with shorter lock have claimed less
+        assertTrue(balances[0] < balances[1]);
+        assertTrue(balances[1] < balances[2]);
+        assertTrue(balances[2] < balances[3]);
+        assertTrue(balances[3] < balances[4]);
+
+        // ensure users with shorter lock have paid more penalty
+        assertTrue(penalties[0] > penalties[1]);
+        assertTrue(penalties[1] > penalties[2]);
+        assertTrue(penalties[2] > penalties[3]);
+        assertTrue(penalties[3] > penalties[4]);
+    }
+
+    function testVeVMEXUserBeforeUpgrade() public {
+        _upgradeIncentivesController();
+
+        _deposit(VE_VMEX_USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
+
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
+
+        vm.prank(MULTISIG);
+        incentivesController.updateBoostedBalanceOf(reserveData.aTokenAddress, VE_VMEX_USER);
+
+        vm.warp(block.timestamp + 5 days);
+
+        uint256 balanceBefore = IERC20(DVMEX).balanceOf(VE_VMEX_USER);
+        vm.prank(VE_VMEX_USER);
+        incentivesController.getReward(reserveData.aTokenAddress, VE_VMEX_USER);
+        
+        assertTrue(IERC20(DVMEX).balanceOf(VE_VMEX_USER) - balanceBefore > 0);
+    }
 
     function _upgradeIncentivesController() internal {
         vm.startPrank(MULTISIG);

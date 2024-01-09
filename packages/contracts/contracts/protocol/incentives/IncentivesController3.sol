@@ -560,4 +560,11 @@ contract IncentivesController is
     function getATokenReward(address aToken) external view returns (DVmexReward memory) {
         return _aTokenReward[aToken];
     }
+
+    function updateBoostedBalanceOf(address aToken, address user) external onlyGlobalAdmin {
+        DVmexReward storage reward = _aTokenReward[aToken];
+        _updateReward(reward, aToken, user);
+
+        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, reward.decimals);
+    }
 }
