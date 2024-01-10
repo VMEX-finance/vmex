@@ -66,6 +66,8 @@ contract IncentivesController is
     mapping(address aToken => mapping(address user => UserInfo userRewardInfo)) internal _userInfo;
     mapping(address aToken => mapping(address user => uint256 balance)) internal _boostedBalances;
 
+    event RewardsAdded(uint32 periodFinish, uint64 rewardRate, uint128 currentRewards);
+
     /**
      * @dev Called by the proxy contract
      *
@@ -333,14 +335,12 @@ contract IncentivesController is
 
     /**
      * @notice sweep tokens that are airdropped/transferred into the gauge.
-     *  @dev sweep can only be done on non-protected tokens.
-     *  @return _token to sweep
+     *  @param _token to sweep
      */
-    function sweep(address _token) external onlyGlobalAdmin returns (bool) {
+    function sweep(address _token) external onlyGlobalAdmin {
         uint256 amount = IERC20(_token).balanceOf(address(this));
 
         IERC20(_token).safeTransfer(msg.sender, amount);
-        return true;
     }
 
     /**
@@ -381,17 +381,23 @@ contract IncentivesController is
         }
         _updateReward(reward, aToken, address(0));
 
+        uint64 rewardRate = uint64(_reward / DURATION);
+
         if (block.timestamp >= reward.periodFinish) {
-            reward.rewardRate = uint64(_reward / DURATION);
+            reward.rewardRate = rewardRate;
         } else {
             uint256 remaining = reward.periodFinish - block.timestamp;
             uint256 leftover = remaining * reward.rewardRate;
             _reward = _reward + leftover;
-            reward.rewardRate = uint64(_reward / DURATION);
+            reward.rewardRate = rewardRate;
         }
-        reward.currentRewards = uint128(_reward);
+        uint128 currentRewards = uint128(_reward);
+        reward.currentRewards = currentRewards;
         reward.lastUpdateTime = uint32(block.timestamp);
-        reward.periodFinish = uint32(block.timestamp + DURATION);
+        uint32 periodFinish = uint32(block.timestamp + DURATION);
+        reward.periodFinish = periodFinish;
+
+        emit RewardsAdded(periodFinish, rewardRate, currentRewards);
     }
 
     function _min(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -527,7 +533,7 @@ contract IncentivesController is
      * @param _account to claim rewards for
      * @return true
      */
-    function getReward(address aToken, address _account) external returns (bool) {
+    function claimDVmexReward(address aToken, address _account) external returns (bool) {
         DVmexReward storage reward = _aTokenReward[aToken];
         _updateReward(reward, aToken, _account);
         _getReward(aToken, _account, reward.decimals);
@@ -557,7 +563,7 @@ contract IncentivesController is
         IDVmexRewardPool(DVMEX_REWARD_POOL).burn(_penalty);
     }
 
-    function getATokenReward(address aToken) external view returns (DVmexReward memory) {
+    function getDVmexReward(address aToken) external view returns (DVmexReward memory) {
         return _aTokenReward[aToken];
     }
 

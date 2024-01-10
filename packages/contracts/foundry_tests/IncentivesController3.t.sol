@@ -132,7 +132,7 @@ contract IncentivesController3Test is Test {
         DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
         _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
-        IncentivesController.DVmexReward memory reward = incentivesController.getATokenReward(reserveData.aTokenAddress);
+        IncentivesController.DVmexReward memory reward = incentivesController.getDVmexReward(reserveData.aTokenAddress);
 
         assertEq(reward.periodFinish, uint32(block.timestamp + 14 days));
         assertEq(reward.lastUpdateTime, uint32(block.timestamp));
@@ -157,10 +157,10 @@ contract IncentivesController3Test is Test {
         uint256 penaltyBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
 
         vm.prank(USER);
-        incentivesController.getReward(reserveData.aTokenAddress, USER);
+        incentivesController.claimDVmexReward(reserveData.aTokenAddress, USER);
 
         IncentivesController.DVmexReward memory rewardInfo =
-            incentivesController.getATokenReward(reserveData.aTokenAddress);
+            incentivesController.getDVmexReward(reserveData.aTokenAddress);
         uint256 maxEarned = _standardizeDecimals(
             IScaledBalanceToken(reserveData.aTokenAddress).scaledBalanceOf(USER), TOKEN_USDC_DECIMALS
         ) * rewardInfo.rewardPerTokenStored / PRECISION_FACTOR;
@@ -184,7 +184,7 @@ contract IncentivesController3Test is Test {
         uint256 penaltyBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
 
         vm.prank(USER);
-        incentivesController.getReward(reserveData.aTokenAddress, USER);
+        incentivesController.claimDVmexReward(reserveData.aTokenAddress, USER);
 
         assertEq(IERC20(DVMEX).balanceOf(USER), earned);
         assertEq(IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL), penaltyBalanceBefore);
@@ -209,7 +209,7 @@ contract IncentivesController3Test is Test {
         uint256 dvmexRewardPoolBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
         // claim for all users
         for (uint256 i; i < users.length; ++i) {
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
             penalties[i] = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL) - dvmexRewardPoolBalanceBefore;
             dvmexRewardPoolBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
         }
@@ -287,28 +287,28 @@ contract IncentivesController3Test is Test {
             vm.startPrank(users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_USDC, BASE_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_WETH, BASE_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_WETH, LP_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_WETH, LSD_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_WSTETH, BASE_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LP_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LSD_TRANCHE_ID);
-            incentivesController.getReward(reserveData.aTokenAddress, users[i]);
+            incentivesController.claimDVmexReward(reserveData.aTokenAddress, users[i]);
 
             penalties[i] = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL) - dvmexRewardPoolBalanceBefore;
             dvmexRewardPoolBalanceBefore = IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL);
@@ -347,8 +347,8 @@ contract IncentivesController3Test is Test {
 
         uint256 balanceBefore = IERC20(DVMEX).balanceOf(VE_VMEX_USER);
         vm.prank(VE_VMEX_USER);
-        incentivesController.getReward(reserveData.aTokenAddress, VE_VMEX_USER);
-        
+        incentivesController.claimDVmexReward(reserveData.aTokenAddress, VE_VMEX_USER);
+
         assertTrue(IERC20(DVMEX).balanceOf(VE_VMEX_USER) - balanceBefore > 0);
     }
 
