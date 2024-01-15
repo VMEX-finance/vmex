@@ -95,7 +95,11 @@ contract IncentivesController is
 
     function setDVmex(address dVmex) external onlyGlobalAdmin {
         require(DVMEX == address(0), "can only set DVMEX once");
+        require(DVMEX_REWARD_POOL != address(0), "must set RewardPool first");
+
         DVMEX = dVmex;
+
+        IERC20(dVmex).approve(DVMEX_REWARD_POOL, type(uint256).max);
     }
 
     /**
@@ -383,14 +387,13 @@ contract IncentivesController is
 
         uint64 rewardRate = uint64(_reward / DURATION);
 
-        if (block.timestamp >= reward.periodFinish) {
-            reward.rewardRate = rewardRate;
-        } else {
+        if (block.timestamp < reward.periodFinish) {
             uint256 remaining = reward.periodFinish - block.timestamp;
             uint256 leftover = remaining * reward.rewardRate;
             _reward = _reward + leftover;
-            reward.rewardRate = rewardRate;
         }
+
+        reward.rewardRate = rewardRate;
         uint128 currentRewards = uint128(_reward);
         reward.currentRewards = currentRewards;
         reward.lastUpdateTime = uint32(block.timestamp);
@@ -420,7 +423,7 @@ contract IncentivesController is
 
                 _userInfo[aToken][_account].reward = uint128(newEarning + _userInfo[aToken][_account].reward);
 
-                _transferVeYfiORewards(_maxEarning(rewardInfo, aToken, _account) - newEarning);
+                _transferVeVmexRewards(_maxEarning(rewardInfo, aToken, _account) - newEarning);
             }
             _userInfo[aToken][_account].rewardPerTokenPaid = uint128(newRewardPerTokenStored);
         }
@@ -483,7 +486,7 @@ contract IncentivesController is
 
     /**
      * @notice
-     *   Calculates the boosted balance of based on veYFI balance.
+     *   Calculates the boosted balance of based on veVMEX balance.
      *  @dev
      *   This function expects this._totalAssets to be up to date.
      *  @return
@@ -497,10 +500,10 @@ contract IncentivesController is
     /**
      * @notice
      *   Calculates the boosted balance of an account based on its gauge stake
-     *   proportion & veYFI lock proportion.
+     *   proportion & veVMEX lock proportion.
      *  @dev This function expects this._totalAssets to be up to date.
      *  @param aToken aToken for which we calculate boosted balance
-     *  @param _account The account whose veYFI lock should be checked.
+     *  @param _account The account whose veVMEX lock should be checked.
      *  @param decimals aToken decimals
      *  @return
      *   The account's boosted balance. Always lower than or equal to the
@@ -557,9 +560,8 @@ contract IncentivesController is
         }
     }
 
-    function _transferVeYfiORewards(uint256 _penalty) internal {
+    function _transferVeVmexRewards(uint256 _penalty) internal {
         if (_penalty == 0) return;
-        IERC20(DVMEX).approve(DVMEX_REWARD_POOL, _penalty);
         IDVmexRewardPool(DVMEX_REWARD_POOL).burn(_penalty);
     }
 
