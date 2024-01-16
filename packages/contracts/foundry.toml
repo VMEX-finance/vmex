@@ -4,3 +4,4 @@ out = 'out'
 libs = ['lib', '../../node_modules']
 test = 'foundry_tests'
 cache_path  = 'cache_forge'
+fs_permissions = [{ access = "read", path = "./"}]

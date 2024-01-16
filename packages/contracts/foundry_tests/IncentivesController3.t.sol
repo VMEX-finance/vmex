@@ -354,6 +354,79 @@ contract IncentivesController3Test is Test {
         assertTrue(IERC20(DVMEX).balanceOf(VE_VMEX_USER) - balanceBefore > 0);
     }
 
+    function testFullMainnetUpgrade() public {
+        _upgradeIncentivesController();
+
+        _addMainnetRewards();
+
+        _updateBoostedBalances();
+
+        vm.warp(block.timestamp + 7 days);
+
+        _claimAllExisting();
+    }
+
+    function _claimAllExisting() internal {
+        _claimExisting('/usdcLPTrancheUsers.json');
+        _claimExisting('/wethLPTrancheUsers.json');
+        _claimExisting('/wethLSDTrancheUsers.json');
+        _claimExisting('/wstethLPTrancheUsers.json');
+    }
+
+    function _claimExisting(string memory file) internal {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, file);
+        string memory json = vm.readFile(path);
+        UpdateBoosted memory updateBoosted = abi.decode(vm.parseJson(json), (UpdateBoosted));
+
+        uint256 balanceBefore;
+        for (uint256 i; i < updateBoosted.users.length; ++i) {
+            balanceBefore = IERC20(DVMEX).balanceOf(updateBoosted.users[i]);
+            incentivesController.claimDVmexReward(updateBoosted.aToken, updateBoosted.users[i]);
+            console.log(updateBoosted.aToken, updateBoosted.users[i], IERC20(DVMEX).balanceOf(updateBoosted.users[i]) - balanceBefore);
+        }
+    }
+
+    function _updateBoostedBalances() internal {
+        _readJsonAndUpdateBoosted('/usdcLPTrancheUsers.json');
+        _readJsonAndUpdateBoosted('/wethLPTrancheUsers.json');
+        _readJsonAndUpdateBoosted('/wethLSDTrancheUsers.json');
+        _readJsonAndUpdateBoosted('/wstethLPTrancheUsers.json');
+    }
+
+    struct UpdateBoosted {
+        address aToken;
+        address[] users;
+    }
+
+    function _readJsonAndUpdateBoosted(string memory file) internal {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, file);
+        string memory json = vm.readFile(path);
+        UpdateBoosted memory updateBoosted = abi.decode(vm.parseJson(json), (UpdateBoosted));
+        
+        vm.prank(MULTISIG);
+        incentivesController.updateBoostedBalanceOf(updateBoosted.aToken, updateBoosted.users);
+
+    }
+
+    function _addMainnetRewards() internal {
+        // USDC LP tranche
+        DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, 175_000e18);
+
+        // WETH accross base LP & LSD tranches
+        reserveData = lendingPool.getReserveData(TOKEN_WETH, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, 100_000e18);
+
+        reserveData = lendingPool.getReserveData(TOKEN_WETH, LSD_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, 125_000e18);
+
+        // wstETH accross base LP & LSD tranches
+        reserveData = lendingPool.getReserveData(TOKEN_WSTETH, LP_TRANCHE_ID);
+        _queueNewRewards(reserveData.aTokenAddress, 100_000e18);
+    }
+
     function _upgradeIncentivesController() internal {
         vm.startPrank(MULTISIG);
 

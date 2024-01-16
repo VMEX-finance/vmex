@@ -8,3 +8,4 @@ dist/
 out/
 
 lerna-debug.log
+.vscode/launch.json
