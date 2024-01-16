@@ -16,6 +16,8 @@ import {IDVmex} from "../contracts/interfaces/IDVmex.sol";
 import {IScaledBalanceToken} from "../contracts/interfaces/IScaledBalanceToken.sol";
 
 contract IncentivesUpgradeScript is Script {
+    address INCENTIVES_CONTROLLER_IMPL = 0x79dfAAd6CAE7Eb2569B97a9bdD46a8655612361e;
+
     address MULTISIG = 0x599e1DE505CfD6f10F64DD7268D856831f61627a;
     IncentivesController incentivesController = IncentivesController(0x8E2a4c71906640B058051c00783160bE306c38fE);
     ILendingPool lendingPool = ILendingPool(0x60F015F66F3647168831d31C7048ca95bb4FeaF9);
@@ -71,6 +73,8 @@ contract IncentivesUpgradeScript is Script {
     }
 
     function _addMainnetRewards() internal {
+        IDVmex(DVMEX).approve(address(incentivesController), 500_000e18);
+
         // USDC LP tranche
         DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
         _queueNewRewards(reserveData.aTokenAddress, 175_000e18);
@@ -88,10 +92,7 @@ contract IncentivesUpgradeScript is Script {
     }
 
     function _upgradeIncentivesController() internal {
-
-        IncentivesController incentivesImpl = new IncentivesController();
-
-        addressesProvider.setIncentivesController(address(incentivesImpl));
+        addressesProvider.setIncentivesController(INCENTIVES_CONTROLLER_IMPL);
 
         incentivesController.setVeVmex(VE_VMEX);
         incentivesController.setDVmexRewardPool(DVMEX_REWARD_POOL);
@@ -99,10 +100,6 @@ contract IncentivesUpgradeScript is Script {
     }
 
     function _queueNewRewards(address asset, uint256 amount) internal {
-        IDVmex(DVMEX).mint(MULTISIG, amount);
-
-        IDVmex(DVMEX).approve(address(incentivesController), amount);
-
         incentivesController.queueNewRewards(asset, amount);
     }
 }
