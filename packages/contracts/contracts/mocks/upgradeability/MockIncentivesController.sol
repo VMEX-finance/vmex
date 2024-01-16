@@ -131,59 +131,6 @@ contract MockIncentivesController is
   }
 
   /**
-   * @dev Claims reward for an user on all the given incentivized assets, accumulating the accured rewards
-   *      then transferring the reward asset to the user
-   * @param incentivizedAssets The list of incentivized asset addresses (atoken addresses)
-   * @param reward The reward to claim (only claims this reward address across all atokens you enter)
-   * @param amountToClaim The amount of the reward to claim
-   * @param to The address to send the claimed funds to
-   * @return rewardAccured The total amount of rewards claimed by the user
-   **/
-  function claimReward(
-    address[] calldata incentivizedAssets,
-    address reward,
-    uint256 amountToClaim,
-    address to
-  ) external override returns (uint256) {
-    if (amountToClaim == 0) {
-      return 0;
-    }
-
-    address user = msg.sender;
-    DistributionTypes.UserAssetState[] memory userState = _getUserState(incentivizedAssets, user);
-    _batchUpdate(user, userState);
-
-    uint256 rewardAccrued;
-    for (uint256 i; i < incentivizedAssets.length; ++i) {
-      address asset = incentivizedAssets[i];
-
-      if (_incentivizedAssets[asset].rewardData[reward].users[user].accrued == 0) {
-        continue;
-      }
-
-      rewardAccrued += _incentivizedAssets[asset].rewardData[reward].users[user].accrued;
-
-      if (rewardAccrued <= amountToClaim) {
-        _incentivizedAssets[asset].rewardData[reward].users[user].accrued = 0;
-      } else {
-        uint256 remainder = rewardAccrued - amountToClaim;
-        rewardAccrued -= remainder;
-        _incentivizedAssets[asset].rewardData[reward].users[user].accrued = remainder;
-        break;
-      }
-    }
-
-    if (rewardAccrued == 0) {
-      return 0;
-    }
-
-    IERC20(reward).safeTransferFrom(REWARDS_VAULT, to, rewardAccrued);
-    emit RewardClaimed(msg.sender, reward, to, rewardAccrued);
-
-    return rewardAccrued;
-  }
-
-  /**
    * @dev Claims all available rewards on the given incentivized assets
    * @param incentivizedAssets The list of incentivized asset addresses
    * @param to The address to send the claimed funds to

@@ -32,13 +32,6 @@ interface IIncentivesController is IExternalRewardsDistributor, IDistributionMan
     address user
   ) external view returns (address[] memory, uint256[] memory);
 
-  function claimReward(
-    address[] calldata assets,
-    address reward,
-    uint256 amountToClaim,
-    address to
-  ) external returns (uint256);
-
   function claimAllRewards(
     address[] calldata assets,
     address to
