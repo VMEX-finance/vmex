@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {Script, console2} from "forge-std/Script.sol";
 import {LendingPool} from "../contracts/protocol/lendingpool/LendingPool.sol";
-import {IncentivesController} from "../contracts/protocol/incentives/IncentivesController3.sol";
+import {IncentivesController} from "../contracts/protocol/incentives/IncentivesController.sol";
 import {ILendingPool} from "../contracts/interfaces/ILendingPool.sol";
 import {ILendingPoolAddressesProvider} from "../contracts/interfaces/ILendingPoolAddressesProvider.sol";
 import {IAssetMappings} from "../contracts/interfaces/IAssetMappings.sol";
