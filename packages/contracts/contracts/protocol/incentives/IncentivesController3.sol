@@ -569,10 +569,20 @@ contract IncentivesController is
         return _aTokenReward[aToken];
     }
 
-    function updateBoostedBalanceOf(address aToken, address user) external onlyGlobalAdmin {
+    function updateBoostedBalanceOf(address aToken, address[] calldata users) external onlyGlobalAdmin {
         DVmexReward storage reward = _aTokenReward[aToken];
-        _updateReward(reward, aToken, user);
 
-        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, reward.decimals);
+        uint256 length = users.length;
+        address user;
+        for (uint256 i; i < length;) {
+            user = users[i];
+
+            _updateReward(reward, aToken, user);
+            _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, reward.decimals);
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 }

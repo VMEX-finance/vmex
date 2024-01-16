@@ -336,12 +336,14 @@ contract IncentivesController3Test is Test {
         _upgradeIncentivesController();
 
         _deposit(VE_VMEX_USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
-
         DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
         _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
         vm.prank(MULTISIG);
-        incentivesController.updateBoostedBalanceOf(reserveData.aTokenAddress, VE_VMEX_USER);
+        address[] memory usersToUpdate = new address[](1);
+        usersToUpdate[0] = VE_VMEX_USER;
+        incentivesController.updateBoostedBalanceOf(reserveData.aTokenAddress, usersToUpdate);
+
 
         vm.warp(block.timestamp + 5 days);
 
