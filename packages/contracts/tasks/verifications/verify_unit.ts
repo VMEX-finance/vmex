@@ -5,6 +5,7 @@ import {
   getWrappedNativeTokenAddress,
 } from '../../helpers/configuration';
 import {
+  getIncentivesControllerImpl,
   getInterestRateStrategy,
   getLendingPoolAddressesProvider,
   getVMEXOracle,
@@ -19,7 +20,7 @@ task('verify:unit', 'Verify a single contract at Etherscan')
   .setAction(async ({ all, pool }, localDRE) => {
     await localDRE.run('set-DRE');
     
-      const c = await getVMEXOracle("0x0c3E4a646363b91b8b956cF5D1fe761521C1E1ff");
+      const c = await getIncentivesControllerImpl("0x5996263C1A03BE3EcA7e66967630abe05b82F36C");
 
       // Asset mappings
       console.log('\n- Verifying contract...\n');

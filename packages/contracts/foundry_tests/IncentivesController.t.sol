@@ -3,7 +3,7 @@ pragma solidity >=0.8.19;
 
 import "forge-std/Test.sol";
 import {LendingPool} from "../contracts/protocol/lendingpool/LendingPool.sol";
-import {IncentivesController} from "../contracts/protocol/incentives/IncentivesController3.sol";
+import {IncentivesController} from "../contracts/protocol/incentives/IncentivesController.sol";
 import {ILendingPool} from "../contracts/interfaces/ILendingPool.sol";
 import {ILendingPoolAddressesProvider} from "../contracts/interfaces/ILendingPoolAddressesProvider.sol";
 import {IAssetMappings} from "../contracts/interfaces/IAssetMappings.sol";
@@ -15,7 +15,7 @@ import {MockERC20} from "solmate/test/utils/mocks/MockERC20.sol";
 import {IDVmex} from "../contracts/interfaces/IDVmex.sol";
 import {IScaledBalanceToken} from "../contracts/interfaces/IScaledBalanceToken.sol";
 
-contract IncentivesController3Test is Test {
+contract IncentivesControllerTest is Test {
     uint256 optimismFork;
     IncentivesController incentivesController = IncentivesController(0x8E2a4c71906640B058051c00783160bE306c38fE);
     ILendingPool lendingPool = ILendingPool(0x60F015F66F3647168831d31C7048ca95bb4FeaF9);

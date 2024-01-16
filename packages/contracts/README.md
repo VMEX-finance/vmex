@@ -82,6 +82,7 @@ yarn compile
 
 1. Install foundry and forge: https://book.getfoundry.sh/getting-started/installation
 2. Now can build and run tests: `forge test --fork-url https://mainnet.base.org --fork-block-number 4924830 --match-contract CLSyncOracle -vvvv`
+   `forge test --match-contract IncentivesController3 -vvvv`
 
 # Hardhat Accounts
 

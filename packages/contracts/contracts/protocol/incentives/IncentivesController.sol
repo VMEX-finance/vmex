@@ -13,6 +13,9 @@ import {DistributionManager} from './DistributionManager.sol';
 import {ExternalRewardDistributor} from './ExternalRewardDistributor.sol';
 import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {IVeVmex} from "../../interfaces/IVeVmex.sol";
+import {IDVmexRewardPool} from "../../interfaces/IDVmexRewardPool.sol";
+import {IScaledBalanceToken} from "../../interfaces/IScaledBalanceToken.sol";
 
 /**
  * @title IncentivesController
@@ -29,6 +32,41 @@ contract IncentivesController is
 
   address public REWARDS_VAULT;
 
+    /*//////////////////////////////////////////////////////////////
+                      dVMEX rewards state
+    //////////////////////////////////////////////////////////////*/
+
+    uint256 internal constant BOOSTING_FACTOR = 1;
+    uint256 internal constant BOOST_DENOMINATOR = 10;
+    uint256 internal constant STANDARD_DECIMALS = 18;
+    uint256 internal constant PRECISION_FACTOR = 10 ** 18;
+    uint256 internal constant DURATION = 14 days;
+
+    address public VE_VMEX;
+    address public DVMEX_REWARD_POOL;
+    address public DVMEX;
+
+    struct DVmexReward {
+        uint32 periodFinish;
+        uint32 lastUpdateTime;
+        uint64 rewardRate;
+        uint128 rewardPerTokenStored;
+        uint8 decimals;
+        uint120 queuedRewards;
+        uint128 currentRewards;
+    }
+
+    struct UserInfo {
+        uint128 rewardPerTokenPaid;
+        uint128 reward;
+    }
+
+    mapping(address aToken => DVmexReward reward) internal _aTokenReward;
+    mapping(address aToken => mapping(address user => UserInfo userRewardInfo)) internal _userInfo;
+    mapping(address aToken => mapping(address user => uint256 balance)) internal _boostedBalances;
+
+    event RewardsAdded(uint32 periodFinish, uint64 rewardRate, uint128 currentRewards);
+
   /**
    * @dev Called by the proxy contract
    **/
@@ -40,6 +78,21 @@ contract IncentivesController is
   function setRewardsVault(address rewardsVault) external onlyGlobalAdmin {
     REWARDS_VAULT = rewardsVault;
   }
+
+    function setVeVmex(address veVmex) external onlyGlobalAdmin {
+        require(VE_VMEX == address(0), "can only set VE_VMEX once");
+        VE_VMEX = veVmex;
+    }
+
+    function setDVmexRewardPool(address penaltyReciever) external onlyGlobalAdmin {
+        require(DVMEX_REWARD_POOL == address(0), "can only set DVMEX_REWARD_POOL once");
+        DVMEX_REWARD_POOL = penaltyReciever;
+    }
+
+    function setDVmex(address dVmex) external onlyGlobalAdmin {
+        require(DVMEX == address(0), "can only set DVMEX once");
+        DVMEX = dVmex;
+    }
 
   /**
    * @dev Called by the corresponding asset on any update that affects the rewards distribution
@@ -72,6 +125,8 @@ contract IncentivesController is
           }
       }
     }
+
+        _updateDVmexRewards(msg.sender, user);
   }
 
   function _getUserState(
@@ -133,63 +188,6 @@ contract IncentivesController is
   }
 
   /**
-   * @dev Claims reward for an user on all the given incentivized assets, accumulating the accured rewards
-   *      then transferring the reward asset to the user
-   * @param incentivizedAssets The list of incentivized asset addresses (atoken addresses)
-   * @param reward The reward to claim (only claims this reward address across all atokens you enter)
-   * @param amountToClaim The amount of the reward to claim
-   * @param to The address to send the claimed funds to
-   * @return rewardAccured The total amount of rewards claimed by the user
-   **/
-  function claimReward(
-    address[] calldata incentivizedAssets,
-    address reward,
-    uint256 amountToClaim,
-    address to
-  ) external override returns (uint256) {
-    if (amountToClaim == 0) {
-      return 0;
-    }
-
-    address user = msg.sender;
-    DistributionTypes.UserAssetState[] memory userState = _getUserState(incentivizedAssets, user);
-    _batchUpdate(user, userState);
-
-    uint256 rewardAccrued;
-    uint256 length = incentivizedAssets.length;
-    for (uint256 i; i < length;) {
-      address asset = incentivizedAssets[i];
-
-      if (_incentivizedAssets[asset].rewardData[reward].users[user].accrued == 0) {
-        unchecked { ++i; }
-        continue;
-      }
-
-      rewardAccrued += _incentivizedAssets[asset].rewardData[reward].users[user].accrued;
-
-      if (rewardAccrued <= amountToClaim) {
-        _incentivizedAssets[asset].rewardData[reward].users[user].accrued = 0;
-      } else {
-        uint256 remainder = rewardAccrued - amountToClaim;
-        rewardAccrued -= remainder;
-        _incentivizedAssets[asset].rewardData[reward].users[user].accrued = remainder;
-        break;
-      }
-
-      unchecked { ++i; }
-    }
-
-    if (rewardAccrued == 0) {
-      return 0;
-    }
-
-    IERC20(reward).safeTransferFrom(REWARDS_VAULT, to, rewardAccrued);
-    emit RewardClaimed(msg.sender, reward, to, rewardAccrued);
-
-    return rewardAccrued;
-  }
-
-  /**
    * @dev Claims all available rewards on the given incentivized assets
    * @param incentivizedAssets The list of incentivized asset addresses
    * @param to The address to send the claimed funds to
@@ -235,4 +233,265 @@ contract IncentivesController is
 
     return (rewards, amounts);
   }
+
+    /*//////////////////////////////////////////////////////////////
+                      dVMEX rewards logic
+    //////////////////////////////////////////////////////////////*/
+    function _updateDVmexRewards(address aToken, address user) internal {
+        DVmexReward storage rewardInfo = _aTokenReward[aToken];
+
+        // rewards not configured for this aToken
+        if (rewardInfo.rewardRate == 0) return;
+        _updateReward(rewardInfo, aToken, user);
+
+        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, rewardInfo.decimals);
+    }
+
+    /**
+     *  @return timestamp until rewards are distributed
+     */
+    function _lastTimeRewardApplicable(DVmexReward storage rewardInfo) internal view returns (uint256) {
+        return _min(block.timestamp, rewardInfo.periodFinish);
+    }
+
+    /**
+     * @notice sweep tokens that are airdropped/transferred into the gauge.
+     *  @param _token to sweep
+     */
+    function sweep(address _token) external onlyGlobalAdmin {
+        uint256 amount = IERC20(_token).balanceOf(address(this));
+
+        IERC20(_token).safeTransfer(msg.sender, amount);
+    }
+
+    /**
+     * @notice
+     * Add new rewards to be distributed over a week
+     * @dev Trigger reward rate recalculation using `_amount` and queue rewards
+     * @param _amount token to add to rewards
+     * @return true
+     */
+    function queueNewRewards(address aToken, uint256 _amount) external returns (bool) {
+        require(_amount != 0, "==0");
+        IERC20(DVMEX).safeTransferFrom(msg.sender, address(this), _amount);
+        DVmexReward storage reward = _aTokenReward[aToken];
+
+        _amount = _amount + reward.queuedRewards;
+
+        if (block.timestamp >= reward.periodFinish) {
+            _notifyRewardAmount(reward, aToken, _amount);
+            reward.queuedRewards = 0;
+            return true;
+        }
+        uint256 elapsedSinceBeginingOfPeriod = block.timestamp - (reward.periodFinish - DURATION);
+        uint256 distributedSoFar = elapsedSinceBeginingOfPeriod * reward.rewardRate;
+        // we only restart a new period if _amount is 120% of distributedSoFar.
+
+        if ((distributedSoFar * 12) / 10 < _amount) {
+            _notifyRewardAmount(reward, aToken, _amount);
+            reward.queuedRewards = 0;
+        } else {
+            reward.queuedRewards = uint120(_amount);
+        }
+        return true;
+    }
+
+    function _notifyRewardAmount(DVmexReward storage reward, address aToken, uint256 _reward) internal {
+        if (reward.periodFinish == 0) {
+            reward.decimals = IERC20(aToken).decimals();
+        }
+        _updateReward(reward, aToken, address(0));
+
+        uint64 rewardRate = uint64(_reward / DURATION);
+
+        if (block.timestamp >= reward.periodFinish) {
+            reward.rewardRate = rewardRate;
+        } else {
+            uint256 remaining = reward.periodFinish - block.timestamp;
+            uint256 leftover = remaining * reward.rewardRate;
+            _reward = _reward + leftover;
+            reward.rewardRate = rewardRate;
+        }
+        uint128 currentRewards = uint128(_reward);
+        reward.currentRewards = currentRewards;
+        reward.lastUpdateTime = uint32(block.timestamp);
+        uint32 periodFinish = uint32(block.timestamp + DURATION);
+        reward.periodFinish = periodFinish;
+
+        emit RewardsAdded(periodFinish, rewardRate, currentRewards);
+    }
+
+    function _min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    // assumes biggest decimals is 18
+    function _standardizeDecimals(uint256 amount, uint256 decimals) internal pure returns (uint256) {
+        return decimals != STANDARD_DECIMALS ? amount * 10 ** (STANDARD_DECIMALS - decimals) : amount;
+    }
+
+    function _updateReward(DVmexReward storage rewardInfo, address aToken, address _account) internal {
+        uint256 newRewardPerTokenStored = _rewardPerToken(rewardInfo, aToken);
+        rewardInfo.rewardPerTokenStored = uint128(newRewardPerTokenStored);
+        rewardInfo.lastUpdateTime = uint32(_lastTimeRewardApplicable(rewardInfo));
+
+        if (_account != address(0)) {
+            if (_boostedBalances[aToken][_account] != 0) {
+                uint256 newEarning = _newEarning(rewardInfo, aToken, _account);
+
+                _userInfo[aToken][_account].reward = uint128(newEarning + _userInfo[aToken][_account].reward);
+
+                _transferVeYfiORewards(_maxEarning(rewardInfo, aToken, _account) - newEarning);
+            }
+            _userInfo[aToken][_account].rewardPerTokenPaid = uint128(newRewardPerTokenStored);
+        }
+    }
+
+    function _rewardPerToken(DVmexReward storage rewardInfo, address aToken) internal view returns (uint256) {
+        uint256 totalSupply = _standardizeDecimals(IERC20(aToken).totalSupply(), rewardInfo.decimals);
+        return totalSupply == 0
+            ? rewardInfo.rewardPerTokenStored
+            : rewardInfo.rewardPerTokenStored
+                + (_lastTimeRewardApplicable(rewardInfo) - rewardInfo.lastUpdateTime) * rewardInfo.rewardRate * PRECISION_FACTOR
+                    / totalSupply;
+    }
+
+    /**
+     * @notice The total undistributed earnings for an account.
+     *  @dev Earnings are based on lock duration and boost
+     *  @return
+     *   Amount of tokens the account has earned that have yet to be distributed.
+     */
+    function earned(address aToken, address _account) external view returns (uint256) {
+        DVmexReward storage rewardInfo = _aTokenReward[aToken];
+        uint256 newEarning = _newEarning(rewardInfo, aToken, _account);
+
+        return newEarning + _userInfo[aToken][_account].reward;
+    }
+
+    /**
+     * @notice Calculates an account's earnings based on their boostedBalance.
+     *   This function only reflects the accounts earnings since the last time
+     *   the account's rewards were calculated via _updateReward.
+     */
+    function _newEarning(DVmexReward storage rewardInfo, address aToken, address _account)
+        internal
+        view
+        returns (uint256)
+    {
+        return (
+            _boostedBalances[aToken][_account]
+                * (_rewardPerToken(rewardInfo, aToken) - _userInfo[aToken][_account].rewardPerTokenPaid)
+        ) / PRECISION_FACTOR;
+    }
+
+    /**
+     * @notice Calculates an account's potential maximum earnings based on
+     *   a maximum boost.
+     *   This function only reflects the accounts earnings since the last time
+     *   the account's rewards were calculated via _updateReward.
+     */
+    function _maxEarning(DVmexReward storage rewardInfo, address aToken, address _account)
+        internal
+        view
+        returns (uint256)
+    {
+        return (
+            _standardizeDecimals(IScaledBalanceToken(aToken).scaledBalanceOf(_account), rewardInfo.decimals)
+                * (_rewardPerToken(rewardInfo, aToken) - _userInfo[aToken][_account].rewardPerTokenPaid)
+        ) / PRECISION_FACTOR;
+    }
+
+    /**
+     * @notice
+     *   Calculates the boosted balance of based on veYFI balance.
+     *  @dev
+     *   This function expects this._totalAssets to be up to date.
+     *  @return
+     *   The account's boosted balance. Always lower than or equal to the
+     *   account's real balance.
+     */
+    function nextBoostedBalanceOf(address aToken, address _account) external view returns (uint256) {
+        return _boostedBalanceOf(aToken, _account, _aTokenReward[aToken].decimals);
+    }
+
+    /**
+     * @notice
+     *   Calculates the boosted balance of an account based on its gauge stake
+     *   proportion & veYFI lock proportion.
+     *  @dev This function expects this._totalAssets to be up to date.
+     *  @param aToken aToken for which we calculate boosted balance
+     *  @param _account The account whose veYFI lock should be checked.
+     *  @param decimals aToken decimals
+     *  @return
+     *   The account's boosted balance. Always lower than or equal to the
+     *   account's real balance.
+     */
+    function _boostedBalanceOf(address aToken, address _account, uint8 decimals) internal view returns (uint256) {
+        (uint256 aTokenBalance, uint256 aTokenSupply) =
+            IScaledBalanceToken(aToken).getScaledUserBalanceAndSupply(_account);
+        aTokenBalance = _standardizeDecimals(aTokenBalance, decimals);
+
+        uint256 veTotalSupply = IVeVmex(VE_VMEX).totalSupply();
+        if (veTotalSupply == 0) {
+            return aTokenBalance;
+        }
+
+        return _min(
+            (
+                aTokenBalance * BOOSTING_FACTOR
+                    + _standardizeDecimals(aTokenSupply, decimals) * IVeVmex(VE_VMEX).balanceOf(_account) / veTotalSupply
+                        * (BOOST_DENOMINATOR - BOOSTING_FACTOR)
+            ) / BOOST_DENOMINATOR,
+            aTokenBalance
+        );
+    }
+
+    /**
+     * @notice
+     *  Get rewards for an account
+     * @dev rewards are transferred to _account
+     * @param _account to claim rewards for
+     * @return true
+     */
+    function claimDVmexReward(address aToken, address _account) external returns (bool) {
+        DVmexReward storage reward = _aTokenReward[aToken];
+        _updateReward(reward, aToken, _account);
+        _getReward(aToken, _account, reward.decimals);
+        return true;
+    }
+
+    /**
+     * @notice Distributes the rewards for the specified account.
+     *  @dev
+     *   This function MUST NOT be called without the caller invoking
+     *   updateReward(_account) first.
+     */
+    function _getReward(address aToken, address _account, uint8 decimals) internal {
+        uint256 boostedBalance = _boostedBalanceOf(aToken, _account, decimals);
+        _boostedBalances[aToken][_account] = boostedBalance;
+
+        uint256 reward = _userInfo[aToken][_account].reward;
+        if (reward != 0) {
+            _userInfo[aToken][_account].reward = 0;
+            IERC20(DVMEX).safeTransfer(_account, reward);
+        }
+    }
+
+    function _transferVeYfiORewards(uint256 _penalty) internal {
+        if (_penalty == 0) return;
+        IERC20(DVMEX).approve(DVMEX_REWARD_POOL, _penalty);
+        IDVmexRewardPool(DVMEX_REWARD_POOL).burn(_penalty);
+    }
+
+    function getDVmexReward(address aToken) external view returns (DVmexReward memory) {
+        return _aTokenReward[aToken];
+    }
+
+    function updateBoostedBalanceOf(address aToken, address user) external onlyGlobalAdmin {
+        DVmexReward storage reward = _aTokenReward[aToken];
+        _updateReward(reward, aToken, user);
+
+        _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, reward.decimals);
+    }
 }

@@ -16,14 +16,9 @@ task('vmex:upgrade-incentives', 'Upgrade incentives controller implementation')
       checkVerification();
     }
     
-    const addressesProvider = await getLendingPoolAddressesProvider();
+    const addressesProvider = await getLendingPoolAddressesProvider(undefined, true);
 
     const newIncentivesImpl = await deployIncentivesController(verify);
-    await waitForTx(
-      await addressesProvider.setIncentivesController(
-        newIncentivesImpl.address
-      )
-    );
 
     await insertContractAddressInDb(
       eContractid.IncentivesControllerImpl,
@@ -32,6 +27,7 @@ task('vmex:upgrade-incentives', 'Upgrade incentives controller implementation')
 
     const incentivesControllerProxy = await addressesProvider.getIncentivesController()
     console.log("Proxy should still be the same: ", incentivesControllerProxy)
+    console.log("New incentives controller address: ", newIncentivesImpl.address)
     
     // await insertContractAddressInDb(
     //   eContractid.IncentivesControllerProxy,
