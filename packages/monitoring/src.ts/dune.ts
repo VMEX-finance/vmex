@@ -46,8 +46,8 @@ const uploadAssetsTVL = async (networks: string[], upload: boolean = true) => {
     const finalData = tvlData;
 
     const requestData = {
-      table_name: "TODO",
-      description: "TODO",
+      table_name: "dataset_tvl_data",
+      description: "VMEX Finance TVL of each supported asset within each supported network",
       data: finalData,
     };
 
