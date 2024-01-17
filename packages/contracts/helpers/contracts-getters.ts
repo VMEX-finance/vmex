@@ -50,12 +50,14 @@ export const getEmergencyAdminT0 = async () => (await getEthersSigners())[0];
 export const getTrancheAdminT1 = async () => (await getEthersSigners())[7];
 
 export const getDbEntry = async (
-  id: string | eContractid
+  id: string | eContractid,
+  isProd?: boolean,
+  network?: string
 ) =>
-    await getDb()
+    (isProd ? await getProdDb() : await getDb())
       .get(
-        `${id}.${DRE.network.name}`
-      ).value()
+        `${id}.${network ? network : DRE.network.name}`
+      ).value().address
 
 export const getLendingPoolAddressesProvider = async (
   address?: tEthereumAddress,

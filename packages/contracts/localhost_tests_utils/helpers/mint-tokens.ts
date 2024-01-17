@@ -3,6 +3,7 @@ import { BigNumber, utils, Contract } from "ethers";
 const { ethers } = require('hardhat')
 import { toBytes32, setStorageAt } from "../../helpers/token-fork";
 import { tEthereumAddress } from "../../helpers/types";
+import { veloSwapForTokens } from "./swap-tokens";
 const fs = require('fs');
 
 const ERC20abi = [
@@ -22,21 +23,11 @@ interface SlotInfo {
     slot: bigint;
     isVyper: boolean;
   }
-  const WETHadd = "0x4200000000000000000000000000000000000006"
 
-  const VELO_ROUTER_ADDRESS = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
-  const VELO_ROUTER_ABI = fs.readFileSync("./localhost_tests_utils/abis/velo.json").toString()
 // doesn't work for SNX and sUSD
 export async function setBalance(tokenAddr: tEthereumAddress, signer: SignerWithAddress, balance: string) {
     if(tokenAddr == "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4" || tokenAddr == "0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9") {
-        const VELO_ROUTER_CONTRACT = new ethers.Contract(VELO_ROUTER_ADDRESS, VELO_ROUTER_ABI)
-
-        var path = [WETHadd, tokenAddr, false];
-        // await myWETH.connect(signer).approve(VELO_ROUTER_ADDRESS,ethers.utils.parseEther("100000.0"))
-        var deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-        var options = {value: ethers.utils.parseEther("1000.0")}
-        
-        await VELO_ROUTER_CONTRACT.connect(signer).swapExactETHForTokens(ethers.utils.parseUnits("0.0", 18), [path], signer.address, deadline,options)
+        await veloSwapForTokens(tokenAddr, signer)
     }
     else {
         const slotInfo = await findBalancesSlot(tokenAddr);
