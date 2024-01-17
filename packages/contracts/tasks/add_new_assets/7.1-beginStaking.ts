@@ -12,7 +12,7 @@ import {
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { ExternalRewardsAddress, IExternalRewardsAddress, eNetwork } from "../../helpers/types";
 import { waitForTx } from "../../helpers/misc-utils";
-import { ZERO_ADDRESS } from "@vmexfinance/sdk";
+import { ZERO_ADDRESS } from "../../helpers/constants";
 
 task(`add-beginStaking`, `setup staking and begin staking for tranche 0`)
 .addParam('pool', `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
