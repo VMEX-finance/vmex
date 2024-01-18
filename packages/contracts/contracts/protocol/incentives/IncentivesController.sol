@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.19;
 
-import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
 import {DistributionTypes} from "../libraries/types/DistributionTypes.sol";
-import {IDistributionManager} from "../../interfaces/IDistributionManager.sol";
 import {IAToken} from "../../interfaces/IAToken.sol";
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "../../dependencies/openzeppelin/contracts/SafeERC20.sol";
@@ -12,7 +10,6 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {DistributionManager} from "./DistributionManager.sol";
 import {ExternalRewardDistributor} from "./ExternalRewardDistributor.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
-import {Errors} from "../libraries/helpers/Errors.sol";
 import {IVeVmex} from "../../interfaces/IVeVmex.sol";
 import {IDVmexRewardPool} from "../../interfaces/IDVmexRewardPool.sol";
 import {IScaledBalanceToken} from "../../interfaces/IScaledBalanceToken.sol";
