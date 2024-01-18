@@ -106,8 +106,8 @@ contract IncentivesController is
      * @dev Called by the corresponding asset on any update that affects the rewards distribution
      * @param user The address of the user
      * @param totalSupply The (old) total supply of the asset in the lending pool
-     * @param oldBalance The old balance of the user of the asset in the lending pool
-     * @param newBalance The new balance of the user of the asset in the lending pool
+     * @param oldBalance The old balance of the user of the asset in the lending pool (scaled)
+     * @param newBalance The new balance of the user of the asset in the lending pool (scaled)
      * @param action Deposit, withdrawal, or transfer
      *
      */
@@ -135,7 +135,7 @@ contract IncentivesController is
             }
         }
 
-        _updateDVmexRewards(msg.sender, user);
+        _updateDVmexRewards(msg.sender, user, oldBalance);
     }
 
     function _getUserState(address[] calldata assets, address user)
@@ -259,12 +259,12 @@ contract IncentivesController is
     /*//////////////////////////////////////////////////////////////
                       dVMEX rewards logic
     //////////////////////////////////////////////////////////////*/
-    function _updateDVmexRewards(address aToken, address user) internal {
+    function _updateDVmexRewards(address aToken, address user, uint256 oldBalance) internal {
         DVmexReward storage rewardInfo = _aTokenReward[aToken];
 
         // rewards not configured for this aToken
         if (rewardInfo.rewardRate == 0) return;
-        _updateReward(rewardInfo, aToken, user);
+        _updateReward(rewardInfo, aToken, user, oldBalance);
 
         _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, rewardInfo.decimals);
     }
@@ -322,7 +322,7 @@ contract IncentivesController is
         if (reward.periodFinish == 0) {
             reward.decimals = IERC20(aToken).decimals();
         }
-        _updateReward(reward, aToken, address(0));
+        _updateReward(reward, aToken, address(0), 0);
 
         uint64 rewardRate = uint64(_reward / DURATION);
 
@@ -351,7 +351,7 @@ contract IncentivesController is
         return decimals != STANDARD_DECIMALS ? amount * 10 ** (STANDARD_DECIMALS - decimals) : amount;
     }
 
-    function _updateReward(DVmexReward storage rewardInfo, address aToken, address _account) internal {
+    function _updateReward(DVmexReward storage rewardInfo, address aToken, address _account, uint256 oldBalance) internal {
         uint256 newRewardPerTokenStored = _rewardPerToken(rewardInfo, aToken);
         rewardInfo.rewardPerTokenStored = uint128(newRewardPerTokenStored);
         rewardInfo.lastUpdateTime = uint32(_lastTimeRewardApplicable(rewardInfo));
@@ -362,7 +362,7 @@ contract IncentivesController is
 
                 _userInfo[aToken][_account].reward = uint128(newEarning + _userInfo[aToken][_account].reward);
 
-                _transferVeVmexRewards(_maxEarning(rewardInfo, aToken, _account) - newEarning);
+                _transferVeVmexRewards(_maxEarning(rewardInfo, aToken, _account, oldBalance) - newEarning);
             }
             _userInfo[aToken][_account].rewardPerTokenPaid = uint128(newRewardPerTokenStored);
         }
@@ -412,13 +412,13 @@ contract IncentivesController is
      *   This function only reflects the accounts earnings since the last time
      *   the account's rewards were calculated via _updateReward.
      */
-    function _maxEarning(DVmexReward storage rewardInfo, address aToken, address _account)
+    function _maxEarning(DVmexReward storage rewardInfo, address aToken, address _account, uint256 oldBalance)
         internal
         view
         returns (uint256)
     {
         return (
-            _standardizeDecimals(IScaledBalanceToken(aToken).scaledBalanceOf(_account), rewardInfo.decimals)
+            _standardizeDecimals(oldBalance, rewardInfo.decimals)
                 * (_rewardPerToken(rewardInfo, aToken) - _userInfo[aToken][_account].rewardPerTokenPaid)
         ) / PRECISION_FACTOR;
     }
@@ -477,7 +477,7 @@ contract IncentivesController is
      */
     function claimDVmexReward(address aToken, address _account) external returns (bool) {
         DVmexReward storage reward = _aTokenReward[aToken];
-        _updateReward(reward, aToken, _account);
+        _updateReward(reward, aToken, _account, IScaledBalanceToken(aToken).scaledBalanceOf(_account)); // no change in balances occurs during claiming 
         _getReward(aToken, _account, reward.decimals);
         return true;
     }
@@ -516,7 +516,7 @@ contract IncentivesController is
         for (uint256 i; i < length;) {
             user = users[i];
 
-            _updateReward(reward, aToken, user);
+            _updateReward(reward, aToken, user, IScaledBalanceToken(aToken).scaledBalanceOf(user)); // no change in atoken balances occurs before this
             _boostedBalances[aToken][user] = _boostedBalanceOf(aToken, user, reward.decimals);
 
             unchecked {
