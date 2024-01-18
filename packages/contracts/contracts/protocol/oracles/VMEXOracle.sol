@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
 import {ILendingPoolAddressesProvider} from "../../interfaces/ILendingPoolAddressesProvider.sol";
 import {ICurvePool} from "../../interfaces/ICurvePool.sol";
+import {IVMEXOracle} from "../../interfaces/IVMEXOracle.sol";
 import {IPriceOracleGetter} from "../../interfaces/IPriceOracleGetter.sol";
 import {IChainlinkPriceFeed} from "../../interfaces/IChainlinkPriceFeed.sol";
 import {IChainlinkAggregator} from "../../interfaces/IChainlinkAggregator.sol";
@@ -34,13 +35,8 @@ import {ICamelotPair} from "../../interfaces/ICamelotPair.sol";
 /// - If the returned price by a Chainlink aggregator is <= 0, the call is forwarded to a fallbackOracle
 /// - Owned by the VMEX governance system, allowed to add sources for assets, replace them
 ///   and change the fallbackOracle
-contract VMEXOracle is Initializable, IPriceOracleGetter {
+contract VMEXOracle is Initializable, IVMEXOracle {
     using SafeERC20 for IERC20;
-
-    struct ChainlinkData {
-        IChainlinkPriceFeed feed;
-        uint64 heartbeat;
-    }
 
     ILendingPoolAddressesProvider internal _addressProvider;
     IAssetMappings internal _assetMappings;

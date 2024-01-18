@@ -14,13 +14,16 @@ import {IDistributionManager} from "../contracts/interfaces/IDistributionManager
 import {MockERC20} from "solmate/test/utils/mocks/MockERC20.sol";
 import {IDVmex} from "../contracts/interfaces/IDVmex.sol";
 import {IScaledBalanceToken} from "../contracts/interfaces/IScaledBalanceToken.sol";
+import {IVMEXOracle} from "../contracts/interfaces/IVMEXOracleLegacy.sol";
+import {IChainlinkPriceFeed} from "../contracts/interfaces/IChainlinkPriceFeed.sol";
 
-contract IncentivesController3Test is Test {
+contract IncentivesControllerTest is Test {
     uint256 optimismFork;
     IncentivesController incentivesController = IncentivesController(0x8E2a4c71906640B058051c00783160bE306c38fE);
     ILendingPool lendingPool = ILendingPool(0x60F015F66F3647168831d31C7048ca95bb4FeaF9);
     ILendingPoolAddressesProvider addressesProvider =
         ILendingPoolAddressesProvider(0xFC2748D74703cf6f2CE8ca9C8F388C3DAB1856f0);
+    IVMEXOracle oracle = IVMEXOracle(0xA1F5DDf4A9C4Bc2b1b63A6A4e7707B7afc58f010);
 
     address TOKEN_WETH = 0x4200000000000000000000000000000000000006;
     uint256 TOKEN_WETH_DECIMALS = 18;
@@ -67,6 +70,7 @@ contract IncentivesController3Test is Test {
     function setUp() public {
         optimismFork = vm.createFork(vm.envString("OPTIMISM_RPC_URL"));
         vm.selectFork(optimismFork);
+        vm.rollFork(114878258);
 
         VE_VMEX_DEPOSIT_TOKEN = IVeVmex(VE_VMEX).token();
 
@@ -81,6 +85,24 @@ contract IncentivesController3Test is Test {
         vm.label(address(ASSET_MAPPINGS), "ASSET_MAPPINGS");
         vm.label(OP_TEST_USER, "OPTIMISM_TEST_USER");
         vm.label(address(incentivesController), "INCENTIVES_CONTROLLER");
+
+        _setChainlinkOracle();
+    }
+
+    function _setChainlinkOracle() internal {
+        vm.startPrank(MULTISIG);
+        address[] memory tokens = new address[](3);
+        IVMEXOracle.ChainlinkData[] memory data = new IVMEXOracle.ChainlinkData[](3);
+
+        tokens[0]=TOKEN_USDC;
+        tokens[1] = TOKEN_WETH;
+        tokens[2] = TOKEN_WSTETH;
+        data[0]=IVMEXOracle.ChainlinkData(IChainlinkPriceFeed(0x16a9FA2FDa030272Ce99B29CF780dFA30361E0f3), 864000000);
+        data[1]=IVMEXOracle.ChainlinkData(IChainlinkPriceFeed(0x13e3Ee699D1909E989722E753853AE30b17e08c5), 864000000);
+        data[2]=IVMEXOracle.ChainlinkData(IChainlinkPriceFeed(0x698B585CbC4407e2D54aa898B2600B53C68958f7), 864000000);
+
+        oracle.setAssetSources(tokens,data);
+        vm.stopPrank();
     }
 
     function _createUsers() internal {
@@ -150,7 +172,7 @@ contract IncentivesController3Test is Test {
         _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
         _deposit(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
-
+        _borrow(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e7);
         vm.warp(block.timestamp + 5 days);
 
         uint256 earned = incentivesController.earned(reserveData.aTokenAddress, USER);
@@ -167,6 +189,9 @@ contract IncentivesController3Test is Test {
 
         assertEq(IERC20(DVMEX).balanceOf(USER), earned);
         assertEq(IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL), penaltyBalanceBefore + maxEarned - earned);
+        
+        _repay(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e7);
+        _withdraw(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
     }
 
     function testClaimMaxBoost() public {
@@ -177,6 +202,7 @@ contract IncentivesController3Test is Test {
 
         _lockVmexLp(USER, 1e23, block.timestamp + FIVE_YEARS);
         _deposit(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e10);
+        _borrow(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e7);
 
         vm.warp(block.timestamp + 5 days);
 
@@ -188,6 +214,9 @@ contract IncentivesController3Test is Test {
 
         assertEq(IERC20(DVMEX).balanceOf(USER), earned);
         assertEq(IERC20(DVMEX).balanceOf(DVMEX_REWARD_POOL), penaltyBalanceBefore);
+
+        _repay(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e7);
+        _withdraw(USER, TOKEN_USDC, LP_TRANCHE_ID, 1e10);
     }
 
     function testClaimManyUsersOneReward() public {
@@ -201,6 +230,7 @@ contract IncentivesController3Test is Test {
             _lockVmexLp(users[i], vmexLpLockAmounts[i], block.timestamp + vmexLpLockDurations[i]);
 
             _deposit(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
+            _borrow(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]/100);
         }
 
         vm.warp(block.timestamp + 14 days);
@@ -230,6 +260,11 @@ contract IncentivesController3Test is Test {
         assertTrue(penalties[1] > penalties[2]);
         assertTrue(penalties[2] > penalties[3]);
         assertTrue(penalties[3] > penalties[4]);
+
+        for (uint256 i; i < users.length; ++i) {
+            _repay(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]/100);
+            _withdraw(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
+        }
     }
 
     function testClaimManyUsersManyRewards() public {
@@ -268,6 +303,7 @@ contract IncentivesController3Test is Test {
 
             _deposit(users[i], TOKEN_USDC, BASE_TRANCHE_ID, usdcDepositAmounts[i]);
             _deposit(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
+            _borrow(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]/100);
 
             _deposit(users[i], TOKEN_WETH, BASE_TRANCHE_ID, wethDepositAmounts[i]);
             _deposit(users[i], TOKEN_WETH, LP_TRANCHE_ID, wethDepositAmounts[i]);
@@ -330,12 +366,27 @@ contract IncentivesController3Test is Test {
         assertTrue(penalties[1] > penalties[2]);
         assertTrue(penalties[2] > penalties[3]);
         assertTrue(penalties[3] > penalties[4]);
+
+        for (uint256 i; i < users.length; ++i) {
+            _withdraw(users[i], TOKEN_USDC, BASE_TRANCHE_ID, usdcDepositAmounts[i]);
+            _repay(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]/100);
+            _withdraw(users[i], TOKEN_USDC, LP_TRANCHE_ID, usdcDepositAmounts[i]);
+
+            _withdraw(users[i], TOKEN_WETH, BASE_TRANCHE_ID, wethDepositAmounts[i]);
+            _withdraw(users[i], TOKEN_WETH, LP_TRANCHE_ID, wethDepositAmounts[i]);
+            _withdraw(users[i], TOKEN_WETH, LSD_TRANCHE_ID, wethDepositAmounts[i]);
+
+            _withdraw(users[i], TOKEN_WSTETH, BASE_TRANCHE_ID, wethDepositAmounts[i]);
+            _withdraw(users[i], TOKEN_WSTETH, LP_TRANCHE_ID, wethDepositAmounts[i]);
+            _withdraw(users[i], TOKEN_WSTETH, LSD_TRANCHE_ID, wethDepositAmounts[i]);
+        }
     }
 
     function testVeVMEXUserBeforeUpgrade() public {
         _upgradeIncentivesController();
 
         _deposit(VE_VMEX_USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
+        _borrow(VE_VMEX_USER, TOKEN_USDC, LP_TRANCHE_ID, 1e7);
         DataTypes.ReserveData memory reserveData = lendingPool.getReserveData(TOKEN_USDC, LP_TRANCHE_ID);
         _queueNewRewards(reserveData.aTokenAddress, REWARD_AMOUNT);
 
@@ -352,6 +403,9 @@ contract IncentivesController3Test is Test {
         incentivesController.claimDVmexReward(reserveData.aTokenAddress, VE_VMEX_USER);
 
         assertTrue(IERC20(DVMEX).balanceOf(VE_VMEX_USER) - balanceBefore > 0);
+
+        _repay(VE_VMEX_USER, TOKEN_USDC, LP_TRANCHE_ID, 1e7);
+        _withdraw(VE_VMEX_USER, TOKEN_USDC, LP_TRANCHE_ID, 1e9);
     }
 
     function testFullMainnetUpgrade() public {
@@ -457,6 +511,34 @@ contract IncentivesController3Test is Test {
         IERC20(token).approve(address(lendingPool), amount);
 
         lendingPool.deposit(token, trancheId, amount, user, 0);
+
+        vm.stopPrank();
+    }
+
+    function _withdraw(address user, address token, uint64 trancheId, uint256 amount) internal {
+        vm.startPrank(user);
+
+        lendingPool.withdraw(token, trancheId, amount, user);
+
+        vm.stopPrank();
+    }
+
+    function _borrow(address user, address token, uint64 trancheId, uint256 amount) internal {
+        vm.startPrank(user);
+
+        lendingPool.borrow(token, trancheId, amount, 0, user);
+
+        vm.stopPrank();
+    }
+
+    function _repay(address user, address token, uint64 trancheId, uint256 amount) internal {
+        deal(token, user, amount);
+
+        vm.startPrank(user);
+
+        IERC20(token).approve(address(lendingPool), amount);
+
+        lendingPool.repay(token, trancheId, amount, user);
 
         vm.stopPrank();
     }
