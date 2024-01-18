@@ -1332,7 +1332,7 @@
   },
   "IncentivesControllerImpl": {
     "optimism": {
-      "address": "0x4Ed125c7e8Df8C56716708Aef86F2516DaE28454"
+      "address": "0x9e9fc7dcf6acdebcfed0c8b8727420ec78eac21f"
     },
     "sepolia": {
       "address": "0x44d9fbBDCA2920e4f79E7dD81213d853816e04BE",
