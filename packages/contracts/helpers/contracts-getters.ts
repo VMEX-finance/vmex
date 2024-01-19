@@ -35,7 +35,13 @@ import {
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { getEthersSigners, MockTokenMap } from "./contracts-helpers";
-import { DRE, getDb, getProdDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
+import {
+  DRE,
+  getDb,
+  getProdDb,
+  notFalsyOrZeroAddress,
+  omit,
+} from "./misc-utils";
 import {
   eContractid,
   IChainlinkInternal,
@@ -49,13 +55,8 @@ export const getEmergencyAdminT0 = async () => (await getEthersSigners())[0];
 // export const getTrancheAdminT1 = async (network?: string) => (await getEthersSigners())[network && network=="goerli" ? 1 : 7];
 export const getTrancheAdminT1 = async () => (await getEthersSigners())[7];
 
-export const getDbEntry = async (
-  id: string | eContractid
-) =>
-    await getDb()
-      .get(
-        `${id}.${DRE.network.name}`
-      ).value()
+export const getDbEntry = async (id: string | eContractid) =>
+  await getDb().get(`${id}.${DRE.network.name}`).value();
 
 export const getLendingPoolAddressesProvider = async (
   address?: tEthereumAddress,
@@ -63,13 +64,9 @@ export const getLendingPoolAddressesProvider = async (
 ) => {
   return await LendingPoolAddressesProviderFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.LendingPoolAddressesProvider}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.LendingPoolAddressesProvider}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -80,11 +77,9 @@ export const getValidationLogic = async (
 ) => {
   return await ValidationLogicFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.ValidationLogic}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.ValidationLogic}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -95,11 +90,9 @@ export const getDepositWithdrawLogic = async (
 ) => {
   return await DepositWithdrawLogicFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.DepositWithdrawLogic}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.DepositWithdrawLogic}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -109,11 +102,9 @@ export const getLendingPoolConfiguratorProxy = async (
 ) => {
   return await LendingPoolConfiguratorFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.LendingPoolConfigurator}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.LendingPoolConfigurator}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -124,11 +115,9 @@ export const getATokenBeacon = async (
 ) => {
   return await UpgradeableBeaconFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.ATokenBeacon}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.ATokenBeacon}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -139,11 +128,9 @@ export const getVariableDebtTokenBeacon = async (
 ) => {
   return await UpgradeableBeaconFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.VariableDebtTokenBeacon}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.VariableDebtTokenBeacon}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -154,11 +141,9 @@ export const getAssetMappings = async (
 ) => {
   return await AssetMappingsFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.AssetMappings}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.AssetMappings}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -169,11 +154,9 @@ export const getAssetMappingsImpl = async (
 ) => {
   return await AssetMappingsFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.AssetMappingsImpl}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.AssetMappingsImpl}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 };
@@ -184,11 +167,9 @@ export const getLendingPool = async (
 ) =>
   await LendingPoolFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.LendingPool}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.LendingPool}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -198,23 +179,18 @@ export const getPriceOracle = async (
 ) =>
   await PriceOracleFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.PriceOracle}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.PriceOracle}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
-export const getAToken = async (
-  address?: tEthereumAddress,
-  isProd?: boolean
-) =>
+export const getAToken = async (address?: tEthereumAddress, isProd?: boolean) =>
   await ATokenFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb()).get(`${eContractid.AToken}.${DRE.network.name}`).value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.AToken}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -224,44 +200,36 @@ export const getVariableDebtToken = async (
 ) =>
   await VariableDebtTokenFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.VariableDebtToken}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.VariableDebtToken}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
 export const getMintableERC20 = async (address: tEthereumAddress) =>
   await MintableERC20Factory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.MintableERC20}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.MintableERC20}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
 export const getYearnTokenMocked = async (address: tEthereumAddress) =>
   await YearnTokenMockedFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.MintableERC20}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (await getDb())
+        .get(`${eContractid.MintableERC20}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
 export const getIErc20Detailed = async (address: tEthereumAddress) =>
   await IERC20DetailedFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.IERC20Detailed}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.IERC20Detailed}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -271,11 +239,9 @@ export const getAaveProtocolDataProvider = async (
 ) =>
   await AaveProtocolDataProviderFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.AaveProtocolDataProvider}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.AaveProtocolDataProvider}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -285,13 +251,11 @@ export const getInterestRateStrategy = async (
 ) =>
   await DefaultReserveInterestRateStrategyFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.DefaultReserveInterestRateStrategy}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(
+          `${eContractid.DefaultReserveInterestRateStrategy}.${DRE.network.name}`
+        )
+        .value().address,
     await getFirstSigner()
   );
 
@@ -321,12 +285,17 @@ export const getAllMockedTokens = async () => {
     const address = db
       .get(`${tokenSymbol.toUpperCase()}.${DRE.network.name}`)
       .value().address;
-      if (tokenSymbol === "yvTricrypto2" || tokenSymbol === "yvThreePool" || tokenSymbol === "yvStethEth"|| tokenSymbol === "yvFraxUSDC"|| tokenSymbol === "yvFrax3Crv") {
-        accumulator[tokenSymbol] = await getYearnTokenMocked(address);
-      }
-      else {
-        accumulator[tokenSymbol] = await getMintableERC20(address);
-      }
+    if (
+      tokenSymbol === "yvTricrypto2" ||
+      tokenSymbol === "yvThreePool" ||
+      tokenSymbol === "yvStethEth" ||
+      tokenSymbol === "yvFraxUSDC" ||
+      tokenSymbol === "yvFrax3Crv"
+    ) {
+      accumulator[tokenSymbol] = await getYearnTokenMocked(address);
+    } else {
+      accumulator[tokenSymbol] = await getMintableERC20(address);
+    }
 
     return Promise.resolve(acc);
   }, Promise.resolve({}));
@@ -356,20 +325,19 @@ export const getPairsTokenAggregator = (
     getQuoteCurrencies(oracleQuoteCurrency)
   );
 
-  const pairs = Object.entries(assetsWithoutQuoteCurrency).filter(
-    ([tokenSymbol, tokenAddress]) => {
+  const pairs = Object.entries(assetsWithoutQuoteCurrency)
+    .filter(([tokenSymbol, tokenAddress]) => {
       //if (true/*tokenSymbol !== 'WETH' && tokenSymbol !== 'ETH' && tokenSymbol !== 'LpWETH'*/) {
       const aggregatorAddressIndex = Object.keys(
         aggregatorsAddresses
       ).findIndex((value) => value === tokenSymbol);
 
-      if(aggregatorAddressIndex>=0){
+      if (aggregatorAddressIndex >= 0) {
         return true;
       }
-      return false
-    }
-  ).map(
-    ([tokenSymbol, tokenAddress]) => {
+      return false;
+    })
+    .map(([tokenSymbol, tokenAddress]) => {
       //if (true/*tokenSymbol !== 'WETH' && tokenSymbol !== 'ETH' && tokenSymbol !== 'LpWETH'*/) {
       const aggregatorAddressIndex = Object.keys(
         aggregatorsAddresses
@@ -380,8 +348,7 @@ export const getPairsTokenAggregator = (
       )[aggregatorAddressIndex];
       return [tokenAddress, aggregatorAddress];
       //}
-    }
-  ) as [string, IChainlinkInternal][];
+    }) as [string, IChainlinkInternal][];
 
   const mappedPairs = pairs.map(([asset]) => asset);
   const mappedAggregators = pairs.map(([, source]) => source);
@@ -396,13 +363,11 @@ export const getLendingPoolAddressesProviderRegistry = async (
   await LendingPoolAddressesProviderRegistryFactory.connect(
     notFalsyOrZeroAddress(address)
       ? address
-      : (
-          (isProd ? await getProdDb() : await getDb())
-            .get(
-              `${eContractid.LendingPoolAddressesProviderRegistry}.${DRE.network.name}`
-            )
-            .value()
-        ).address,
+      : (isProd ? await getProdDb() : await getDb())
+          .get(
+            `${eContractid.LendingPoolAddressesProviderRegistry}.${DRE.network.name}`
+          )
+          .value().address,
     await getFirstSigner()
   );
 
@@ -412,11 +377,9 @@ export const getReserveLogic = async (
 ) =>
   await ReserveLogicFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.ReserveLogic}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.ReserveLogic}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -426,11 +389,9 @@ export const getGenericLogic = async (
 ) =>
   await GenericLogicFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.GenericLogic}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.GenericLogic}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -440,11 +401,9 @@ export const getWETHGateway = async (
 ) =>
   await WETHGatewayFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.WETHGateway}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.WETHGateway}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -454,11 +413,9 @@ export const getWETHMocked = async (
 ) =>
   await WETH9MockedFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.WETHMocked}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.WETHMocked}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -468,11 +425,9 @@ export const getMockAToken = async (
 ) =>
   await MockATokenFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.MockAToken}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.MockAToken}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -482,11 +437,9 @@ export const getMockVariableDebtToken = async (
 ) =>
   await MockVariableDebtTokenFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.MockVariableDebtToken}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.MockVariableDebtToken}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -496,11 +449,9 @@ export const getSelfdestructTransferMock = async (
 ) =>
   await SelfdestructTransferFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.SelfdestructTransferMock}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.SelfdestructTransferMock}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -516,11 +467,9 @@ export const getLendingPoolImpl = async (
 ) =>
   await LendingPoolFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.LendingPoolImpl}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.LendingPoolImpl}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -530,11 +479,9 @@ export const getLendingPoolConfiguratorImpl = async (
 ) =>
   await LendingPoolConfiguratorFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.LendingPoolConfiguratorImpl}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.LendingPoolConfiguratorImpl}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -544,13 +491,11 @@ export const getLendingPoolCollateralManagerImpl = async (
 ) =>
   await LendingPoolCollateralManagerFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.LendingPoolCollateralManagerImpl}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(
+          `${eContractid.LendingPoolCollateralManagerImpl}.${DRE.network.name}`
+        )
+        .value().address,
     await getFirstSigner()
   );
 
@@ -560,11 +505,9 @@ export const getWalletProvider = async (
 ) =>
   await WalletBalanceProviderFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.WalletBalanceProvider}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.WalletBalanceProvider}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -574,21 +517,18 @@ export const getLendingPoolCollateralManager = async (
 ) =>
   await LendingPoolCollateralManagerFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.LendingPoolCollateralManager}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.LendingPoolCollateralManager}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
 export const getAddressById = async (
   id: string
 ): Promise<tEthereumAddress | undefined> =>
-  ((isProd ? await getProdDb() : await getDb()).get(`${id}.${DRE.network.name}`).value())?.address ||
-  undefined;
+  (isProd ? await getProdDb() : await getDb())
+    .get(`${id}.${DRE.network.name}`)
+    .value()?.address || undefined;
 
 export const getVMEXOracle = async (
   address?: tEthereumAddress,
@@ -596,24 +536,20 @@ export const getVMEXOracle = async (
 ) =>
   await VMEXOracleFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.VMEXOracle}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.VMEXOracle}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
-  export const getBaseUniswapOracle = async (
+export const getBaseUniswapOracle = async (
   address?: tEthereumAddress,
   isProd?: boolean
 ) =>
   await BaseUniswapOracleFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${eContractid.BaseUniswapOracle}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.BaseUniswapOracle}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 export const getConvexBooster = async (
@@ -622,9 +558,9 @@ export const getConvexBooster = async (
 ) =>
   await BoosterFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb()).get(`${eContractid.Booster}.${DRE.network.name}`).value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.Booster}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -634,13 +570,9 @@ export const getIncentivesControllerImpl = async (
 ) =>
   await IncentivesControllerFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.IncentivesControllerImpl}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.IncentivesControllerImpl}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -650,13 +582,9 @@ export const getMockIncentivesControllerImpl = async (
 ) =>
   await MockIncentivesControllerFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.MockIncentivesControllerImpl}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.MockIncentivesControllerImpl}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -664,37 +592,28 @@ export const getIncentivesControllerProxy = async (
   address?: tEthereumAddress,
   isProd?: boolean
 ) => {
-  console.log("DRE.network.name: ", DRE.network.name)
+  console.log("DRE.network.name: ", DRE.network.name);
   return await IncentivesControllerFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.IncentivesControllerProxy}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.IncentivesControllerProxy}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
-}
-  
+};
 
 export const getATokenMock = async ({
   address,
-  slug
+  slug,
 }: {
-  address?: tEthereumAddress,
-  slug?: string
+  address?: tEthereumAddress;
+  slug?: string;
 }) =>
   await ATokenMockFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${slug || eContractid.ATokenMock}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (await getDb())
+        .get(`${slug || eContractid.ATokenMock}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
@@ -704,29 +623,23 @@ export const getVmexToken = async (
 ) =>
   await VmexTokenFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(
-            `${eContractid.VmexToken}.${DRE.network.name}`
-          )
-          .value()
-      ).address,
+      (isProd ? await getProdDb() : await getDb())
+        .get(`${eContractid.VmexToken}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );
 
-  export const getStakingRewardsMock = async ({
-    address,
-    slug
-  }: {
-    address?: tEthereumAddress,
-    slug?: string
-  }) =>
+export const getStakingRewardsMock = async ({
+  address,
+  slug,
+}: {
+  address?: tEthereumAddress;
+  slug?: string;
+}) =>
   await StakingRewardsMockFactory.connect(
     address ||
-      (
-        (isProd ? await getProdDb() : await getDb())
-          .get(`${slug || eContractid.StakingRewardsMock}.${DRE.network.name}`)
-          .value()
-      ).address,
+      (await getDb())
+        .get(`${slug || eContractid.StakingRewardsMock}.${DRE.network.name}`)
+        .value().address,
     await getFirstSigner()
   );

@@ -3,7 +3,7 @@
 @openzeppelin/=../../node_modules/@openzeppelin/
 @prb/=../../node_modules/@prb/
 @solidity-parser/=../../node_modules/@nomiclabs/buidler/node_modules/@solidity-parser/
-ds-test/=lib/forge-std/lib/node_modules/ds-test/src/
+ds-test/=lib/forge-std/lib/ds-test/src/
 eth-gas-reporter/=../../node_modules/eth-gas-reporter/
 forge-std/=lib/forge-std/src/
 hardhat-deploy/=../../node_modules/hardhat-deploy/

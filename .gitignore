@@ -5,5 +5,7 @@ dist/
 .npmrc
 .env
 .DS_Store
+out/
 
 lerna-debug.log
+.vscode/launch.json
