@@ -104,7 +104,7 @@ export interface ReserveSummary {
   pendingRewards: BigNumber;
 
   oracle: string;
-  currentPriceETH: BigNumber;
+  currentPriceUSD: BigNumber;
 }
 
 /**

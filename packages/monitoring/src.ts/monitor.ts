@@ -1,8 +1,10 @@
 import schedule from "node-schedule";
 import { MonitorReserves, getPnlReport } from "./monitor-reserve";
-import { batchSendMessage, vmexReportsDiscordWebhook } from "./common";
-
-const NETWORKS = ["optimism", "base", "arbitrum"];
+import {
+  batchSendMessage,
+  vmexReportsDiscordWebhook,
+  NETWORKS,
+} from "./common";
 
 async function monitorMarkets() {
   const job = new MonitorReserves(NETWORKS);
