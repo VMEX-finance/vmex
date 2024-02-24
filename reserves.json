@@ -1,0 +1,226 @@
+{
+    "data": {
+      "reserves": [
+        {
+          "underlyingAsset": "0x0493bf8b6dbb159ce2db2e0e8403e753abd1235b",
+          "name": "VolatileV2 AMM - WETH/USDC",
+          "symbol": "vAMMV2-WETH/USDC0"
+        },
+        {
+          "underlyingAsset": "0x061b87122ed14b9526a813209c8a59a633257bab",
+          "name": "Curve.fi Factory USD Metapool: sUSD Synthetix",
+          "symbol": "sUSD3CRV-f0"
+        },
+        {
+          "underlyingAsset": "0x0892a178c363b4739e5ac89e9155b9c30214c0c0",
+          "name": "Moo Curve wstETH",
+          "symbol": "mooCurveWSTETH0"
+        },
+        {
+          "underlyingAsset": "0x0892a178c363b4739e5ac89e9155b9c30214c0c0",
+          "name": "Moo Curve wstETH",
+          "symbol": "mooCurveWSTETH2"
+        },
+        {
+          "underlyingAsset": "0x1337bedc9d22ecbe766df105c9623922a27963ec",
+          "name": "Curve.fi DAI/USDC/USDT",
+          "symbol": "3CRV0"
+        },
+        {
+          "underlyingAsset": "0x19715771e30c93915a5bbda134d782b81a820076",
+          "name": "StableV2 AMM - USDC/DAI",
+          "symbol": "sAMMV2-USDC/DAI0"
+        },
+        {
+          "underlyingAsset": "0x1b1d2efb6045851f8ccde24369003e0ff157980b",
+          "name": "Velodrome v2 sUSD-USDC.e Factory yVault",
+          "symbol": "yvVelo-sUSD-USDC.e-f0"
+        },
+        {
+          "underlyingAsset": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+          "name": "Wrapped liquid staked Ether 2.0",
+          "symbol": "wstETH0"
+        },
+        {
+          "underlyingAsset": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+          "name": "Wrapped liquid staked Ether 2.0",
+          "symbol": "wstETH1"
+        },
+        {
+          "underlyingAsset": "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+          "name": "Wrapped liquid staked Ether 2.0",
+          "symbol": "wstETH2"
+        },
+        {
+          "underlyingAsset": "0x2e3d870790dc77a83dd1d18184acc7439a53f475",
+          "name": "Frax",
+          "symbol": "FRAX1"
+        },
+        {
+          "underlyingAsset": "0x3ad9566b15aacdd26d8a220ca8635f925ea7a3f6",
+          "name": "Velodrome v2 OP-USDC.e Factory yVault",
+          "symbol": "yvVelo-OP-USDC.e-f0"
+        },
+        {
+          "underlyingAsset": "0x4200000000000000000000000000000000000006",
+          "name": "Wrapped Ether",
+          "symbol": "WETH0"
+        },
+        {
+          "underlyingAsset": "0x4200000000000000000000000000000000000006",
+          "name": "Wrapped Ether",
+          "symbol": "WETH1"
+        },
+        {
+          "underlyingAsset": "0x4200000000000000000000000000000000000006",
+          "name": "Wrapped Ether",
+          "symbol": "WETH2"
+        },
+        {
+          "underlyingAsset": "0x4200000000000000000000000000000000000042",
+          "name": "Optimism",
+          "symbol": "OP1"
+        },
+        {
+          "underlyingAsset": "0x4fd63966879300cafafbb35d157dc5229278ed23",
+          "name": "Rocket Fuel",
+          "symbol": "BPT-rETH-ETH0"
+        },
+        {
+          "underlyingAsset": "0x4fd63966879300cafafbb35d157dc5229278ed23",
+          "name": "Rocket Fuel",
+          "symbol": "BPT-rETH-ETH2"
+        },
+        {
+          "underlyingAsset": "0x5b977577eb8a480f63e11fc615d6753adb8652ae",
+          "name": "WETH yVault",
+          "symbol": "yvWETH0"
+        },
+        {
+          "underlyingAsset": "0x6387765ffa609ab9a1da1b16c455548bfed7cbea",
+          "name": "VolatileV2 AMM - WETH/LUSD",
+          "symbol": "vAMMV2-WETH/LUSD0"
+        },
+        {
+          "underlyingAsset": "0x65343f414ffd6c97b0f6add33d16f6845ac22bac",
+          "name": "DAI yVault",
+          "symbol": "yvDAI0"
+        },
+        {
+          "underlyingAsset": "0x68f180fcce6836688e9084f035309e29bf0a2095",
+          "name": "Wrapped BTC",
+          "symbol": "WBTC1"
+        },
+        {
+          "underlyingAsset": "0x6d5ba400640226e24b50214d2bbb3d4db8e6e15a",
+          "name": "StableV2 AMM - USDC/sUSD",
+          "symbol": "sAMMV2-USDC/sUSD0"
+        },
+        {
+          "underlyingAsset": "0x6da98bde0068d10ddd11b468b197ea97d96f96bc",
+          "name": "VolatileV2 AMM - wstETH/WETH",
+          "symbol": "vAMMV2-wstETH/WETH0"
+        },
+        {
+          "underlyingAsset": "0x6da98bde0068d10ddd11b468b197ea97d96f96bc",
+          "name": "VolatileV2 AMM - wstETH/WETH",
+          "symbol": "vAMMV2-wstETH/WETH2"
+        },
+        {
+          "underlyingAsset": "0x6ec9d003f0e5184ee54c1d899b414322a0f0dc07",
+          "name": "Velodrome v2 wstETH-WETH Factory yVault",
+          "symbol": "yvVelo-wstETH-WETH-f0"
+        },
+        {
+          "underlyingAsset": "0x7b50775383d3d6f0215a8f290f2c9e2eebbeceb2",
+          "name": "Shanghai Shakedown",
+          "symbol": "BPT-WSTETH-WETH0"
+        },
+        {
+          "underlyingAsset": "0x7b50775383d3d6f0215a8f290f2c9e2eebbeceb2",
+          "name": "Shanghai Shakedown",
+          "symbol": "BPT-WSTETH-WETH2"
+        },
+        {
+          "underlyingAsset": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+          "name": "USD Coin",
+          "symbol": "USDC0"
+        },
+        {
+          "underlyingAsset": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+          "name": "USD Coin",
+          "symbol": "USDC1"
+        },
+        {
+          "underlyingAsset": "0x830cb4aabf786b9349d9701dd8ee073215d95174",
+          "name": "Velodrome v2 wstETH-OP Factory yVault",
+          "symbol": "yvVelo-wstETH-OP-f0"
+        },
+        {
+          "underlyingAsset": "0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9",
+          "name": "Synth sUSD",
+          "symbol": "sUSD1"
+        },
+        {
+          "underlyingAsset": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
+          "name": "Tether USD",
+          "symbol": "USDT0"
+        },
+        {
+          "underlyingAsset": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
+          "name": "Tether USD",
+          "symbol": "USDT1"
+        },
+        {
+          "underlyingAsset": "0x9bcef72be871e61ed4fbbc7630889bee758eb81d",
+          "name": "Rocket Pool ETH",
+          "symbol": "rETH1"
+        },
+        {
+          "underlyingAsset": "0x9bcef72be871e61ed4fbbc7630889bee758eb81d",
+          "name": "Rocket Pool ETH",
+          "symbol": "rETH2"
+        },
+        {
+          "underlyingAsset": "0xad17a225074191d5c8a37b50fda1ae278a2ee6a2",
+          "name": "USDC yVault",
+          "symbol": "yvUSDC0"
+        },
+        {
+          "underlyingAsset": "0xc40f949f8a4e094d1b49a23ea9241d289b7b2819",
+          "name": "LUSD Stablecoin",
+          "symbol": "LUSD1"
+        },
+        {
+          "underlyingAsset": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+          "name": "Dai Stablecoin",
+          "symbol": "DAI1"
+        },
+        {
+          "underlyingAsset": "0xdddcaee873f2d9df0e18a80709ef2b396d4a6ea5",
+          "name": "Velodrome v2 OP-WETH Factory yVault",
+          "symbol": "yvVelo-OP-WETH-f0"
+        },
+        {
+          "underlyingAsset": "0xefde221f306152971d8e9f181bfe998447975810",
+          "name": "Curve.fi ETH/wstETH",
+          "symbol": "wstETHCRV0"
+        },
+        {
+          "underlyingAsset": "0xf04458f7b21265b80fc340de7ee598e24485c5bb",
+          "name": "StableV2 AMM - USDC/LUSD",
+          "symbol": "sAMMV2-USDC/LUSD0"
+        },
+        {
+          "underlyingAsset": "0xf89fdbbce1a707061e9d59b8e4387f89798b4d10",
+          "name": "Velodrome v2 USDC.e-WETH Factory yVault",
+          "symbol": "yvVelo-USDC.e-WETH-f0"
+        },
+        {
+          "underlyingAsset": "0xfaee21d0f0af88ee72bb6d68e54a90e6ec2616de",
+          "name": "USDT yVault",
+          "symbol": "yvUSDT0"
+        }
+      ]
+    }
+  }
