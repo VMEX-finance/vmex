@@ -4,13 +4,30 @@ import { ethers } from "ethers";
 dotenv.config();
 
 export const ONE_ETH = ethers.utils.parseUnits("1", "ether");
+export const NETWORKS = ["optimism", "base", "arbitrum"];
 
+export const DUNE_API_KEY = process.env.DUNE_API_KEY;
 export const vmexAlertsDiscordWebhook = process.env.DISCORD_ALERTS_WEBHOOK_URL;
 export const vmexHeartbeatDiscordWebhook =
   process.env.DISCORD_HEARTBEAT_WEBHOOK_URL;
 
 export const vmexReportsDiscordWebhook =
   process.env.DISCORD_REPORTS_WEBHOOK_URL;
+
+export function getProviderRpcUrl(network: string): string {
+  if (network == "sepolia") {
+    return "https://eth-sepolia.public.blastapi.io";
+  } else if (network == "optimism") {
+    // return `https://optimism.llamarpc.com/rpc/${process.env.REACT_APP_LLAMA_RPC_KEY}`;
+    return `https://optimism-mainnet.public.blastapi.io`;
+  } else if (network == "base") {
+    return `https://base-mainnet.public.blastapi.io`;
+  } else if (network == "arbitrum") {
+    return `https://arbitrum-one.public.blastapi.io`;
+  }
+
+  return "";
+}
 
 export function formatAlert(message: string, severity: number) {
   let alertMessage = `SEV ${severity} ALERT: ${message}`;

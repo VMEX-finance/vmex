@@ -47,7 +47,7 @@ library QueryReserveHelpers {
 
         // oracle
         address oracle;
-        uint256 currentPriceETH; // current price of the underlying in eth (18 decimals)
+        uint256 currentPriceUSD; // current price of the underlying in eth (18 decimals)
     }
 
     function getReserveData(
@@ -96,7 +96,7 @@ library QueryReserveHelpers {
             // reserveSummary.pendingRewards = incentivesController.getPendingRewards(); // TODO
         }
 
-        reserveSummary.currentPriceETH = PricingHelpers.tryGetAssetPrice(reserveSummary.oracle, reserveSummary.asset);
+        reserveSummary.currentPriceUSD = PricingHelpers.tryGetAssetPrice(reserveSummary.oracle, reserveSummary.asset);
     }
 
     function tryGetTotalStaked(

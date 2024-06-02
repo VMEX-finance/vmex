@@ -6,6 +6,7 @@
   "scripts": {
     "build": "yarn tsc",
     "monitor": "node ./dist/monitor.js",
+    "dune": "node ./dist/dune.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

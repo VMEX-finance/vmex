@@ -16,9 +16,9 @@ interface IPriceOracleGetter {
 
 
     /**
-     * @dev returns the asset price in ETH
+     * @dev returns the asset price in USD
      * @param asset the address of the asset
-     * @return the ETH price of the asset
+     * @return the USD price of the asset
      **/
     function getAssetPrice(address asset) external returns (uint256);
 

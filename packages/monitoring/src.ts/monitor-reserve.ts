@@ -2,6 +2,8 @@ import {
   getAllMarketsData,
   ReserveSummary,
   ReserveData,
+  nativeAmountToUSD,
+  PRICING_DECIMALS,
 } from "@vmexfinance/sdk";
 import { ethers, BigNumber } from "ethers";
 import {
@@ -10,22 +12,8 @@ import {
   batchSendMessage,
   vmexAlertsDiscordWebhook,
   vmexHeartbeatDiscordWebhook,
+  getProviderRpcUrl,
 } from "./common";
-
-export function getProviderRpcUrl(network: string): string {
-  if (network == "sepolia") {
-    return "https://eth-sepolia.public.blastapi.io";
-  } else if (network == "optimism") {
-    // return `https://optimism.llamarpc.com/rpc/${process.env.REACT_APP_LLAMA_RPC_KEY}`;
-    return `https://optimism-mainnet.public.blastapi.io`;
-  } else if (network == "base") {
-    return `https://base-mainnet.public.blastapi.io`;
-  } else if (network == "arbitrum") {
-    return `https://arbitrum-one.public.blastapi.io`;
-  }
-
-  return "";
-}
 
 const ROUNDING_ERROR = 100;
 
@@ -60,8 +48,14 @@ function getReserveCache(network: string, reserve: ReserveSummary) {
   return lastReserveSummary.get(network).get(cacheKey(reserve));
 }
 
-const getReserveString = (reserve: ReserveSummary) => {
-  return `Reserve ${reserve.name} (asset=${reserve.asset}, tranche=${reserve.tranche})`;
+const getReserveString = (
+  reserve: ReserveSummary,
+  detailed: boolean = true
+) => {
+  if (detailed)
+    return `Reserve ${reserve.name} (asset=${reserve.asset}, tranche=${reserve.tranche})`;
+
+  return `Reserve ${reserve.name} (tranche=${reserve.tranche})`;
 };
 
 export class MonitorReserves {
@@ -75,8 +69,8 @@ export class MonitorReserves {
     this.networks = networks;
 
     const currentTime = getCurrentTime();
-    this.messages.push(`Summary for ${currentTime} EST`);
-    this.alerts.push(`Summary for ${currentTime} EST`);
+    this.messages.push(`**Summary for ${currentTime} EST**`);
+    this.alerts.push(`**Summary for ${currentTime} EST**`);
   }
 
   public async monitorAllNetworks() {
@@ -205,8 +199,8 @@ export class MonitorReserves {
   private _checkOracle(reserve: ReserveSummary, network: string) {
     if (
       reserveCacheExists(network, reserve) &&
-      getReserveCache(network, reserve).currentPriceETH.eq("0") &&
-      reserve.currentPriceETH.eq("0")
+      getReserveCache(network, reserve).currentPriceUSD.eq("0") &&
+      reserve.currentPriceUSD.eq("0")
     ) {
       // oracle for the reserve is down only if fail to get price twice in a row
       this.alerts.push(
@@ -352,39 +346,32 @@ function getPnlReportNetwork(network: string): string {
       return;
     }
 
-    const price = reserve.currentPriceETH;
-    if (!price) {
+    const priceUSD = reserve.currentPriceUSD;
+    if (!priceUSD) {
       pnlReserve.push(`Unable to price ${getReserveString(reserve)}`);
       return;
     }
 
-    if (network != "mainnet") {
-      // price is measured in usd
-      const underlyingAmount = parseFloat(
-        ethers.utils.formatUnits(
-          accountBalance.sub(accountsPayable),
-          reserve.decimals
-        )
-      );
-      // price has 8 decimals
-      const usdAmount = parseFloat(ethers.utils.formatUnits(price, 8));
-      const pnl = underlyingAmount * usdAmount;
-      totalPnl += pnl;
+    const underlyingAmount = accountBalance.sub(accountsPayable);
 
-      if (pnl > 0.001) {
-        pnlReserve.push(`${getReserveString(reserve)} has a pnl of $${pnl}`);
-      }
-    } else {
-      // price is measured in eth
-      // TODO: NOT IMPLEMENTED
+    const pnl = nativeAmountToUSD(
+      underlyingAmount,
+      PRICING_DECIMALS[network],
+      reserve.decimals,
+      priceUSD
+    );
+    totalPnl += pnl;
+
+    if (pnl >= 0.01) {
+      pnlReserve.push(
+        `${getReserveString(reserve, false)} has a pnl of $${pnl}`
+      );
     }
   });
 
   return (
     `
-PnL summary for network ${network}:
-
-Total PnL: $${totalPnl}
+**PnL summary for network ${network}: $${totalPnl}**
 ` + pnlReserve.join("\n")
   );
 }
@@ -397,5 +384,5 @@ export function getPnlReport(networks: string[]) {
     report += getPnlReportNetwork(network) + "\n\n";
   });
 
-  return `Report summary on ${currentTime}\n\n` + report;
+  return `**Report summary on ${currentTime}**\n\n` + report;
 }
